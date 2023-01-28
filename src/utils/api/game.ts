@@ -1,0 +1,36 @@
+import { Game } from "../../types";
+import { get } from ".";
+import { useQuery } from "@tanstack/react-query";
+import { Paths, useGet, useMutationApi } from "./factory";
+
+const BASE_URL = `/games`;
+
+export function useGameMutations() {
+  const {
+    deleteItem: deleteGame,
+    updateItem: updateGame,
+    createItem: createGame,
+  } = useMutationApi<Game>({
+    baseQuery: Paths.Games,
+  });
+
+  return { deleteGame, updateGame, createGame };
+}
+
+export function useGetGames() {
+  return useGet<Game[]>(Paths.Games);
+}
+
+export function useGetGameDetails(gameId: number) {
+  const getGameDetailsQuery = `${BASE_URL}/details/${gameId}`;
+  const queryKey = [BASE_URL, "details", gameId];
+  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
+    get<Game>({ path: getGameDetailsQuery })
+  );
+  return {
+    isLoading,
+    error,
+    gameDetails: data,
+    isFetching,
+  };
+}
