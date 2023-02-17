@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Visit } from "../../types";
-import { get, patch, post } from ".";
-import { useContext } from "react";
-import { LocationContext } from "../../context/LocationContext";
-import { SelectedDateContext } from "../../context/SelectedDateContext";
 import { format } from "date-fns";
-import { Paths, useGet } from "./factory";
+import { get, patch, post } from ".";
+import { useDateContext } from "../../context/Date.context";
+import { useLocationContext } from "../../context/Location.context";
+import { Visit } from "../../types";
+import { Paths, useGetList } from "./factory";
 
 interface UpdateVisitPayload {
   id: number;
@@ -26,9 +25,9 @@ export function finishVisit({ id }: UpdateVisitPayload): Promise<Visit> {
 }
 
 export function useGetVisits() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
-  return useGet<Visit[]>(
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  return useGetList<Visit>(
     `${Paths.Visits}?location=${selectedLocationId}&date=${selectedDate}`,
     [Paths.Visits, selectedLocationId, selectedDate]
   );
@@ -50,8 +49,8 @@ export function useGetMonthlyVisits(location: number, date: string) {
 }
 
 export function useCreateVisitMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
   const queryKey = [Paths.Visits, selectedLocationId, selectedDate];
   return useMutation(createVisit, {
@@ -87,8 +86,8 @@ export function useCreateVisitMutation() {
 }
 
 export function useFinishVisitMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryClient = useQueryClient();
   const queryKey = [Paths.Visits, selectedLocationId, selectedDate];
 

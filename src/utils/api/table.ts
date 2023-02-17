@@ -1,11 +1,10 @@
-import { patch } from "./index";
-import { Table } from "../../types/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useContext } from "react";
-import { SelectedDateContext } from "../../context/SelectedDateContext";
+import { useDateContext } from "../../context/Date.context";
+import { useLocationContext } from "../../context/Location.context";
+import { Table } from "../../types/index";
 import { sortTable } from "../sort";
-import { LocationContext } from "../../context/LocationContext";
-import { Paths, useGet, useMutationApi } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
+import { patch } from "./index";
 
 interface UpdateTablePayload {
   id: number;
@@ -36,8 +35,8 @@ export function reopenTable({ id }: TablePayloadWithId): Promise<Table> {
 }
 
 export function useCloseTableMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL, selectedLocationId, selectedDate];
 
   const queryClient = useQueryClient();
@@ -80,8 +79,8 @@ export function useCloseTableMutation() {
 }
 
 export function useReopenTableMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation(reopenTable, {
@@ -123,8 +122,8 @@ export function useReopenTableMutation() {
 }
 
 export function useTableMutations() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
 
   const {
     deleteItem: deleteTable,
@@ -139,9 +138,9 @@ export function useTableMutations() {
 }
 
 export function useGetTables() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
-  return useGet<Table[]>(
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  return useGetList<Table>(
     `${Paths.Tables}?location=${selectedLocationId}&date=${selectedDate}`,
     [Paths.Tables, selectedLocationId, selectedDate]
   );

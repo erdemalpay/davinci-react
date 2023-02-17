@@ -1,5 +1,5 @@
-import { Paths, useGet, useMutationApi } from "./factory";
 import { MenuItem } from "../../types/index";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useMenuItemMutations(initialItems: MenuItem[] = []) {
   return useMutationApi<MenuItem>({
@@ -8,5 +8,5 @@ export function useMenuItemMutations(initialItems: MenuItem[] = []) {
 }
 
 export function useGetMenuItems() {
-  return useGet<MenuItem[]>(Paths.MenuItems, [Paths.Menu, Paths.Items]);
+  return useGetList<MenuItem>(Paths.MenuItems, [Paths.Menu, Paths.Items]);
 }

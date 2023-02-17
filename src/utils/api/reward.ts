@@ -1,5 +1,5 @@
 import { Reward } from "../../types";
-import { Paths, useGet, useMutationApi } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useRewardMutations() {
   const {
@@ -14,5 +14,5 @@ export function useRewardMutations() {
 }
 
 export function useGetRewards() {
-  return useGet<Reward[]>(Paths.Rewards);
+  return useGetList<Reward>(Paths.Rewards);
 }

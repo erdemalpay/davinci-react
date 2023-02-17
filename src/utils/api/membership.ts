@@ -1,5 +1,5 @@
 import { Membership } from "../../types/index";
-import { Paths, useGet, useMutationApi } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useMembershipMutations() {
   const {
@@ -14,5 +14,5 @@ export function useMembershipMutations() {
 }
 
 export function useGetMemberships() {
-  return useGet<Membership[]>(Paths.Memberships);
+  return useGetList<Membership>(Paths.Memberships);
 }

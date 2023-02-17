@@ -1,12 +1,11 @@
-import { Paths, useGet, useMutationApi } from "./factory";
+import { useDateContext } from "../../context/Date.context";
+import { useLocationContext } from "../../context/Location.context";
 import { Reservation } from "../../types/index";
-import { useContext } from "react";
-import { LocationContext } from "../../context/LocationContext";
-import { SelectedDateContext } from "../../context/SelectedDateContext";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useReservationMutations() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const { updateItem: updateReservation, createItem: createReservation } =
     useMutationApi<Reservation>({
       baseQuery: Paths.Reservations,
@@ -18,8 +17,8 @@ export function useReservationMutations() {
 }
 
 export function useReservationCallMutations() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const { updateItem: updateReservationCall } = useMutationApi<Reservation>({
     baseQuery: Paths.ReservationsCall,
     queryKey: [Paths.Reservations, selectedLocationId, selectedDate],
@@ -30,9 +29,9 @@ export function useReservationCallMutations() {
 }
 
 export function useGetReservations() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
-  return useGet<Reservation[]>(
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  return useGetList<Reservation>(
     `${Paths.Reservations}?location=${selectedLocationId}&date=${selectedDate}`,
     [Paths.Reservations, selectedLocationId, selectedDate]
   );

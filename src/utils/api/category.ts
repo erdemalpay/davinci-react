@@ -1,5 +1,5 @@
-import { Paths, useGet, useMutationApi } from "./factory";
 import { MenuCategory } from "../../types/index";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useCategoryMutations() {
   const {
@@ -14,7 +14,7 @@ export function useCategoryMutations() {
 }
 
 export function useGetCategories() {
-  return useGet<MenuCategory>(Paths.MenuCategories, [
+  return useGetList<MenuCategory>(Paths.MenuCategories, [
     Paths.Menu,
     Paths.Categories,
   ]);

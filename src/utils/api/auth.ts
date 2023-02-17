@@ -1,8 +1,9 @@
-import Cookies from "js-cookie";
-import { post } from "./index";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { BaseRoutes } from "../../navigation/routes";
+import { post } from "./index";
 
 export interface LoginCredentials {
   username: string;
@@ -26,11 +27,14 @@ export function useLogin(location?: Location) {
   const { mutate: login } = useMutation(loginMethod, {
     // We are updating tables query data with new item
     onSuccess: async (response) => {
-      console.log({ response });
       const { token } = response;
       Cookies.set("jwt", token);
       toast.success("Logged in successfully");
-      navigate(location ? `${location.pathname}${location.search}` : "/1");
+
+      const target = location
+        ? `${location.pathname}${location.search}`
+        : BaseRoutes.Tables;
+      navigate(target);
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err, _newTable) => {},

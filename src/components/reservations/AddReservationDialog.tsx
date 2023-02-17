@@ -5,9 +5,8 @@ import { toast } from "react-toastify";
 import { Input } from "@material-tailwind/react";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { Reservation } from "../../types/index";
-import { useContext } from "react";
-import { LocationContext } from "../../context/LocationContext";
 import { format } from "date-fns";
+import { useLocationContext } from "../../context/Location.context";
 
 export function AddReservationDialog({
   isOpen,
@@ -22,7 +21,7 @@ export function AddReservationDialog({
     Partial<Reservation>
   >;
 }) {
-  const { selectedLocationId } = useContext(LocationContext);
+  const { selectedLocationId } = useLocationContext();
   const date = format(new Date(), "yyyy-MM-dd");
   const reservationHour = format(new Date(), "HH:mm");
 

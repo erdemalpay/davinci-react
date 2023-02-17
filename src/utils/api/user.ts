@@ -1,6 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import { Role, User } from "../../types";
-import { get } from "../api";
-import { useGet, useMutationApi, Paths } from "./factory";
+import { get, post } from "../api";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 export function getUserWithToken(): Promise<User> {
   return get<User>({ path: "/users/me" });
@@ -15,8 +16,27 @@ export function useUserMutations() {
   return { updateUser, createUser };
 }
 
+function updateUserPasswordRequest({
+  oldPassword,
+  newPassword,
+}: {
+  oldPassword: string;
+  newPassword: string;
+}) {
+  return post({
+    path: `${Paths.Users}/password`,
+    payload: { oldPassword, newPassword },
+  });
+}
+
+export function useUpdatePasswordMutation() {
+  const { mutate: updatePassword } = useMutation(updateUserPasswordRequest);
+
+  return { updatePassword };
+}
+
 export function useGetUsers() {
-  return useGet<User[]>(Paths.Users);
+  return useGetList<User>(Paths.Users);
 }
 
 export function useGetUser() {
@@ -24,9 +44,9 @@ export function useGetUser() {
 }
 
 export function useGetAllUsers() {
-  return useGet<User[]>(Paths.AllUsers, [Paths.Users, "all"]);
+  return useGetList<User>(Paths.AllUsers, [Paths.Users, "all"]);
 }
 
 export function useGetAllUserRoles() {
-  return useGet<Role[]>(`${Paths.Users}/roles`, [Paths.Users, "roles"]);
+  return useGetList<Role>(`${Paths.Users}/roles`, [Paths.Users, "roles"]);
 }

@@ -1,6 +1,6 @@
 import { Location } from "../../types";
-import { Paths, useGet } from "./factory";
+import { Paths, useGetList } from "./factory";
 
 export function useGetLocations() {
-  return useGet<Location[]>(Paths.Location);
+  return useGetList<Location>(Paths.Location);
 }

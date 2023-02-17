@@ -32,11 +32,26 @@ export type Role = {
   permissions: RolePermissionEnum[];
 };
 
+export enum WorkType {
+  FULLTIME = "Full Time",
+  PARTTIME = "Part Time",
+}
+
 export type User = {
   _id: string;
   name: string;
+  fullName: string;
   active: boolean;
   role: Role;
+  jobStartDate: Date;
+  jobEndDate?: Date;
+  insuranceStartDate: Date;
+  profileImage?: string;
+  phone: string;
+  address: string;
+  iban: string;
+  birthDate: Date;
+  workType: WorkType;
 };
 
 export type Game = {
@@ -120,6 +135,6 @@ export enum RolePermissionEnum {
   MANAGEMENT = "Management",
   CHECKIN = "CheckIn",
   TABLES = "Tables",
-  CUSTOMER_DATA = "CustomerData",
+  OPERATION = "Operation",
   ANALYTICS = "Analytics",
 }

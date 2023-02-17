@@ -1,4 +1,3 @@
-import { InputWithLabelProps } from "../common/InputWithLabel";
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { Visit } from "../../types";
 

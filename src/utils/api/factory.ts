@@ -1,14 +1,14 @@
 import {
+  QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
-  QueryKey,
 } from "@tanstack/react-query";
 import { get, patch, post, remove, UpdatePayload } from ".";
 
 export const Paths = {
   Games: "/games",
-  Gameplay: "/gameplay",
+  Gameplays: "/gameplays",
   Users: "/users",
   User: "/users/me",
   Memberships: "/memberships",
@@ -39,6 +39,10 @@ export function useGet<T>(path: string, queryKey?: QueryKey) {
   const fetchQueryKey = queryKey || [path];
   const { data } = useQuery(fetchQueryKey, () => get<T>({ path }));
   return data;
+}
+
+export function useGetList<T>(path: string, queryKey?: QueryKey) {
+  return useGet<T[]>(path, queryKey) || [];
 }
 
 export function useMutationApi<T extends { _id: number | string }>({

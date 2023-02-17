@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 export type InputType = "date" | "autocomplete" | "text" | "number" | "time";
 
 export interface InputWithLabelProps {

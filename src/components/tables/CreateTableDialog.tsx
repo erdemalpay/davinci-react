@@ -5,8 +5,7 @@ import { Table } from "../../types";
 import { useForm } from "../../hooks/useForm";
 import { useTableMutations } from "../../utils/api/table";
 import { Input } from "@material-tailwind/react";
-import { LocationContext } from "../../context/LocationContext";
-import { useContext } from "react";
+import { useLocationContext } from "../../context/Location.context";
 
 export function CreateTableDialog({
   isOpen,
@@ -15,7 +14,7 @@ export function CreateTableDialog({
   isOpen: boolean;
   close: () => void;
 }) {
-  const { selectedLocationId } = useContext(LocationContext);
+  const { selectedLocationId } = useLocationContext();
   const date = format(new Date(), "yyyy-MM-dd");
   const startHour = format(new Date(), "HH:mm");
   const initialTable: Partial<Table> = {

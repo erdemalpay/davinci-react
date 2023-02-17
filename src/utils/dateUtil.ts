@@ -3,6 +3,7 @@ import {
   endOfISOWeek,
   endOfMonth,
   format,
+  parse,
   startOfDay,
   startOfISOWeek,
   startOfMonth,
@@ -21,8 +22,17 @@ export enum DateFilter {
   MANUAL = "0",
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date) {
   return format(date, DATE_FORMAT);
+}
+
+export function parseDate(date?: string) {
+  if (!date) return new Date();
+  return parse(date, DATE_FORMAT, new Date());
+}
+
+export function isToday(date: String) {
+  return formatDate(new Date()) === date;
 }
 
 export function getStartEndDates(filter: string) {

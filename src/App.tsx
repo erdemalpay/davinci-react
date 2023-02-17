@@ -1,54 +1,24 @@
-import { useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   useIsMutating,
 } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
 import { Slide, ToastContainer } from "react-toastify";
-import { LocationContext } from "./context/LocationContext";
-import { SelectedDateContext } from "./context/SelectedDateContext";
+import { DateContextProvider } from "./context/Date.context";
+import { LocationContextProvider } from "./context/Location.context";
 import RouterContainer from "./navigation/routes";
-import { formatDate } from "./utils/dateFilter";
 
 import "react-toastify/dist/ReactToastify.css";
-import { User } from "./types";
-import { UserContext } from "./context/UserContext";
+import { UserContextProvider } from "./context/User.context";
 
 function App() {
-  const { location } = useParams();
-
-  const [selectedLocationId, setSelectedLocationId] = useState<number>(
-    Number(location) || 1
-  );
-  const [selectedDate, setSelectedDate] = useState<string>(
-    formatDate(new Date())
-  );
-
-  const [user, setUser] = useState<User>();
-
   const isMutating = useIsMutating();
-
-  const initalLocationValue = {
-    selectedLocationId,
-    setSelectedLocationId,
-  };
-
-  const initialSelectedDateValue = {
-    selectedDate,
-    setSelectedDate,
-  };
-
-  const initialUserValue = {
-    user,
-    setUser,
-  };
 
   return (
     <div className="App">
-      <SelectedDateContext.Provider value={initialSelectedDateValue}>
-        <LocationContext.Provider value={initalLocationValue}>
-          <UserContext.Provider value={initialUserValue}>
+      <DateContextProvider>
+        <LocationContextProvider>
+          <UserContextProvider>
             {isMutating ? (
               <div className="absolute inset-0 w-full h-full z-50 opacity-50 bg-black text-white">
                 <div className="flex justify-center w-full h-full items-center">
@@ -82,10 +52,11 @@ function App() {
               hideProgressBar={true}
               transition={Slide}
               closeButton={false}
+              position="bottom-right"
             />
-          </UserContext.Provider>
-        </LocationContext.Provider>
-      </SelectedDateContext.Provider>
+          </UserContextProvider>
+        </LocationContextProvider>
+      </DateContextProvider>
     </div>
   );
 }

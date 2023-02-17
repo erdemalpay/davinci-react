@@ -1,10 +1,9 @@
-import { get, patch, post, remove } from "./index";
-import { Gameplay, Table } from "../../types/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContext } from "react";
-import { LocationContext } from "../../context/LocationContext";
-import { SelectedDateContext } from "../../context/SelectedDateContext";
+import { useDateContext } from "../../context/Date.context";
+import { useLocationContext } from "../../context/Location.context";
+import { Gameplay, Table } from "../../types/index";
 import { sortTable } from "../sort";
+import { get, patch, post, remove } from "./index";
 
 const BASE_URL_GAMEPLAYS = "/gameplays";
 const BASE_URL_TABLES = "/tables";
@@ -99,6 +98,7 @@ export function useGetGameplayAnalytics(
     location,
     startDate,
     field,
+    limit,
     endDate,
     mentor,
   ];
@@ -158,8 +158,8 @@ export function useGetGameplays(filter: GameplayFilter) {
 }
 
 export function useCreateGameplayMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL_TABLES, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation(createGameplay, {
@@ -206,8 +206,8 @@ export function useCreateGameplayMutation() {
 }
 
 export function useUpdateGameplayMutation() {
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL_TABLES, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation(updateGameplay, {
@@ -265,8 +265,8 @@ export function useUpdateGameplayMutation() {
 
 export function useDeleteGameplayMutation() {
   const queryClient = useQueryClient();
-  const { selectedLocationId } = useContext(LocationContext);
-  const { selectedDate } = useContext(SelectedDateContext);
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const queryKey = [BASE_URL_TABLES, selectedLocationId, selectedDate];
   return useMutation(deleteGameplay, {
     // We are updating tables query data with delete gameplay

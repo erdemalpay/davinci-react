@@ -36,7 +36,7 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
     useState(false);
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
-  const [isEditTableNameActive, setIsEditTableNameActive] = useState(false);
+
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { updateTable, deleteTable } = useTableMutations();
   const { mutate: closeTable } = useCloseTableMutation();

@@ -1,4 +1,5 @@
 import DatePicker from "react-datepicker";
+import { formatDate } from "../../utils/dateUtil";
 
 export function DateInput({ ...props }) {
   return (
@@ -7,7 +8,7 @@ export function DateInput({ ...props }) {
         {...props}
         className="border-0 border-b-2 text-2xl peer placeholder-transparent"
         selected={props.date}
-        onChange={(date) => props.setDate(date as Date)}
+        onChange={(date) => date && props.setDate(formatDate(date))}
         nextMonthButtonLabel=">"
         previousMonthButtonLabel="<"
         popperClassName="react-datepicker-left"

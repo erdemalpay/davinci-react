@@ -1,35 +1,32 @@
-import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
   Cell,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { useGetGameplayAnalytics } from "../../utils/api/gameplay";
-import { DateFilter, getStartEndDates } from "../../utils/dateFilter";
-import { useQueryClient } from "@tanstack/react-query";
-import { colors } from "../../utils/color";
-import { InputWithLabel } from "../common/InputWithLabel";
-import { Game } from "../../types";
-import { EditableText } from "../common/EditableText";
-import { useGetUsers } from "../../utils/api/user";
 import { Paths } from "../../utils/api/factory";
+import { useGetGames } from "../../utils/api/game";
+import { useGetGameplayAnalytics } from "../../utils/api/gameplay";
+import { useGetUsers } from "../../utils/api/user";
+import { colors } from "../../utils/color";
+import { DateFilter, getStartEndDates } from "../../utils/dateUtil";
+import { EditableText } from "../common/EditableText";
+import { InputWithLabel } from "../common/InputWithLabel";
 
 export interface GameCount {
   name: string;
   count: number;
 }
 
-interface Props {
-  games: Game[];
-}
-
-export function GameAnalyticChart({ games }: Props) {
+export function GameAnalyticChart() {
   const queryClient = useQueryClient();
+  const games = useGetGames();
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string | undefined>("");
@@ -70,7 +67,7 @@ export function GameAnalyticChart({ games }: Props) {
   }, [dateFilter]);
 
   useEffect(() => {
-    queryClient.invalidateQueries([Paths.Gameplay, "query"]);
+    queryClient.invalidateQueries([Paths.Gameplays, "query"]);
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (

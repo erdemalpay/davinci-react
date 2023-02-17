@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Autocomplete } from "../common/Autocomplete";
 import { InputWithLabelProps } from "../common/InputWithLabel";
 import { Chip, Tooltip } from "@material-tailwind/react";
@@ -7,8 +7,7 @@ import {
   useFinishVisitMutation,
 } from "../../utils/api/visit";
 import { User, Visit } from "../../types";
-import { LocationContext } from "../../context/LocationContext";
-import { format } from "date-fns";
+import { useLocationContext } from "../../context/Location.context";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: User[];
@@ -24,7 +23,7 @@ export function ActiveVisitList({
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
 
-  const { selectedLocationId } = useContext(LocationContext);
+  const { selectedLocationId } = useLocationContext();
 
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
 

@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
   Cell,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { useGetGameplayAnalytics } from "../../utils/api/gameplay";
-import { DateFilter, getStartEndDates } from "../../utils/dateFilter";
-import { useQueryClient } from "@tanstack/react-query";
-import { colors } from "../../utils/color";
-import { InputWithLabel } from "../common/InputWithLabel";
-import { useGetUsers } from "../../utils/api/user";
-import { EditableText } from "../common/EditableText";
 import { Paths } from "../../utils/api/factory";
+import { useGetGameplayAnalytics } from "../../utils/api/gameplay";
+import { useGetUsers } from "../../utils/api/user";
+import { colors } from "../../utils/color";
+import { DateFilter, getStartEndDates } from "../../utils/dateUtil";
+import { EditableText } from "../common/EditableText";
+import { InputWithLabel } from "../common/InputWithLabel";
 
 export interface GameCount {
   name: string;
@@ -62,7 +62,7 @@ export function MentorAnalyticChart() {
   }, [dateFilter]);
 
   useEffect(() => {
-    queryClient.invalidateQueries([Paths.Gameplay, "query"]);
+    queryClient.invalidateQueries([Paths.Gameplays, "query"]);
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (

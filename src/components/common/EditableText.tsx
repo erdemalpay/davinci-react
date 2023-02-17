@@ -8,6 +8,7 @@ interface Props<T> {
   item?: T;
   type?: string;
   inactiveStyle?: string;
+  placeholder?: string;
 }
 
 export function EditableText<T>({
@@ -17,6 +18,7 @@ export function EditableText<T>({
   name,
   type = "text",
   inactiveStyle,
+  placeholder,
 }: Props<T>) {
   const [isEditActive, setIsEditActive] = useState(false);
   const [value, setValue] = useState(text);
@@ -29,19 +31,19 @@ export function EditableText<T>({
           setIsEditActive(true);
         }}
       >
-        {type === "phone"
+        {text && type === "phone"
           ? `(${text.slice(0, 4)} ${text.slice(4, 7)} ${text.slice(
               7,
               9
             )} ${text.slice(9, 11)})`
-          : text}
+          : text || placeholder}
       </span>
     </Tooltip>
   ) : (
     <input
       name={name}
       className="bg-white text-gray-600 border-0 border-b-[1px] focus:outline-none font-normal text-base border-gray-300 h-full"
-      placeholder={text}
+      placeholder={text || placeholder}
       type={type}
       value={value}
       onChange={(event) => setValue(event.target.value)}

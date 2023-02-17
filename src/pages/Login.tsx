@@ -17,7 +17,9 @@ type RedirectLocationState = {
 
 const Login = () => {
   const { state: locationState } = useLocation();
-  const { from } = locationState as RedirectLocationState;
+  const from = locationState
+    ? (locationState as RedirectLocationState).from
+    : undefined;
   const { login } = useLogin(from);
   const [error, setError] = React.useState(false);
 

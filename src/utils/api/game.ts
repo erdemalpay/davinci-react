@@ -1,7 +1,7 @@
 import { Game } from "../../types";
 import { get } from ".";
 import { useQuery } from "@tanstack/react-query";
-import { Paths, useGet, useMutationApi } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 const BASE_URL = `/games`;
 
@@ -18,7 +18,7 @@ export function useGameMutations() {
 }
 
 export function useGetGames() {
-  return useGet<Game[]>(Paths.Games);
+  return useGetList<Game>(Paths.Games);
 }
 
 export function useGetGameDetails(gameId: number) {

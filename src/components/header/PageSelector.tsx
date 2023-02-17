@@ -1,58 +1,56 @@
-import { useContext } from "react";
-import { LocationContext } from "../../context/LocationContext";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import {
   Menu,
   MenuHandler,
-  MenuList,
   MenuItem,
+  MenuList,
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
+import { BaseRoutes } from "../../navigation/routes";
 
 export function PageSelector() {
-  const { selectedLocationId } = useContext(LocationContext);
   const navigate = useNavigate();
 
   const routes = [
     {
       name: "Tables",
-      path: `/${selectedLocationId}`,
+      path: BaseRoutes.Tables,
     },
     {
       name: "Reservations",
-      path: `/${selectedLocationId}/reservations`,
+      path: BaseRoutes.Reservations,
     },
     {
       name: "Gameplays",
-      path: "/gameplays",
+      path: BaseRoutes.Gameplays,
     },
     {
       name: "Games",
-      path: "/games",
+      path: BaseRoutes.Games,
     },
     {
       name: "Memberships",
-      path: "/memberships",
+      path: BaseRoutes.Memberships,
     },
     {
       name: "Rewards",
-      path: "/rewards",
+      path: BaseRoutes.Rewards,
     },
     {
       name: "Users",
-      path: "/users",
+      path: BaseRoutes.Users,
     },
     {
       name: "Visits",
-      path: "/visits",
+      path: BaseRoutes.Visits,
     },
     {
       name: "Menu",
-      path: "/menu",
+      path: BaseRoutes.Menu,
     },
     {
       name: "Analytics",
-      path: "/analytics",
+      path: BaseRoutes.Analytics,
     },
   ];
 
