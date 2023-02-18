@@ -1,6 +1,6 @@
 interface CardActionProps {
   onClick: () => void;
-  IconComponent: React.ComponentType<{ className: string }>;
+  IconComponent: React.ComponentType<{ className?: string }>;
 }
 
 export function CardAction({ onClick, IconComponent }: CardActionProps) {
