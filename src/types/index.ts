@@ -1,5 +1,5 @@
 export type Gameplay = {
-  _id?: number;
+  _id: number;
   date: string;
   startHour: string;
   finishHour?: string;

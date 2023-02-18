@@ -1,16 +1,16 @@
-import { FormEvent, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { TrashIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { Input } from "@material-tailwind/react";
+import { FormEvent, useState } from "react";
+import { toast } from "react-toastify";
 import { Game, Gameplay, Table, User } from "../../types";
 import {
   useDeleteGameplayMutation,
   useUpdateGameplayMutation,
 } from "../../utils/api/gameplay";
-import { TimeInputWithLabel } from "../common/TimeInputWithLabel";
 import { Autocomplete } from "../common/Autocomplete";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import { toast } from "react-toastify";
-import { Input } from "@material-tailwind/react";
+import { TimeInputWithLabel } from "../common/TimeInputWithLabel";
 
 export function EditGameplayDialog({
   isOpen,
@@ -35,21 +35,21 @@ export function EditGameplayDialog({
 
   function updateGameplayHandler(event: FormEvent<HTMLInputElement>) {
     const target = event.target as HTMLInputElement;
-    if (!target.value) return;
+    if (!target.value || !gameplay._id) return;
 
     updateGameplay({
-      tableId: table._id!,
-      id: gameplay._id!,
+      tableId: table._id,
+      id: gameplay._id,
       updates: { [target.name]: target.value },
     });
     toast.success("Gameplay updated");
   }
 
   function handleGameSelection(game: Game) {
-    if (!game) return;
+    if (!game || !gameplay._id) return;
     updateGameplay({
-      tableId: table._id!,
-      id: gameplay._id!,
+      tableId: table._id,
+      id: gameplay._id,
       updates: { game: game._id },
     });
     toast.success("Gameplay updated");
@@ -58,8 +58,8 @@ export function EditGameplayDialog({
   function handleMentorSelection(mentor: User) {
     if (!mentor) return;
     updateGameplay({
-      tableId: table._id!,
-      id: gameplay._id!,
+      tableId: table._id,
+      id: gameplay._id,
       updates: { mentor },
     });
     toast.success("Gameplay updated");
@@ -67,14 +67,14 @@ export function EditGameplayDialog({
 
   function removeGameplay() {
     deleteGameplay({
-      tableId: table._id!,
-      id: gameplay._id!,
+      tableId: table._id,
+      id: gameplay._id,
     });
     toast.success("Gameplay deleted");
     close();
   }
 
-  const selectedGame = games.find((game) => game._id === gameplay.game!);
+  const selectedGame = games.find((game) => game._id === gameplay.game);
   const selectedMentor =
     mentors.find((mentor) => mentor._id === gameplay.mentor?._id) ||
     mentors.find((mentor) => mentor._id === "dv");

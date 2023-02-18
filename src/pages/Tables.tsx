@@ -18,7 +18,6 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
-
 const TablesPage = () => {
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
@@ -26,9 +25,9 @@ const TablesPage = () => {
   const navigate = useNavigate();
 
   const games = useGetGames();
-  let visits = useGetVisits();
-  let tables = useGetTables();
-  let users = useGetUsers();
+  const visits = useGetVisits();
+  const tables = useGetTables();
+  const users = useGetUsers();
 
   // Sort tables first active tables, then closed ones.
   // if both active then sort by name
@@ -109,7 +108,6 @@ const TablesPage = () => {
           <div className="flex justify-between">
             <div className="flex items-center text-3xl">
               <DateInput
-                id="date"
                 date={parseDate(selectedDate)}
                 setDate={setSelectedDate}
               />

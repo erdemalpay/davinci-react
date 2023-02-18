@@ -9,7 +9,7 @@ interface PrivateRoutesProps {
 
 export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   useAuth();
-  let location = useLocation();
+  const location = useLocation();
   const { user } = useUserContext();
   console.log({ user });
 
@@ -23,7 +23,6 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
     )
   ) {
     return <Outlet />;
-  } else {
   }
   return <Navigate to="/login" state={{ from: location }} replace />;
 }

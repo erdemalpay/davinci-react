@@ -36,8 +36,6 @@ export function useLogin(location?: Location) {
         : BaseRoutes.Tables;
       navigate(target);
     },
-    // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newTable) => {},
   });
   return { login };
 }

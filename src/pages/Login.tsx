@@ -27,7 +27,7 @@ const Login = () => {
     event.preventDefault();
 
     const { username, password } = (event.target as LoginFormElement).elements;
-    let payload: LoginCredentials = {
+    const payload: LoginCredentials = {
       username: username.value,
       password: password.value,
     };

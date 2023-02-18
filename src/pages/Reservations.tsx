@@ -317,7 +317,7 @@ export default function Reservations() {
                       (reservation) =>
                         !hideCompletedReservations || !isCompleted(reservation)
                     )
-                    .map((reservation, index) => (
+                    .map((reservation) => (
                       <tr
                         key={reservation._id}
                         className={`${getBgColor(

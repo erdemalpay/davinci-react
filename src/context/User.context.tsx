@@ -7,6 +7,7 @@ type UserContextType = {
 };
 
 const UserContext = createContext<UserContextType>({
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUser: () => {},
   user: undefined,
 });

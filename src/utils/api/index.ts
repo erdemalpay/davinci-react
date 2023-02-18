@@ -13,6 +13,7 @@ export interface UpdatePayload<P> {
   updates: Partial<P>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function printStackTrace() {
   const error = new Error();
   const stack = error.stack

@@ -12,11 +12,11 @@ import { Visit } from "../types";
 import { useGetMonthlyVisits } from "../utils/api/visit";
 
 export default function Visits() {
-  let [currentMonth, setCurrentMonth] = useState<Date>(
+  const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
 
-  let [location, setLocation] = useState<number>(1);
+  const [location, setLocation] = useState<number>(1);
 
   const { visits } = useGetMonthlyVisits(
     location,

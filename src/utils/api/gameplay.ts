@@ -56,7 +56,6 @@ export function createGameplay({
 }
 
 export function updateGameplay({
-  tableId,
   id,
   updates,
 }: UpdateGameplayPayload): Promise<Gameplay> {
@@ -176,10 +175,12 @@ export function useCreateGameplayMutation() {
       if (!previousTable) return { previousTables };
 
       const updatedTables = [
-        ...previousTables!.filter((table) => table._id !== previousTable._id),
+        ...(previousTables?.filter(
+          (table) => table._id !== previousTable._id
+        ) || []),
         {
           ...previousTable,
-          gameplays: [...previousTable!.gameplays, newGameplay.payload],
+          gameplays: [...previousTable.gameplays, newGameplay.payload],
         },
       ];
       updatedTables.sort(sortTable);
@@ -225,16 +226,20 @@ export function useUpdateGameplayMutation() {
       const updatedGameplay = gameplaysTable.gameplays.find(
         (gameplay) => gameplay._id === id
       );
+      if (!updatedGameplay) return { previousTables };
+
       const updatedTables: Table[] = [
-        ...previousTables!.filter((table) => table._id !== gameplaysTable._id),
+        ...(previousTables?.filter(
+          (table) => table._id !== gameplaysTable._id
+        ) || []),
         {
           ...gameplaysTable,
           gameplays: [
-            ...gameplaysTable!.gameplays!.filter(
+            ...gameplaysTable.gameplays.filter(
               (gameplay) => gameplay._id !== id
             ),
             {
-              ...updatedGameplay!,
+              ...updatedGameplay,
               ...updates,
             },
           ],
@@ -282,11 +287,13 @@ export function useDeleteGameplayMutation() {
       if (!gameplaysTable) return { previousTables };
 
       const updatedTables = [
-        ...previousTables!.filter((table) => table._id !== gameplaysTable._id),
+        ...(previousTables?.filter(
+          (table) => table._id !== gameplaysTable._id
+        ) || []),
         {
           ...gameplaysTable,
           gameplays: [
-            ...gameplaysTable!.gameplays!.filter(
+            ...gameplaysTable.gameplays.filter(
               (gameplay) => gameplay._id !== id
             ),
           ],

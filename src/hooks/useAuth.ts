@@ -8,7 +8,7 @@ import { getUserWithToken } from "../utils/api/user";
 
 const useAuth = () => {
   const { user, setUser } = useUserContext();
-  let location = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {

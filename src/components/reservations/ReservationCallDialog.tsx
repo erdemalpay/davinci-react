@@ -6,13 +6,11 @@ export function ReservationCallDialog({
   close,
   handle,
   reservation,
-  text = "",
 }: {
   isOpen: boolean;
   close: () => void;
   handle: (status: ReservationStatusEnum) => void;
   reservation?: Reservation;
-  text?: string;
 }) {
   return (
     <Transition

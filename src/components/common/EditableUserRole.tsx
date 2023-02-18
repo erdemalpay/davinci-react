@@ -1,5 +1,5 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { Role } from "../../types";
 import { useGetAllUserRoles, useUserMutations } from "../../utils/api/user";
 import { Autocomplete } from "./Autocomplete";
@@ -11,7 +11,7 @@ interface Props {
   inactiveStyle?: string;
 }
 
-export function EditableUserRole<T>({ userId, item, inactiveStyle }: Props) {
+export function EditableUserRole({ userId, item, inactiveStyle }: Props) {
   const [isEditActive, setIsEditActive] = useState(false);
   const roles = useGetAllUserRoles();
   const { updateUser } = useUserMutations();

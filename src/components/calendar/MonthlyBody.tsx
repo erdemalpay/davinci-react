@@ -1,9 +1,10 @@
-import React, { ReactNode, useContext } from "react";
+import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
+import { createContext, ReactNode, useContext } from "react";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
 import { daysInWeek } from "./shared";
-import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
 
-const MonthlyBodyContext = React.createContext({} as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const MonthlyBodyContext = createContext({} as any);
 type BodyState<DayData> = {
   day: Date;
   events: DayData[];
@@ -39,18 +40,18 @@ export const handleOmittedDays = ({
   let firstDayOfMonth = getDay(daysToRender[0]) as number;
   firstDayOfMonth = (firstDayOfMonth + 6) % 7;
   if (omitDays) {
-    let subtractOmittedDays = omitDays.filter(
+    const subtractOmittedDays = omitDays.filter(
       (day) => day < firstDayOfMonth
     ).length;
     firstDayOfMonth = firstDayOfMonth - subtractOmittedDays;
   }
-  let padding = new Array(firstDayOfMonth).fill(0);
+  const padding = new Array(firstDayOfMonth).fill(0);
 
   return { headings, daysToRender, padding };
 };
 
 //to prevent these from being purged in production, we make a lookup object
-const headingClasses = {
+const headingClasses: { [key: string]: string } = {
   l3: "lg:grid-cols-3",
   l4: "lg:grid-cols-4",
   l5: "lg:grid-cols-5",
@@ -73,19 +74,18 @@ export function MonthlyBody<DayData>({
   events,
   children,
 }: MonthlyBodyProps<DayData>) {
-  let { days, locale } = useMonthlyCalendar();
+  const { days, locale } = useMonthlyCalendar();
 
-  let { headings, daysToRender, padding } = handleOmittedDays({
+  const { headings, daysToRender, padding } = handleOmittedDays({
     days,
     omitDays,
     locale,
   });
-  let headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
+  const headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
   return (
     <div className="bg-white border-l-2 border-t-2">
       <div
         className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 ${
-          //@ts-ignore
           headingClasses[`l${headings.length}`]
         }`}
       >
@@ -127,9 +127,9 @@ type MonthlyDayProps<DayData> = {
   renderDay: (events: DayData[]) => ReactNode;
 };
 export function MonthlyDay<DayData>({ renderDay }: MonthlyDayProps<DayData>) {
-  let { locale } = useMonthlyCalendar();
-  let { day, events } = useMonthlyBody<DayData>();
-  let dayNumber = format(day, "d", { locale });
+  const { locale } = useMonthlyCalendar();
+  const { day, events } = useMonthlyBody<DayData>();
+  const dayNumber = format(day, "d", { locale });
 
   return (
     <div

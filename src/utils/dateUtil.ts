@@ -31,7 +31,7 @@ export function parseDate(date?: string) {
   return parse(date, DATE_FORMAT, new Date());
 }
 
-export function isToday(date: String) {
+export function isToday(date: string) {
   return formatDate(new Date()) === date;
 }
 
@@ -55,6 +55,7 @@ export function getStartEndDates(filter: string) {
     startDate = format(startOfMonth(subMonths(new Date(), 1)), DATE_FORMAT);
     endDate = format(endOfMonth(subMonths(new Date(), 1)), DATE_FORMAT);
   } else if (filterType === DateFilter.MANUAL) {
+    // Do nothing
   }
   return { startDate, endDate };
 }

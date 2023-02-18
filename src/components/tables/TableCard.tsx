@@ -1,26 +1,26 @@
 import {
-  PlusIcon,
   FlagIcon,
-  TrashIcon,
   LockOpenIcon,
+  PlusIcon,
+  TrashIcon,
 } from "@heroicons/react/24/solid";
-import { FormEvent, useState } from "react";
 import { Tooltip } from "@material-tailwind/react";
-import { Gameplay, Table, User, Game } from "../../types";
-import { CreateGameplayDialog } from "./CreateGameplayDialog";
-import { InputWithLabel } from "../common/InputWithLabel";
-import { CardAction } from "../common/CardAction";
 import { format } from "date-fns";
-import { getDuration } from "../../utils/time";
+import { FormEvent, useState } from "react";
+import { toast } from "react-toastify";
+import { Game, Gameplay, Table, User } from "../../types";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { EditGameplayDialog } from "./EditGameplayDialog";
+import { getDuration } from "../../utils/time";
+import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import { toast } from "react-toastify";
 import { EditableText } from "../common/EditableText";
+import { InputWithLabel } from "../common/InputWithLabel";
+import { CreateGameplayDialog } from "./CreateGameplayDialog";
+import { EditGameplayDialog } from "./EditGameplayDialog";
 
 export interface TableCardProps {
   table: Table;
@@ -73,7 +73,7 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
   const date = table.date;
   const startHour = format(new Date(), "HH:mm");
 
-  const gameplayTemplate: Gameplay = {
+  const gameplayTemplate: Partial<Gameplay> = {
     date,
     location: table.location as number,
     playerCount: table.playerCount,

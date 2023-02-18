@@ -26,7 +26,7 @@ export default function Games() {
 
   useEffect(() => {
     if (!games) return;
-    let filteredGames = games.filter((game) => {
+    const filteredGames = games.filter((game) => {
       return game.name
         .replace("İ", "I")
         .toLowerCase()
@@ -71,7 +71,7 @@ export default function Games() {
   } */
 
   function handleLocationUpdate(game: Game, location: number) {
-    let newLocations = game.locations || [];
+    const newLocations = game.locations || [];
     // Add if it doesn't exist, remove otherwise
     const index = newLocations.indexOf(location);
     if (index === -1) {

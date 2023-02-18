@@ -1,11 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Table, Gameplay, User, Game } from "../../types";
+import { Input } from "@material-tailwind/react";
+import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
+import { Game, Gameplay, Table, User } from "../../types";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
-import { toast } from "react-toastify";
-import { Input } from "@material-tailwind/react";
 
 export function CreateGameplayDialog({
   isOpen,
@@ -17,7 +17,7 @@ export function CreateGameplayDialog({
 }: {
   isOpen: boolean;
   close: () => void;
-  gameplay?: Gameplay;
+  gameplay: Partial<Gameplay>;
   table: Table;
   mentors: User[];
   games: Game[];

@@ -9,6 +9,7 @@ interface LocationContextType {
 }
 
 const LocationContext = createContext<LocationContextType>({
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setSelectedLocationId: () => {},
   selectedLocationId: 1,
   locations: [],

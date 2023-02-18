@@ -7,6 +7,7 @@ type DateContextType = {
 };
 
 const DateContext = createContext<DateContextType>({
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setSelectedDate: () => {},
   selectedDate: undefined,
 });

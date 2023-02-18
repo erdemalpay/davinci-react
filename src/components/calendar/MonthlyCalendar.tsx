@@ -1,11 +1,11 @@
 import {
+  addMonths,
   eachDayOfInterval,
-  startOfMonth,
   endOfMonth,
   format,
-  subMonths,
-  addMonths,
   getYear,
+  startOfMonth,
+  subMonths,
 } from "date-fns";
 import React, { ReactNode, useContext } from "react";
 
@@ -13,7 +13,7 @@ type CalendarState = {
   days: Date[];
   currentMonth: Date;
   locale?: Locale;
-  onCurrentMonthChange: (date: Date) => any;
+  onCurrentMonthChange: (date: Date) => void;
 };
 
 const MonthlyCalendarContext = React.createContext<CalendarState>(
@@ -26,7 +26,7 @@ type Props = {
   locale?: Locale;
   children: ReactNode;
   currentMonth: Date;
-  onCurrentMonthChange: (date: Date) => any;
+  onCurrentMonthChange: (date: Date) => void;
 };
 
 export const MonthlyCalendar = ({
@@ -35,8 +35,8 @@ export const MonthlyCalendar = ({
   onCurrentMonthChange,
   children,
 }: Props) => {
-  let monthStart = startOfMonth(currentMonth);
-  let days = eachDayOfInterval({
+  const monthStart = startOfMonth(currentMonth);
+  const days = eachDayOfInterval({
     start: monthStart,
     end: endOfMonth(monthStart),
   });
@@ -56,7 +56,7 @@ export const MonthlyCalendar = ({
 };
 
 export const MonthlyNav = () => {
-  let { locale, currentMonth, onCurrentMonthChange } = useMonthlyCalendar();
+  const { locale, currentMonth, onCurrentMonthChange } = useMonthlyCalendar();
 
   return (
     <div className="flex justify-end mb-4">

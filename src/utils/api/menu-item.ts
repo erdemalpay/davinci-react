@@ -1,7 +1,7 @@
 import { MenuItem } from "../../types/index";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
-export function useMenuItemMutations(initialItems: MenuItem[] = []) {
+export function useMenuItemMutations() {
   return useMutationApi<MenuItem>({
     baseQuery: Paths.MenuItems,
   });

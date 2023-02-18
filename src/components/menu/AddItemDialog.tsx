@@ -1,10 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { useForm } from "../../hooks/useForm";
-import { toast } from "react-toastify";
-import { Input, Select } from "@material-tailwind/react";
+import { Input } from "@material-tailwind/react";
 import { UseMutateFunction } from "@tanstack/react-query";
-import { MenuItem, MenuCategory } from "../../types/index";
+import { toast } from "react-toastify";
+import { useForm } from "../../hooks/useForm";
+import { MenuCategory, MenuItem } from "../../types/index";
 import { InputWithLabel } from "../common/InputWithLabel";
 
 export function AddMenuItemDialog({
