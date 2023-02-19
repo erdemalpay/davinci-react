@@ -10,7 +10,6 @@ export function useReservationMutations() {
     useMutationApi<Reservation>({
       baseQuery: Paths.Reservations,
       queryKey: [Paths.Reservations, selectedLocationId, selectedDate],
-      needsRevalidate: false,
     });
 
   return { updateReservation, createReservation };
@@ -22,7 +21,6 @@ export function useReservationCallMutations() {
   const { updateItem: updateReservationCall } = useMutationApi<Reservation>({
     baseQuery: Paths.ReservationsCall,
     queryKey: [Paths.Reservations, selectedLocationId, selectedDate],
-    needsRevalidate: false,
   });
 
   return { updateReservationCall };

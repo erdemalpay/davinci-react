@@ -3,7 +3,7 @@ import { User } from "../types";
 
 type UserContextType = {
   user?: User;
-  setUser: (user: User) => void;
+  setUser: (user?: User) => void;
 };
 
 const UserContext = createContext<UserContextType>({

@@ -14,6 +14,7 @@ const useAuth = () => {
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       try {
+        console.log({ user });
         if (user) return;
         const token = Cookies.get(ACCESS_TOKEN);
         if (!token)

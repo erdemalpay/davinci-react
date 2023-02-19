@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Analytics from "../pages/Analytics";
 import ChangePassword from "../pages/ChangePassword";
 import Gameplays from "../pages/Gameplays";
@@ -35,6 +35,7 @@ export enum BaseRoutes {
 const RouterContainer = () => {
   return (
     <Routes>
+      <Route index element={<Navigate to={BaseRoutes.Tables} />} />
       <Route
         element={
           <PrivateRoutes requiredPermissions={[RolePermissionEnum.OPERATION]} />

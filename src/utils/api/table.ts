@@ -132,7 +132,6 @@ export function useTableMutations() {
   } = useMutationApi<Table>({
     baseQuery: Paths.Tables,
     queryKey: [Paths.Tables, selectedLocationId, selectedDate],
-    needsRevalidate: false,
   });
   return { deleteTable, updateTable, createTable };
 }

@@ -30,7 +30,6 @@ export const Paths = {
 interface Props<T> {
   baseQuery: string;
   queryKey?: QueryKey;
-  needsRevalidate?: boolean;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
 }
 

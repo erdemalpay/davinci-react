@@ -30,7 +30,6 @@ export function useLogin(location?: Location) {
       const { token } = response;
       Cookies.set("jwt", token);
       toast.success("Logged in successfully");
-
       const target = location
         ? `${location.pathname}${location.search}`
         : BaseRoutes.Tables;

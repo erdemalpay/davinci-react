@@ -37,7 +37,6 @@ const Login = () => {
       login(payload);
     } catch (error) {
       setError(true);
-
       console.log({ error });
     }
   };
