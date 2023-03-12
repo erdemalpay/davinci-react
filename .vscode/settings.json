@@ -1,7 +1,7 @@
 {
     "git.ignoreLimitWarning": true,
     "editor.codeActionsOnSave": [
-    "source.organizeImports",
-    "source.fixAll"
+        "source.organizeImports",
+        "source.fixAll"
     ]
 }

@@ -10,12 +10,12 @@ import { Header } from "../components/header/Header";
 import { AddReservationDialog } from "../components/reservations/AddReservationDialog";
 import { ReservationCallDialog } from "../components/reservations/ReservationCallDialog";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
-import { BaseRoutes } from "../navigation/routes";
+import { Routes } from "../navigation/constants";
 import { Reservation, ReservationStatusEnum } from "../types/index";
 import {
   useGetReservations,
   useReservationCallMutations,
-  useReservationMutations,
+  useReservationMutations
 } from "../utils/api/reservations";
 
 export default function Reservations() {
@@ -260,7 +260,7 @@ export default function Reservations() {
           <div className="h-full w-full">
             <div className="flex justify-end gap-x-4">
               <button
-                onClick={() => navigate(BaseRoutes.Tables)}
+                onClick={() => navigate(Routes.Tables)}
                 className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
               >
                 Show Tables

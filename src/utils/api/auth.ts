@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { BaseRoutes } from "../../navigation/routes";
+import { Routes } from "../../navigation/constants";
 import { post } from "./index";
 
 export interface LoginCredentials {
@@ -32,7 +32,7 @@ export function useLogin(location?: Location) {
       toast.success("Logged in successfully");
       const target = location
         ? `${location.pathname}${location.search}`
-        : BaseRoutes.Tables;
+        : Routes.Tables;
       navigate(target);
     },
   });

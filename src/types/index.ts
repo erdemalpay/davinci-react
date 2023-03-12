@@ -131,10 +131,6 @@ export type TagType<T> = {
 } & T;
 
 export enum RolePermissionEnum {
-  ADMIN = "Admin",
-  MANAGEMENT = "Management",
-  CHECKIN = "CheckIn",
-  TABLES = "Tables",
   OPERATION = "Operation",
-  ANALYTICS = "Analytics",
+  MANAGEMENT = "Management",
 }

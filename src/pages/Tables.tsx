@@ -10,7 +10,7 @@ import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
-import { BaseRoutes } from "../navigation/routes";
+import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetTables } from "../utils/api/table";
@@ -114,7 +114,7 @@ const TablesPage = () => {
             </div>
             <div className="flex justify-between gap-x-4">
               <button
-                onClick={() => navigate(BaseRoutes.Reservations)}
+                onClick={() => navigate(Routes.Reservations)}
                 className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
               >
                 Open Reservations

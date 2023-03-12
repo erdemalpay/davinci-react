@@ -6,7 +6,7 @@ import { useUserContext } from "../context/User.context";
 import { User } from "../types";
 import { useUpdatePasswordMutation, useUserMutations } from "../utils/api/user";
 
-export default function UserComponent() {
+export default function UserView() {
   const { user } = useUserContext();
   const { updateUser } = useUserMutations();
   const { updatePassword } = useUpdatePasswordMutation();

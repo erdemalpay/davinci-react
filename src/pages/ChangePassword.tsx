@@ -4,7 +4,7 @@ import { Header } from "../components/header/Header";
 import { useUserContext } from "../context/User.context";
 import { useUpdatePasswordMutation } from "../utils/api/user";
 
-export default function UserComponent() {
+export default function ChangePassword() {
   const { user } = useUserContext();
   const { updatePassword } = useUpdatePasswordMutation();
 

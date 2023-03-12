@@ -3,57 +3,19 @@ import {
   Menu,
   MenuHandler,
   MenuItem,
-  MenuList,
+  MenuList
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
-import { BaseRoutes } from "../../navigation/routes";
+import { useUserContext } from "../../context/User.context";
+import { allRoutes } from "../../navigation/constants";
+import { RolePermissionEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
+  const { user } = useUserContext();
 
-  const routes = [
-    {
-      name: "Tables",
-      path: BaseRoutes.Tables,
-    },
-    {
-      name: "Reservations",
-      path: BaseRoutes.Reservations,
-    },
-    {
-      name: "Gameplays",
-      path: BaseRoutes.Gameplays,
-    },
-    {
-      name: "Games",
-      path: BaseRoutes.Games,
-    },
-    {
-      name: "Memberships",
-      path: BaseRoutes.Memberships,
-    },
-    {
-      name: "Rewards",
-      path: BaseRoutes.Rewards,
-    },
-    {
-      name: "Users",
-      path: BaseRoutes.Users,
-    },
-    {
-      name: "Visits",
-      path: BaseRoutes.Visits,
-    },
-    {
-      name: "Menu",
-      path: BaseRoutes.Menu,
-    },
-    {
-      name: "Analytics",
-      path: BaseRoutes.Analytics,
-    },
-  ];
-
+  const routes = Object.values(RolePermissionEnum).filter((permission) => user?.role.permissions.includes(permission)).map((permission) => allRoutes[permission]).flat();
+    
   return (
     <Menu>
       <MenuHandler>
