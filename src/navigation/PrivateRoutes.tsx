@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useUserContext } from "../context/User.context";
 import useAuth from "../hooks/useAuth";
 import { RolePermissionEnum } from "../types";
+import { PublicRoutes } from "./constants";
 
 interface PrivateRoutesProps {
   requiredPermissions: RolePermissionEnum[];
@@ -12,7 +13,6 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   useAuth();
   const location = useLocation();
   const { user } = useUserContext();
-
   if (!user) return <></>;
 
   if (
@@ -25,5 +25,7 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   toast.error(
     "You don't have rights to see this page. Login with a user that has the required permissions."
   );
-  return <Navigate to="/login" state={{ from: location }} replace />;
+  return (
+    <Navigate to={PublicRoutes.Login} state={{ from: location }} replace />
+  );
 }

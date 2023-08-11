@@ -32,67 +32,75 @@ export enum Routes {
   Gameplays = "/gameplays",
 }
 
-export const allRoutes: {[K in RolePermissionEnum]: {name: string, path: string, element: () => JSX.Element}[]} = {
+export const allRoutes: {
+  [K in RolePermissionEnum]: {
+    name: string;
+    path: string;
+    element: () => JSX.Element;
+  }[];
+} = {
   [RolePermissionEnum.OPERATION]: [
-  {
-    name: "Tables",
-    path: Routes.Tables,
-    element: Tables,
-  },
-  {
-    name: "Reservations",
-    path: Routes.Reservations,
-    element: Reservations,
-  }, 
-  {
-    name: "Games",
-    path: Routes.Games,
-    element: Games,
-  },
-  {
-    name: "Memberships",
-    path: Routes.Memberships,
-    element: Memberships,
-  },
-  {
-    name: "Rewards",
-    path: Routes.Rewards,
-    element: Rewards,
-  }, 
-  {
-    name: "Visits",
-    path: Routes.Visits,
-    element: Visits,
-  }, 
-  {
-    name: "Change Password",
-    path: Routes.ChangePassword,
-    element: ChangePassword
-  }],
-  [RolePermissionEnum.MANAGEMENT]: [{
-    name: "Menu",
-    path: Routes.Menu,
-    element: Menu,
-  }, 
-  {
-    name: "User",
-    path: Routes.User,
-    element: User,
-  }, 
-  {
-    name: "Users",
-    path: Routes.Users,
-    element: Users,
-  }, 
-  {
-    name: "Analytics",
-    path: Routes.Analytics,
-    element: Analytics,
-  }, 
-  {
-    name: "Gameplays",
-    path: Routes.Gameplays,
-    element: Gameplays,
-  }
-],
-}
+    {
+      name: "Tables",
+      path: Routes.Tables,
+      element: Tables,
+    },
+    {
+      name: "Reservations",
+      path: Routes.Reservations,
+      element: Reservations,
+    },
+    {
+      name: "Games",
+      path: Routes.Games,
+      element: Games,
+    },
+    {
+      name: "Memberships",
+      path: Routes.Memberships,
+      element: Memberships,
+    },
+    {
+      name: "Rewards",
+      path: Routes.Rewards,
+      element: Rewards,
+    },
+    {
+      name: "Visits",
+      path: Routes.Visits,
+      element: Visits,
+    },
+    {
+      name: "Change Password",
+      path: Routes.ChangePassword,
+      element: ChangePassword,
+    },
+  ],
+  [RolePermissionEnum.MANAGEMENT]: [
+    {
+      name: "Menu",
+      path: Routes.Menu,
+      element: Menu,
+    },
+    {
+      name: "User",
+      path: Routes.User,
+      element: User,
+    },
+    {
+      name: "Users",
+      path: Routes.Users,
+      element: Users,
+    },
+    {
+      name: "Analytics",
+      path: Routes.Analytics,
+      element: Analytics,
+    },
+    {
+      name: "Gameplays",
+      path: Routes.Gameplays,
+      element: Gameplays,
+    },
+  ],
+};

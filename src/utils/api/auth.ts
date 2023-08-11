@@ -5,6 +5,15 @@ import { toast } from "react-toastify";
 import { Routes } from "../../navigation/constants";
 import { post } from "./index";
 
+interface LoginError {
+  response: {
+    data: {
+      message: string;
+      statusCode: number;
+    };
+  };
+}
+
 export interface LoginCredentials {
   username: string;
   password: string;
@@ -21,10 +30,14 @@ async function loginMethod(payload: LoginCredentials) {
   });
 }
 
-export function useLogin(location?: Location) {
+export function useLogin(location?: Location, onError?: (error: any) => void) {
   const navigate = useNavigate();
 
-  const { mutate: login } = useMutation(loginMethod, {
+  const { mutate: login } = useMutation<
+    LoginResponse,
+    LoginError,
+    LoginCredentials
+  >(loginMethod, {
     // We are updating tables query data with new item
     onSuccess: async (response) => {
       const { token } = response;
@@ -35,6 +48,7 @@ export function useLogin(location?: Location) {
         : Routes.Tables;
       navigate(target);
     },
+    onError,
   });
   return { login };
 }

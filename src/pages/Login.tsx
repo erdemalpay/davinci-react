@@ -20,7 +20,11 @@ const Login = () => {
   const from = locationState
     ? (locationState as RedirectLocationState).from
     : undefined;
-  const { login } = useLogin(from);
+  const onError = (error: any) => {
+    console.log({ error });
+    setError(true);
+  };
+  const { login } = useLogin(from, onError);
   const [error, setError] = React.useState(false);
 
   const handleSubmit = async (event: React.FormEvent<LoginFormElement>) => {
@@ -32,13 +36,8 @@ const Login = () => {
       password: password.value,
     };
 
-    try {
-      setError(false);
-      login(payload);
-    } catch (error) {
-      setError(true);
-      console.log({ error });
-    }
+    setError(false);
+    login(payload);
   };
   return (
     <div>

@@ -3,5 +3,6 @@
     "editor.codeActionsOnSave": [
         "source.organizeImports",
         "source.fixAll"
-    ]
+    ],
+    "editor.formatOnSave": true
 }
