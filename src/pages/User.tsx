@@ -1,17 +1,13 @@
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { EditableText } from "../components/common/EditableText";
 import { Header } from "../components/header/Header";
 import { useUserContext } from "../context/User.context";
 import { User } from "../types";
-import { useUpdatePasswordMutation, useUserMutations } from "../utils/api/user";
+import { useUserMutations } from "../utils/api/user";
 
 export default function UserView() {
   const { user } = useUserContext();
   const { updateUser } = useUserMutations();
-  const { updatePassword } = useUpdatePasswordMutation();
-
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
 
   function updateUserHandler(event: FormEvent<HTMLInputElement>, item?: User) {
     if (!item) return;
@@ -20,14 +16,6 @@ export default function UserView() {
     updateUser({
       id: item._id,
       updates: { [target.name]: target.value },
-    });
-  }
-
-  function resetPassword() {
-    if (!user) return;
-    updatePassword({
-      oldPassword: currentPassword,
-      newPassword,
     });
   }
 
