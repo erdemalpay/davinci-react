@@ -1,6 +1,5 @@
 import { FormEvent, useState } from "react";
 import { EditableText } from "../components/common/EditableText";
-import { InputWithLabel } from "../components/common/InputWithLabel";
 import { Header } from "../components/header/Header";
 import { useUserContext } from "../context/User.context";
 import { User } from "../types";
@@ -71,28 +70,6 @@ export default function UserView() {
                 />
                 {user.workType}
               </p>
-              <div className="py-4 flex flex-col w-96">
-                <InputWithLabel
-                  label="Current Password"
-                  value={currentPassword}
-                  onChange={(e) =>
-                    setCurrentPassword((e.target as HTMLInputElement).value)
-                  }
-                />
-                <InputWithLabel
-                  label="New Password"
-                  value={newPassword}
-                  onChange={(e) =>
-                    setNewPassword((e.target as HTMLInputElement).value)
-                  }
-                />
-                <button
-                  onClick={resetPassword}
-                  className="m-4 bg-red-500 hover:bg-red-700 text-white font-bold px-4 py-2 rounded"
-                >
-                  Reset Password
-                </button>
-              </div>
             </div>
           </div>
         </div>

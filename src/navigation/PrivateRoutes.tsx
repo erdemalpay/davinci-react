@@ -23,7 +23,7 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
     return <Outlet />;
   }
   toast.error(
-    "You don't have rights to see this page. Login with a user that has the required permissions."
+    `You don't have rights to see this page ${location.pathname}. Login with a user that has the required permissions.`
   );
   return (
     <Navigate to={PublicRoutes.Login} state={{ from: location }} replace />
