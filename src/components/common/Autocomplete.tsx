@@ -1,5 +1,4 @@
 import { Combobox, Transition } from "@headlessui/react";
-import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Input } from "@material-tailwind/react";
 import { Fragment, useState } from "react";
 import { TagType } from "../../types";
@@ -37,7 +36,7 @@ export function Autocomplete<T>({
     <div className="w-full flex">
       <form className="w-full flex" autoComplete="off">
         <Combobox
-          value={selected || ""}
+          value={selected || null}
           nullable
           onChange={(e) => {
             setSelected(e as TagType<T>);
@@ -67,12 +66,6 @@ export function Autocomplete<T>({
                   onFocus={() => setQuery("")}
                 />
               </Combobox.Input>
-              <Combobox.Button className="absolute bottom-2 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon
-                  className="w-5 h-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </Combobox.Button>
             </div>
             <Transition
               as={Fragment}

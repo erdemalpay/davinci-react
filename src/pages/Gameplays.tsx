@@ -82,7 +82,7 @@ export default function Gameplays() {
   }
 
   function handleGameSelection(game: Game) {
-    setFilterData({ ...filterData, game: game._id, page: 1 });
+    setFilterData({ ...filterData, game: game?._id, page: 1 });
   }
 
   function handleStartDateSelection(event: React.FormEvent<HTMLInputElement>) {
