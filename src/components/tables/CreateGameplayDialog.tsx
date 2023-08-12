@@ -40,6 +40,7 @@ export function CreateGameplayDialog({
   }
 
   function handleGameSelection(game: Game) {
+    if (!game) return;
     setData({ ...data, game: game._id });
   }
 
