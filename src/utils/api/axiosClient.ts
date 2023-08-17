@@ -2,7 +2,7 @@ import axios, { AxiosHeaders } from "axios";
 import Cookies from "js-cookie";
 
 export const axiosClient = axios.create({
-  baseURL: "https://api-staging.davinciboardgame.com/",
+  baseURL: import.meta.env.VITE_API_URL,
   responseType: "json",
 });
 
