@@ -176,14 +176,14 @@ export function EditGameplayDialog({
             </div>
           </div>
         </div>
+        <ConfirmationDialog
+          confirm={removeGameplay}
+          close={() => setIsConfirmationDialogOpen(false)}
+          isOpen={isConfirmationDialogOpen}
+          title="Delete Gameplay"
+          text={"Are you sure to delete this gameplay?"}
+        />
       </Dialog>
-      <ConfirmationDialog
-        confirm={removeGameplay}
-        close={() => setIsConfirmationDialogOpen(false)}
-        isOpen={isConfirmationDialogOpen}
-        title="Delete Gameplay"
-        text={"Are you sure to delete this gameplay?"}
-      />
     </Transition>
   );
 }
