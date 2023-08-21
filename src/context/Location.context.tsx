@@ -2,6 +2,8 @@ import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Location } from "../types";
 import { useGetLocations } from "../utils/api/location";
 
+const LOCATION_LOCAL_STORAGE_KEY = "dvp.locationId";
+
 interface LocationContextType {
   selectedLocationId: number;
   setSelectedLocationId: (locationId: number) => void;
@@ -16,14 +18,20 @@ const LocationContext = createContext<LocationContextType>({
 });
 
 export const LocationContextProvider = ({ children }: PropsWithChildren) => {
-  const [selectedLocationId, setSelectedLocationId] = useState(1);
+  const locationId = Number(localStorage.getItem(LOCATION_LOCAL_STORAGE_KEY));
+  const [selectedLocationId, setSelectedLocationId] = useState(locationId || 1);
   const locations = useGetLocations();
+
+  function selectLocation(locationId: number) {
+    localStorage.setItem(LOCATION_LOCAL_STORAGE_KEY, locationId.toString());
+    setSelectedLocationId(locationId);
+  }
 
   return (
     <LocationContext.Provider
       value={{
         selectedLocationId,
-        setSelectedLocationId,
+        setSelectedLocationId: selectLocation,
         locations,
       }}
     >
