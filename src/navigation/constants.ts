@@ -56,6 +56,11 @@ export const allRoutes: {
       element: Games,
     },
     {
+      name: "Gameplays",
+      path: Routes.Gameplays,
+      element: Gameplays,
+    },
+    {
       name: "Memberships",
       path: Routes.Memberships,
       element: Memberships,
@@ -75,6 +80,11 @@ export const allRoutes: {
       path: Routes.ChangePassword,
       element: ChangePassword,
     },
+    {
+      name: "Analytics",
+      path: Routes.Analytics,
+      element: Analytics,
+    },
   ],
   [RolePermissionEnum.MANAGEMENT]: [
     {
@@ -91,16 +101,6 @@ export const allRoutes: {
       name: "Users",
       path: Routes.Users,
       element: Users,
-    },
-    {
-      name: "Analytics",
-      path: Routes.Analytics,
-      element: Analytics,
-    },
-    {
-      name: "Gameplays",
-      path: Routes.Gameplays,
-      element: Gameplays,
     },
   ],
 };
