@@ -3,8 +3,9 @@ import {
   Menu,
   MenuHandler,
   MenuItem,
-  MenuList
+  MenuList,
 } from "@material-tailwind/react";
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
@@ -12,10 +13,19 @@ import { RolePermissionEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
-  const { user } = useUserContext();
+  const { user, setUser } = useUserContext();
 
-  const routes = Object.values(RolePermissionEnum).filter((permission) => user?.role.permissions.includes(permission)).map((permission) => allRoutes[permission]).flat();
-    
+  const routes = Object.values(RolePermissionEnum)
+    .filter((permission) => user?.role.permissions.includes(permission))
+    .map((permission) => allRoutes[permission])
+    .flat();
+
+  function logout() {
+    Cookies.remove("jwt");
+    setUser(undefined);
+    navigate("/login");
+  }
+
   return (
     <Menu>
       <MenuHandler>
@@ -34,6 +44,7 @@ export function PageSelector() {
             {route.name}
           </MenuItem>
         ))}
+        <MenuItem onClick={logout}>Logout</MenuItem>
       </MenuList>
     </Menu>
   );
