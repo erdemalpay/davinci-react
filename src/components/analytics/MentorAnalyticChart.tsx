@@ -23,7 +23,11 @@ export interface GameCount {
   count: number;
 }
 
-export function MentorAnalyticChart() {
+export interface ChartProps {
+  unique?: boolean;
+}
+
+export function MentorAnalyticChart({ unique = false }: ChartProps) {
   const queryClient = useQueryClient();
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
@@ -48,9 +52,12 @@ export function MentorAnalyticChart() {
       const game = users.find((user) => user._id === gameplayAnalytic._id);
       return {
         name: game ? game.name : gameplayAnalytic._id,
-        count: gameplayAnalytic.playCount,
+        count: unique
+          ? gameplayAnalytic.uniqueCount
+          : gameplayAnalytic.playCount,
       } as GameCount;
     });
+    data.sort((a, b) => b.count - a.count);
     setMentorData(data);
   }, [gameAnalytics, users]);
 
@@ -67,7 +74,9 @@ export function MentorAnalyticChart() {
 
   return (
     <div className="p-4 pb-[200px] w-auto lg:w-1/2 border-2 h-[140%]">
-      <h1 className="text-xl mb-4">Gameplay By Game Mentors</h1>
+      <h1 className="text-xl mb-4">
+        {unique ? "Unique " : ""}Gameplay By Game Mentors
+      </h1>
       <div className="flex flex-col w-1/2 mb-4">
         <label className="flex items-center text-xs">Date Filter:</label>
         <select
