@@ -1,4 +1,4 @@
-import { Input } from "@material-tailwind/react";
+import { Input, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
@@ -75,9 +75,15 @@ export default function Gameplays() {
       id: "game",
       header: "Game",
       cell: (row: GameplayGroupRow) => (
-        <button className="truncate w-1/3 text-left">{`${row.game} (${
-          row.open ? row.secondary.length : row.total
-        })`}</button>
+        <Tooltip
+          content={`${row.game} (${
+            row.open ? row.secondary.length : row.total
+          })`}
+        >
+          <button className="truncate w-48 text-left">{`${row.game} (${
+            row.open ? row.secondary.length : row.total
+          })`}</button>
+        </Tooltip>
       ),
     },
     {
@@ -181,7 +187,7 @@ export default function Gameplays() {
                     {columns.map((column) => (
                       <th
                         key={column.id}
-                        className="font-bold text-left cursor-pointer w-1/2"
+                        className="font-bold text-left cursor-pointer w-3/4"
                       >
                         <div className="flex gap-x-2">{column.header}</div>
                       </th>
