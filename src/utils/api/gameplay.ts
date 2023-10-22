@@ -27,11 +27,23 @@ interface DeleteGameplayPayload {
 interface GameplayAnalytic {
   _id: number | string;
   playCount: number;
+  uniqueCount: number;
 }
 
 interface GameplayQueryResult {
   totalCount: number;
   items: Gameplay[];
+}
+
+interface GameplaySecondaryGroupResult {
+  field: string;
+  count: number;
+}
+
+interface GameplayGroupQueryResult {
+  total: number;
+  secondary: GameplaySecondaryGroupResult[];
+  _id: string;
 }
 
 export interface GameplayFilter {
@@ -43,6 +55,11 @@ export interface GameplayFilter {
   limit: number;
   sort?: string;
   asc?: number;
+}
+export interface GameplayGroupFilter {
+  groupBy: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export function createGameplay({
@@ -144,9 +161,38 @@ export function useGetGameplays(filter: GameplayFilter) {
     sort,
     asc,
   ];
-
   const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
     get<GameplayQueryResult>({ path: query })
+  );
+  return {
+    isLoading,
+    error,
+    data,
+    isFetching,
+  };
+}
+
+export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
+  const { startDate, endDate, groupBy } = filter;
+  let query = `${BASE_URL_GAMEPLAYS}/query-group?groupBy=${groupBy}`;
+  if (startDate) {
+    query += `&startDate=${startDate}`;
+  }
+  if (endDate) {
+    query += `&endDate=${endDate}`;
+  }
+  const queryKey = [
+    BASE_URL_GAMEPLAYS,
+    "query-group",
+    groupBy,
+    startDate,
+    endDate,
+  ];
+
+  const { isLoading, error, data, isFetching } = useQuery(
+    queryKey,
+    () => get<GameplayGroupQueryResult[]>({ path: query }),
+    { refetchOnWindowFocus: false }
   );
   return {
     isLoading,
