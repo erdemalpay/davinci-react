@@ -73,7 +73,7 @@ export default function Gameplays() {
       id: "game",
       header: "Game",
       cell: (row: GameplayGroupRow) => (
-        <button className="truncate w-1/3 text-left">{`${row.mentor} (${row.secondary.length}/${row.total})`}</button>
+        <button className="truncate w-full text-left">{`${row.mentor} (${row.secondary.length}/${row.total})`}</button>
       ),
     },
     {
@@ -162,7 +162,7 @@ export default function Gameplays() {
                 <div className="mt-2">
                   <Autocomplete
                     name="mentor"
-                    label="Game Mentor"
+                    label="Mentor"
                     suggestions={users}
                     handleSelection={handleMentorSelection}
                     showSelected
