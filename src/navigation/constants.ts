@@ -118,3 +118,6 @@ export const allRoutes: {
     },
   ],
 };
+
+export const NO_IMAGE_URL =
+  "https://res.cloudinary.com/dvbg/image/upload/ar_4:4,c_crop/c_fit,h_100/davinci/no-image_pyet1d.jpg";

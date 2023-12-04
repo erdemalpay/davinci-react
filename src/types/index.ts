@@ -96,6 +96,8 @@ export type MenuCategory = {
 export type MenuItem = {
   _id: number;
   name: string;
+  description: string;
+  imageUrl: string;
   category: MenuCategory | number;
   priceBahceli: number;
   priceNeorama: number;
