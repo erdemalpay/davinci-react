@@ -56,6 +56,7 @@ export function GameAnalyticChart() {
         count: gameplayAnalytic.playCount,
       } as GameCount;
     });
+    data.sort((a, b) => b.count - a.count);
     setGameData(data);
   }, [gameAnalytics, games]);
 

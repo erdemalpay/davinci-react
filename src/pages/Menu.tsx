@@ -14,6 +14,8 @@ import { EditModeText } from "../components/common/EditModeText";
 import { Header } from "../components/header/Header";
 import { AddMenuCategoryDialog } from "../components/menu/AddCategoryDialog";
 import { AddMenuItemDialog } from "../components/menu/AddItemDialog";
+import ImageUploader from "../components/upload/ImageUploader";
+import { NO_IMAGE_URL } from "../navigation/constants";
 import { MenuCategory, MenuItem } from "../types";
 import { useCategoryMutations, useGetCategories } from "../utils/api/category";
 import { useGetMenuItems, useMenuItemMutations } from "../utils/api/menu-item";
@@ -177,12 +179,39 @@ export default function MenuCategories() {
 
   const itemColumns = [
     {
+      id: "image",
+      header: "Image",
+      cell: (row: MenuItem) => (
+        <div className="mr-2">
+          <ImageUploader
+            initialImageUrl={row.imageUrl || NO_IMAGE_URL}
+            filename={row.name}
+            onSuccessCallback={(url) =>
+              updateItem({ id: row._id, updates: { imageUrl: url } })
+            }
+          />
+        </div>
+      ),
+    },
+    {
       id: "name",
       header: "Name",
       cell: (row: MenuItem) => (
         <EditableText
           name="name"
           text={row.name}
+          onUpdate={updateHandler}
+          item={row}
+        />
+      ),
+    },
+    {
+      id: "description",
+      header: "Description",
+      cell: (row: MenuItem) => (
+        <EditableText
+          name="description"
+          text={row.description}
           onUpdate={updateHandler}
           item={row}
         />

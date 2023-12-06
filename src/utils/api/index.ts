@@ -1,3 +1,4 @@
+import { AxiosHeaders } from "axios";
 import { axiosClient } from "./axiosClient";
 
 interface BaseRequest {
@@ -6,6 +7,10 @@ interface BaseRequest {
 
 interface RequestWithPayload<P> extends BaseRequest {
   payload: P;
+}
+
+interface RequestWithPayloadAndHeader<P> extends RequestWithPayload<P> {
+  headers: AxiosHeaders;
 }
 
 export interface UpdatePayload<P> {
@@ -40,6 +45,16 @@ export async function post<P, R>({
   payload,
 }: RequestWithPayload<P>): Promise<R> {
   const { data } = await axiosClient.post<R>(`${path}`, payload);
+  return data;
+}
+
+// P = payload, R = ResponseType
+export async function postWithHeader<P, R>({
+  path,
+  payload,
+  headers,
+}: RequestWithPayloadAndHeader<P>): Promise<R> {
+  const { data } = await axiosClient.post<R>(`${path}`, payload, { headers });
   return data;
 }
 
