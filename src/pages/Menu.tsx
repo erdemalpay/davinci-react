@@ -125,6 +125,21 @@ export default function MenuCategories() {
 
   const categoryColumns = [
     {
+      id: "image",
+      header: "Image",
+      cell: (row: MenuCategory) => (
+        <div className="mr-2">
+          <ImageUploader
+            initialImageUrl={row.imageUrl || NO_IMAGE_URL}
+            filename={row.name}
+            onSuccessCallback={(url) =>
+              updateCategory({ id: row._id, updates: { imageUrl: url } })
+            }
+          />
+        </div>
+      ),
+    },
+    {
       id: "name",
       header: "Name",
       cell: (row: MenuCategory) => (
