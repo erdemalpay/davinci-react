@@ -91,6 +91,7 @@ export type MenuCategory = {
   _id: number;
   name: string;
   order: number;
+  imageUrl: string;
 };
 
 export type MenuItem = {
