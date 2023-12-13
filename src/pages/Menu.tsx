@@ -226,7 +226,7 @@ export default function MenuCategories() {
       cell: (row: MenuItem) => (
         <EditableText
           name="description"
-          text={row.description}
+          text={row.description || "-"}
           onUpdate={updateHandler}
           item={row}
         />
