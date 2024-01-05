@@ -1,11 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { format } from "date-fns";
-import { Table } from "../../types";
-import { useForm } from "../../hooks/useForm";
-import { useTableMutations } from "../../utils/api/table";
 import { Input } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useLocationContext } from "../../context/Location.context";
+import { useForm } from "../../hooks/useForm";
+import { Table } from "../../types";
+import { useTableMutations } from "../../utils/api/table";
 
 export function CreateTableDialog({
   isOpen,
@@ -51,7 +51,7 @@ export function CreateTableDialog({
         >
           <div
             onClick={close}
-            className="w-full h-full bg-gray-900 z-0 absolute inset-0"
+            className="w-full h-full bg-gray-500 bg-opacity-50 z-0 absolute inset-0"
           />
           <div className="mx-auto container">
             <div className="flex items-center justify-center h-full w-full">
