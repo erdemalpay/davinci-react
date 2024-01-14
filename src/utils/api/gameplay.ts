@@ -30,7 +30,7 @@ interface GameplayAnalytic {
   uniqueCount: number;
 }
 
-interface GameplayQueryResult {
+export interface GameplayQueryResult {
   totalCount: number;
   items: Gameplay[];
 }
@@ -40,7 +40,7 @@ interface GameplaySecondaryGroupResult {
   count: number;
 }
 
-interface GameplayGroupQueryResult {
+export interface GameplayGroupQueryResult {
   total: number;
   secondary: GameplaySecondaryGroupResult[];
   _id: string;
