@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
+import { useUserContext } from "../../context/User.context";
 import { GameplayGroupRow } from "../../pages/GameplaysByMentor";
-import { Game, User } from "../../types";
+import { Game } from "../../types";
+import { useGetGames } from "../../utils/api/game";
 import { GameplayGroupQueryResult } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
+
 type Props = {
-  user: User;
-  games: Game[];
   data: GameplayGroupQueryResult[];
 };
-
-const GameMasterGames = ({ user, games, data }: Props) => {
+// In this component, we display the games that the user mentors within their gameplays.
+const GameMasterGames = ({ data }: Props) => {
+  const games: Game[] = useGetGames();
   const [gameFilter, setGameFilter] = useState<Game | null>();
+  const { user } = useUserContext();
   const formattedData = data
     .map(({ secondary, total, _id }) => ({
       mentor: _id,
@@ -18,7 +21,7 @@ const GameMasterGames = ({ user, games, data }: Props) => {
       secondary,
       open: false,
     }))
-    .filter((row) => row.mentor === user._id);
+    .filter((row) => row.mentor === user?._id);
   const gameplayGroupRows: GameplayGroupRow[] = formattedData.sort(
     (a, b) => Number(b.total) - Number(a.total)
   );
@@ -47,7 +50,7 @@ const GameMasterGames = ({ user, games, data }: Props) => {
   }
 
   return (
-    <div className="w-full sm:w-1/3 border rounded-md flex flex-col bg-white overflow-x-auto  font-[inter] max-h-[420px] overflow-y-auto shadow-sm">
+    <div className="self-auto w-full sm:w-1/3 border rounded-md flex flex-col bg-white overflow-x-auto  font-[inter] max-h-[420px] overflow-y-auto shadow-sm">
       <div className="overflow-auto">
         <Autocomplete
           name="game"
@@ -56,9 +59,9 @@ const GameMasterGames = ({ user, games, data }: Props) => {
           handleSelection={handleGameSelection}
           showSelected
         />
-        <table className="table-auto w-full mx-auto">
+        <table className="table-auto w-full">
           <thead className=" border-b">
-            <tr className="flex flex-row justify-between  w-full">
+            <tr className="ml-6 flex flex-row justify-between w-full ">
               {columns.map((column) => {
                 return (
                   <th
@@ -94,7 +97,7 @@ const GameMasterGames = ({ user, games, data }: Props) => {
                         return (
                           <td
                             key={columnIndex + second.field}
-                            className="py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
+                            className="px-4 py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
                           >
                             {second.count}
                           </td>

@@ -75,7 +75,8 @@ export default function UserView() {
           </div>
         </div>
         {/* game master gameplay list */}
-        {user.role._id === 2 && <GameMaster user={user} />}
+        {/* TODO : User roles are going to be made enum  */}
+        {user.role._id === 2 && <GameMaster />}
       </div>
     </>
   );

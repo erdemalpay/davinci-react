@@ -138,3 +138,8 @@ export enum RolePermissionEnum {
   OPERATION = "Operation",
   MANAGEMENT = "Management",
 }
+
+export enum UserGameUpdateType {
+  ADD = "add",
+  REMOVE = "remove",
+}
