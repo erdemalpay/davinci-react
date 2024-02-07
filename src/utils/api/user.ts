@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Role, User } from "../../types";
-import { get, post } from "../api";
+import { get, patch, post } from "../api";
+import { UserGameUpdateType } from "./../../types/index";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 export function getUserWithToken(): Promise<User> {
@@ -31,8 +32,31 @@ function updateUserPasswordRequest({
 
 export function useUpdatePasswordMutation() {
   const { mutate: updatePassword } = useMutation(updateUserPasswordRequest);
-
   return { updatePassword };
+}
+
+function updateUserGames({
+  gameId,
+  updateType,
+}: {
+  gameId: number;
+  updateType: UserGameUpdateType;
+}) {
+  return patch({
+    path: `${Paths.Users}/games`,
+    payload: { gameId, updateType },
+  });
+}
+export function updateUserGamesMutation() {
+  const queryClient = useQueryClient();
+
+  const { mutate: updateUserGame } = useMutation(updateUserGames, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([Paths.Users, "me"]);
+    },
+  });
+
+  return { updateUserGame };
 }
 
 export function useGetUsers() {
