@@ -14,13 +14,13 @@ import { RolePermissionEnum } from "../../types";
 export function PageSelector() {
   const navigate = useNavigate();
   const { user, setUser } = useUserContext();
-
   const routes = Object.values(RolePermissionEnum)
     .filter((permission) => user?.role.permissions.includes(permission))
     .map((permission) => allRoutes[permission])
     .flat();
 
   function logout() {
+    console.log(user);
     Cookies.remove("jwt");
     setUser(undefined);
     navigate("/login");

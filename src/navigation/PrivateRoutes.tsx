@@ -13,6 +13,7 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   useAuth();
   const location = useLocation();
   const { user } = useUserContext();
+
   if (!user) return <></>;
 
   if (

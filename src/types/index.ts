@@ -52,6 +52,7 @@ export type User = {
   iban: string;
   birthDate: Date;
   workType: WorkType;
+  games: number[];
 };
 
 export type Game = {
@@ -136,4 +137,9 @@ export type TagType<T> = {
 export enum RolePermissionEnum {
   OPERATION = "Operation",
   MANAGEMENT = "Management",
+}
+
+export enum UserGameUpdateType {
+  ADD = "add",
+  REMOVE = "remove",
 }
