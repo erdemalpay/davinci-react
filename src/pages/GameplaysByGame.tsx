@@ -1,11 +1,13 @@
 import { Input, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
+import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { Game } from "../types";
 import { useGetGames } from "../utils/api/game";
 import {
   GameplayGroupFilter,
+  useGetGamePlaysGroupByLocation,
   useGetGameplaysGroups,
 } from "../utils/api/gameplay";
 import { useGetAllUsers } from "../utils/api/user";
@@ -21,11 +23,17 @@ interface GameplayGroupRow {
   secondary: SecondGroupRow[];
   open: boolean;
 }
+const locationOptions = [
+  { value: "0", label: "All" },
+  { value: "1", label: "Bahçeli" },
+  { value: "2", label: "Neorama" },
+];
 
 export default function Gameplays() {
   const [gameplayGroupRows, setGameplayGroupRows] = useState<
     GameplayGroupRow[]
   >([]);
+  const [locationFilter, setLocationFilter] = useState<number>(0);
   const [filterData, setFilterData] = useState<GameplayGroupFilter>({
     groupBy: "game,mentor",
   });
@@ -33,6 +41,7 @@ export default function Gameplays() {
   const [gameFilter, setGameFilter] = useState<Game | null>();
 
   const { data } = useGetGameplaysGroups(filterData);
+  const gameplaysWithLocation = useGetGamePlaysGroupByLocation().data;
   const games = useGetGames();
   const users = useGetAllUsers();
 
@@ -53,22 +62,37 @@ export default function Gameplays() {
   useEffect(() => {
     if (data) {
       setGameplayGroupRows(() => {
-        const formattedData = data
-          .map(({ secondary, total, _id }) => ({
-            game:
-              games.find((game) => String(game._id) === String(_id))?.name ||
-              `${_id}`,
-            total,
-            secondary,
-            open: false,
-          }))
-          .filter((row) => row.game === gameFilter?.name || !gameFilter);
+        const formattedData =
+          locationFilter === 0
+            ? data
+                .map(({ secondary, total, _id }) => ({
+                  game:
+                    games.find((game) => String(game._id) === String(_id))
+                      ?.name || `${_id}`,
+                  total,
+                  secondary,
+                  open: false,
+                }))
+                .filter((row) => row.game === gameFilter?.name || !gameFilter)
+            : gameplaysWithLocation
+            ? gameplaysWithLocation
+                .filter((row) => row.location === locationFilter)
+                .map(({ secondary, total, _id }) => ({
+                  game:
+                    games.find((game) => String(game._id) === String(_id))
+                      ?.name || `${_id}`,
+                  total,
+                  secondary,
+                  open: false,
+                }))
+                .filter((row) => row.game === gameFilter?.name || !gameFilter)
+            : [];
 
         formattedData.sort((a, b) => Number(b.total) - Number(a.total));
         return formattedData;
       });
     }
-  }, [data, games, filterData, gameFilter]);
+  }, [data, games, filterData, gameFilter, locationFilter]);
 
   const columns = [
     {
@@ -118,7 +142,6 @@ export default function Gameplays() {
   ];
 
   function handleStartDateSelection(event: React.FormEvent<HTMLInputElement>) {
-    console.log({ value: event.target });
     setFilterData({
       ...filterData,
       startDate: (event.target as HTMLInputElement).value,
@@ -176,6 +199,19 @@ export default function Gameplays() {
                     showSelected
                   />
                 </div>
+                <SelectInput
+                  label="Location"
+                  options={locationOptions}
+                  value={
+                    locationOptions.find(
+                      (option) => option.value === locationFilter.toString()
+                    ) || null
+                  }
+                  onChange={(selectedOption) => {
+                    setLocationFilter(Number(selectedOption?.value || "0"));
+                  }}
+                  placeholder="Select a location"
+                />
               </div>
             </div>
           </div>

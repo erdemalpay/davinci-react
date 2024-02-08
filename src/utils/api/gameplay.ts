@@ -44,6 +44,7 @@ export interface GameplayGroupQueryResult {
   total: number;
   secondary: GameplaySecondaryGroupResult[];
   _id: string;
+  location?: number;
 }
 
 export interface GameplayFilter {
@@ -193,6 +194,20 @@ export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
     queryKey,
     () => get<GameplayGroupQueryResult[]>({ path: query }),
     { refetchOnWindowFocus: false }
+  );
+  return {
+    isLoading,
+    error,
+    data,
+    isFetching,
+  };
+}
+export function useGetGamePlaysGroupByLocation() {
+  const queryKey = [BASE_URL_GAMEPLAYS, "group-game-mentor-location"];
+  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
+    get<GameplayGroupQueryResult[]>({
+      path: `${BASE_URL_GAMEPLAYS}/group-game-mentor-location`,
+    })
   );
   return {
     isLoading,
