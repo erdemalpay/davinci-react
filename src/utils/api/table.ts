@@ -10,6 +10,10 @@ interface UpdateTablePayload {
   id: number;
   updates: Partial<Table>;
 }
+interface CloseAllTablePayload {
+  ids: number[];
+  finishHour: string;
+}
 
 interface TablePayloadWithId {
   id: number;
@@ -24,6 +28,15 @@ export function closeTable({
   return patch<Partial<Table>, Table>({
     path: `/tables/close/${id}`,
     payload: updates,
+  });
+}
+export function closeAllTable({
+  ids,
+  finishHour,
+}: CloseAllTablePayload): Promise<Table[]> {
+  return patch<Partial<CloseAllTablePayload>, Table[]>({
+    path: `/tables/closeAll`,
+    payload: { ids, finishHour },
   });
 }
 
@@ -73,6 +86,46 @@ export function useCloseTableMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+  });
+}
+export function useCloseAllTableMutation() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryKey = [BASE_URL, selectedLocationId, selectedDate];
+
+  const queryClient = useQueryClient();
+
+  return useMutation(closeAllTable, {
+    onMutate: async ({ ids, finishHour }: CloseAllTablePayload) => {
+      await queryClient.cancelQueries(queryKey);
+
+      const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
+
+      // Optimistically update tables to reflect they're closed
+      const updatedTables = previousTables
+        .map((table) => {
+          if (ids.includes(table._id)) {
+            return { ...table, finishHour };
+          }
+          return table;
+        })
+        .sort(sortTable);
+
+      queryClient.setQueryData(queryKey, updatedTables);
+
+      return { previousTables };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      const previousTableContext = context as { previousTables: Table[] };
+      if (previousTableContext?.previousTables) {
+        queryClient.setQueryData(queryKey, previousTableContext.previousTables);
+      }
+    },
+    onSettled: () => {
+      // Invalidate queries to refetch the table list
       queryClient.invalidateQueries(queryKey);
     },
   });
