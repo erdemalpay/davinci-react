@@ -1,6 +1,8 @@
 import { Switch } from "@headlessui/react";
+import { subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { DateInput } from "../components/common/DateInput";
 import { InputWithLabel } from "../components/common/InputWithLabel";
@@ -16,8 +18,9 @@ import { useGetGames } from "../utils/api/game";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
-import { isToday, parseDate } from "../utils/dateUtil";
+import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
+
 const TablesPage = () => {
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
@@ -100,16 +103,41 @@ const TablesPage = () => {
     });
   }, [defaultUser, visits]);
 
+  const handleDecrementDate = (prevDate: string) => {
+    const date = parseDate(prevDate);
+    const newDate = subDays(date, 1);
+    setSelectedDate(formatDate(newDate));
+  };
+
+  const handleIncrementDate = (prevDate: string) => {
+    const date = parseDate(prevDate);
+    const newDate = new Date(date);
+    newDate.setDate(date.getDate() + 1);
+    setSelectedDate(formatDate(newDate));
+  };
+
   return (
     <>
       <Header />
       <div className="container relative h-full py-4 px-2 lg:px-12">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex justify-between">
-            <div className="flex items-center text-3xl">
+            <div className="flex flex-row gap-2 items-center text-3xl">
+              <IoIosArrowBack
+                className="text-xl"
+                onClick={() => {
+                  handleDecrementDate(selectedDate ?? "");
+                }}
+              />
               <DateInput
                 date={parseDate(selectedDate)}
                 setDate={setSelectedDate}
+              />
+              <IoIosArrowForward
+                className="text-xl"
+                onClick={() => {
+                  handleIncrementDate(selectedDate ?? "");
+                }}
               />
             </div>
             <div className="flex justify-between gap-x-4">
