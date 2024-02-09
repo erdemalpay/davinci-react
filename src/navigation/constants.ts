@@ -112,11 +112,6 @@ export const allRoutes: {
       element: Menu,
     },
     {
-      name: "User",
-      path: Routes.User,
-      element: User,
-    },
-    {
       name: "Users",
       path: Routes.Users,
       element: Users,

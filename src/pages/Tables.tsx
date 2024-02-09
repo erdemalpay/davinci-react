@@ -67,7 +67,7 @@ const TablesPage = () => {
   });
   const handleCloseAllTables = () => {
     const finishHour = format(new Date(), "HH:mm");
-    const ids = tables.map((t) => t._id);
+    const ids = tables.filter((t) => !t.finishHour).map((t) => t._id);
     closeAllTables({ ids, finishHour });
     setIsCloseAllConfirmationDialogOpen(false);
   };
