@@ -1,9 +1,10 @@
 import { Switch } from "@headlessui/react";
-import { subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { DateInput } from "../components/common/DateInput";
 import { InputWithLabel } from "../components/common/InputWithLabel";
 import { Header } from "../components/header/Header";
@@ -15,7 +16,7 @@ import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
-import { useGetTables } from "../utils/api/table";
+import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
@@ -23,10 +24,14 @@ import { sortTable } from "../utils/sort";
 
 const TablesPage = () => {
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const navigate = useNavigate();
-
+  const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
   const visits = useGetVisits();
   const tables = useGetTables();
@@ -60,6 +65,12 @@ const TablesPage = () => {
       return 0;
     }
   });
+  const handleCloseAllTables = () => {
+    const finishHour = format(new Date(), "HH:mm");
+    const ids = tables.filter((t) => !t.finishHour).map((t) => t._id);
+    closeAllTables({ ids, finishHour });
+    setIsCloseAllConfirmationDialogOpen(false);
+  };
 
   const defaultUser: User = users.find((user) => user._id === "dv") as User;
 
@@ -152,6 +163,12 @@ const TablesPage = () => {
                 className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
               >
                 Add table
+              </button>
+              <button
+                onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
+                className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
+              >
+                Close all tables
               </button>
             </div>
           </div>
@@ -249,6 +266,13 @@ const TablesPage = () => {
           close={() => setIsCreateTableDialogOpen(false)}
         />
       )}
+      <ConfirmationDialog
+        isOpen={isCloseAllConfirmationDialogOpen}
+        close={() => setIsCloseAllConfirmationDialogOpen(false)}
+        confirm={handleCloseAllTables}
+        title="Close All Table"
+        text="All tables will be closed. Are you sure you want to continue?"
+      />
     </>
   );
 };
