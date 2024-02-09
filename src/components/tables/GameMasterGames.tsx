@@ -50,65 +50,71 @@ const GameMasterGames = ({ data }: Props) => {
   }
 
   return (
-    <div className="self-auto w-full sm:w-1/3 border rounded-md flex flex-col bg-white overflow-x-auto  font-[inter] max-h-[420px] overflow-y-auto shadow-sm">
-      <div className="overflow-auto">
-        <Autocomplete
-          name="game"
-          label="Game"
-          suggestions={games}
-          handleSelection={handleGameSelection}
-          showSelected
-        />
-        <table className="table-auto w-full">
-          <thead className=" border-b">
-            <tr className="ml-6 flex flex-row justify-between w-full ">
-              {columns.map((column) => {
-                return (
-                  <th
-                    key={column}
-                    className="  pl-2 py-4 text-sm font-[600]  text-gray-900  "
-                  >
-                    {column}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
+    <div className="self-auto w-full sm:w-1/3 flex flex-col gap-2">
+      <div className="flex flex-row justify-between">
+        <h1 className="font-semibold text-lg">Anlattığı Oyunlar</h1>
+      </div>
 
-          <tbody className="bg-white divide-y divide-gray-200">
-            {groupRow.secondary.length > 0 &&
-              groupRow.secondary.map((second, index) => {
-                const game = games.find(
-                  (game) => String(game._id) === String(second.field)
-                );
-                return (
-                  <tr key={second.field} className="hover:bg-[#f7f7f8]">
-                    {columns.map((column, columnIndex) => {
-                      if (column === "Game") {
-                        return (
-                          <td
-                            key={columnIndex + second.field}
-                            className="px-4 py-4 whitespace-no-wrap  text-sm  font-[500] text-gray-900"
-                          >
-                            {game?.name}
-                          </td>
-                        );
-                      } else {
-                        return (
-                          <td
-                            key={columnIndex + second.field}
-                            className="px-4 py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
-                          >
-                            {second.count}
-                          </td>
-                        );
-                      }
-                    })}
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
+      <div className=" border rounded-md flex flex-col bg-white overflow-x-auto  font-[inter] max-h-[420px] overflow-y-auto shadow-sm ">
+        <div className="overflow-auto">
+          <Autocomplete
+            name="game"
+            label="Game"
+            suggestions={games}
+            handleSelection={handleGameSelection}
+            showSelected
+          />
+          <table className="table-auto w-full">
+            <thead className=" border-b">
+              <tr className="ml-6 flex flex-row justify-between w-full ">
+                {columns.map((column) => {
+                  return (
+                    <th
+                      key={column}
+                      className="  pl-2 py-4 text-sm font-[600]  text-gray-900  "
+                    >
+                      {column}
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+
+            <tbody className="bg-white divide-y divide-gray-200">
+              {groupRow.secondary.length > 0 &&
+                groupRow.secondary.map((second, index) => {
+                  const game = games.find(
+                    (game) => String(game._id) === String(second.field)
+                  );
+                  return (
+                    <tr key={second.field} className="hover:bg-[#f7f7f8]">
+                      {columns.map((column, columnIndex) => {
+                        if (column === "Game") {
+                          return (
+                            <td
+                              key={columnIndex + second.field}
+                              className="px-4 py-4 whitespace-no-wrap  text-sm  font-[500] text-gray-900"
+                            >
+                              {game?.name}
+                            </td>
+                          );
+                        } else {
+                          return (
+                            <td
+                              key={columnIndex + second.field}
+                              className="px-4 py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
+                            >
+                              {second.count}
+                            </td>
+                          );
+                        }
+                      })}
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

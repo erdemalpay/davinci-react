@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MdDelete } from "react-icons/md";
 import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import { updateUserGamesMutation, useGetUser } from "../../utils/api/user";
@@ -33,9 +34,6 @@ const UserGamesTable = () => {
     });
   }, [gameFilter, games, user]);
 
-  function handleGameSelection(game: Game) {
-    setGameFilter(game);
-  }
   // when the user clicks on the add or delete button, we update the user games
   function handleUpdateUserGame({
     gameId,
@@ -46,9 +44,19 @@ const UserGamesTable = () => {
   }) {
     updateUserGame({ gameId, updateType });
   }
+  function handleGameSelection(game: Game) {
+    setGameFilter(game);
+    if (user?.games.includes(game._id)) return;
+    handleUpdateUserGame({
+      gameId: game._id,
+      updateType: UserGameUpdateType.ADD,
+    });
+  }
+
   return (
     <div className="w-full sm:w-1/3 h-fit ">
-      <div className="border rounded-t-md pt-1">
+      <h1 className="font-semibold text-lg">Bildiği Oyunlar</h1>
+      <div className="border rounded-t-md pt-1 mt-2">
         <Autocomplete
           name="game"
           label="Game"
@@ -96,22 +104,9 @@ const UserGamesTable = () => {
                             key={columnIndex + game._id}
                             className=" py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
                           >
-                            {gameFilter &&
-                            !user?.games.includes(gameFilter._id) ? (
+                            {user?.games.includes(game._id) && (
                               <button
-                                className="px-2 py-1 bg-grey-800 text-white rounded-md"
-                                onClick={() => {
-                                  handleUpdateUserGame({
-                                    gameId: game._id,
-                                    updateType: UserGameUpdateType.ADD,
-                                  });
-                                }}
-                              >
-                                Add
-                              </button>
-                            ) : (
-                              <button
-                                className="px-2 py-1 bg-red-500 rounded-md text-white"
+                                className="text-lg"
                                 onClick={() => {
                                   handleUpdateUserGame({
                                     gameId: game._id,
@@ -119,7 +114,7 @@ const UserGamesTable = () => {
                                   });
                                 }}
                               >
-                                Delete
+                                <MdDelete />
                               </button>
                             )}
                           </td>
