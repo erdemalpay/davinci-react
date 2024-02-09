@@ -30,7 +30,10 @@ async function loginMethod(payload: LoginCredentials) {
   });
 }
 
-export function useLogin(location?: Location, onError?: (error: any) => void) {
+export function useLogin(
+  location?: Location,
+  onError?: (error: unknown) => void
+) {
   const navigate = useNavigate();
 
   const { mutate: login } = useMutation<
