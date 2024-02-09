@@ -10,12 +10,12 @@ import {
 } from "../utils/api/gameplay";
 import { useGetAllUsers } from "../utils/api/user";
 
-interface SecondGroupRow {
+export interface SecondGroupRow {
   field: string;
   count: number;
 }
 
-interface GameplayGroupRow {
+export interface GameplayGroupRow {
   mentor: string;
   total: number;
   secondary: SecondGroupRow[];
@@ -84,7 +84,7 @@ export default function Gameplays() {
           return (
             <table className="min-w-full divide-y divide-gray-200">
               <tbody className="bg-white divide-y divide-gray-200">
-                {row.secondary.map((second, index) => {
+                {row?.secondary.map((second, index) => {
                   const game = games.find(
                     (game) => String(game._id) === String(second.field)
                   );

@@ -85,6 +85,11 @@ export const allRoutes: {
       element: ChangePassword,
     },
     {
+      name: "User",
+      path: Routes.User,
+      element: User,
+    },
+    {
       name: "Analytics",
       path: Routes.Analytics,
       element: Analytics,
