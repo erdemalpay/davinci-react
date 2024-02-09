@@ -28,7 +28,7 @@ export enum Routes {
   Tables = "/tables",
   Visits = "/visits",
   Menu = "/menu",
-  User = "/user/:user",
+  User = "/user/:userId",
   Users = "/users",
   Analytics = "/analytics",
   Gameplays = "/gameplays",
@@ -89,6 +89,7 @@ export const allRoutes: {
       path: Routes.User,
       element: User,
     },
+
     {
       name: "Analytics",
       path: Routes.Analytics,
@@ -111,6 +112,7 @@ export const allRoutes: {
       path: Routes.Menu,
       element: Menu,
     },
+
     {
       name: "Users",
       path: Routes.Users,

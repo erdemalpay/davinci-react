@@ -1,5 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { FormEvent, useState } from "react";
+import { IoEyeOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { EditableText } from "../components/common/EditableText";
@@ -13,7 +15,7 @@ export default function Users() {
   const { updateUser, createUser } = useUserMutations();
   const users = useGetAllUsers();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
-
+  const navigate = useNavigate();
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
   function updateUserHandler(event: FormEvent<HTMLInputElement>, item?: User) {
     if (!item) return;
@@ -79,6 +81,21 @@ export default function Users() {
       ),
     },
     {
+      id: "details",
+      header: "Details",
+      visible: true,
+      cell: (row: User) => (
+        <div className="flex flex-wrap gap-4 mt-2 w-1/2" id="roles">
+          <IoEyeOutline
+            className="text-blue-500 w-6 h-6"
+            onClick={() => {
+              navigate(`/user/${row._id}`);
+            }}
+          />
+        </div>
+      ),
+    },
+    {
       id: "active",
       header: "Active",
       visible: showInactiveUsers,
@@ -89,6 +106,7 @@ export default function Users() {
         ></CheckSwitch>
       ),
     },
+
     /* {
       id: "delete",
       header: "Action",

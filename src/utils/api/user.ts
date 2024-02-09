@@ -66,6 +66,9 @@ export function useGetUsers() {
 export function useGetUser() {
   return useGet<User>(Paths.User, [Paths.Users, "me"]);
 }
+export function useGetUserWithId(id: string) {
+  return useGet<User>(`${Paths.Users}/${id}`, [Paths.Users, id]);
+}
 
 export function useGetAllUsers() {
   return useGetList<User>(Paths.AllUsers, [Paths.Users, "all"]);

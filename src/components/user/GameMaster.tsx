@@ -1,17 +1,17 @@
-import { useGetGameplaysGroups } from "../../utils/api/gameplay";
+import { User } from "../../types";
+import { useGetMentorGamePlays } from "../../utils/api/gameplay";
 import GameMasterGamesTable from "../tables/GameMasterGames";
 import UserGamesTable from "../tables/UserGamesTable";
+type Props = {
+  user: User;
+};
+const GameMaster = ({ user }: Props) => {
+  const { data } = useGetMentorGamePlays(user._id);
 
-const GameMaster = () => {
-  const { data } = useGetGameplaysGroups({
-    groupBy: "mentor,game",
-  });
-  if (!data) return <></>;
   return (
     <div className="flex flex-col">
       <div className=" flex flex-row  gap-20  ">
         <GameMasterGamesTable data={data} />
-
         <UserGamesTable />
       </div>
     </div>
