@@ -71,20 +71,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const onFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files?.[0]) {
-        // const clUrl = `https://api.cloudinary.com/v1_1/dvbg/image/upload`;
-        // const file = event.target.files[0];
-        // const formData = new FormData();
-        // formData.append("file", file);
-        // formData.append("upload_preset", "hdvqudxi");
-        // const res = await fetch(clUrl, {
-        //   method: "POST",
-        //   body: formData,
-        // });
-        // const data = await res.json();
-        // const publicId = data.public_id;
-        // console.log(publicId);
-        // startEditing(publicId);
-        console.log({ filename2: filename });
         uploadImageMutation.mutate({
           file: event.target.files[0],
           filename,
