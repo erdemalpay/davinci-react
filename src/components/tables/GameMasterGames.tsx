@@ -77,7 +77,7 @@ const GameMasterGames = ({ data }: Props) => {
 
           <tbody className="bg-white divide-y divide-gray-200">
             {groupRow.secondary.length > 0 &&
-              groupRow.secondary.map((second, index) => {
+              groupRow.secondary.map((second) => {
                 const game = games.find(
                   (game) => String(game._id) === String(second.field)
                 );

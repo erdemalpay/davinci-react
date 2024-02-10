@@ -20,7 +20,7 @@ export function PreviousVisitList({ visits }: PreviousVisitListProps) {
             <Chip
               value={visit.user.name}
               style={{ backgroundColor: visit.user?.role?.color }}
-              color="grey"
+              color="gray"
             />
           </Tooltip>
         ))}

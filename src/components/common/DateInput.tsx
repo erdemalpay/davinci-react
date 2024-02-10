@@ -1,4 +1,4 @@
-import DatePicker from "react-datepicker";
+/* import DatePicker from "react-datepicker";
 import { formatDate } from "../../utils/dateUtil";
 
 interface Props {
@@ -28,3 +28,4 @@ export function DateInput({ date, setDate }: Props) {
     </div>
   );
 }
+ */

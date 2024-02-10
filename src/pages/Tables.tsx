@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import { DateInput } from "../components/common/DateInput";
+import { DateInput } from "../components/common/DateInput2";
 import { InputWithLabel } from "../components/common/InputWithLabel";
 import { Header } from "../components/header/Header";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
