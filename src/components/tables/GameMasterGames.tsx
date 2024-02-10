@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useUserContext } from "../../context/User.context";
 import { GameplayGroupRow } from "../../pages/GameplaysByMentor";
-import { Game } from "../../types";
+import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
-import { GameplayGroupQueryResult } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
 
 type Props = {
-  data: GameplayGroupQueryResult[];
+  data: Gameplay[];
 };
 // In this component, we display the games that the user mentors within their gameplays.
 const GameMasterGames = ({ data }: Props) => {

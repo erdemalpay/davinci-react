@@ -2,18 +2,25 @@ import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
-import { updateUserGamesMutation, useGetUser } from "../../utils/api/user";
+import {
+  updateUserGamesMutation,
+  useGetUserWithId,
+} from "../../utils/api/user";
 import { Autocomplete } from "../common/Autocomplete";
 
 enum UserGamesTableColumn {
   GAME = "Game",
   ACTION = "",
 }
+type Props = {
+  userId: string;
+};
 
 // In this component we show the games that user added to their profile
-const UserGamesTable = () => {
+const UserGamesTable = ({ userId }: Props) => {
+  const user = useGetUserWithId(userId);
+  if (!user) return null;
   const games: Game[] = useGetGames();
-  const user = useGetUser();
   const [gameFilter, setGameFilter] = useState<Game | null>();
   const [groupRow, setGroupRow] = useState<Game[]>([]);
   const columns = [UserGamesTableColumn.GAME, UserGamesTableColumn.ACTION];
@@ -42,13 +49,14 @@ const UserGamesTable = () => {
     gameId: number;
     updateType: UserGameUpdateType;
   }) {
-    updateUserGame({ gameId, updateType });
+    updateUserGame({ gameId, updateType, userId });
   }
   function handleGameSelection(game: Game) {
     setGameFilter(game);
-    if (user?.games.includes(game._id)) return;
+
+    if (user?.games?.includes(game?._id) || !game) return;
     handleUpdateUserGame({
-      gameId: game._id,
+      gameId: game?._id,
       updateType: UserGameUpdateType.ADD,
     });
   }
