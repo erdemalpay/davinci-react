@@ -1,6 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { TrashIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Input } from "@material-tailwind/react";
 import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { Game, Gameplay, Table, User } from "../../types";
@@ -10,6 +9,7 @@ import {
 } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { Input } from "../common/DInput";
 import { TimeInputWithLabel } from "../common/TimeInputWithLabel";
 
 export function EditGameplayDialog({

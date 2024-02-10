@@ -5,9 +5,9 @@ import {
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 
-import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
+import { Input } from "../components/common/DInput";
 import { Header } from "../components/header/Header";
 import { Game, User } from "../types";
 import { useGetGames } from "../utils/api/game";

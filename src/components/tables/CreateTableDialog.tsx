@@ -1,11 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Input } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useLocationContext } from "../../context/Location.context";
 import { useForm } from "../../hooks/useForm";
 import { Table } from "../../types";
 import { useTableMutations } from "../../utils/api/table";
+import { Input } from "../common/DInput";
 
 export function CreateTableDialog({
   isOpen,

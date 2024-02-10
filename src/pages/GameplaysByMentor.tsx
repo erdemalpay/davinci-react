@@ -1,6 +1,6 @@
-import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
+import { Input } from "../components/common/DInput";
 import { Header } from "../components/header/Header";
 import { User } from "../types";
 import { useGetGames } from "../utils/api/game";
