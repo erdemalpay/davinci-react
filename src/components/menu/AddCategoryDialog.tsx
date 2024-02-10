@@ -1,10 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { Input } from "@material-tailwind/react";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
 import { MenuCategory } from "../../types/index";
-import { Input } from "../common/DInput";
 
 export function AddMenuCategoryDialog({
   isOpen,

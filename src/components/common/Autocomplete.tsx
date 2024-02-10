@@ -1,7 +1,7 @@
 import { Combobox, Transition } from "@headlessui/react";
+import { Input } from "@material-tailwind/react";
 import { Fragment, SetStateAction, useState } from "react";
 import { TagType } from "../../types";
-import { Input } from "../common/DInput";
 import { InputWithLabelProps } from "./InputWithLabel";
 
 interface AutocompleteProps<T> extends InputWithLabelProps {

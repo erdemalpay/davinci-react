@@ -1,11 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { Input } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
 import { Game, Gameplay, Table, User } from "../../types";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
-import { Input } from "../common/DInput";
 
 export function CreateGameplayDialog({
   isOpen,

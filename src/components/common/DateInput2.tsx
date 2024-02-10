@@ -1,12 +1,12 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import {
+  Input,
   Popover,
   PopoverContent,
   PopoverHandler,
 } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
-import { Input } from "./DInput";
 
 interface Props {
   date: Date;
@@ -15,20 +15,20 @@ interface Props {
 
 export function DateInput({ date, setDate }: Props) {
   return (
-    <div className="p-24">
+    <div className="p-2">
       <Popover placement="bottom">
         <PopoverHandler>
           <Input
             label="Select a Date"
             onChange={() => null}
-            value={date ? format(date, "PPP") : ""}
+            value={date ? format(date, "dd/MM/yyyy") : ""}
           />
         </PopoverHandler>
         <PopoverContent>
           <DayPicker
             mode="single"
             selected={date}
-            onSelect={(day) => day && setDate(format(day, "YYYY-MM-DD"))}
+            onSelect={(day) => day && setDate(format(day, "yyyy-MM-dd"))}
             showOutsideDays
             className="border-0"
             classNames={{

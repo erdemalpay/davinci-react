@@ -1,12 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { Input } from "@material-tailwind/react";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { useLocationContext } from "../../context/Location.context";
 import { useForm } from "../../hooks/useForm";
 import { Reservation } from "../../types/index";
-import { Input } from "../common/DInput";
 
 export function AddReservationDialog({
   isOpen,

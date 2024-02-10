@@ -1,7 +1,6 @@
-import { Tooltip } from "@material-tailwind/react";
+import { Input, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
-import { Input } from "../components/common/DInput";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { Game } from "../types";
