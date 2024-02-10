@@ -1,10 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { useForm } from "../../hooks/useForm";
-import { toast } from "react-toastify";
 import { Input } from "@material-tailwind/react";
-import { addMonths, format, subDays } from "date-fns";
 import { UseMutateFunction } from "@tanstack/react-query";
+import { addMonths, format, subDays } from "date-fns";
+import { toast } from "react-toastify";
+import { useForm } from "../../hooks/useForm";
 import { Reward } from "../../types/index";
 
 export function CreateRewardDialog({

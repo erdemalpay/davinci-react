@@ -1,4 +1,5 @@
 import {
+  Locale,
   addMonths,
   eachDayOfInterval,
   endOfMonth,

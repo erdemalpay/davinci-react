@@ -1,6 +1,6 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { Input } from "@material-tailwind/react";
-import { Fragment, useState } from "react";
+import { Fragment, SetStateAction, useState } from "react";
 import { TagType } from "../../types";
 import { InputWithLabelProps } from "./InputWithLabel";
 
@@ -50,7 +50,9 @@ export function Autocomplete<T>({
                 displayValue={(suggestion: TagType<T>) =>
                   suggestion?.name || ""
                 }
-                onChange={(event) => {
+                onChange={(event: {
+                  target: { value: SetStateAction<string> };
+                }) => {
                   setQuery(event.target.value);
                   // We are unsetting selected on input change othwerwise it keeps showing
                   // selected value all the time ie. we cannot delete query
@@ -80,25 +82,27 @@ export function Autocomplete<T>({
                     Nothing found.
                   </div>
                 ) : (
-                  filteredSuggestions?.map((suggestion) => (
-                    <Combobox.Option
-                      key={suggestion._id}
-                      className={({ active }) =>
-                        `cursor-default select-none relative py-2 pl-10 pr-4 text-gray-900 ${
-                          active && "bg-gray-100"
-                        }`
-                      }
-                      value={suggestion}
-                    >
-                      {() => (
-                        <>
-                          <span className={"block truncate font-normal"}>
-                            {suggestion?.name}
-                          </span>
-                        </>
-                      )}
-                    </Combobox.Option>
-                  ))
+                  filteredSuggestions?.map(
+                    (suggestion: { _id: any; name: any }) => (
+                      <Combobox.Option
+                        key={suggestion._id}
+                        className={({ active }) =>
+                          `cursor-default select-none relative py-2 pl-10 pr-4 text-gray-900 ${
+                            active && "bg-gray-100"
+                          }`
+                        }
+                        value={suggestion}
+                      >
+                        {() => (
+                          <>
+                            <span className={"block truncate font-normal"}>
+                              {suggestion?.name}
+                            </span>
+                          </>
+                        )}
+                      </Combobox.Option>
+                    )
+                  )
                 )}
               </Combobox.Options>
             </Transition>
