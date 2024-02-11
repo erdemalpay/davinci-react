@@ -1,4 +1,4 @@
-import { isToday, intervalToDuration, parseISO } from "date-fns";
+import { intervalToDuration, isToday, parseISO } from "date-fns";
 export function getDuration(
   dateString: string,
   startTime: string,
@@ -6,7 +6,6 @@ export function getDuration(
 ) {
   const start = parseISO(`${dateString} ${startTime}`);
   let end = parseISO(`${dateString} ${finishTime}`);
-
   if (!finishTime) {
     if (isToday(parseISO(dateString))) {
       end = new Date();
@@ -14,9 +13,9 @@ export function getDuration(
       end = parseISO(`${dateString} 23:59`);
     }
   }
-  const { hours, minutes } = intervalToDuration({ start, end });
 
-  return `${hours ? hours + "h " : ""}${minutes}m`;
+  const { hours, minutes } = intervalToDuration({ start, end });
+  return `${hours ? hours + "h " : ""}${minutes ? minutes : 0}m`;
 }
 
 export function getTimeString(date: Date) {
