@@ -110,7 +110,6 @@ export default function Gameplays() {
   ];
 
   function handleStartDateSelection(event: React.FormEvent<HTMLInputElement>) {
-    console.log({ value: event.target });
     setFilterData({
       ...filterData,
       startDate: (event.target as HTMLInputElement).value,
