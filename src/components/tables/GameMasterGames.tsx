@@ -1,48 +1,75 @@
+import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import { useUserContext } from "../../context/User.context";
-import { GameplayGroupRow } from "../../pages/GameplaysByMentor";
 import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import { Autocomplete } from "../common/Autocomplete";
-
 type Props = {
   data: Gameplay[];
+};
+type GameplayAccumulator = {
+  [key: number]: Gameplay[];
 };
 // In this component, we display the games that the user mentors within their gameplays.
 const GameMasterGames = ({ data }: Props) => {
   const games: Game[] = useGetGames();
   const [gameFilter, setGameFilter] = useState<Game | null>();
-  const { user } = useUserContext();
-  const formattedData = data
-    .map(({ secondary, total, _id }) => ({
-      mentor: _id,
-      total,
-      secondary,
-      open: false,
-    }))
-    .filter((row) => row.mentor === user?._id);
-  const gameplayGroupRows: GameplayGroupRow[] = formattedData.sort(
-    (a, b) => Number(b.total) - Number(a.total)
-  );
-  const [groupRow, setGroupRow] = useState<GameplayGroupRow>(
-    gameplayGroupRows[0]
-  );
+  const [startDateFilter, setStartDateFilter] = useState<string | null>();
+  const [endDateFilter, setEndDateFilter] = useState<string | null>();
+  const gameplays = data.reduce<GameplayAccumulator>((acc, gameplay) => {
+    if (!acc[gameplay.game as number]) {
+      acc[gameplay.game as number] = [];
+    }
+    acc[gameplay.game as number].push(gameplay);
+    return acc;
+  }, {});
+
+  const gameplayGroupRows = Object.entries(gameplays)
+    .sort(([, sessionA], [, sessionB]) => sessionB.length - sessionA.length)
+    .map(([game, session]) => ({
+      game: Number(game),
+      session: session,
+    }));
+
+  const [groupRow, setGroupRow] = useState(gameplayGroupRows);
   const countColumn = gameFilter
     ? ""
-    : ` ${groupRow?.secondary.length}/${groupRow?.total}`;
+    : ` ${groupRow.length}/${groupRow?.reduce(
+        (acc, row) => acc + row.session.length,
+        0
+      )}`;
+
   const columns = ["Game", countColumn];
+
   useEffect(() => {
     setGroupRow(() => {
-      const searchData = formattedData;
+      let searchData = gameplayGroupRows;
       if (gameFilter) {
-        searchData[0].secondary = formattedData[0].secondary.filter(
-          (item) => String(item.field) === String(gameFilter?._id)
+        searchData = searchData.filter(
+          (item) => String(item.game) === String(gameFilter?._id)
         );
       }
 
-      return searchData[0];
+      if (startDateFilter || endDateFilter) {
+        searchData = searchData
+          .map((item) => ({
+            ...item,
+            session: item.session.filter((session) => {
+              const sessionDate = new Date(session.date);
+              const isAfterStartDate = startDateFilter
+                ? sessionDate >= new Date(startDateFilter)
+                : true;
+              const isBeforeEndDate = endDateFilter
+                ? sessionDate <= new Date(endDateFilter)
+                : true;
+              return isAfterStartDate && isBeforeEndDate;
+            }),
+          }))
+          .filter((item) => item.session.length > 0); // Keep only items with at least one session matching the date filters
+      }
+
+      return searchData;
     });
-  }, [gameFilter]);
+  }, [gameFilter, startDateFilter, endDateFilter]);
 
   function handleGameSelection(game: Game) {
     setGameFilter(game);
@@ -50,8 +77,24 @@ const GameMasterGames = ({ data }: Props) => {
 
   return (
     <div className="self-auto w-full sm:w-1/3 flex flex-col gap-2">
-      <div className="flex flex-row justify-between">
-        <h1 className="font-semibold text-lg">Anlattığı Oyunlar</h1>
+      <div className="flex flex-col justify-between gap-4">
+        <h1 className="font-semibold text-lg w-fit">Anlattığı Oyunlar</h1>
+        <div className="flex flex-row gap-2">
+          <Input
+            variant="standard"
+            name="startDay"
+            label="After"
+            type="date"
+            onChange={(e) => setStartDateFilter(e.target.value)}
+          />
+          <Input
+            variant="standard"
+            name="endDay"
+            label="Before"
+            type="date"
+            onChange={(e) => setEndDateFilter(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className=" border rounded-md flex flex-col bg-white overflow-x-auto  font-[inter] max-h-[420px] overflow-y-auto shadow-sm ">
@@ -80,18 +123,18 @@ const GameMasterGames = ({ data }: Props) => {
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-200">
-              {groupRow.secondary.length > 0 &&
-                groupRow.secondary.map((second, index) => {
+              {groupRow.length > 0 &&
+                groupRow.map((row, index) => {
                   const game = games.find(
-                    (game) => String(game._id) === String(second.field)
+                    (game) => String(game._id) === String(row.game)
                   );
                   return (
-                    <tr key={second.field} className="hover:bg-[#f7f7f8]">
+                    <tr key={row.game} className="hover:bg-[#f7f7f8]">
                       {columns.map((column, columnIndex) => {
                         if (column === "Game") {
                           return (
                             <td
-                              key={columnIndex + second.field}
+                              key={columnIndex + row.game}
                               className="px-4 py-4 whitespace-no-wrap  text-sm  font-[500] text-gray-900"
                             >
                               {game?.name}
@@ -100,10 +143,10 @@ const GameMasterGames = ({ data }: Props) => {
                         } else {
                           return (
                             <td
-                              key={columnIndex + second.field}
+                              key={columnIndex + row.game}
                               className="px-4 py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
                             >
-                              {second.count}
+                              {row.session.length}
                             </td>
                           );
                         }
