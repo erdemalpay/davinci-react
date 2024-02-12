@@ -20,7 +20,7 @@ const Login = () => {
   const from = locationState
     ? (locationState as RedirectLocationState).from
     : undefined;
-  const onError = (error: any) => {
+  const onError = (error: unknown) => {
     console.log({ error });
     setError(true);
   };

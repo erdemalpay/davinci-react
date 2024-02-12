@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { Autocomplete } from "../common/Autocomplete";
-import { InputWithLabelProps } from "../common/InputWithLabel";
 import { Chip, Tooltip } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useLocationContext } from "../../context/Location.context";
+import { User, Visit } from "../../types";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
 } from "../../utils/api/visit";
-import { User, Visit } from "../../types";
-import { useLocationContext } from "../../context/Location.context";
+import { Autocomplete } from "../common/Autocomplete";
+import { InputWithLabelProps } from "../common/InputWithLabel";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: User[];
@@ -68,8 +68,8 @@ export function ActiveVisitList({
             <Chip
               value={visit.user?.name}
               style={{ backgroundColor: visit.user?.role?.color }}
-              color="grey"
-              dismissible={{ onClose: () => handleChipClose(visit) }}
+              color="gray"
+              onClose={() => handleChipClose(visit)}
             />
           </Tooltip>
         ))}

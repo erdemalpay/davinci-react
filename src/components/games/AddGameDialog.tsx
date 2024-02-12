@@ -1,8 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Input } from "@material-tailwind/react";
-import { useState } from "react";
 import { UseMutateFunction } from "@tanstack/react-query";
+import { useState } from "react";
 import { Game } from "../../types";
 import { useGetGameDetails } from "../../utils/api/game";
 

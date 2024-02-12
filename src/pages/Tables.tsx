@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import { DateInput } from "../components/common/DateInput";
+import { DateInput } from "../components/common/DateInput2";
 import { InputWithLabel } from "../components/common/InputWithLabel";
 import { Header } from "../components/header/Header";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
@@ -132,8 +132,8 @@ const TablesPage = () => {
       <Header />
       <div className="container relative h-full py-4 px-2 lg:px-12">
         <div className="h-full flex w-full flex-wrap flex-col">
-          <div className="flex justify-between">
-            <div className="flex flex-row gap-2 items-center text-3xl">
+          <div className="flex lg:justify-between justify-center flex-col lg:flex-row">
+            <div className="flex flex-row gap-2 items-center w-full text-3xl">
               <IoIosArrowBack
                 className="text-xl"
                 onClick={() => {
