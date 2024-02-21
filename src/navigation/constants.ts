@@ -1,11 +1,11 @@
 import Analytics from "../pages/Analytics";
-import ChangePassword from "../pages/ChangePassword";
 import Gameplays from "../pages/Gameplays";
 import GameplaysByGame from "../pages/GameplaysByGame";
 import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
@@ -20,7 +20,6 @@ export enum PublicRoutes {
 }
 
 export enum Routes {
-  ChangePassword = "/change-password",
   Games = "/games",
   Memberships = "/memberships",
   Reservations = "/reservations",
@@ -34,6 +33,7 @@ export enum Routes {
   Gameplays = "/gameplays",
   GameplaysByGame = "/gameplays-by-game",
   GameplaysByMentor = "/gameplays-by-mentor",
+  Profile = "/profile",
 }
 
 export const allRoutes: {
@@ -79,11 +79,8 @@ export const allRoutes: {
       path: Routes.Visits,
       element: Visits,
     },
-    {
-      name: "Change Password",
-      path: Routes.ChangePassword,
-      element: ChangePassword,
-    },
+    { name: "Profile", path: Routes.Profile, element: Profile },
+
     {
       name: "User",
       path: Routes.User,
