@@ -69,7 +69,7 @@ const ProfileCard = () => {
       </div>
       <div className="flex flex-col gap-5 items-center">
         <img
-          src={user.imageUrl ?? imageUrl}
+          src={user?.imageUrl ?? imageUrl}
           alt=""
           className="w-32 h-32 rounded-full"
         />
