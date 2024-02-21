@@ -9,8 +9,8 @@ import { get } from "lodash";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
-import { EditableText } from "../components/common/EditableText";
 import { EditModeText } from "../components/common/EditModeText";
+import { EditableText } from "../components/common/EditableText";
 import { Header } from "../components/header/Header";
 import { AddMenuCategoryDialog } from "../components/menu/AddCategoryDialog";
 import { AddMenuItemDialog } from "../components/menu/AddItemDialog";
@@ -132,6 +132,7 @@ export default function MenuCategories() {
           <ImageUploader
             initialImageUrl={row.imageUrl || NO_IMAGE_URL}
             filename={row.name}
+            foldername="menu"
             onSuccessCallback={(url) =>
               updateCategory({ id: row._id, updates: { imageUrl: url } })
             }
@@ -201,6 +202,7 @@ export default function MenuCategories() {
           <ImageUploader
             initialImageUrl={row.imageUrl || NO_IMAGE_URL}
             filename={row.name}
+            foldername="menu"
             onSuccessCallback={(url) =>
               updateItem({ id: row._id, updates: { imageUrl: url } })
             }
