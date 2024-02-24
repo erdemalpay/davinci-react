@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
-import { useUserContext } from "../../context/User.context";
 import { Routes } from "../../navigation/constants";
+import { useGetUser } from "../../utils/api/user";
 import { LocationSelector } from "./LocationSelector";
 import { PageSelector } from "./PageSelector";
 import logo from "./logo.svg";
@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ showLocationSelector = true }: HeaderProps) {
-  const { user } = useUserContext();
+  const user = useGetUser();
 
   return (
     <div className="sticky top-0 z-50">
