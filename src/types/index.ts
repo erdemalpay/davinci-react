@@ -51,6 +51,7 @@ export type User = {
   address: string;
   iban: string;
   birthDate: Date;
+  imageUrl: string;
   workType: WorkType;
   games: number[];
 };
