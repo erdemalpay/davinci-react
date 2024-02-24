@@ -1,13 +1,14 @@
 import { FormEvent } from "react";
+import { useParams } from "react-router-dom";
 import { EditableText } from "../components/common/EditableText";
 import { Header } from "../components/header/Header";
 import GameMaster from "../components/user/GameMaster";
-import { useUserContext } from "../context/User.context";
 import { User } from "../types";
-import { useUserMutations } from "../utils/api/user";
+import { useGetUserWithId, useUserMutations } from "../utils/api/user";
 
 export default function UserView() {
-  const { user } = useUserContext();
+  const { userId } = useParams();
+  const user = useGetUserWithId(userId as string);
 
   const { updateUser } = useUserMutations();
 
@@ -76,7 +77,7 @@ export default function UserView() {
         </div>
         {/* game master gameplay list */}
         {/* TODO : User roles are going to be made enum  */}
-        {user.role._id === 2 && <GameMaster />}
+        {user.role._id === 2 && <GameMaster user={user} />}
       </div>
     </>
   );

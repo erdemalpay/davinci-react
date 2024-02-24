@@ -129,6 +129,19 @@ export function useGetGameplayAnalytics(
     isFetching,
   };
 }
+export function useGetMentorGamePlays(mentorId: string) {
+  const query = `${BASE_URL_GAMEPLAYS}/mentor/${mentorId}`;
+  const queryKey = [BASE_URL_GAMEPLAYS, "mentor", mentorId];
+  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
+    get<Gameplay[]>({ path: query })
+  );
+  return {
+    isLoading,
+    error,
+    data,
+    isFetching,
+  };
+}
 export function useGetGameplays(filter: GameplayFilter) {
   const { startDate, endDate, game, mentor, limit, page, sort, asc } = filter;
   let query = `${BASE_URL_GAMEPLAYS}/query?page=${page}&limit=${limit}`;

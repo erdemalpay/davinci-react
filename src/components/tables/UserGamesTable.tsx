@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
+import { MdDelete } from "react-icons/md";
 import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
-import { updateUserGamesMutation, useGetUser } from "../../utils/api/user";
+import {
+  updateUserGamesMutation,
+  useGetUserWithId,
+} from "../../utils/api/user";
 import { Autocomplete } from "../common/Autocomplete";
 
 enum UserGamesTableColumn {
   GAME = "Game",
   ACTION = "",
 }
+type Props = {
+  userId: string;
+};
 
 // In this component we show the games that user added to their profile
-const UserGamesTable = () => {
+const UserGamesTable = ({ userId }: Props) => {
+  const user = useGetUserWithId(userId);
+  if (!user) return null;
   const games: Game[] = useGetGames();
-  const user = useGetUser();
   const [gameFilter, setGameFilter] = useState<Game | null>();
   const [groupRow, setGroupRow] = useState<Game[]>([]);
   const columns = [UserGamesTableColumn.GAME, UserGamesTableColumn.ACTION];
@@ -33,9 +41,6 @@ const UserGamesTable = () => {
     });
   }, [gameFilter, games, user]);
 
-  function handleGameSelection(game: Game) {
-    setGameFilter(game);
-  }
   // when the user clicks on the add or delete button, we update the user games
   function handleUpdateUserGame({
     gameId,
@@ -44,11 +49,22 @@ const UserGamesTable = () => {
     gameId: number;
     updateType: UserGameUpdateType;
   }) {
-    updateUserGame({ gameId, updateType });
+    updateUserGame({ gameId, updateType, userId });
   }
+  function handleGameSelection(game: Game) {
+    setGameFilter(game);
+
+    if (user?.games?.includes(game?._id) || !game) return;
+    handleUpdateUserGame({
+      gameId: game?._id,
+      updateType: UserGameUpdateType.ADD,
+    });
+  }
+
   return (
     <div className="w-full sm:w-1/3 h-fit ">
-      <div className="border rounded-t-md pt-1">
+      <h1 className="font-semibold text-lg">Bildiği Oyunlar</h1>
+      <div className="border rounded-t-md pt-1 mt-2">
         <Autocomplete
           name="game"
           label="Game"
@@ -96,22 +112,9 @@ const UserGamesTable = () => {
                             key={columnIndex + game._id}
                             className=" py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
                           >
-                            {gameFilter &&
-                            !user?.games.includes(gameFilter._id) ? (
+                            {user?.games.includes(game._id) && (
                               <button
-                                className="px-2 py-1 bg-grey-800 text-white rounded-md"
-                                onClick={() => {
-                                  handleUpdateUserGame({
-                                    gameId: game._id,
-                                    updateType: UserGameUpdateType.ADD,
-                                  });
-                                }}
-                              >
-                                Add
-                              </button>
-                            ) : (
-                              <button
-                                className="px-2 py-1 bg-red-500 rounded-md text-white"
+                                className="text-lg"
                                 onClick={() => {
                                   handleUpdateUserGame({
                                     gameId: game._id,
@@ -119,7 +122,7 @@ const UserGamesTable = () => {
                                   });
                                 }}
                               >
-                                Delete
+                                <MdDelete />
                               </button>
                             )}
                           </td>

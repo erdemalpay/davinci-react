@@ -38,13 +38,15 @@ export function useUpdatePasswordMutation() {
 function updateUserGames({
   gameId,
   updateType,
+  userId,
 }: {
   gameId: number;
   updateType: UserGameUpdateType;
+  userId: string;
 }) {
   return patch({
     path: `${Paths.Users}/games`,
-    payload: { gameId, updateType },
+    payload: { userId, gameId, updateType },
   });
 }
 export function updateUserGamesMutation() {
@@ -52,7 +54,7 @@ export function updateUserGamesMutation() {
 
   const { mutate: updateUserGame } = useMutation(updateUserGames, {
     onSuccess: () => {
-      queryClient.invalidateQueries([Paths.Users, "me"]);
+      queryClient.invalidateQueries([Paths.Users]);
     },
   });
 
@@ -65,6 +67,9 @@ export function useGetUsers() {
 
 export function useGetUser() {
   return useGet<User>(Paths.User, [Paths.Users, "me"]);
+}
+export function useGetUserWithId(id: string) {
+  return useGet<User>(`${Paths.Users}/${id}`, [Paths.Users, id]);
 }
 
 export function useGetAllUsers() {
