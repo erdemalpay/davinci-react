@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+body {
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
 .react-datepicker__input-container input {
   @apply block w-full text-base md:text-sm bg-white border-0 border-b-[1px] rounded focus:outline-none;
 }

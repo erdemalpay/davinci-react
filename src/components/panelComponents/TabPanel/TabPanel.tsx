@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import "../../../index.css";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
-
 type Props = {
   tabs: Tab[];
 };
@@ -13,14 +13,21 @@ const TabPanel: React.FC<Props> = ({ tabs }) => {
     left: number;
   }>({ width: 0, left: 0 });
   const tabsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (tabsRef.current[activeTab]) {
+    if (tabsRef.current[activeTab] && containerRef.current) {
       const activeTabElement = tabsRef.current[activeTab];
       const { offsetLeft, offsetWidth } = activeTabElement!;
-      setIndicatorStyle({
-        width: offsetWidth,
-        left: offsetLeft,
+      setIndicatorStyle({ width: offsetWidth, left: offsetLeft });
+
+      const leftScrollPosition =
+        activeTabElement!.offsetLeft +
+        activeTabElement!.offsetWidth / 2 -
+        containerRef.current.offsetWidth / 2;
+      containerRef.current.scroll({
+        left: leftScrollPosition,
+        behavior: "smooth",
       });
     }
   }, [activeTab, tabs.length]);
@@ -31,8 +38,10 @@ const TabPanel: React.FC<Props> = ({ tabs }) => {
 
   return (
     <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-5/6 mx-auto">
-      {/* tabs */}
-      <div className="flex flex-row py-8 border-b relative">
+      <div
+        ref={containerRef}
+        className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
+      >
         {tabs.map((tab, index) => (
           <div
             key={index}
@@ -54,7 +63,6 @@ const TabPanel: React.FC<Props> = ({ tabs }) => {
           }}
         />
       </div>
-      {/* content */}
       {tabs.find((tab) => tab.number === activeTab)?.content && (
         <div className="py-6">
           {tabs.find((tab) => tab.number === activeTab)?.content}
