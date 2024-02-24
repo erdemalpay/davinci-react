@@ -2,18 +2,16 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import React, { useCallback, useState } from "react";
 import { toast } from "react-toastify";
-import { useUserContext } from "../../../context/User.context";
 import { postWithHeader } from "../../../utils/api";
-import { useUserMutations } from "../../../utils/api/user";
+import { useGetUser, useUserMutations } from "../../../utils/api/user";
 import { H4, P2 } from "../Typography";
 import user1 from "../assets/profile/user-1.jpg";
 import ItemContainer from "../common/ItemContainer";
 
-const ProfileCard = () => {
-  const { user } = useUserContext();
-  if (!user) return <></>;
+export default function ProfileCard() {
   const [imageUrl, setImageUrl] = useState(user1);
   const { updateUser } = useUserMutations();
+  const user = useGetUser();
 
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
@@ -34,6 +32,7 @@ const ProfileCard = () => {
     {
       onSuccess: (data) => {
         setImageUrl(data.url);
+        if (!user) return;
         updateUser({
           id: user._id,
           updates: { imageUrl: data.url },
@@ -87,6 +86,4 @@ const ProfileCard = () => {
       </div>
     </ItemContainer>
   );
-};
-
-export default ProfileCard;
+}
