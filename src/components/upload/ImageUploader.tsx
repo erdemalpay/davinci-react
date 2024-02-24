@@ -78,7 +78,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   //   myEditor.show();
   // }
 
-  // Function called when the file input changes (file selected)
+
   const onFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files?.[0]) {
