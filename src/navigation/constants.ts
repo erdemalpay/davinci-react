@@ -9,7 +9,6 @@ import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
-import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
@@ -80,12 +79,6 @@ export const allRoutes: {
       element: Visits,
     },
     { name: "Profile", path: Routes.Profile, element: Profile },
-
-    {
-      name: "User",
-      path: Routes.User,
-      element: User,
-    },
 
     {
       name: "Analytics",
