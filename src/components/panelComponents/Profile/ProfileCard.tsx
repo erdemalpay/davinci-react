@@ -12,19 +12,18 @@ import ItemContainer from "../common/ItemContainer";
 const ProfileCard = () => {
   const { user } = useUserContext();
   if (!user) return <></>;
-  const [imageUrl, setImageUrl] = useState(user1); // Default image or uploaded image URL
+  const [imageUrl, setImageUrl] = useState(user1);
   const { updateUser } = useUserMutations();
 
-  // Define the mutation for uploading an image
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
       formData.append("foldername", "profile");
-      // Adjust these formData append lines according to your API requirements
+
       const res = await postWithHeader<FormData, { url: string }>({
-        path: "/asset/upload", // Adjust the API endpoint as necessary
+        path: "/asset/upload",
         payload: formData,
         headers: new AxiosHeaders({
           "Content-Type": "multipart/form-data",
@@ -51,10 +50,10 @@ const ProfileCard = () => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files?.[0]) {
         const file = event.target.files[0];
-        const filename = file.name; // Use the file's original name as filename
+        const filename = file.name;
         uploadImageMutation.mutate({
           file,
-          filename, // Use the original file name or a custom name
+          filename,
         });
       }
     },

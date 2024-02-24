@@ -12,7 +12,6 @@ const PersonalDetails = (props: Props) => {
   if (!user) return <></>;
   const { updateUser } = useUserMutations();
 
-  // Initialize state with a single object containing all fields
   const [formData, setFormData] = useState({
     fullName: user.fullName ?? "",
     phone: user.phone ?? "",
@@ -44,21 +43,21 @@ const PersonalDetails = (props: Props) => {
           placeholder="Enter full name"
           type="text"
           value={formData.fullName}
-          onChange={(value) => handleChange("fullName", value)} // Adjusted
+          onChange={(value) => handleChange("fullName", value)}
         />
         <TextInput
           label="Phone"
           placeholder="Enter phone number"
           type="text"
           value={formData.phone}
-          onChange={(value) => handleChange("phone", value)} // Adjusted
+          onChange={(value) => handleChange("phone", value)}
         />
         <TextInput
           label="Address"
           placeholder="Enter address"
           type="text"
           value={formData.address}
-          onChange={(value) => handleChange("address", value)} // Adjusted
+          onChange={(value) => handleChange("address", value)}
         />
       </div>
       <button

@@ -94,7 +94,7 @@ const GenericTable = <T,>({
     <td className="py-3 flex gap-3">
       {actions.map((action, index) => (
         <div
-          key={index} // Always use a key when rendering lists
+          key={index}
           className="rounded-full hover:bg-gray-200 h-6 w-6 flex items-center justify-center"
           onClick={() => actionOnClick(action, row)}
         >
@@ -219,7 +219,6 @@ const GenericTable = <T,>({
                           : "0.2rem";
                         const padding = rowKey.paddingY + " " + rowKey.paddingX;
                         if (matchedOption) {
-                          // Instead of using dynamic class names, apply the styles directly
                           style = {
                             backgroundColor: matchedOption.bgColor,
                             color: matchedOption.textColor,
