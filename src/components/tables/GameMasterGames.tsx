@@ -79,7 +79,7 @@ const GameMasterGames = ({ data }: Props) => {
     <div className="self-auto w-full  flex flex-col gap-2">
       <div className="flex flex-col justify-between gap-4">
         <h1 className="font-semibold text-lg w-fit">Explained Games</h1>
-        <div className="flex flex-row gap-2">
+        <div className=" flex flex-row gap-2 flex-wrap">
           <Input
             variant="standard"
             name="startDay"
