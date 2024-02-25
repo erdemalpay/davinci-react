@@ -76,9 +76,9 @@ const GameMasterGames = ({ data }: Props) => {
   }
 
   return (
-    <div className="self-auto w-full sm:w-1/3 flex flex-col gap-2">
+    <div className="self-auto w-full  flex flex-col gap-2">
       <div className="flex flex-col justify-between gap-4">
-        <h1 className="font-semibold text-lg w-fit">Anlattığı Oyunlar</h1>
+        <h1 className="font-semibold text-lg w-fit">Explained Games</h1>
         <div className="flex flex-row gap-2">
           <Input
             variant="standard"

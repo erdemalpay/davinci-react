@@ -34,16 +34,19 @@ export function PageSelector() {
         </button>
       </MenuHandler>
       <MenuList>
-        {routes.map((route) => (
-          <MenuItem
-            key={route.name}
-            onClick={() => {
-              navigate(route.path);
-            }}
-          >
-            {route.name}
-          </MenuItem>
-        ))}
+        {routes.map((route) => {
+          if (!route.isOnSidebar) return <></>;
+          return (
+            <MenuItem
+              key={route.name}
+              onClick={() => {
+                navigate(route.path);
+              }}
+            >
+              {route.name}
+            </MenuItem>
+          );
+        })}
         <MenuItem onClick={logout}>Logout</MenuItem>
       </MenuList>
     </Menu>

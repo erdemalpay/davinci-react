@@ -42,19 +42,21 @@ const TabPanel: React.FC<Props> = ({ tabs }) => {
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
       >
-        {tabs.map((tab, index) => (
-          <div
-            key={index}
-            ref={(el) => (tabsRef.current[index] = el)}
-            className={`px-4 flex flex-row items-center gap-2 cursor-pointer ${
-              activeTab === tab.number ? "text-blue-500" : ""
-            }`}
-            onClick={() => handleTabChange(tab)}
-          >
-            {tab.icon}
-            <P1>{tab.label}</P1>
-          </div>
-        ))}
+        {tabs
+          .filter((tab) => !tab.isDisabled)
+          .map((tab, index) => (
+            <div
+              key={index}
+              ref={(el) => (tabsRef.current[index] = el)}
+              className={`px-4 flex flex-row items-center gap-2 cursor-pointer ${
+                activeTab === tab.number ? "text-blue-500" : ""
+              }`}
+              onClick={() => handleTabChange(tab)}
+            >
+              {tab.icon}
+              <P1>{tab.label}</P1>
+            </div>
+          ))}
         <div
           className="absolute bottom-0 h-0.5 bg-blue-500 transition-all duration-300"
           style={{

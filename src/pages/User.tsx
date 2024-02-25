@@ -3,12 +3,23 @@ import { useParams } from "react-router-dom";
 import { EditableText } from "../components/common/EditableText";
 import { Header } from "../components/header/Header";
 import GameMaster from "../components/user/GameMaster";
+import { useUserContext } from "../context/User.context";
 import { User } from "../types";
 import { useGetUserWithId, useUserMutations } from "../utils/api/user";
 
 export default function UserView() {
   const { userId } = useParams();
   const user = useGetUserWithId(userId as string);
+
+  const { user: panelUser } = useUserContext();
+  // check for the user who does not has an access to this page
+  if (panelUser?.role._id !== 1) {
+    return (
+      <div className=" flex w-full justify-center h-screen items-center text-3xl">
+        You do not have access to this page
+      </div>
+    );
+  }
 
   const { updateUser } = useUserMutations();
 
@@ -21,9 +32,7 @@ export default function UserView() {
       updates: { [target.name]: target.value },
     });
   }
-
   if (!user) return <></>;
-
   return (
     <>
       <Header showLocationSelector={false} />

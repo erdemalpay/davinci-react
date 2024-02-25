@@ -9,6 +9,7 @@ import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
+import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
@@ -39,6 +40,7 @@ export const allRoutes: {
   [K in RolePermissionEnum]: {
     name: string;
     path: string;
+    isOnSidebar: boolean;
     element: () => JSX.Element;
   }[];
 } = {
@@ -47,53 +49,73 @@ export const allRoutes: {
       name: "Tables",
       path: Routes.Tables,
       element: Tables,
+      isOnSidebar: true,
     },
     {
       name: "Reservations",
       path: Routes.Reservations,
       element: Reservations,
+      isOnSidebar: true,
     },
     {
       name: "Games",
       path: Routes.Games,
       element: Games,
+      isOnSidebar: true,
     },
     {
       name: "Gameplays",
       path: Routes.Gameplays,
       element: Gameplays,
+      isOnSidebar: true,
     },
     {
       name: "Memberships",
       path: Routes.Memberships,
       element: Memberships,
+      isOnSidebar: true,
     },
     {
       name: "Rewards",
       path: Routes.Rewards,
       element: Rewards,
+      isOnSidebar: true,
     },
     {
       name: "Visits",
       path: Routes.Visits,
       element: Visits,
+      isOnSidebar: true,
     },
-    { name: "Profile", path: Routes.Profile, element: Profile },
-
+    {
+      name: "Profile",
+      path: Routes.Profile,
+      element: Profile,
+      isOnSidebar: true,
+    },
     {
       name: "Analytics",
       path: Routes.Analytics,
       element: Analytics,
+      isOnSidebar: true,
     },
     {
       name: "Gameplays By Games",
       path: Routes.GameplaysByGame,
       element: GameplaysByGame,
+      isOnSidebar: true,
     },
     {
       name: "Gameplays By Mentor",
       path: Routes.GameplaysByMentor,
       element: GameplaysByMentor,
+      isOnSidebar: true,
+    },
+    {
+      name: "User",
+      path: Routes.User,
+      element: User,
+      isOnSidebar: false,
     },
   ],
   [RolePermissionEnum.MANAGEMENT]: [
@@ -101,12 +123,14 @@ export const allRoutes: {
       name: "Menu",
       path: Routes.Menu,
       element: Menu,
+      isOnSidebar: true,
     },
 
     {
       name: "Users",
       path: Routes.Users,
       element: Users,
+      isOnSidebar: true,
     },
   ],
 };

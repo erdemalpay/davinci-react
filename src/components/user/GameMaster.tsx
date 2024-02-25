@@ -10,7 +10,7 @@ const GameMaster = ({ user }: Props) => {
 
   return (
     <div className="flex flex-col">
-      <div className=" flex flex-row  gap-20  ">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {data && <GameMasterGamesTable data={data} />}
         <UserGamesTable userId={user._id} />
       </div>
