@@ -111,12 +111,6 @@ export const allRoutes: {
       element: GameplaysByMentor,
       isOnSidebar: true,
     },
-    {
-      name: "User",
-      path: Routes.User,
-      element: User,
-      isOnSidebar: false,
-    },
   ],
   [RolePermissionEnum.MANAGEMENT]: [
     {
@@ -125,7 +119,12 @@ export const allRoutes: {
       element: Menu,
       isOnSidebar: true,
     },
-
+    {
+      name: "User",
+      path: Routes.User,
+      element: User,
+      isOnSidebar: false,
+    },
     {
       name: "Users",
       path: Routes.Users,
