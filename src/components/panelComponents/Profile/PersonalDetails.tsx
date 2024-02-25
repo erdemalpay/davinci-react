@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useUserContext } from "../../../context/User.context";
-import { useUserMutations } from "../../../utils/api/user";
+import { useGetUser, useUserMutations } from "../../../utils/api/user";
 import TextInput from "../FormElements/TextInput";
 import { H4, P2 } from "../Typography";
 import ItemContainer from "../common/ItemContainer";
@@ -8,7 +7,7 @@ import ItemContainer from "../common/ItemContainer";
 type Props = {};
 
 const PersonalDetails = (props: Props) => {
-  const { user } = useUserContext();
+  const user = useGetUser();
   if (!user) return <></>;
   const { updateUser } = useUserMutations();
 

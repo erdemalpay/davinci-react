@@ -3,6 +3,7 @@ export interface Tab {
   content: React.ReactNode;
   icon: React.ReactNode;
   label: string;
+  isDisabled: boolean;
 }
 
 export interface BreadCrumbItem {

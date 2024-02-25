@@ -21,9 +21,7 @@ export default function UserView() {
       updates: { [target.name]: target.value },
     });
   }
-
   if (!user) return <></>;
-
   return (
     <>
       <Header showLocationSelector={false} />

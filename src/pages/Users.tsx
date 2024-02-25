@@ -85,7 +85,10 @@ export default function Users() {
       header: "Details",
       visible: true,
       cell: (row: User) => (
-        <div className="flex flex-wrap gap-4 mt-2 w-1/2" id="roles">
+        <div
+          className="flex flex-wrap gap-4 mt-2 w-1/2 cursor-pointer"
+          id="roles"
+        >
           <IoEyeOutline
             className="text-blue-500 w-6 h-6"
             onClick={() => {

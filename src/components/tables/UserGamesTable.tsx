@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
+import { useUserContext } from "../../context/User.context";
 import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -18,8 +19,10 @@ type Props = {
 
 // In this component we show the games that user added to their profile
 const UserGamesTable = ({ userId }: Props) => {
+  const { user: panelUser } = useUserContext();
+  if (!panelUser) return <></>;
   const user = useGetUserWithId(userId);
-  if (!user) return null;
+
   const games: Game[] = useGetGames();
   const [gameFilter, setGameFilter] = useState<Game | null>();
   const [groupRow, setGroupRow] = useState<Game[]>([]);
@@ -53,7 +56,7 @@ const UserGamesTable = ({ userId }: Props) => {
   }
   function handleGameSelection(game: Game) {
     setGameFilter(game);
-
+    if (panelUser?._id !== userId) return;
     if (user?.games?.includes(game?._id) || !game) return;
     handleUpdateUserGame({
       gameId: game?._id,
@@ -62,8 +65,8 @@ const UserGamesTable = ({ userId }: Props) => {
   }
 
   return (
-    <div className="w-full sm:w-1/3 h-fit ">
-      <h1 className="font-semibold text-lg">Bildiği Oyunlar</h1>
+    <div className="w-full  h-fit ">
+      <h1 className="font-semibold text-lg">Known Games</h1>
       <div className="border rounded-t-md pt-1 mt-2">
         <Autocomplete
           name="game"
@@ -112,19 +115,20 @@ const UserGamesTable = ({ userId }: Props) => {
                             key={columnIndex + game._id}
                             className=" py-4 whitespace-no-wrap text-center text-sm  font-[500] text-gray-900"
                           >
-                            {user?.games.includes(game._id) && (
-                              <button
-                                className="text-lg"
-                                onClick={() => {
-                                  handleUpdateUserGame({
-                                    gameId: game._id,
-                                    updateType: UserGameUpdateType.REMOVE,
-                                  });
-                                }}
-                              >
-                                <MdDelete />
-                              </button>
-                            )}
+                            {user?._id === panelUser?._id &&
+                              user?.games.includes(game._id) && (
+                                <button
+                                  className="text-lg"
+                                  onClick={() => {
+                                    handleUpdateUserGame({
+                                      gameId: game._id,
+                                      updateType: UserGameUpdateType.REMOVE,
+                                    });
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              )}
                           </td>
                         );
                       }
