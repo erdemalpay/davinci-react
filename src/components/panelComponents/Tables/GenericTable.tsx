@@ -129,8 +129,8 @@ const GenericTable = <T,>({
           {addButton && (
             <button
               className={`px-3 py-1 h-fit w-fit ${
-                addButton.bgColor
-                  ? `bg-${addButton.bgColor} border-${addButton.bgColor} hover:text-${addButton.bgColor}`
+                addButton.className
+                  ? `${addButton.className}`
                   : "bg-black border-black hover:text-black"
               } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
               onClick={() => actionOnClick(addButton, {} as unknown as T)}

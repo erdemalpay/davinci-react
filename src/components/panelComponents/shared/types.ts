@@ -23,7 +23,6 @@ export interface ActionType<T> {
   setRow?: (value: T) => void;
   isPath: boolean;
   path?: string;
-  bgColor?: string;
 }
 
 export interface RowKeyType {

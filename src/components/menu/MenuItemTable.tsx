@@ -49,7 +49,7 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
-    bgColor: "blue-500",
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
   const actions = [
     {
