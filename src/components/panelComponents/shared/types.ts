@@ -1,7 +1,7 @@
 export interface Tab {
   number: number;
   content: React.ReactNode;
-  icon: React.ReactNode;
+  icon: React.ReactNode | null;
   label: string;
   isDisabled: boolean;
 }
@@ -14,8 +14,10 @@ export interface BreadCrumbItem {
 export interface ActionType<T> {
   name: string;
   isModal: boolean;
+  className?: string;
   icon: React.ReactNode;
   modal?: React.ReactNode;
+  onClick?: (row: T) => void;
   isModalOpen?: boolean;
   setIsModal?: (value: boolean) => void;
   setRow?: (value: T) => void;
@@ -26,11 +28,10 @@ export interface ActionType<T> {
 
 export interface RowKeyType {
   key: string;
+  node?: React.ReactNode;
   isOptional?: boolean;
   isImage?: boolean;
-  width?: string;
-  paddingX?: string; //default 0.5rem
-  paddingY?: string; //default 0.2rem
+  className?: string;
   options?: {
     label: string;
     bgColor: string; // must be css color

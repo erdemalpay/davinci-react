@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
@@ -12,6 +13,7 @@ import { useUserContext } from "../context/User.context";
 export default function Profile() {
   const { user } = useUserContext();
   if (!user) return <></>;
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   const tabs = [
     {
@@ -48,7 +50,7 @@ export default function Profile() {
     <>
       <Header showLocationSelector={false} />
       {/* <BreadCrumb title="Profile" /> */}
-      <TabPanel tabs={tabs} />
+      <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     </>
   );
 }

@@ -1,23 +1,22 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Input } from "@material-tailwind/react";
-import { UseMutateFunction } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
 import { MenuCategory, MenuItem } from "../../types/index";
+import { useMenuItemMutations } from "../../utils/api/menu-item";
 import { InputWithLabel } from "../common/InputWithLabel";
 
 export function AddMenuItemDialog({
   isOpen,
   close,
-  createItem,
   category,
 }: {
   isOpen: boolean;
   close: () => void;
-  createItem: UseMutateFunction<MenuItem, unknown, Partial<MenuItem>>;
   category?: MenuCategory;
 }) {
+  const { createItem } = useMenuItemMutations();
   const { data, handleUpdate } = useForm<Partial<MenuItem>>({
     name: "",
     category,
@@ -27,7 +26,9 @@ export function AddMenuItemDialog({
 
   async function handleCreate() {
     createItem(data);
-    toast.success(`New category created for ${data.name}`);
+    toast.success(
+      `New item created for ${(data.category as MenuCategory)?.name}`
+    );
     close();
   }
 

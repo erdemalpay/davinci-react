@@ -20,7 +20,6 @@ export function PageSelector() {
     .flat();
 
   function logout() {
-    console.log(user);
     Cookies.remove("jwt");
     setUser(undefined);
     navigate("/login");
@@ -35,7 +34,7 @@ export function PageSelector() {
       </MenuHandler>
       <MenuList>
         {routes.map((route) => {
-          if (!route.isOnSidebar) return <></>;
+          if (!route.isOnSidebar) return <div key={route.name}></div>;
           return (
             <MenuItem
               key={route.name}

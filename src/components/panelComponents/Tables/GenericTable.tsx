@@ -12,6 +12,7 @@ type Props<T> = {
   actions: ActionType<T>[];
   title: string;
   addButton?: ActionType<T>;
+  imageHolder?: string;
 };
 
 const GenericTable = <T,>({
@@ -21,13 +22,14 @@ const GenericTable = <T,>({
   actions,
   title,
   addButton,
+  imageHolder,
 }: Props<T>) => {
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
-  const tooltipLimit = 35;
+  const tooltipLimit = 40;
   const filteredRows = tableRows.filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
@@ -84,6 +86,9 @@ const GenericTable = <T,>({
     if (action.setRow) {
       action.setRow(row);
     }
+    if (action.onClick) {
+      action.onClick(row);
+    }
     if (action?.isModal && action.setIsModal && action.modal) {
       action?.setIsModal(true);
     } else if (action.isPath && action.path) {
@@ -95,7 +100,7 @@ const GenericTable = <T,>({
       {actions.map((action, index) => (
         <div
           key={index}
-          className="rounded-full hover:bg-gray-200 h-6 w-6 flex items-center justify-center"
+          className={`rounded-full  h-6 w-6 flex items-center justify-center ${action?.className}`}
           onClick={() => actionOnClick(action, row)}
         >
           {action.icon}
@@ -105,7 +110,7 @@ const GenericTable = <T,>({
   );
 
   return (
-    <div className="w-5/6 mx-auto flex flex-col gap-4 __className_a182b8">
+    <div className=" mx-auto flex flex-col gap-4 __className_a182b8">
       {/* search button */}
 
       <input
@@ -198,6 +203,18 @@ const GenericTable = <T,>({
                     }`}
                   >
                     {rowKeys.map((rowKey, keyIndex) => {
+                      if (rowKey.node) {
+                        return (
+                          <td
+                            key={keyIndex}
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                              rowKey?.className
+                            } `}
+                          >
+                            {rowKey.node}
+                          </td>
+                        );
+                      }
                       const cellValue = `${row[rowKey.key as keyof T]}`;
                       const displayValue =
                         cellValue.length > tooltipLimit
@@ -211,35 +228,23 @@ const GenericTable = <T,>({
                           (option) =>
                             option.label === String(row[rowKey.key as keyof T])
                         );
-                        rowKey.paddingX = rowKey.paddingX
-                          ? rowKey.paddingX
-                          : "0.5rem";
-                        rowKey.paddingY = rowKey.paddingY
-                          ? rowKey.paddingY
-                          : "0.2rem";
-                        const padding = rowKey.paddingY + " " + rowKey.paddingX;
-                        if (matchedOption) {
-                          style = {
-                            backgroundColor: matchedOption.bgColor,
-                            color: matchedOption.textColor,
-                            padding: padding,
-                            borderRadius: "0.375rem",
-                            width: rowKey?.width ?? "fit-content",
-                            textAlign: "center",
-                          };
-                        }
                       }
 
                       return (
                         <td
                           key={keyIndex}
-                          className={`${keyIndex === 0 ? "pl-3" : ""} py-3 `}
+                          className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                            rowKey?.className
+                          } `}
                         >
                           {rowKey.isImage ? (
                             <img
-                              src={row[rowKey.key as keyof T] as string}
+                              src={
+                                (row[rowKey.key as keyof T] as string) ||
+                                imageHolder
+                              }
                               alt="img"
-                              className="w-10 h-10 rounded-full"
+                              className="w-12 h-12 rounded-full"
                             />
                           ) : cellValue.length > tooltipLimit ? (
                             <Tooltip content={cellValue}>
