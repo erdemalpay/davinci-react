@@ -35,7 +35,15 @@ const GenericTable = <T,>({
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
 
-  const filteredRows = tableRows.filter((row) =>
+  const initialRows = () => {
+    if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
+      setTableRows(rows);
+      return rows;
+    } else {
+      return tableRows;
+    }
+  };
+  const filteredRows = initialRows().filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
       const query = searchQuery.toLowerCase();
@@ -249,6 +257,25 @@ const GenericTable = <T,>({
                         const matchedOption = rowKey.options.find(
                           (option) =>
                             option.label === String(row[rowKey.key as keyof T])
+                        );
+                        style = {
+                          color: matchedOption?.textColor,
+                          backgroundColor: matchedOption?.bgColor,
+                        };
+                        return (
+                          <td
+                            key={keyIndex}
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                              rowKey?.className
+                            } min-w-20 md:min-w-0`}
+                          >
+                            <P1
+                              className="w-fit px-2 py-1 rounded-md"
+                              style={style}
+                            >
+                              {matchedOption?.label}
+                            </P1>
+                          </td>
                         );
                       }
 

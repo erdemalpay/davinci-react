@@ -5,32 +5,37 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import user1 from "../components/panelComponents/assets/profile/user-1.jpg";
 import { useGetAllUsers, useUserMutations } from "../utils/api/user";
 // these are the columns and rowKeys for the table
-const columns = ["", "ID", "Display Name", "Full Name", "Role", "Action"];
-const rowKeys = [
-  { key: "imageUrl", isImage: true },
-  {
-    key: "_id",
-  },
-  {
-    key: "name",
-  },
-  {
-    key: "fullName",
-  },
-  {
-    key: "role",
-  },
-];
+
 export default function UsersPage() {
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
   const { updateUser, createUser } = useUserMutations();
-  const users = useGetAllUsers().map((user) => {
+  const users = useGetAllUsers();
+  const navigate = useNavigate();
+  const roleOptions = users.map((user) => {
     return {
-      ...user,
-      role: user.role.name,
+      label: user.role.name,
+      bgColor: user.role.color,
+      textColor: "#fff",
     };
   });
-  const navigate = useNavigate();
+  const columns = ["", "ID", "Display Name", "Full Name", "Role", "Action"];
+  const rowKeys = [
+    { key: "imageUrl", isImage: true },
+    {
+      key: "_id",
+    },
+    {
+      key: "name",
+    },
+    {
+      key: "fullName",
+    },
+    {
+      key: "role",
+      isOptional: true,
+      options: roleOptions,
+    },
+  ];
   if (!users) return <></>;
   return (
     <>
@@ -40,7 +45,12 @@ export default function UsersPage() {
           rowKeys={rowKeys}
           actions={[]}
           columns={columns}
-          rows={users}
+          rows={users.map((user) => {
+            return {
+              ...user,
+              role: user.role.name,
+            };
+          })}
           title="Users"
           imageHolder={user1}
         />
