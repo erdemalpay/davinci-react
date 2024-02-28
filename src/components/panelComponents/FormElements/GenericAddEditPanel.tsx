@@ -139,7 +139,7 @@ const GenericAddEditPanel = <T,>({
       setFormElements({});
       close();
     } catch (error) {
-      console.error("Failed to create item:", error);
+      console.error("Failed to execute submit item:", error);
     }
   };
   return (
