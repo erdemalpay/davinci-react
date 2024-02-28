@@ -28,7 +28,6 @@ const GenericTable = <T,>({
   tooltipLimit = 40,
   rowsPerPageOptions = [5, 10, 25],
 }: Props<T>) => {
-  console.log("rows", rows);
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,17 +109,22 @@ const GenericTable = <T,>({
   };
   const renderActionButtons = (row: T) => (
     <div className=" flex flex-row my-auto h-full  gap-3 ">
-      {actions?.map((action, index) => (
-        <div
-          key={index}
-          className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
-          onClick={() => {
-            actionOnClick(action, row);
-          }}
-        >
-          {action.icon}
-        </div>
-      ))}
+      {actions?.map((action, index) => {
+        if (action?.isDisabled) {
+          return null;
+        }
+        return (
+          <div
+            key={index}
+            className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
+            onClick={() => {
+              actionOnClick(action, row);
+            }}
+          >
+            {action.icon}
+          </div>
+        );
+      })}
     </div>
   );
 

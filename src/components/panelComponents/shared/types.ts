@@ -16,6 +16,8 @@ export interface ActionType<T> {
   isModal: boolean;
   className?: string;
   icon: React.ReactNode;
+  isDisabled?: boolean;
+
   modal?: React.ReactNode;
   onClick?: (row: T) => void;
   isModalOpen?: boolean;
