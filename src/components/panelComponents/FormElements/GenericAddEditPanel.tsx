@@ -144,12 +144,12 @@ const GenericAddEditPanel = <T,>({
   };
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-0 ${
+      className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
     >
-      <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-2/5 2xl:w-2/5 z-20 ">
-        <div className=" rounded-tl-md rounded-tr-md  md:px-8 md:py-8 py-10 flex flex-col gap-4 justify-between ">
+      <div className="bg-white rounded-md shadow-lg overflow-auto w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50">
+        <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${topClassName}`}
           >
@@ -164,6 +164,7 @@ const GenericAddEditPanel = <T,>({
                         : NO_IMAGE_URL
                     }
                     alt="image"
+                    className="w-full h-40 object-contain rounded-md"
                   />
                   <label
                     key={input.formKey}

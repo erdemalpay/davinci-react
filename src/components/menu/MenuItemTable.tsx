@@ -1,6 +1,6 @@
-import { TrashIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/MenuPage";
 import { MenuItem } from "../../types";
@@ -103,9 +103,9 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
   const actions = [
     {
       name: "Delete",
-      icon: <TrashIcon />,
+      icon: <HiOutlineTrash />,
       onClick: (row: MenuItem) => deleteItem(row._id),
-      className: "text-red-500 cursor-pointer text-xl",
+      className: "text-red-500 cursor-pointer text-2xl",
       isModal: false,
       isPath: false,
     },
