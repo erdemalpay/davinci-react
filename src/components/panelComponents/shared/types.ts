@@ -25,6 +25,12 @@ export interface ActionType<T> {
   path?: string;
 }
 
+export interface FilterType<T> {
+  name: string;
+  node: React.ReactNode;
+  setRows: (rows: T[]) => void;
+}
+
 export interface RowKeyType {
   key: string;
   node?: React.ReactNode;
@@ -36,4 +42,31 @@ export interface RowKeyType {
     bgColor: string; // must be css color
     textColor: string; // must be css color
   }[];
+}
+
+export interface GenericInputType {
+  type: InputTypes;
+  formKey: string;
+  options?: [];
+  label?: string;
+  placeholder?: string;
+  folderName?: string;
+  inputClassName?: string;
+}
+export interface FormKeyType {
+  key: string;
+  type: string;
+}
+
+export enum InputTypes {
+  TEXT = "text",
+  NUMBER = "number",
+  SELECT = "select",
+  TEXTAREA = "textarea",
+  IMAGE = "image",
+  PASSWORD = "password",
+}
+export enum FormKeyTypeEnum {
+  STRING = "string",
+  NUMBER = "number",
 }

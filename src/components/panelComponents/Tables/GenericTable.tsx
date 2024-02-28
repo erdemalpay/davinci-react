@@ -9,10 +9,12 @@ type Props<T> = {
   rows: T[];
   columns: string[];
   rowKeys: RowKeyType[];
-  actions: ActionType<T>[];
-  title: string;
+  actions?: ActionType<T>[];
+  title?: string;
   addButton?: ActionType<T>;
   imageHolder?: string;
+  tooltipLimit?: number;
+  rowsPerPageOptions?: number[];
 };
 
 const GenericTable = <T,>({
@@ -23,13 +25,15 @@ const GenericTable = <T,>({
   title,
   addButton,
   imageHolder,
+  tooltipLimit = 40,
+  rowsPerPageOptions = [5, 10, 25],
 }: Props<T>) => {
   const navigate = useNavigate();
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
-  const tooltipLimit = 40;
+
   const filteredRows = tableRows.filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
@@ -97,7 +101,7 @@ const GenericTable = <T,>({
   };
   const renderActionButtons = (row: T) => (
     <td className="py-3 flex gap-3">
-      {actions.map((action, index) => (
+      {actions?.map((action, index) => (
         <div
           key={index}
           className={`rounded-full  h-6 w-6 flex items-center justify-center ${action?.className}`}
@@ -124,7 +128,7 @@ const GenericTable = <T,>({
       <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg overflow-x-hidden  ">
         {/* header part */}
         <div className="flex flex-row justify-between items-center px-6 border-b border-gray-200  py-4">
-          <H4>{title}</H4>
+          {title && <H4>{title}</H4>}
           {/* add button */}
           {addButton && (
             <button
@@ -271,9 +275,11 @@ const GenericTable = <T,>({
                 value={rowsPerPage}
                 onChange={(e) => setRowsPerPage(Number(e.target.value))}
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
+                {rowsPerPageOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -303,7 +309,7 @@ const GenericTable = <T,>({
           </div>
         </div>
         {/* action modal if there is */}
-        {actions.map((action, index) => {
+        {actions?.map((action, index) => {
           if (action?.isModal && action?.isModalOpen && action.modal) {
             return <div key={index}>{action.modal}</div>;
           }
