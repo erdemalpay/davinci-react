@@ -93,7 +93,7 @@ const GenericTable = <T,>({
     if (action.onClick) {
       action.onClick(row);
     }
-    if (action?.isModal && action.setIsModal && action.modal) {
+    if (action?.isModal && action.setIsModal) {
       action?.setIsModal(true);
     } else if (action.isPath && action.path) {
       navigate(action.path);
@@ -105,7 +105,9 @@ const GenericTable = <T,>({
         <div
           key={index}
           className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
-          onClick={() => actionOnClick(action, row)}
+          onClick={() => {
+            actionOnClick(action, row);
+          }}
         >
           {action.icon}
         </div>
@@ -154,7 +156,7 @@ const GenericTable = <T,>({
                       key={index}
                       className={`${
                         index === 0 ? "pl-3" : ""
-                      } text-left py-3 relative`}
+                      } text-left py-3 relative min-w-8`}
                     >
                       <H5 className="flex gap-2">
                         {column}{" "}
@@ -239,7 +241,7 @@ const GenericTable = <T,>({
                           key={keyIndex}
                           className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                             rowKey?.className
-                          } `}
+                          } min-w-20 md:min-w-0`}
                         >
                           {rowKey.isImage ? (
                             <img
@@ -310,7 +312,7 @@ const GenericTable = <T,>({
         </div>
         {/* action modal if there is */}
         {actions?.map((action, index) => {
-          if (action?.isModal && action?.isModalOpen && action.modal) {
+          if (action?.isModal && action?.isModalOpen && action?.modal) {
             return <div key={index}>{action.modal}</div>;
           }
         })}
