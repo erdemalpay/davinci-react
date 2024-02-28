@@ -5,10 +5,10 @@ import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/MenuPage";
 import { MenuItem } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu-item";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type Props = { singleItemGroup: ItemGroup };
 // these are the inputs for the add item modal
 const inputs = [
@@ -84,7 +84,11 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToEdit, setRowToEdit] = useState<MenuItem>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const [rowToAction, setRowToAction] = useState<MenuItem>();
   const addButton = {
     name: `Add Item`,
     isModal: true,
@@ -108,9 +112,20 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
     {
       name: "Delete",
       icon: <HiOutlineTrash />,
-      onClick: (row: MenuItem) => deleteItem(row._id),
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => deleteItem(rowToAction?._id)}
+          title="Delete Item"
+          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+        />
+      ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
-      isModal: false,
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
     },
     {
@@ -118,8 +133,8 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
-      setRow: setRowToEdit,
-      modal: rowToEdit ? (
+      setRow: setRowToAction,
+      modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
@@ -128,7 +143,7 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
           submitItem={updateItem as any}
           constantValues={{ category: singleItemGroup.category }}
           isEditMode={true}
-          itemToEdit={{ id: rowToEdit._id, updates: rowToEdit }}
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
 
