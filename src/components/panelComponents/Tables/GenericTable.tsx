@@ -221,6 +221,21 @@ const GenericTable = <T,>({
                           </td>
                         );
                       }
+                      if (
+                        !rowKey?.isImage &&
+                        row[rowKey.key as keyof T] === undefined
+                      ) {
+                        return (
+                          <td
+                            key={keyIndex}
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                              rowKey?.className
+                            } `}
+                          >
+                            -
+                          </td>
+                        );
+                      }
                       const cellValue = `${row[rowKey.key as keyof T]}`;
                       const displayValue =
                         cellValue.length > tooltipLimit
