@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Caption, H4, H5, P1 } from "../Typography";
-import { ActionType, RowKeyType } from "../shared/types";
+import { ActionType, FilterType, RowKeyType } from "../shared/types";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
@@ -15,6 +15,7 @@ type Props<T> = {
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
+  filters?: FilterType<T>[];
 };
 
 const GenericTable = <T,>({
@@ -24,6 +25,7 @@ const GenericTable = <T,>({
   actions,
   title,
   addButton,
+  filters,
   imageHolder,
   tooltipLimit = 40,
   rowsPerPageOptions = [5, 10, 25],
@@ -98,6 +100,7 @@ const GenericTable = <T,>({
     if (action.setRow) {
       action.setRow(row);
     }
+
     if (action.onClick) {
       action.onClick(row);
     }
@@ -112,6 +115,9 @@ const GenericTable = <T,>({
       {actions?.map((action, index) => {
         if (action?.isDisabled) {
           return null;
+        }
+        if (action.node) {
+          return action.node(row);
         }
         return (
           <div
@@ -144,19 +150,32 @@ const GenericTable = <T,>({
         {/* header part */}
         <div className="flex flex-row justify-between items-center px-6 border-b border-gray-200  py-4">
           {title && <H4>{title}</H4>}
-          {/* add button */}
-          {addButton && (
-            <button
-              className={`px-3 py-1 h-fit w-fit ${
-                addButton.className
-                  ? `${addButton.className}`
-                  : "bg-black border-black hover:text-black"
-              } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
-              onClick={() => actionOnClick(addButton, {} as unknown as T)}
-            >
-              <H5>{addButton.name}</H5>
-            </button>
-          )}
+          <div className="flex flex-row gap-10 justify-center items-center">
+            {/* filters */}
+            {filters &&
+              filters.map((filter, index) => (
+                <div
+                  key={index}
+                  className="flex flex-row gap-2 justify-center items-center"
+                >
+                  {filter.label && <H5>{filter.label}</H5>}
+                  {filter.node}
+                </div>
+              ))}
+            {/* add button */}
+            {addButton && (
+              <button
+                className={`px-3 py-1 h-fit w-fit ${
+                  addButton.className
+                    ? `${addButton.className}`
+                    : "bg-black border-black hover:text-black"
+                } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                onClick={() => actionOnClick(addButton, {} as unknown as T)}
+              >
+                <H5>{addButton.name}</H5>
+              </button>
+            )}
+          </div>
         </div>
         {/* table part */}
         <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">

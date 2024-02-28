@@ -17,7 +17,7 @@ export interface ActionType<T> {
   className?: string;
   icon: React.ReactNode;
   isDisabled?: boolean;
-
+  node?: (row: T) => React.ReactNode;
   modal?: React.ReactNode;
   onClick?: (row: T) => void;
   isModalOpen?: boolean;
@@ -28,9 +28,8 @@ export interface ActionType<T> {
 }
 
 export interface FilterType<T> {
-  name: string;
   node: React.ReactNode;
-  setRows: (rows: T[]) => void;
+  label?: string;
 }
 
 export interface RowKeyType {
