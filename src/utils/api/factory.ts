@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { get, patch, post, remove, UpdatePayload } from ".";
+import { UpdatePayload, get, patch, post, remove } from ".";
 
 export const Paths = {
   Games: "/games",

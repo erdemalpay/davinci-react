@@ -9,9 +9,12 @@ type Props<T> = {
   rows: T[];
   columns: string[];
   rowKeys: RowKeyType[];
-  actions: ActionType<T>[];
-  title: string;
+  actions?: ActionType<T>[];
+  title?: string;
   addButton?: ActionType<T>;
+  imageHolder?: string;
+  tooltipLimit?: number;
+  rowsPerPageOptions?: number[];
 };
 
 const GenericTable = <T,>({
@@ -21,13 +24,16 @@ const GenericTable = <T,>({
   actions,
   title,
   addButton,
+  imageHolder,
+  tooltipLimit = 40,
+  rowsPerPageOptions = [5, 10, 25],
 }: Props<T>) => {
   const navigate = useNavigate();
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
-  const tooltipLimit = 35;
+
   const filteredRows = tableRows.filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
@@ -84,6 +90,9 @@ const GenericTable = <T,>({
     if (action.setRow) {
       action.setRow(row);
     }
+    if (action.onClick) {
+      action.onClick(row);
+    }
     if (action?.isModal && action.setIsModal && action.modal) {
       action?.setIsModal(true);
     } else if (action.isPath && action.path) {
@@ -92,10 +101,10 @@ const GenericTable = <T,>({
   };
   const renderActionButtons = (row: T) => (
     <td className="py-3 flex gap-3">
-      {actions.map((action, index) => (
+      {actions?.map((action, index) => (
         <div
           key={index}
-          className="rounded-full hover:bg-gray-200 h-6 w-6 flex items-center justify-center"
+          className={`rounded-full  h-6 w-6 flex items-center justify-center ${action?.className}`}
           onClick={() => actionOnClick(action, row)}
         >
           {action.icon}
@@ -105,7 +114,7 @@ const GenericTable = <T,>({
   );
 
   return (
-    <div className="w-5/6 mx-auto flex flex-col gap-4 __className_a182b8">
+    <div className=" mx-auto flex flex-col gap-4 __className_a182b8">
       {/* search button */}
 
       <input
@@ -119,13 +128,13 @@ const GenericTable = <T,>({
       <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg overflow-x-hidden  ">
         {/* header part */}
         <div className="flex flex-row justify-between items-center px-6 border-b border-gray-200  py-4">
-          <H4>{title}</H4>
+          {title && <H4>{title}</H4>}
           {/* add button */}
           {addButton && (
             <button
               className={`px-3 py-1 h-fit w-fit ${
-                addButton.bgColor
-                  ? `bg-${addButton.bgColor} border-${addButton.bgColor} hover:text-${addButton.bgColor}`
+                addButton.className
+                  ? `${addButton.className}`
                   : "bg-black border-black hover:text-black"
               } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
               onClick={() => actionOnClick(addButton, {} as unknown as T)}
@@ -198,6 +207,18 @@ const GenericTable = <T,>({
                     }`}
                   >
                     {rowKeys.map((rowKey, keyIndex) => {
+                      if (rowKey.node) {
+                        return (
+                          <td
+                            key={keyIndex}
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                              rowKey?.className
+                            } `}
+                          >
+                            {rowKey.node}
+                          </td>
+                        );
+                      }
                       const cellValue = `${row[rowKey.key as keyof T]}`;
                       const displayValue =
                         cellValue.length > tooltipLimit
@@ -211,35 +232,23 @@ const GenericTable = <T,>({
                           (option) =>
                             option.label === String(row[rowKey.key as keyof T])
                         );
-                        rowKey.paddingX = rowKey.paddingX
-                          ? rowKey.paddingX
-                          : "0.5rem";
-                        rowKey.paddingY = rowKey.paddingY
-                          ? rowKey.paddingY
-                          : "0.2rem";
-                        const padding = rowKey.paddingY + " " + rowKey.paddingX;
-                        if (matchedOption) {
-                          style = {
-                            backgroundColor: matchedOption.bgColor,
-                            color: matchedOption.textColor,
-                            padding: padding,
-                            borderRadius: "0.375rem",
-                            width: rowKey?.width ?? "fit-content",
-                            textAlign: "center",
-                          };
-                        }
                       }
 
                       return (
                         <td
                           key={keyIndex}
-                          className={`${keyIndex === 0 ? "pl-3" : ""} py-3 `}
+                          className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                            rowKey?.className
+                          } `}
                         >
                           {rowKey.isImage ? (
                             <img
-                              src={row[rowKey.key as keyof T] as string}
+                              src={
+                                (row[rowKey.key as keyof T] as string) ||
+                                imageHolder
+                              }
                               alt="img"
-                              className="w-10 h-10 rounded-full"
+                              className="w-12 h-12 rounded-full"
                             />
                           ) : cellValue.length > tooltipLimit ? (
                             <Tooltip content={cellValue}>
@@ -266,9 +275,11 @@ const GenericTable = <T,>({
                 value={rowsPerPage}
                 onChange={(e) => setRowsPerPage(Number(e.target.value))}
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
+                {rowsPerPageOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -298,7 +309,7 @@ const GenericTable = <T,>({
           </div>
         </div>
         {/* action modal if there is */}
-        {actions.map((action, index) => {
+        {actions?.map((action, index) => {
           if (action?.isModal && action?.isModalOpen && action.modal) {
             return <div key={index}>{action.modal}</div>;
           }

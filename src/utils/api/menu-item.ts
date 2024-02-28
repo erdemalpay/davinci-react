@@ -8,5 +8,5 @@ export function useMenuItemMutations() {
 }
 
 export function useGetMenuItems() {
-  return useGetList<MenuItem>(Paths.MenuItems, [Paths.Menu, Paths.Items]);
+  return useGetList<MenuItem>(Paths.MenuItems);
 }

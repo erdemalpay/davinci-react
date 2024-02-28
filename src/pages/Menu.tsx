@@ -396,7 +396,6 @@ export default function MenuCategories() {
         <AddMenuItemDialog
           isOpen={isCreateItemDialogOpen}
           close={() => setIsCreateItemDialogOpen(false)}
-          createItem={createItem}
           category={selectedCategory}
         />
       )}

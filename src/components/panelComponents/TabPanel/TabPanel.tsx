@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import "../../../index.css";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
+
+// active tab is required to be outside so that when the item added into the tab and tabpanel is rerendered, the active tab will not be reset.
 type Props = {
   tabs: Tab[];
+  activeTab: number;
+  setActiveTab: (tab: number) => void;
 };
 
-const TabPanel: React.FC<Props> = ({ tabs }) => {
-  const [activeTab, setActiveTab] = useState<number>(0);
+const TabPanel: React.FC<Props> = ({ tabs, activeTab, setActiveTab }) => {
   const [indicatorStyle, setIndicatorStyle] = useState<{
     width: number;
     left: number;
@@ -37,7 +40,7 @@ const TabPanel: React.FC<Props> = ({ tabs }) => {
   };
 
   return (
-    <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-5/6 mx-auto">
+    <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-[90%] mx-auto">
       <div
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"

@@ -5,6 +5,7 @@ import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import MenuPage from "../pages/MenuPage";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
@@ -12,6 +13,7 @@ import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
+
 import { RolePermissionEnum } from "../types";
 
 export enum PublicRoutes {
@@ -34,6 +36,7 @@ export enum Routes {
   GameplaysByGame = "/gameplays-by-game",
   GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
+  MenuPages = "/menu-page",
 }
 
 export const allRoutes: {
@@ -117,6 +120,12 @@ export const allRoutes: {
       name: "Menu",
       path: Routes.Menu,
       element: Menu,
+      isOnSidebar: true,
+    },
+    {
+      name: "MenuPage",
+      path: Routes.MenuPages,
+      element: MenuPage,
       isOnSidebar: true,
     },
     {
