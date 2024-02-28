@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { ActionMeta, SingleValue } from "react-select";
+import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { H6 } from "../Typography";
@@ -42,6 +43,7 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   submitItem,
 }: Props<T>) => {
+  const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
@@ -113,6 +115,9 @@ const GenericAddEditPanel = <T,>({
       },
     }
   );
+  useEffect(() => {
+    setAllRequiredFilled(areRequiredFieldsFilled());
+  }, [formElements, inputs]);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
@@ -142,14 +147,22 @@ const GenericAddEditPanel = <T,>({
       console.error("Failed to execute submit item:", error);
     }
   };
+  const areRequiredFieldsFilled = () => {
+    return inputs.every((input) => {
+      if (!input.required) return true;
+      const value = formElements[input.formKey];
+      return value !== undefined && value !== null && value !== "";
+    });
+  };
+
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-0 ${
+      className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
     >
-      <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-2/5 2xl:w-2/5 z-20 ">
-        <div className=" rounded-tl-md rounded-tr-md  md:px-8 md:py-8 py-10 flex flex-col gap-4 justify-between ">
+      <div className="bg-white rounded-md shadow-lg overflow-auto w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50">
+        <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${topClassName}`}
           >
@@ -164,6 +177,7 @@ const GenericAddEditPanel = <T,>({
                         : NO_IMAGE_URL
                     }
                     alt="image"
+                    className="w-full h-40 object-contain rounded-md"
                   />
                   <label
                     key={input.formKey}
@@ -255,8 +269,19 @@ const GenericAddEditPanel = <T,>({
               Cancel
             </button>
             <button
-              onClick={handleSubmit}
-              className="inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit "
+              onClick={() => {
+                if (!allRequiredFilled) {
+                  toast.error("Please fill all required fields");
+                } else {
+                  handleSubmit();
+                }
+              }}
+              // disabled={!allRequiredFilled} // Button is disabled if not all required fields are filled
+              className={`inline-block ${
+                !allRequiredFilled
+                  ? "bg-gray-500"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
             >
               {isEditMode ? "Update" : "Create"}
             </button>

@@ -14,7 +14,7 @@ const TextInput = ({
   value,
   type,
   onChange,
-  className = "px-4 py-2.5 border rounded-md", // Default styling
+  className = "px-4 py-2.5 border rounded-md",
 }: TextInputProps) => {
   return (
     <div className="flex flex-col gap-2">
@@ -23,8 +23,9 @@ const TextInput = ({
         type={type}
         placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange((e.target as HTMLInputElement).value)}
+        onChange={(e) => onChange(e.target.value)}
         className={className}
+        {...(type === "number" ? { min: "0" } : {})}
       />
     </div>
   );

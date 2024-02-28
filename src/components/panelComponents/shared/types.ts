@@ -46,6 +46,7 @@ export interface RowKeyType {
 
 export interface GenericInputType {
   type: InputTypes;
+  required: boolean;
   formKey: string;
   options?: [];
   label?: string;
