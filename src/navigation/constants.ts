@@ -12,8 +12,8 @@ import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
+import UsersPage from "../pages/UsersPage";
 import Visits from "../pages/Visits";
-
 import { RolePermissionEnum } from "../types";
 
 export enum PublicRoutes {
@@ -37,6 +37,7 @@ export enum Routes {
   GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
   MenuPages = "/menu-page",
+  UsersPages = "/users-page",
 }
 
 export const allRoutes: {
@@ -138,6 +139,12 @@ export const allRoutes: {
       name: "Users",
       path: Routes.Users,
       element: Users,
+      isOnSidebar: true,
+    },
+    {
+      name: "UsersPage",
+      path: Routes.UsersPages,
+      element: UsersPage,
       isOnSidebar: true,
     },
   ],

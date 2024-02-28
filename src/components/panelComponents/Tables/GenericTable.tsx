@@ -28,6 +28,7 @@ const GenericTable = <T,>({
   tooltipLimit = 40,
   rowsPerPageOptions = [5, 10, 25],
 }: Props<T>) => {
+  console.log("rows", rows);
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -165,7 +166,7 @@ const GenericTable = <T,>({
                             className="sort-buttons"
                             style={{ display: "inline-block" }}
                           >
-                            {sortConfig?.key === rowKeys[index].key &&
+                            {sortConfig?.key === rowKeys[index]?.key &&
                             sortConfig?.direction === "ascending" ? (
                               <button
                                 onClick={() =>
