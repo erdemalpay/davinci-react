@@ -105,7 +105,7 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
       name: "Delete",
       icon: <TrashIcon />,
       onClick: (row: MenuItem) => deleteItem(row._id),
-      className: "text-red-500 cursor-pointer",
+      className: "text-red-500 cursor-pointer text-xl",
       isModal: false,
       isPath: false,
     },
