@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { ActionMeta, SingleValue } from "react-select";
+import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { H6 } from "../Typography";
@@ -42,6 +43,7 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   submitItem,
 }: Props<T>) => {
+  const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
@@ -113,6 +115,9 @@ const GenericAddEditPanel = <T,>({
       },
     }
   );
+  useEffect(() => {
+    setAllRequiredFilled(areRequiredFieldsFilled());
+  }, [formElements, inputs]);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
@@ -142,6 +147,14 @@ const GenericAddEditPanel = <T,>({
       console.error("Failed to execute submit item:", error);
     }
   };
+  const areRequiredFieldsFilled = () => {
+    return inputs.every((input) => {
+      if (!input.required) return true;
+      const value = formElements[input.formKey];
+      return value !== undefined && value !== null && value !== "";
+    });
+  };
+
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
@@ -256,8 +269,19 @@ const GenericAddEditPanel = <T,>({
               Cancel
             </button>
             <button
-              onClick={handleSubmit}
-              className="inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit "
+              onClick={() => {
+                if (!allRequiredFilled) {
+                  toast.error("Please fill all required fields");
+                } else {
+                  handleSubmit();
+                }
+              }}
+              // disabled={!allRequiredFilled} // Button is disabled if not all required fields are filled
+              className={`inline-block ${
+                !allRequiredFilled
+                  ? "bg-gray-500"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
             >
               {isEditMode ? "Update" : "Create"}
             </button>

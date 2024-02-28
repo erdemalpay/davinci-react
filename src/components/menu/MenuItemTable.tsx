@@ -17,30 +17,34 @@ const inputs = [
     formKey: "name",
     label: "Name",
     placeholder: "Name",
+    required: true,
   },
   {
     type: InputTypes.TEXTAREA,
     formKey: "description",
     label: "Description",
     placeholder: "Description",
+    required: true,
   },
   {
     type: InputTypes.NUMBER,
     formKey: "priceBahceli",
     label: "Price (Bahçeli)",
     placeholder: "Price (Bahçeli)",
+    required: true,
   },
   {
     type: InputTypes.NUMBER,
     formKey: "priceNeorama",
     label: "Price (Neorama)",
     placeholder: "Price (Neorama)",
+    required: true,
   },
   {
     type: InputTypes.IMAGE,
     formKey: "imageUrl",
     label: "Image",
-
+    required: false,
     folderName: "menu",
   },
 ];
