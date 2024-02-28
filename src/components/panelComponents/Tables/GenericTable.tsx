@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Caption, H4, H5, P1 } from "../Typography";
-import { ActionType, RowKeyType } from "../shared/types";
+import { ActionType, FilterType, RowKeyType } from "../shared/types";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
@@ -15,6 +15,7 @@ type Props<T> = {
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
+  filters?: FilterType<T>[];
 };
 
 const GenericTable = <T,>({
@@ -24,6 +25,7 @@ const GenericTable = <T,>({
   actions,
   title,
   addButton,
+  filters,
   imageHolder,
   tooltipLimit = 40,
   rowsPerPageOptions = [5, 10, 25],
@@ -34,7 +36,15 @@ const GenericTable = <T,>({
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
 
-  const filteredRows = tableRows.filter((row) =>
+  const initialRows = () => {
+    if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
+      setTableRows(rows);
+      return rows;
+    } else {
+      return tableRows;
+    }
+  };
+  const filteredRows = initialRows().filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
       const query = searchQuery.toLowerCase();
@@ -90,6 +100,7 @@ const GenericTable = <T,>({
     if (action.setRow) {
       action.setRow(row);
     }
+
     if (action.onClick) {
       action.onClick(row);
     }
@@ -101,17 +112,25 @@ const GenericTable = <T,>({
   };
   const renderActionButtons = (row: T) => (
     <div className=" flex flex-row my-auto h-full  gap-3 ">
-      {actions?.map((action, index) => (
-        <div
-          key={index}
-          className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
-          onClick={() => {
-            actionOnClick(action, row);
-          }}
-        >
-          {action.icon}
-        </div>
-      ))}
+      {actions?.map((action, index) => {
+        if (action?.isDisabled) {
+          return null;
+        }
+        if (action.node) {
+          return action.node(row);
+        }
+        return (
+          <div
+            key={index}
+            className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
+            onClick={() => {
+              actionOnClick(action, row);
+            }}
+          >
+            {action.icon}
+          </div>
+        );
+      })}
     </div>
   );
 
@@ -131,19 +150,32 @@ const GenericTable = <T,>({
         {/* header part */}
         <div className="flex flex-row justify-between items-center px-6 border-b border-gray-200  py-4">
           {title && <H4>{title}</H4>}
-          {/* add button */}
-          {addButton && (
-            <button
-              className={`px-3 py-1 h-fit w-fit ${
-                addButton.className
-                  ? `${addButton.className}`
-                  : "bg-black border-black hover:text-black"
-              } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
-              onClick={() => actionOnClick(addButton, {} as unknown as T)}
-            >
-              <H5>{addButton.name}</H5>
-            </button>
-          )}
+          <div className="flex flex-row gap-10 justify-center items-center">
+            {/* filters */}
+            {filters &&
+              filters.map((filter, index) => (
+                <div
+                  key={index}
+                  className="flex flex-row gap-2 justify-center items-center"
+                >
+                  {filter.label && <H5>{filter.label}</H5>}
+                  {filter.node}
+                </div>
+              ))}
+            {/* add button */}
+            {addButton && (
+              <button
+                className={`px-3 py-1 h-fit w-fit ${
+                  addButton.className
+                    ? `${addButton.className}`
+                    : "bg-black border-black hover:text-black"
+                } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                onClick={() => actionOnClick(addButton, {} as unknown as T)}
+              >
+                <H5>{addButton.name}</H5>
+              </button>
+            )}
+          </div>
         </div>
         {/* table part */}
         <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">
@@ -165,7 +197,7 @@ const GenericTable = <T,>({
                             className="sort-buttons"
                             style={{ display: "inline-block" }}
                           >
-                            {sortConfig?.key === rowKeys[index].key &&
+                            {sortConfig?.key === rowKeys[index]?.key &&
                             sortConfig?.direction === "ascending" ? (
                               <button
                                 onClick={() =>
@@ -248,6 +280,25 @@ const GenericTable = <T,>({
                         const matchedOption = rowKey.options.find(
                           (option) =>
                             option.label === String(row[rowKey.key as keyof T])
+                        );
+                        style = {
+                          color: matchedOption?.textColor,
+                          backgroundColor: matchedOption?.bgColor,
+                        };
+                        return (
+                          <td
+                            key={keyIndex}
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                              rowKey?.className
+                            } min-w-20 md:min-w-0`}
+                          >
+                            <P1
+                              className="w-fit px-2 py-1 rounded-md"
+                              style={style}
+                            >
+                              {matchedOption?.label}
+                            </P1>
+                          </td>
                         );
                       }
 

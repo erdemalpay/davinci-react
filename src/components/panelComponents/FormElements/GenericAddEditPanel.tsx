@@ -164,7 +164,11 @@ const GenericAddEditPanel = <T,>({
       <div className="bg-white rounded-md shadow-lg overflow-auto w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50">
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${topClassName}`}
+            className={`${
+              topClassName
+                ? topClassName
+                : "grid grid-cols-1 md:grid-cols-2 gap-4 "
+            }`}
           >
             <div>
               {/* Image inputs */}
