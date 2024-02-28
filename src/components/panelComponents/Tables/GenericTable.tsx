@@ -100,17 +100,17 @@ const GenericTable = <T,>({
     }
   };
   const renderActionButtons = (row: T) => (
-    <td className="py-3 flex gap-3">
+    <div className=" flex flex-row my-auto h-full  gap-3 ">
       {actions?.map((action, index) => (
         <div
           key={index}
-          className={`rounded-full  h-6 w-6 flex items-center justify-center ${action?.className}`}
+          className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
           onClick={() => actionOnClick(action, row)}
         >
           {action.icon}
         </div>
       ))}
-    </td>
+    </div>
   );
 
   return (
@@ -260,7 +260,7 @@ const GenericTable = <T,>({
                         </td>
                       );
                     })}
-                    {actions && renderActionButtons(row)}
+                    <td>{actions && renderActionButtons(row)}</td>
                   </tr>
                 ))}
               </tbody>
