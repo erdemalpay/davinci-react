@@ -84,7 +84,7 @@ export default function MenuPage() {
         isDisabled: false,
       })),
       {
-        number: 9999999,
+        number: itemCategories.length + emptyCategories.length,
         label: "Categories",
         icon: null,
         content: <CategoryTable categories={categories as MenuCategory[]} />,
