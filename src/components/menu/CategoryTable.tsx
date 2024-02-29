@@ -8,6 +8,7 @@ import { MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/category";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -148,7 +149,9 @@ const CategoryTable = ({ categories }: Props) => {
             onClick={() => updateCategoryOrder(row, true)}
             className={`${row.order === 1 ? "invisible" : "visible"}`}
           >
-            <SlArrowUp className="text-green-500 w-6 h-6" />
+            <ButtonTooltip content="Up">
+              <SlArrowUp className="text-green-500 w-6 h-6" />
+            </ButtonTooltip>
           </button>
 
           <button
@@ -157,7 +160,9 @@ const CategoryTable = ({ categories }: Props) => {
               row.order === categories.length ? "invisible" : "visible"
             }`}
           >
-            <SlArrowDown className="text-green-500 w-6 h-6 " />
+            <ButtonTooltip content="Down">
+              <SlArrowDown className="text-green-500 w-6 h-6" />
+            </ButtonTooltip>
           </button>
         </div>
       ),

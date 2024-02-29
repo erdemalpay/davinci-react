@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Caption, H4, H5, P1 } from "../Typography";
 import { ActionType, FilterType, RowKeyType } from "../shared/types";
+import ButtonTooltip from "./ButtonTooltip";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
@@ -130,7 +131,7 @@ const GenericTable = <T,>({
               actionOnClick(action, row);
             }}
           >
-            {action.icon}
+            <ButtonTooltip content={action.name}>{action.icon}</ButtonTooltip>
           </div>
         );
       })}
