@@ -141,7 +141,10 @@ const GenericTable = <T,>({
       <input
         type="text"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setCurrentPage(1);
+        }}
         placeholder="Search..."
         className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
       />
