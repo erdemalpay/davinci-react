@@ -14,8 +14,5 @@ export function useCategoryMutations() {
 }
 
 export function useGetCategories() {
-  return useGetList<MenuCategory>(Paths.MenuCategories, [
-    Paths.Menu,
-    Paths.Categories,
-  ]);
+  return useGetList<MenuCategory>(Paths.MenuCategories);
 }

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
+import CategoryTable from "../components/menu/CategoryTable";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { MenuCategory, MenuItem } from "../types";
+import { useGetCategories } from "../utils/api/category";
 import { useGetMenuItems } from "../utils/api/menu-item";
 export interface ItemGroup {
   category: MenuCategory;
@@ -16,6 +18,27 @@ export default function MenuPage() {
   const items = useGetMenuItems();
   const [tabPanelKey, setTabPanelKey] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
+  const categories = useGetCategories();
+  const seenCategories: { [key: string]: boolean } = {};
+
+  const itemCategories = items
+    .map((item) => item.category)
+    .filter((category) => {
+      if (seenCategories.hasOwnProperty((category as MenuCategory)._id)) {
+        return false;
+      } else {
+        seenCategories[(category as MenuCategory)._id] = true;
+        return true;
+      }
+    })
+    .sort((a, b) => (a as MenuCategory).order - (b as MenuCategory).order);
+  const emptyCategories = categories?.filter(
+    (category) =>
+      itemCategories.filter(
+        (itemCategory) => (itemCategory as MenuCategory)._id === category._id
+      ).length === 0
+  );
+
   useEffect(() => {
     const itemGroups: ItemGroup[] = [];
     if (!items) return;
@@ -36,8 +59,8 @@ export default function MenuPage() {
       }
     });
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
-    setTabs(
-      itemGroups.map((itemGroup) => ({
+    setTabs([
+      ...itemGroups.map((itemGroup) => ({
         number: itemGroup.order - 1,
         label: itemGroup.category.name,
         icon: null,
@@ -48,10 +71,29 @@ export default function MenuPage() {
           />
         ),
         isDisabled: false,
-      }))
-    );
+      })),
+      ...emptyCategories.map((category) => ({
+        number: category.order - 1,
+        label: category.name,
+        icon: null,
+        content: (
+          <MenuItemTable
+            singleItemGroup={{ category, order: category.order, items: [] }}
+          />
+        ),
+        isDisabled: false,
+      })),
+      {
+        number: 9999999,
+        label: "Categories",
+        icon: null,
+        content: <CategoryTable categories={categories as MenuCategory[]} />,
+        isDisabled: false,
+      },
+    ]);
+
     setTabPanelKey(tabPanelKey + 1);
-  }, [items]);
+  }, [items, categories]);
 
   return (
     <>

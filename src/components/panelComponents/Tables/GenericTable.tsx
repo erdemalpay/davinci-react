@@ -120,7 +120,7 @@ const GenericTable = <T,>({
           return null;
         }
         if (action.node) {
-          return action.node(row);
+          return <div key={index}>{action.node(row)}</div>;
         }
         return (
           <div
@@ -340,47 +340,51 @@ const GenericTable = <T,>({
               </tbody>
             </table>
           </div>
-          <div className="w-fit ml-auto flex flex-row gap-4">
-            {/* Rows per page */}
-            <div className="flex flex-row gap-2 px-6 items-center">
-              <Caption>Rows per page:</Caption>
-              <select
-                className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
-                value={rowsPerPage}
-                onChange={(e) => setRowsPerPage(Number(e.target.value))}
-              >
-                {rowsPerPageOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {rows.length > 0 && (
+            <div className="w-fit ml-auto flex flex-row gap-4">
+              {/* Rows per page */}
+              <div className="flex flex-row gap-2 px-6 items-center">
+                <Caption>Rows per page:</Caption>
+                <select
+                  className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
+                  value={rowsPerPage}
+                  onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                >
+                  {rowsPerPageOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Pagination */}
-            <div className=" flex flex-row gap-2 items-center">
-              <Caption>
-                {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}–
-                {Math.min(currentPage * rowsPerPage, totalRows)} of {totalRows}
-              </Caption>
-              <div className="flex flex-row gap-4">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  className="cursor-pointer"
-                  disabled={currentPage === 1}
-                >
-                  {"<"}
-                </button>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  className="cursor-pointer"
-                  disabled={currentPage === totalPages}
-                >
-                  {">"}
-                </button>
+              {/* Pagination */}
+
+              <div className=" flex flex-row gap-2 items-center">
+                <Caption>
+                  {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}–
+                  {Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
+                  {totalRows}
+                </Caption>
+                <div className="flex flex-row gap-4">
+                  <button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    className="cursor-pointer"
+                    disabled={currentPage === 1}
+                  >
+                    {"<"}
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    className="cursor-pointer"
+                    disabled={currentPage === totalPages}
+                  >
+                    {">"}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         {/* action modal if there is */}
         {actions?.map((action, index) => {
