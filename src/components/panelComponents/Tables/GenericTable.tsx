@@ -28,7 +28,7 @@ const GenericTable = <T,>({
   filters,
   imageHolder,
   tooltipLimit = 40,
-  rowsPerPageOptions = [5, 10, 25],
+  rowsPerPageOptions = [10, 20, 50],
 }: Props<T>) => {
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
@@ -65,6 +65,9 @@ const GenericTable = <T,>({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+  if (currentPage > totalPages) {
+    setCurrentPage(totalPages);
+  }
 
   const [sortConfig, setSortConfig] = useState<{
     key: Extract<keyof T, string>;
