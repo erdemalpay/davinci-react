@@ -41,6 +41,7 @@ const CategoryTable = ({ categories }: Props) => {
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -180,6 +181,8 @@ const CategoryTable = ({ categories }: Props) => {
         actions={actions}
         columns={columns}
         rows={categories}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
         title={"Categories"}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
