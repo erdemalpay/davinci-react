@@ -35,6 +35,7 @@ export default function UsersPage() {
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
+  const [currentPage, setCurrentPage] = useState(1);
   const [tableKey, setTableKey] = useState(0); // reset table
   const users = useGetAllUsers();
   const navigate = useNavigate();
@@ -158,6 +159,8 @@ export default function UsersPage() {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           columns={columns}
           filters={filters}
           rows={filteredUsers() as TableUser[]}

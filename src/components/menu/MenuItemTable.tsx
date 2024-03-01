@@ -9,7 +9,9 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-type Props = { singleItemGroup: ItemGroup };
+type Props = {
+  singleItemGroup: ItemGroup;
+};
 // these are the inputs for the add item modal
 const inputs = [
   {
@@ -83,7 +85,9 @@ const rowKeys = [
 const MenuItemTable = ({ singleItemGroup }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -159,6 +163,8 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
         rows={singleItemGroup.items}
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}

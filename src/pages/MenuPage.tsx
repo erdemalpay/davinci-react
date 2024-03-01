@@ -66,7 +66,7 @@ export default function MenuPage() {
         icon: null,
         content: (
           <MenuItemTable
-            key={itemGroup.category.name}
+            key={itemGroup.category.name + tabPanelKey}
             singleItemGroup={itemGroup}
           />
         ),
@@ -78,6 +78,7 @@ export default function MenuPage() {
         icon: null,
         content: (
           <MenuItemTable
+            key={category.name + tabPanelKey}
             singleItemGroup={{ category, order: category.order, items: [] }}
           />
         ),
@@ -93,14 +94,13 @@ export default function MenuPage() {
     ]);
 
     setTabPanelKey(tabPanelKey + 1);
-  }, [items, categories]);
+  }, [categories, items]);
 
   return (
     <>
       <Header showLocationSelector={false} />
       {tabs && (
         <TabPanel
-          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

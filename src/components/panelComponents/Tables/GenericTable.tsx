@@ -15,6 +15,8 @@ type Props<T> = {
   addButton?: ActionType<T>;
   imageHolder?: string;
   tooltipLimit?: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
   rowsPerPageOptions?: number[];
   filters?: FilterType<T>[];
 };
@@ -30,10 +32,11 @@ const GenericTable = <T,>({
   imageHolder,
   tooltipLimit = 40,
   rowsPerPageOptions = [10, 20, 50],
+  currentPage,
+  setCurrentPage,
 }: Props<T>) => {
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
 
