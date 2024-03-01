@@ -201,7 +201,9 @@ const MenuItemTable = ({
     },
   ];
   function updateItemOrder(item: MenuItem, up: boolean) {
-    const newOrder = up ? item.order - 1 : item.order + 1;
+    const newOrder = up
+      ? singleItemGroup.items[singleItemGroup.items.indexOf(item) - 1].order
+      : singleItemGroup.items[singleItemGroup.items.indexOf(item) + 1].order;
     const otherItem =
       singleItemGroup &&
       singleItemGroup.items.find((c) => c.order === newOrder);
