@@ -149,9 +149,9 @@ const GenericTable = <T,>({
         className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
       />
 
-      <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg overflow-x-hidden  ">
+      <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
         {/* header part */}
-        <div className="flex flex-row justify-between items-center px-6 border-b border-gray-200  py-4">
+        <div className="flex flex-row justify-between items-center gap-4  px-6 border-b border-gray-200  py-4">
           {title && <H4>{title}</H4>}
           <div className="flex flex-row gap-10 justify-center items-center">
             {/* filters */}
@@ -291,12 +291,12 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
+                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3  ${
                               rowKey?.className
-                            } min-w-20 md:min-w-0`}
+                            } min-w-32 md:min-w-0 `}
                           >
                             <P1
-                              className="w-fit px-2 py-1 rounded-md"
+                              className="w-fit px-2 py-1 rounded-md "
                               style={style}
                             >
                               {matchedOption?.label}
