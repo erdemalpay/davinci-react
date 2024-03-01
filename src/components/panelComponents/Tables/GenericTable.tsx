@@ -32,7 +32,7 @@ const GenericTable = <T,>({
   imageHolder,
   tooltipLimit = 40,
   rowsPerPageOptions = [10, 20, 50],
-  currentPage,
+  currentPage = 1,
   setCurrentPage,
 }: Props<T>) => {
   const navigate = useNavigate();

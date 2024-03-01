@@ -8,9 +8,17 @@ type Props = {
   tabs: Tab[];
   activeTab: number;
   setActiveTab: (tab: number) => void;
+  additionalClickAction?: () => void;
+  additionalOpenAction?: () => void;
 };
 
-const TabPanel: React.FC<Props> = ({ tabs, activeTab, setActiveTab }) => {
+const TabPanel: React.FC<Props> = ({
+  additionalClickAction,
+  tabs,
+  activeTab,
+  setActiveTab,
+  additionalOpenAction,
+}) => {
   const [indicatorStyle, setIndicatorStyle] = useState<{
     width: number;
     left: number;
@@ -19,6 +27,7 @@ const TabPanel: React.FC<Props> = ({ tabs, activeTab, setActiveTab }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    additionalOpenAction && additionalOpenAction();
     if (tabsRef.current[activeTab] && containerRef.current) {
       const activeTabElement = tabsRef.current[activeTab];
       const { offsetLeft, offsetWidth } = activeTabElement!;
@@ -36,6 +45,7 @@ const TabPanel: React.FC<Props> = ({ tabs, activeTab, setActiveTab }) => {
   }, [activeTab, tabs.length]);
 
   const handleTabChange = (tab: Tab) => {
+    additionalClickAction && additionalClickAction();
     setActiveTab(tab.number);
   };
 

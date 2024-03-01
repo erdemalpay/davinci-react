@@ -11,6 +11,8 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   singleItemGroup: ItemGroup;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
 };
 // these are the inputs for the add item modal
 const inputs = [
@@ -82,12 +84,14 @@ const rowKeys = [
   },
 ];
 
-const MenuItemTable = ({ singleItemGroup }: Props) => {
+const MenuItemTable = ({
+  singleItemGroup,
+  currentPage,
+  setCurrentPage,
+}: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -163,7 +167,7 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
-        currentPage={currentPage}
+        currentPage={currentPage < 1 ? 1 : currentPage}
         setCurrentPage={setCurrentPage}
         rows={singleItemGroup.items}
         title={singleItemGroup.category.name}

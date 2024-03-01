@@ -20,6 +20,7 @@ export default function MenuPage() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
+  const [currentPage, setCurrentPage] = useState(1);
 
   const itemCategories = items
     .map((item) => item.category)
@@ -68,6 +69,8 @@ export default function MenuPage() {
           <MenuItemTable
             key={itemGroup.category.name + tabPanelKey}
             singleItemGroup={itemGroup}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           />
         ),
         isDisabled: false,
@@ -80,6 +83,8 @@ export default function MenuPage() {
           <MenuItemTable
             key={category.name + tabPanelKey}
             singleItemGroup={{ category, order: category.order, items: [] }}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           />
         ),
         isDisabled: false,
@@ -94,7 +99,7 @@ export default function MenuPage() {
     ]);
 
     setTabPanelKey(tabPanelKey + 1);
-  }, [categories, items]);
+  }, [categories, items, currentPage, activeTab]);
 
   return (
     <>
@@ -104,6 +109,9 @@ export default function MenuPage() {
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+          }}
         />
       )}
     </>
