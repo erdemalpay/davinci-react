@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { SlArrowDown, SlArrowUp } from "react-icons/sl";
+import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/MenuPage";
 import { MenuItem } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu-item";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
@@ -160,7 +163,61 @@ const MenuItemTable = ({
 
       isPath: false,
     },
+    {
+      name: "Move",
+      icon: null,
+      className: "text-blue-500 cursor-pointer text-xl",
+      node: (row: MenuItem) => (
+        <div className="flex flex-row justify-center items-center gap-2">
+          <button
+            onClick={() => updateItemOrder(row, true)}
+            className={`${
+              singleItemGroup.items[0] === row ? "invisible" : "visible"
+            }`}
+          >
+            <ButtonTooltip content="Up">
+              <SlArrowUp className="text-green-500 w-6 h-6" />
+            </ButtonTooltip>
+          </button>
+
+          <button
+            onClick={() => updateItemOrder(row, false)}
+            className={`${
+              singleItemGroup.items[singleItemGroup.items.length - 1] === row
+                ? "invisible"
+                : "visible"
+            }`}
+          >
+            <ButtonTooltip content="Down">
+              <SlArrowDown className="text-green-500 w-6 h-6" />
+            </ButtonTooltip>
+          </button>
+        </div>
+      ),
+
+      isModal: false,
+      setRow: setRowToAction,
+      isPath: false,
+    },
   ];
+  function updateItemOrder(item: MenuItem, up: boolean) {
+    const newOrder = up ? item.order - 1 : item.order + 1;
+    const otherItem =
+      singleItemGroup &&
+      singleItemGroup.items.find((c) => c.order === newOrder);
+    updateItem({
+      id: item._id,
+      updates: { order: newOrder },
+    });
+    if (otherItem) {
+      updateItem({
+        id: otherItem._id,
+        updates: { order: item.order },
+      });
+    }
+
+    toast.success("Item order updated");
+  }
   return (
     <div className="w-[90%] mx-auto">
       <GenericTable

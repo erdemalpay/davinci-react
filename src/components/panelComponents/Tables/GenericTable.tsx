@@ -69,9 +69,6 @@ const GenericTable = <T,>({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  if (currentPage > totalPages) {
-    setCurrentPage(totalPages);
-  }
 
   const [sortConfig, setSortConfig] = useState<{
     key: Extract<keyof T, string>;

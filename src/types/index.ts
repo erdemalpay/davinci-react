@@ -104,6 +104,7 @@ export type MenuItem = {
   category: MenuCategory | number;
   priceBahceli: number;
   priceNeorama: number;
+  order: number;
 };
 
 export enum ReservationStatusEnum {
