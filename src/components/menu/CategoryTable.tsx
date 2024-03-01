@@ -14,6 +14,8 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   categories: MenuCategory[];
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
 };
 const inputs = [
   {
@@ -35,13 +37,13 @@ const formKeys = [
   { key: "name", type: FormKeyTypeEnum.STRING },
   { key: "imageUrl", type: FormKeyTypeEnum.STRING },
 ];
-const CategoryTable = ({ categories }: Props) => {
+const CategoryTable = ({ categories, currentPage, setCurrentPage }: Props) => {
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
