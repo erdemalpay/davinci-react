@@ -1,15 +1,24 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import user1 from "../components/panelComponents/assets/profile/user-1.jpg";
-import { CreateUserDialog } from "../components/users/CreateUserDialog";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import { WorkType } from "../types";
-import { useGetAllUsers, useUserMutations } from "../utils/api/user";
+import {
+  useGetAllUserRoles,
+  useGetAllUsers,
+  useUserMutations,
+} from "../utils/api/user";
 
 // these are the columns and rowKeys for the table
 interface TableUser {
@@ -32,7 +41,10 @@ interface TableUser {
 }
 
 export default function UsersPage() {
-  const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<TableUser>();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,6 +58,7 @@ export default function UsersPage() {
       textColor: "#fff",
     };
   });
+
   function handleUserUpdate(user: TableUser) {
     updateUser({
       id: user._id,
@@ -53,6 +66,49 @@ export default function UsersPage() {
     });
     toast.success(`User ${user.name} updated`);
   }
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: "Name",
+      placeholder: "Name",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "fullName",
+      label: "Full Name",
+      placeholder: "Full Name",
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "role",
+      label: "Role",
+      options: roles.map((role) => {
+        return {
+          value: role._id,
+          label: role.name,
+        };
+      }),
+      placeholder: "Role",
+      required: false,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: "Image",
+      required: false,
+      folderName: "menu",
+    },
+  ];
+
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "fullName", type: FormKeyTypeEnum.STRING },
+    { key: "role", type: FormKeyTypeEnum.STRING },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = ["", "ID", "Display Name", "Full Name", "Role", "Action"];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
@@ -76,7 +132,7 @@ export default function UsersPage() {
       name: "View",
       icon: <IoEyeOutline />,
       isModal: false,
-      className: "text-blue-500 cursor-pointer text-xl",
+      className: "text-green-500 cursor-pointer text-2xl",
       onClick: (row: TableUser) => {
         {
           navigate(`/user/${row._id}`);
@@ -97,23 +153,50 @@ export default function UsersPage() {
         ></CheckSwitch>
       ),
     },
+    {
+      name: "Edit",
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateUser as any}
+          isEditMode={true}
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
+      isPath: false,
+    },
   ];
   const addButton = {
     name: `Add User`,
     isModal: true,
     modal: (
-      <CreateUserDialog
-        isOpen={isCreateUserDialogOpen}
-        close={() => setIsCreateUserDialogOpen(false)}
-        createUser={createUser}
+      <GenericAddEditPanel
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        inputs={inputs}
+        formKeys={formKeys}
+        submitItem={createUser as any}
+        folderName="user"
       />
     ),
-    isModalOpen: isCreateUserDialogOpen,
-    setIsModal: setIsCreateUserDialogOpen,
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
+
   const filters = [
     {
       label: "Show Inactive Users",
