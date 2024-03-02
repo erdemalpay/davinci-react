@@ -90,7 +90,7 @@ export default function MenuPage() {
         isDisabled: false,
       })),
       {
-        number: 99999,
+        number: itemCategories.length + emptyCategories.length,
         label: "Categories",
         icon: null,
         content: (
