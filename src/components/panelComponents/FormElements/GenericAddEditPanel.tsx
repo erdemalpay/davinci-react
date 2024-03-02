@@ -26,7 +26,7 @@ type Props<T> = {
   isEditMode?: boolean;
   folderName?: string;
   itemToEdit?: {
-    id: number;
+    id: number | string;
     updates: T;
   };
 };
@@ -154,7 +154,7 @@ const GenericAddEditPanel = <T,>({
         !isOpen && "hidden"
       }`}
     >
-      <div className="bg-white rounded-md shadow-lg overflow-scroll w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 ">
+      <div className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 overflow-visible">
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`${
@@ -235,7 +235,7 @@ const GenericAddEditPanel = <T,>({
                         key={input.formKey}
                         value={input.options?.find(
                           (option) =>
-                            option.value === formElements[input.formKey]
+                            option.label === formElements[input.formKey]
                         )}
                         label={input.label ?? ""}
                         options={input.options ?? []}

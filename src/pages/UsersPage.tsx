@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -40,7 +41,9 @@ interface TableUser {
 }
 
 export default function UsersPage() {
+  const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
@@ -129,7 +132,7 @@ export default function UsersPage() {
       name: "View",
       icon: <IoEyeOutline />,
       isModal: false,
-      className: "text-blue-500 cursor-pointer text-xl",
+      className: "text-green-500 cursor-pointer text-2xl",
       onClick: (row: TableUser) => {
         {
           navigate(`/user/${row._id}`);
@@ -149,6 +152,29 @@ export default function UsersPage() {
           onChange={() => handleUserUpdate(row)}
         ></CheckSwitch>
       ),
+    },
+    {
+      name: "Edit",
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateUser as any}
+          isEditMode={true}
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
+      isPath: false,
     },
   ];
   const addButton = {
@@ -170,22 +196,7 @@ export default function UsersPage() {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
-  // const addButton = {
-  //   name: `Add User`,
-  //   isModal: true,
-  //   modal: (
-  //     <CreateUserDialog
-  //       isOpen={isCreateUserDialogOpen}
-  //       close={() => setIsCreateUserDialogOpen(false)}
-  //       createUser={createUser}
-  //     />
-  //   ),
-  //   isModalOpen: isCreateUserDialogOpen,
-  //   setIsModal: setIsCreateUserDialogOpen,
-  //   isPath: false,
-  //   icon: null,
-  //   className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-  // };
+
   const filters = [
     {
       label: "Show Inactive Users",
