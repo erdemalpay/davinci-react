@@ -111,6 +111,7 @@ const MenuItemTable = ({
         formKeys={formKeys}
         submitItem={createItem as any}
         constantValues={{ category: singleItemGroup.category }}
+        folderName="menu"
       />
     ),
     isModalOpen: isAddModalOpen,

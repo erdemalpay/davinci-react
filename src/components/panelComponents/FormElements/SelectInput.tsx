@@ -7,6 +7,7 @@ import Select, {
   SingleValue,
   components,
 } from "react-select";
+import { H6 } from "../Typography";
 
 const CustomOption = (
   props: OptionProps<
@@ -28,7 +29,7 @@ const CustomOption = (
 type Props = {
   label: string;
   options: { value: string; label: string }[];
-  value: SingleValue<{ value: string; label: string }>;
+  value: SingleValue<{ value: string; label: string }> | null;
   onChange: (
     value: SingleValue<{ value: string; label: string }>,
     actionMeta: ActionMeta<{ value: string; label: string }>
@@ -77,11 +78,11 @@ const SelectInput = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 mt-4">
-      <label className="font-medium text-gray-900">{label}</label>
+    <div className="flex flex-col gap-2 ">
+      <H6>{label}</H6>
       <Select
         options={options}
-        onChange={onChange}
+        onChange={(value, actionMeta) => onChange(value, actionMeta)}
         value={value}
         components={{ Option: CustomOption }}
         placeholder={placeholder}

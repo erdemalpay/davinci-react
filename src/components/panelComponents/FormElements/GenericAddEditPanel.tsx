@@ -14,6 +14,7 @@ import {
 } from "../shared/types";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
+
 type Props<T> = {
   isOpen: boolean;
   close: () => void;
@@ -23,6 +24,7 @@ type Props<T> = {
   submitItem: (item: T | UpdatePayload<T>) => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
+  folderName?: string;
   itemToEdit?: {
     id: number;
     updates: T;
@@ -41,6 +43,7 @@ const GenericAddEditPanel = <T,>({
   constantValues,
   isEditMode = false,
   itemToEdit,
+  folderName,
   submitItem,
 }: Props<T>) => {
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -74,26 +77,17 @@ const GenericAddEditPanel = <T,>({
 
     return mergedInitialState;
   });
-
   useEffect(() => {
     if (isEditMode && itemToEdit) {
       setFormElements(itemToEdit.updates as unknown as FormElementsState);
     }
   }, [itemToEdit, isEditMode]);
   const uploadImageMutation = useMutation(
-    async ({
-      file,
-      filename,
-      foldername,
-    }: {
-      file: File;
-      filename: string;
-      foldername: string;
-    }) => {
+    async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", filename);
-      formData.append("foldername", foldername);
+      formData.append("foldername", folderName ?? "forgotton");
 
       const res = await postWithHeader<FormData, { url: string }>({
         path: "/asset/upload",
@@ -128,7 +122,6 @@ const GenericAddEditPanel = <T,>({
         uploadImageMutation.mutate({
           file,
           filename,
-          foldername: input.folderName ?? "forgotten",
         });
       }
     },
@@ -161,7 +154,7 @@ const GenericAddEditPanel = <T,>({
         !isOpen && "hidden"
       }`}
     >
-      <div className="bg-white rounded-md shadow-lg overflow-auto w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50">
+      <div className="bg-white rounded-md shadow-lg overflow-scroll w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 ">
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`${
@@ -217,10 +210,11 @@ const GenericAddEditPanel = <T,>({
                     ) {
                       setFormElements((prev) => ({
                         ...prev,
-                        [key]: value?.value,
-                      })); // Only storing the value for simplicity
+                        [key]: value ? value.value : "",
+                      }));
                     }
                   };
+
                 return (
                   <div key={input.formKey} className="flex flex-col gap-2">
                     {(input.type === InputTypes.TEXT ||
@@ -239,7 +233,10 @@ const GenericAddEditPanel = <T,>({
                     {input.type === InputTypes.SELECT && (
                       <SelectInput
                         key={input.formKey}
-                        value={value}
+                        value={input.options?.find(
+                          (option) =>
+                            option.value === formElements[input.formKey]
+                        )}
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}

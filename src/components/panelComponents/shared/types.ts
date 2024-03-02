@@ -49,7 +49,7 @@ export interface GenericInputType {
   type: InputTypes;
   required: boolean;
   formKey: string;
-  options?: [];
+  options?: any[];
   label?: string;
   placeholder?: string;
   folderName?: string;
