@@ -141,19 +141,6 @@ export default function UsersPage() {
       isPath: false,
     },
     {
-      name: "Toggle Active",
-      isDisabled: !showInactiveUsers,
-      isModal: false,
-      isPath: false,
-      icon: null,
-      node: (row: TableUser) => (
-        <CheckSwitch
-          checked={row.active}
-          onChange={() => handleUserUpdate(row)}
-        ></CheckSwitch>
-      ),
-    },
-    {
       name: "Edit",
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
@@ -175,6 +162,19 @@ export default function UsersPage() {
       setIsModal: setIsEditModalOpen,
 
       isPath: false,
+    },
+    {
+      name: "Toggle Active",
+      isDisabled: !showInactiveUsers,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: TableUser) => (
+        <CheckSwitch
+          checked={row.active}
+          onChange={() => handleUserUpdate(row)}
+        ></CheckSwitch>
+      ),
     },
   ];
   const addButton = {
