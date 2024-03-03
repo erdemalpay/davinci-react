@@ -63,7 +63,7 @@ export default function MenuPage() {
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
     setTabs([
       ...itemGroups.map((itemGroup) => ({
-        number: itemGroup.order - 1,
+        number: itemGroup.category.order - 1,
         label: itemGroup.category.name,
         icon: null,
         content: (
@@ -119,7 +119,7 @@ export default function MenuPage() {
       <Header showLocationSelector={false} />
       {tabs && (
         <TabPanel
-          tabs={tabs}
+          tabs={tabs.sort((a, b) => a.number - b.number)}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {
