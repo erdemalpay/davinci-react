@@ -154,7 +154,13 @@ export default function UsersPage() {
           formKeys={formKeys}
           submitItem={updateUser as any}
           isEditMode={true}
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+              role: roles.find((role) => role.name === rowToAction.role)?._id,
+            },
+          }}
         />
       ) : null,
 
