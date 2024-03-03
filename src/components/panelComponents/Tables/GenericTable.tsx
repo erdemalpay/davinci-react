@@ -19,6 +19,8 @@ type Props<T> = {
   setCurrentPage: (page: number) => void;
   rowsPerPageOptions?: number[];
   filters?: FilterType<T>[];
+  rowsPerPage: number;
+  setRowsPerPage: (rowsPerPage: number) => void;
 };
 
 const GenericTable = <T,>({
@@ -33,10 +35,11 @@ const GenericTable = <T,>({
   tooltipLimit = 40,
   rowsPerPageOptions = [10, 20, 50],
   currentPage = 1,
+  rowsPerPage = 10,
+  setRowsPerPage,
   setCurrentPage,
 }: Props<T>) => {
   const navigate = useNavigate();
-  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
 

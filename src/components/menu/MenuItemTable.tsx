@@ -16,6 +16,8 @@ type Props = {
   singleItemGroup: ItemGroup;
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  rowsPerPage: number;
+  setRowsPerPage: (rows: number) => void;
 };
 // these are the inputs for the add item modal
 const inputs = [
@@ -91,6 +93,8 @@ const MenuItemTable = ({
   singleItemGroup,
   currentPage,
   setCurrentPage,
+  rowsPerPage,
+  setRowsPerPage,
 }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -233,6 +237,8 @@ const MenuItemTable = ({
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
       />
     </div>
   );
