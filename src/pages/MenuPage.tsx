@@ -84,7 +84,7 @@ export default function MenuPage() {
         ),
         isDisabled: false,
       })),
-      // Use the ternary operator to conditionally include emptyCategories
+
       ...(emptyCategories.length > 0
         ? emptyCategories.map((category) => ({
             number: category.order - 1,
