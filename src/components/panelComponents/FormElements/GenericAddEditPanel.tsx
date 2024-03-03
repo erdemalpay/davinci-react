@@ -82,6 +82,7 @@ const GenericAddEditPanel = <T,>({
       setFormElements(itemToEdit.updates as unknown as FormElementsState);
     }
   }, [itemToEdit, isEditMode]);
+
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
@@ -233,10 +234,17 @@ const GenericAddEditPanel = <T,>({
                     {input.type === InputTypes.SELECT && (
                       <SelectInput
                         key={input.formKey}
-                        value={input.options?.find(
-                          (option) =>
-                            option.label === formElements[input.formKey]
-                        )}
+                        value={
+                          isEditMode
+                            ? input.options?.find(
+                                (option) =>
+                                  option.value === formElements[input.formKey]
+                              )
+                            : input.options?.find(
+                                (option) =>
+                                  option.label === formElements[input.formKey]
+                              )
+                        }
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
