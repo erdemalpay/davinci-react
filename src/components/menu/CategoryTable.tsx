@@ -16,7 +16,10 @@ type Props = {
   categories: MenuCategory[];
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  rowsPerPage: number;
+  setRowsPerPage: (rows: number) => void;
 };
+
 const inputs = [
   {
     type: InputTypes.TEXT,
@@ -37,7 +40,13 @@ const formKeys = [
   { key: "name", type: FormKeyTypeEnum.STRING },
   { key: "imageUrl", type: FormKeyTypeEnum.STRING },
 ];
-const CategoryTable = ({ categories, currentPage, setCurrentPage }: Props) => {
+const CategoryTable = ({
+  categories,
+  currentPage,
+  setCurrentPage,
+  rowsPerPage,
+  setRowsPerPage,
+}: Props) => {
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -188,6 +197,8 @@ const CategoryTable = ({ categories, currentPage, setCurrentPage }: Props) => {
         title={"Categories"}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
       />
     </div>
   );

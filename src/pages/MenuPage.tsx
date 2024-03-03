@@ -21,6 +21,7 @@ export default function MenuPage() {
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
   const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const itemCategories = items
     .map((item) => item.category)
@@ -71,6 +72,8 @@ export default function MenuPage() {
             singleItemGroup={itemGroup}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
           />
         ),
         isDisabled: false,
@@ -85,6 +88,8 @@ export default function MenuPage() {
             singleItemGroup={{ category, order: category.order, items: [] }}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
           />
         ),
         isDisabled: false,
@@ -98,6 +103,8 @@ export default function MenuPage() {
             categories={categories as MenuCategory[]}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
           />
         ),
         isDisabled: false,
@@ -105,7 +112,7 @@ export default function MenuPage() {
     ]);
 
     setTabPanelKey(tabPanelKey + 1);
-  }, [categories, items, currentPage, activeTab]);
+  }, [categories, items, currentPage, activeTab, rowsPerPage]);
 
   return (
     <>

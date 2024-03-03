@@ -44,6 +44,7 @@ export default function UsersPage() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
@@ -256,6 +257,8 @@ export default function UsersPage() {
           title="Users"
           imageHolder={user1}
           addButton={addButton}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
     </>
