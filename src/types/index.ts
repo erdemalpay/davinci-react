@@ -147,9 +147,9 @@ export enum UserGameUpdateType {
 }
 
 export enum RowPerPageEnum {
-  TEN = 10,
-  TWENTY = 20,
-  FIFTY = 50,
+  FIRST = 10,
+  SECOND = 20,
+  THIRD = 50,
 }
 
 export enum RoleEnum {
