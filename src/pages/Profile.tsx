@@ -40,7 +40,7 @@ export default function Profile() {
     },
     {
       number: 3,
-      label: "Game Master",
+      label: "Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: <GameMasterProfile />,
       isDisabled: !(

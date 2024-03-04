@@ -14,7 +14,7 @@ const TextInput = ({
   value,
   type,
   onChange,
-  className = "px-4 py-2.5 border rounded-md",
+  className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   return (
     <div className="flex flex-col gap-2">
