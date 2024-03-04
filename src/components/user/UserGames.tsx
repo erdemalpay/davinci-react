@@ -7,7 +7,7 @@ import GamesIMentored from "../tables/GamesIMentored";
 type Props = {
   user: User;
 };
-const GameMaster = ({ user }: Props) => {
+const UserGames = ({ user }: Props) => {
   const { data } = useGetMentorGamePlays(user._id);
 
   return (
@@ -20,4 +20,4 @@ const GameMaster = ({ user }: Props) => {
   );
 };
 
-export default GameMaster;
+export default UserGames;
