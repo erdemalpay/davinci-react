@@ -28,13 +28,14 @@ const GamesIMentored = ({ data }: Props) => {
       game: games.find((g) => g._id === Number(game))?.name as string,
       sessionLength: session.length,
     }));
-  const countColumn = ` ${gameplayGroupRows.length}/${gameplayGroupRows?.reduce(
+  const [rows, setRows] = useState(gameplayGroupRows);
+
+  const countColumn = ` ${rows.length}/${rows?.reduce(
     (acc, row) => acc + row.sessionLength,
     0
   )}`;
 
   const columns = ["Game", `${countColumn}`];
-  const [rows, setRows] = useState(gameplayGroupRows);
   const handleFilter = () => {
     const filterData = Object.entries(gameplays)
       .sort(([, sessionA], [, sessionB]) => sessionB.length - sessionA.length)
