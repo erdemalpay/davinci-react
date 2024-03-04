@@ -2,7 +2,7 @@ import { FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import { EditableText } from "../components/common/EditableText";
 import { Header } from "../components/header/Header";
-import GameMaster from "../components/user/GameMaster";
+import UserGames from "../components/user/UserGames";
 import { RoleEnum, User } from "../types";
 import { useGetUserWithId, useUserMutations } from "../utils/api/user";
 
@@ -77,7 +77,7 @@ export default function UserView() {
         {/* TODO : User roles are going to be made enum  */}
         {(user.role._id === RoleEnum.GAMEMASTER ||
           user.role._id === RoleEnum.GAMEMANAGER ||
-          user.role._id === RoleEnum.MANAGER) && <GameMaster user={user} />}
+          user.role._id === RoleEnum.MANAGER) && <UserGames user={user} />}
       </div>
     </>
   );

@@ -4,7 +4,7 @@ import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import ChangePassword from "../components/panelComponents/Profile/ChangePassword";
-import GameMasterProfile from "../components/panelComponents/Profile/GameMaster/GameMasterProfile";
+import UserGamesProfile from "../components/panelComponents/Profile/GameMaster/UserGamesProfile";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -42,7 +42,7 @@ export default function Profile() {
       number: 3,
       label: "Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
-      content: <GameMasterProfile />,
+      content: <UserGamesProfile />,
       isDisabled: !(
         user.role._id === RoleEnum.GAMEMASTER ||
         user.role._id === RoleEnum.GAMEMANAGER ||
