@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Game, Gameplay, RowPerPageEnum } from "../../types";
+import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -12,8 +11,6 @@ type GameplayAccumulator = {
 };
 const GamesIMentored = ({ data }: Props) => {
   const games: Game[] = useGetGames();
-  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
-  const [currentPage, setCurrentPage] = useState(1);
   const gameplays = data.reduce<GameplayAccumulator>((acc, gameplay) => {
     if (!acc[gameplay.game as number]) {
       acc[gameplay.game as number] = [];
@@ -49,10 +46,6 @@ const GamesIMentored = ({ data }: Props) => {
         columns={columns}
         rows={rows}
         rowKeys={rowKeys}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
-        currentPage={currentPage < 1 ? 1 : currentPage}
-        setCurrentPage={setCurrentPage}
         title={"Games Mentored"}
       />
     </div>

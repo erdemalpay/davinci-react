@@ -14,10 +14,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   categories: MenuCategory[];
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  rowsPerPage: number;
-  setRowsPerPage: (rows: number) => void;
 };
 
 const inputs = [
@@ -40,13 +36,7 @@ const formKeys = [
   { key: "name", type: FormKeyTypeEnum.STRING },
   { key: "imageUrl", type: FormKeyTypeEnum.STRING },
 ];
-const CategoryTable = ({
-  categories,
-  currentPage,
-  setCurrentPage,
-  rowsPerPage,
-  setRowsPerPage,
-}: Props) => {
+const CategoryTable = ({ categories }: Props) => {
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -192,13 +182,9 @@ const CategoryTable = ({
         actions={actions}
         columns={columns}
         rows={categories}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
         title={"Categories"}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
       />
     </div>
   );

@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useUserContext } from "../../context/User.context";
-import { Game, RowPerPageEnum, UserGameUpdateType } from "../../types";
+import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
   updateUserGamesMutation,
@@ -18,8 +17,6 @@ const GamesIKnow = ({ userId }: Props) => {
   const { updateUserGame } = updateUserGamesMutation();
   const user = useGetUserWithId(userId);
   const games = useGetGames();
-  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const columns = ["Game", `${user?._id === panelUser?._id ? "Active" : ""}`];
   const rows =
@@ -76,10 +73,6 @@ const GamesIKnow = ({ userId }: Props) => {
         rows={rows}
         rowKeys={rowKeys}
         actions={actions}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
-        currentPage={currentPage < 1 ? 1 : currentPage}
-        setCurrentPage={setCurrentPage}
         title={`${
           user?._id === panelUser?._id
             ? "Games I Know"

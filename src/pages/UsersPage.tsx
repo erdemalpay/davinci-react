@@ -13,6 +13,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
+import { useGeneralContext } from "../context/General.context";
 import { RowPerPageEnum, WorkType } from "../types";
 import {
   useGetAllUserRoles,
@@ -47,11 +48,10 @@ export default function UsersPage() {
   const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
-  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
-  const [currentPage, setCurrentPage] = useState(1);
   const [tableKey, setTableKey] = useState(1); // reset table
   const users = useGetAllUsers();
   const navigate = useNavigate();
+  const { setCurrentPage, setRowsPerPage } = useGeneralContext();
   const roleOptions = users.map((user) => {
     return {
       label: user.role.name,
@@ -137,6 +137,8 @@ export default function UsersPage() {
       onClick: (row: TableUser) => {
         {
           navigate(`/user/${row._id}`);
+          setCurrentPage(1);
+          setRowsPerPage(RowPerPageEnum.FIRST);
         }
       },
       isPath: false,
@@ -249,16 +251,12 @@ export default function UsersPage() {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          currentPage={currentPage < 1 ? 1 : currentPage}
-          setCurrentPage={setCurrentPage}
           columns={columns}
           filters={filters}
           rows={filteredUsers() as TableUser[]}
           title="Users"
           imageHolder={user1}
           addButton={addButton}
-          rowsPerPage={rowsPerPage}
-          setRowsPerPage={setRowsPerPage}
         />
       </div>
     </>

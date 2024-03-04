@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../../context/General.context";
 import { Caption, H4, H5, P1 } from "../Typography";
 import { ActionType, FilterType, RowKeyType } from "../shared/types";
 import ButtonTooltip from "./ButtonTooltip";
@@ -15,12 +16,8 @@ type Props<T> = {
   addButton?: ActionType<T>;
   imageHolder?: string;
   tooltipLimit?: number;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
   rowsPerPageOptions?: number[];
   filters?: FilterType<T>[];
-  rowsPerPage: number;
-  setRowsPerPage: (rowsPerPage: number) => void;
 };
 
 const GenericTable = <T,>({
@@ -34,11 +31,9 @@ const GenericTable = <T,>({
   imageHolder,
   tooltipLimit = 40,
   rowsPerPageOptions = [10, 20, 50],
-  currentPage = 1,
-  rowsPerPage = 10,
-  setRowsPerPage,
-  setCurrentPage,
 }: Props<T>) => {
+  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
+    useGeneralContext();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
@@ -361,7 +356,15 @@ const GenericTable = <T,>({
                 <select
                   className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
                   value={rowsPerPage}
-                  onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    const totalNewPages = Math.ceil(
+                      totalRows / Number(e.target.value)
+                    );
+                    if (currentPage > totalNewPages) {
+                      setCurrentPage(totalNewPages);
+                    }
+                  }}
                 >
                   {rowsPerPageOptions.map((option, index) => (
                     <option key={index} value={option}>

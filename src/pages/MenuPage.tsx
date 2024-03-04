@@ -5,7 +5,8 @@ import CategoryTable from "../components/menu/CategoryTable";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
-import { MenuCategory, MenuItem, RowPerPageEnum } from "../types";
+import { useGeneralContext } from "../context/General.context";
+import { MenuCategory, MenuItem } from "../types";
 import { useGetCategories } from "../utils/api/category";
 import { Paths } from "../utils/api/factory";
 import { useGetMenuItems } from "../utils/api/menu-item";
@@ -24,8 +25,8 @@ export default function MenuPage() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
+  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
+    useGeneralContext();
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
   const queryClient = useQueryClient();
   const itemCategories = items
@@ -76,10 +77,6 @@ export default function MenuPage() {
           <MenuItemTable
             key={itemGroup.category.name + tableKeys}
             singleItemGroup={itemGroup}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            rowsPerPage={rowsPerPage}
-            setRowsPerPage={setRowsPerPage}
           />
         ),
         isDisabled: false,
@@ -94,10 +91,6 @@ export default function MenuPage() {
               <MenuItemTable
                 key={category.name + tableKeys}
                 singleItemGroup={{ category, order: category.order, items: [] }}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                rowsPerPage={rowsPerPage}
-                setRowsPerPage={setRowsPerPage}
               />
             ),
             isDisabled: false,
@@ -107,15 +100,7 @@ export default function MenuPage() {
         number: itemCategories.length + emptyCategories.length,
         label: "Categories",
         icon: null,
-        content: (
-          <CategoryTable
-            categories={categories as MenuCategory[]}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            rowsPerPage={rowsPerPage}
-            setRowsPerPage={setRowsPerPage}
-          />
-        ),
+        content: <CategoryTable categories={categories as MenuCategory[]} />,
         isDisabled: false,
       },
     ]);

@@ -7,13 +7,15 @@ import {
 } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
-import { RolePermissionEnum } from "../../types";
+import { RolePermissionEnum, RowPerPageEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
   const { user, setUser } = useUserContext();
+  const { setCurrentPage, setRowsPerPage } = useGeneralContext();
   const routes = Object.values(RolePermissionEnum)
     .filter((permission) => user?.role.permissions.includes(permission))
     .map((permission) => allRoutes[permission])
@@ -39,6 +41,8 @@ export function PageSelector() {
             <MenuItem
               key={route.name}
               onClick={() => {
+                setCurrentPage(1);
+                setRowsPerPage(RowPerPageEnum.FIRST);
                 navigate(route.path);
               }}
             >
