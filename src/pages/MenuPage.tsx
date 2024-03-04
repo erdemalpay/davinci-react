@@ -97,7 +97,13 @@ export default function MenuPage() {
         number: itemCategories.length + emptyCategories.length,
         label: "Categories",
         icon: null,
-        content: <CategoryTable categories={categories as MenuCategory[]} />,
+        content: (
+          <CategoryTable
+            categories={categories as MenuCategory[]}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          />
+        ),
         isDisabled: false,
       },
     ]);

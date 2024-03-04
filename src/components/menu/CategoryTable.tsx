@@ -14,6 +14,8 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   categories: MenuCategory[];
+  setActiveTab: (tab: number) => void;
+  activeTab: number;
 };
 
 const inputs = [
@@ -36,7 +38,7 @@ const formKeys = [
   { key: "name", type: FormKeyTypeEnum.STRING },
   { key: "imageUrl", type: FormKeyTypeEnum.STRING },
 ];
-const CategoryTable = ({ categories }: Props) => {
+const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -61,6 +63,7 @@ const CategoryTable = ({ categories }: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => {
+          setActiveTab(activeTab + 1);
           setIsAddModalOpen(false);
         }}
         inputs={inputs}
@@ -103,7 +106,7 @@ const CategoryTable = ({ categories }: Props) => {
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
             deleteCategory(rowToAction?._id);
-
+            setActiveTab(activeTab - 1);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Category"
