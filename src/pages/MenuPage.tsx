@@ -5,7 +5,7 @@ import CategoryTable from "../components/menu/CategoryTable";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
-import { MenuCategory, MenuItem } from "../types";
+import { MenuCategory, MenuItem, RowPerPageEnum } from "../types";
 import { useGetCategories } from "../utils/api/category";
 import { Paths } from "../utils/api/factory";
 import { useGetMenuItems } from "../utils/api/menu-item";
@@ -25,7 +25,7 @@ export default function MenuPage() {
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
   const queryClient = useQueryClient();
   const itemCategories = items

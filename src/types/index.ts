@@ -145,3 +145,20 @@ export enum UserGameUpdateType {
   ADD = "add",
   REMOVE = "remove",
 }
+
+export enum RowPerPageEnum {
+  TEN = 10,
+  TWENTY = 20,
+  FIFTY = 50,
+}
+
+export enum RoleEnum {
+  MANAGER = 1,
+  GAMEMASTER = 2,
+  GAMEMANAGER = 3,
+  CATERINGMANAGER = 4,
+  BARISTA = 5,
+  KITCHEN = 6,
+  SERVICE = 7,
+  CLEANING = 8,
+}

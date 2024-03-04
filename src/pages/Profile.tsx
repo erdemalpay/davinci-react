@@ -9,6 +9,7 @@ import PersonalDetails from "../components/panelComponents/Profile/PersonalDetai
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useUserContext } from "../context/User.context";
+import { RoleEnum } from "../types";
 
 export default function Profile() {
   const { user } = useUserContext();
@@ -42,7 +43,11 @@ export default function Profile() {
       label: "Game Master",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: <GameMasterProfile />,
-      isDisabled: user.role._id !== 2,
+      isDisabled: !(
+        user.role._id === RoleEnum.GAMEMASTER ||
+        user.role._id === RoleEnum.GAMEMANAGER ||
+        user.role._id === RoleEnum.MANAGER
+      ),
     },
   ];
 

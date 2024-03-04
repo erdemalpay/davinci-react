@@ -13,7 +13,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { WorkType } from "../types";
+import { RowPerPageEnum, WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -44,10 +44,10 @@ export default function UsersPage() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
+  const [rowsPerPage, setRowsPerPage] = useState(RowPerPageEnum.TEN);
   const [currentPage, setCurrentPage] = useState(1);
   const [tableKey, setTableKey] = useState(1); // reset table
   const users = useGetAllUsers();

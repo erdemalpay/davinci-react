@@ -197,10 +197,14 @@ const GenericTable = <T,>({
                     <th
                       key={index}
                       className={`${
-                        index === 0 ? "pl-3" : ""
-                      } text-left py-3 relative min-w-8`}
+                        columns.length === 2 && "justify-between  "
+                      } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
                     >
-                      <H5 className="flex gap-2">
+                      <H5
+                        className={`w-fit flex gap-2 ${
+                          columns.length === 2 && index == 1 && "  mx-auto"
+                        } `}
+                      >
                         {column}{" "}
                         {column !== "Action" && (
                           <div
@@ -317,7 +321,12 @@ const GenericTable = <T,>({
                           key={keyIndex}
                           className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                             rowKey?.className
-                          } min-w-20 md:min-w-0`}
+                          } min-w-20 md:min-w-0
+                           ${
+                             columns.length === 2 &&
+                             keyIndex === 1 &&
+                             "text-center "
+                           }`}
                         >
                           {rowKey.isImage ? (
                             <img

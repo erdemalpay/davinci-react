@@ -1,7 +1,9 @@
 import { User } from "../../types";
 import { useGetMentorGamePlays } from "../../utils/api/gameplay";
-import GameMasterGamesTable from "../tables/GameMasterGames";
-import UserGamesTable from "../tables/UserGamesTable";
+// import GameMasterGamesTable from "../tables/GameMasterGames";
+import GamesIKnow from "../tables/GamesIKnow";
+import GamesIMentored from "../tables/GamesIMentored";
+
 type Props = {
   user: User;
 };
@@ -11,8 +13,8 @@ const GameMaster = ({ user }: Props) => {
   return (
     <div className="flex flex-col">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {data && <GameMasterGamesTable data={data} />}
-        <UserGamesTable userId={user._id} />
+        {data && <GamesIMentored data={data} />}
+        <GamesIKnow userId={user._id} />
       </div>
     </div>
   );
