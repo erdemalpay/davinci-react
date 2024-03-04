@@ -9,11 +9,11 @@ type Props = {
 };
 const GameMaster = ({ user }: Props) => {
   const { data } = useGetMentorGamePlays(user._id);
-
+  if (!data) return null;
   return (
     <div className="flex flex-col">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {data && <GamesIMentored data={data} />}
+        <GamesIMentored data={data} />
         <GamesIKnow userId={user._id} />
       </div>
     </div>
