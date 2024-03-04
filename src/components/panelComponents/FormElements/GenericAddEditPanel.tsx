@@ -151,7 +151,7 @@ const GenericAddEditPanel = <T,>({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
+      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
     >

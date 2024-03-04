@@ -50,7 +50,7 @@ const TabPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-[90%] mx-auto">
+    <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-[90%] mx-auto __className_a182b8">
       <div
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"

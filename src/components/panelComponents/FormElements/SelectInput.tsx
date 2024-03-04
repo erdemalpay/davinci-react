@@ -78,7 +78,7 @@ const SelectInput = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className="flex flex-col gap-2 __className_a182b8 ">
       <H6>{label}</H6>
       <Select
         options={options}
