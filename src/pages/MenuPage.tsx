@@ -8,7 +8,6 @@ import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetCategories } from "../utils/api/category";
-import { Paths } from "../utils/api/factory";
 import { useGetMenuItems } from "../utils/api/menu-item";
 
 export interface ItemGroup {
@@ -109,8 +108,6 @@ export default function MenuPage() {
   };
   useEffect(() => {
     setCategoryPageChanged(true);
-    queryClient.refetchQueries({ queryKey: [Paths.MenuItems] });
-
     setTabPanelKey((prev) => prev + 1);
   }, [categories]);
 
