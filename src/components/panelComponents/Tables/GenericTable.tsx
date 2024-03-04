@@ -18,6 +18,7 @@ type Props<T> = {
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
   filters?: FilterType<T>[];
+  isRowsPerPage?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -29,6 +30,7 @@ const GenericTable = <T,>({
   addButton,
   filters,
   imageHolder,
+  isRowsPerPage = true,
   tooltipLimit = 40,
   rowsPerPageOptions = [10, 20, 50],
 }: Props<T>) => {
@@ -63,10 +65,12 @@ const GenericTable = <T,>({
   );
   const totalRows = filteredRows.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
-  const currentRows = filteredRows.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+  const currentRows = isRowsPerPage
+    ? filteredRows.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+      )
+    : filteredRows;
 
   const [sortConfig, setSortConfig] = useState<{
     key: Extract<keyof T, string>;
@@ -348,7 +352,7 @@ const GenericTable = <T,>({
               </tbody>
             </table>
           </div>
-          {rows.length > 0 && (
+          {rows.length > 0 && isRowsPerPage && (
             <div className="w-fit ml-auto flex flex-row gap-4">
               {/* Rows per page */}
               <div className="flex flex-row gap-2 px-6 items-center">

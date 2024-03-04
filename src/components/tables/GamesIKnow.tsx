@@ -78,6 +78,7 @@ const GamesIKnow = ({ userId }: Props) => {
             ? "Known Games"
             : `Games ${user?.name} Knows`
         }`}
+        isRowsPerPage={false}
       />
     </div>
   );

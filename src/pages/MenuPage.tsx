@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
@@ -27,7 +26,6 @@ export default function MenuPage() {
   const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
     useGeneralContext();
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
-  const queryClient = useQueryClient();
   const itemCategories = items
     .map((item) => item.category)
     .filter((category) => {
