@@ -1,6 +1,5 @@
 import { User } from "../../types";
 import { useGetMentorGamePlays } from "../../utils/api/gameplay";
-// import GameMasterGamesTable from "../tables/GameMasterGames";
 import GamesIKnow from "../tables/GamesIKnow";
 import GamesIMentored from "../tables/GamesIMentored";
 
