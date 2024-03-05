@@ -62,6 +62,7 @@ export interface FormKeyType {
 
 export enum InputTypes {
   TEXT = "text",
+  DATE = "date",
   NUMBER = "number",
   SELECT = "select",
   TEXTAREA = "textarea",
@@ -71,4 +72,6 @@ export enum InputTypes {
 export enum FormKeyTypeEnum {
   STRING = "string",
   NUMBER = "number",
+  DATE = "date",
+  BOOLEAN = "boolean",
 }

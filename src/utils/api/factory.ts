@@ -31,7 +31,6 @@ interface Props<T> {
   baseQuery: string;
   queryKey?: QueryKey;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
-  onSuccess?: () => void;
 }
 
 export function useGet<T>(path: string, queryKey?: QueryKey) {
@@ -49,7 +48,6 @@ export function useMutationApi<T extends { _id: number | string }>({
   baseQuery,
   queryKey = [baseQuery],
   sortFunction,
-  onSuccess,
 }: Props<T>) {
   function createRequest(itemDetails: Partial<T>): Promise<T> {
     return post<Partial<T>, T>({
@@ -69,7 +67,6 @@ export function useMutationApi<T extends { _id: number | string }>({
       path: `${baseQuery}/${id}`,
       payload: updates,
     });
-    onSuccess?.();
   }
 
   function useCreateItemMutation() {
