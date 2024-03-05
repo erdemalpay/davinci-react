@@ -4,7 +4,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { ItemGroup } from "../../pages/MenuPage";
+import { ItemGroup } from "../../pages/Menu";
 import { MenuItem } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu-item";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";

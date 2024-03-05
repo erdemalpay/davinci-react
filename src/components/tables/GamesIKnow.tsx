@@ -75,9 +75,10 @@ const GamesIKnow = ({ userId }: Props) => {
         actions={actions}
         title={`${
           user?._id === panelUser?._id
-            ? "Games I Know"
+            ? "Known Games"
             : `Games ${user?.name} Knows`
         }`}
+        isRowsPerPage={false}
       />
     </div>
   );

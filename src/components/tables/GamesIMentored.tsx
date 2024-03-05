@@ -110,7 +110,7 @@ const GamesIMentored = ({ data }: Props) => {
         columns={columns}
         rows={rows}
         rowKeys={rowKeys}
-        title={"Games Mentored"}
+        title={"Mentored Games"}
         filters={filters}
       />
     </div>
