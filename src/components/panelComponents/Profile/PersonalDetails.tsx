@@ -43,7 +43,7 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextInput
           label="Full Name"
-          placeholder="Enter full name"
+          placeholder={`${isEditable ? "Enter full name" : ""}`}
           type="text"
           value={formData.fullName}
           disabled={!isEditable}
@@ -51,7 +51,7 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
         />
         <TextInput
           label="Phone"
-          placeholder="Enter phone number"
+          placeholder={`${isEditable ? "Enter phone number" : ""}`}
           type="text"
           value={formData.phone}
           disabled={!isEditable}
@@ -59,7 +59,7 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
         />
         <TextInput
           label="Address"
-          placeholder="Enter address"
+          placeholder={`${isEditable ? "Enter address" : ""}`}
           type="text"
           value={formData.address}
           disabled={!isEditable}
