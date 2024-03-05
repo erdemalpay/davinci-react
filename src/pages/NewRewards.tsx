@@ -62,7 +62,11 @@ export default function NewRewards() {
 
   const columns = ["Name", "Start Date", "End Date", "Actions"];
 
-  const rowKeys = [{ key: "name" }, { key: "startDate" }, { key: "endDate" }];
+  const rowKeys = [
+    { key: "name", className: "min-w-40" },
+    { key: "startDate", className: "min-w-32" },
+    { key: "endDate", className: "min-w-32" },
+  ];
   const addButton = {
     name: `Add`,
     isModal: true,
@@ -162,7 +166,7 @@ export default function NewRewards() {
 
   const filters = [
     {
-      label: "Show Inactive Users",
+      label: "Show Expired/Used Rewards",
       node: (
         <Switch
           checked={showExpiredRewards}
