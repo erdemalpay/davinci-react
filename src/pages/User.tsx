@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/tables/GamesIKnow";
 import GamesIMentored from "../components/tables/GamesIMentored";
@@ -19,6 +21,13 @@ export default function UserView() {
   const tabs = [
     {
       number: 0,
+      label: " Personal Details",
+      icon: <FaRegUserCircle className="text-lg font-thin" />,
+      content: user && <PersonalDetails isEditable={false} user={user} />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && data && (
@@ -33,7 +42,7 @@ export default function UserView() {
       ),
     },
     {
-      number: 1,
+      number: 2,
       label: "Known Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && (
