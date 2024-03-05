@@ -47,9 +47,9 @@ export default function Profile() {
       number: 3,
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
-      content: (
+      content: data && (
         <ItemContainer>
-          <GamesIMentored data={data ?? []} />
+          <GamesIMentored data={data} />
         </ItemContainer>
       ),
       isDisabled: !(
