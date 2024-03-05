@@ -86,7 +86,6 @@ export default function NewRewards() {
   const actions = [
     {
       name: "markUsed",
-      isDisabled: !showExpiredRewards,
       isModal: false,
       isPath: false,
       icon: null,
