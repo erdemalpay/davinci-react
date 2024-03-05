@@ -78,11 +78,12 @@ const TabPanel: React.FC<Props> = ({
           }}
         />
       </div>
-      {tabs.find((tab) => tab.number === activeTab)?.content && (
-        <div className="py-6">
-          {tabs.find((tab) => tab.number === activeTab)?.content}
-        </div>
-      )}
+      {tabs.find((tab) => tab.number === activeTab)?.content &&
+        !tabs.find((tab) => tab.number === activeTab)?.isDisabled && (
+          <div className="py-6">
+            {tabs.find((tab) => tab.number === activeTab)?.content}
+          </div>
+        )}
     </div>
   );
 };

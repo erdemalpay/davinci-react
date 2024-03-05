@@ -4,15 +4,13 @@ import GameplaysByGame from "../pages/GameplaysByGame";
 import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
-import Menu from "../pages/Menu";
-import MenuPage from "../pages/MenuPage";
+import MenuPage from "../pages/Menu";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
-import Users from "../pages/Users";
-import UsersPage from "../pages/UsersPage";
+import UsersPage from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
 
@@ -119,12 +117,6 @@ export const allRoutes: {
   [RolePermissionEnum.MANAGEMENT]: [
     {
       name: "Menu",
-      path: Routes.Menu,
-      element: Menu,
-      isOnSidebar: true,
-    },
-    {
-      name: "MenuPage",
       path: Routes.MenuPages,
       element: MenuPage,
       isOnSidebar: true,
@@ -135,14 +127,9 @@ export const allRoutes: {
       element: User,
       isOnSidebar: false,
     },
+
     {
       name: "Users",
-      path: Routes.Users,
-      element: Users,
-      isOnSidebar: true,
-    },
-    {
-      name: "UsersPage",
       path: Routes.UsersPages,
       element: UsersPage,
       isOnSidebar: true,
