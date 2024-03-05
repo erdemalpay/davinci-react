@@ -32,9 +32,9 @@ export interface FilterType<T> {
   label?: string;
 }
 
-export interface RowKeyType {
+export interface RowKeyType<T> {
   key: string;
-  node?: React.ReactNode;
+  node?: (row: T) => React.ReactNode;
   isOptional?: boolean;
   isImage?: boolean;
   className?: string;

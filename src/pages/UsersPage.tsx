@@ -1,7 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
-import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
@@ -13,8 +12,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { useGeneralContext } from "../context/General.context";
-import { RowPerPageEnum, WorkType } from "../types";
+import { WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -51,7 +49,6 @@ export default function UsersPage() {
   const [tableKey, setTableKey] = useState(1); // reset table
   const users = useGetAllUsers();
   const navigate = useNavigate();
-  const { setCurrentPage, setRowsPerPage } = useGeneralContext();
   const roleOptions = users.map((user) => {
     return {
       label: user.role.name,
@@ -115,6 +112,14 @@ export default function UsersPage() {
     { key: "imageUrl", isImage: true },
     {
       key: "_id",
+      node: (row: TableUser) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => navigate(`/user/${row._id}`)}
+        >
+          {row._id}
+        </p>
+      ),
     },
     {
       key: "name",
@@ -129,20 +134,6 @@ export default function UsersPage() {
     },
   ];
   const actions = [
-    {
-      name: "View",
-      icon: <IoEyeOutline />,
-      isModal: false,
-      className: "text-green-500 cursor-pointer text-2xl",
-      onClick: (row: TableUser) => {
-        {
-          navigate(`/user/${row._id}`);
-          setCurrentPage(1);
-          setRowsPerPage(RowPerPageEnum.FIRST);
-        }
-      },
-      isPath: false,
-    },
     {
       name: "Edit",
       icon: <FiEdit />,

@@ -10,7 +10,7 @@ import "./table.css";
 type Props<T> = {
   rows: T[];
   columns: string[];
-  rowKeys: RowKeyType[];
+  rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
   title?: string;
   addButton?: ActionType<T>;
@@ -262,7 +262,7 @@ const GenericTable = <T,>({
                               rowKey?.className
                             } `}
                           >
-                            {rowKey.node}
+                            {rowKey.node(row)}
                           </td>
                         );
                       }
