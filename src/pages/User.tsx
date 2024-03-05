@@ -3,7 +3,6 @@ import { MdOutlineEventNote } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import ItemContainer from "../components/panelComponents/common/ItemContainer";
 import GamesIKnow from "../components/tables/GamesIKnow";
 import GamesIMentored from "../components/tables/GamesIMentored";
 import { RoleEnum } from "../types";
@@ -23,9 +22,9 @@ export default function UserView() {
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && data && (
-        <ItemContainer>
+        <div className="px-4 w-full">
           <GamesIMentored data={data} />
-        </ItemContainer>
+        </div>
       ),
       isDisabled: !(
         user?.role._id === RoleEnum.GAMEMASTER ||
@@ -38,9 +37,9 @@ export default function UserView() {
       label: "Known Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && (
-        <ItemContainer>
+        <div className="px-4 w-full">
           <GamesIKnow userId={user._id} />
-        </ItemContainer>
+        </div>
       ),
       isDisabled: !(
         user?.role._id === RoleEnum.GAMEMASTER ||

@@ -7,7 +7,6 @@ import ChangePassword from "../components/panelComponents/Profile/ChangePassword
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import ItemContainer from "../components/panelComponents/common/ItemContainer";
 import GamesIKnow from "../components/tables/GamesIKnow";
 import GamesIMentored from "../components/tables/GamesIMentored";
 import { RoleEnum } from "../types";
@@ -48,9 +47,9 @@ export default function Profile() {
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: data && (
-        <ItemContainer>
-          <GamesIMentored data={data} />
-        </ItemContainer>
+        <div className="px-4 w-full ">
+          <GamesIMentored data={data} />,
+        </div>
       ),
       isDisabled: !(
         user.role._id === RoleEnum.GAMEMASTER ||
@@ -63,9 +62,9 @@ export default function Profile() {
       label: "Known Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
-        <ItemContainer>
+        <div className="px-4 w-full ">
           <GamesIKnow userId={user._id} />
-        </ItemContainer>
+        </div>
       ),
       isDisabled: !(
         user.role._id === RoleEnum.GAMEMASTER ||
