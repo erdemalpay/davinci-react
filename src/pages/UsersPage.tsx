@@ -12,7 +12,8 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { WorkType } from "../types";
+import { useGeneralContext } from "../context/General.context";
+import { RowPerPageEnum, WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -44,6 +45,7 @@ export default function UsersPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
+  const { setCurrentPage, setRowsPerPage } = useGeneralContext();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
   const [tableKey, setTableKey] = useState(1); // reset table
@@ -115,7 +117,11 @@ export default function UsersPage() {
       node: (row: TableUser) => (
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => navigate(`/user/${row._id}`)}
+          onClick={() => {
+            navigate(`/user/${row._id}`);
+            setCurrentPage(1);
+            setRowsPerPage(RowPerPageEnum.FIRST);
+          }}
         >
           {row._id}
         </p>
