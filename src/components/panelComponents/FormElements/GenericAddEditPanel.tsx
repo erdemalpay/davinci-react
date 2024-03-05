@@ -53,6 +53,9 @@ const GenericAddEditPanel = <T,>({
     (input) => input.type !== InputTypes.IMAGE
   );
   const [formElements, setFormElements] = useState(() => {
+    if (isEditMode && itemToEdit) {
+      return itemToEdit.updates as unknown as FormElementsState;
+    }
     const initialState = formKeys.reduce<FormElementsState>(
       (acc, { key, type }) => {
         let defaultValue;
@@ -77,11 +80,6 @@ const GenericAddEditPanel = <T,>({
 
     return mergedInitialState;
   });
-  useEffect(() => {
-    if (isEditMode && itemToEdit) {
-      setFormElements(itemToEdit.updates as unknown as FormElementsState);
-    }
-  }, [itemToEdit, isEditMode]);
 
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
