@@ -5,6 +5,7 @@ import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import MenuPage from "../pages/Menu";
+import NewRewards from "../pages/NewRewards";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
@@ -36,6 +37,7 @@ export enum Routes {
   Profile = "/profile",
   MenuPages = "/menu-page",
   UsersPages = "/users-page",
+  NewRewards = "/new-rewards",
 }
 
 export const allRoutes: {
@@ -81,6 +83,12 @@ export const allRoutes: {
       name: "Rewards",
       path: Routes.Rewards,
       element: Rewards,
+      isOnSidebar: true,
+    },
+    {
+      name: "NewRewars",
+      path: Routes.NewRewards,
+      element: NewRewards,
       isOnSidebar: true,
     },
     {

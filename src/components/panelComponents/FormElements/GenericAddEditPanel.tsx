@@ -66,7 +66,12 @@ const GenericAddEditPanel = <T,>({
           case FormKeyTypeEnum.NUMBER:
             defaultValue = 0;
             break;
-          //  TODO: Add more types
+          case FormKeyTypeEnum.BOOLEAN:
+            defaultValue = false;
+            break;
+          case FormKeyTypeEnum.DATE:
+            defaultValue = new Date();
+            break;
           default:
             defaultValue = null;
         }
@@ -218,6 +223,7 @@ const GenericAddEditPanel = <T,>({
                   <div key={input.formKey} className="flex flex-col gap-2">
                     {(input.type === InputTypes.TEXT ||
                       input.type === InputTypes.NUMBER ||
+                      input.type === InputTypes.DATE ||
                       input.type === InputTypes.PASSWORD) && (
                       <TextInput
                         key={input.formKey}

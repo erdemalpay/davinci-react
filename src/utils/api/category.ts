@@ -10,9 +10,6 @@ export function useCategoryMutations() {
     createItem: createCategory,
   } = useMutationApi<MenuCategory>({
     baseQuery: Paths.MenuCategories,
-    onSuccess: () => {
-      queryClient.invalidateQueries([Paths.MenuItems]);
-    },
   });
 
   return { deleteCategory, updateCategory, createCategory };
