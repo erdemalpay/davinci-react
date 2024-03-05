@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
@@ -7,6 +8,7 @@ import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetCategories } from "../utils/api/category";
+import { Paths } from "../utils/api/factory";
 import { useGetMenuItems } from "../utils/api/menu-item";
 
 export interface ItemGroup {
@@ -16,6 +18,7 @@ export interface ItemGroup {
 }
 
 export default function MenuPage() {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<number>(0); // Reminder: I took this from tabpanel so that I can control the active tab from here
   const items = useGetMenuItems();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
@@ -112,6 +115,7 @@ export default function MenuPage() {
   };
   useEffect(() => {
     setCategoryPageChanged(true);
+    queryClient.refetchQueries([Paths.MenuItems]);
     setTabPanelKey((prev) => prev + 1);
   }, [categories]);
 
