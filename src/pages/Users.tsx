@@ -148,6 +148,7 @@ export default function UsersPage() {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          folderName="user"
           submitItem={updateUser as any}
           isEditMode={true}
           itemToEdit={{
