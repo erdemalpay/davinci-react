@@ -6,6 +6,7 @@ type TextInputProps = {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  disabled?: boolean;
 };
 
 const TextInput = ({
@@ -14,6 +15,7 @@ const TextInput = ({
   value,
   type,
   onChange,
+  disabled,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   return (
@@ -22,6 +24,7 @@ const TextInput = ({
       <input
         type={type}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={className}

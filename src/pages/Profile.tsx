@@ -32,7 +32,7 @@ export default function Profile() {
       number: 1,
       label: "Personal Details",
       icon: <TbListDetails className="text-lg font-thin" />,
-      content: <PersonalDetails />,
+      content: <PersonalDetails isEditable={true} user={user} />,
       isDisabled: false,
     },
     {
