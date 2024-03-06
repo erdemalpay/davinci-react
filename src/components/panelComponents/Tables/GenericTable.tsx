@@ -162,7 +162,7 @@ const GenericTable = <T,>({
 
       <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
         {/* header part */}
-        <div className="flex flex-row  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4 ">
+        <div className="flex flex-row  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4 overflow-scroll ">
           {title && <H4 className="mr-auto">{title}</H4>}
           <div className="ml-auto flex flex-row gap-10 justify-center items-center   ">
             {/* filters */}
