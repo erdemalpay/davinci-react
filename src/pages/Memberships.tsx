@@ -126,6 +126,7 @@ export default function Memberships() {
           folderName="user"
           submitItem={updateMembership as any}
           isEditMode={true}
+          topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
             updates: {
