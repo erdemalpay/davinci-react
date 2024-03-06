@@ -164,7 +164,7 @@ const GenericTable = <T,>({
         {/* header part */}
         <div className="flex flex-row  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4 ">
           {title && <H4 className="mr-auto">{title}</H4>}
-          <div className="ml-auto flex flex-row gap-10 justify-center items-center  flex-nowrap ">
+          <div className="ml-auto flex flex-row gap-10 justify-center items-center   ">
             {/* filters */}
             {filters &&
               filters.map((filter, index) => (
@@ -179,7 +179,7 @@ const GenericTable = <T,>({
             {/* add button */}
             {addButton && (
               <button
-                className={`px-3 py-1 h-fit w-fit ${
+                className={`px-2 sm:px-3 py-1 h-fit w-fit ${
                   addButton.className
                     ? `${addButton.className}`
                     : "bg-black border-black hover:text-black"
