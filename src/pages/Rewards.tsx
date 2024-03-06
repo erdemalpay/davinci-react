@@ -68,7 +68,7 @@ export default function Rewards() {
   ];
 
   const rowKeys = [
-    { key: "name", className: "min-w-40" },
+    { key: "name", className: "min-w-40 pr-1" },
     { key: "startDate", className: "min-w-32" },
     { key: "endDate", className: "min-w-32" },
   ];

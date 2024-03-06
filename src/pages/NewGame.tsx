@@ -129,7 +129,7 @@ export default function NewGames() {
     },
   ];
   const addButton = {
-    name: `Add `,
+    name: `Add Game`,
     isModal: true,
     modal: (
       <AddGameDialog
