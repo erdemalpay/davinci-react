@@ -67,7 +67,7 @@ const GamesIMentored = ({ data }: Props) => {
   const filters = [
     {
       node: (
-        <div className=" flex flex-row gap-2 overflow-hidden  ">
+        <div className=" flex flex-col sm:flex-row gap-2   ">
           <input
             className="border px-2 rounded-md"
             type="date"
@@ -79,7 +79,7 @@ const GamesIMentored = ({ data }: Props) => {
               console.log(e.target.value);
             }}
           />
-          <span>to</span>
+          <span className="mx-auto sm:mx-0">to</span>
           <input
             className="border px-2 rounded-md"
             name="endDay"
