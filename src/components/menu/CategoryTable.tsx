@@ -49,7 +49,12 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const columns = ["", "Name", "Action"];
+  const columns = [
+    { key: "", isSortable: false },
+    { key: "Name", isSortable: true },
+    { key: "Action", isSortable: false },
+  ];
+
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     {

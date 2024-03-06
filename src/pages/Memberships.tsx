@@ -73,7 +73,12 @@ export default function Memberships() {
     });
     toast.success(`Membership ${item.name} updated`);
   }
-  const columns = ["Name", "Start Date", "End Date", "Actions"];
+  const columns = [
+    { key: "Name", isSortable: true },
+    { key: "Start Date", isSortable: true },
+    { key: "End Date", isSortable: true },
+    { key: "Actions", isSortable: false },
+  ];
 
   const rowKeys = [
     { key: "name", className: "min-w-40" },
@@ -93,7 +98,7 @@ export default function Memberships() {
             deleteMembership(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Item"
+          title="Delete Membership"
           text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
         />
       ) : null,

@@ -18,7 +18,14 @@ const GamesIKnow = ({ userId }: Props) => {
   const user = useGetUserWithId(userId);
   const games = useGetGames();
 
-  const columns = ["Game", `${user?._id === panelUser?._id ? "Active" : ""}`];
+  const columns = [
+    { key: "Game", isSortable: true },
+    {
+      key: `${user?._id === panelUser?._id ? "Active" : ""}`,
+      isSortable: false,
+    },
+  ];
+
   const rows =
     user?._id === panelUser?._id
       ? games

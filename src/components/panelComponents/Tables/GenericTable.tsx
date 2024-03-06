@@ -2,14 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { Caption, H4, H5, P1 } from "../Typography";
-import { ActionType, FilterType, RowKeyType } from "../shared/types";
+import {
+  ActionType,
+  ColumnType,
+  FilterType,
+  RowKeyType,
+} from "../shared/types";
 import ButtonTooltip from "./ButtonTooltip";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
 type Props<T> = {
   rows: T[];
-  columns: string[];
+  columns: ColumnType[];
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
   title?: string;
@@ -204,8 +209,8 @@ const GenericTable = <T,>({
                           columns.length === 2 && index == 1 && "  mx-auto"
                         } `}
                       >
-                        {column}{" "}
-                        {column !== "Action" && (
+                        {column.key}{" "}
+                        {column.isSortable && (
                           <div
                             className="sort-buttons"
                             style={{ display: "inline-block" }}

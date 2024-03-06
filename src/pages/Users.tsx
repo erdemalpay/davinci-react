@@ -107,7 +107,15 @@ export default function Users() {
     { key: "role", type: FormKeyTypeEnum.STRING },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
-  const columns = ["", "ID", "Display Name", "Full Name", "Role", "Action"];
+  const columns = [
+    { key: "", isSortable: false },
+    { key: "ID", isSortable: true },
+    { key: "Display Name", isSortable: true },
+    { key: "Full Name", isSortable: true },
+    { key: "Role", isSortable: true },
+    { key: "Action", isSortable: false },
+  ];
+
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     {

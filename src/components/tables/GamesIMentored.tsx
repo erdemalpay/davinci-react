@@ -35,7 +35,11 @@ const GamesIMentored = ({ data }: Props) => {
     0
   )}`;
 
-  const columns = ["Game", `${countColumn}`];
+  const columns = [
+    { key: "Game", isSortable: true },
+    { key: countColumn, isSortable: true },
+  ];
+
   const handleFilter = () => {
     const filterData = Object.entries(gameplays)
       .sort(([, sessionA], [, sessionB]) => sessionB.length - sessionA.length)
