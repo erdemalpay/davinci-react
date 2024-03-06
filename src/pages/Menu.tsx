@@ -17,7 +17,7 @@ export interface ItemGroup {
   items: MenuItem[];
 }
 
-export default function MenuPage() {
+export default function Menu() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<number>(0); // Reminder: I took this from tabpanel so that I can control the active tab from here
   const items = useGetMenuItems();

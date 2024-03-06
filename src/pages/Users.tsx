@@ -39,7 +39,7 @@ interface TableUser {
   games: number[];
 }
 
-export default function UsersPage() {
+export default function Users() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
