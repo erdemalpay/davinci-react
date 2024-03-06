@@ -1,11 +1,13 @@
 import { Switch } from "@headlessui/react";
 import { FormEvent, useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -50,6 +52,7 @@ export default function Memberships() {
   const { deleteMembership, updateMembership, createMembership } =
     useMembershipMutations();
   const memberships = useGetMemberships();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showExpiredMemberships, setShowExpiredMemberships] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -106,6 +109,35 @@ export default function Memberships() {
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+    {
+      name: "Edit",
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          folderName="user"
+          submitItem={updateMembership as any}
+          isEditMode={true}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+            },
+          }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
       isPath: false,
     },
   ];
