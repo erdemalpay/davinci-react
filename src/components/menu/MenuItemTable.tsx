@@ -62,13 +62,14 @@ const formKeys = [
 ];
 // these are the columns and rowKeys for the table
 const columns = [
-  "",
-  "Name",
-  "Description",
-  "	Price (Bahçeli)",
-  "Price (Neorama)",
-  "Action",
+  { key: "", isSortable: false },
+  { key: "Name", isSortable: true },
+  { key: "Description", isSortable: true },
+  { key: "Price (Bahçeli)", isSortable: true },
+  { key: "Price (Neorama)", isSortable: true },
+  { key: "Action", isSortable: false },
 ];
+
 const rowKeys = [
   { key: "imageUrl", isImage: true },
   {

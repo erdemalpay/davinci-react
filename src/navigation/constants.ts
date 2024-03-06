@@ -4,14 +4,14 @@ import GameplaysByGame from "../pages/GameplaysByGame";
 import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
-import MenuPage from "../pages/Menu";
-import NewRewards from "../pages/NewRewards";
+import Menu from "../pages/Menu";
+import NewGames from "../pages/NewGame";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
-import UsersPage from "../pages/Users";
+import Users from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
 
@@ -35,9 +35,7 @@ export enum Routes {
   GameplaysByGame = "/gameplays-by-game",
   GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
-  MenuPages = "/menu-page",
-  UsersPages = "/users-page",
-  NewRewards = "/new-rewards",
+  NewGames = "/new-games",
 }
 
 export const allRoutes: {
@@ -68,6 +66,12 @@ export const allRoutes: {
       isOnSidebar: true,
     },
     {
+      name: "Newgames",
+      path: Routes.NewGames,
+      element: NewGames,
+      isOnSidebar: true,
+    },
+    {
       name: "Gameplays",
       path: Routes.Gameplays,
       element: Gameplays,
@@ -85,12 +89,7 @@ export const allRoutes: {
       element: Rewards,
       isOnSidebar: true,
     },
-    {
-      name: "NewRewars",
-      path: Routes.NewRewards,
-      element: NewRewards,
-      isOnSidebar: true,
-    },
+
     {
       name: "Visits",
       path: Routes.Visits,
@@ -125,8 +124,8 @@ export const allRoutes: {
   [RolePermissionEnum.MANAGEMENT]: [
     {
       name: "Menu",
-      path: Routes.MenuPages,
-      element: MenuPage,
+      path: Routes.Menu,
+      element: Menu,
       isOnSidebar: true,
     },
     {
@@ -138,8 +137,8 @@ export const allRoutes: {
 
     {
       name: "Users",
-      path: Routes.UsersPages,
-      element: UsersPage,
+      path: Routes.Users,
+      element: Users,
       isOnSidebar: true,
     },
   ],

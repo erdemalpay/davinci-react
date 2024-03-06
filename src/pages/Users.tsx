@@ -39,7 +39,7 @@ interface TableUser {
   games: number[];
 }
 
-export default function UsersPage() {
+export default function Users() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -107,7 +107,15 @@ export default function UsersPage() {
     { key: "role", type: FormKeyTypeEnum.STRING },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
-  const columns = ["", "ID", "Display Name", "Full Name", "Role", "Action"];
+  const columns = [
+    { key: "", isSortable: false },
+    { key: "ID", isSortable: true },
+    { key: "Display Name", isSortable: true },
+    { key: "Full Name", isSortable: true },
+    { key: "Role", isSortable: true },
+    { key: "Action", isSortable: false },
+  ];
+
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     {
@@ -208,7 +216,7 @@ export default function UsersPage() {
           checked={showInactiveUsers}
           onChange={() => setShowInactiveUsers((value) => !value)}
           className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
         >
           <span
             aria-hidden="true"

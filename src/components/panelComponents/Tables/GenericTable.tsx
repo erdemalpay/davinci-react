@@ -2,14 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { Caption, H4, H5, P1 } from "../Typography";
-import { ActionType, FilterType, RowKeyType } from "../shared/types";
+import {
+  ActionType,
+  ColumnType,
+  FilterType,
+  RowKeyType,
+} from "../shared/types";
 import ButtonTooltip from "./ButtonTooltip";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
 type Props<T> = {
   rows: T[];
-  columns: string[];
+  columns: ColumnType[];
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
   title?: string;
@@ -204,8 +209,8 @@ const GenericTable = <T,>({
                           columns.length === 2 && index == 1 && "  mx-auto"
                         } `}
                       >
-                        {column}{" "}
-                        {column !== "Action" && (
+                        {column.key}{" "}
+                        {column.isSortable && (
                           <div
                             className="sort-buttons"
                             style={{ display: "inline-block" }}
@@ -258,9 +263,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
-                              rowKey?.className
-                            } `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            } py-3 min-w-20 ${rowKey?.className} `}
                           >
                             {rowKey.node(row)}
                           </td>
@@ -273,9 +278,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
-                              rowKey?.className
-                            } `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            } py-3 min-w-20 ${rowKey?.className} `}
                           >
                             -
                           </td>
@@ -301,9 +306,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3  ${
-                              rowKey?.className
-                            } min-w-32 md:min-w-0 `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            }  py-3  ${rowKey?.className} min-w-32 md:min-w-0 `}
                           >
                             <P1
                               className="w-fit px-2 py-1 rounded-md "
