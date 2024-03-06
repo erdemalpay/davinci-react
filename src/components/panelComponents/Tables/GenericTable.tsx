@@ -258,9 +258,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
-                              rowKey?.className
-                            } `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            } py-3 min-w-20 ${rowKey?.className} `}
                           >
                             {rowKey.node(row)}
                           </td>
@@ -273,9 +273,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
-                              rowKey?.className
-                            } `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            } py-3 min-w-20 ${rowKey?.className} `}
                           >
                             -
                           </td>
@@ -301,9 +301,9 @@ const GenericTable = <T,>({
                         return (
                           <td
                             key={keyIndex}
-                            className={`${keyIndex === 0 ? "pl-3" : ""} py-3  ${
-                              rowKey?.className
-                            } min-w-32 md:min-w-0 `}
+                            className={`${
+                              keyIndex === 0 ? "pl-3" : ""
+                            }  py-3  ${rowKey?.className} min-w-32 md:min-w-0 `}
                           >
                             <P1
                               className="w-fit px-2 py-1 rounded-md "
