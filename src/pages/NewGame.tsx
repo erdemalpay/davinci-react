@@ -1,19 +1,36 @@
 import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { AddGameDialog } from "../components/games/AddGameDialog";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 
+const inputs = [
+  {
+    type: InputTypes.TEXT,
+    formKey: "name",
+    label: "Name",
+    placeholder: "Name",
+    required: true,
+  },
+];
+const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 export default function NewGames() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Game>();
   const [
@@ -111,6 +128,30 @@ export default function NewGames() {
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+    {
+      name: "Edit",
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateGame as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
       isPath: false,
     },
   ];
