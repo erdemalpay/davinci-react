@@ -9,16 +9,17 @@ import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/tables/GamesIKnow";
 import GamesIMentored from "../components/tables/GamesIMentored";
+import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import { useGetUser } from "../utils/api/user";
 
 export default function Profile() {
-  const user = useGetUser();
-  if (!user) return <></>;
+  const updatedUser = useGetUser();
+  const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<number>(0);
 
-  const { data } = useGetMentorGamePlays(user._id);
+  const { data } = useGetMentorGamePlays(user?._id ?? "");
 
   const tabs = [
     {
@@ -32,7 +33,9 @@ export default function Profile() {
       number: 1,
       label: "Personal Details",
       icon: <TbListDetails className="text-lg font-thin" />,
-      content: <PersonalDetails isEditable={true} user={user} />,
+      content: updatedUser && (
+        <PersonalDetails isEditable={true} user={updatedUser} />
+      ),
       isDisabled: false,
     },
     {
@@ -52,9 +55,9 @@ export default function Profile() {
         </div>
       ),
       isDisabled: !(
-        user.role._id === RoleEnum.GAMEMASTER ||
-        user.role._id === RoleEnum.GAMEMANAGER ||
-        user.role._id === RoleEnum.MANAGER
+        user?.role._id === RoleEnum.GAMEMASTER ||
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.MANAGER
       ),
     },
     {
@@ -63,13 +66,13 @@ export default function Profile() {
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
         <div className="px-4 w-full ">
-          <GamesIKnow userId={user._id} />
+          {user && <GamesIKnow userId={user._id} />}
         </div>
       ),
       isDisabled: !(
-        user.role._id === RoleEnum.GAMEMASTER ||
-        user.role._id === RoleEnum.GAMEMANAGER ||
-        user.role._id === RoleEnum.MANAGER
+        user?.role._id === RoleEnum.GAMEMASTER ||
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.MANAGER
       ),
     },
   ];

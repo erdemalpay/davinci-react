@@ -53,7 +53,12 @@ export type User = {
   birthDate: Date;
   imageUrl: string;
   workType: WorkType;
-  games: number[];
+  userGames: [
+    {
+      game: number;
+      learnDate: string;
+    }
+  ];
 };
 
 export type Game = {

@@ -38,15 +38,15 @@ export function useUpdatePasswordMutation() {
 function updateUserGames({
   gameId,
   updateType,
-  userId,
+  learnDate,
 }: {
   gameId: number;
   updateType: UserGameUpdateType;
-  userId: string;
+  learnDate: string;
 }) {
   return patch({
     path: `${Paths.Users}/games`,
-    payload: { userId, gameId, updateType },
+    payload: { learnDate, gameId, updateType },
   });
 }
 export function updateUserGamesMutation() {
