@@ -1,4 +1,5 @@
 import { Switch } from "@headlessui/react";
+import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -78,15 +79,33 @@ export default function Memberships() {
   }
   const columns = [
     { key: "Name", isSortable: true },
-    { key: "Start Date", isSortable: true },
-    { key: "End Date", isSortable: true },
+    {
+      key: "Start Date",
+      isSortable: true,
+    },
+    {
+      key: "End Date",
+      isSortable: true,
+    },
     { key: "Actions", isSortable: false },
   ];
 
   const rowKeys = [
     { key: "name", className: "min-w-40" },
-    { key: "startDate", className: "min-w-32" },
-    { key: "endDate", className: "min-w-32" },
+    {
+      key: "startDate",
+      className: "min-w-32",
+      node: (row: Membership) => {
+        return format(new Date(row.startDate), "dd-MM-yyyy");
+      },
+    },
+    {
+      key: "endDate",
+      className: "min-w-32",
+      node: (row: Membership) => {
+        return format(new Date(row.endDate), "dd-MM-yyyy");
+      },
+    },
   ];
   const actions = [
     {

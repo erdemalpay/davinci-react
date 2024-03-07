@@ -69,8 +69,20 @@ export default function Rewards() {
 
   const rowKeys = [
     { key: "name", className: "min-w-40 pr-1" },
-    { key: "startDate", className: "min-w-32" },
-    { key: "endDate", className: "min-w-32" },
+    {
+      key: "startDate",
+      className: "min-w-32",
+      node: (row: Reward) => {
+        return format(new Date(row.startDate), "dd-MM-yyyy");
+      },
+    },
+    {
+      key: "endDate",
+      className: "min-w-32",
+      node: (row: Reward) => {
+        return format(new Date(row.endDate), "dd-MM-yyyy");
+      },
+    },
   ];
   const addButton = {
     name: `Add`,
