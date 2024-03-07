@@ -289,7 +289,6 @@ const GenericAddEditPanel = <T,>({
                   handleSubmit();
                 }
               }}
-              // disabled={!allRequiredFilled} // Button is disabled if not all required fields are filled
               className={`inline-block ${
                 !allRequiredFilled
                   ? "bg-gray-500"
