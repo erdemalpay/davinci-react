@@ -8,6 +8,7 @@ import {
   useGetUserWithId,
 } from "../../utils/api/user";
 import { CheckSwitch } from "../common/CheckSwitch";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -31,7 +32,10 @@ const GamesIKnow = ({ userId }: Props) => {
   const [learnDateModal, setLearnDateModal] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [tableKey, setTableKey] = useState(0);
-
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const [rowToAction, setRowToAction] = useState<Game>();
   const { updateUserGame } = updateUserGamesMutation();
   const user = useGetUserWithId(userId);
@@ -114,11 +118,8 @@ const GamesIKnow = ({ userId }: Props) => {
           checked={userGamesGameArray?.includes(row._id) ?? false}
           onChange={() => {
             if (userGamesGameArray?.includes(row._id)) {
-              handleUpdateUserGame({
-                gameId: row._id,
-                updateType: UserGameUpdateType.REMOVE,
-                learnDate: "",
-              });
+              setRowToAction(row);
+              setIsCloseAllConfirmationDialogOpen(true);
             } else {
               setLearnDateModal(true);
               setRowToAction(row);
@@ -170,6 +171,22 @@ const GamesIKnow = ({ userId }: Props) => {
               learnDate: formElements.learnDate,
             });
           }}
+        />
+      )}
+      {isCloseAllConfirmationDialogOpen && rowToAction && (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            handleUpdateUserGame({
+              gameId: rowToAction._id,
+              updateType: UserGameUpdateType.REMOVE,
+              learnDate: "",
+            });
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title="Remove Game"
+          text={`${rowToAction.name} will be removed. Are you sure you want to continue?`}
         />
       )}
     </div>
