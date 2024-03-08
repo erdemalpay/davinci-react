@@ -5,8 +5,6 @@ import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
-import NewGames from "../pages/NewGame";
-import NewReservations from "../pages/NewReservations";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
@@ -35,8 +33,6 @@ export enum Routes {
   GameplaysByGame = "/gameplays-by-game",
   GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
-  NewGames = "/new-games",
-  NewReservations = "/new-reservations",
 }
 
 export const allRoutes: {
@@ -60,24 +56,14 @@ export const allRoutes: {
       element: Reservations,
       isOnSidebar: true,
     },
-    {
-      name: "NewReservations",
-      path: Routes.NewReservations,
-      element: NewReservations,
-      isOnSidebar: true,
-    },
+
     {
       name: "Games",
       path: Routes.Games,
       element: Games,
       isOnSidebar: true,
     },
-    {
-      name: "Newgames",
-      path: Routes.NewGames,
-      element: NewGames,
-      isOnSidebar: true,
-    },
+
     {
       name: "Gameplays",
       path: Routes.Gameplays,
