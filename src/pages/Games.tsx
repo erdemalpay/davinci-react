@@ -26,7 +26,7 @@ const inputs = [
   },
 ];
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-export default function NewGames() {
+export default function Games() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
