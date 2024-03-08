@@ -111,14 +111,16 @@ const GamesIMentored = ({ data }: Props) => {
 
   return (
     <div className="w-full  h-fit">
-      <GenericTable
-        key={tableKey}
-        columns={columns}
-        rows={rows}
-        rowKeys={rowKeys}
-        title={"Mentored Games"}
-        filters={filters}
-      />
+      {games && (
+        <GenericTable
+          key={tableKey}
+          columns={columns}
+          rows={rows}
+          rowKeys={rowKeys}
+          title={"Mentored Games"}
+          filters={filters}
+        />
+      )}
     </div>
   );
 };
