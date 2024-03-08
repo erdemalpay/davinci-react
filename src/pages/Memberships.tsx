@@ -185,6 +185,7 @@ export default function Memberships() {
   const filters = [
     {
       label: "Show Expired Memberships",
+      isUpperSide: false,
       node: (
         <Switch
           checked={showExpiredMemberships}

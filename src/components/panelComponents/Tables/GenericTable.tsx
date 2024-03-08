@@ -24,6 +24,7 @@ type Props<T> = {
   rowsPerPageOptions?: number[];
   filters?: FilterType<T>[];
   isRowsPerPage?: boolean;
+  rowClassNameFunction?: (row: T) => string;
 };
 
 const GenericTable = <T,>({
@@ -37,6 +38,7 @@ const GenericTable = <T,>({
   imageHolder,
   isRowsPerPage = true,
   tooltipLimit = 40,
+  rowClassNameFunction,
   rowsPerPageOptions = [10, 20, 50],
 }: Props<T>) => {
   const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
@@ -148,38 +150,61 @@ const GenericTable = <T,>({
   return (
     <div className=" mx-auto flex flex-col gap-4 __className_a182b8">
       {/* search button */}
-
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => {
-          setSearchQuery(e.target.value);
-          setCurrentPage(1);
-        }}
-        placeholder="Search..."
-        className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
-      />
+      <div className=" flex flex-row gap-4 justify-between items-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          placeholder="Search..."
+          className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
+        />
+        <div className="flex flex-row flex-wrap gap-4 ">
+          {/* filters */}
+          {filters &&
+            filters.map(
+              (filter, index) =>
+                filter.isUpperSide && (
+                  <div
+                    key={index}
+                    className="flex flex-row gap-2 justify-between items-center"
+                  >
+                    {filter.label && <H5>{filter.label}</H5>}
+                    {filter.node}
+                  </div>
+                )
+            )}
+        </div>
+      </div>
 
       <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
         {/* header part */}
-        <div className="flex flex-row  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4 overflow-scroll ">
+
+        <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
           {title && <H4 className="mr-auto">{title}</H4>}
-          <div className="ml-auto flex flex-row gap-10 justify-center items-center   ">
-            {/* filters */}
-            {filters &&
-              filters.map((filter, index) => (
-                <div
-                  key={index}
-                  className="flex flex-row gap-2 justify-center items-center"
-                >
-                  {filter.label && <H5>{filter.label}</H5>}
-                  {filter.node}
-                </div>
-              ))}
+          <div className="flex flex-row gap-4">
+            <div className="flex flex-row flex-wrap gap-4  ">
+              {/* filters */}
+              {filters &&
+                filters.map(
+                  (filter, index) =>
+                    !filter.isUpperSide && (
+                      <div
+                        key={index}
+                        className="flex flex-row gap-2 justify-between items-center"
+                      >
+                        {filter.label && <H5>{filter.label}</H5>}
+                        {filter.node}
+                      </div>
+                    )
+                )}
+            </div>
             {/* add button */}
             {addButton && (
               <button
-                className={`px-2 sm:px-3 py-1 h-fit w-fit ${
+                className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
                   addButton.className
                     ? `${addButton.className}`
                     : "bg-black border-black hover:text-black"
@@ -256,7 +281,7 @@ const GenericTable = <T,>({
                     key={rowIndex}
                     className={`${
                       rowIndex !== currentRows.length - 1 ? "border-b" : ""
-                    }`}
+                    } ${rowClassNameFunction?.(row)}`}
                   >
                     {rowKeys.map((rowKey, keyIndex) => {
                       if (rowKey.node) {

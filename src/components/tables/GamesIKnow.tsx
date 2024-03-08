@@ -95,6 +95,7 @@ const GamesIKnow = ({ userId }: Props) => {
   const filters = [
     {
       label: "Enable Edit",
+      isUpperSide: false,
       node: (
         <>
           <CheckSwitch

@@ -30,6 +30,7 @@ export interface ActionType<T> {
 export interface FilterType<T> {
   node: React.ReactNode;
   label?: string;
+  isUpperSide: boolean;
 }
 
 export interface RowKeyType<T> {
@@ -72,6 +73,7 @@ export enum InputTypes {
   TEXTAREA = "textarea",
   IMAGE = "image",
   PASSWORD = "password",
+  TIME = "time",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",

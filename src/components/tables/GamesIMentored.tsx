@@ -70,6 +70,8 @@ const GamesIMentored = ({ data }: Props) => {
   };
   const filters = [
     {
+      isUpperSide: false,
+
       node: (
         <div className=" flex flex-col sm:flex-row gap-2   ">
           <input
