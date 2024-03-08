@@ -54,6 +54,7 @@ export interface ColumnType<T> {
 export interface GenericInputType {
   type: InputTypes;
   required: boolean;
+  additionalType?: string;
   formKey: string;
   options?: any[];
   label?: string;

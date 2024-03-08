@@ -38,6 +38,7 @@ const inputs = [
     label: "Phone",
     placeholder: "Phone",
     required: true,
+    additionalType: "phone",
   },
   {
     type: InputTypes.TIME,
