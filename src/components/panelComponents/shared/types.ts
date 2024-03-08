@@ -45,9 +45,10 @@ export interface RowKeyType<T> {
     textColor: string; // must be css color
   }[];
 }
-export interface ColumnType {
+export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
+  node?: () => React.ReactNode;
 }
 
 export interface GenericInputType {
