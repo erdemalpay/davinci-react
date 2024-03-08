@@ -184,6 +184,7 @@ export default function Rewards() {
   const filters = [
     {
       label: "Show Expired/Used Rewards",
+      isUpperSide: false,
       node: (
         <Switch
           checked={showExpiredRewards}

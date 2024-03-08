@@ -58,7 +58,6 @@ export default function NewGames() {
     { key: "Name", isSortable: true },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
-    { key: "Action", isSortable: false },
   ];
 
   const rowKeys = [
@@ -110,6 +109,7 @@ export default function NewGames() {
   const actions = [
     {
       name: "Delete",
+      isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -132,6 +132,8 @@ export default function NewGames() {
     },
     {
       name: "Edit",
+      isDisabled: !isEnableEdit,
+
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -158,6 +160,7 @@ export default function NewGames() {
   const filters = [
     {
       label: "Enable Edit",
+      isUpperSide: false,
       node: (
         <>
           <CheckSwitch
@@ -198,7 +201,11 @@ export default function NewGames() {
           rows={games}
           rowKeys={rowKeys}
           actions={actions}
-          columns={columns}
+          columns={
+            isEnableEdit
+              ? [...columns, { key: "Action", isSortable: false }]
+              : columns
+          }
           filters={filters}
           title="Games"
           addButton={addButton}

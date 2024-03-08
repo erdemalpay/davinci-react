@@ -216,6 +216,7 @@ export default function Users() {
   const filters = [
     {
       label: "Show Inactive Users",
+      isUpperSide: false,
       node: (
         <Switch
           checked={showInactiveUsers}

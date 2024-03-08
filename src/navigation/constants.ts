@@ -6,6 +6,7 @@ import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import NewGames from "../pages/NewGame";
+import NewReservations from "../pages/NewReservations";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
@@ -14,7 +15,6 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
-
 export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
@@ -36,6 +36,7 @@ export enum Routes {
   GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
   NewGames = "/new-games",
+  NewReservations = "/new-reservations",
 }
 
 export const allRoutes: {
@@ -57,6 +58,12 @@ export const allRoutes: {
       name: "Reservations",
       path: Routes.Reservations,
       element: Reservations,
+      isOnSidebar: true,
+    },
+    {
+      name: "NewReservations",
+      path: Routes.NewReservations,
+      element: NewReservations,
       isOnSidebar: true,
     },
     {

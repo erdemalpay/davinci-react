@@ -224,6 +224,7 @@ const GenericAddEditPanel = <T,>({
                     {(input.type === InputTypes.TEXT ||
                       input.type === InputTypes.NUMBER ||
                       input.type === InputTypes.DATE ||
+                      input.type === InputTypes.TIME ||
                       input.type === InputTypes.PASSWORD) && (
                       <TextInput
                         key={input.formKey}
