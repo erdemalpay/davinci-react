@@ -1,75 +1,43 @@
-import { TrashIcon } from "@heroicons/react/24/solid";
-
-import { FormEvent, useEffect, useState } from "react";
+import { Switch } from "@headlessui/react";
+import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
-import { EditableText } from "../components/common/EditableText";
-import { Pagination } from "../components/common/Pagination";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { AddGameDialog } from "../components/games/AddGameDialog";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 
-export default function Games() {
+const inputs = [
+  {
+    type: InputTypes.TEXT,
+    formKey: "name",
+    label: "Name",
+    placeholder: "Name",
+    required: true,
+  },
+];
+const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+export default function NewGames() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
-
-  const [textFilter, setTextFilter] = useState("");
-  const [filteredGames, setFilteredGames] = useState<Game[]>([]);
-  const [page, setPage] = useState(1);
-  const [gamePerPage, setGamePerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [gamesCount, setGamesCount] = useState(0);
-  const [showGameImages, setShowGameImages] = useState(false);
-  const [editMode, setEditMode] = useState(false);
+  const [tableKey, setTableKey] = useState(0);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (!games) return;
-    const filteredGames = games.filter((game) => {
-      return game.name
-        .replace("İ", "I")
-        .toLowerCase()
-        .replace(/\s+/g, "")
-        .includes(textFilter.toLowerCase().replace(/\s+/g, ""));
-    });
-    setGamesCount(filteredGames.length);
-    setFilteredGames(
-      filteredGames.slice(gamePerPage * (page - 1), gamePerPage * page)
-    );
-    setTotalPages(Math.ceil(filteredGames.length / gamePerPage));
-  }, [page, games, gamesCount, gamePerPage, textFilter]);
-
-  const handleClick = (num: number) => {
-    let newPage = num;
-    if (num <= 0) newPage = 1;
-    if (num > totalPages) newPage = totalPages;
-    setPage(newPage);
-  };
-
-  function handleLimitSelection(value: number) {
-    setGamePerPage(value);
-    setPage(1);
-  }
-
-  function updateGameHandler(event: FormEvent<HTMLInputElement>, item?: Game) {
-    if (!item) return;
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
-    updateGame({
-      id: item._id,
-      updates: { [target.name]: target.value },
-    });
-  }
-
-  /* function handleSetExpansion(game: Game) {
-    updateGame({
-      id: game._id,
-      updates: { expansion: !game.expansion },
-    });
-    toast.success(`Game ${game.name} updated`);
-  } */
-
+  const [rowToAction, setRowToAction] = useState<Game>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   function handleLocationUpdate(game: Game, location: number) {
     const newLocations = game.locations || [];
     // Add if it doesn't exist, remove otherwise
@@ -86,145 +54,170 @@ export default function Games() {
     toast.success(`Game ${game.name} updated`);
   }
 
+  const columns = [
+    { key: "", isSortable: false },
+    { key: "Name", isSortable: true },
+    { key: "Bahçeli", isSortable: false },
+    { key: "Neorama", isSortable: false },
+  ];
+
+  const rowKeys = [
+    {
+      key: "thumbnail",
+      isImage: true,
+    },
+    {
+      key: "name",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "bahceli",
+      node: (row: Game) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(1)}
+            onChange={() => handleLocationUpdate(row, 1)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(1) ? "Yes" : "No"}
+          </p>
+        ),
+    },
+    {
+      key: "neorama",
+      node: (row: Game) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(2)}
+            onChange={() => handleLocationUpdate(row, 2)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(2) ? "Yes" : "No"}
+          </p>
+        ),
+    },
+  ];
+  const actions = [
+    {
+      name: "Delete",
+      isDisabled: !isEnableEdit,
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteGame(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title="Delete Game"
+          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+    {
+      name: "Edit",
+      isDisabled: !isEnableEdit,
+
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateGame as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
+      isPath: false,
+    },
+  ];
+
+  const filters = [
+    {
+      label: "Enable Edit",
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
+  const addButton = {
+    name: `Add Game`,
+    isModal: true,
+    modal: (
+      <AddGameDialog
+        isOpen={isAddGameDialogOpen}
+        close={() => setIsAddGameDialogOpen(false)}
+        createGame={createGame}
+      />
+    ),
+    isModalOpen: isAddGameDialogOpen,
+    setIsModal: setIsAddGameDialogOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+  };
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [games, isEnableEdit]);
+
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="mx-2 lg:mx-20 my:2 lg:my-10">
-        <div className="overflow-x-auto sm:rounded-lg">
-          <Pagination
-            page={page}
-            limitPerPage={gamePerPage}
-            itemsCount={gamesCount}
-            totalPages={totalPages}
-            handleClick={handleClick}
-            handleLimitSelection={handleLimitSelection}
-          ></Pagination>
-          <div className="flex flex-col-reverse lg:flex-row justify-between gap-4 items-center mb-4">
-            <div className="flex justify-end gap-4 items-center">
-              <input
-                type="text"
-                id="table-search"
-                className="block p-2 ml-4 pl-4 w-80 text-sm text-gray-900 rounded-lg border border-gray-300"
-                placeholder="Search for games"
-                value={textFilter}
-                onChange={(event) => setTextFilter(event.target.value)}
-              />
-            </div>
-            <div className="flex justify-end gap-4 items-center">
-              <h1 className="text-md">Enable Edit Mode</h1>
-              <CheckSwitch
-                checked={editMode}
-                onChange={() => setEditMode((value) => !value)}
-                checkedBg="bg-red-500"
-              ></CheckSwitch>
-              <h1 className="text-md">Show Game Covers</h1>
-              <CheckSwitch
-                checked={showGameImages}
-                onChange={() => setShowGameImages((value) => !value)}
-              ></CheckSwitch>
-              <button
-                onClick={() => setIsAddGameDialogOpen(true)}
-                className="py-2 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-2 lg:px-6 text-sm"
-              >
-                Add New Game
-              </button>
-            </div>
-          </div>
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className={`${showGameImages ? "block" : "hidden"} py-3 px-6`}
-                >
-                  Image
-                </th>
-                <th scope="col" className="py-3 px-6">
-                  Name
-                </th>
-                {/* <th scope="col" className="py-3 px-6">
-                  Expansion
-                </th> */}
-                <th scope="col" className="py-3 px-6">
-                  Bahçeli
-                </th>
-                <th scope="col" className="py-3 px-6">
-                  Neorama
-                </th>
-                <th scope="col" className="py-3 px-6">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredGames.map((game) => (
-                <tr
-                  key={game._id}
-                  className="bg-w hite border-b hover:bg-gray-100"
-                >
-                  <td
-                    className={`${
-                      showGameImages ? "block" : "hidden"
-                    } py-2 px-2 lg:px-6`}
-                  >
-                    <img src={game.thumbnail} alt={game.name} />
-                  </td>
-                  <td className="py-2 px-2 lg:px-6 font-medium text-gray-900 lg:whitespace-nowrap">
-                    <EditableText
-                      text={game.name}
-                      onUpdate={updateGameHandler}
-                      name="name"
-                      item={game}
-                    ></EditableText>
-                  </td>
-                  {/* <td className="py-2 px-6">
-                    <CheckSwitch
-                      checked={game.expansion}
-                      onChange={() => handleSetExpansion(game)}
-                    ></CheckSwitch>
-                  </td> */}
-                  <td className="py-2 px-2 lg:px-6">
-                    {editMode ? (
-                      <CheckSwitch
-                        checked={game.locations?.includes(1)}
-                        onChange={() => handleLocationUpdate(game, 1)}
-                      ></CheckSwitch>
-                    ) : game.locations?.includes(1) ? (
-                      <div className="text-blue-500">Yes</div>
-                    ) : (
-                      <h2 className="text-red-500">No</h2>
-                    )}
-                  </td>
-                  <td className="p-2 lg:px-6">
-                    {editMode ? (
-                      <CheckSwitch
-                        checked={game.locations?.includes(2)}
-                        onChange={() => handleLocationUpdate(game, 2)}
-                      ></CheckSwitch>
-                    ) : game.locations?.includes(2) ? (
-                      <div className="text-blue-500 py-3">Yes</div>
-                    ) : (
-                      <h2 className="text-red-500 py-3">No</h2>
-                    )}
-                  </td>
-                  <td className={`py-2 px-2 lg:px-6 ${!editMode && "hidden"}`}>
-                    <button onClick={() => deleteGame(game._id)}>
-                      <TrashIcon className="text-red-500 w-6 h-6" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {isAddGameDialogOpen && (
-        <AddGameDialog
-          isOpen={isAddGameDialogOpen}
-          close={() => setIsAddGameDialogOpen(false)}
-          createGame={createGame}
+      <div className="w-[90%] mx-auto my-10">
+        <GenericTable
+          key={tableKey}
+          rows={games}
+          rowKeys={rowKeys}
+          actions={actions}
+          columns={
+            isEnableEdit
+              ? [...columns, { key: "Action", isSortable: false }]
+              : columns
+          }
+          filters={filters}
+          title="Games"
+          addButton={addButton}
         />
-      )}
+      </div>
     </>
   );
 }

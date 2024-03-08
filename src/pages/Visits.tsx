@@ -39,7 +39,7 @@ export default function Visits() {
                 className={`relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg `}
               >
                 <span
-                  className={`relative px-5 py-2.5 transition-all ease-in duration-75 bg-white  rounded-md ${
+                  className={`relative px-5 py-2.5 transition-all ease-in duration-75   rounded-md ${
                     location === 1
                       ? "bg-red-800 text-white  "
                       : "hover:text-red-800"
@@ -53,7 +53,7 @@ export default function Visits() {
                 className={`relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg }`}
               >
                 <span
-                  className={`relative px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md ${
+                  className={`relative px-5 py-2.5 transition-all ease-in duration-75 rounded-md ${
                     location === 2
                       ? "bg-red-800 text-white  "
                       : "hover:text-red-800"
