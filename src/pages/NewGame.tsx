@@ -1,3 +1,4 @@
+import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -157,18 +158,24 @@ export default function NewGames() {
       isPath: false,
     },
   ];
+
   const filters = [
     {
       label: "Enable Edit",
       isUpperSide: false,
       node: (
-        <>
-          <CheckSwitch
-            checked={isEnableEdit}
-            onChange={() => setIsEnableEdit((value) => !value)}
-            checkedBg="bg-red-500"
-          ></CheckSwitch>
-        </>
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
       ),
     },
   ];
