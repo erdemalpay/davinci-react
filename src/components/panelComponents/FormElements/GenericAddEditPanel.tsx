@@ -144,6 +144,7 @@ const GenericAddEditPanel = <T,>({
       console.error("Failed to execute submit item:", error);
     }
   };
+
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
@@ -287,7 +288,20 @@ const GenericAddEditPanel = <T,>({
                 if (!allRequiredFilled) {
                   toast.error("Please fill all required fields");
                 } else {
-                  handleSubmit();
+                  const phoneValidationFailed = inputs
+                    .filter((input) => input.additionalType === "phone")
+                    .some((input) => {
+                      const inputValue = formElements[input.formKey];
+                      if (!inputValue.match(/^[0-9]{11}$/)) {
+                        toast.error("Check phone number.");
+                        return true; // Validation failed for phone number
+                      }
+                      return false; // Validation passed for phone number
+                    });
+
+                  if (!phoneValidationFailed) {
+                    handleSubmit();
+                  }
                 }
               }}
               className={`inline-block ${
