@@ -14,7 +14,7 @@ import "./table.css";
 
 type Props<T> = {
   rows: T[];
-  columns: ColumnType[];
+  columns: ColumnType<T>[];
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
   title?: string;
@@ -162,7 +162,7 @@ const GenericTable = <T,>({
           className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
         />
         <div className="flex flex-row flex-wrap gap-4 ">
-          {/* filters */}
+          {/* filters  for upperside*/}
           {filters &&
             filters.map(
               (filter, index) =>
@@ -186,7 +186,7 @@ const GenericTable = <T,>({
           {title && <H4 className="mr-auto">{title}</H4>}
           <div className="ml-auto flex flex-row gap-4">
             <div className="flex flex-row flex-wrap gap-4  ">
-              {/* filters */}
+              {/* filters for lowerside */}
               {filters &&
                 filters.map(
                   (filter, index) =>
@@ -222,57 +222,62 @@ const GenericTable = <T,>({
             <table className="bg-white w-full ">
               <thead className="border-b  ">
                 <tr>
-                  {columns.map((column, index) => (
-                    <th
-                      key={index}
-                      className={`${
-                        columns.length === 2 && "justify-between  "
-                      } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
-                    >
-                      <H5
-                        className={`w-fit flex gap-2 ${
-                          columns.length === 2 && index == 1 && "  mx-auto"
-                        } `}
+                  {columns.map((column, index) => {
+                    if (column.node) {
+                      return column.node();
+                    }
+                    return (
+                      <th
+                        key={index}
+                        className={`${
+                          columns.length === 2 && "justify-between  "
+                        } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
                       >
-                        {column.key}{" "}
-                        {column.isSortable && (
-                          <div
-                            className="sort-buttons"
-                            style={{ display: "inline-block" }}
-                          >
-                            {sortConfig?.key === rowKeys[index]?.key &&
-                            sortConfig?.direction === "ascending" ? (
-                              <button
-                                onClick={() =>
-                                  sortRows(
-                                    rowKeys[index].key as Extract<
-                                      keyof T,
-                                      string
-                                    >
-                                  )
-                                }
-                              >
-                                ↓
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() =>
-                                  sortRows(
-                                    rowKeys[index].key as Extract<
-                                      keyof T,
-                                      string
-                                    >
-                                  )
-                                }
-                              >
-                                ↑
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </H5>
-                    </th>
-                  ))}
+                        <H5
+                          className={`w-fit flex gap-2 ${
+                            columns.length === 2 && index == 1 && "  mx-auto"
+                          } `}
+                        >
+                          {column.key}{" "}
+                          {column.isSortable && (
+                            <div
+                              className="sort-buttons"
+                              style={{ display: "inline-block" }}
+                            >
+                              {sortConfig?.key === rowKeys[index]?.key &&
+                              sortConfig?.direction === "ascending" ? (
+                                <button
+                                  onClick={() =>
+                                    sortRows(
+                                      rowKeys[index].key as Extract<
+                                        keyof T,
+                                        string
+                                      >
+                                    )
+                                  }
+                                >
+                                  ↓
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    sortRows(
+                                      rowKeys[index].key as Extract<
+                                        keyof T,
+                                        string
+                                      >
+                                    )
+                                  }
+                                >
+                                  ↑
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </H5>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>

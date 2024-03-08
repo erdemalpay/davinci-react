@@ -45,19 +45,35 @@ const GamesIKnow = ({ userId }: Props) => {
     user?._id === panelUser?._id && isEnableEdit
       ? [
           { key: "Game", isSortable: true },
-          { key: "Learn Date", isSortable: false },
+          { key: "Learn Date", isSortable: true },
           { key: "Active", isSortable: false },
         ]
       : [
           { key: "Game", isSortable: true },
-          { key: "Learn Date", isSortable: false },
+          { key: "Learn Date", isSortable: true },
         ];
 
   const userGamesGameArray = user?.userGames.map((item) => item.game);
   const rows =
     user?._id === panelUser?._id
-      ? games
-      : games.filter((game) => userGamesGameArray?.includes(game._id));
+      ? games.map((game) =>
+          userGamesGameArray?.includes(game._id)
+            ? {
+                ...game,
+                learnDate: user?.userGames.find(
+                  (userGame) => userGame.game === game._id
+                )?.learnDate,
+              }
+            : game
+        )
+      : games
+          .filter((game) => userGamesGameArray?.includes(game._id))
+          .map((game) => {
+            const userGame = user?.userGames.find(
+              (userGame) => userGame.game === game._id
+            );
+            return { ...game, learnDate: userGame?.learnDate };
+          });
   const rowKeys = [
     {
       key: "name",
