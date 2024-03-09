@@ -25,15 +25,32 @@ export interface GameCount {
 
 export interface ChartProps {
   unique?: boolean;
+  dateFilter: DateFilter;
+  setDateFilter: (dateFilter: DateFilter) => void;
+  startDate: string;
+  setStartDate: (startDate: string) => void;
+  endDate: string | undefined;
+  setEndDate: (endDate: string | undefined) => void;
+  location: string;
+  setLocation: (location: string) => void;
+  itemLimit: number;
+  setItemLimit: (itemLimit: number) => void;
 }
 
-export function MentorAnalyticChart({ unique = false }: ChartProps) {
+export function MentorAnalyticChart({
+  unique = false,
+  dateFilter,
+  setDateFilter,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  location = "1,2",
+  setLocation,
+  itemLimit,
+  setItemLimit,
+}: ChartProps) {
   const queryClient = useQueryClient();
-  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string | undefined>("");
-  const [location, setLocation] = useState<string>("1,2");
-  const [itemLimit, setItemLimit] = useState(5);
 
   const { data: gameAnalytics } = useGetGameplayAnalytics(
     "mentor",
@@ -73,10 +90,11 @@ export function MentorAnalyticChart({ unique = false }: ChartProps) {
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (
-    <div className="p-4 pb-[200px] w-auto lg:w-1/2 border-2 h-[140%]">
+    <div className="w-[90%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
       <h1 className="text-xl mb-4">
         {unique ? "Unique " : ""}Gameplay By Game Mentors
       </h1>
+
       <div className="flex flex-col w-1/2 mb-4">
         <label className="flex items-center text-xs">Date Filter:</label>
         <select
