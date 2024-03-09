@@ -4,56 +4,24 @@ import { SiWegame } from "react-icons/si";
 import { MentorAnalyticChart } from "../components/analytics/MentorAnalyticChart";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import { DateFilter } from "../utils/dateUtil";
 
 export default function Analytics() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [tabPanelKey, setTabPanelKey] = useState<number>(0);
-  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string | undefined>("");
-  const [location, setLocation] = useState<string>("1,2");
-  const [itemLimit, setItemLimit] = useState(5);
+
   const tabs = [
     {
       number: 0,
       label: " Gameplay By Game Mentors",
       icon: <RiGameLine className="text-lg font-thin" />,
-      content: (
-        <MentorAnalyticChart
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          location={location}
-          setLocation={setLocation}
-          itemLimit={itemLimit}
-          setItemLimit={setItemLimit}
-        />
-      ),
+      content: <MentorAnalyticChart />,
       isDisabled: false,
     },
     {
       number: 1,
       label: "Unique Gameplay By Game Mentors",
       icon: <SiWegame className="text-lg font-thin" />,
-      content: (
-        <MentorAnalyticChart
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          location={location}
-          setLocation={setLocation}
-          itemLimit={itemLimit}
-          setItemLimit={setItemLimit}
-          unique
-        />
-      ),
+      content: <MentorAnalyticChart unique />,
       isDisabled: false,
     },
   ];

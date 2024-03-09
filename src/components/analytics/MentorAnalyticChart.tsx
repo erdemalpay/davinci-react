@@ -25,33 +25,15 @@ export interface GameCount {
 
 export interface ChartProps {
   unique?: boolean;
-  dateFilter: DateFilter;
-  setDateFilter: (dateFilter: DateFilter) => void;
-  startDate: string;
-  setStartDate: (startDate: string) => void;
-  endDate: string | undefined;
-  setEndDate: (endDate: string | undefined) => void;
-  location: string;
-  setLocation: (location: string) => void;
-  itemLimit: number;
-  setItemLimit: (itemLimit: number) => void;
 }
 
-export function MentorAnalyticChart({
-  unique = false,
-  dateFilter,
-  setDateFilter,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  location,
-  setLocation,
-  itemLimit,
-  setItemLimit,
-}: ChartProps) {
+export function MentorAnalyticChart({ unique = false }: ChartProps) {
   const queryClient = useQueryClient();
-
+  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string | undefined>("");
+  const [location, setLocation] = useState<string>("1,2");
+  const [itemLimit, setItemLimit] = useState(5);
   const { data: gameAnalytics } = useGetGameplayAnalytics(
     "mentor",
     itemLimit,
