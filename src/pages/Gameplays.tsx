@@ -53,6 +53,7 @@ export default function NewGameplays() {
       isSortable: false,
       node: () => (
         <th
+          key="game"
           className="font-bold text-left cursor-pointer"
           onClick={() => handleSort("game")}
         >
@@ -73,6 +74,7 @@ export default function NewGameplays() {
       isSortable: false,
       node: () => (
         <th
+          key="Game Mentor"
           className="font-bold text-left cursor-pointer"
           onClick={() => handleSort("mentor")}
         >
@@ -93,6 +95,7 @@ export default function NewGameplays() {
       isSortable: false,
       node: () => (
         <th
+          key="Player Count"
           className="font-bold text-left cursor-pointer"
           onClick={() => handleSort("playerCount")}
         >
@@ -113,6 +116,7 @@ export default function NewGameplays() {
       isSortable: false,
       node: () => (
         <th
+          key="Date"
           className="font-bold text-left cursor-pointer"
           onClick={() => handleSort("date")}
         >
