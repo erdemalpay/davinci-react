@@ -45,7 +45,7 @@ export function MentorAnalyticChart({
   setStartDate,
   endDate,
   setEndDate,
-  location = "1,2",
+  location,
   setLocation,
   itemLimit,
   setItemLimit,
