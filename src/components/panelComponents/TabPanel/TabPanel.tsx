@@ -50,7 +50,7 @@ const TabPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-10 flex flex-col border rounded-lg border-gray-200 bg-white w-[90%] mx-auto __className_a182b8">
+    <div className="mt-10 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[90%] mx-auto __className_a182b8">
       <div
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
@@ -61,7 +61,7 @@ const TabPanel: React.FC<Props> = ({
             <div
               key={index}
               ref={(el) => (tabsRef.current[index] = el)}
-              className={`px-4 flex flex-row items-center gap-2 cursor-pointer ${
+              className={`px-4  flex flex-row items-center gap-2 cursor-pointer ${
                 activeTab === tab.number ? "text-blue-500" : ""
               }`}
               onClick={() => handleTabChange(tab)}
