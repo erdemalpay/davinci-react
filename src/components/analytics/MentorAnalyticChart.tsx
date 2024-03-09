@@ -91,9 +91,9 @@ export function MentorAnalyticChart({
 
   return (
     <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
-      <h1 className="text-xl mb-4">
+      <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
         {unique ? "Unique " : ""}Gameplay By Game Mentors
-      </h1>
+      </p>
 
       <div className="flex flex-col w-1/2 mb-4">
         <label className="flex items-center text-xs">Date Filter:</label>

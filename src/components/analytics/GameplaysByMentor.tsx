@@ -131,7 +131,7 @@ export default function GameplaysByMentor() {
       <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  ">
         <div className="mb-5 rounded-tl-lg rounded-tr-lg">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-base lg:text-2xl font-bold leading-normal text-gray-800">
+            <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
               Gameplays by Mentors
             </p>
           </div>

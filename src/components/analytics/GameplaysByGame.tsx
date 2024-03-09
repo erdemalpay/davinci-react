@@ -164,7 +164,7 @@ export default function GameplaysByGames() {
         {/* Query part */}
         <div className="mb-5 rounded-tl-lg rounded-tr-lg">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-base lg:text-2xl font-bold leading-normal text-gray-800">
+            <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
               Gameplays by Games
             </p>
           </div>
