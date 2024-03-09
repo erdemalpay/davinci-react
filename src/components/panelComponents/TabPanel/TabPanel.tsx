@@ -50,7 +50,7 @@ const TabPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-10 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[90%] mx-auto __className_a182b8">
+    <div className="my-10 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[90%] mx-auto __className_a182b8">
       <div
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
@@ -80,7 +80,7 @@ const TabPanel: React.FC<Props> = ({
       </div>
       {tabs.find((tab) => tab.number === activeTab)?.content &&
         !tabs.find((tab) => tab.number === activeTab)?.isDisabled && (
-          <div className="py-6">
+          <div className="py-6 ">
             {tabs.find((tab) => tab.number === activeTab)?.content}
           </div>
         )}
