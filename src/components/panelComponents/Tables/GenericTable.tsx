@@ -25,6 +25,8 @@ type Props<T> = {
   filters?: FilterType<T>[];
   isRowsPerPage?: boolean;
   rowClassNameFunction?: (row: T) => string;
+  isSearch?: boolean;
+  isPagination?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -36,6 +38,8 @@ const GenericTable = <T,>({
   addButton,
   filters,
   imageHolder,
+  isSearch = true,
+  isPagination = true,
   isRowsPerPage = true,
   tooltipLimit = 40,
   rowClassNameFunction,
@@ -149,20 +153,22 @@ const GenericTable = <T,>({
 
   return (
     <div className=" mx-auto flex flex-col gap-4 __className_a182b8">
-      {/* search button */}
       <div className=" flex flex-row gap-4 justify-between items-center">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
-          placeholder="Search..."
-          className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
-        />
+        {/* search button */}
+        {isSearch && (
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search..."
+            className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
+          />
+        )}
+        {/* filters  for upperside*/}
         <div className="flex flex-row flex-wrap gap-4 ">
-          {/* filters  for upperside*/}
           {filters &&
             filters.map(
               (filter, index) =>
@@ -415,29 +421,31 @@ const GenericTable = <T,>({
 
               {/* Pagination */}
 
-              <div className=" flex flex-row gap-2 items-center">
-                <Caption>
-                  {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}–
-                  {Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
-                  {totalRows}
-                </Caption>
-                <div className="flex flex-row gap-4">
-                  <button
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    className="cursor-pointer"
-                    disabled={currentPage === 1}
-                  >
-                    {"<"}
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    className="cursor-pointer"
-                    disabled={currentPage === totalPages}
-                  >
-                    {">"}
-                  </button>
+              {isPagination && (
+                <div className=" flex flex-row gap-2 items-center">
+                  <Caption>
+                    {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}–
+                    {Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
+                    {totalRows}
+                  </Caption>
+                  <div className="flex flex-row gap-4">
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      className="cursor-pointer"
+                      disabled={currentPage === 1}
+                    >
+                      {"<"}
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      className="cursor-pointer"
+                      disabled={currentPage === totalPages}
+                    >
+                      {">"}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
