@@ -184,7 +184,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
   ];
 
   return (
-    <div className="w-[90%] mx-auto">
+    <div className="w-[95%] mx-auto">
       <GenericTable
         rowKeys={rowKeys}
         actions={actions}

@@ -1,7 +1,5 @@
 import Analytics from "../pages/Analytics";
 import Gameplays from "../pages/Gameplays";
-import GameplaysByGame from "../pages/GameplaysByGame";
-import GameplaysByMentor from "../pages/GameplaysByMentor";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
@@ -30,8 +28,6 @@ export enum Routes {
   Users = "/users",
   Analytics = "/analytics",
   Gameplays = "/gameplays",
-  GameplaysByGame = "/gameplays-by-game",
-  GameplaysByMentor = "/gameplays-by-mentor",
   Profile = "/profile",
 }
 
@@ -99,18 +95,6 @@ export const allRoutes: {
       name: "Analytics",
       path: Routes.Analytics,
       element: Analytics,
-      isOnSidebar: true,
-    },
-    {
-      name: "Gameplays By Games",
-      path: Routes.GameplaysByGame,
-      element: GameplaysByGame,
-      isOnSidebar: true,
-    },
-    {
-      name: "Gameplays By Mentor",
-      path: Routes.GameplaysByMentor,
-      element: GameplaysByMentor,
       isOnSidebar: true,
     },
   ],

@@ -90,7 +90,7 @@ export function MentorAnalyticChart({
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (
-    <div className="w-[90%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
+    <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
       <h1 className="text-xl mb-4">
         {unique ? "Unique " : ""}Gameplay By Game Mentors
       </h1>
