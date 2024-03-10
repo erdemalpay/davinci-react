@@ -65,12 +65,12 @@ export const MonthlyNav = () => {
         onClick={() => {
           onCurrentMonthChange(subMonths(currentMonth, 1));
         }}
-        className="cursor-pointer"
+        className="cursor-pointer text-2xl"
       >
-        Previous
+        {"<"}
       </button>
       <div
-        className="ml-4 mr-4 w-32 text-center text-xl text-black"
+        className="mx-2 w-32 text-center text-xl text-black"
         aria-label="Current Month"
       >
         {format(
@@ -81,9 +81,9 @@ export const MonthlyNav = () => {
       </div>
       <button
         onClick={() => onCurrentMonthChange(addMonths(currentMonth, 1))}
-        className="cursor-pointer"
+        className="cursor-pointer text-2xl"
       >
-        Next
+        {">"}
       </button>
     </div>
   );

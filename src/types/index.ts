@@ -51,8 +51,14 @@ export type User = {
   address: string;
   iban: string;
   birthDate: Date;
+  imageUrl: string;
   workType: WorkType;
-  games: number[];
+  userGames: [
+    {
+      game: number;
+      learnDate: string;
+    }
+  ];
 };
 
 export type Game = {
@@ -103,6 +109,7 @@ export type MenuItem = {
   category: MenuCategory | number;
   priceBahceli: number;
   priceNeorama: number;
+  order: number;
 };
 
 export enum ReservationStatusEnum {
@@ -142,4 +149,21 @@ export enum RolePermissionEnum {
 export enum UserGameUpdateType {
   ADD = "add",
   REMOVE = "remove",
+}
+
+export enum RowPerPageEnum {
+  FIRST = 10,
+  SECOND = 20,
+  THIRD = 50,
+}
+
+export enum RoleEnum {
+  MANAGER = 1,
+  GAMEMASTER = 2,
+  GAMEMANAGER = 3,
+  CATERINGMANAGER = 4,
+  BARISTA = 5,
+  KITCHEN = 6,
+  SERVICE = 7,
+  CLEANING = 8,
 }

@@ -1,14 +1,13 @@
 import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import { Autocomplete } from "../components/common/Autocomplete";
-import { Header } from "../components/header/Header";
-import { User } from "../types";
-import { useGetGames } from "../utils/api/game";
+import { User } from "../../types";
+import { useGetGames } from "../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
-} from "../utils/api/gameplay";
-import { useGetAllUsers } from "../utils/api/user";
+} from "../../utils/api/gameplay";
+import { useGetAllUsers } from "../../utils/api/user";
+import { Autocomplete } from "../common/Autocomplete";
 
 export interface SecondGroupRow {
   field: string;
@@ -22,7 +21,7 @@ export interface GameplayGroupRow {
   open: boolean;
 }
 
-export default function Gameplays() {
+export default function GameplaysByMentor() {
   const [gameplayGroupRows, setGameplayGroupRows] = useState<
     GameplayGroupRow[]
   >([]);
@@ -129,80 +128,75 @@ export default function Gameplays() {
 
   return (
     <>
-      <Header showLocationSelector={false} />
-
-      <div className="flex flex-col gap-4 mx-0 lg:mx-20">
-        {/* Query part */}
-        <div className="bg-white shadow w-full px-6 py-5 mt-4">
-          <div className="mb-5 rounded-tl-lg rounded-tr-lg">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-base lg:text-2xl font-bold leading-normal text-gray-800">
-                Gameplays by Mentors
-              </p>
-            </div>
-            <div className="flex items-center mt-4 sm:mt-0">
-              <div className="flex flex-col w-full">
-                <div className="flex flex-col lg:flex-row gap-2 mt-4">
-                  <Input
-                    variant="standard"
-                    name="startDay"
-                    label="After"
-                    type="date"
-                    onChange={handleStartDateSelection}
-                  />
-                  <Input
-                    variant="standard"
-                    name="endDay"
-                    label="Before"
-                    type="date"
-                    onChange={handleEndDateSelection}
-                  />
-                </div>
-                <div className="mt-2">
-                  <Autocomplete
-                    name="mentor"
-                    label="Mentor"
-                    suggestions={users}
-                    handleSelection={handleMentorSelection}
-                    showSelected
-                  />
-                </div>
+      <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  ">
+        <div className="mb-5 rounded-tl-lg rounded-tr-lg">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
+              Gameplays by Mentors
+            </p>
+          </div>
+          <div className="flex items-center mt-4 sm:mt-0">
+            <div className="flex flex-col w-full">
+              <div className="flex flex-col lg:flex-row gap-2 mt-4">
+                <Input
+                  variant="standard"
+                  name="startDay"
+                  label="After"
+                  type="date"
+                  onChange={handleStartDateSelection}
+                />
+                <Input
+                  variant="standard"
+                  name="endDay"
+                  label="Before"
+                  type="date"
+                  onChange={handleEndDateSelection}
+                />
+              </div>
+              <div className="mt-2">
+                <Autocomplete
+                  name="mentor"
+                  label="Mentor"
+                  suggestions={users}
+                  handleSelection={handleMentorSelection}
+                  showSelected
+                />
               </div>
             </div>
           </div>
-          <div className="">
-            <div className="w-full overflow-x-auto">
-              <table className="w-full whitespace-nowrap">
-                <thead>
-                  <tr className="h-10 w-full text-sm leading-none text-gray-600">
-                    {columns.map((column) => (
-                      <th
-                        key={column.id}
-                        className="font-bold text-left cursor-pointer w-1/2"
-                      >
-                        <div className="flex gap-x-2">{column.header}</div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="w-full">
-                  {gameplayGroupRows.map((row) => (
-                    <tr
-                      key={row.mentor}
-                      className="h-10 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
+        </div>
+        <div className="">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full whitespace-nowrap">
+              <thead>
+                <tr className="h-10 w-full text-sm leading-none text-gray-600">
+                  {columns.map((column) => (
+                    <th
+                      key={column.id}
+                      className="font-bold text-left cursor-pointer w-1/2"
                     >
-                      {columns.map((column) => {
-                        return (
-                          <td key={column.id} onClick={() => updateRows(row)}>
-                            {column.cell(row)}
-                          </td>
-                        );
-                      })}
-                    </tr>
+                      <div className="flex gap-x-2">{column.header}</div>
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody className="w-full">
+                {gameplayGroupRows.map((row) => (
+                  <tr
+                    key={row.mentor}
+                    className="h-10 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
+                  >
+                    {columns.map((column) => {
+                      return (
+                        <td key={column.id} onClick={() => updateRows(row)}>
+                          {column.cell(row)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

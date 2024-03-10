@@ -1,19 +1,15 @@
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/outline";
-
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { Input } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { Caption, H5 } from "../components/panelComponents/Typography";
 import { Game, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
 import { useGetUsers } from "../utils/api/user";
-
 interface GameplayRow {
   _id: number;
   game: string;
@@ -22,14 +18,14 @@ interface GameplayRow {
   date: string;
 }
 
-export default function Gameplays() {
+export default function NewGameplays() {
   const [gameplays, setGameplays] = useState<GameplayRow[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [filterData, setFilterData] = useState<GameplayFilter>({
     limit: 10,
     page: 1,
   });
-
+  const [tableKey, setTableKey] = useState(0);
   const { data } = useGetGameplays(filterData);
   const games = useGetGames();
   const users = useGetUsers();
@@ -48,28 +44,111 @@ export default function Gameplays() {
       );
       setTotalItems(totalCount);
     }
+    setTableKey((prev) => prev + 1);
   }, [data]);
 
   const columns = [
     {
-      id: "game",
-      header: "Game",
-      cell: (row: GameplayRow) => row.game,
+      key: "Game",
+      isSortable: false,
+      node: () => (
+        <th
+          key="game"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("game")}
+        >
+          <div className="flex gap-x-2 pl-3  items-center py-3  min-w-8">
+            <H5>Game</H5>
+            {filterData.sort === "game" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
     },
     {
-      id: "mentor",
-      header: "Game Mentor",
-      cell: (row: GameplayRow) => row.mentor,
+      key: "Game Mentor",
+      isSortable: false,
+      node: () => (
+        <th
+          key="Game Mentor"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("mentor")}
+        >
+          <div className="flex gap-x-2   items-center py-3  min-w-8">
+            <H5>Game Mentor</H5>
+            {filterData.sort === "mentor" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
     },
     {
-      id: "playerCount",
-      header: "Player Count",
-      cell: (row: GameplayRow) => row.playerCount,
+      key: "Player Count",
+      isSortable: false,
+      node: () => (
+        <th
+          key="Player Count"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("playerCount")}
+        >
+          <div className="flex gap-x-2   items-center py-3  min-w-8">
+            <H5>Player Count</H5>
+            {filterData.sort === "playerCount" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
     },
     {
-      id: "date",
-      header: "Date",
-      cell: (row: GameplayRow) => row.date,
+      key: "Date",
+      isSortable: false,
+      node: () => (
+        <th
+          key="Date"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("date")}
+        >
+          <div className="flex gap-x-2   items-center py-3  min-w-8">
+            <H5>Date</H5>
+            {filterData.sort === "date" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
+    },
+  ];
+  const rowKeys = [
+    {
+      key: "game",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "mentor",
+      className: "min-w-20 pr-1",
+    },
+    { key: "playerCount" },
+    {
+      key: "date",
+      className: "min-w-32",
+      node: (row: GameplayRow) => {
+        return format(new Date(row.date), "dd-MM-yyyy");
+      },
     },
   ];
 
@@ -147,138 +226,90 @@ export default function Gameplays() {
   return (
     <>
       <Header showLocationSelector={false} />
-
-      <div className="flex flex-col gap-4 mx-0 lg:mx-20">
-        {/* Query part */}
-        <div className="bg-white shadow w-full px-6 py-5 mt-4">
-          <div className="mb-5 rounded-tl-lg rounded-tr-lg">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-base lg:text-2xl font-bold leading-normal text-gray-800">
-                Gameplays
-              </p>
-            </div>
-            <div className="flex items-center mt-4 sm:mt-0">
-              <div className="flex flex-col w-full">
-                <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
-                  <Autocomplete
-                    name="mentor"
-                    label="Game Mentor"
-                    suggestions={users}
-                    handleSelection={handleMentorSelection}
-                    showSelected
-                  />
-                  <Autocomplete
-                    name="game"
-                    label="Game"
-                    suggestions={games}
-                    handleSelection={handleGameSelection}
-                    showSelected
-                  />
-                </div>
-                <div className="flex flex-col lg:flex-row gap-2 mt-4">
-                  <Input
-                    variant="standard"
-                    name="startDay"
-                    label="After"
-                    type="date"
-                    onChange={handleStartDateSelection}
-                  />
-                  <Input
-                    variant="standard"
-                    name="endDay"
-                    label="Before"
-                    type="date"
-                    onChange={handleEndDateSelection}
-                  />
-                </div>
-              </div>
-            </div>
+      <div className="w-[90%] mx-auto my-10 ">
+        <div className="flex flex-col w-full mb-6">
+          <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
+            <Autocomplete
+              name="mentor"
+              label="Game Mentor"
+              suggestions={users}
+              handleSelection={handleMentorSelection}
+              showSelected
+            />
+            <Autocomplete
+              name="game"
+              label="Game"
+              suggestions={games}
+              handleSelection={handleGameSelection}
+              showSelected
+            />
           </div>
-          <div className="">
-            <div className="w-full overflow-x-auto">
-              <div className="flex flex-row justify-between w-full mt-2 gap-4">
-                <span className="flex items-center justify-end">
-                  {"Rows per page:"}
-                  <select
-                    onChange={(value) =>
-                      handleLimitSelection(
-                        value.target.value as unknown as number
-                      )
-                    }
-                    className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
-                    value={filterData?.limit}
-                  >
-                    <option value={10}>10</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-                </span>
-                <span className="flex justify-end text-base items-center">
-                  <button className="focus:outline-none">
-                    <ChevronLeftIcon
-                      className="h-6 w-6"
-                      onClick={() => handlePageChange(-1)}
-                    />
-                  </button>
-
-                  {`Page: ${filterData.page} of ${Math.ceil(
-                    totalItems / filterData.limit
-                  )}`}
-                  <button className="focus:outline-none">
-                    <ChevronRightIcon
-                      className="h-6 w-6"
-                      onClick={() => handlePageChange(1)}
-                    />
-                  </button>
-                </span>
-                <span className="hidden lg:flex items-center">
-                  Showing: {((filterData.page || 1) - 1) * filterData.limit + 1}{" "}
-                  -{" "}
-                  {((filterData.page || 1) - 1) * filterData.limit +
-                    gameplays.length}
-                  {" of "}
-                  {totalItems}
-                </span>
-              </div>
-              <table className="w-full whitespace-nowrap">
-                <thead>
-                  <tr className="h-10 w-full text-sm leading-none text-gray-600">
-                    {columns.map((column) => (
-                      <th
-                        key={column.id}
-                        className="font-bold text-left cursor-pointer"
-                        onClick={() => handleSort(column.id)}
-                      >
-                        <div className="flex gap-x-2">
-                          {column.header}
-                          {filterData.sort === column.id &&
-                            (filterData.asc === 1 ? (
-                              <ArrowUpIcon className="h-4 w-4" />
-                            ) : (
-                              <ArrowDownIcon className="h-4 w-4" />
-                            ))}
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="w-full">
-                  {gameplays.map((gameplay) => (
-                    <tr
-                      key={gameplay._id}
-                      className="h-10 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
-                    >
-                      {columns.map((column) => {
-                        return (
-                          <td key={column.id} className="">
-                            {column.cell(gameplay)}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="flex flex-col lg:flex-row gap-2 mt-4">
+            <Input
+              variant="standard"
+              name="startDay"
+              label="After"
+              type="date"
+              onChange={handleStartDateSelection}
+            />
+            <Input
+              variant="standard"
+              name="endDay"
+              label="Before"
+              type="date"
+              onChange={handleEndDateSelection}
+            />
+          </div>
+        </div>
+        <GenericTable
+          key={tableKey}
+          rows={gameplays}
+          rowKeys={rowKeys}
+          actions={[]}
+          columns={columns}
+          title="GamePlays"
+          isSearch={false}
+          isRowsPerPage={false}
+          isPagination={false}
+        />
+        <div className="ml-auto flex flex-row justify-between w-fit mt-2 gap-4 __className_a182b8">
+          {/* rows per page */}
+          <div className="flex flex-row gap-2 px-6 items-center">
+            <Caption>Rows per page:</Caption>
+            <select
+              className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
+              value={filterData?.limit}
+              onChange={(value) =>
+                handleLimitSelection(value.target.value as unknown as number)
+              }
+            >
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+          {/* pagination */}
+          <div className=" flex flex-row gap-2 items-center">
+            <Caption>
+              {((filterData.page || 1) - 1) * filterData.limit + 1} -{" "}
+              {((filterData.page || 1) - 1) * filterData.limit +
+                gameplays.length}
+              {" of "}
+              {totalItems}
+            </Caption>
+            <div className="flex flex-row gap-4">
+              <button
+                onClick={() => handlePageChange(-1)}
+                className="cursor-pointer"
+              >
+                {"<"}
+              </button>
+              <button
+                onClick={() => handlePageChange(1)}
+                className="cursor-pointer"
+              >
+                {">"}
+              </button>
             </div>
           </div>
         </div>

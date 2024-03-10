@@ -1,83 +1,73 @@
-import { FormEvent } from "react";
-import { EditableText } from "../components/common/EditableText";
+import { useState } from "react";
+import { FaRegUserCircle } from "react-icons/fa";
+import { MdOutlineEventNote } from "react-icons/md";
+import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
-import GameMaster from "../components/user/GameMaster";
-import { useUserContext } from "../context/User.context";
-import { User } from "../types";
-import { useUserMutations } from "../utils/api/user";
+import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import GamesIKnow from "../components/tables/GamesIKnow";
+import GamesIMentored from "../components/tables/GamesIMentored";
+import { RoleEnum } from "../types";
+import { useGetMentorGamePlays } from "../utils/api/gameplay";
+import { useGetUserWithId } from "../utils/api/user";
 
 export default function UserView() {
-  const { user } = useUserContext();
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const { userId } = useParams();
+  const user = useGetUserWithId(userId as string);
 
-  const { updateUser } = useUserMutations();
+  const { data } = useGetMentorGamePlays(userId as string);
 
-  function updateUserHandler(event: FormEvent<HTMLInputElement>, item?: User) {
-    if (!item) return;
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
-    updateUser({
-      id: item._id,
-      updates: { [target.name]: target.value },
-    });
-  }
-
+  const tabs = [
+    {
+      number: 0,
+      label: " Personal Details",
+      icon: <FaRegUserCircle className="text-lg font-thin" />,
+      content: user && <PersonalDetails isEditable={false} user={user} />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
+      label: "Mentored Games",
+      icon: <MdOutlineEventNote className="text-lg font-thin" />,
+      content: user && data && (
+        <div className="px-4 w-full">
+          <GamesIMentored data={data} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMASTER ||
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.MANAGER
+      ),
+    },
+    {
+      number: 2,
+      label: "Known Games",
+      icon: <MdOutlineEventNote className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <GamesIKnow userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMASTER ||
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.MANAGER
+      ),
+    },
+  ];
   if (!user) return <></>;
-
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="flex flex-col gap-4 mx-0 lg:mx-20">
-        <div className="bg-white shadow w-full px-6 py-5 mt-4">
-          <div className="mb-5 rounded-tl-lg rounded-tr-lg">
-            <div className="flex flex-col justify-between mb-4">
-              <div className="text-base lg:text-2xl font-bold leading-normal text-gray-800 flex gap-4">
-                <EditableText
-                  name="name"
-                  text={user.name}
-                  onUpdate={updateUserHandler}
-                  item={user}
-                  placeholder="Display Name"
-                />
-                <div className="flex gap-1">
-                  {"("}
-                  <EditableText
-                    name="role"
-                    text={user.role.name}
-                    onUpdate={updateUserHandler}
-                    item={user}
-                    placeholder="Role"
-                  />
-                  {")"}
-                </div>
-              </div>
-              <div className="text-base lg:text-md font-bold leading-normal text-gray-800 flex">
-                {"Full Name: "}
-                <EditableText
-                  name="fullName"
-                  text={user.fullName}
-                  onUpdate={updateUserHandler}
-                  item={user}
-                  placeholder="Full Name"
-                />
-              </div>
-              <p className="text-base lg:text-md font-bold leading-normal text-gray-800">
-                <EditableText
-                  name="phone"
-                  text={user.phone}
-                  onUpdate={updateUserHandler}
-                  placeholder="Phone Number"
-                  item={user}
-                  type="phone"
-                />
-                {user.workType}
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* game master gameplay list */}
-        {/* TODO : User roles are going to be made enum  */}
-        {user.role._id === 2 && <GameMaster />}
-      </div>
+      {user && (
+        <TabPanel
+          tabs={tabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      )}
     </>
   );
 }

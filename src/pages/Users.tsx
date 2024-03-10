@@ -1,190 +1,272 @@
 import { Switch } from "@headlessui/react";
-import { FormEvent, useState } from "react";
+import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
-import { EditableText } from "../components/common/EditableText";
-import { EditableUserRole } from "../components/common/EditableUserRole";
 import { Header } from "../components/header/Header";
-import { CreateUserDialog } from "../components/users/CreateUserDialog";
-import { User } from "../types";
-import { useGetAllUsers, useUserMutations } from "../utils/api/user";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import user1 from "../components/panelComponents/assets/profile/user-1.jpg";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
+import { WorkType } from "../types";
+import {
+  useGetAllUserRoles,
+  useGetAllUsers,
+  useUserMutations,
+} from "../utils/api/user";
+
+// these are the columns and rowKeys for the table
+interface TableUser {
+  _id: string;
+  name: string;
+  fullName: string;
+  active: boolean;
+  role: string;
+  jobStartDate: Date;
+  jobEndDate?: Date;
+  insuranceStartDate: Date;
+  profileImage?: string;
+  phone: string;
+  address: string;
+  iban: string;
+  birthDate: Date;
+  imageUrl: string;
+  workType: WorkType;
+  userGames: [
+    {
+      game: number;
+      learnDate: string;
+    }
+  ];
+}
 
 export default function Users() {
-  const { updateUser, createUser } = useUserMutations();
-  const users = useGetAllUsers();
+  const [rowToAction, setRowToAction] = useState<TableUser>();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const roles = useGetAllUserRoles();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+  const { updateUser, createUser } = useUserMutations();
+  const [tableKey, setTableKey] = useState(1); // reset table
+  const users = useGetAllUsers();
+  const navigate = useNavigate();
+  const roleOptions = users.map((user) => {
+    return {
+      label: user.role.name,
+      bgColor: user.role.color,
+      textColor: "#fff",
+    };
+  });
 
-  const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
-  function updateUserHandler(event: FormEvent<HTMLInputElement>, item?: User) {
-    if (!item) return;
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
-    updateUser({
-      id: item._id,
-      updates: { [target.name]: target.value },
-    });
-    toast.success(`User ${item.name} updated`);
-  }
-
-  function handleUserUpdate(user: User) {
+  function handleUserUpdate(user: TableUser) {
     updateUser({
       id: user._id,
       updates: { active: !user.active },
     });
     toast.success(`User ${user.name} updated`);
   }
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: "Name",
+      placeholder: "Name",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "fullName",
+      label: "Full Name",
+      placeholder: "Full Name",
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "role",
+      label: "Role",
+      options: roles.map((role) => {
+        return {
+          value: role._id,
+          label: role.name,
+        };
+      }),
+      placeholder: "Role",
+      required: false,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: "Image",
+      required: false,
+      folderName: "menu",
+    },
+  ];
 
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "fullName", type: FormKeyTypeEnum.STRING },
+    { key: "role", type: FormKeyTypeEnum.STRING },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [
+    { key: "", isSortable: false },
+    { key: "ID", isSortable: true },
+    { key: "Display Name", isSortable: true },
+    { key: "Full Name", isSortable: true },
+    { key: "Role", isSortable: true },
+    { key: "Action", isSortable: false },
+  ];
+
+  const rowKeys = [
+    { key: "imageUrl", isImage: true },
     {
-      id: "ID",
-      header: "ID",
-      visible: true,
-      cell: (row: User) => <h1>{row._id}</h1>,
+      key: "_id",
+      node: (row: TableUser) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            navigate(`/user/${row._id}`);
+          }}
+        >
+          {row._id}
+        </p>
+      ),
     },
     {
-      id: "name",
-      header: "Display Name",
-      visible: true,
-      cell: (row: User) => (
-        <EditableText
-          name="name"
-          text={row.name}
-          onUpdate={updateUserHandler}
-          item={row}
+      key: "name",
+    },
+    {
+      key: "fullName",
+    },
+    {
+      key: "role",
+      isOptional: true,
+      options: roleOptions,
+    },
+  ];
+  const actions = [
+    {
+      name: "Edit",
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          folderName="user"
+          submitItem={updateUser as any}
+          isEditMode={true}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+              role: roles.find((role) => role.name === rowToAction.role)?._id,
+            },
+          }}
         />
-      ),
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+
+      isPath: false,
     },
     {
-      id: "fullName",
-      header: "Full Name",
-      visible: true,
-      cell: (row: User) => (
-        <EditableText
-          name="fullName"
-          text={row.fullName}
-          onUpdate={updateUserHandler}
-          item={row}
-          placeholder="Full Name"
-        />
-      ),
-    },
-    {
-      id: "role",
-      header: "Role",
-      visible: true,
-      cell: (row: User) => (
-        <div className="flex flex-wrap gap-4 mt-2 w-1/2" id="roles">
-          <EditableUserRole userId={row._id} item={row.role} />
-        </div>
-      ),
-    },
-    {
-      id: "active",
-      header: "Active",
-      visible: showInactiveUsers,
-      cell: (row: User) => (
+      name: "Toggle Active",
+      isDisabled: !showInactiveUsers,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: TableUser) => (
         <CheckSwitch
           checked={row.active}
           onChange={() => handleUserUpdate(row)}
         ></CheckSwitch>
       ),
     },
-    /* {
-      id: "delete",
-      header: "Action",
-      cell: (row: User) => (
-        <button onClick={() => deleteUser(row._id)}>
-          <TrashIcon className="text-red-500 w-6 h-6" />
-        </button>
-      ),
-    }, */
   ];
+  const addButton = {
+    name: `Add User`,
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        inputs={inputs}
+        formKeys={formKeys}
+        submitItem={createUser as any}
+        folderName="user"
+      />
+    ),
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+  };
+
+  const filters = [
+    {
+      label: "Show Inactive Users",
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={showInactiveUsers}
+          onChange={() => setShowInactiveUsers((value) => !value)}
+          className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${showInactiveUsers ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
+  useEffect(() => {
+    setTableKey(tableKey + 1);
+  }, [users, showInactiveUsers]);
+  const roleNormalizedUsers = users.map((user) => {
+    return {
+      ...user,
+      role: user.role.name,
+    };
+  });
+  const filteredUsers = () => {
+    if (showInactiveUsers) {
+      return roleNormalizedUsers;
+    } else if (!showInactiveUsers) {
+      return roleNormalizedUsers.filter((user) => user.active);
+    }
+  };
+  if (!users) return <></>;
 
   return (
     <>
       <Header showLocationSelector={false} />
-
-      <div className="flex flex-col gap-4 mx-0 lg:mx-20">
-        <div className="bg-white shadow w-full px-6 py-5 mt-4">
-          <div className="mb-5 rounded-tl-lg rounded-tr-lg">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-base lg:text-2xl font-bold leading-normal text-gray-800">
-                Users
-              </p>
-            </div>
-          </div>
-          <div className="h-full w-full">
-            <div className="flex justify-end gap-x-4">
-              <button
-                onClick={() => setIsCreateUserDialogOpen(true)}
-                className="my-3 bg-white rounded border border-gray-800 text-gray-800 px-6 py-2 text-sm"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex justify-end gap-4 items-center">
-              <h1 className="text-md">Show Inactive Users</h1>
-              <Switch
-                checked={showInactiveUsers}
-                onChange={() => setShowInactiveUsers((value) => !value)}
-                className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`${
-                    showInactiveUsers ? "translate-x-4" : "translate-x-0"
-                  }
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-                />
-              </Switch>
-            </div>
-            <div className="w-full overflow-x-auto">
-              <table className="w-full whitespace-nowrap">
-                <thead>
-                  <tr className="h-10 w-full text-sm leading-none text-gray-600">
-                    {columns.map(
-                      (column) =>
-                        column.visible && (
-                          <th key={column.id} className="font-bold text-left">
-                            <div className="flex gap-x-2">{column.header}</div>
-                          </th>
-                        )
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="w-full">
-                  {users
-                    ?.filter((user) => showInactiveUsers || user.active)
-                    .map((user) => (
-                      <tr
-                        key={user._id}
-                        className="h-10 text-sm leading-none text-gray-700 border-b border-t border-gray-200 bg-white hover:bg-gray-100"
-                      >
-                        {columns.map((column) => {
-                          return (
-                            column.visible && (
-                              <td key={column.id} className="">
-                                {column.cell(user)}
-                              </td>
-                            )
-                          );
-                        })}
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      {isCreateUserDialogOpen && (
-        <CreateUserDialog
-          isOpen={isCreateUserDialogOpen}
-          close={() => setIsCreateUserDialogOpen(false)}
-          createUser={createUser}
+      <div className="w-[90%] mx-auto my-10">
+        <GenericTable
+          key={tableKey}
+          rowKeys={rowKeys}
+          actions={actions}
+          columns={columns}
+          filters={filters}
+          rows={filteredUsers() as TableUser[]}
+          title="Users"
+          imageHolder={user1}
+          addButton={addButton}
         />
-      )}
+      </div>
     </>
   );
 }

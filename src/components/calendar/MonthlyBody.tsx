@@ -1,5 +1,6 @@
 import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
 import { createContext, ReactNode, useContext } from "react";
+import { H5 } from "../panelComponents/Typography";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
 import { daysInWeek } from "./shared";
 
@@ -83,7 +84,7 @@ export function MonthlyBody<DayData>({
   });
   const headingClassName = "border-b-2 p-2 border-r-2 lg:block hidden";
   return (
-    <div className="bg-white border-l-2 border-t-2">
+    <div className="bg-white border-l-2 border-t-2 rounded-lg mb-6">
       <div
         className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 ${
           headingClasses[`l${headings.length}`]
@@ -95,7 +96,7 @@ export function MonthlyBody<DayData>({
             className={headingClassName}
             aria-label="Day of Week"
           >
-            {day.label}
+            <H5>{day.label}</H5>
           </div>
         ))}
         {padding.map((_, index) => (

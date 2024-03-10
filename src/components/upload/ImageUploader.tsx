@@ -6,6 +6,7 @@ import { postWithHeader } from "../../utils/api";
 interface ImageUploaderProps {
   initialImageUrl: string;
   filename: string;
+  foldername: string;
   onSuccessCallback: (url: string) => void;
 }
 
@@ -16,6 +17,7 @@ interface UploadResponse {
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   initialImageUrl,
   filename,
+  foldername,
   onSuccessCallback,
 }) => {
   // State for the image URL
@@ -25,13 +27,22 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const uploadImageMutation = useMutation<
     UploadResponse,
     Error,
-    { file: File; filename: string }
+    { file: File; filename: string; foldername: string }
   >(
-    async ({ file, filename: testname }: { file: File; filename: string }) => {
+    async ({
+      file,
+      filename: testname,
+      foldername,
+    }: {
+      file: File;
+      filename: string;
+      foldername: string;
+    }) => {
       // Initialize FormData
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", testname);
+      formData.append("foldername", foldername);
 
       // Post the form data to the upload endpoint
       const res = await postWithHeader<FormData, UploadResponse>({
@@ -67,13 +78,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   //   myEditor.show();
   // }
 
-  // Function called when the file input changes (file selected)
+
   const onFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files?.[0]) {
         uploadImageMutation.mutate({
           file: event.target.files[0],
           filename,
+          foldername,
         });
       }
     },
