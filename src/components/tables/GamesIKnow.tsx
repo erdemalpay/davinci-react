@@ -7,6 +7,7 @@ import {
   updateUserGamesMutation,
   useGetUserWithId,
 } from "../../utils/api/user";
+import { formatAsLocalDate } from "../../utils/format";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -88,9 +89,7 @@ const GamesIKnow = ({ userId }: Props) => {
 
         return (
           <p>
-            {userGame?.learnDate
-              ? format(new Date(userGame.learnDate), "dd-MM-yyyy")
-              : "-"}
+            {userGame?.learnDate ? formatAsLocalDate(userGame.learnDate) : "-"}
           </p>
         );
       },
