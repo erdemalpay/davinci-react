@@ -48,7 +48,6 @@ const GamesIMentored = ({ data }: Props) => {
       .map((item) => ({
         ...item,
         session: item.session.filter((session) => {
-          // console.log(session);
           const sessionDate = new Date(session.date);
           const isAfterStartDate = startDateFilter
             ? sessionDate >= new Date(startDateFilter)
@@ -56,9 +55,7 @@ const GamesIMentored = ({ data }: Props) => {
           const isBeforeEndDate = endDateFilter
             ? sessionDate <= new Date(endDateFilter)
             : true;
-          console.log(startDateFilter, endDateFilter);
-          console.log(session.date);
-          console.log(isAfterStartDate && isBeforeEndDate);
+
           return isAfterStartDate && isBeforeEndDate;
         }),
       }))
