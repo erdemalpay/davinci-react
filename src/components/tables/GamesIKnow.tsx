@@ -179,6 +179,7 @@ const GamesIKnow = ({ userId }: Props) => {
           close={() => setLearnDateModal(false)}
           inputs={inputs}
           formKeys={formKeys}
+          constantValues={{ learnDate: format(new Date(), "yyyy-MM-dd") }}
           folderName="user"
           topClassName="flex flex-col gap-2 "
           submitItem={(formElements: any) => {
