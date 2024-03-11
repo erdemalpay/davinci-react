@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { RiProductHuntLine } from "react-icons/ri";
-import { TbWeight } from "react-icons/tb";
+import { TbWeight, TbZoomMoney } from "react-icons/tb";
+
 import Product from "../components/accounting/Product";
 import Unit from "../components/accounting/Unit";
 import { Header } from "../components/header/Header";
 
+import ExpenseType from "../components/accounting/ExpenseType";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 
 export default function Accounting() {
@@ -14,13 +16,20 @@ export default function Accounting() {
   const tabs = [
     {
       number: 0,
+      label: "Expense Types",
+      icon: <TbZoomMoney className="text-lg font-thin" />,
+      content: <ExpenseType />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
       label: "Units",
       icon: <TbWeight className="text-lg font-thin" />,
       content: <Unit />,
       isDisabled: false,
     },
     {
-      number: 1,
+      number: 2,
       label: "Products",
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
