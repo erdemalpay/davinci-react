@@ -69,6 +69,16 @@ export type Game = {
   expansion: boolean;
   locations: number[];
 };
+export type AccountProduct = {
+  _id: number;
+  name: string;
+  unit: number | AccountUnit;
+};
+
+export type AccountUnit = {
+  _id: number;
+  name: string;
+};
 
 export type Visit = {
   _id: number;
