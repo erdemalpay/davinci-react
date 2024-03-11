@@ -13,6 +13,6 @@ export function useAccountUnitMutations() {
   return { deleteAccountUnit, updateAccountUnit, createAccountUnit };
 }
 
-export function useGetAccountUnit() {
+export function useGetAccountUnits() {
   return useGetList<AccountUnit>(Paths.AccountUnit);
 }

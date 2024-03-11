@@ -13,6 +13,6 @@ export function useAccountProductMutations() {
   return { deleteAccountProduct, updateAccountProduct, createAccountProduct };
 }
 
-export function useGetAccountProduct() {
+export function useGetAccountProducts() {
   return useGetList<AccountProduct>(Paths.AccountProduct);
 }
