@@ -128,7 +128,7 @@ const GenericTable = <T,>({
     }
   };
   const renderActionButtons = (row: T) => (
-    <div className=" flex flex-row my-auto h-full  gap-3  ">
+    <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
       {actions?.map((action, index) => {
         if (action?.isDisabled) {
           return null;
@@ -242,7 +242,11 @@ const GenericTable = <T,>({
                         <H5
                           className={`w-fit flex gap-2 ${
                             columns.length === 2 && index == 1 && "  mx-auto"
-                          } `}
+                          } ${
+                            index === columns.length - 1 && actions
+                              ? "mx-auto"
+                              : ""
+                          }`}
                         >
                           {column.key}{" "}
                           {column.isSortable && (
