@@ -309,7 +309,8 @@ const GenericTable = <T,>({
                       }
                       if (
                         !rowKey?.isImage &&
-                        row[rowKey.key as keyof T] === undefined
+                        (row[rowKey.key as keyof T] === undefined ||
+                          row[rowKey.key as keyof T] === null)
                       ) {
                         return (
                           <td

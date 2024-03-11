@@ -77,7 +77,7 @@ const Unit = (props: Props) => {
             deleteAccountUnit(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Reward"
+          title="Delete Unit"
           text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
         />
       ) : null,

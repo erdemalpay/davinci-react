@@ -31,7 +31,7 @@ const Product = (props: Props) => {
     products.map((row) => {
       return {
         ...row,
-        unit: (row.unit as AccountUnit).name,
+        unit: (row.unit as AccountUnit)?.name,
       };
     })
   );
@@ -109,7 +109,7 @@ const Product = (props: Props) => {
             deleteAccountProduct(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Reward"
+          title="Delete Product"
           text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -139,7 +139,7 @@ const Product = (props: Props) => {
             updates: {
               name: rowToAction.name,
               unit: units.find(
-                (unit) => unit.name === (rowToAction.unit as string)
+                (unit) => unit.name === (rowToAction?.unit as string)
               )?._id,
             },
           }}
@@ -158,7 +158,7 @@ const Product = (props: Props) => {
       products.map((product) => {
         return {
           ...product,
-          unit: (product.unit as AccountUnit).name,
+          unit: (product.unit as AccountUnit)?.name,
         };
       })
     );
