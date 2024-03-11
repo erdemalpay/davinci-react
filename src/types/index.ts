@@ -72,7 +72,7 @@ export type Game = {
 export type AccountProduct = {
   _id: number;
   name: string;
-  unit: number | AccountUnit;
+  unit: number | AccountUnit | string;
 };
 
 export type AccountUnit = {
