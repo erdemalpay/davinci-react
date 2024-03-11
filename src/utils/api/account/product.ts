@@ -1,5 +1,5 @@
-import { AccountProduct } from "../../types";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { AccountProduct } from "../../../types";
+import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/products`;
 

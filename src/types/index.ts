@@ -79,6 +79,10 @@ export type AccountUnit = {
   _id: number;
   name: string;
 };
+export type AccountExpenseType = {
+  _id: number;
+  name: string;
+};
 
 export type Visit = {
   _id: number;

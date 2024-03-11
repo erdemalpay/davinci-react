@@ -5,8 +5,8 @@ import { AccountProduct, AccountUnit } from "../../types";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
-} from "../../utils/api/account-product";
-import { useGetAccountUnits } from "../../utils/api/account-unit";
+} from "../../utils/api/account/product";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";

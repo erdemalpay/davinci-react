@@ -1,5 +1,5 @@
-import { AccountUnit } from "../../types";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { AccountUnit } from "../../../types";
+import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/units`;
 export function useAccountUnitMutations() {
