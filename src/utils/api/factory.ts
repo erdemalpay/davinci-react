@@ -25,8 +25,7 @@ export const Paths = {
   ReservationsCall: "/reservations/call",
   Tables: "/tables",
   Visits: "/visits",
-  AccountProduct: "/accounting/products",
-  AccountUnit: "/accounting/units",
+  Accounting: "/accounting",
 };
 
 interface Props<T> {
