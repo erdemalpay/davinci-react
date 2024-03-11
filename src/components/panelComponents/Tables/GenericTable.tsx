@@ -128,7 +128,7 @@ const GenericTable = <T,>({
     }
   };
   const renderActionButtons = (row: T) => (
-    <div className=" flex flex-row my-auto h-full  gap-3 ">
+    <div className=" flex flex-row my-auto h-full  gap-3  ">
       {actions?.map((action, index) => {
         if (action?.isDisabled) {
           return null;
