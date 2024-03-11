@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -29,11 +29,9 @@ const GamesIMentored = ({ data }: Props) => {
       sessionLength: session.length,
     }));
   const [rows, setRows] = useState(gameplayGroupRows);
-
-  const countColumn = ` ${rows.length}/${rows?.reduce(
-    (acc, row) => acc + row.sessionLength,
-    0
-  )}`;
+  const [countColumn, setCountColumn] = useState<string>(
+    ` ${rows.length}/${rows?.reduce((acc, row) => acc + row.sessionLength, 0)}`
+  );
 
   const columns = [
     { key: "Game", isSortable: true },
@@ -57,6 +55,7 @@ const GamesIMentored = ({ data }: Props) => {
           const isBeforeEndDate = endDateFilter
             ? sessionDate <= new Date(endDateFilter)
             : true;
+
           return isAfterStartDate && isBeforeEndDate;
         }),
       }))
@@ -66,8 +65,21 @@ const GamesIMentored = ({ data }: Props) => {
         sessionLength: item.session.length,
       }));
     setRows(filterData);
-    setTableKey((prev) => prev + 1);
+    setCountColumn(
+      ` ${filterData.length}/${filterData?.reduce(
+        (acc, row) => acc + row.sessionLength,
+        0
+      )}`
+    );
   };
+  useEffect(() => {
+    handleFilter();
+  }, [startDateFilter, endDateFilter]);
+
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [rows, countColumn]);
+
   const filters = [
     {
       isUpperSide: false,
@@ -81,8 +93,6 @@ const GamesIMentored = ({ data }: Props) => {
             value={startDateFilter ?? ""}
             onChange={(e) => {
               setStartDateFilter(e.target.value);
-              handleFilter();
-              console.log(e.target.value);
             }}
           />
           <span className="mx-auto sm:mx-0">to</span>
@@ -93,7 +103,6 @@ const GamesIMentored = ({ data }: Props) => {
             value={endDateFilter ?? ""}
             onChange={(e) => {
               setEndDateFilter(e.target.value);
-              handleFilter();
             }}
           />
         </div>

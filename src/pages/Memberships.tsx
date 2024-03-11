@@ -1,5 +1,4 @@
 import { Switch } from "@headlessui/react";
-import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -8,7 +7,6 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -20,6 +18,7 @@ import {
 } from "../utils/api/membership";
 
 import { formatDate } from "../utils/dateUtil";
+import { formatAsLocalDate } from "../utils/format";
 
 const inputs = [
   {
@@ -96,14 +95,14 @@ export default function Memberships() {
       key: "startDate",
       className: "min-w-32",
       node: (row: Membership) => {
-        return format(new Date(row.startDate), "dd-MM-yyyy");
+        return formatAsLocalDate(row.startDate);
       },
     },
     {
       key: "endDate",
       className: "min-w-32",
       node: (row: Membership) => {
-        return format(new Date(row.endDate), "dd-MM-yyyy");
+        return formatAsLocalDate(row.endDate);
       },
     },
   ];

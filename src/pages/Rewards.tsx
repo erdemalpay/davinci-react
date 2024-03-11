@@ -17,6 +17,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import { Reward } from "../types";
 import { useGetRewards, useRewardMutations } from "../utils/api/reward";
+import { formatAsLocalDate } from "../utils/format";
 
 const inputs = [
   {
@@ -73,14 +74,14 @@ export default function Rewards() {
       key: "startDate",
       className: "min-w-32",
       node: (row: Reward) => {
-        return format(new Date(row.startDate), "dd-MM-yyyy");
+        return formatAsLocalDate(row.startDate);
       },
     },
     {
       key: "endDate",
       className: "min-w-32",
       node: (row: Reward) => {
-        return format(new Date(row.endDate), "dd-MM-yyyy");
+        return formatAsLocalDate(row.endDate);
       },
     },
   ];

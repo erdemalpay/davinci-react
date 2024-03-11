@@ -1,6 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { Input } from "@material-tailwind/react";
-import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
@@ -10,6 +9,7 @@ import { Game, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
 import { useGetUsers } from "../utils/api/user";
+import { formatAsLocalDate } from "../utils/format";
 interface GameplayRow {
   _id: number;
   game: string;
@@ -147,7 +147,7 @@ export default function NewGameplays() {
       key: "date",
       className: "min-w-32",
       node: (row: GameplayRow) => {
-        return format(new Date(row.date), "dd-MM-yyyy");
+        return formatAsLocalDate(row.date);
       },
     },
   ];
