@@ -51,12 +51,12 @@ export default function Rewards() {
   const rewards = useGetRewards();
   const today = format(new Date(), "yyyy-MM-dd");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<Reward>();
   const { deleteReward, updateReward, createReward } = useRewardMutations();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rowToAction, setRowToAction] = useState<Reward>();
   const [showExpiredRewards, setShowExpiredRewards] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
