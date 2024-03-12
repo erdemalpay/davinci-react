@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
+import { RowPerPageEnum } from "../../../types";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
@@ -49,7 +50,11 @@ const GenericTable = <T,>({
   isRowsPerPage = true,
   tooltipLimit = 40,
   rowClassNameFunction,
-  rowsPerPageOptions = [10, 20, 50],
+  rowsPerPageOptions = [
+    RowPerPageEnum.FIRST,
+    RowPerPageEnum.SECOND,
+    RowPerPageEnum.THIRD,
+  ],
 }: Props<T>) => {
   const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
     useGeneralContext();
@@ -125,21 +130,20 @@ const GenericTable = <T,>({
     e.dataTransfer.setData("draggedRow", JSON.stringify(draggedRow));
   };
   const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
-    e.preventDefault(); // This is necessary to allow dropping.
+    e.preventDefault();
   };
 
   const handleDrop = (
     e: React.DragEvent<HTMLTableRowElement>,
     targetRow: T
   ) => {
-    e.preventDefault(); // Prevent default action.
+    e.preventDefault();
     const draggedRowData = e.dataTransfer.getData("draggedRow");
     const draggedRow: T = JSON.parse(draggedRowData);
 
     if (onDragEnter) {
       onDragEnter(draggedRow, targetRow);
     }
-    // You might also want to reset any state used to track the current drag operation here.
   };
 
   const actionOnClick = (action: ActionType<T>, row: T) => {
@@ -442,13 +446,13 @@ const GenericTable = <T,>({
                   className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
                   value={rowsPerPage}
                   onChange={(e) => {
-                    setRowsPerPage(Number(e.target.value));
-                    const totalNewPages = Math.ceil(
-                      totalRows / Number(e.target.value)
-                    );
-                    if (currentPage > totalNewPages) {
-                      setCurrentPage(totalNewPages);
+                    const value = e.target.value;
+                    if (value === "ALL") {
+                      setRowsPerPage(rows.length);
+                    } else {
+                      setRowsPerPage(Number(value));
                     }
+                    setCurrentPage(1); // Reset to first page whenever rows per page changes
                   }}
                 >
                   {rowsPerPageOptions.map((option, index) => (
@@ -456,6 +460,7 @@ const GenericTable = <T,>({
                       {option}
                     </option>
                   ))}
+                  <option value={rows.length}>ALL</option>
                 </select>
               </div>
 
