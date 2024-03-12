@@ -83,7 +83,14 @@ export type AccountExpenseType = {
   _id: number;
   name: string;
 };
-
+export type AccountInvoice = {
+  _id: number;
+  product: number | AccountProduct;
+  expenseType: number | AccountExpenseType;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+};
 export type Visit = {
   _id: number;
   location: number;
