@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
-import { SiWegame } from "react-icons/si";
+import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
-
 import GameplaysByGames from "../components/analytics/GameplaysByGame";
 import GameplaysByMentor from "../components/analytics/GameplaysByMentor";
+import KnownGamesCount from "../components/analytics/KnownGamesCount";
 import { MentorAnalyticChart } from "../components/analytics/MentorAnalyticChart";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -73,6 +73,13 @@ export default function Analytics() {
       label: "Gameplays By Games",
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
+      isDisabled: false,
+    },
+    {
+      number: 4,
+      label: "Known Games Count",
+      icon: <SiLegacygames className="text-lg font-thin" />,
+      content: <KnownGamesCount />,
       isDisabled: false,
     },
   ];
