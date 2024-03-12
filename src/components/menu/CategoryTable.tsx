@@ -99,7 +99,16 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
 
     toast.success("Category order updated");
   }
-
+  const handleDrag = (DragRow: MenuCategory, DropRow: MenuCategory) => {
+    updateCategory({
+      id: DragRow._id,
+      updates: { order: DropRow.order },
+    });
+    updateCategory({
+      id: DropRow._id,
+      updates: { order: DragRow.order },
+    });
+  };
   const actions = [
     {
       name: "Delete",
@@ -193,6 +202,8 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         title={"Categories"}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        isDraggable={true}
+        onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>
   );

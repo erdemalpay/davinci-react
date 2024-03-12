@@ -1,3 +1,4 @@
+import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
@@ -11,6 +12,7 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
 import { RolePermissionEnum } from "../types";
+
 export enum PublicRoutes {
   NotFound = "*",
   Login = "/login",
@@ -29,6 +31,7 @@ export enum Routes {
   Analytics = "/analytics",
   Gameplays = "/gameplays",
   Profile = "/profile",
+  Accounting = "/accounting",
 }
 
 export const allRoutes: {
@@ -110,6 +113,12 @@ export const allRoutes: {
       path: Routes.User,
       element: User,
       isOnSidebar: false,
+    },
+    {
+      name: "Accounting",
+      path: Routes.Accounting,
+      element: Accounting,
+      isOnSidebar: true,
     },
 
     {

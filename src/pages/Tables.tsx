@@ -154,7 +154,7 @@ const TablesPage = () => {
             <div className="flex justify-between gap-x-4">
               <button
                 onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
-                className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
+                className="sm:min-w-32 my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm "
               >
                 Close all tables
               </button>

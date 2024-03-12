@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
+import { RowPerPageEnum } from "../../../types";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
@@ -14,6 +15,9 @@ import "./table.css";
 
 type Props<T> = {
   rows: T[];
+  isDraggable?: boolean;
+  onDragEnter?: (DraggedRow: T, TargetRow: T) => void;
+  isActionsActive?: boolean;
   columns: ColumnType<T>[];
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
@@ -38,12 +42,19 @@ const GenericTable = <T,>({
   addButton,
   filters,
   imageHolder,
+  isActionsActive = true,
+  isDraggable = false,
+  onDragEnter,
   isSearch = true,
   isPagination = true,
   isRowsPerPage = true,
   tooltipLimit = 40,
   rowClassNameFunction,
-  rowsPerPageOptions = [10, 20, 50],
+  rowsPerPageOptions = [
+    RowPerPageEnum.FIRST,
+    RowPerPageEnum.SECOND,
+    RowPerPageEnum.THIRD,
+  ],
 }: Props<T>) => {
   const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
     useGeneralContext();
@@ -112,6 +123,28 @@ const GenericTable = <T,>({
 
     setTableRows(sortedRows);
   };
+  const handleDragStart = (
+    e: React.DragEvent<HTMLTableRowElement>,
+    draggedRow: T
+  ) => {
+    e.dataTransfer.setData("draggedRow", JSON.stringify(draggedRow));
+  };
+  const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (
+    e: React.DragEvent<HTMLTableRowElement>,
+    targetRow: T
+  ) => {
+    e.preventDefault();
+    const draggedRowData = e.dataTransfer.getData("draggedRow");
+    const draggedRow: T = JSON.parse(draggedRowData);
+
+    if (onDragEnter) {
+      onDragEnter(draggedRow, targetRow);
+    }
+  };
 
   const actionOnClick = (action: ActionType<T>, row: T) => {
     if (action.setRow) {
@@ -128,7 +161,7 @@ const GenericTable = <T,>({
     }
   };
   const renderActionButtons = (row: T) => (
-    <div className=" flex flex-row my-auto h-full  gap-3 ">
+    <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
       {actions?.map((action, index) => {
         if (action?.isDisabled) {
           return null;
@@ -224,7 +257,7 @@ const GenericTable = <T,>({
         </div>
         {/* table part */}
         <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">
-          <div className="border border-gray-100 rounded-md w-full   ">
+          <div className="border border-gray-100 rounded-md w-full overflow-auto   ">
             <table className="bg-white w-full ">
               <thead className="border-b  ">
                 <tr>
@@ -242,7 +275,13 @@ const GenericTable = <T,>({
                         <H5
                           className={`w-fit flex gap-2 ${
                             columns.length === 2 && index == 1 && "  mx-auto"
-                          } `}
+                          } ${
+                            index === columns.length - 1 &&
+                            actions &&
+                            isActionsActive
+                              ? "mx-auto"
+                              : ""
+                          }`}
                         >
                           {column.key}{" "}
                           {column.isSortable && (
@@ -290,8 +329,12 @@ const GenericTable = <T,>({
                 {currentRows.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}
+                    draggable={isDraggable}
+                    onDragStart={(e) => handleDragStart(e, row)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, row)}
                     className={`${
-                      rowIndex !== currentRows.length - 1 ? "border-b" : ""
+                      rowIndex !== currentRows.length - 1 ? "border-b " : ""
                     } ${rowClassNameFunction?.(row)}`}
                   >
                     {rowKeys.map((rowKey, keyIndex) => {
@@ -309,7 +352,8 @@ const GenericTable = <T,>({
                       }
                       if (
                         !rowKey?.isImage &&
-                        row[rowKey.key as keyof T] === undefined
+                        (row[rowKey.key as keyof T] === undefined ||
+                          row[rowKey.key as keyof T] === null)
                       ) {
                         return (
                           <td
@@ -416,6 +460,7 @@ const GenericTable = <T,>({
                       {option}
                     </option>
                   ))}
+                  <option value={rows.length}>ALL</option>
                 </select>
               </div>
 

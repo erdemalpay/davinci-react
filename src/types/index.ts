@@ -69,7 +69,28 @@ export type Game = {
   expansion: boolean;
   locations: number[];
 };
+export type AccountProduct = {
+  _id: number;
+  name: string;
+  unit: number | AccountUnit | string;
+};
 
+export type AccountUnit = {
+  _id: number;
+  name: string;
+};
+export type AccountExpenseType = {
+  _id: number;
+  name: string;
+};
+export type AccountInvoice = {
+  _id: number;
+  product: number | AccountProduct | string;
+  expenseType: number | AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+};
 export type Visit = {
   _id: number;
   location: number;
