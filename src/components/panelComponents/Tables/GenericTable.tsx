@@ -446,13 +446,13 @@ const GenericTable = <T,>({
                   className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
                   value={rowsPerPage}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "ALL") {
-                      setRowsPerPage(rows.length);
-                    } else {
-                      setRowsPerPage(Number(value));
+                    setRowsPerPage(Number(e.target.value));
+                    const totalNewPages = Math.ceil(
+                      totalRows / Number(e.target.value)
+                    );
+                    if (currentPage > totalNewPages) {
+                      setCurrentPage(totalNewPages);
                     }
-                    setCurrentPage(1); // Reset to first page whenever rows per page changes
                   }}
                 >
                   {rowsPerPageOptions.map((option, index) => (
