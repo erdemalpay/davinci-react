@@ -85,8 +85,8 @@ export type AccountExpenseType = {
 };
 export type AccountInvoice = {
   _id: number;
-  product: number | AccountProduct;
-  expenseType: number | AccountExpenseType;
+  product: number | AccountProduct | string;
+  expenseType: number | AccountExpenseType | string;
   quantity: number;
   totalExpense: number;
   date: string;
