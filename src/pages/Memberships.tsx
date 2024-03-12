@@ -17,6 +17,7 @@ import {
   useMembershipMutations,
 } from "../utils/api/membership";
 
+import { addMonths, format } from "date-fns";
 import { formatDate } from "../utils/dateUtil";
 import { formatAsLocalDate } from "../utils/format";
 
@@ -171,7 +172,10 @@ export default function Memberships() {
         formKeys={formKeys}
         submitItem={createMembership as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
+        constantValues={{
+          startDate: format(new Date(), "yyyy-MM-dd"),
+          endDate: format(addMonths(new Date(), 1), "yyyy-MM-dd"),
+        }}
       />
     ),
     isModalOpen: isAddModalOpen,
