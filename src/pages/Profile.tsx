@@ -62,7 +62,7 @@ export default function Profile() {
     },
     {
       number: 4,
-      label: "Known Games",
+      label: `Known Games (${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
         <div className="px-4 w-full ">
