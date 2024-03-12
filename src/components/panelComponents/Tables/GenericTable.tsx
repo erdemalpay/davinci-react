@@ -14,6 +14,7 @@ import "./table.css";
 
 type Props<T> = {
   rows: T[];
+  isActionsActive?: boolean;
   columns: ColumnType<T>[];
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
@@ -38,6 +39,7 @@ const GenericTable = <T,>({
   addButton,
   filters,
   imageHolder,
+  isActionsActive = true,
   isSearch = true,
   isPagination = true,
   isRowsPerPage = true,
@@ -243,7 +245,9 @@ const GenericTable = <T,>({
                           className={`w-fit flex gap-2 ${
                             columns.length === 2 && index == 1 && "  mx-auto"
                           } ${
-                            index === columns.length - 1 && actions
+                            index === columns.length - 1 &&
+                            actions &&
+                            isActionsActive
                               ? "mx-auto"
                               : ""
                           }`}

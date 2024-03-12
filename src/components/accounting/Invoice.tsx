@@ -1,7 +1,9 @@
+import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+
 import {
   AccountExpenseType,
   AccountInvoice,
@@ -31,6 +33,7 @@ const Invoice = (props: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -116,7 +119,6 @@ const Invoice = (props: Props) => {
     { key: "Date", isSortable: true },
     { key: "Quantity", isSortable: true },
     { key: "Total Expense", isSortable: true },
-    { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
     {
@@ -172,6 +174,7 @@ const Invoice = (props: Props) => {
   const actions = [
     {
       name: "Delete",
+      isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -194,6 +197,7 @@ const Invoice = (props: Props) => {
     },
     {
       name: "Edit",
+      isDisabled: !isEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
@@ -232,6 +236,27 @@ const Invoice = (props: Props) => {
       isPath: false,
     },
   ];
+
+  const filters = [
+    {
+      label: "Enable Edit",
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
@@ -257,7 +282,13 @@ const Invoice = (props: Props) => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          columns={columns}
+          filters={filters}
+          isActionsActive={isEnableEdit}
+          columns={
+            isEnableEdit
+              ? [...columns, { key: "Action", isSortable: false }]
+              : columns
+          }
           rows={rows}
           title="Invoices"
           addButton={addButton}

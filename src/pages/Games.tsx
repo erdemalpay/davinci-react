@@ -208,6 +208,7 @@ export default function Games() {
           rows={games}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={isEnableEdit}
           columns={
             isEnableEdit
               ? [...columns, { key: "Action", isSortable: false }]
