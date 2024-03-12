@@ -115,6 +115,16 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
+  const handleDrag = (DragRow: MenuItem, DropRow: MenuItem) => {
+    updateItem({
+      id: DragRow._id,
+      updates: { order: DropRow.order },
+    });
+    updateItem({
+      id: DropRow._id,
+      updates: { order: DragRow.order },
+    });
+  };
   const actions = [
     {
       name: "Delete",
@@ -226,6 +236,8 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        isDraggable={true}
+        onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>
   );

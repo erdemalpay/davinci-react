@@ -14,6 +14,8 @@ import "./table.css";
 
 type Props<T> = {
   rows: T[];
+  isDraggable?: boolean;
+  onDragEnter?: (DraggedRow: T, TargetRow: T) => void;
   isActionsActive?: boolean;
   columns: ColumnType<T>[];
   rowKeys: RowKeyType<T>[];
@@ -40,6 +42,8 @@ const GenericTable = <T,>({
   filters,
   imageHolder,
   isActionsActive = true,
+  isDraggable = false,
+  onDragEnter,
   isSearch = true,
   isPagination = true,
   isRowsPerPage = true,
@@ -113,6 +117,29 @@ const GenericTable = <T,>({
     });
 
     setTableRows(sortedRows);
+  };
+  const handleDragStart = (
+    e: React.DragEvent<HTMLTableRowElement>,
+    draggedRow: T
+  ) => {
+    e.dataTransfer.setData("draggedRow", JSON.stringify(draggedRow));
+  };
+  const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
+    e.preventDefault(); // This is necessary to allow dropping.
+  };
+
+  const handleDrop = (
+    e: React.DragEvent<HTMLTableRowElement>,
+    targetRow: T
+  ) => {
+    e.preventDefault(); // Prevent default action.
+    const draggedRowData = e.dataTransfer.getData("draggedRow");
+    const draggedRow: T = JSON.parse(draggedRowData);
+
+    if (onDragEnter) {
+      onDragEnter(draggedRow, targetRow);
+    }
+    // You might also want to reset any state used to track the current drag operation here.
   };
 
   const actionOnClick = (action: ActionType<T>, row: T) => {
@@ -298,8 +325,12 @@ const GenericTable = <T,>({
                 {currentRows.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}
+                    draggable={isDraggable}
+                    onDragStart={(e) => handleDragStart(e, row)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, row)}
                     className={`${
-                      rowIndex !== currentRows.length - 1 ? "border-b" : ""
+                      rowIndex !== currentRows.length - 1 ? "border-b " : ""
                     } ${rowClassNameFunction?.(row)}`}
                   >
                     {rowKeys.map((rowKey, keyIndex) => {
