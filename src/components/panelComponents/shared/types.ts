@@ -78,10 +78,12 @@ export enum InputTypes {
   IMAGE = "image",
   PASSWORD = "password",
   TIME = "time",
+  COLOR = "color",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",
   NUMBER = "number",
+  COLOR = "color",
   DATE = "date",
   BOOLEAN = "boolean",
 }

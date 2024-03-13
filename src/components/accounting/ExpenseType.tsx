@@ -22,7 +22,7 @@ const inputs = [
     required: true,
   },
   {
-    type: InputTypes.TEXT,
+    type: InputTypes.COLOR,
     formKey: "backgroundColor",
     label: "Background Color",
     placeholder: "Background Color",
@@ -31,7 +31,7 @@ const inputs = [
 ];
 const formKeys = [
   { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "backgroundColor", type: FormKeyTypeEnum.STRING },
+  { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
 ];
 const ExpenseType = (props: Props) => {
   const expenseTypes = useGetAccountExpenseTypes();
