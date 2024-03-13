@@ -154,6 +154,7 @@ const Invoice = (props: Props) => {
   const addButton = {
     name: `Add Invoice`,
     isModal: true,
+
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
@@ -162,7 +163,9 @@ const Invoice = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ date: format(new Date(), "yyyy-MM-dd") }}
+        constantValues={{
+          date: format(new Date(), "yyyy-MM-dd"),
+        }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -221,7 +224,7 @@ const Invoice = (props: Props) => {
               )?._id,
               expenseType: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.expenseType as AccountProduct
+                  ?.expenseType as AccountExpenseType
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,

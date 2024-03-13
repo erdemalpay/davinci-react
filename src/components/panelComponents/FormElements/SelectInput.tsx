@@ -1,9 +1,10 @@
 import { MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
-  CSSObjectWithLabel,
   GroupBase,
+  MultiValue,
   OptionProps,
+  PropsValue,
   SingleValue,
   components,
 } from "react-select";
@@ -12,52 +13,46 @@ import { H6 } from "../Typography";
 const CustomOption = (
   props: OptionProps<
     { value: string; label: string },
-    false,
+    boolean,
     GroupBase<{ value: string; label: string }>
   >
-) => {
-  return (
-    <components.Option {...props}>
-      {props.label}
-      {props.isSelected && (
-        <MdOutlineDone className="text-blue-700 font-bold text-xl" />
-      )}
-    </components.Option>
-  );
-};
+) => (
+  <components.Option {...props}>
+    {props.label}
+    {props.isSelected && (
+      <MdOutlineDone className="text-blue-700 font-bold text-xl" />
+    )}
+  </components.Option>
+);
 
-type Props = {
+type OptionType = { value: string; label: string };
+interface SelectInputProps {
   label: string;
-  options: { value: string; label: string }[];
-  value: SingleValue<{ value: string; label: string }> | null;
+  options: OptionType[];
+  value: PropsValue<OptionType>;
   onChange: (
-    value: SingleValue<{ value: string; label: string }>,
-    actionMeta: ActionMeta<{ value: string; label: string }>
+    value: SingleValue<OptionType> | MultiValue<OptionType>,
+    actionMeta: ActionMeta<OptionType>
   ) => void;
   placeholder: string;
-};
+  isMultiple?: boolean;
+}
 
 const SelectInput = ({
   label,
   options,
   value,
   onChange,
+  isMultiple,
   placeholder,
-}: Props) => {
+}: SelectInputProps) => {
   const customStyles = {
-    control: (base: CSSObjectWithLabel) => ({
+    control: (base: any) => ({
       ...base,
       border: "1px solid #E2E8F0",
       borderRadius: "4px",
     }),
-    option: (
-      base: CSSObjectWithLabel,
-      state: OptionProps<
-        { value: string; label: string },
-        false,
-        GroupBase<{ value: string; label: string }>
-      >
-    ) => ({
+    option: (base: any, state: any) => ({
       ...base,
       borderRadius: "6px",
       display: "flex",
@@ -69,7 +64,7 @@ const SelectInput = ({
         color: "#0057FF",
       },
     }),
-    placeholder: (base: CSSObjectWithLabel) => ({
+    placeholder: (base: any) => ({
       ...base,
       color: "#b0b5ba",
       fontSize: "14px",
@@ -78,16 +73,28 @@ const SelectInput = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 __className_a182b8 ">
+    <div className="flex flex-col gap-2 __className_a182b8">
       <H6>{label}</H6>
-      <Select
-        options={options}
-        onChange={(value, actionMeta) => onChange(value, actionMeta)}
-        value={value}
-        components={{ Option: CustomOption }}
-        placeholder={placeholder}
-        styles={customStyles}
-      />
+      {isMultiple ? (
+        <Select
+          isMulti
+          options={options}
+          onChange={onChange}
+          value={value}
+          components={{ Option: CustomOption }}
+          placeholder={placeholder}
+          styles={customStyles}
+        />
+      ) : (
+        <Select
+          options={options}
+          onChange={(value, actionMeta) => onChange(value, actionMeta)}
+          value={value}
+          components={{ Option: CustomOption }}
+          placeholder={placeholder}
+          styles={customStyles}
+        />
+      )}
     </div>
   );
 };

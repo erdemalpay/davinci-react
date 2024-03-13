@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountProduct, AccountUnit } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -18,6 +19,7 @@ const Product = (props: Props) => {
   const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
@@ -56,14 +58,30 @@ const Product = (props: Props) => {
       placeholder: "Unit",
       required: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: "Expense Type",
+      options: expenseTypes.map((expenseType) => {
+        return {
+          value: expenseType._id,
+          label: expenseType.name,
+        };
+      }),
+      placeholder: "Expense Type",
+      isMultiple: true,
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
     { key: "Name", isSortable: true },
     { key: "Unit", isSortable: true },
+    { key: "Expense Type", isSortable: true },
     { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
@@ -74,6 +92,26 @@ const Product = (props: Props) => {
     {
       key: "unit",
       className: "min-w-32",
+    },
+    {
+      key: "expenseType",
+      className: "min-w-32",
+      node: (row: AccountProduct) => {
+        return row.expenseType.map((expType: number) => {
+          const foundExpenseType = expenseTypes.find(
+            (expenseType) => expenseType._id === expType
+          );
+          return (
+            <span
+              key={foundExpenseType?.name + "_expenseType"}
+              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+              style={{ backgroundColor: foundExpenseType?.backgroundColor }}
+            >
+              {foundExpenseType?.name}
+            </span>
+          );
+        });
+      },
     },
   ];
   const addButton = {
@@ -87,7 +125,6 @@ const Product = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountProduct as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,

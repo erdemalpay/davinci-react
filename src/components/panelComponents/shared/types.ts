@@ -61,7 +61,9 @@ export interface GenericInputType {
   placeholder?: string;
   folderName?: string;
   inputClassName?: string;
+  isMultiple?: boolean;
 }
+
 export interface FormKeyType {
   key: string;
   type: string;

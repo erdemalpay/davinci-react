@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { ActionMeta, SingleValue } from "react-select";
+import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { H6 } from "../Typography";
+
 import {
   FormKeyType,
   FormKeyTypeEnum,
@@ -30,6 +31,8 @@ type Props<T> = {
     updates: T;
   };
 };
+type OptionType = { value: string; label: string };
+
 type FormElementsState = {
   [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.
 };
@@ -203,20 +206,33 @@ const GenericAddEditPanel = <T,>({
                 const handleChange = (key: string) => (value: string) => {
                   setFormElements((prev) => ({ ...prev, [key]: value }));
                 };
+
                 const handleChangeForSelect =
                   (key: string) =>
                   (
-                    value: SingleValue<{ value: string; label: string }>,
-                    actionMeta: ActionMeta<{ value: string; label: string }>
+                    selectedValue:
+                      | SingleValue<OptionType>
+                      | MultiValue<OptionType>,
+                    actionMeta: ActionMeta<OptionType>
                   ) => {
                     if (
                       actionMeta.action === "select-option" ||
-                      actionMeta.action === "remove-value"
+                      actionMeta.action === "remove-value" ||
+                      actionMeta.action === "clear"
                     ) {
-                      setFormElements((prev) => ({
-                        ...prev,
-                        [key]: value ? value.value : "",
-                      }));
+                      if (Array.isArray(selectedValue)) {
+                        const values = selectedValue.map(
+                          (option) => option.value
+                        );
+                        setFormElements((prev) => ({ ...prev, [key]: values }));
+                      } else if (selectedValue) {
+                        setFormElements((prev) => ({
+                          ...prev,
+                          [key]: (selectedValue as OptionType)?.value,
+                        }));
+                      } else {
+                        setFormElements((prev) => ({ ...prev, [key]: "" }));
+                      }
                     }
                   };
 
@@ -242,18 +258,23 @@ const GenericAddEditPanel = <T,>({
                         key={input.formKey}
                         value={
                           isEditMode
-                            ? input.options?.find(
+                            ? // input.isMultiple
+                              //   ? formElements[input.formKey]?.map((key) =>
+                              //       input.options?.find(
+                              //         (option) => option.value === key
+                              //       )
+                              //     )
+                              //   :
+                              input.options?.find(
                                 (option) =>
                                   option.value === formElements[input.formKey]
                               )
-                            : input.options?.find(
-                                (option) =>
-                                  option.label === formElements[input.formKey]
-                              )
+                            : undefined
                         }
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
+                        isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
                       />
                     )}
