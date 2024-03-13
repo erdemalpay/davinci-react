@@ -34,6 +34,16 @@ const Invoice = (props: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [form, setForm] = useState<Partial<AccountInvoice>>({
+    date: "",
+    product: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    brand: "",
+    company: "",
+    documentNo: "",
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -73,18 +83,25 @@ const Invoice = (props: Props) => {
         };
       }),
       placeholder: "Product",
+      invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
       label: "Expense Type",
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
+      options: expenseTypes
+        .filter((exp) =>
+          products
+            .find((prod) => prod._id === form?.product)
+            ?.expenseType.includes(exp._id)
+        )
+        ?.map((expenseType) => {
+          return {
+            value: expenseType._id,
+            label: expenseType.name,
+          };
+        }),
       placeholder: "Expense Type",
       required: true,
     },
@@ -105,7 +122,10 @@ const Invoice = (props: Props) => {
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "product", type: FormKeyTypeEnum.STRING },
+    {
+      key: "product",
+      type: FormKeyTypeEnum.STRING,
+    },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
@@ -163,6 +183,7 @@ const Invoice = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
+        setForm={setForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
         }}
@@ -211,6 +232,7 @@ const Invoice = (props: Props) => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "

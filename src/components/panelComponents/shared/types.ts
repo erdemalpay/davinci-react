@@ -62,6 +62,10 @@ export interface GenericInputType {
   folderName?: string;
   inputClassName?: string;
   isMultiple?: boolean;
+  invalidateKeys?: {
+    key: string;
+    defaultValue: string | boolean | number;
+  }[];
 }
 
 export interface FormKeyType {

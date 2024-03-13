@@ -23,6 +23,7 @@ type Props<T> = {
   formKeys: FormKeyType[];
   topClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
+  setForm?: (item: T) => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
@@ -43,10 +44,13 @@ const GenericAddEditPanel = <T,>({
   inputs,
   formKeys,
   topClassName,
+
   constantValues,
   isEditMode = false,
   itemToEdit,
   folderName,
+  setForm,
+
   submitItem,
 }: Props<T>) => {
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -117,6 +121,7 @@ const GenericAddEditPanel = <T,>({
     }
   );
   useEffect(() => {
+    setForm && setForm(formElements as T);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
 
@@ -192,7 +197,9 @@ const GenericAddEditPanel = <T,>({
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, input)}
+                      onChange={(e) => {
+                        handleFileChange(e, input);
+                      }}
                       className="hidden"
                     />
                   </label>
@@ -204,6 +211,18 @@ const GenericAddEditPanel = <T,>({
               {nonImageInputs.map((input) => {
                 const value = formElements[input.formKey];
                 const handleChange = (key: string) => (value: string) => {
+                  const changedInput = inputs.find(
+                    (input) => input.formKey === key
+                  );
+                  if (changedInput?.invalidateKeys) {
+                    changedInput.invalidateKeys.forEach((key) => {
+                      console.log(key);
+                      setFormElements((prev) => ({
+                        ...prev,
+                        [key.key]: key.defaultValue,
+                      }));
+                    });
+                  }
                   setFormElements((prev) => ({ ...prev, [key]: value }));
                 };
 
@@ -234,6 +253,19 @@ const GenericAddEditPanel = <T,>({
                         setFormElements((prev) => ({ ...prev, [key]: "" }));
                       }
                     }
+                    const changedInput = inputs.find(
+                      (input) => input.formKey === key
+                    );
+                    if (changedInput?.invalidateKeys) {
+                      changedInput.invalidateKeys.forEach((key) => {
+                        console.log(key);
+                        console.log(formElements);
+                        setFormElements((prev) => ({
+                          ...prev,
+                          [key.key]: key.defaultValue,
+                        }));
+                      });
+                    }
                   };
 
                 return (
@@ -256,22 +288,15 @@ const GenericAddEditPanel = <T,>({
 
                     {input.type === InputTypes.SELECT && (
                       <SelectInput
-                        key={input.formKey}
-                        value={
-                          isEditMode
-                            ? // input.isMultiple
-                              //   ? formElements[input.formKey]?.map((key) =>
-                              //       input.options?.find(
-                              //         (option) => option.value === key
-                              //       )
-                              //     )
-                              //   :
-                              input.options?.find(
-                                (option) =>
-                                  option.value === formElements[input.formKey]
-                              )
-                            : undefined
+                        key={
+                          input.isMultiple
+                            ? input.formKey
+                            : input.formKey + formElements[input.formKey]
                         }
+                        value={input.options?.find(
+                          (option) =>
+                            option.value === formElements[input.formKey]
+                        )}
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
@@ -285,9 +310,9 @@ const GenericAddEditPanel = <T,>({
 
                         <textarea
                           value={value}
-                          onChange={(e) =>
-                            handleChange(input.formKey)(e.target.value)
-                          }
+                          onChange={(e) => {
+                            handleChange(input.formKey)(e.target.value);
+                          }}
                           placeholder={input.placeholder ?? ""}
                           className="border border-gray-300 rounded-md p-2"
                         />
