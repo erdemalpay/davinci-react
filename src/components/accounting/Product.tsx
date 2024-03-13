@@ -104,7 +104,7 @@ const Product = (props: Props) => {
           return (
             <span
               key={foundExpenseType?.name + "_expenseType"}
-              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
               {foundExpenseType?.name}

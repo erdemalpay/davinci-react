@@ -58,7 +58,7 @@ const ExpenseType = (props: Props) => {
 
       node: (row: AccountExpenseType) => (
         <div
-          className={` px-2 py-1 rounded-md  w-fit`}
+          className={` px-2 py-1 rounded-md  w-fit text-white`}
           style={{ backgroundColor: row.backgroundColor }}
         >
           {row.name}

@@ -119,6 +119,27 @@ const Invoice = (props: Props) => {
       placeholder: "Total Expense",
       required: true,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "brand",
+      label: "Brand",
+      placeholder: "Brand",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "company",
+      label: "Company",
+      placeholder: "Company",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "documentNo",
+      label: "Document No",
+      placeholder: "Document No",
+      required: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -127,6 +148,9 @@ const Invoice = (props: Props) => {
       type: FormKeyTypeEnum.STRING,
     },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "company", type: FormKeyTypeEnum.STRING },
+    { key: "documentNo", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -135,6 +159,9 @@ const Invoice = (props: Props) => {
     { key: "Product", isSortable: true },
     { key: "Unit", isSortable: true },
     { key: "Expense Type", isSortable: true },
+    { key: "Brand", isSortable: true },
+    { key: "Company", isSortable: true },
+    { key: "Document No", isSortable: true },
     { key: "Unit Price", isSortable: true },
     { key: "Date", isSortable: true },
     { key: "Quantity", isSortable: true },
@@ -154,6 +181,9 @@ const Invoice = (props: Props) => {
     {
       key: "expenseType",
     },
+    { key: "brand" },
+    { key: "company" },
+    { key: "documentNo" },
     {
       key: "unitPrice",
     },
@@ -250,6 +280,9 @@ const Invoice = (props: Props) => {
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
+              brand: rowToAction.brand,
+              company: rowToAction.company,
+              documentNo: rowToAction.documentNo,
             },
           }}
         />
