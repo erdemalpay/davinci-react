@@ -61,6 +61,7 @@ export interface GameplayGroupFilter {
   groupBy: string;
   startDate?: string;
   endDate?: string;
+  location?: string;
 }
 
 export function createGameplay({
@@ -187,7 +188,7 @@ export function useGetGameplays(filter: GameplayFilter) {
 }
 
 export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
-  const { startDate, endDate, groupBy } = filter;
+  const { startDate, endDate, groupBy, location } = filter;
   let query = `${BASE_URL_GAMEPLAYS}/query-group?groupBy=${groupBy}`;
   if (startDate) {
     query += `&startDate=${startDate}`;
@@ -195,12 +196,16 @@ export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
   if (endDate) {
     query += `&endDate=${endDate}`;
   }
+  if (location) {
+    query += `&location=${location}`;
+  }
   const queryKey = [
     BASE_URL_GAMEPLAYS,
     "query-group",
     groupBy,
     startDate,
     endDate,
+    location,
   ];
 
   const { isLoading, error, data, isFetching } = useQuery(

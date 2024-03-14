@@ -9,6 +9,7 @@ interface AutocompleteProps<T> extends InputWithLabelProps {
   initialValue?: T;
   handleSelection: (item: T) => void;
   showSelected?: boolean;
+  handleReset?: () => void;
 }
 
 export function Autocomplete<T>({
@@ -16,6 +17,7 @@ export function Autocomplete<T>({
   label,
   handleSelection,
   initialValue,
+  handleReset,
   showSelected = false,
 }: AutocompleteProps<TagType<T>>) {
   const [selected, setSelected] = useState<TagType<T>>();
@@ -54,8 +56,9 @@ export function Autocomplete<T>({
                   target: { value: SetStateAction<string> };
                 }) => {
                   setQuery(event.target.value);
-                  // We are unsetting selected on input change othwerwise it keeps showing
-                  // selected value all the time ie. we cannot delete query
+                  if (event.target.value === "" && handleReset) {
+                    handleReset();
+                  }
                   setSelected(undefined);
                 }}
               >

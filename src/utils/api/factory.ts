@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { UpdatePayload, get, patch, post, remove } from ".";
 
 export const Paths = {
@@ -133,7 +134,7 @@ export function useMutationApi<T extends { _id: number | string }>({
         return { previousItems };
       },
       // If the mutation fails, use the context returned from onMutate to roll back
-      onError: (_err, _newTable, context) => {
+      onError: (_err: any, _newTable, context) => {
         const previousItemContext = context as {
           previousItems: T[];
         };
@@ -141,6 +142,7 @@ export function useMutationApi<T extends { _id: number | string }>({
           const { previousItems } = previousItemContext;
           queryClient.setQueryData<T[]>(queryKey, previousItems);
         }
+        setTimeout(() => toast.error("This item cannot be deleted"), 200);
       },
       // Always refetch after error or success:
       onSettled: async () => {

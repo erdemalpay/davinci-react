@@ -73,6 +73,7 @@ export type AccountProduct = {
   _id: number;
   name: string;
   unit: number | AccountUnit | string;
+  expenseType: number[];
 };
 
 export type AccountUnit = {
@@ -82,6 +83,7 @@ export type AccountUnit = {
 export type AccountExpenseType = {
   _id: number;
   name: string;
+  backgroundColor: string;
 };
 export type AccountInvoice = {
   _id: number;
@@ -90,6 +92,9 @@ export type AccountInvoice = {
   quantity: number;
   totalExpense: number;
   date: string;
+  brand?: string;
+  company?: string;
+  documentNo?: string;
 };
 export type Visit = {
   _id: number;

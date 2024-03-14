@@ -61,7 +61,13 @@ export interface GenericInputType {
   placeholder?: string;
   folderName?: string;
   inputClassName?: string;
+  isMultiple?: boolean;
+  invalidateKeys?: {
+    key: string;
+    defaultValue: string | boolean | number;
+  }[];
 }
+
 export interface FormKeyType {
   key: string;
   type: string;
@@ -76,10 +82,12 @@ export enum InputTypes {
   IMAGE = "image",
   PASSWORD = "password",
   TIME = "time",
+  COLOR = "color",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",
   NUMBER = "number",
+  COLOR = "color",
   DATE = "date",
   BOOLEAN = "boolean",
 }

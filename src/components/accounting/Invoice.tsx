@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-
 import {
   AccountExpenseType,
   AccountInvoice,
@@ -20,6 +19,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
@@ -34,6 +34,16 @@ const Invoice = (props: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [form, setForm] = useState<Partial<AccountInvoice>>({
+    date: "",
+    product: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    brand: "",
+    company: "",
+    documentNo: "",
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -45,12 +55,13 @@ const Invoice = (props: Props) => {
       return {
         ...row,
         product: (row.product as AccountProduct)?.name,
-        expenseType: (row.expenseType as AccountExpenseType)?.name,
+        expenseType: (row.expenseType as AccountExpenseType).name,
         unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
         unit: units.find(
           (unit) =>
             unit._id === ((row.product as AccountProduct).unit as number)
         )?.name,
+        expType: row.expenseType as AccountExpenseType,
       };
     })
   );
@@ -73,18 +84,25 @@ const Invoice = (props: Props) => {
         };
       }),
       placeholder: "Product",
+      invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
       label: "Expense Type",
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
+      options: expenseTypes
+        .filter((exp) =>
+          products
+            .find((prod) => prod._id === form?.product)
+            ?.expenseType.includes(exp._id)
+        )
+        ?.map((expenseType) => {
+          return {
+            value: expenseType._id,
+            label: expenseType.name,
+          };
+        }),
       placeholder: "Expense Type",
       required: true,
     },
@@ -102,40 +120,57 @@ const Invoice = (props: Props) => {
       placeholder: "Total Expense",
       required: true,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "brand",
+      label: "Brand",
+      placeholder: "Brand",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "company",
+      label: "Company",
+      placeholder: "Company",
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "documentNo",
+      label: "Document No",
+      placeholder: "Document No",
+      required: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "product", type: FormKeyTypeEnum.STRING },
+    {
+      key: "product",
+      type: FormKeyTypeEnum.STRING,
+    },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "company", type: FormKeyTypeEnum.STRING },
+    { key: "documentNo", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "ID", isSortable: true },
-    { key: "Product", isSortable: true },
-    { key: "Unit", isSortable: true },
-    { key: "Expense Type", isSortable: true },
-    { key: "Unit Price", isSortable: true },
     { key: "Date", isSortable: true },
+    { key: "Document No", isSortable: true },
+    { key: "Brand", isSortable: true },
+    { key: "Company", isSortable: true },
+    { key: "Expense Type", isSortable: true },
+    { key: "Product", isSortable: true },
     { key: "Quantity", isSortable: true },
+    { key: "Unit", isSortable: true },
+    { key: "Unit Price", isSortable: true },
     { key: "Total Expense", isSortable: true },
   ];
   const rowKeys = [
     {
       key: "_id",
-    },
-    {
-      key: "product",
-      className: "min-w-32",
-    },
-    {
-      key: "unit",
-    },
-    {
-      key: "expenseType",
-    },
-    {
-      key: "unitPrice",
     },
     {
       key: "date",
@@ -144,16 +179,51 @@ const Invoice = (props: Props) => {
         return formatAsLocalDate(row.date);
       },
     },
+    { key: "documentNo" },
+    { key: "brand" },
+    { key: "company" },
+    {
+      key: "expenseType",
+      node: (row: any) => {
+        return (
+          <p
+            className="w-fit rounded-md px-2 py-1 text-white"
+            style={{
+              backgroundColor: row.expType.backgroundColor,
+            }}
+          >
+            {(row.expType as AccountExpenseType).name}
+          </p>
+        );
+      },
+    },
+    {
+      key: "product",
+      className: "min-w-32",
+    },
     {
       key: "quantity",
     },
     {
+      key: "unit",
+    },
+    {
+      key: "unitPrice",
+      node: (row: any) => {
+        return <P1>{row.unitPrice} ₺</P1>;
+      },
+    },
+    {
       key: "totalExpense",
+      node: (row: any) => {
+        return <P1>{row.totalExpense} ₺</P1>;
+      },
     },
   ];
   const addButton = {
     name: `Add Invoice`,
     isModal: true,
+
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
@@ -162,7 +232,10 @@ const Invoice = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ date: format(new Date(), "yyyy-MM-dd") }}
+        setForm={setForm}
+        constantValues={{
+          date: format(new Date(), "yyyy-MM-dd"),
+        }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -208,6 +281,7 @@ const Invoice = (props: Props) => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
@@ -221,10 +295,13 @@ const Invoice = (props: Props) => {
               )?._id,
               expenseType: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.expenseType as AccountProduct
+                  ?.expenseType as AccountExpenseType
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
+              brand: rowToAction.brand,
+              company: rowToAction.company,
+              documentNo: rowToAction.documentNo,
             },
           }}
         />
@@ -264,12 +341,13 @@ const Invoice = (props: Props) => {
         return {
           ...row,
           product: (row.product as AccountProduct)?.name,
-          expenseType: (row.expenseType as AccountExpenseType)?.name,
+          expenseType: (row.expenseType as AccountExpenseType).name,
           unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
           unit: units.find(
             (unit) =>
               unit._id === ((row.product as AccountProduct).unit as number)
           )?.name,
+          expType: row.expenseType as AccountExpenseType,
         };
       })
     );

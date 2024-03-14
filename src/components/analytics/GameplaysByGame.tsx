@@ -4,7 +4,6 @@ import { Game } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
   GameplayGroupFilter,
-  useGetGamePlaysGroupByLocation,
   useGetGameplaysGroups,
 } from "../../utils/api/gameplay";
 import { useGetAllUsers } from "../../utils/api/user";
@@ -32,15 +31,14 @@ export default function GameplaysByGames() {
   const [gameplayGroupRows, setGameplayGroupRows] = useState<
     GameplayGroupRow[]
   >([]);
-  const [locationFilter, setLocationFilter] = useState<number>(0);
   const [filterData, setFilterData] = useState<GameplayGroupFilter>({
     groupBy: "game,mentor",
+    location: "0",
   });
 
   const [gameFilter, setGameFilter] = useState<Game | null>();
 
   const { data } = useGetGameplaysGroups(filterData);
-  const gameplaysWithLocation = useGetGamePlaysGroupByLocation().data;
   const games = useGetGames();
   const users = useGetAllUsers();
 
@@ -61,37 +59,22 @@ export default function GameplaysByGames() {
   useEffect(() => {
     if (data) {
       setGameplayGroupRows(() => {
-        const formattedData =
-          locationFilter === 0
-            ? data
-                .map(({ secondary, total, _id }) => ({
-                  game:
-                    games.find((game) => String(game._id) === String(_id))
-                      ?.name || `${_id}`,
-                  total,
-                  secondary,
-                  open: false,
-                }))
-                .filter((row) => row.game === gameFilter?.name || !gameFilter)
-            : gameplaysWithLocation
-            ? gameplaysWithLocation
-                .filter((row) => row.location === locationFilter)
-                .map(({ secondary, total, _id }) => ({
-                  game:
-                    games.find((game) => String(game._id) === String(_id))
-                      ?.name || `${_id}`,
-                  total,
-                  secondary,
-                  open: false,
-                }))
-                .filter((row) => row.game === gameFilter?.name || !gameFilter)
-            : [];
+        const formattedData = data
+          .map(({ secondary, total, _id }) => ({
+            game:
+              games.find((game) => String(game._id) === String(_id))?.name ||
+              `${_id}`,
+            total,
+            secondary,
+            open: false,
+          }))
+          .filter((row) => row.game === gameFilter?.name || !gameFilter);
 
         formattedData.sort((a, b) => Number(b.total) - Number(a.total));
         return formattedData;
       });
     }
-  }, [data, games, filterData, gameFilter, locationFilter]);
+  }, [data, games, filterData, gameFilter]);
 
   const columns = [
     {
@@ -200,11 +183,14 @@ export default function GameplaysByGames() {
                 options={locationOptions}
                 value={
                   locationOptions.find(
-                    (option) => option.value === locationFilter.toString()
-                  ) || null
+                    (option) => option.value === filterData?.location
+                  ) || { value: "0", label: "All" }
                 }
                 onChange={(selectedOption) => {
-                  setLocationFilter(Number(selectedOption?.value || "0"));
+                  setFilterData({
+                    ...filterData,
+                    location: selectedOption?.value,
+                  });
                 }}
                 placeholder="Select a location"
               />

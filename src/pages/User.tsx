@@ -43,7 +43,7 @@ export default function UserView() {
     },
     {
       number: 2,
-      label: "Known Games",
+      label: `Known Games (${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && (
         <div className="px-4 w-full">
