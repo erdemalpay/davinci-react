@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
@@ -7,6 +8,7 @@ import GameplaysByGames from "../components/analytics/GameplaysByGame";
 import GameplaysByMentor from "../components/analytics/GameplaysByMentor";
 import KnownGamesCount from "../components/analytics/KnownGamesCount";
 import { MentorAnalyticChart } from "../components/analytics/MentorAnalyticChart";
+import WhoKnows from "../components/analytics/WhoKnows";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { DateFilter } from "../utils/dateUtil";
@@ -80,6 +82,13 @@ export default function Analytics() {
       label: "Known Games Count",
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
+      isDisabled: false,
+    },
+    {
+      number: 5,
+      label: "Who Knows?",
+      icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
+      content: <WhoKnows />,
       isDisabled: false,
     },
   ];
