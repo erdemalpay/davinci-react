@@ -71,7 +71,6 @@ export default function GameplaysByMentor() {
         const nonNullFormattedData: GameplayGroupRow[] =
           formattedData as GameplayGroupRow[];
         nonNullFormattedData.sort((a, b) => b.total - a.total);
-        console.log(nonNullFormattedData.length);
         return nonNullFormattedData;
       });
     }
