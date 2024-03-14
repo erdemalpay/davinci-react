@@ -167,11 +167,16 @@ export default function GameplaysByMentor() {
                 <Autocomplete
                   name="mentor"
                   label="Mentor"
-                  suggestions={users}
+                  suggestions={
+                    showInactiveUsers
+                      ? users
+                      : users.filter((user) => user.active)
+                  }
                   handleSelection={handleMentorSelection}
                   showSelected
                 />
               </div>
+              {/* show inactive users filter */}
               <div className="ml-auto mt-4 flex flex-row gap-2 justify-between items-center">
                 <p>Show Inactive Users</p>
                 <Switch
