@@ -1,3 +1,4 @@
+import { Switch } from "@headlessui/react";
 import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { User } from "../../types";
@@ -8,7 +9,6 @@ import {
 } from "../../utils/api/gameplay";
 import { useGetAllUsers } from "../../utils/api/user";
 import { Autocomplete } from "../common/Autocomplete";
-
 export interface SecondGroupRow {
   field: string;
   count: number;
@@ -28,6 +28,7 @@ export default function GameplaysByMentor() {
   const [filterData, setFilterData] = useState<GameplayGroupFilter>({
     groupBy: "mentor,game",
   });
+  const [showInactiveUsers, setShowInactiveUsers] = useState(false);
 
   const [mentorFilter, setMentorFilter] = useState<User | null>();
 
@@ -53,19 +54,27 @@ export default function GameplaysByMentor() {
     if (data) {
       setGameplayGroupRows(() => {
         const formattedData = data
-          .map(({ secondary, total, _id }) => ({
-            mentor: users.find((u) => u._id === _id)?.name || `${_id}`,
-            total,
-            secondary,
-            open: false,
-          }))
-          .filter((row) => row.mentor === mentorFilter?.name || !mentorFilter);
-
-        formattedData.sort((a, b) => Number(b.total) - Number(a.total));
-        return formattedData;
+          .map(({ secondary, total, _id }) => {
+            const user = users.find((u) => u._id === _id);
+            if (!showInactiveUsers && user && !user.active) {
+              return null;
+            }
+            return {
+              mentor: user?.name || `${_id}`,
+              total,
+              secondary,
+              open: false,
+            };
+          })
+          .filter((row) => row !== null)
+          .filter((row) => !mentorFilter || row?.mentor === mentorFilter.name);
+        const nonNullFormattedData: GameplayGroupRow[] =
+          formattedData as GameplayGroupRow[];
+        nonNullFormattedData.sort((a, b) => b.total - a.total);
+        return nonNullFormattedData;
       });
     }
-  }, [data, games, filterData, mentorFilter]);
+  }, [data, users, mentorFilter, showInactiveUsers]);
 
   const columns = [
     {
@@ -157,10 +166,34 @@ export default function GameplaysByMentor() {
                 <Autocomplete
                   name="mentor"
                   label="Mentor"
-                  suggestions={users}
+                  suggestions={
+                    showInactiveUsers
+                      ? users
+                      : users.filter((user) => user.active)
+                  }
                   handleSelection={handleMentorSelection}
                   showSelected
                 />
+              </div>
+              {/* show inactive users filter */}
+              <div className="ml-auto mt-4 flex flex-row gap-2 justify-between items-center">
+                <p>Show Inactive Users</p>
+                <Switch
+                  checked={showInactiveUsers}
+                  onChange={() => setShowInactiveUsers((value) => !value)}
+                  className={`${
+                    showInactiveUsers ? "bg-green-500" : "bg-red-500"
+                  }
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`${
+                      showInactiveUsers ? "translate-x-4" : "translate-x-0"
+                    }
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+                  />
+                </Switch>
               </div>
             </div>
           </div>
