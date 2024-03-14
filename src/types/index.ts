@@ -85,6 +85,15 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
+export type AccountBrand = {
+  _id: number;
+  name: string;
+};
+export type AccountVendor = {
+  _id: number;
+  name: string;
+};
+
 export type AccountInvoice = {
   _id: number;
   product: number | AccountProduct | string;
