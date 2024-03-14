@@ -74,6 +74,8 @@ export type AccountProduct = {
   name: string;
   unit: number | AccountUnit | string;
   expenseType: number[];
+  vendor?: number[];
+  brand?: number[];
 };
 
 export type AccountUnit = {
@@ -85,6 +87,15 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
+export type AccountBrand = {
+  _id: number;
+  name: string;
+};
+export type AccountVendor = {
+  _id: number;
+  name: string;
+};
+
 export type AccountInvoice = {
   _id: number;
   product: number | AccountProduct | string;
@@ -92,8 +103,8 @@ export type AccountInvoice = {
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: string;
-  company?: string;
+  brand?: AccountBrand | number | string;
+  vendor?: AccountVendor | number | string;
   documentNo?: string;
 };
 export type Visit = {
