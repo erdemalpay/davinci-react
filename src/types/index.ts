@@ -103,8 +103,8 @@ export type AccountInvoice = {
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: string;
-  company?: string;
+  brand?: AccountBrand | number | string;
+  vendor?: AccountVendor | number | string;
   documentNo?: string;
 };
 export type Visit = {
