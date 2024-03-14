@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { ActionMeta, SingleValue } from "react-select";
+import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { H6 } from "../Typography";
+
 import {
   FormKeyType,
   FormKeyTypeEnum,
@@ -22,6 +23,7 @@ type Props<T> = {
   formKeys: FormKeyType[];
   topClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
+  setForm?: (item: T) => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
@@ -30,6 +32,8 @@ type Props<T> = {
     updates: T;
   };
 };
+type OptionType = { value: string; label: string };
+
 type FormElementsState = {
   [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.
 };
@@ -40,10 +44,13 @@ const GenericAddEditPanel = <T,>({
   inputs,
   formKeys,
   topClassName,
+
   constantValues,
   isEditMode = false,
   itemToEdit,
   folderName,
+  setForm,
+
   submitItem,
 }: Props<T>) => {
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -114,6 +121,7 @@ const GenericAddEditPanel = <T,>({
     }
   );
   useEffect(() => {
+    setForm && setForm(formElements as T);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
 
@@ -159,7 +167,7 @@ const GenericAddEditPanel = <T,>({
         !isOpen && "hidden"
       }`}
     >
-      <div className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 overflow-visible">
+      <div className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 overflow-visible overflow-scroll">
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`${
@@ -189,7 +197,9 @@ const GenericAddEditPanel = <T,>({
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, input)}
+                      onChange={(e) => {
+                        handleFileChange(e, input);
+                      }}
                       className="hidden"
                     />
                   </label>
@@ -201,22 +211,60 @@ const GenericAddEditPanel = <T,>({
               {nonImageInputs.map((input) => {
                 const value = formElements[input.formKey];
                 const handleChange = (key: string) => (value: string) => {
+                  const changedInput = inputs.find(
+                    (input) => input.formKey === key
+                  );
+                  if (changedInput?.invalidateKeys) {
+                    changedInput.invalidateKeys.forEach((key) => {
+                      console.log(key);
+                      setFormElements((prev) => ({
+                        ...prev,
+                        [key.key]: key.defaultValue,
+                      }));
+                    });
+                  }
                   setFormElements((prev) => ({ ...prev, [key]: value }));
                 };
+
                 const handleChangeForSelect =
                   (key: string) =>
                   (
-                    value: SingleValue<{ value: string; label: string }>,
-                    actionMeta: ActionMeta<{ value: string; label: string }>
+                    selectedValue:
+                      | SingleValue<OptionType>
+                      | MultiValue<OptionType>,
+                    actionMeta: ActionMeta<OptionType>
                   ) => {
                     if (
                       actionMeta.action === "select-option" ||
-                      actionMeta.action === "remove-value"
+                      actionMeta.action === "remove-value" ||
+                      actionMeta.action === "clear"
                     ) {
-                      setFormElements((prev) => ({
-                        ...prev,
-                        [key]: value ? value.value : "",
-                      }));
+                      if (Array.isArray(selectedValue)) {
+                        const values = selectedValue.map(
+                          (option) => option.value
+                        );
+                        setFormElements((prev) => ({ ...prev, [key]: values }));
+                      } else if (selectedValue) {
+                        setFormElements((prev) => ({
+                          ...prev,
+                          [key]: (selectedValue as OptionType)?.value,
+                        }));
+                      } else {
+                        setFormElements((prev) => ({ ...prev, [key]: "" }));
+                      }
+                    }
+                    const changedInput = inputs.find(
+                      (input) => input.formKey === key
+                    );
+                    if (changedInput?.invalidateKeys) {
+                      changedInput.invalidateKeys.forEach((key) => {
+                        console.log(key);
+                        console.log(formElements);
+                        setFormElements((prev) => ({
+                          ...prev,
+                          [key.key]: key.defaultValue,
+                        }));
+                      });
                     }
                   };
 
@@ -226,6 +274,7 @@ const GenericAddEditPanel = <T,>({
                       input.type === InputTypes.NUMBER ||
                       input.type === InputTypes.DATE ||
                       input.type === InputTypes.TIME ||
+                      input.type === InputTypes.COLOR ||
                       input.type === InputTypes.PASSWORD) && (
                       <TextInput
                         key={input.formKey}
@@ -239,21 +288,19 @@ const GenericAddEditPanel = <T,>({
 
                     {input.type === InputTypes.SELECT && (
                       <SelectInput
-                        key={input.formKey}
-                        value={
-                          isEditMode
-                            ? input.options?.find(
-                                (option) =>
-                                  option.value === formElements[input.formKey]
-                              )
-                            : input.options?.find(
-                                (option) =>
-                                  option.label === formElements[input.formKey]
-                              )
+                        key={
+                          input.isMultiple
+                            ? input.formKey
+                            : input.formKey + formElements[input.formKey]
                         }
+                        value={input.options?.find(
+                          (option) =>
+                            option.value === formElements[input.formKey]
+                        )}
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
+                        isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
                       />
                     )}
@@ -263,9 +310,9 @@ const GenericAddEditPanel = <T,>({
 
                         <textarea
                           value={value}
-                          onChange={(e) =>
-                            handleChange(input.formKey)(e.target.value)
-                          }
+                          onChange={(e) => {
+                            handleChange(input.formKey)(e.target.value);
+                          }}
                           placeholder={input.placeholder ?? ""}
                           className="border border-gray-300 rounded-md p-2"
                         />

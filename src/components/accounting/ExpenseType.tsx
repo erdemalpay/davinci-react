@@ -21,8 +21,18 @@ const inputs = [
     placeholder: "Name",
     required: true,
   },
+  {
+    type: InputTypes.COLOR,
+    formKey: "backgroundColor",
+    label: "Background Color",
+    placeholder: "Background Color",
+    required: true,
+  },
 ];
-const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+const formKeys = [
+  { key: "name", type: FormKeyTypeEnum.STRING },
+  { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+];
 const ExpenseType = (props: Props) => {
   const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
@@ -45,7 +55,15 @@ const ExpenseType = (props: Props) => {
   const rowKeys = [
     {
       key: "name",
-      className: "min-w-32 pr-1",
+
+      node: (row: AccountExpenseType) => (
+        <div
+          className={` px-2 py-1 rounded-md  w-fit text-white`}
+          style={{ backgroundColor: row.backgroundColor }}
+        >
+          {row.name}
+        </div>
+      ),
     },
   ];
   const addButton = {
