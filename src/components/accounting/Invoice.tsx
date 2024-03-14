@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-
 import {
   AccountExpenseType,
   AccountInvoice,
@@ -55,12 +54,13 @@ const Invoice = (props: Props) => {
       return {
         ...row,
         product: (row.product as AccountProduct)?.name,
-        expenseType: (row.expenseType as AccountExpenseType)?.name,
+        expenseType: (row.expenseType as AccountExpenseType).name,
         unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
         unit: units.find(
           (unit) =>
             unit._id === ((row.product as AccountProduct).unit as number)
         )?.name,
+        expType: row.expenseType as AccountExpenseType,
       };
     })
   );
@@ -157,14 +157,14 @@ const Invoice = (props: Props) => {
   const columns = [
     { key: "ID", isSortable: true },
     { key: "Product", isSortable: true },
-    { key: "Unit", isSortable: true },
     { key: "Expense Type", isSortable: true },
     { key: "Brand", isSortable: true },
     { key: "Company", isSortable: true },
     { key: "Document No", isSortable: true },
-    { key: "Unit Price", isSortable: true },
     { key: "Date", isSortable: true },
     { key: "Quantity", isSortable: true },
+    { key: "Unit", isSortable: true },
+    { key: "Unit Price", isSortable: true },
     { key: "Total Expense", isSortable: true },
   ];
   const rowKeys = [
@@ -175,18 +175,26 @@ const Invoice = (props: Props) => {
       key: "product",
       className: "min-w-32",
     },
-    {
-      key: "unit",
-    },
+
     {
       key: "expenseType",
+      node: (row: any) => {
+        return (
+          <p
+            className="w-fit rounded-md px-2 py-1 text-white"
+            style={{
+              backgroundColor: row.expType.backgroundColor,
+            }}
+          >
+            {(row.expType as AccountExpenseType).name}
+          </p>
+        );
+      },
     },
     { key: "brand" },
     { key: "company" },
     { key: "documentNo" },
-    {
-      key: "unitPrice",
-    },
+
     {
       key: "date",
       className: "min-w-32",
@@ -196,6 +204,12 @@ const Invoice = (props: Props) => {
     },
     {
       key: "quantity",
+    },
+    {
+      key: "unit",
+    },
+    {
+      key: "unitPrice",
     },
     {
       key: "totalExpense",
@@ -322,12 +336,13 @@ const Invoice = (props: Props) => {
         return {
           ...row,
           product: (row.product as AccountProduct)?.name,
-          expenseType: (row.expenseType as AccountExpenseType)?.name,
+          expenseType: (row.expenseType as AccountExpenseType).name,
           unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
           unit: units.find(
             (unit) =>
               unit._id === ((row.product as AccountProduct).unit as number)
           )?.name,
+          expType: row.expenseType as AccountExpenseType,
         };
       })
     );
