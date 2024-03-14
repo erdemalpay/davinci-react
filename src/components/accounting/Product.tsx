@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountProduct, AccountUnit } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -20,6 +22,8 @@ const Product = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
+  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
@@ -56,7 +60,7 @@ const Product = (props: Props) => {
         };
       }),
       placeholder: "Unit",
-      required: false,
+      required: true,
     },
     {
       type: InputTypes.SELECT,
@@ -70,6 +74,34 @@ const Product = (props: Props) => {
       }),
       placeholder: "Expense Type",
       isMultiple: true,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "brand",
+      label: "Brand",
+      options: brands.map((brand) => {
+        return {
+          value: brand._id,
+          label: brand.name,
+        };
+      }),
+      placeholder: "Brand",
+      isMultiple: true,
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "vendor",
+      label: "Vendor",
+      options: vendors.map((vendor) => {
+        return {
+          value: vendor._id,
+          label: vendor.name,
+        };
+      }),
+      placeholder: "Vendor",
+      isMultiple: true,
       required: false,
     },
   ];
@@ -77,11 +109,15 @@ const Product = (props: Props) => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
     { key: "Name", isSortable: true },
     { key: "Unit", isSortable: true },
     { key: "Expense Type", isSortable: true },
+    { key: "Brand", isSortable: true },
+    { key: "Vendor", isSortable: true },
     { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
@@ -111,6 +147,46 @@ const Product = (props: Props) => {
             </span>
           );
         });
+      },
+    },
+    {
+      key: "brand",
+      className: "min-w-32",
+      node: (row: AccountProduct) => {
+        if (row.brand) {
+          return row?.brand?.map((brand: number) => {
+            const foundBrand = brands.find((br) => br._id === brand);
+            if (!foundBrand) return <>-</>;
+            return (
+              <span
+                key={foundBrand.name + foundBrand._id}
+                className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+              >
+                {foundBrand?.name}
+              </span>
+            );
+          });
+        }
+      },
+    },
+    {
+      key: "vendor",
+      className: "min-w-32",
+      node: (row: AccountProduct) => {
+        if (row.vendor) {
+          return row?.vendor?.map((vendor: number) => {
+            const foundVendor = vendors.find((vn) => vn._id === vendor);
+            if (!foundVendor) return <>-</>;
+            return (
+              <span
+                key={foundVendor.name + foundVendor._id}
+                className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+              >
+                {foundVendor?.name}
+              </span>
+            );
+          });
+        }
       },
     },
   ];
