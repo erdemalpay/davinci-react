@@ -19,6 +19,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
@@ -156,12 +157,12 @@ const Invoice = (props: Props) => {
   ];
   const columns = [
     { key: "ID", isSortable: true },
-    { key: "Product", isSortable: true },
-    { key: "Expense Type", isSortable: true },
+    { key: "Date", isSortable: true },
+    { key: "Document No", isSortable: true },
     { key: "Brand", isSortable: true },
     { key: "Company", isSortable: true },
-    { key: "Document No", isSortable: true },
-    { key: "Date", isSortable: true },
+    { key: "Expense Type", isSortable: true },
+    { key: "Product", isSortable: true },
     { key: "Quantity", isSortable: true },
     { key: "Unit", isSortable: true },
     { key: "Unit Price", isSortable: true },
@@ -172,10 +173,15 @@ const Invoice = (props: Props) => {
       key: "_id",
     },
     {
-      key: "product",
+      key: "date",
       className: "min-w-32",
+      node: (row: AccountInvoice) => {
+        return formatAsLocalDate(row.date);
+      },
     },
-
+    { key: "documentNo" },
+    { key: "brand" },
+    { key: "company" },
     {
       key: "expenseType",
       node: (row: any) => {
@@ -191,16 +197,9 @@ const Invoice = (props: Props) => {
         );
       },
     },
-    { key: "brand" },
-    { key: "company" },
-    { key: "documentNo" },
-
     {
-      key: "date",
+      key: "product",
       className: "min-w-32",
-      node: (row: AccountInvoice) => {
-        return formatAsLocalDate(row.date);
-      },
     },
     {
       key: "quantity",
@@ -210,9 +209,15 @@ const Invoice = (props: Props) => {
     },
     {
       key: "unitPrice",
+      node: (row: any) => {
+        return <P1>{row.unitPrice} ₺</P1>;
+      },
     },
     {
       key: "totalExpense",
+      node: (row: any) => {
+        return <P1>{row.totalExpense} ₺</P1>;
+      },
     },
   ];
   const addButton = {
