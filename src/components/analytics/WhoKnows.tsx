@@ -1,3 +1,4 @@
+import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useGetGames } from "../../utils/api/game";
 import { useGetAllUsers } from "../../utils/api/user";
@@ -15,10 +16,15 @@ const WhoKnows = ({}: Props) => {
   const [tableKey, setTableKey] = useState(1);
   const [rows, setRows] = useState<WhoKnowsUser[]>([]);
   const [search, setSearch] = useState(0);
+  const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+
   const columns = [{ key: "Mentor", isSortable: true }];
   useEffect(() => {
-    const processedUsers = search
+    const usersActive = showInactiveUsers
       ? users
+      : users.filter((user) => user.active);
+    const processedUsers = search
+      ? usersActive
           .filter(
             (user) => user.userGames.filter((g) => g.game === search).length > 0
           )
@@ -26,7 +32,7 @@ const WhoKnows = ({}: Props) => {
             mentor: user.name,
             gameCount: user.userGames.length,
           }))
-      : users
+      : usersActive
           .filter((user) => user.userGames.length > 0)
           .sort((a, b) => b.userGames.length - a.userGames.length)
           .map((user) => ({
@@ -36,8 +42,27 @@ const WhoKnows = ({}: Props) => {
 
     setRows(processedUsers);
     setTableKey((prev) => prev + 1);
-  }, [users, search]);
-
+  }, [users, search, showInactiveUsers]);
+  const filters = [
+    {
+      label: "Show Inactive Users",
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={showInactiveUsers}
+          onChange={() => setShowInactiveUsers((value) => !value)}
+          className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${showInactiveUsers ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
   const rowKeys = [{ key: "mentor", className: "min-w-32 pr-1" }];
 
   return (
@@ -58,6 +83,7 @@ const WhoKnows = ({}: Props) => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          filters={filters}
           title="Who Knows?"
           isSearch={false}
         />
