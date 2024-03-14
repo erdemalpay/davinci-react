@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
+  AccountBrand,
   AccountExpenseType,
   AccountInvoice,
   AccountProduct,
+  AccountVendor,
 } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountInvoiceMutations,
@@ -15,6 +18,7 @@ import {
 } from "../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -28,6 +32,8 @@ const Invoice = (props: Props) => {
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
+  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -41,7 +47,7 @@ const Invoice = (props: Props) => {
     quantity: 0,
     totalExpense: 0,
     brand: "",
-    company: "",
+    vendor: "",
     documentNo: "",
   });
   const [
@@ -51,17 +57,23 @@ const Invoice = (props: Props) => {
   const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
     useAccountInvoiceMutations();
   const [rows, setRows] = useState(
-    invoices.map((row) => {
+    invoices.map((invoice) => {
       return {
-        ...row,
-        product: (row.product as AccountProduct)?.name,
-        expenseType: (row.expenseType as AccountExpenseType).name,
-        unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
+        ...invoice,
+        product: (invoice.product as AccountProduct)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        brand: (invoice.brand as AccountBrand)?.name,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        unitPrice: parseFloat(
+          (invoice.totalExpense / invoice.quantity).toFixed(1)
+        ),
         unit: units.find(
           (unit) =>
-            unit._id === ((row.product as AccountProduct).unit as number)
+            unit._id === ((invoice.product as AccountProduct).unit as number)
         )?.name,
-        expType: row.expenseType as AccountExpenseType,
+        expType: invoice.expenseType as AccountExpenseType,
+        brnd: invoice.brand as AccountBrand,
+        vndr: invoice.vendor as AccountVendor,
       };
     })
   );
@@ -121,25 +133,49 @@ const Invoice = (props: Props) => {
       required: true,
     },
     {
-      type: InputTypes.TEXT,
+      type: InputTypes.SELECT,
       formKey: "brand",
       label: "Brand",
+      options: brands
+        ?.filter((brnd) =>
+          products
+            .find((prod) => prod._id === form?.product)
+            ?.brand?.includes(brnd._id)
+        )
+        ?.map((brand) => {
+          return {
+            value: brand._id,
+            label: brand.name,
+          };
+        }),
       placeholder: "Brand",
-      required: true,
+      required: false,
     },
     {
-      type: InputTypes.TEXT,
-      formKey: "company",
-      label: "Company",
-      placeholder: "Company",
-      required: true,
+      type: InputTypes.SELECT,
+      formKey: "vendor",
+      label: "Vendor",
+      options: vendors
+        ?.filter((vndr) =>
+          products
+            .find((prod) => prod._id === form?.product)
+            ?.vendor?.includes(vndr._id)
+        )
+        ?.map((vendor) => {
+          return {
+            value: vendor._id,
+            label: vendor.name,
+          };
+        }),
+      placeholder: "Vendor",
+      required: false,
     },
     {
       type: InputTypes.TEXT,
       formKey: "documentNo",
       label: "Document No",
       placeholder: "Document No",
-      required: true,
+      required: false,
     },
   ];
   const formKeys = [
@@ -150,7 +186,7 @@ const Invoice = (props: Props) => {
     },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
-    { key: "company", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "documentNo", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
@@ -160,7 +196,7 @@ const Invoice = (props: Props) => {
     { key: "Date", isSortable: true },
     { key: "Document No", isSortable: true },
     { key: "Brand", isSortable: true },
-    { key: "Company", isSortable: true },
+    { key: "Vendor", isSortable: true },
     { key: "Expense Type", isSortable: true },
     { key: "Product", isSortable: true },
     { key: "Quantity", isSortable: true },
@@ -181,7 +217,7 @@ const Invoice = (props: Props) => {
     },
     { key: "documentNo" },
     { key: "brand" },
-    { key: "company" },
+    { key: "vendor" },
     {
       key: "expenseType",
       node: (row: any) => {
@@ -189,10 +225,10 @@ const Invoice = (props: Props) => {
           <p
             className="w-fit rounded-md px-2 py-1 text-white"
             style={{
-              backgroundColor: row.expType.backgroundColor,
+              backgroundColor: row?.expType?.backgroundColor,
             }}
           >
-            {(row.expType as AccountExpenseType).name}
+            {(row?.expType as AccountExpenseType)?.name}
           </p>
         );
       },
@@ -299,8 +335,14 @@ const Invoice = (props: Props) => {
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
-              brand: rowToAction.brand,
-              company: rowToAction.company,
+              brand: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.brand as AccountBrand
+              )?._id,
+              vendor: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.vendor as AccountVendor
+              )?._id,
               documentNo: rowToAction.documentNo,
             },
           }}
@@ -337,17 +379,23 @@ const Invoice = (props: Props) => {
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
-      invoices.map((row) => {
+      invoices.map((invoice) => {
         return {
-          ...row,
-          product: (row.product as AccountProduct)?.name,
-          expenseType: (row.expenseType as AccountExpenseType).name,
-          unitPrice: parseFloat((row.totalExpense / row.quantity).toFixed(1)),
+          ...invoice,
+          product: (invoice.product as AccountProduct)?.name,
+          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          brand: (invoice.brand as AccountBrand)?.name,
+          vendor: (invoice.vendor as AccountVendor)?.name,
+          unitPrice: parseFloat(
+            (invoice.totalExpense / invoice.quantity).toFixed(1)
+          ),
           unit: units.find(
             (unit) =>
-              unit._id === ((row.product as AccountProduct).unit as number)
+              unit._id === ((invoice.product as AccountProduct).unit as number)
           )?.name,
-          expType: row.expenseType as AccountExpenseType,
+          expType: invoice.expenseType as AccountExpenseType,
+          brnd: invoice.brand as AccountBrand,
+          vndr: invoice.vendor as AccountVendor,
         };
       })
     );
