@@ -14,7 +14,7 @@ import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 
 export default function Accounting() {
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<number>(5);
 
   const [showConstants, setShowConstants] = useState<boolean>(true);
   const tabs = [
