@@ -95,6 +95,10 @@ export type AccountVendor = {
   _id: number;
   name: string;
 };
+export type AccountStockType = {
+  _id: number;
+  name: string;
+};
 
 export type AccountInvoice = {
   _id: number;

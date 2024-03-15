@@ -161,7 +161,7 @@ const Product = (props: Props) => {
             return (
               <span
                 key={foundBrand.name + foundBrand._id + row._id}
-                className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+                className={`text-sm   mr-1  w-fit`}
               >
                 {foundBrand?.name}
               </span>
@@ -182,7 +182,7 @@ const Product = (props: Props) => {
             return (
               <span
                 key={foundVendor.name + foundVendor._id + row._id}
-                className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
+                className={`text-sm mr-1  w-fit`}
               >
                 {foundVendor?.name}
               </span>
