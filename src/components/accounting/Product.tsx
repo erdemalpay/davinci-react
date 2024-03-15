@@ -139,7 +139,7 @@ const Product = (props: Props) => {
           );
           return (
             <span
-              key={foundExpenseType?.name + "_expenseType"}
+              key={foundExpenseType?.name ?? "" + row._id}
               className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
@@ -156,10 +156,11 @@ const Product = (props: Props) => {
         if (row.brand) {
           return row?.brand?.map((brand: number) => {
             const foundBrand = brands.find((br) => br._id === brand);
-            if (!foundBrand) return <>-</>;
+            if (!foundBrand)
+              return <div key={row._id + "not found brand"}>-</div>;
             return (
               <span
-                key={foundBrand.name + foundBrand._id}
+                key={foundBrand.name + foundBrand._id + row._id}
                 className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
               >
                 {foundBrand?.name}
@@ -176,10 +177,11 @@ const Product = (props: Props) => {
         if (row.vendor) {
           return row?.vendor?.map((vendor: number) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
-            if (!foundVendor) return <>-</>;
+            if (!foundVendor)
+              return <div key={row._id + "not found vendor"}>-</div>;
             return (
               <span
-                key={foundVendor.name + foundVendor._id}
+                key={foundVendor.name + foundVendor._id + row._id}
                 className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit`}
               >
                 {foundVendor?.name}
