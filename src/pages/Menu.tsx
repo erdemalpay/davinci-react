@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
 import MenuItemTable from "../components/menu/MenuItemTable";
+import PopularTable from "../components/menu/PopularTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
-import { useGetCategories } from "../utils/api/category";
 import { Paths } from "../utils/api/factory";
-import { useGetMenuItems } from "../utils/api/menu-item";
+import { useGetCategories } from "../utils/api/menu/category";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetPopularItems } from "../utils/api/menu/popular";
 
 export interface ItemGroup {
   category: MenuCategory;
@@ -21,6 +23,7 @@ export default function Menu() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<number>(0); // Reminder: I took this from tabpanel so that I can control the active tab from here
   const items = useGetMenuItems();
+  const popularItems = useGetPopularItems();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabPanelKey, setTabPanelKey] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -77,6 +80,7 @@ export default function Menu() {
           <MenuItemTable
             key={itemGroup.category.name + tableKeys}
             singleItemGroup={itemGroup}
+            popularItems={popularItems}
           />
         ),
         isDisabled: false,
@@ -91,6 +95,7 @@ export default function Menu() {
               <MenuItemTable
                 key={category.name + tableKeys}
                 singleItemGroup={{ category, order: category.order, items: [] }}
+                popularItems={popularItems}
               />
             ),
             isDisabled: false,
@@ -98,6 +103,19 @@ export default function Menu() {
         : []),
       {
         number: itemCategories.length + emptyCategories.length,
+        label: "Popular",
+        icon: null,
+        content: (
+          <PopularTable
+            key={"popular" + tableKeys}
+            popularItems={popularItems}
+          />
+        ),
+        isDisabled: false,
+      },
+
+      {
+        number: itemCategories.length + emptyCategories.length + 1,
         label: "Categories",
         icon: null,
         content: (
@@ -121,7 +139,7 @@ export default function Menu() {
 
   useEffect(() => {
     handleTabChange();
-  }, [categories, items, currentPage, activeTab, rowsPerPage]);
+  }, [categories, items, currentPage, activeTab, rowsPerPage, popularItems]);
 
   return (
     <>

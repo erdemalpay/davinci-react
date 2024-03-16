@@ -141,6 +141,11 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
 };
+export type MenuPopular = {
+  _id: number;
+  order: number;
+  item: MenuItem | number;
+};
 
 export type MenuItem = {
   _id: number;

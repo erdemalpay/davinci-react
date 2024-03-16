@@ -5,7 +5,7 @@ import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory } from "../../types";
-import { useCategoryMutations } from "../../utils/api/category";
+import { useCategoryMutations } from "../../utils/api/menu/category";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";

@@ -15,6 +15,7 @@ export const Paths = {
   Memberships: "/memberships",
   Rewards: "/rewards",
   MenuCategories: "/menu/categories",
+  MenuPopular: "/menu/popular",
   MenuItems: "/menu/items",
   Menu: "/menu",
   Categories: "/categories",
