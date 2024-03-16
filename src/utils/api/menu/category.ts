@@ -1,9 +1,7 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { MenuCategory } from "../../types/index";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { MenuCategory } from "../../../types/index";
+import { Paths, useGetList, useMutationApi } from "../factory";
 
 export function useCategoryMutations() {
-  const queryClient = useQueryClient();
   const {
     deleteItem: deleteCategory,
     updateItem: updateCategory,
