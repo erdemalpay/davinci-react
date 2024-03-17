@@ -133,7 +133,7 @@ const Product = (props: Props) => {
       key: "expenseType",
       className: "min-w-32",
       node: (row: AccountProduct) => {
-        return row.expenseType.map((expType: number) => {
+        return row.expenseType.map((expType: string) => {
           const foundExpenseType = expenseTypes.find(
             (expenseType) => expenseType._id === expType
           );
@@ -154,7 +154,7 @@ const Product = (props: Props) => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         if (row.brand) {
-          return row?.brand?.map((brand: number) => {
+          return row?.brand?.map((brand: string) => {
             const foundBrand = brands.find((br) => br._id === brand);
             if (!foundBrand)
               return <div key={row._id + "not found brand"}>-</div>;
@@ -175,7 +175,7 @@ const Product = (props: Props) => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         if (row.vendor) {
-          return row?.vendor?.map((vendor: number) => {
+          return row?.vendor?.map((vendor: string) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
             if (!foundVendor)
               return <div key={row._id + "not found vendor"}>-</div>;

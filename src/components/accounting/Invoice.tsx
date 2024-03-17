@@ -69,7 +69,7 @@ const Invoice = (props: Props) => {
         ),
         unit: units.find(
           (unit) =>
-            unit._id === ((invoice.product as AccountProduct).unit as number)
+            unit._id === ((invoice.product as AccountProduct).unit as string)
         )?.name,
         expType: invoice.expenseType as AccountExpenseType,
         brnd: invoice.brand as AccountBrand,
@@ -391,7 +391,7 @@ const Invoice = (props: Props) => {
           ),
           unit: units.find(
             (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as number)
+              unit._id === ((invoice.product as AccountProduct).unit as string)
           )?.name,
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,

@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
+import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
 import Product from "../components/accounting/Product";
+import Stock from "../components/accounting/Stock";
 import StockType from "../components/accounting/StockType";
 import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
@@ -67,6 +69,13 @@ export default function Accounting() {
       label: "Invoices",
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
+      isDisabled: false,
+    },
+    {
+      number: 7,
+      label: "Stocks",
+      icon: <SlBasketLoaded className="text-lg font-thin" />,
+      content: <Stock />,
       isDisabled: false,
     },
   ];
