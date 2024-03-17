@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountProduct, AccountStock } from "../../types";
+import {
+  AccountProduct,
+  AccountStock,
+  AccountStockType,
+  AccountUnit,
+  Location,
+} from "../../types";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
@@ -17,7 +23,7 @@ const inputs = [
     type: InputTypes.TEXT,
     formKey: "name",
     label: "Name",
-    placeholder: "Name",
+    placeholder: "Daha Bitmedi :)",
     required: true,
   },
 ];
@@ -32,17 +38,38 @@ const Stock = (props: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const [rows, setRows] = useState(
+    stocks.map((stock) => {
+      return {
+        ...stock,
+        prdct: (stock.product as AccountProduct).name,
+        lctn: (stock.location as Location).name,
+        stckTyp: (stock.stockType as AccountStockType).name,
+        unt: (stock.unit as AccountUnit).name,
+        totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+      };
+    })
+  );
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
   const columns = [
-    { key: "Name", isSortable: true },
+    { key: "Stock Type", isSortable: true },
+    { key: "Product", isSortable: true },
+    { key: "Unit", isSortable: true },
+    { key: "Location", isSortable: true },
+    { key: "Quantity", isSortable: true },
+    { key: "Unit Price", isSortable: true },
+    { key: "Total Price", isSortable: true },
     { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
-    {
-      key: "name",
-      className: "min-w-32 pr-1",
-    },
+    { key: "stckTyp" },
+    { key: "prdct" },
+    { key: "unt" },
+    { key: "lctn" },
+    { key: "quantity" },
+    { key: "unitPrice" },
+    { key: "totalPrice" },
   ];
   const addButton = {
     name: `Add Stock`,
@@ -114,7 +141,21 @@ const Stock = (props: Props) => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [stocks]);
+  useEffect(() => {
+    setRows(
+      stocks.map((stock) => {
+        return {
+          ...stock,
+          prdct: (stock.product as AccountProduct).name,
+          lctn: (stock.location as Location).name,
+          stckTyp: (stock.stockType as AccountStockType).name,
+          unt: (stock.unit as AccountUnit).name,
+          totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+        };
+      })
+    );
+    setTableKey((prev) => prev + 1);
+  }, [stocks]);
 
   return (
     <>
