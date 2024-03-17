@@ -59,7 +59,7 @@ export function useMutationApi<T extends { _id: number | string }>({
     });
   }
 
-  function deleteRequest(id: number): Promise<T> {
+  function deleteRequest(id: number | string): Promise<T> {
     return remove<T>({
       path: `${baseQuery}/${id}`,
     });
