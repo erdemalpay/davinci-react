@@ -77,7 +77,6 @@ const ExpenseType = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountExpenseType as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,

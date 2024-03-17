@@ -58,7 +58,6 @@ const StockType = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountStockType as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,

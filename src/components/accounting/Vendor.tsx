@@ -55,7 +55,6 @@ const Vendor = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountVendor as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,

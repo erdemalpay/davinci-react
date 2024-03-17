@@ -55,7 +55,6 @@ const Brand = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountBrand as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,
