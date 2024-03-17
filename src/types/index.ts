@@ -111,6 +111,16 @@ export type AccountInvoice = {
   vendor?: AccountVendor | string;
   documentNo?: string;
 };
+export type AccountStock = {
+  _id: string;
+  product: AccountProduct | string;
+  unit?: string | AccountUnit;
+  location: number | Location;
+  stockType?: string | AccountStockType;
+  quantity: number;
+  unitPrice?: number;
+};
+
 export type Visit = {
   _id: number;
   location: number;
