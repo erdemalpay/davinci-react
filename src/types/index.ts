@@ -70,43 +70,58 @@ export type Game = {
   locations: number[];
 };
 export type AccountProduct = {
-  _id: number;
+  _id: string;
   name: string;
-  unit: number | AccountUnit | string;
-  expenseType: number[];
-  vendor?: number[];
-  brand?: number[];
+  unit: AccountUnit | string;
+  expenseType: string[];
+  vendor?: string[];
+  brand?: string[];
 };
 
 export type AccountUnit = {
-  _id: number;
+  _id: string;
   name: string;
 };
 export type AccountExpenseType = {
-  _id: number;
+  _id: string;
   name: string;
   backgroundColor: string;
 };
 export type AccountBrand = {
-  _id: number;
+  _id: string;
   name: string;
 };
 export type AccountVendor = {
-  _id: number;
+  _id: string;
   name: string;
+};
+export type AccountStockType = {
+  _id: string;
+  name: string;
+  backgroundColor: string;
 };
 
 export type AccountInvoice = {
   _id: number;
-  product: number | AccountProduct | string;
-  expenseType: number | AccountExpenseType | string;
+  product: AccountProduct | string;
+  expenseType: AccountExpenseType | string;
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: AccountBrand | number | string;
-  vendor?: AccountVendor | number | string;
+  brand?: AccountBrand | string;
+  vendor?: AccountVendor | string;
   documentNo?: string;
 };
+export type AccountStock = {
+  _id: string;
+  product: AccountProduct | string;
+  unit?: string | AccountUnit;
+  location: number | Location;
+  stockType?: string | AccountStockType;
+  quantity: number;
+  unitPrice?: number;
+};
+
 export type Visit = {
   _id: number;
   location: number;
@@ -136,6 +151,11 @@ export type MenuCategory = {
   name: string;
   order: number;
   imageUrl: string;
+};
+export type MenuPopular = {
+  _id: number;
+  order: number;
+  item: MenuItem | number;
 };
 
 export type MenuItem = {

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountBrand } from "../../types";
+import { AccountStockType } from "../../types";
 import {
-  useAccountBrandMutations,
-  useGetAccountBrands,
-} from "../../utils/api/account/brand";
+  useAccountStockTypeMutations,
+  useGetAccountStockTypes,
+} from "../../utils/api/account/stockType";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -20,20 +20,33 @@ const inputs = [
     placeholder: "Name",
     required: true,
   },
+  {
+    type: InputTypes.COLOR,
+    formKey: "backgroundColor",
+    label: "Background Color",
+    placeholder: "Background Color",
+    required: true,
+  },
 ];
-const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-const Brand = (props: Props) => {
-  const brands = useGetAccountBrands();
+const formKeys = [
+  { key: "name", type: FormKeyTypeEnum.STRING },
+  { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+];
+const StockType = (props: Props) => {
+  const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountBrand>();
+  const [rowToAction, setRowToAction] = useState<AccountStockType>();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const { createAccountBrand, deleteAccountBrand, updateAccountBrand } =
-    useAccountBrandMutations();
+  const {
+    createAccountStockType,
+    deleteAccountStockType,
+    updateAccountStockType,
+  } = useAccountStockTypeMutations();
   const columns = [
     { key: "Name", isSortable: true },
     { key: "Actions", isSortable: false },
@@ -41,11 +54,18 @@ const Brand = (props: Props) => {
   const rowKeys = [
     {
       key: "name",
-      className: "min-w-32 pr-1",
+      node: (row: AccountStockType) => (
+        <div
+          className={` px-2 py-1 rounded-md  w-fit text-white`}
+          style={{ backgroundColor: row.backgroundColor }}
+        >
+          {row.name}
+        </div>
+      ),
     },
   ];
   const addButton = {
-    name: `Add Brand`,
+    name: `Add Stock Type`,
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -53,7 +73,7 @@ const Brand = (props: Props) => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
-        submitItem={createAccountBrand as any}
+        submitItem={createAccountStockType as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
@@ -73,10 +93,10 @@ const Brand = (props: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountBrand(rowToAction?._id);
+            deleteAccountStockType(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Brand"
+          title="Delete Stock Type"
           text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -98,7 +118,7 @@ const Brand = (props: Props) => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAccountBrand as any}
+          submitItem={updateAccountStockType as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
@@ -111,7 +131,7 @@ const Brand = (props: Props) => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [brands]);
+  useEffect(() => setTableKey((prev) => prev + 1), [stockTypes]);
 
   return (
     <>
@@ -121,8 +141,8 @@ const Brand = (props: Props) => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={brands}
-          title="Brands"
+          rows={stockTypes}
+          title="Stock Types"
           addButton={addButton}
         />
       </div>
@@ -130,4 +150,4 @@ const Brand = (props: Props) => {
   );
 };
 
-export default Brand;
+export default StockType;

@@ -55,7 +55,6 @@ const Unit = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountUnit as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -116,7 +115,7 @@ const Unit = (props: Props) => {
 
   return (
     <>
-      <div className="w-[95%] mx-auto my-10">
+      <div className="w-[95%] mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}

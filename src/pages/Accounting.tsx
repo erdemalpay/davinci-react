@@ -1,21 +1,25 @@
 import { Switch } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
+import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
+import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
 import Product from "../components/accounting/Product";
+import Stock from "../components/accounting/Stock";
+import StockType from "../components/accounting/StockType";
 import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 
 export default function Accounting() {
-  const [activeTab, setActiveTab] = useState<number>(5);
-
+  const [activeTab, setActiveTab] = useState<number>(6);
+  const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
   const tabs = [
     {
@@ -55,12 +59,29 @@ export default function Accounting() {
     },
     {
       number: 5,
+      label: "Stock Types",
+      icon: <VscTypeHierarchy className="text-lg font-thin" />,
+      content: <StockType />,
+      isDisabled: showConstants,
+    },
+    {
+      number: 6,
       label: "Invoices",
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
+    {
+      number: 7,
+      label: "Stocks",
+      icon: <SlBasketLoaded className="text-lg font-thin" />,
+      content: <Stock />,
+      isDisabled: false,
+    },
   ];
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [activeTab, showConstants]);
 
   return (
     <>
@@ -74,7 +95,7 @@ export default function Accounting() {
               onChange={() => {
                 setShowConstants((value) => !value);
                 if (!showConstants) {
-                  setActiveTab(5);
+                  setActiveTab(6);
                 } else {
                   setActiveTab(0);
                 }
@@ -94,7 +115,7 @@ export default function Accounting() {
         </div>
 
         <TabPanel
-          key={activeTab + showConstants.toString()}
+          key={tableKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

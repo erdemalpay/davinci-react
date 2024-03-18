@@ -77,7 +77,6 @@ const ExpenseType = (props: Props) => {
         formKeys={formKeys}
         submitItem={createAccountExpenseType as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -138,7 +137,7 @@ const ExpenseType = (props: Props) => {
 
   return (
     <>
-      <div className="w-[95%] mx-auto my-10">
+      <div className="w-[95%] mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}

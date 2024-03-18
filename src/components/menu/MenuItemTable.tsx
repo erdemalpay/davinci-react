@@ -1,19 +1,23 @@
 import { useState } from "react";
+import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
-import { MenuItem } from "../../types";
-import { useMenuItemMutations } from "../../utils/api/menu-item";
+import { MenuItem, MenuPopular } from "../../types";
+import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
+import { usePopularMutations } from "../../utils/api/menu/popular";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 type Props = {
   singleItemGroup: ItemGroup;
+  popularItems: MenuPopular[];
 };
 // these are the inputs for the add item modal
 const inputs = [
@@ -86,9 +90,10 @@ const rowKeys = [
   },
 ];
 
-const MenuItemTable = ({ singleItemGroup }: Props) => {
+const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -168,6 +173,36 @@ const MenuItemTable = ({ singleItemGroup }: Props) => {
       setIsModal: setIsEditModalOpen,
 
       isPath: false,
+    },
+    {
+      name: "Popular",
+      isPath: false,
+      isModal: false,
+      icon: null,
+      node: (row: MenuItem) => {
+        const isPopular = popularItems.some(
+          (popularItem) => (popularItem.item as MenuItem)._id === row._id
+        );
+        return isPopular ? (
+          <button
+            className="text-blue-500 cursor-pointer text-xl"
+            onClick={() => deletePopular(row._id)}
+          >
+            <ButtonTooltip content="Unpopular">
+              <FaStar className="text-yellow-500" />
+            </ButtonTooltip>
+          </button>
+        ) : (
+          <button
+            className="text-gray-500 cursor-pointer text-xl"
+            onClick={() => createPopular({ item: row._id })}
+          >
+            <ButtonTooltip content="Popular">
+              <FaRegStar />
+            </ButtonTooltip>
+          </button>
+        );
+      },
     },
     {
       name: "Move",
