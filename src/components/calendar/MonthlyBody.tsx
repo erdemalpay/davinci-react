@@ -1,5 +1,6 @@
 import { format, getDay, isSameDay, Locale, parseISO } from "date-fns";
 import { createContext, ReactNode, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { H5 } from "../panelComponents/Typography";
 import { useMonthlyCalendar } from "./MonthlyCalendar";
 import { daysInWeek } from "./shared";
@@ -76,6 +77,7 @@ export function MonthlyBody<DayData>({
   children,
 }: MonthlyBodyProps<DayData>) {
   const { days, locale } = useMonthlyCalendar();
+  const { t } = useTranslation();
 
   const { headings, daysToRender, padding } = handleOmittedDays({
     days,
@@ -96,7 +98,7 @@ export function MonthlyBody<DayData>({
             className={headingClassName}
             aria-label="Day of Week"
           >
-            <H5>{day.label}</H5>
+            <H5>{t(day.label)}</H5>
           </div>
         ))}
         {padding.map((_, index) => (

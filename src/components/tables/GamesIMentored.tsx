@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -11,6 +12,7 @@ type GameplayAccumulator = {
   [key: number]: Gameplay[];
 };
 const GamesIMentored = ({ data }: Props) => {
+  const { t } = useTranslation();
   const games: Game[] = useGetGames();
   const [tableKey, setTableKey] = useState(0);
   const [startDateFilter, setStartDateFilter] = useState<string | null>();
@@ -34,7 +36,7 @@ const GamesIMentored = ({ data }: Props) => {
   );
 
   const columns = [
-    { key: "Game", isSortable: true },
+    { key: t("Game"), isSortable: true },
     { key: countColumn, isSortable: true },
   ];
 
@@ -126,7 +128,7 @@ const GamesIMentored = ({ data }: Props) => {
           columns={columns}
           rows={rows}
           rowKeys={rowKeys}
-          title={"Mentored Games"}
+          title={t("Mentored Games")}
           filters={filters}
         />
       )}

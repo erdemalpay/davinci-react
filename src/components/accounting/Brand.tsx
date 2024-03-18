@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountBrand } from "../../types";
@@ -23,6 +24,7 @@ const inputs = [
 ];
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 const Brand = (props: Props) => {
+  const { t } = useTranslation();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,8 +37,8 @@ const Brand = (props: Props) => {
   const { createAccountBrand, deleteAccountBrand, updateAccountBrand } =
     useAccountBrandMutations();
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -45,7 +47,7 @@ const Brand = (props: Props) => {
     },
   ];
   const addButton = {
-    name: `Add Brand`,
+    name: t(`Add Brand`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -65,7 +67,7 @@ const Brand = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -76,8 +78,8 @@ const Brand = (props: Props) => {
             deleteAccountBrand(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Brand"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Brand")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl ml-auto ",
@@ -87,7 +89,7 @@ const Brand = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
@@ -122,7 +124,7 @@ const Brand = (props: Props) => {
           actions={actions}
           columns={columns}
           rows={brands}
-          title="Brands"
+          title={t("Brands")}
           addButton={addButton}
         />
       </div>

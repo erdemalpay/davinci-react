@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
 import { useParams } from "react-router-dom";
@@ -15,20 +16,21 @@ export default function UserView() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const { userId } = useParams();
   const user = useGetUserWithId(userId as string);
+  const { t } = useTranslation();
 
   const { data } = useGetMentorGamePlays(userId as string);
 
   const tabs = [
     {
       number: 0,
-      label: " Personal Details",
+      label: t("Personal Details"),
       icon: <FaRegUserCircle className="text-lg font-thin" />,
       content: user && <PersonalDetails isEditable={false} user={user} />,
       isDisabled: false,
     },
     {
       number: 1,
-      label: "Mentored Games",
+      label: t("Mentored Games"),
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && data && (
         <div className="px-4 w-full">
@@ -43,7 +45,7 @@ export default function UserView() {
     },
     {
       number: 2,
-      label: `Known Games (${user?.userGames.length})`,
+      label: `${t("Known Games")}(${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && (
         <div className="px-4 w-full">

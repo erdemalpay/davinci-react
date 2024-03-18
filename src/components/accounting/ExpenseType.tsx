@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountExpenseType } from "../../types";
-
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
@@ -13,27 +13,9 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.COLOR,
-    formKey: "backgroundColor",
-    label: "Background Color",
-    placeholder: "Background Color",
-    required: true,
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
-];
+
 const ExpenseType = (props: Props) => {
+  const { t } = useTranslation();
   const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -49,8 +31,8 @@ const ExpenseType = (props: Props) => {
     updateAccountExpenseType,
   } = useAccountExpenseTypeMutations();
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -66,8 +48,28 @@ const ExpenseType = (props: Props) => {
       ),
     },
   ];
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.COLOR,
+      formKey: "backgroundColor",
+      label: t("Background Color"),
+      placeholder: t("Background Color"),
+      required: true,
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
   const addButton = {
-    name: `Add Expense Type`,
+    name: t(`Add Expense Type`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -87,7 +89,7 @@ const ExpenseType = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -98,8 +100,8 @@ const ExpenseType = (props: Props) => {
             deleteAccountExpenseType(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Expense Type"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Expense Type")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl ml-auto ",
@@ -109,7 +111,7 @@ const ExpenseType = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
@@ -144,7 +146,7 @@ const ExpenseType = (props: Props) => {
           actions={actions}
           columns={columns}
           rows={expenseTypes}
-          title="Expense Types"
+          title={t("Expense Types")}
           addButton={addButton}
         />
       </div>

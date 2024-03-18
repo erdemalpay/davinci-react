@@ -9,6 +9,7 @@ import {
   subMonths,
 } from "date-fns";
 import React, { ReactNode, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 type CalendarState = {
   days: Date[];
@@ -58,6 +59,7 @@ export const MonthlyCalendar = ({
 
 export const MonthlyNav = () => {
   const { locale, currentMonth, onCurrentMonthChange } = useMonthlyCalendar();
+  const { t } = useTranslation();
 
   return (
     <div className="flex justify-end mb-4">
@@ -73,10 +75,14 @@ export const MonthlyNav = () => {
         className="mx-2 w-32 text-center text-xl text-black"
         aria-label="Current Month"
       >
-        {format(
-          currentMonth,
-          getYear(currentMonth) === getYear(new Date()) ? "LLLL" : "LLLL yyyy",
-          { locale }
+        {t(
+          format(
+            currentMonth,
+            getYear(currentMonth) === getYear(new Date())
+              ? "LLLL"
+              : "LLLL yyyy",
+            { locale }
+          )
         )}
       </div>
       <button

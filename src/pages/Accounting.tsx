@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
@@ -18,62 +19,63 @@ import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 
 export default function Accounting() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(6);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
   const tabs = [
     {
       number: 0,
-      label: "Expense Types",
+      label: t("Expense Types"),
       icon: <TbZoomMoney className="text-lg font-thin" />,
       content: <ExpenseType />,
       isDisabled: showConstants,
     },
     {
       number: 1,
-      label: "Units",
+      label: t("Units"),
       icon: <TbWeight className="text-lg font-thin" />,
       content: <Unit />,
       isDisabled: showConstants,
     },
     {
       number: 2,
-      label: "Vendors",
+      label: t("Vendors"),
       icon: <SiImprovmx className="text-lg font-thin" />,
       content: <Vendor />,
       isDisabled: showConstants,
     },
     {
       number: 3,
-      label: "Brands",
+      label: t("Brands"),
       icon: <TbBrandBlogger className="text-lg font-thin" />,
       content: <Brand />,
       isDisabled: showConstants,
     },
     {
       number: 4,
-      label: "Products",
+      label: t("Products"),
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
       isDisabled: showConstants,
     },
     {
       number: 5,
-      label: "Stock Types",
+      label: t("Stock Types"),
       icon: <VscTypeHierarchy className="text-lg font-thin" />,
       content: <StockType />,
       isDisabled: showConstants,
     },
     {
       number: 6,
-      label: "Invoices",
+      label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
       number: 7,
-      label: "Stocks",
+      label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
       isDisabled: false,
@@ -89,7 +91,7 @@ export default function Accounting() {
       <div className="flex flex-col gap-2 mt-5 ">
         <div className="w-[90%] mx-auto flex justify-end">
           <div className="flex flex-row gap-2 justify-center items-center">
-            <p className=" text-lg font-medium">Show Constants</p>
+            <p className=" text-lg font-medium">{t("Show Constants")}</p>
             <Switch
               checked={!showConstants}
               onChange={() => {

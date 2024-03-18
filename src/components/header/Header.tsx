@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
 import { Routes } from "../../navigation/constants";
@@ -11,7 +12,11 @@ interface HeaderProps {
 
 export function Header({ showLocationSelector = true }: HeaderProps) {
   const user = useGetUser();
-
+  const { i18n } = useTranslation();
+  const languageOptions = [
+    { code: "en", label: "EN" },
+    { code: "tr", label: "TR" },
+  ];
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">
@@ -31,6 +36,21 @@ export function Header({ showLocationSelector = true }: HeaderProps) {
             </Link>
           </div>
           <div className="w-auto h-full flex items-center justify-end gap-x-4">
+            <div className="flex flex-row gap-2">
+              {languageOptions.map((option) => (
+                <button
+                  key={option.code}
+                  className={`text-white px-1 py-[0.5] rounded-md ${
+                    i18n.language === option.code ? "font-bold bg-red-500" : ""
+                  }`}
+                  onClick={() => {
+                    i18n.changeLanguage(option.code);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
             <Link to={Routes.Profile}>
               <img
                 src={user?.imageUrl ?? user1}

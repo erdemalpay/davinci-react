@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
@@ -24,6 +25,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {};
 
 const Stock = (props: Props) => {
+  const { t } = useTranslation();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
   const locations = useGetLocations();
@@ -78,56 +80,56 @@ const Stock = (props: Props) => {
     {
       type: InputTypes.SELECT,
       formKey: "product",
-      label: "Product",
+      label: t("Product"),
       options: products.map((product) => {
         return {
           value: product._id,
           label: product.name,
         };
       }),
-      placeholder: "Product",
+      placeholder: t("Product"),
       invalidateKeys: [{ key: "unit", defaultValue: 0 }],
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "unit",
-      label: "Unit",
+      label: t("Unit"),
       options: unitOptions(),
-      placeholder: "Unit",
+      placeholder: t("Unit"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "stockType",
-      label: "Stock Type",
+      label: t("Stock Type"),
       options: stockTypes.map((stockType) => {
         return {
           value: stockType._id,
           label: stockType.name,
         };
       }),
-      placeholder: "Stock Type",
+      placeholder: t("Stock Type"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "location",
-      label: "Location",
+      label: t("Location"),
       options: locations.map((location) => {
         return {
           value: location._id,
           label: location.name,
         };
       }),
-      placeholder: "Location",
+      placeholder: t("Location"),
       required: true,
     },
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: "Quantity",
-      placeholder: "Quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
       required: true,
     },
   ];
@@ -139,14 +141,15 @@ const Stock = (props: Props) => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
-    { key: "Stock Type", isSortable: true },
-    { key: "Product", isSortable: true },
-    { key: "Unit", isSortable: true },
-    { key: "Location", isSortable: true },
-    { key: "Quantity", isSortable: true },
-    { key: "Unit Price", isSortable: true },
-    { key: "Total Price", isSortable: true },
+    { key: t("Stock Type"), isSortable: true },
+    { key: t("Product"), isSortable: true },
+    { key: t("Unit"), isSortable: true },
+    { key: t("Location"), isSortable: true },
+    { key: t("Quantity"), isSortable: true },
+    { key: t("Unit Price"), isSortable: true },
+    { key: t("Total Price"), isSortable: true },
   ];
+
   const rowKeys = [
     {
       key: "stckTyp",
@@ -167,7 +170,7 @@ const Stock = (props: Props) => {
     { key: "totalPrice", className: !isEnableEdit ? "text-center" : "" },
   ];
   const addButton = {
-    name: `Add Stock`,
+    name: t("Add Stock"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -188,7 +191,7 @@ const Stock = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -199,7 +202,7 @@ const Stock = (props: Props) => {
             deleteAccountStock(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Stock"
+          title={t("Delete Stock")}
           text={`${
             (rowToAction.product as AccountProduct).name
           } stock will be deleted. Are you sure you want to continue?`}
@@ -212,7 +215,7 @@ const Stock = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
@@ -233,8 +236,8 @@ const Stock = (props: Props) => {
             {
               type: InputTypes.NUMBER,
               formKey: "unitPrice",
-              label: "Unit Price",
-              placeholder: "Unit Price",
+              label: t("Unit Price"),
+              placeholder: t("Unit Price"),
               required: false,
             },
           ]}
@@ -284,7 +287,7 @@ const Stock = (props: Props) => {
   ];
   const filters = [
     {
-      label: "Enable Edit",
+      label: t("Enable Edit"),
       isUpperSide: false,
       node: (
         <Switch
@@ -330,11 +333,11 @@ const Stock = (props: Props) => {
           filters={filters}
           columns={
             isEnableEdit
-              ? [...columns, { key: "Action", isSortable: false }]
+              ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
           rows={rows}
-          title="Stocks"
+          title={t("Stocks")}
           addButton={addButton}
         />
       </div>

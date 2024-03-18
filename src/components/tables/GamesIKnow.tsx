@@ -1,8 +1,10 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import { Game, UserGameUpdateType } from "../../types";
 import { useGetGames } from "../../utils/api/game";
+
 import {
   updateUserGamesMutation,
   useGetUserWithId,
@@ -17,17 +19,9 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   userId: string;
 };
-const inputs = [
-  {
-    type: InputTypes.DATE,
-    formKey: "learnDate",
-    label: "Learn Date",
-    placeholder: "Learn Date",
-    required: true,
-  },
-];
-const formKeys = [{ key: "learnDate", type: FormKeyTypeEnum.STRING }];
+
 const GamesIKnow = ({ userId }: Props) => {
+  const { t } = useTranslation();
   const { user: panelUser } = useUserContext();
   if (!panelUser) return <></>;
   const [learnDateModal, setLearnDateModal] = useState(false);
@@ -41,17 +35,26 @@ const GamesIKnow = ({ userId }: Props) => {
   const { updateUserGame } = updateUserGamesMutation();
   const user = useGetUserWithId(userId);
   const games = useGetGames();
-
+  const inputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "learnDate",
+      label: t("Learn Date"),
+      placeholder: t("Learn Date"),
+      required: true,
+    },
+  ];
+  const formKeys = [{ key: "learnDate", type: FormKeyTypeEnum.STRING }];
   const columns =
     user?._id === panelUser?._id && isEnableEdit
       ? [
-          { key: "Game", isSortable: true },
-          { key: "Learn Date", isSortable: true },
-          { key: "Active", isSortable: false },
+          { key: t("Game"), isSortable: true },
+          { key: t("Learn Date"), isSortable: true },
+          { key: t("Active"), isSortable: false },
         ]
       : [
-          { key: "Game", isSortable: true },
-          { key: "Learn Date", isSortable: true },
+          { key: t("Game"), isSortable: true },
+          { key: t("Learn Date"), isSortable: true },
         ];
 
   const userGamesGameArray = user?.userGames.map((item) => item.game);
@@ -109,7 +112,7 @@ const GamesIKnow = ({ userId }: Props) => {
   }
   const filters = [
     {
-      label: "Enable Edit",
+      label: t("Enable Edit"),
       isUpperSide: false,
       node: (
         <>
@@ -124,7 +127,7 @@ const GamesIKnow = ({ userId }: Props) => {
   ];
   const actions = [
     {
-      name: "Toggle Active",
+      name: t("Toggle Active"),
       isModal: false,
       isPath: false,
       icon: null,
@@ -164,11 +167,7 @@ const GamesIKnow = ({ userId }: Props) => {
         rowKeys={rowKeys}
         actions={isEnableEdit ? actions : []}
         filters={user?._id === panelUser?._id ? filters : []}
-        title={`${
-          user?._id === panelUser?._id
-            ? "Known Games"
-            : `Games ${user?.name} Knows`
-        }`}
+        title={t("Known Games")}
         isRowsPerPage={isEnableEdit ? false : true}
       />
       {learnDateModal && rowToAction && (
@@ -202,8 +201,8 @@ const GamesIKnow = ({ userId }: Props) => {
             });
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Remove Game"
-          text={`${rowToAction.name} will be removed. Are you sure you want to continue?`}
+          title={t("Remove Game")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       )}
     </div>

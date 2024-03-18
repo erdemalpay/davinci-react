@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import React, { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { postWithHeader } from "../../../utils/api";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
@@ -9,6 +10,7 @@ import user1 from "../assets/profile/user-1.jpg";
 import ItemContainer from "../common/ItemContainer";
 
 export default function ProfileCard() {
+  const { t } = useTranslation();
   const [imageUrl, setImageUrl] = useState(user1);
   const { updateUser } = useUserMutations();
   const user = useGetUser();
@@ -62,8 +64,8 @@ export default function ProfileCard() {
   return (
     <ItemContainer>
       <div className="flex flex-col gap-2">
-        <H4>Change Profile</H4>
-        <P2>Change your profile picture from here</P2>
+        <H4>{t("Change Profile")}</H4>
+        <P2>{t("Change your profile picture from here")}</P2>
       </div>
       <div className="flex flex-col gap-5 items-center">
         <img
@@ -73,7 +75,7 @@ export default function ProfileCard() {
         />
         <div className="flex flex-row gap-4">
           <label className="inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto">
-            Upload
+            {t("Upload")}
             <input
               type="file"
               accept="image/*"
@@ -82,7 +84,7 @@ export default function ProfileCard() {
             />
           </label>
         </div>
-        <P2>Allowed JPG, GIF or PNG. Max size of 800K</P2>
+        <P2>{t("Allowed JPG, GIF or PNG. Max size of 800K")}</P2>
       </div>
     </ItemContainer>
   );

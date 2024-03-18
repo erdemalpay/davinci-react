@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -45,6 +46,7 @@ interface TableUser {
 }
 
 export default function Users() {
+  const { t } = useTranslation();
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -73,34 +75,34 @@ export default function Users() {
     {
       type: InputTypes.TEXT,
       formKey: "name",
-      label: "Name",
-      placeholder: "Name",
+      label: t("Name"),
+      placeholder: t("Name"),
       required: true,
     },
     {
       type: InputTypes.TEXT,
       formKey: "fullName",
-      label: "Full Name",
-      placeholder: "Full Name",
+      label: t("Full Name"),
+      placeholder: t("Full Name"),
       required: false,
     },
     {
       type: InputTypes.SELECT,
       formKey: "role",
-      label: "Role",
+      label: t("Role"),
       options: roles.map((role) => {
         return {
           value: role._id,
           label: role.name,
         };
       }),
-      placeholder: "Role",
+      placeholder: t("Role"),
       required: false,
     },
     {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
-      label: "Image",
+      label: t("Image"),
       required: false,
       folderName: "menu",
     },
@@ -115,10 +117,10 @@ export default function Users() {
   const columns = [
     { key: "", isSortable: false },
     { key: "ID", isSortable: true },
-    { key: "Display Name", isSortable: true },
-    { key: "Full Name", isSortable: true },
-    { key: "Role", isSortable: true },
-    { key: "Action", isSortable: false },
+    { key: t("Display Name"), isSortable: true },
+    { key: t("Full Name"), isSortable: true },
+    { key: t("Role"), isSortable: true },
+    { key: t("Action"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -150,7 +152,7 @@ export default function Users() {
   ];
   const actions = [
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -180,7 +182,7 @@ export default function Users() {
       isPath: false,
     },
     {
-      name: "Toggle Active",
+      name: t("Toggle Active"),
       isDisabled: !showInactiveUsers,
       isModal: false,
       isPath: false,
@@ -194,7 +196,7 @@ export default function Users() {
     },
   ];
   const addButton = {
-    name: `Add User`,
+    name: t("Add User"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -215,7 +217,7 @@ export default function Users() {
 
   const filters = [
     {
-      label: "Show Inactive Users",
+      label: t("Show Inactive Users"),
       isUpperSide: false,
       node: (
         <Switch
@@ -262,7 +264,7 @@ export default function Users() {
           columns={columns}
           filters={filters}
           rows={filteredUsers() as TableUser[]}
-          title="Users"
+          title={t("Users")}
           imageHolder={user1}
           addButton={addButton}
         />

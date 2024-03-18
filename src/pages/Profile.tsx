@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
@@ -18,20 +19,21 @@ export default function Profile() {
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const { t } = useTranslation();
 
   const { data } = useGetMentorGamePlays(user?._id ?? "");
 
   const tabs = [
     {
       number: 0,
-      label: " Photo",
+      label: t("Photo"),
       icon: <FaRegUserCircle className="text-lg font-thin" />,
       content: <ProfileCard />,
       isDisabled: false,
     },
     {
       number: 1,
-      label: "Personal Details",
+      label: t("Personal Details"),
       icon: <TbListDetails className="text-lg font-thin" />,
       content: updatedUser && (
         <PersonalDetails isEditable={true} user={updatedUser} />
@@ -40,14 +42,14 @@ export default function Profile() {
     },
     {
       number: 2,
-      label: "Change Password",
+      label: t("Change Password"),
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: <ChangePassword />,
       isDisabled: false,
     },
     {
       number: 3,
-      label: "Mentored Games",
+      label: t("Mentored Games"),
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: data && (
         <div className="px-4 w-full ">
@@ -62,7 +64,7 @@ export default function Profile() {
     },
     {
       number: 4,
-      label: `Known Games (${user?.userGames.length})`,
+      label: `${t("Known Games")} (${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
         <div className="px-4 w-full ">
@@ -80,7 +82,6 @@ export default function Profile() {
   return (
     <>
       <Header showLocationSelector={false} />
-      {/* <BreadCrumb title="Profile" /> */}
       <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     </>
   );

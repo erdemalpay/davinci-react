@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
@@ -53,6 +54,7 @@ const GenericAddEditPanel = <T,>({
 
   submitItem,
 }: Props<T>) => {
+  const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -197,7 +199,7 @@ const GenericAddEditPanel = <T,>({
                     key={input.formKey}
                     className="w-fit ml-auto inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto border-b sm:border-b-0"
                   >
-                    Upload
+                    {t("Upload")}
                     <input
                       type="file"
                       accept="image/*"
@@ -331,7 +333,7 @@ const GenericAddEditPanel = <T,>({
               onClick={close}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               onClick={() => {
@@ -360,7 +362,7 @@ const GenericAddEditPanel = <T,>({
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
             >
-              {isEditMode ? "Update" : "Create"}
+              {isEditMode ? t("Update") : t("Create")}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import { useUpdatePasswordMutation } from "../../../utils/api/user";
@@ -9,6 +10,7 @@ import ItemContainer from "../common/ItemContainer";
 const ChangePassword = () => {
   const { user } = useUserContext();
   const { updatePassword } = useUpdatePasswordMutation();
+  const { t } = useTranslation();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -34,27 +36,27 @@ const ChangePassword = () => {
   return (
     <ItemContainer>
       <div className="flex flex-col gap-2">
-        <H4>Change Password</H4>
-        <P2>To change your password please confirm here</P2>
+        <H4>{t("Change Password")}</H4>
+        <P2>{t("To change your password please confirm here")}</P2>
       </div>
       <div className="flex flex-col gap-4">
         <TextInput
-          label="Old Password"
-          placeholder="Enter old password"
+          label={t("Old Password")}
+          placeholder={t("Enter old password")}
           type="password"
           value={currentPassword}
           onChange={setCurrentPassword}
         />
         <TextInput
-          label="New Password"
-          placeholder="Enter new password"
+          label={t("New Password")}
+          placeholder={t("Enter new password")}
           type="password"
           value={newPassword}
           onChange={setNewPassword}
         />
         <TextInput
-          label="Confirm Password"
-          placeholder="Enter confirm password"
+          label={t("Confirm Password")}
+          placeholder={t("Enter confirm password")}
           type="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
@@ -65,7 +67,7 @@ const ChangePassword = () => {
         className="w-fit bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md ml-auto"
         onClick={resetPassword}
       >
-        Change
+        {t("Change")}
       </button>
     </ItemContainer>
   );
