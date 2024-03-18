@@ -1,8 +1,9 @@
 import { Switch } from "@headlessui/react";
-import { FormEvent, useEffect, useState } from "react";
+import { addMonths, format } from "date-fns";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -16,40 +17,11 @@ import {
   useGetMemberships,
   useMembershipMutations,
 } from "../utils/api/membership";
-
-import { addMonths, format } from "date-fns";
 import { formatDate } from "../utils/dateUtil";
 import { formatAsLocalDate } from "../utils/format";
 
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.DATE,
-    formKey: "startDate",
-    label: "Start Date",
-    placeholder: "Start Date",
-    required: true,
-  },
-  {
-    type: InputTypes.DATE,
-    formKey: "endDate",
-    label: "End Date",
-    placeholder: "End Date",
-    required: true,
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "startDate", type: FormKeyTypeEnum.DATE },
-  { key: "endDate", type: FormKeyTypeEnum.DATE },
-];
 export default function Memberships() {
+  const { t } = useTranslation();
   const { deleteMembership, updateMembership, createMembership } =
     useMembershipMutations();
   const memberships = useGetMemberships();
@@ -63,31 +35,40 @@ export default function Memberships() {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const today = formatDate(new Date());
-  function updateMembershipHandler(
-    event: FormEvent<HTMLInputElement>,
-    item?: Membership
-  ) {
-    if (!item) return;
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
 
-    updateMembership({
-      id: item._id,
-      updates: { [target.name]: target.value },
-    });
-    toast.success(`Membership ${item.name} updated`);
-  }
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "startDate",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "endDate",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "startDate", type: FormKeyTypeEnum.DATE },
+    { key: "endDate", type: FormKeyTypeEnum.DATE },
+  ];
   const columns = [
-    { key: "Name", isSortable: true },
-    {
-      key: "Start Date",
-      isSortable: true,
-    },
-    {
-      key: "End Date",
-      isSortable: true,
-    },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Start Date"), isSortable: true },
+    { key: t("End Date"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -109,7 +90,7 @@ export default function Memberships() {
   ];
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -120,8 +101,8 @@ export default function Memberships() {
             deleteMembership(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Membership"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Membership")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -131,7 +112,7 @@ export default function Memberships() {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -162,7 +143,7 @@ export default function Memberships() {
     },
   ];
   const addButton = {
-    name: `Add`,
+    name: t("Add Membership"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -187,7 +168,7 @@ export default function Memberships() {
 
   const filters = [
     {
-      label: "Show Expired Memberships",
+      label: t("Show Expired Memberships"),
       isUpperSide: false,
       node: (
         <Switch
@@ -229,7 +210,7 @@ export default function Memberships() {
           columns={columns}
           filters={filters}
           rows={filteredRewards() as Membership[]}
-          title="Memberships"
+          title={t("Memberships")}
           addButton={addButton}
         />
       </div>

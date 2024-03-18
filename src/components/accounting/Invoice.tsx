@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
@@ -29,6 +30,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {};
 
 const Invoice = (props: Props) => {
+  const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -81,28 +83,28 @@ const Invoice = (props: Props) => {
     {
       type: InputTypes.DATE,
       formKey: "date",
-      label: "Date",
-      placeholder: "Date",
+      label: t("Date"),
+      placeholder: t("Date"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "product",
-      label: "Product",
+      label: t("Product"),
       options: products.map((product) => {
         return {
           value: product._id,
           label: product.name,
         };
       }),
-      placeholder: "Product",
+      placeholder: t("Product"),
       invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
-      label: "Expense Type",
+      label: t("Expense Type"),
       options: expenseTypes
         .filter((exp) =>
           products
@@ -115,27 +117,27 @@ const Invoice = (props: Props) => {
             label: expenseType.name,
           };
         }),
-      placeholder: "Expense Type",
+      placeholder: t("Expense Type"),
       required: true,
     },
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
-      label: "Quantity",
-      placeholder: "Quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
       required: true,
     },
     {
       type: InputTypes.NUMBER,
       formKey: "totalExpense",
-      label: "Total Expense",
-      placeholder: "Total Expense",
+      label: t("Total Expense"),
+      placeholder: t("Total Expense"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "brand",
-      label: "Brand",
+      label: t("Brand"),
       options: brands
         ?.filter((brnd) =>
           products
@@ -148,13 +150,13 @@ const Invoice = (props: Props) => {
             label: brand.name,
           };
         }),
-      placeholder: "Brand",
+      placeholder: t("Brand"),
       required: false,
     },
     {
       type: InputTypes.SELECT,
       formKey: "vendor",
-      label: "Vendor",
+      label: t("Vendor"),
       options: vendors
         ?.filter((vndr) =>
           products
@@ -167,14 +169,14 @@ const Invoice = (props: Props) => {
             label: vendor.name,
           };
         }),
-      placeholder: "Vendor",
+      placeholder: t("Vendor"),
       required: false,
     },
     {
       type: InputTypes.TEXT,
       formKey: "documentNo",
-      label: "Document No",
-      placeholder: "Document No",
+      label: t("Document No"),
+      placeholder: t("Document No"),
       required: false,
     },
   ];
@@ -193,16 +195,16 @@ const Invoice = (props: Props) => {
   ];
   const columns = [
     { key: "ID", isSortable: true },
-    { key: "Date", isSortable: true },
-    { key: "Document No", isSortable: true },
-    { key: "Brand", isSortable: true },
-    { key: "Vendor", isSortable: true },
-    { key: "Expense Type", isSortable: true },
-    { key: "Product", isSortable: true },
-    { key: "Quantity", isSortable: true },
-    { key: "Unit", isSortable: true },
-    { key: "Unit Price", isSortable: true },
-    { key: "Total Expense", isSortable: true },
+    { key: t("Date"), isSortable: true },
+    { key: t("Document No"), isSortable: true },
+    { key: t("Brand"), isSortable: true },
+    { key: t("Vendor"), isSortable: true },
+    { key: t("Expense Type"), isSortable: true },
+    { key: t("Product"), isSortable: true },
+    { key: t("Quantity"), isSortable: true },
+    { key: t("Unit"), isSortable: true },
+    { key: t("Unit Price"), isSortable: true },
+    { key: t("Total Expense"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -257,7 +259,7 @@ const Invoice = (props: Props) => {
     },
   ];
   const addButton = {
-    name: `Add Invoice`,
+    name: t(`Add Invoice`),
     isModal: true,
 
     modal: (
@@ -282,7 +284,7 @@ const Invoice = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
@@ -305,7 +307,7 @@ const Invoice = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       isDisabled: !isEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
@@ -358,7 +360,7 @@ const Invoice = (props: Props) => {
 
   const filters = [
     {
-      label: "Enable Edit",
+      label: t("Enable Edit"),
       isUpperSide: false,
       node: (
         <Switch
@@ -412,11 +414,11 @@ const Invoice = (props: Props) => {
           isActionsActive={isEnableEdit}
           columns={
             isEnableEdit
-              ? [...columns, { key: "Action", isSortable: false }]
+              ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
           rows={rows}
-          title="Invoices"
+          title={t("Invoices")}
           addButton={addButton}
         />
       </div>

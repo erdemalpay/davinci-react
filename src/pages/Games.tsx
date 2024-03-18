@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
@@ -16,17 +17,10 @@ import {
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-];
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 export default function Games() {
+  const { t } = useTranslation();
+
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
@@ -53,10 +47,18 @@ export default function Games() {
     });
     toast.success(`Game ${game.name} updated`);
   }
-
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+  ];
   const columns = [
     { key: "", isSortable: false },
-    { key: "Name", isSortable: true },
+    { key: t("Name"), isSortable: true },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
   ];
@@ -84,7 +86,7 @@ export default function Games() {
               row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {row.locations.includes(1) ? "Yes" : "No"}
+            {row.locations.includes(1) ? t("Yes") : t("No")}
           </p>
         ),
     },
@@ -102,14 +104,14 @@ export default function Games() {
               row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {row.locations.includes(2) ? "Yes" : "No"}
+            {row.locations.includes(2) ? t("Yes") : t("No")}
           </p>
         ),
     },
   ];
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
@@ -121,8 +123,8 @@ export default function Games() {
             deleteGame(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Game"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Game")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -132,7 +134,7 @@ export default function Games() {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       isDisabled: !isEnableEdit,
 
       icon: <FiEdit />,
@@ -161,7 +163,7 @@ export default function Games() {
 
   const filters = [
     {
-      label: "Enable Edit",
+      label: t("Enable Edit"),
       isUpperSide: false,
       node: (
         <Switch
@@ -180,7 +182,7 @@ export default function Games() {
     },
   ];
   const addButton = {
-    name: `Add Game`,
+    name: t("Add Game"),
     isModal: true,
     modal: (
       <AddGameDialog
@@ -211,11 +213,11 @@ export default function Games() {
           isActionsActive={isEnableEdit}
           columns={
             isEnableEdit
-              ? [...columns, { key: "Action", isSortable: false }]
+              ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
           filters={filters}
-          title="Games"
+          title={t("Games")}
           addButton={addButton}
         />
       </div>

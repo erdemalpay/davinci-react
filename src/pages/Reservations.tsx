@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaCheck, FaPhone } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { IoLockOpenOutline } from "react-icons/io5";
@@ -24,36 +25,8 @@ import {
   useReservationMutations,
 } from "../utils/api/reservations";
 
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.TEXT,
-    formKey: "phone",
-    label: "Phone",
-    placeholder: "Phone",
-    required: true,
-    additionalType: "phone",
-  },
-  {
-    type: InputTypes.TIME,
-    formKey: "reservationHour",
-    label: "Reservation Time",
-    placeholder: "Reservation Time",
-    required: true,
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "phone", type: FormKeyTypeEnum.STRING },
-  { key: "reservationHour", type: FormKeyTypeEnum.STRING },
-];
 export default function Reservations() {
+  const { t } = useTranslation();
   const reservations = useGetReservations();
   const navigate = useNavigate();
   const [tableKey, setTableKey] = useState(0);
@@ -108,13 +81,42 @@ export default function Reservations() {
         return "bg-yellow-100";
     }
   }
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "phone",
+      label: t("Phone"),
+      placeholder: t("Phone"),
+      required: true,
+      additionalType: "phone",
+    },
+    {
+      type: InputTypes.TIME,
+      formKey: "reservationHour",
+      label: t("Reservation Time"),
+      placeholder: t("Reservation Time"),
+      required: true,
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "phone", type: FormKeyTypeEnum.STRING },
+    { key: "reservationHour", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Phone", isSortable: true },
-    { key: "Time", isSortable: true },
-    { key: "Reserved Table", isSortable: true },
-    { key: "Status", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Phone"), isSortable: true },
+    { key: t("Time"), isSortable: true },
+    { key: t("Reserved Table"), isSortable: true },
+    { key: t("Status"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -141,7 +143,7 @@ export default function Reservations() {
   ];
   const actions = [
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -165,12 +167,12 @@ export default function Reservations() {
       isPath: false,
     },
     {
-      name: "Called",
+      name: t("Called"),
       icon: null,
       isModal: false,
       isPath: false,
       node: (row: Reservation) => (
-        <ButtonTooltip content="Called">
+        <ButtonTooltip content={t("Called")}>
           <button
             className="mt-2  min-w-6"
             onClick={() => {
@@ -192,7 +194,7 @@ export default function Reservations() {
       isPath: false,
       node: (row: Reservation) =>
         !isCompleted(row) && (
-          <ButtonTooltip content="Group has come">
+          <ButtonTooltip content={t("Group has come")}>
             <button
               className="mt-2  min-w-6  "
               onClick={() => {
@@ -214,7 +216,7 @@ export default function Reservations() {
       isModal: false,
       isPath: false,
       node: (row: Reservation) => (
-        <ButtonTooltip content="Open back">
+        <ButtonTooltip content={t("Open back")}>
           <button
             className="mt-2  min-w-6 "
             onClick={() => {
@@ -235,7 +237,7 @@ export default function Reservations() {
 
   const filters = [
     {
-      label: "Hide Completed Reservations",
+      label: t("Hide Completed Reservations"),
       isUpperSide: false,
       node: (
         <Switch
@@ -264,13 +266,13 @@ export default function Reservations() {
            text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
           onClick={() => navigate(Routes.Tables)}
         >
-          <H5>Show Tables</H5>
+          <H5>{t("Show Tables")}</H5>
         </button>
       ),
     },
   ];
   const addButton = {
-    name: `Add Reservation`,
+    name: t("Add Reservation"),
     isModal: true,
     modal: (
       <AddReservationDialog
@@ -307,7 +309,7 @@ export default function Reservations() {
           actions={actions}
           columns={columns}
           filters={filters}
-          title="Reservations"
+          title={t("Reservations")}
           addButton={addButton}
           rowClassNameFunction={getBgColor}
         />

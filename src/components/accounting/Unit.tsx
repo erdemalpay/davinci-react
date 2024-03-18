@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountUnit } from "../../types";
@@ -12,17 +13,9 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-];
-const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+
 const Unit = (props: Props) => {
+  const { t } = useTranslation();
   const units = useGetAccountUnits();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,8 +28,8 @@ const Unit = (props: Props) => {
   const { createAccountUnit, deleteAccountUnit, updateAccountUnit } =
     useAccountUnitMutations();
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -44,8 +37,19 @@ const Unit = (props: Props) => {
       className: "min-w-32 pr-1",
     },
   ];
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+  ];
+  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+
   const addButton = {
-    name: `Add Unit`,
+    name: t(`Add Unit`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -65,7 +69,7 @@ const Unit = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -76,8 +80,8 @@ const Unit = (props: Props) => {
             deleteAccountUnit(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Unit"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Unit")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl ml-auto ",
@@ -87,7 +91,7 @@ const Unit = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
@@ -122,7 +126,7 @@ const Unit = (props: Props) => {
           actions={actions}
           columns={columns}
           rows={units}
-          title="Units"
+          title={t("Units")}
           addButton={addButton}
         />
       </div>

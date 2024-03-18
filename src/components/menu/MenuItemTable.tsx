@@ -1,9 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import { MenuItem, MenuPopular } from "../../types";
@@ -19,78 +18,9 @@ type Props = {
   singleItemGroup: ItemGroup;
   popularItems: MenuPopular[];
 };
-// these are the inputs for the add item modal
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.TEXTAREA,
-    formKey: "description",
-    label: "Description",
-    placeholder: "Description",
-    required: true,
-  },
-  {
-    type: InputTypes.NUMBER,
-    formKey: "priceBahceli",
-    label: "Price (Bahçeli)",
-    placeholder: "Price (Bahçeli)",
-    required: true,
-  },
-  {
-    type: InputTypes.NUMBER,
-    formKey: "priceNeorama",
-    label: "Price (Neorama)",
-    placeholder: "Price (Neorama)",
-    required: true,
-  },
-  {
-    type: InputTypes.IMAGE,
-    formKey: "imageUrl",
-    label: "Image",
-    required: false,
-    folderName: "menu",
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "description", type: FormKeyTypeEnum.STRING },
-  { key: "priceBahceli", type: FormKeyTypeEnum.NUMBER },
-  { key: "priceNeorama", type: FormKeyTypeEnum.NUMBER },
-  { key: "imageUrl", type: FormKeyTypeEnum.STRING },
-];
-// these are the columns and rowKeys for the table
-const columns = [
-  { key: "", isSortable: false },
-  { key: "Name", isSortable: true },
-  { key: "Description", isSortable: true },
-  { key: "Price (Bahçeli)", isSortable: true },
-  { key: "Price (Neorama)", isSortable: true },
-  { key: "Action", isSortable: false },
-];
-
-const rowKeys = [
-  { key: "imageUrl", isImage: true },
-  {
-    key: "name",
-  },
-  {
-    key: "description",
-  },
-  {
-    key: "priceBahceli",
-  },
-  {
-    key: "priceNeorama",
-  },
-];
 
 const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
+  const { t } = useTranslation();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { createPopular, deletePopular } = usePopularMutations();
@@ -100,8 +30,78 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
+  // these are the inputs for the add item modal
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "description",
+      label: t("Description"),
+      placeholder: t("Description"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "priceBahceli",
+      label: `${t("Price")} (Bahçeli)`,
+      placeholder: `${t("Price")} (Bahçeli)`,
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "priceNeorama",
+      label: `${t("Price")} (Neorama)`,
+      placeholder: `${t("Price")} (Neorama)`,
+      required: true,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: "Image",
+      required: false,
+      folderName: "menu",
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "description", type: FormKeyTypeEnum.STRING },
+    { key: "priceBahceli", type: FormKeyTypeEnum.NUMBER },
+    { key: "priceNeorama", type: FormKeyTypeEnum.NUMBER },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+  ];
+  // these are the columns and rowKeys for the table
+  const columns = [
+    { key: "", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Description"), isSortable: true },
+    { key: `${t("Price")} (Bahçeli)`, isSortable: true },
+    { key: `${t("Price")} (Neorama)`, isSortable: true },
+    { key: t("Action"), isSortable: false },
+  ];
+
+  const rowKeys = [
+    { key: "imageUrl", isImage: true },
+    {
+      key: "name",
+    },
+    {
+      key: "description",
+    },
+    {
+      key: "priceBahceli",
+    },
+    {
+      key: "priceNeorama",
+    },
+  ];
   const addButton = {
-    name: `Add Item`,
+    name: t(`Add Item`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -132,7 +132,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -140,8 +140,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => deleteItem(rowToAction?._id)}
-          title="Delete Item"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Item")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -151,7 +151,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -175,7 +175,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isPath: false,
     },
     {
-      name: "Popular",
+      name: t("Popular"),
       isPath: false,
       isModal: false,
       icon: null,
@@ -188,8 +188,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             className="text-blue-500 cursor-pointer text-xl"
             onClick={() => deletePopular(row._id)}
           >
-            <ButtonTooltip content="Unpopular">
-              <FaStar className="text-yellow-500" />
+            <ButtonTooltip content={t("Unpopular")}>
+              <FaStar className="text-yellow-700" />
             </ButtonTooltip>
           </button>
         ) : (
@@ -197,70 +197,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             className="text-gray-500 cursor-pointer text-xl"
             onClick={() => createPopular({ item: row._id })}
           >
-            <ButtonTooltip content="Popular">
+            <ButtonTooltip content={t("Popular")}>
               <FaRegStar />
             </ButtonTooltip>
           </button>
         );
       },
     },
-    {
-      name: "Move",
-      icon: null,
-      className: "text-blue-500 cursor-pointer text-xl",
-      node: (row: MenuItem) => (
-        <div className="flex flex-row justify-center items-center gap-2">
-          <button
-            onClick={() => updateItemOrder(row, true)}
-            className={`${
-              singleItemGroup.items[0] === row ? "invisible" : "visible"
-            }`}
-          >
-            <ButtonTooltip content="Up">
-              <SlArrowUp className="text-green-500 w-6 h-6" />
-            </ButtonTooltip>
-          </button>
-
-          <button
-            onClick={() => updateItemOrder(row, false)}
-            className={`${
-              singleItemGroup.items[singleItemGroup.items.length - 1] === row
-                ? "invisible"
-                : "visible"
-            }`}
-          >
-            <ButtonTooltip content="Down">
-              <SlArrowDown className="text-green-500 w-6 h-6" />
-            </ButtonTooltip>
-          </button>
-        </div>
-      ),
-
-      isModal: false,
-      setRow: setRowToAction,
-      isPath: false,
-    },
   ];
-  function updateItemOrder(item: MenuItem, up: boolean) {
-    const newOrder = up
-      ? singleItemGroup.items[singleItemGroup.items.indexOf(item) - 1].order
-      : singleItemGroup.items[singleItemGroup.items.indexOf(item) + 1].order;
-    const otherItem =
-      singleItemGroup &&
-      singleItemGroup.items.find((c) => c.order === newOrder);
-    updateItem({
-      id: item._id,
-      updates: { order: newOrder },
-    });
-    if (otherItem) {
-      updateItem({
-        id: otherItem._id,
-        updates: { order: item.order },
-      });
-    }
 
-    toast.success("Item order updated");
-  }
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

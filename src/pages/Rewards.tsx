@@ -1,11 +1,11 @@
 import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaCheck } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoLockOpenOutline } from "react-icons/io5";
-import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -19,35 +19,8 @@ import { Reward } from "../types";
 import { useGetRewards, useRewardMutations } from "../utils/api/reward";
 import { formatAsLocalDate } from "../utils/format";
 
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.DATE,
-    formKey: "startDate",
-    label: "Start Date",
-    placeholder: "Start Date",
-    required: true,
-  },
-  {
-    type: InputTypes.DATE,
-    formKey: "endDate",
-    label: "End Date",
-    placeholder: "End Date",
-    required: true,
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "startDate", type: FormKeyTypeEnum.DATE },
-  { key: "endDate", type: FormKeyTypeEnum.DATE },
-];
 export default function Rewards() {
+  const { t } = useTranslation();
   const rewards = useGetRewards();
   const today = format(new Date(), "yyyy-MM-dd");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -60,12 +33,39 @@ export default function Rewards() {
   const [showExpiredRewards, setShowExpiredRewards] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "startDate",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "endDate",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "startDate", type: FormKeyTypeEnum.DATE },
+    { key: "endDate", type: FormKeyTypeEnum.DATE },
+  ];
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Start Date", isSortable: true },
-    { key: "End Date", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Start Date"), isSortable: true },
+    { key: t("End Date"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -86,7 +86,7 @@ export default function Rewards() {
     },
   ];
   const addButton = {
-    name: `Add`,
+    name: t("Add Reward"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -113,7 +113,7 @@ export default function Rewards() {
       icon: null,
       node: (row: Reward) =>
         row.used ? (
-          <ButtonTooltip content="Set unused">
+          <ButtonTooltip content={t("Set unused")}>
             <button
               onClick={() => {
                 updateReward({ id: row._id, updates: { used: false } });
@@ -123,7 +123,7 @@ export default function Rewards() {
             </button>
           </ButtonTooltip>
         ) : (
-          <ButtonTooltip content="Set used">
+          <ButtonTooltip content={t("Set used")}>
             <button
               onClick={() => {
                 updateReward({ id: row._id, updates: { used: true } });
@@ -135,7 +135,7 @@ export default function Rewards() {
         ),
     },
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -147,7 +147,7 @@ export default function Rewards() {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Reward"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -157,7 +157,7 @@ export default function Rewards() {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -184,7 +184,7 @@ export default function Rewards() {
 
   const filters = [
     {
-      label: "Show Expired/Used Rewards",
+      label: t("Show Expired/Used Rewards"),
       isUpperSide: false,
       node: (
         <Switch
@@ -206,20 +206,7 @@ export default function Rewards() {
       ),
     },
   ];
-  function updateRewardHandler(
-    event: FormEvent<HTMLInputElement>,
-    item?: Reward
-  ) {
-    if (!item) return;
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
 
-    updateReward({
-      id: item._id,
-      updates: { [target.name]: target.value },
-    });
-    toast.success(`Reward ${item.name} updated`);
-  }
   const filteredRewards = () => {
     if (!showExpiredRewards) {
       return rewards?.filter(
@@ -243,7 +230,7 @@ export default function Rewards() {
           columns={columns}
           filters={filters}
           rows={filteredRewards() as Reward[]}
-          title="Free Entrance Rewards"
+          title={t("Free Entrance Rewards")}
           addButton={addButton}
         />
       </div>

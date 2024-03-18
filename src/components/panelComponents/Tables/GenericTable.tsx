@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { RowPerPageEnum } from "../../../types";
@@ -56,6 +57,7 @@ const GenericTable = <T,>({
     RowPerPageEnum.THIRD,
   ],
 }: Props<T>) => {
+  const { t } = useTranslation();
   const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
     useGeneralContext();
   const navigate = useNavigate();
@@ -196,7 +198,7 @@ const GenericTable = <T,>({
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Search..."
+            placeholder={t("Search")}
             className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
           />
         )}
@@ -441,7 +443,7 @@ const GenericTable = <T,>({
             <div className="w-fit ml-auto flex flex-row gap-4">
               {/* Rows per page */}
               <div className="flex flex-row gap-2 px-6 items-center">
-                <Caption>Rows per page:</Caption>
+                <Caption>{t("Rows per page")}:</Caption>
                 <select
                   className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
                   value={rowsPerPage}

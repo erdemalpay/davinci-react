@@ -1,14 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -18,27 +16,8 @@ type Props = {
   activeTab: number;
 };
 
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.IMAGE,
-    formKey: "imageUrl",
-    label: "Image",
-    required: false,
-    folderName: "menu",
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "imageUrl", type: FormKeyTypeEnum.STRING },
-];
 const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
+  const { t } = useTranslation();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -49,10 +28,30 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: t("Image"),
+      required: false,
+      folderName: "menu",
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [
     { key: "", isSortable: false },
-    { key: "Name", isSortable: true },
-    { key: "Action", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Action"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -62,7 +61,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     },
   ];
   const addButton = {
-    name: `Add Category`,
+    name: t("Add Category"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -82,23 +81,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
-  function updateCategoryOrder(category: MenuCategory, up: boolean) {
-    const newOrder = up ? category.order - 1 : category.order + 1;
-    const otherItem =
-      categories && categories.find((c) => c.order === newOrder);
-    updateCategory({
-      id: category._id,
-      updates: { order: newOrder },
-    });
-    if (otherItem) {
-      updateCategory({
-        id: otherItem._id,
-        updates: { order: category.order },
-      });
-    }
 
-    toast.success("Category order updated");
-  }
   const handleDrag = (DragRow: MenuCategory, DropRow: MenuCategory) => {
     updateCategory({
       id: DragRow._id,
@@ -111,7 +94,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -123,8 +106,8 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
             setActiveTab(activeTab - 1);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title="Delete Category"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          title={t("Delete Category")}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -134,7 +117,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -158,38 +141,6 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
 
       isPath: false,
     },
-    {
-      name: "Move",
-      icon: null,
-      className: "text-blue-500 cursor-pointer text-xl",
-      node: (row: MenuCategory) => (
-        <div className="flex flex-row justify-center items-center gap-2">
-          <button
-            onClick={() => updateCategoryOrder(row, true)}
-            className={`${row.order === 1 ? "invisible" : "visible"}`}
-          >
-            <ButtonTooltip content="Up">
-              <SlArrowUp className="text-green-500 w-6 h-6" />
-            </ButtonTooltip>
-          </button>
-
-          <button
-            onClick={() => updateCategoryOrder(row, false)}
-            className={`${
-              row.order === categories.length ? "invisible" : "visible"
-            }`}
-          >
-            <ButtonTooltip content="Down">
-              <SlArrowDown className="text-green-500 w-6 h-6" />
-            </ButtonTooltip>
-          </button>
-        </div>
-      ),
-
-      isModal: false,
-      setRow: setRowToAction,
-      isPath: false,
-    },
   ];
 
   return (
@@ -199,7 +150,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         actions={actions}
         columns={columns}
         rows={categories}
-        title={"Categories"}
+        title={t("Categories")}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
         isDraggable={true}
