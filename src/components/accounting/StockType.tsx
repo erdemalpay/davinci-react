@@ -135,7 +135,7 @@ const StockType = (props: Props) => {
 
   return (
     <>
-      <div className="w-[95%] mx-auto my-10">
+      <div className="w-[95%] mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}

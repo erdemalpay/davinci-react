@@ -1,3 +1,4 @@
+import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -30,6 +31,7 @@ const Stock = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountStock>();
   const [form, setForm] = useState({
     product: "",
@@ -144,7 +146,6 @@ const Stock = (props: Props) => {
     { key: "Quantity", isSortable: true },
     { key: "Unit Price", isSortable: true },
     { key: "Total Price", isSortable: true },
-    { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
     {
@@ -163,7 +164,7 @@ const Stock = (props: Props) => {
     { key: "lctn" },
     { key: "quantity" },
     { key: "unitPrice" },
-    { key: "totalPrice" },
+    { key: "totalPrice", className: !isEnableEdit ? "text-center" : "" },
   ];
   const addButton = {
     name: `Add Stock`,
@@ -281,6 +282,26 @@ const Stock = (props: Props) => {
       isPath: false,
     },
   ];
+  const filters = [
+    {
+      label: "Enable Edit",
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
   useEffect(() => {
     setRows(
       stocks.map((stock) => {
@@ -301,12 +322,17 @@ const Stock = (props: Props) => {
 
   return (
     <>
-      <div className="w-[95%] mx-auto my-10">
+      <div className="w-[95%] mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={actions}
-          columns={columns}
+          actions={isEnableEdit ? actions : []}
+          filters={filters}
+          columns={
+            isEnableEdit
+              ? [...columns, { key: "Action", isSortable: false }]
+              : columns
+          }
           rows={rows}
           title="Stocks"
           addButton={addButton}
