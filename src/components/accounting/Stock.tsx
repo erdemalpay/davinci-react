@@ -51,7 +51,9 @@ const Stock = (props: Props) => {
         lctn: (stock.location as Location).name,
         stckTyp: (stock.stockType as AccountStockType).name,
         unt: (stock.unit as AccountUnit).name,
-        totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+        totalPrice: parseFloat(
+          ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+        ),
       };
     })
   );
@@ -65,8 +67,8 @@ const Stock = (props: Props) => {
     if (!selectedProduct) return;
     return [
       {
-        value: (selectedProduct.unit as AccountUnit)._id,
-        label: (selectedProduct.unit as AccountUnit).name,
+        value: (selectedProduct?.unit as AccountUnit)?._id,
+        label: (selectedProduct?.unit as AccountUnit)?.name,
       },
     ];
   };
@@ -126,13 +128,6 @@ const Stock = (props: Props) => {
       placeholder: "Quantity",
       required: true,
     },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "unitPrice",
-      label: "Unit Price",
-      placeholder: "Unit Price",
-      required: false,
-    },
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
@@ -140,7 +135,6 @@ const Stock = (props: Props) => {
     { key: "stockType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "unitPrice", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "Stock Type", isSortable: true },
@@ -153,7 +147,17 @@ const Stock = (props: Props) => {
     { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
-    { key: "stckTyp" },
+    {
+      key: "stckTyp",
+      node: (row: any) => (
+        <div
+          className={` px-2 py-1 rounded-md  w-fit text-white`}
+          style={{ backgroundColor: row?.stockType?.backgroundColor }}
+        >
+          {row?.stckTyp}
+        </div>
+      ),
+    },
     { key: "prdct" },
     { key: "unt" },
     { key: "lctn" },
@@ -213,16 +217,61 @@ const Stock = (props: Props) => {
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
+      onClick: (row: AccountStock) => {
+        setForm({
+          ...form,
+          product: (row.product as AccountProduct)._id,
+        });
+      },
       modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
+          inputs={[
+            ...inputs,
+            {
+              type: InputTypes.NUMBER,
+              formKey: "unitPrice",
+              label: "Unit Price",
+              placeholder: "Unit Price",
+              required: false,
+            },
+          ]}
+          formKeys={[
+            ...formKeys,
+            { key: "unitPrice", type: FormKeyTypeEnum.NUMBER },
+          ]}
           submitItem={updateAccountStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          constantValues={{
+            unit: (rowToAction.unit as AccountUnit)._id,
+          }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              product: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.product as AccountProduct
+              )?._id,
+              unit: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.unit as AccountUnit
+              )?._id,
+              stockType: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.stockType as AccountStockType
+              )?._id,
+              location: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.location as Location
+              )?._id,
+              quantity: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.quantity,
+              unitPrice: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.unitPrice,
+            },
+          }}
         />
       ) : null,
 
@@ -241,7 +290,9 @@ const Stock = (props: Props) => {
           lctn: (stock.location as Location).name,
           stckTyp: (stock.stockType as AccountStockType).name,
           unt: (stock.unit as AccountUnit).name,
-          totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+          totalPrice: parseFloat(
+            ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+          ),
         };
       })
     );

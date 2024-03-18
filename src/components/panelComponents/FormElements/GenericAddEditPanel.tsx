@@ -166,8 +166,12 @@ const GenericAddEditPanel = <T,>({
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
+      onClick={close}
     >
-      <div className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-50 overflow-visible overflow-scroll">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-[100] overflow-visible overflow-scroll"
+      >
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
             className={`${
@@ -216,7 +220,6 @@ const GenericAddEditPanel = <T,>({
                   );
                   if (changedInput?.invalidateKeys) {
                     changedInput.invalidateKeys.forEach((key) => {
-                      console.log(key);
                       setFormElements((prev) => ({
                         ...prev,
                         [key.key]: key.defaultValue,
