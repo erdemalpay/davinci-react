@@ -98,6 +98,7 @@ export type AccountVendor = {
 export type AccountStockType = {
   _id: string;
   name: string;
+  backgroundColor: string;
 };
 
 export type AccountInvoice = {

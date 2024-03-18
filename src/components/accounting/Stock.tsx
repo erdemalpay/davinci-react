@@ -8,32 +8,37 @@ import {
   AccountUnit,
   Location,
 } from "../../types";
+import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
+import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
+import { useGetLocations } from "../../utils/api/location";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Daha Bitmedi :)",
-    required: true,
-  },
-];
-const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+
 const Stock = (props: Props) => {
   const stocks = useGetAccountStocks();
+  const products = useGetAccountProducts();
+  const locations = useGetLocations();
+  const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const [form, setForm] = useState({
+    product: "",
+    unit: "",
+    stockType: "",
+    location: 0,
+    quantity: 0,
+    unitPrice: 0,
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -46,12 +51,91 @@ const Stock = (props: Props) => {
         lctn: (stock.location as Location).name,
         stckTyp: (stock.stockType as AccountStockType).name,
         unt: (stock.unit as AccountUnit).name,
-        totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+        totalPrice: parseFloat(
+          ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+        ),
       };
     })
   );
+
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
+  const unitOptions = () => {
+    const selectedProduct = products.filter(
+      (product) => product._id === form.product
+    )[0];
+    if (!selectedProduct) return;
+    return [
+      {
+        value: (selectedProduct?.unit as AccountUnit)?._id,
+        label: (selectedProduct?.unit as AccountUnit)?.name,
+      },
+    ];
+  };
+  const inputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: "Product",
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name,
+        };
+      }),
+      placeholder: "Product",
+      invalidateKeys: [{ key: "unit", defaultValue: 0 }],
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "unit",
+      label: "Unit",
+      options: unitOptions(),
+      placeholder: "Unit",
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "stockType",
+      label: "Stock Type",
+      options: stockTypes.map((stockType) => {
+        return {
+          value: stockType._id,
+          label: stockType.name,
+        };
+      }),
+      placeholder: "Stock Type",
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: "Location",
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: "Location",
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: "Quantity",
+      placeholder: "Quantity",
+      required: true,
+    },
+  ];
+  const formKeys = [
+    { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "unit", type: FormKeyTypeEnum.STRING },
+    { key: "stockType", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   const columns = [
     { key: "Stock Type", isSortable: true },
     { key: "Product", isSortable: true },
@@ -63,7 +147,17 @@ const Stock = (props: Props) => {
     { key: "Actions", isSortable: false },
   ];
   const rowKeys = [
-    { key: "stckTyp" },
+    {
+      key: "stckTyp",
+      node: (row: any) => (
+        <div
+          className={` px-2 py-1 rounded-md  w-fit text-white`}
+          style={{ backgroundColor: row?.stockType?.backgroundColor }}
+        >
+          {row?.stckTyp}
+        </div>
+      ),
+    },
     { key: "prdct" },
     { key: "unt" },
     { key: "lctn" },
@@ -80,9 +174,9 @@ const Stock = (props: Props) => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
+        setForm={setForm}
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
-        constantValues={{ used: false }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -122,16 +216,62 @@ const Stock = (props: Props) => {
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
       setRow: setRowToAction,
+      setForm: setForm,
+      onClick: (row: AccountStock) => {
+        setForm({
+          ...form,
+          product: (row.product as AccountProduct)._id,
+        });
+      },
       modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
+          inputs={[
+            ...inputs,
+            {
+              type: InputTypes.NUMBER,
+              formKey: "unitPrice",
+              label: "Unit Price",
+              placeholder: "Unit Price",
+              required: false,
+            },
+          ]}
+          formKeys={[
+            ...formKeys,
+            { key: "unitPrice", type: FormKeyTypeEnum.NUMBER },
+          ]}
           submitItem={updateAccountStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          constantValues={{
+            unit: (rowToAction.unit as AccountUnit)._id,
+          }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              product: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.product as AccountProduct
+              )?._id,
+              unit: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.unit as AccountUnit
+              )?._id,
+              stockType: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.stockType as AccountStockType
+              )?._id,
+              location: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.location as Location
+              )?._id,
+              quantity: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.quantity,
+              unitPrice: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.unitPrice,
+            },
+          }}
         />
       ) : null,
 
@@ -150,7 +290,9 @@ const Stock = (props: Props) => {
           lctn: (stock.location as Location).name,
           stckTyp: (stock.stockType as AccountStockType).name,
           unt: (stock.unit as AccountUnit).name,
-          totalPrice: (stock?.unitPrice ?? 0) * stock.quantity,
+          totalPrice: parseFloat(
+            ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+          ),
         };
       })
     );
@@ -165,7 +307,7 @@ const Stock = (props: Props) => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={stocks}
+          rows={rows}
           title="Stocks"
           addButton={addButton}
         />
