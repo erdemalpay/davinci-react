@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Bar,
   BarChart,
@@ -51,6 +52,7 @@ export function MentorAnalyticChart({
   setItemLimit,
 }: ChartProps) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: gameAnalytics } = useGetGameplayAnalytics(
     "mentor",
@@ -92,29 +94,30 @@ export function MentorAnalyticChart({
   return (
     <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
       <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
-        {unique ? "Unique " : ""}Gameplay By Game Mentors
+        {unique ? t("Unique") : ""}
+        {t("Gameplay By Game Mentors")}
       </p>
 
       <div className="flex flex-col w-1/2 mb-4">
-        <label className="flex items-center text-xs">Date Filter:</label>
+        <label className="flex items-center text-xs">{t("Date Filter")}:</label>
         <select
           onChange={(value) => setDateFilter(value.target.value as DateFilter)}
           className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
           value={dateFilter}
         >
-          <option value="1">Single Day</option>
-          <option value="2">This Week</option>
-          <option value="3">Last Week</option>
-          <option value="4">This Month</option>
-          <option value="5">Last Month</option>
-          <option value="0">Manual</option>
+          <option value="1">{t("Single Day")}</option>
+          <option value="2">{t("This Week")}</option>
+          <option value="3">{t("Last Week")}</option>
+          <option value="4">{t("This Month")}</option>
+          <option value="5">{t("Last Month")}</option>
+          <option value="0">{t("Manual")}</option>
         </select>
       </div>
       <div className="flex gap-2 w-full mb-4">
         <InputWithLabel
           type="date"
           name="Start Date"
-          label="Start Date"
+          label={t("Start Date")}
           value={startDate}
           onChange={(event) => {
             setStartDate((event.target as HTMLInputElement).value);
@@ -128,7 +131,7 @@ export function MentorAnalyticChart({
         <InputWithLabel
           type="date"
           name="End Date"
-          label="End Date"
+          label={t("End Date")}
           value={endDate}
           onChange={(event) => {
             setEndDate((event.target as HTMLInputElement).value);
@@ -139,19 +142,21 @@ export function MentorAnalyticChart({
       </div>
       <div className="flex w-full justify-between gap-2">
         <div className="flex flex-col w-1/2">
-          <label className="flex items-center text-xs ">Location:</label>
+          <label className="flex items-center text-xs ">{t("Location")}:</label>
           <select
             onChange={(value) => setLocation(value.target.value)}
             className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
             defaultValue="Canada"
           >
-            <option value="1,2">All</option>
+            <option value="1,2">{t("All")}</option>
             <option value="1">Bahçeli</option>
             <option value="2">Neorama</option>
           </select>
         </div>
         <div className="flex flex-col w-1/2">
-          <label className="flex items-center text-xs">Number of items:</label>
+          <label className="flex items-center text-xs">
+            {t("Number of items")}:
+          </label>
           <EditableText
             name="name"
             type="number"
@@ -188,7 +193,7 @@ export function MentorAnalyticChart({
         </ResponsiveContainer>
       ) : (
         <div className="flex w-full h-2/3 justify-center items-center border-2 mt-4">
-          <h1>No Data Available</h1>
+          <h1>{t("No Data Available")}</h1>
         </div>
       )}
     </div>
