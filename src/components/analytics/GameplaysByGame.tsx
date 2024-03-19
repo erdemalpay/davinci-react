@@ -1,5 +1,6 @@
 import { Input, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Game } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -21,13 +22,9 @@ interface GameplayGroupRow {
   secondary: SecondGroupRow[];
   open: boolean;
 }
-const locationOptions = [
-  { value: "0", label: "All" },
-  { value: "1", label: "Bahçeli" },
-  { value: "2", label: "Neorama" },
-];
 
 export default function GameplaysByGames() {
+  const { t } = useTranslation();
   const [gameplayGroupRows, setGameplayGroupRows] = useState<
     GameplayGroupRow[]
   >([]);
@@ -35,7 +32,11 @@ export default function GameplaysByGames() {
     groupBy: "game,mentor",
     location: "0",
   });
-
+  const locationOptions = [
+    { value: "0", label: t("All") },
+    { value: "1", label: "Bahçeli" },
+    { value: "2", label: "Neorama" },
+  ];
   const [gameFilter, setGameFilter] = useState<Game | null>();
 
   const { data } = useGetGameplaysGroups(filterData);
@@ -79,7 +80,7 @@ export default function GameplaysByGames() {
   const columns = [
     {
       id: "game",
-      header: "Game",
+      header: t("Game"),
       cell: (row: GameplayGroupRow) => (
         <Tooltip
           content={`${row.game} (${
@@ -94,7 +95,7 @@ export default function GameplaysByGames() {
     },
     {
       id: "mentor",
-      header: "Mentor",
+      header: t("Mentor"),
       cell: (row: GameplayGroupRow) => {
         if (row.open) {
           return (
@@ -148,7 +149,7 @@ export default function GameplaysByGames() {
         <div className="mb-5 rounded-tl-lg rounded-tr-lg">
           <div className="flex items-center justify-between mb-4">
             <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
-              Gameplays by Games
+              {t("Gameplays by Games")}
             </p>
           </div>
           <div className="flex items-center mt-4 sm:mt-0">
@@ -157,14 +158,14 @@ export default function GameplaysByGames() {
                 <Input
                   variant="standard"
                   name="startDay"
-                  label="After"
+                  label={t("After")}
                   type="date"
                   onChange={handleStartDateSelection}
                 />
                 <Input
                   variant="standard"
                   name="endDay"
-                  label="Before"
+                  label={t("Before")}
                   type="date"
                   onChange={handleEndDateSelection}
                 />
@@ -172,14 +173,14 @@ export default function GameplaysByGames() {
               <div className="mt-2">
                 <Autocomplete
                   name="game"
-                  label="Game"
+                  label={t("Game")}
                   suggestions={games}
                   handleSelection={handleGameSelection}
                   showSelected
                 />
               </div>
               <SelectInput
-                label="Location"
+                label={t("Location")}
                 options={locationOptions}
                 value={
                   locationOptions.find(
@@ -192,7 +193,7 @@ export default function GameplaysByGames() {
                     location: selectedOption?.value,
                   });
                 }}
-                placeholder="Select a location"
+                placeholder={t("Select a location")}
               />
             </div>
           </div>

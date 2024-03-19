@@ -462,7 +462,7 @@ const GenericTable = <T,>({
                       {option}
                     </option>
                   ))}
-                  <option value={rows.length}>ALL</option>
+                  <option value={rows.length}>{t("ALL")}</option>
                 </select>
               </div>
 

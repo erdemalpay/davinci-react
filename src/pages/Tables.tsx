@@ -2,6 +2,7 @@ import { Switch } from "@headlessui/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
@@ -23,6 +24,7 @@ import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
 
 const TablesPage = () => {
+  const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -156,19 +158,19 @@ const TablesPage = () => {
                 onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
                 className="sm:min-w-32 my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm "
               >
-                Close all tables
+                {t("Close all tables")}
               </button>
               <button
                 onClick={() => navigate(Routes.Reservations)}
                 className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
               >
-                Open Reservations
+                {t("Open Reservations")}
               </button>
               <button
                 onClick={() => setIsCreateTableDialogOpen(true)}
                 className="my-3 bg-white transition duration-150 ease-in-out hover:border-gray-900 hover:text-gray-900 rounded border border-gray-800 text-gray-800 px-6 text-sm"
               >
-                Add table
+                {t("Add table")}
               </button>
             </div>
           </div>
@@ -176,7 +178,7 @@ const TablesPage = () => {
             <div className="flex flex-col md:flex-row md:gap-16 w-full">
               <InputWithLabel
                 name="activeTable"
-                label="Open Table"
+                label={t("Open Table")}
                 type="number"
                 readOnly
                 className="w-full"
@@ -184,7 +186,7 @@ const TablesPage = () => {
               />
               <InputWithLabel
                 name="totalTable"
-                label="Total Table"
+                label={t("Total Table")}
                 type="number"
                 readOnly
                 className="w-full"
@@ -193,7 +195,7 @@ const TablesPage = () => {
 
               <InputWithLabel
                 name="activeCustomer"
-                label="Active Customer"
+                label={t("Active Customer")}
                 type="number"
                 readOnly
                 className="w-full"
@@ -201,7 +203,7 @@ const TablesPage = () => {
               />
               <InputWithLabel
                 name="totalCustomer"
-                label="Total Customer"
+                label={t("Total Customer")}
                 type="number"
                 readOnly
                 className="w-full"
@@ -213,7 +215,7 @@ const TablesPage = () => {
             <ActiveVisitList
               suggestions={users}
               name="employees"
-              label="Who's at cafe?"
+              label={t("Who's at cafe?")}
               visits={visits.filter((visit) => !visit.finishHour)}
             />
           ) : (
@@ -221,7 +223,7 @@ const TablesPage = () => {
           )}
         </div>
         <div className="flex justify-end gap-4 items-center">
-          <h1 className="text-md">Show Closed Tables</h1>
+          <h1 className="text-md">{t("Show Closed Tables")}</h1>
           <Switch
             checked={showAllTables}
             onChange={() => setShowAllTables((value) => !value)}
@@ -270,8 +272,8 @@ const TablesPage = () => {
         isOpen={isCloseAllConfirmationDialogOpen}
         close={() => setIsCloseAllConfirmationDialogOpen(false)}
         confirm={handleCloseAllTables}
-        title="Close All Table"
-        text="All tables will be closed. Are you sure you want to continue?"
+        title={t("Close All Table")}
+        text={t("CloseTableMessage")}
       />
     </>
   );

@@ -1,15 +1,17 @@
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
-import { Game, User } from "../types";
+import { Game, RowPerPageEnum, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
+
 interface GameplayRow {
   _id: number;
   game: string;
@@ -19,6 +21,7 @@ interface GameplayRow {
 }
 
 export default function NewGameplays() {
+  const { t } = useTranslation();
   const [gameplays, setGameplays] = useState<GameplayRow[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [filterData, setFilterData] = useState<GameplayFilter>({
@@ -49,7 +52,7 @@ export default function NewGameplays() {
 
   const columns = [
     {
-      key: "Game",
+      key: t("Game"),
       isSortable: false,
       node: () => (
         <th
@@ -58,7 +61,7 @@ export default function NewGameplays() {
           onClick={() => handleSort("game")}
         >
           <div className="flex gap-x-2 pl-3  items-center py-3  min-w-8">
-            <H5>Game</H5>
+            <H5>{t("Game")}</H5>
             {filterData.sort === "game" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
@@ -70,7 +73,7 @@ export default function NewGameplays() {
       ),
     },
     {
-      key: "Game Mentor",
+      key: t("Game Mentor"),
       isSortable: false,
       node: () => (
         <th
@@ -79,7 +82,7 @@ export default function NewGameplays() {
           onClick={() => handleSort("mentor")}
         >
           <div className="flex gap-x-2   items-center py-3  min-w-8">
-            <H5>Game Mentor</H5>
+            <H5>{t("Game Mentor")}</H5>
             {filterData.sort === "mentor" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
@@ -91,7 +94,7 @@ export default function NewGameplays() {
       ),
     },
     {
-      key: "Player Count",
+      key: t("Player Count"),
       isSortable: false,
       node: () => (
         <th
@@ -100,7 +103,7 @@ export default function NewGameplays() {
           onClick={() => handleSort("playerCount")}
         >
           <div className="flex gap-x-2   items-center py-3  min-w-8">
-            <H5>Player Count</H5>
+            <H5>{t("Player Count")}</H5>
             {filterData.sort === "playerCount" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
@@ -112,7 +115,7 @@ export default function NewGameplays() {
       ),
     },
     {
-      key: "Date",
+      key: t("Date"),
       isSortable: false,
       node: () => (
         <th
@@ -121,7 +124,7 @@ export default function NewGameplays() {
           onClick={() => handleSort("date")}
         >
           <div className="flex gap-x-2   items-center py-3  min-w-8">
-            <H5>Date</H5>
+            <H5>{t("Date")}</H5>
             {filterData.sort === "date" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
@@ -231,14 +234,14 @@ export default function NewGameplays() {
           <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
             <Autocomplete
               name="mentor"
-              label="Game Mentor"
+              label={t("Game Mentor")}
               suggestions={users}
               handleSelection={handleMentorSelection}
               showSelected
             />
             <Autocomplete
               name="game"
-              label="Game"
+              label={t("Game")}
               suggestions={games}
               handleSelection={handleGameSelection}
               showSelected
@@ -248,14 +251,14 @@ export default function NewGameplays() {
             <Input
               variant="standard"
               name="startDay"
-              label="After"
+              label={t("After")}
               type="date"
               onChange={handleStartDateSelection}
             />
             <Input
               variant="standard"
               name="endDay"
-              label="Before"
+              label={t("Before")}
               type="date"
               onChange={handleEndDateSelection}
             />
@@ -267,7 +270,7 @@ export default function NewGameplays() {
           rowKeys={rowKeys}
           actions={[]}
           columns={columns}
-          title="GamePlays"
+          title={t("GamePlays")}
           isSearch={false}
           isRowsPerPage={false}
           isPagination={false}
@@ -275,7 +278,7 @@ export default function NewGameplays() {
         <div className="ml-auto flex flex-row justify-between w-fit mt-2 gap-4 __className_a182b8">
           {/* rows per page */}
           <div className="flex flex-row gap-2 px-6 items-center">
-            <Caption>Rows per page:</Caption>
+            <Caption>{t("Rows per page")}:</Caption>
             <select
               className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
               value={filterData?.limit}
@@ -283,9 +286,15 @@ export default function NewGameplays() {
                 handleLimitSelection(value.target.value as unknown as number)
               }
             >
-              <option value={10}>10</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+              <option value={RowPerPageEnum.FIRST}>
+                {RowPerPageEnum.FIRST}
+              </option>
+              <option value={RowPerPageEnum.SECOND}>
+                {RowPerPageEnum.SECOND}
+              </option>
+              <option value={RowPerPageEnum.THIRD}>
+                {RowPerPageEnum.THIRD}
+              </option>
             </select>
           </div>
           {/* pagination */}

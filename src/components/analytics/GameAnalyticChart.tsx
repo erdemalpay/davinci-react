@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Bar,
   BarChart,
@@ -25,6 +26,7 @@ export interface GameCount {
 }
 
 export function GameAnalyticChart() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const games = useGetGames();
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
@@ -81,19 +83,19 @@ export function GameAnalyticChart() {
           className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
           value={dateFilter}
         >
-          <option value="1">Single Day</option>
-          <option value="2">This Week</option>
-          <option value="3">Last Week</option>
-          <option value="4">This Month</option>
-          <option value="5">Last Month</option>
-          <option value="0">Manual</option>
+          <option value="1">{t("Single Day")}</option>
+          <option value="2">{t("This Week")}</option>
+          <option value="3">{t("Last Week")}</option>
+          <option value="4">{t("This Month")}</option>
+          <option value="5">{t("Last Month")}</option>
+          <option value="0">{t("Manual")}</option>
         </select>
       </div>
       <div className="flex gap-2 w-full mb-4">
         <InputWithLabel
           type="date"
           name="Start Date"
-          label="Start Date"
+          label={t("Start Date")}
           value={startDate}
           onChange={(event) => {
             setStartDate((event.target as HTMLInputElement).value);
@@ -107,7 +109,7 @@ export function GameAnalyticChart() {
         <InputWithLabel
           type="date"
           name="End Date"
-          label="End Date"
+          label={t("End Date")}
           value={endDate}
           onChange={(event) => {
             setEndDate((event.target as HTMLInputElement).value);
@@ -118,25 +120,25 @@ export function GameAnalyticChart() {
       </div>
       <div className="flex w-full justify-between gap-2">
         <div className="flex flex-col w-1/2">
-          <label className="flex items-center text-xs ">Location:</label>
+          <label className="flex items-center text-xs ">{t("Location")}:</label>
           <select
             onChange={(value) => setLocation(value.target.value)}
             className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
             value={location}
           >
-            <option value="1,2">All</option>
+            <option value="1,2">{t("All")}</option>
             <option value="1">Bahçeli</option>
             <option value="2">Neorama</option>
           </select>
         </div>
         <div className="flex flex-col w-1/2">
-          <label className="flex items-center text-xs ">Mentor:</label>
+          <label className="flex items-center text-xs ">{t("Mentor")}:</label>
           <select
             onChange={(value) => setMentor(value.target.value)}
             className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
             value={mentor}
           >
-            <option value="">All</option>
+            <option value="">{t("All")}</option>
             {users?.map((mentor) => (
               <option key={mentor._id} value={mentor._id}>
                 {mentor.name}
@@ -145,7 +147,9 @@ export function GameAnalyticChart() {
           </select>
         </div>
         <div className="flex flex-col w-1/2">
-          <label className="flex items-center text-xs">Number of items:</label>
+          <label className="flex items-center text-xs">
+            {t("Number of items")}:
+          </label>
           <EditableText
             name="name"
             type="number"
@@ -182,7 +186,7 @@ export function GameAnalyticChart() {
         </ResponsiveContainer>
       ) : (
         <div className="flex w-full h-2/3 justify-center items-center border-2 mt-4">
-          <h1>No Data Available</h1>
+          <h1>{t("No Data Available")}</h1>
         </div>
       )}
     </div>

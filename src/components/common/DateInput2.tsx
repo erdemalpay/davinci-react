@@ -7,6 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   date: Date;
@@ -14,12 +15,14 @@ interface Props {
 }
 
 export function DateInput({ date, setDate }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="p-2">
       <Popover placement="bottom">
         <PopoverHandler>
           <Input
-            label="Select a Date"
+            label={t("Select a Date")}
             onChange={() => null}
             value={date ? format(date, "dd/MM/yyyy") : ""}
           />

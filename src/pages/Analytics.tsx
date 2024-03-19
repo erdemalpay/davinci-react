@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
@@ -14,6 +15,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { DateFilter } from "../utils/dateUtil";
 
 export default function Analytics() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [tabPanelKey, setTabPanelKey] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
@@ -24,7 +26,7 @@ export default function Analytics() {
   const tabs = [
     {
       number: 0,
-      label: " Gameplay By Game Mentors",
+      label: "Gameplay By Game Mentors",
       icon: <RiGameLine className="text-lg font-thin" />,
       content: (
         <MentorAnalyticChart
@@ -44,7 +46,7 @@ export default function Analytics() {
     },
     {
       number: 1,
-      label: "Unique Gameplay By Game Mentors",
+      label: t("Unique Gameplay By Game Mentors"),
       icon: <SiWegame className="text-lg font-thin" />,
       content: (
         <MentorAnalyticChart
@@ -65,28 +67,28 @@ export default function Analytics() {
     },
     {
       number: 2,
-      label: "Gameplays By Mentors Details",
+      label: t("Gameplays By Mentors Details"),
       icon: <TbPlayCard className="text-lg font-thin" />,
       content: <GameplaysByMentor />,
       isDisabled: false,
     },
     {
       number: 3,
-      label: "Gameplays By Games",
+      label: t("Gameplays By Games"),
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
       isDisabled: false,
     },
     {
       number: 4,
-      label: "Known Games Count",
+      label: t("Known Games Count"),
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
       isDisabled: false,
     },
     {
       number: 5,
-      label: "Who Knows?",
+      label: t("Who Knows?"),
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
       isDisabled: false,

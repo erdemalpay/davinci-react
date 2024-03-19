@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetAllUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -9,13 +10,14 @@ type KnownGamesCountUser = {
 };
 
 const KnownGamesCount = () => {
+  const { t } = useTranslation();
   const users = useGetAllUsers();
   const [tableKey, setTableKey] = useState(1);
   const [rows, setRows] = useState<KnownGamesCountUser[]>([]);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const columns = [
-    { key: "Mentor", isSortable: true },
-    { key: "Game Count", isSortable: true },
+    { key: t("Mentor"), isSortable: true },
+    { key: t("Game Count"), isSortable: true },
   ];
   useEffect(() => {
     const processedUsers = showInactiveUsers
@@ -44,7 +46,7 @@ const KnownGamesCount = () => {
   ];
   const filters = [
     {
-      label: "Show Inactive Users",
+      label: t("Show Inactive Users"),
       isUpperSide: false,
       node: (
         <Switch
@@ -72,7 +74,7 @@ const KnownGamesCount = () => {
           columns={columns}
           rows={rows}
           filters={filters}
-          title="Known Games Count"
+          title={t("Known Games Count")}
         />
       </div>
     </>
