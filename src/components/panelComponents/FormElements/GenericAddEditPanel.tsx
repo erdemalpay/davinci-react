@@ -124,7 +124,6 @@ const GenericAddEditPanel = <T,>({
   );
   useEffect(() => {
     setForm && setForm(formElements as T);
-
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
 

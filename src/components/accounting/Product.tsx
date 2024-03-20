@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountProduct, AccountUnit } from "../../types";
+import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -37,11 +37,14 @@ const Product = (props: Props) => {
   ] = useState(false);
   const { createAccountProduct, deleteAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
+
   const [rows, setRows] = useState(
-    products.map((row) => {
+    products.map((product) => {
       return {
-        ...row,
-        unit: (row.unit as AccountUnit)?.name,
+        ...product,
+        unit: (product.unit as AccountUnit)?.name,
+        stockType: (product.stockType as AccountStockType)?.name,
+        stckType: product.stockType,
       };
     })
   );
@@ -91,7 +94,6 @@ const Product = (props: Props) => {
         };
       }),
       placeholder: t("Stock Type"),
-      isMultiple: true,
       required: true,
     },
     {
@@ -172,21 +174,16 @@ const Product = (props: Props) => {
     {
       key: "stockType",
       className: "min-w-32",
-      node: (row: AccountProduct) => {
-        return row?.stockType?.map((stckType: string) => {
-          const foundStockType = stockTypes.find(
-            (stockType) => stockType._id === stckType
-          );
-          return (
-            <span
-              key={foundStockType?.name ?? "" + row._id}
-              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
-              style={{ backgroundColor: foundStockType?.backgroundColor }}
-            >
-              {foundStockType?.name}
-            </span>
-          );
-        });
+      node: (row: any) => {
+        return (
+          <span
+            key={row?.stckType?.name ?? "" + row._id}
+            className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
+            style={{ backgroundColor: row?.stckType?.backgroundColor }}
+          >
+            {row?.stckType?.name}
+          </span>
+        );
       },
     },
     {
@@ -314,6 +311,8 @@ const Product = (props: Props) => {
         return {
           ...product,
           unit: (product.unit as AccountUnit)?.name,
+          stockType: (product.stockType as AccountStockType)?.name,
+          stckType: product.stockType,
         };
       })
     );
