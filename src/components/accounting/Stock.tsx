@@ -39,7 +39,6 @@ const Stock = (props: Props) => {
   const [rowToAction, setRowToAction] = useState<AccountStock>();
   const [form, setForm] = useState({
     product: "",
-    stockType: "",
     location: 0,
     quantity: 0,
     unitPrice: 0,
@@ -54,7 +53,10 @@ const Stock = (props: Props) => {
         ...stock,
         prdct: (stock.product as AccountProduct).name,
         lctn: (stock.location as Location).name,
-        stckTyp: (stock.stockType as AccountStockType).name,
+        stockType: stockTypes?.find(
+          (stockType) =>
+            stockType._id === (stock.product as AccountProduct).stockType
+        )?.name,
         unit: units?.find(
           (unit) => unit._id === (stock.product as AccountProduct).unit
         )?.name,
@@ -93,20 +95,6 @@ const Stock = (props: Props) => {
       placeholder: t("Product"),
       required: true,
     },
-
-    {
-      type: InputTypes.SELECT,
-      formKey: "stockType",
-      label: t("Stock Type"),
-      options: stockTypes.map((stockType) => {
-        return {
-          value: stockType._id,
-          label: stockType.name,
-        };
-      }),
-      placeholder: t("Stock Type"),
-      required: true,
-    },
     {
       type: InputTypes.SELECT,
       formKey: "location",
@@ -130,7 +118,6 @@ const Stock = (props: Props) => {
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "stockType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -146,13 +133,18 @@ const Stock = (props: Props) => {
 
   const rowKeys = [
     {
-      key: "stckTyp",
+      key: "stockType",
       node: (row: any) => (
         <div
           className={` px-2 py-1 rounded-md  w-fit text-white`}
-          style={{ backgroundColor: row?.stockType?.backgroundColor }}
+          style={{
+            backgroundColor: stockTypes?.find(
+              (stockType) =>
+                stockType._id === (row.product as AccountProduct).stockType
+            )?.backgroundColor,
+          }}
         >
-          {row?.stckTyp}
+          {row?.stockType}
         </div>
       ),
     },
@@ -225,20 +217,8 @@ const Stock = (props: Props) => {
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
-          inputs={[
-            ...inputs,
-            {
-              type: InputTypes.NUMBER,
-              formKey: "unitPrice",
-              label: t("Unit Price"),
-              placeholder: t("Unit Price"),
-              required: false,
-            },
-          ]}
-          formKeys={[
-            ...formKeys,
-            { key: "unitPrice", type: FormKeyTypeEnum.NUMBER },
-          ]}
+          inputs={inputs}
+          formKeys={formKeys}
           submitItem={updateAccountStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
@@ -300,7 +280,10 @@ const Stock = (props: Props) => {
           ...stock,
           prdct: (stock.product as AccountProduct).name,
           lctn: (stock.location as Location).name,
-          stckTyp: (stock.stockType as AccountStockType).name,
+          stockType: stockTypes?.find(
+            (stockType) =>
+              stockType._id === (stock.product as AccountProduct).stockType
+          )?.name,
           unit: units?.find(
             (unit) => unit._id === (stock.product as AccountProduct).unit
           )?.name,
