@@ -16,6 +16,7 @@ import {
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetLocations } from "../../utils/api/location";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -28,6 +29,7 @@ const Stock = (props: Props) => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
+  const units = useGetAccountUnits();
   const locations = useGetLocations();
   const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
@@ -37,7 +39,6 @@ const Stock = (props: Props) => {
   const [rowToAction, setRowToAction] = useState<AccountStock>();
   const [form, setForm] = useState({
     product: "",
-    unit: "",
     stockType: "",
     location: 0,
     quantity: 0,
@@ -54,7 +55,9 @@ const Stock = (props: Props) => {
         prdct: (stock.product as AccountProduct).name,
         lctn: (stock.location as Location).name,
         stckTyp: (stock.stockType as AccountStockType).name,
-        unt: (stock.unit as AccountUnit).name,
+        unit: units?.find(
+          (unit) => unit._id === (stock.product as AccountProduct).unit
+        )?.name,
         totalPrice: parseFloat(
           ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
         ),
@@ -88,17 +91,9 @@ const Stock = (props: Props) => {
         };
       }),
       placeholder: t("Product"),
-      invalidateKeys: [{ key: "unit", defaultValue: 0 }],
       required: true,
     },
-    {
-      type: InputTypes.SELECT,
-      formKey: "unit",
-      label: t("Unit"),
-      options: unitOptions(),
-      placeholder: t("Unit"),
-      required: true,
-    },
+
     {
       type: InputTypes.SELECT,
       formKey: "stockType",
@@ -135,7 +130,6 @@ const Stock = (props: Props) => {
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "stockType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -163,7 +157,7 @@ const Stock = (props: Props) => {
       ),
     },
     { key: "prdct" },
-    { key: "unt" },
+    { key: "unit" },
     { key: "lctn" },
     { key: "quantity" },
     { key: "unitPrice" },
@@ -248,9 +242,6 @@ const Stock = (props: Props) => {
           submitItem={updateAccountStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          constantValues={{
-            unit: (rowToAction.unit as AccountUnit)._id,
-          }}
           itemToEdit={{
             id: rowToAction._id,
             updates: {
@@ -258,10 +249,7 @@ const Stock = (props: Props) => {
                 stocks.find((stock) => stock._id === rowToAction._id)
                   ?.product as AccountProduct
               )?._id,
-              unit: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.unit as AccountUnit
-              )?._id,
+
               stockType: (
                 stocks.find((stock) => stock._id === rowToAction._id)
                   ?.stockType as AccountStockType
@@ -313,7 +301,9 @@ const Stock = (props: Props) => {
           prdct: (stock.product as AccountProduct).name,
           lctn: (stock.location as Location).name,
           stckTyp: (stock.stockType as AccountStockType).name,
-          unt: (stock.unit as AccountUnit).name,
+          unit: units?.find(
+            (unit) => unit._id === (stock.product as AccountProduct).unit
+          )?.name,
           totalPrice: parseFloat(
             ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
           ),

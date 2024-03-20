@@ -74,6 +74,7 @@ export type AccountProduct = {
   name: string;
   unit: AccountUnit | string;
   expenseType: string[];
+  stockType: string[];
   vendor?: string[];
   brand?: string[];
 };
@@ -115,7 +116,7 @@ export type AccountInvoice = {
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
-  unit?: string | AccountUnit;
+
   location: number | Location;
   stockType?: string | AccountStockType;
   quantity: number;

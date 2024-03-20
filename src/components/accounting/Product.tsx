@@ -9,6 +9,7 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -24,6 +25,7 @@ const Product = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
+  const stockTypes = useGetAccountStockTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -80,6 +82,20 @@ const Product = (props: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "stockType",
+      label: t("Stock Type"),
+      options: stockTypes.map((stockType) => {
+        return {
+          value: stockType._id,
+          label: stockType.name,
+        };
+      }),
+      placeholder: t("Stock Type"),
+      isMultiple: true,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "brand",
       label: t("Brand"),
       options: brands.map((brand) => {
@@ -111,6 +127,7 @@ const Product = (props: Props) => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "stockType", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
@@ -118,6 +135,7 @@ const Product = (props: Props) => {
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
+    { key: t("Stock Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Actions"), isSortable: false },
@@ -146,6 +164,26 @@ const Product = (props: Props) => {
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
               {foundExpenseType?.name}
+            </span>
+          );
+        });
+      },
+    },
+    {
+      key: "stockType",
+      className: "min-w-32",
+      node: (row: AccountProduct) => {
+        return row?.stockType?.map((stckType: string) => {
+          const foundStockType = stockTypes.find(
+            (stockType) => stockType._id === stckType
+          );
+          return (
+            <span
+              key={foundStockType?.name ?? "" + row._id}
+              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
+              style={{ backgroundColor: foundStockType?.backgroundColor }}
+            >
+              {foundStockType?.name}
             </span>
           );
         });
