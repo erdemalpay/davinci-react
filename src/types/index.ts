@@ -115,7 +115,7 @@ export type AccountInvoice = {
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
-  unit?: string | AccountUnit;
+
   location: number | Location;
   stockType?: string | AccountStockType;
   quantity: number;
