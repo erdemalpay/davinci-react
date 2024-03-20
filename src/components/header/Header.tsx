@@ -29,14 +29,14 @@ export function Header({ showLocationSelector = true }: HeaderProps) {
                 className="w-10 h-10 rounded-full"
               />
             </Link>
-            <Link to={Routes.Tables}>
+            <Link to={Routes.Tables} className="hidden sm:block">
               <span className="text-base text-white font-bold tracking-normal leading-tight">
                 Da Vinci Panel
               </span>
             </Link>
           </div>
-          <div className="w-auto h-full flex items-center justify-end gap-x-4">
-            <div className="flex flex-row gap-2">
+          <div className="w-auto h-full flex items-center justify-end gap-x-2 sm:gap-x-4">
+            <div className="flex flex-row gap-1 sm:gap-2">
               {languageOptions.map((option) => (
                 <button
                   key={option.code}
