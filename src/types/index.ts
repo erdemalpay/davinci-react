@@ -74,6 +74,7 @@ export type AccountProduct = {
   name: string;
   unit: AccountUnit | string;
   expenseType: string[];
+  stockType: string[];
   vendor?: string[];
   brand?: string[];
 };

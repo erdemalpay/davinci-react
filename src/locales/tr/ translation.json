@@ -76,7 +76,6 @@
   "Enter phone number": "Telefon numarası girin",
   "Address": "Adres",
   "Enter address": "Adres girin",
-  "Change Password": "Şifre Değiştir",
   "To change your password please confirm here": "Şifrenizi değiştirmek için lütfen burayı onaylayın",
   "Old Password": "Eski Şifre",
   "Enter old password": "Eski şifrenizi girin",
@@ -185,5 +184,7 @@
   "Close Table": "Masayı Kapat",
   "Start Time": "Başlangıç Zamanı",
   "End Time": "Bitiş Zamanı",
+  "Delete Stock": "Stoğu Sil",
+  "DeleteProduct": "Ürünü Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
