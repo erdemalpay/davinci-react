@@ -100,7 +100,9 @@ const PopularTable = ({ popularItems }: Props) => {
         title={t("Popular Items")}
         imageHolder={NO_IMAGE_URL}
         isDraggable={true}
-        onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
+        onDragEnter={(DragRow: MenuItem, DropRow) =>
+          handleDrag(DragRow, DropRow)
+        }
       />
     </div>
   );
