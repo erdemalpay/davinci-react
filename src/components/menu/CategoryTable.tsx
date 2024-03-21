@@ -154,7 +154,9 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
         isDraggable={true}
-        onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
+        onDragEnter={(DragRow: MenuCategory, DropRow) =>
+          handleDrag(DragRow, DropRow)
+        }
       />
     </div>
   );
