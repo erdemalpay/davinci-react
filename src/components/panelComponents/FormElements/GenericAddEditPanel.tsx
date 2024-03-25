@@ -25,9 +25,12 @@ type Props<T> = {
   topClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
   setForm?: (item: T) => void;
+  handleUpdate?: () => void;
+
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
+  buttonName?: string;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -45,11 +48,12 @@ const GenericAddEditPanel = <T,>({
   inputs,
   formKeys,
   topClassName,
-
+  buttonName,
   constantValues,
   isEditMode = false,
   itemToEdit,
   folderName,
+  handleUpdate,
   setForm,
 
   submitItem,
@@ -145,6 +149,8 @@ const GenericAddEditPanel = <T,>({
     try {
       if (isEditMode && itemToEdit) {
         submitItem({ id: itemToEdit.id, updates: formElements as T });
+      } else if (isEditMode && handleUpdate) {
+        handleUpdate();
       } else {
         submitItem(formElements as T);
       }
@@ -263,8 +269,6 @@ const GenericAddEditPanel = <T,>({
                     );
                     if (changedInput?.invalidateKeys) {
                       changedInput.invalidateKeys.forEach((key) => {
-                        console.log(key);
-                        console.log(formElements);
                         setFormElements((prev) => ({
                           ...prev,
                           [key.key]: key.defaultValue,
@@ -362,7 +366,7 @@ const GenericAddEditPanel = <T,>({
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
             >
-              {isEditMode ? t("Update") : t("Create")}
+              {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
             </button>
           </div>
         </div>

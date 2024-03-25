@@ -5,7 +5,12 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
-import { MenuItem, MenuPopular } from "../../types";
+import {
+  AccountProduct,
+  AccountUnit,
+  MenuItem,
+  MenuPopular,
+} from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -17,19 +22,95 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   singleItemGroup: ItemGroup;
   popularItems: MenuPopular[];
+  products: AccountProduct[];
 };
 
-const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
+const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const { t } = useTranslation();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
+  const [form, setForm] = useState({
+    product: "",
+    quantity: 0,
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
+  const rows = singleItemGroup.items.map((item) => {
+    return {
+      ...item,
+      collapsible: {
+        collapsibleHeader: "Ingredients",
+        collapsibleColumns: [
+          { key: t("Product"), isSortable: true },
+          { key: t("Unit"), isSortable: true },
+          { key: t("Quantity"), isSortable: true },
+          { key: t("Cost"), isSortable: true },
+          { key: t("Action"), isSortable: false, className: "text-center" },
+        ],
+        collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
+          product: itemProduction.product,
+          name: products?.find(
+            (product) => product._id === itemProduction.product
+          )?._id,
+          unit: (
+            products?.find((product) => product._id === itemProduction.product)
+              ?.unit as AccountUnit
+          )?.name,
+          price:
+            (products?.find((product) => product._id === itemProduction.product)
+              ?.unitPrice ?? 0) * itemProduction.quantity,
+          quantity: itemProduction.quantity,
+        })),
+        collapsibleRowKeys: [
+          { key: "name" },
+          { key: "unit" },
+          { key: "quantity" },
+          { key: "price" },
+        ],
+      },
+    };
+  });
+
+  const collapsibleInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products
+        .filter(
+          (product) =>
+            !rowToAction?.itemProduction?.find(
+              (item) => item.product === product._id
+            )
+        )
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name,
+          };
+        }),
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
+  ];
+  const collapsibleFormKeys = [
+    { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   // these are the inputs for the add item modal
   const inputs = [
     {
@@ -82,22 +163,30 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: t("Description"), isSortable: true },
     { key: `${t("Price")} (Bahçeli)`, isSortable: true },
     { key: `${t("Price")} (Neorama)`, isSortable: true },
+    { key: t("Cost"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
   const rowKeys = [
     { key: "imageUrl", isImage: true },
+    { key: "name" },
+    { key: "description" },
+    { key: "priceBahceli" },
+    { key: "priceNeorama" },
     {
-      key: "name",
-    },
-    {
-      key: "description",
-    },
-    {
-      key: "priceBahceli",
-    },
-    {
-      key: "priceNeorama",
+      key: "cost",
+      node: (item: MenuItem) => {
+        const total =
+          item.itemProduction?.reduce((acc, curr) => {
+            const product = products?.find(
+              (product) => product._id === curr.product
+            );
+            const unitPrice = product?.unitPrice ?? 0;
+            return acc + unitPrice * curr.quantity;
+          }, 0) ?? 0;
+
+        return total === 0 ? "-" : `${total.toFixed(2)} ₺`;
+      },
     },
   ];
   const addButton = {
@@ -130,6 +219,70 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       updates: { order: DragRow.order },
     });
   };
+  const addCollapsible = {
+    name: "+",
+    isModal: true,
+    setRow: setRowToAction,
+    modal: rowToAction ? (
+      <GenericAddEditPanel
+        topClassName="flex flex-col gap-2 "
+        buttonName={t("Add")}
+        isOpen={isAddCollapsibleOpen}
+        close={() => setIsAddCollapsibleOpen(false)}
+        inputs={collapsibleInputs}
+        formKeys={collapsibleFormKeys}
+        submitItem={updateItem as any}
+        constantValues={{ category: singleItemGroup.category }}
+        isEditMode={true}
+        setForm={setForm}
+        handleUpdate={() => {
+          updateItem({
+            id: rowToAction?._id,
+            updates: {
+              itemProduction: [...(rowToAction?.itemProduction || []), form],
+            },
+          });
+        }}
+      />
+    ) : null,
+    isModalOpen: isAddCollapsibleOpen,
+    setIsModal: setIsAddCollapsibleOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+  };
+  const collapsibleActions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      node: (row: any) => {
+        return (
+          <div
+            className="text-red-500 cursor-pointer text-2xl"
+            onClick={() => {
+              updateItem({
+                id: row?._id,
+                updates: {
+                  itemProduction: row?.itemProduction?.filter(
+                    (item: any) => item.product !== row.product
+                  ),
+                },
+              });
+            }}
+          >
+            <ButtonTooltip content={t("Delete")}>
+              <HiOutlineTrash />
+            </ButtonTooltip>
+          </div>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: false,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+  ];
   const actions = [
     {
       name: t("Delete"),
@@ -212,11 +365,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
-        rows={singleItemGroup.items}
+        rows={rows}
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        addCollapsible={addCollapsible}
         isDraggable={true}
+        isCollapsible={true}
+        collapsibleActions={collapsibleActions}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>

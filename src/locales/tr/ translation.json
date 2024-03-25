@@ -186,5 +186,7 @@
   "End Time": "Bitiş Zamanı",
   "Delete Stock": "Stoğu Sil",
   "DeleteProduct": "Ürünü Sil",
+  "Add": "Ekle",
+  "Cost": "Maliyet",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
