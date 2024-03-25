@@ -302,7 +302,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       node: (row: any) => {
         return (
           <div
-            className="text-red-500 cursor-pointer text-2xl"
+            className="text-red-500 cursor-pointer text-xl"
             onClick={() => {
               updateItem({
                 id: row?._id,
