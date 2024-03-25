@@ -22,7 +22,7 @@ export default function Accounting() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(6);
   const [tableKey, setTableKey] = useState<number>(0);
-  const [showConstants, setShowConstants] = useState<boolean>(false);
+  const [showConstants, setShowConstants] = useState<boolean>(true);
   const tabs = [
     {
       number: 0,
