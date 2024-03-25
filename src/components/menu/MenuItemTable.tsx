@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
@@ -42,42 +42,86 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
-  const rows = singleItemGroup.items.map((item) => {
-    return {
-      ...item,
-      collapsible: {
-        collapsibleHeader: "Ingredients",
-        collapsibleColumns: [
-          { key: t("Product"), isSortable: true },
-          { key: t("Unit"), isSortable: true },
-          { key: t("Quantity"), isSortable: true },
-          { key: t("Cost"), isSortable: true },
-          { key: t("Action"), isSortable: false, className: "text-center" },
-        ],
-        collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
-          product: itemProduction.product,
-          name: products?.find(
-            (product) => product._id === itemProduction.product
-          )?._id,
-          unit: (
-            products?.find((product) => product._id === itemProduction.product)
-              ?.unit as AccountUnit
-          )?.name,
-          price:
-            (products?.find((product) => product._id === itemProduction.product)
-              ?.unitPrice ?? 0) * itemProduction.quantity,
-          quantity: itemProduction.quantity,
-        })),
-        collapsibleRowKeys: [
-          { key: "name" },
-          { key: "unit" },
-          { key: "quantity" },
-          { key: "price" },
-        ],
-      },
-    };
-  });
-
+  const [rows, setRows] = useState(
+    singleItemGroup.items.map((item) => {
+      return {
+        ...item,
+        collapsible: {
+          collapsibleHeader: "Ingredients",
+          collapsibleColumns: [
+            { key: t("Product"), isSortable: true },
+            { key: t("Unit"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+            { key: t("Cost"), isSortable: true },
+            { key: t("Action"), isSortable: false, className: "text-center" },
+          ],
+          collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
+            product: itemProduction.product,
+            name: products?.find(
+              (product) => product._id === itemProduction.product
+            )?._id,
+            unit: (
+              products?.find(
+                (product) => product._id === itemProduction.product
+              )?.unit as AccountUnit
+            )?.name,
+            price:
+              (products?.find(
+                (product) => product._id === itemProduction.product
+              )?.unitPrice ?? 0) * itemProduction.quantity,
+            quantity: itemProduction.quantity,
+          })),
+          collapsibleRowKeys: [
+            { key: "name" },
+            { key: "unit" },
+            { key: "quantity" },
+            { key: "price" },
+          ],
+        },
+      };
+    })
+  );
+  useEffect(() => {
+    setRows(
+      singleItemGroup.items.map((item) => {
+        return {
+          ...item,
+          collapsible: {
+            collapsibleHeader: "Ingredients",
+            collapsibleColumns: [
+              { key: t("Product"), isSortable: true },
+              { key: t("Unit"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+              { key: t("Cost"), isSortable: true },
+              { key: t("Action"), isSortable: false, className: "text-center" },
+            ],
+            collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
+              product: itemProduction.product,
+              name: products?.find(
+                (product) => product._id === itemProduction.product
+              )?._id,
+              unit: (
+                products?.find(
+                  (product) => product._id === itemProduction.product
+                )?.unit as AccountUnit
+              )?.name,
+              price:
+                (products?.find(
+                  (product) => product._id === itemProduction.product
+                )?.unitPrice ?? 0) * itemProduction.quantity,
+              quantity: itemProduction.quantity,
+            })),
+            collapsibleRowKeys: [
+              { key: "name" },
+              { key: "unit" },
+              { key: "quantity" },
+              { key: "price" },
+            ],
+          },
+        };
+      })
+    );
+  }, [singleItemGroup.items, products]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
