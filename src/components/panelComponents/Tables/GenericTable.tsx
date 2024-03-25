@@ -378,7 +378,7 @@ const GenericTable = <T,>({
                               return (
                                 <td
                                   key={keyIndex}
-                                  className={`py-2 px-4  ${
+                                  className={`py-2 px-4 text-sm  ${
                                     rowIndex !==
                                       row?.collapsible?.collapsibleRows.length -
                                         1 && "border-b"
