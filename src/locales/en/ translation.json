@@ -185,5 +185,7 @@
   "Close Table": "Close Table",
   "Start Time": "Start Time",
   "End Time": "End Time",
+  "Add": "Add",
+  "Cost": "Cost",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

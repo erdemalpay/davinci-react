@@ -48,6 +48,7 @@ export interface RowKeyType<T> {
 export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
+  className?: string;
   node?: () => React.ReactNode;
 }
 

@@ -77,6 +77,7 @@ export type AccountProduct = {
   stockType: string | AccountStockType;
   vendor?: string[];
   brand?: string[];
+  unitPrice: number;
 };
 
 export type AccountUnit = {
@@ -168,6 +169,10 @@ export type MenuItem = {
   priceBahceli: number;
   priceNeorama: number;
   order: number;
+  itemProduction?: {
+    product: string;
+    quantity: number;
+  }[];
 };
 
 export enum ReservationStatusEnum {

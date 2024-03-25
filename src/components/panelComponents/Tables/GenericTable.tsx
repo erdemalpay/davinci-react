@@ -24,8 +24,10 @@ type Props<T> = {
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
+  collapsibleActions?: ActionType<T>[];
   title?: string;
   addButton?: ActionType<T>;
+  addCollapsible?: ActionType<T>;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -45,14 +47,17 @@ const GenericTable = <T,>({
   addButton,
   filters,
   imageHolder,
+  addCollapsible,
   isActionsActive = true,
   isDraggable = false,
+  collapsibleActions,
   onDragEnter,
   isSearch = true,
   isCollapsible = false,
   isPagination = true,
   isRowsPerPage = true,
   tooltipLimit = 40,
+
   rowClassNameFunction,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
@@ -61,14 +66,18 @@ const GenericTable = <T,>({
   ],
 }: Props<T>) => {
   const { t } = useTranslation();
-  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
-    useGeneralContext();
+  const {
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    setRowsPerPage,
+    expandedRows,
+    setExpandedRows,
+  } = useGeneralContext();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [tableRows, setTableRows] = useState(rows);
-  const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -173,7 +182,7 @@ const GenericTable = <T,>({
       navigate(action.path);
     }
   };
-  const renderActionButtons = (row: T) => (
+  const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
     <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
       {actions?.map((action, index) => {
         if (action?.isDisabled) {
@@ -306,7 +315,7 @@ const GenericTable = <T,>({
               </td>
             );
           })}
-          <td>{actions && renderActionButtons(row)}</td>
+          <td>{actions && renderActionButtons(row, actions)}</td>
         </tr>
         {/* Collapsed Content */}
         {isRowExpanded && (
@@ -318,21 +327,37 @@ const GenericTable = <T,>({
                 maxHeight: isRowExpanded ? "1000px" : "0",
               }}
             >
-              <H5 className="w-[96%] mx-auto bg-gray-100 rounded-md px-4 py-[0.6rem]">
-                {row?.collapsible?.collapsibleHeader}
-              </H5>
+              <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
+                <H5>{row?.collapsible?.collapsibleHeader}</H5>
+
+                {addCollapsible && (
+                  <button
+                    className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
+                      addCollapsible.className
+                        ? `${addCollapsible.className}`
+                        : "bg-black border-black hover:text-black"
+                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                    onClick={() => actionOnClick(addCollapsible, row)}
+                  >
+                    <H5>{addCollapsible.name}</H5>
+                  </button>
+                )}
+              </div>
+
               <table className="w-[96%] mx-auto">
                 {/* Collapsible Column Headers */}
-                <thead>
+                <thead className="w-full">
                   <tr>
                     {row?.collapsible?.collapsibleColumns.length > 0 &&
                       row?.collapsible?.collapsibleColumns?.map(
                         (column: ColumnType<T>, index: number) => (
                           <th
                             key={index}
-                            className="text-left py-2 px-4 border-b"
+                            className={`text-left py-2 px-4 w-fit border-b  ${column?.className}`}
                           >
-                            {column.key}
+                            <h2 className="font-semibold text-sm ">
+                              {column.key}
+                            </h2>
                           </th>
                         )
                       )}
@@ -353,7 +378,7 @@ const GenericTable = <T,>({
                               return (
                                 <td
                                   key={keyIndex}
-                                  className={`py-2 px-4 ${
+                                  className={`py-2 px-4  ${
                                     rowIndex !==
                                       row?.collapsible?.collapsibleRows.length -
                                         1 && "border-b"
@@ -364,6 +389,19 @@ const GenericTable = <T,>({
                               );
                             }
                           )}
+                          <td
+                            className={`py-2 px-4  ${
+                              rowIndex !==
+                                row?.collapsible?.collapsibleRows.length - 1 &&
+                              "border-b"
+                            }`}
+                          >
+                            {collapsibleActions &&
+                              renderActionButtons(
+                                { ...row, ...collapsibleRow }, //by this way we can access the main row data in the collapsible actions
+                                collapsibleActions
+                              )}
+                          </td>
                         </tr>
                       )
                     )}
@@ -587,6 +625,10 @@ const GenericTable = <T,>({
         {addButton?.isModal && addButton?.isModalOpen && addButton?.modal && (
           <div>{addButton.modal}</div>
         )}
+        {/* addCollapsible modal if there is  */}
+        {addCollapsible?.isModal &&
+          addCollapsible?.isModalOpen &&
+          addCollapsible?.modal && <div>{addCollapsible.modal}</div>}
       </div>
     </div>
   );

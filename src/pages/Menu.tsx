@@ -8,6 +8,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
+import { useGetAccountProducts } from "../utils/api/account/product";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -23,13 +24,14 @@ export default function Menu() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<number>(0); // Reminder: I took this from tabpanel so that I can control the active tab from here
   const items = useGetMenuItems();
+  const products = useGetAccountProducts();
   const popularItems = useGetPopularItems();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabPanelKey, setTabPanelKey] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
-  const { currentPage, setCurrentPage, rowsPerPage, setRowsPerPage } =
+  const { currentPage, setCurrentPage, rowsPerPage, setExpandedRows } =
     useGeneralContext();
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
   const itemCategories = items
@@ -81,6 +83,7 @@ export default function Menu() {
             key={itemGroup.category.name + tableKeys}
             singleItemGroup={itemGroup}
             popularItems={popularItems}
+            products={products}
           />
         ),
         isDisabled: false,
@@ -96,6 +99,7 @@ export default function Menu() {
                 key={category.name + tableKeys}
                 singleItemGroup={{ category, order: category.order, items: [] }}
                 popularItems={popularItems}
+                products={products}
               />
             ),
             isDisabled: false,
@@ -128,7 +132,6 @@ export default function Menu() {
         isDisabled: false,
       },
     ]);
-
     setTableKeys(tableKeys + 1);
   };
   useEffect(() => {
@@ -139,7 +142,15 @@ export default function Menu() {
 
   useEffect(() => {
     handleTabChange();
-  }, [categories, items, currentPage, activeTab, rowsPerPage, popularItems]);
+  }, [
+    categories,
+    items,
+    currentPage,
+    activeTab,
+    rowsPerPage,
+    popularItems,
+    products,
+  ]);
 
   return (
     <>
@@ -153,7 +164,9 @@ export default function Menu() {
           additionalOpenAction={() => {
             if (!categoryPageChanged) {
               setCurrentPage(1);
+              setExpandedRows({});
             }
+
             setCategoryPageChanged(false);
           }}
         />
