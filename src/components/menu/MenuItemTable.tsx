@@ -371,7 +371,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         addButton={addButton}
         addCollapsible={addCollapsible}
         isDraggable={true}
-        isCollapsible={true}
+        isCollapsible={products.length > 0}
         collapsibleActions={collapsibleActions}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
