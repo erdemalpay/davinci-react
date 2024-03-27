@@ -583,7 +583,7 @@ const GenericTable = <T,>({
                       {option}
                     </option>
                   ))}
-                  <option value={rows.length}>{t("ALL")}</option>
+                  <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
                 </select>
               </div>
 

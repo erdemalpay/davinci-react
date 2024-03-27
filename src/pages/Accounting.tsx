@@ -18,7 +18,6 @@ import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
-import { RowPerPageEnum } from "../types";
 
 export default function Accounting() {
   const { t } = useTranslation();
@@ -128,7 +127,6 @@ export default function Accounting() {
           additionalOpenAction={() => {
             setCurrentPage(1);
             setSearchQuery("");
-            setRowsPerPage(RowPerPageEnum.FIRST);
           }}
         />
       </div>

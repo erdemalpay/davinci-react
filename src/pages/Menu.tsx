@@ -7,7 +7,7 @@ import PopularTable from "../components/menu/PopularTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { MenuCategory, MenuItem, RowPerPageEnum } from "../types";
+import { MenuCategory, MenuItem } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -172,7 +172,6 @@ export default function Menu() {
               setCurrentPage(1);
               setExpandedRows({});
               setSearchQuery("");
-              setRowsPerPage(RowPerPageEnum.FIRST);
             }
 
             setCategoryPageChanged(false);

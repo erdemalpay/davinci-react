@@ -218,6 +218,7 @@ export enum RowPerPageEnum {
   FIRST = 10,
   SECOND = 20,
   THIRD = 50,
+  ALL = 10000000000,
 }
 
 export enum RoleEnum {
