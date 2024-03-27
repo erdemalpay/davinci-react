@@ -15,7 +15,7 @@ import { RolePermissionEnum, RowPerPageEnum } from "../../types";
 export function PageSelector() {
   const navigate = useNavigate();
   const { user, setUser } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setExpandedRows } =
+  const { setCurrentPage, setRowsPerPage, setExpandedRows, setSearchQuery } =
     useGeneralContext();
   const routes = Object.values(RolePermissionEnum)
     .filter((permission) => user?.role.permissions.includes(permission))
@@ -45,6 +45,7 @@ export function PageSelector() {
                 setCurrentPage(1);
                 setRowsPerPage(RowPerPageEnum.FIRST);
                 setExpandedRows({});
+                setSearchQuery("");
                 navigate(route.path);
               }}
             >

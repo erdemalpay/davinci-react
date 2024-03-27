@@ -72,10 +72,12 @@ const GenericTable = <T,>({
     rowsPerPage,
     setRowsPerPage,
     expandedRows,
+    searchQuery,
+    setSearchQuery,
     setExpandedRows,
   } = useGeneralContext();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+
   const [tableRows, setTableRows] = useState(rows);
 
   const initialRows = () => {

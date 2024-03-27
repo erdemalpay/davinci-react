@@ -4,6 +4,8 @@ import { RowPerPageEnum } from "../types";
 type GeneralContextType = {
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
   rowsPerPage: number;
   setRowsPerPage: (rowsPerPage: number) => void;
   expandedRows: { [key: string]: boolean };
@@ -16,6 +18,8 @@ const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setCurrentPage: () => {},
   currentPage: 1,
+  searchQuery: "",
+  setSearchQuery: () => {},
   rowsPerPage: RowPerPageEnum.FIRST,
   setRowsPerPage: () => {},
   expandedRows: {},
@@ -28,6 +32,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [searchQuery, setSearchQuery] = useState<string>("");
   return (
     <GeneralContext.Provider
       value={{
@@ -37,6 +42,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setRowsPerPage,
         expandedRows,
         setExpandedRows,
+        searchQuery,
+        setSearchQuery,
       }}
     >
       {children}

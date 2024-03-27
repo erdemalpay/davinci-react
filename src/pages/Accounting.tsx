@@ -17,12 +17,16 @@ import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import { useGeneralContext } from "../context/General.context";
+import { RowPerPageEnum } from "../types";
 
 export default function Accounting() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(6);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
+  const { setCurrentPage, setSearchQuery, setRowsPerPage } =
+    useGeneralContext();
   const tabs = [
     {
       number: 0,
@@ -121,6 +125,11 @@ export default function Accounting() {
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+            setSearchQuery("");
+            setRowsPerPage(RowPerPageEnum.FIRST);
+          }}
         />
       </div>
     </>

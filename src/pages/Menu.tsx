@@ -7,7 +7,7 @@ import PopularTable from "../components/menu/PopularTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { MenuCategory, MenuItem } from "../types";
+import { MenuCategory, MenuItem, RowPerPageEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -31,8 +31,14 @@ export default function Menu() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
-  const { currentPage, setCurrentPage, rowsPerPage, setExpandedRows } =
-    useGeneralContext();
+  const {
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    setExpandedRows,
+    setRowsPerPage,
+    setSearchQuery,
+  } = useGeneralContext();
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
   const itemCategories = items
     .map((item) => item.category)
@@ -165,6 +171,8 @@ export default function Menu() {
             if (!categoryPageChanged) {
               setCurrentPage(1);
               setExpandedRows({});
+              setSearchQuery("");
+              setRowsPerPage(RowPerPageEnum.FIRST);
             }
 
             setCategoryPageChanged(false);

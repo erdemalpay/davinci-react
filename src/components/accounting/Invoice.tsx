@@ -67,7 +67,7 @@ const Invoice = (props: Props) => {
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(1)
+          (invoice.totalExpense / invoice.quantity).toFixed(2)
         ),
         unit: units.find(
           (unit) =>
@@ -389,7 +389,7 @@ const Invoice = (props: Props) => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(1)
+            (invoice.totalExpense / invoice.quantity).toFixed(2)
           ),
           unit: units.find(
             (unit) =>
