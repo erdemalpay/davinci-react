@@ -140,7 +140,7 @@ const Product = (props: Props) => {
     { key: t("Stock Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
-    { key: t("Unit Price"), isSortable: false },
+    { key: t("Unit Price"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [

@@ -160,7 +160,9 @@ const GenericAddEditPanel = <T,>({
       console.error("Failed to execute submit item:", error);
     }
   };
-
+  useEffect(() => {
+    console.log("formElements", formElements);
+  }, [formElements]);
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
