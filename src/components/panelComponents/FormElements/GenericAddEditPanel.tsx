@@ -160,9 +160,7 @@ const GenericAddEditPanel = <T,>({
       console.error("Failed to execute submit item:", error);
     }
   };
-  useEffect(() => {
-    console.log("formElements", formElements);
-  }, [formElements]);
+
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
@@ -304,10 +302,18 @@ const GenericAddEditPanel = <T,>({
                             ? input.formKey
                             : input.formKey + formElements[input.formKey]
                         }
-                        value={input.options?.find(
-                          (option) =>
-                            option.value === formElements[input.formKey]
-                        )}
+                        value={
+                          input.isMultiple
+                            ? input.options?.filter((option) =>
+                                formElements[input.formKey]?.includes(
+                                  option.value
+                                )
+                              )
+                            : input.options?.find(
+                                (option) =>
+                                  option.value === formElements[input.formKey]
+                              )
+                        }
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}

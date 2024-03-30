@@ -295,6 +295,13 @@ const Product = (props: Props) => {
               unit: units.find(
                 (unit) => unit.name === (rowToAction?.unit as string)
               )?._id,
+              expenseType: rowToAction.expenseType,
+              stockType: stockTypes.find(
+                (stockType) =>
+                  stockType.name === (rowToAction?.stockType as string)
+              )?._id,
+              brand: rowToAction.brand,
+              vendor: rowToAction.vendor,
             },
           }}
         />
