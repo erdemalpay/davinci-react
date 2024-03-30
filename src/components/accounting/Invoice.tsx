@@ -24,7 +24,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
@@ -196,7 +196,15 @@ const Invoice = (props: Props) => {
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
-    { key: t("Document No"), isSortable: true },
+    {
+      key: t("Document No"),
+      isSortable: true,
+      node: () => {
+        return (
+          <H5 className="min-w-32 my-auto h-full  py-3">{t("Document No")}</H5>
+        );
+      },
+    },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
@@ -217,44 +225,57 @@ const Invoice = (props: Props) => {
         return formatAsLocalDate(row.date);
       },
     },
-    { key: "documentNo" },
-    { key: "brand" },
-    { key: "vendor" },
+    { key: "documentNo", className: "min-w-40" },
+    { key: "brand", className: "min-w-32" },
+    { key: "vendor", className: "min-w-32" },
+
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <p
-            className="w-fit rounded-md px-2 py-1 text-white"
-            style={{
-              backgroundColor: row?.expType?.backgroundColor,
-            }}
-          >
-            {(row?.expType as AccountExpenseType)?.name}
-          </p>
+          <div className=" min-w-32">
+            <p
+              className="w-fit rounded-md px-2 py-1 text-white"
+              style={{
+                backgroundColor: row?.expType?.backgroundColor,
+              }}
+            >
+              {(row?.expType as AccountExpenseType)?.name}
+            </p>
+          </div>
         );
       },
     },
     {
       key: "product",
-      className: "min-w-32",
+      className: "min-w-60",
     },
     {
       key: "quantity",
+      className: "min-w-32",
     },
     {
       key: "unit",
+      className: "min-w-32",
     },
     {
       key: "unitPrice",
       node: (row: any) => {
-        return <P1>{row.unitPrice} ₺</P1>;
+        return (
+          <div className="min-w-32">
+            <P1>{row.unitPrice} ₺</P1>
+          </div>
+        );
       },
     },
     {
       key: "totalExpense",
       node: (row: any) => {
-        return <P1>{row.totalExpense} ₺</P1>;
+        return (
+          <div className="min-w-32">
+            <P1>{row.totalExpense} ₺</P1>
+          </div>
+        );
       },
     },
   ];
