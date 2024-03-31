@@ -51,7 +51,9 @@ export interface ColumnType<T> {
   className?: string;
   node?: () => React.ReactNode;
 }
-
+export interface PanelFilterType {
+  children: React.ReactNode;
+}
 export interface GenericInputType {
   type: InputTypes;
   required: boolean;

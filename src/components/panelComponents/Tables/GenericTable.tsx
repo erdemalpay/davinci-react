@@ -9,9 +9,11 @@ import {
   ActionType,
   ColumnType,
   FilterType,
+  PanelFilterType,
   RowKeyType,
 } from "../shared/types";
 import ButtonTooltip from "./ButtonTooltip";
+import FilterPanel from "./FilterPanel";
 import Tooltip from "./Tooltip";
 import "./table.css";
 
@@ -28,6 +30,8 @@ type Props<T> = {
   title?: string;
   addButton?: ActionType<T>;
   addCollapsible?: ActionType<T>;
+  filterPanelFilters?: PanelFilterType[];
+  isFilterPanel?: boolean;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -50,6 +54,8 @@ const GenericTable = <T,>({
   addCollapsible,
   isActionsActive = true,
   isDraggable = false,
+  isFilterPanel = false,
+  filterPanelFilters,
   collapsibleActions,
   onDragEnter,
   isSearch = true,
@@ -77,7 +83,7 @@ const GenericTable = <T,>({
     setExpandedRows,
   } = useGeneralContext();
   const navigate = useNavigate();
-
+  const shouldDisplayFilterPanel = isFilterPanel && filterPanelFilters;
   const [tableRows, setTableRows] = useState(rows);
 
   const initialRows = () => {
@@ -416,221 +422,233 @@ const GenericTable = <T,>({
     );
   });
   return (
-    <div className=" mx-auto flex flex-col gap-4 __className_a182b8">
-      <div className=" flex flex-row gap-4 justify-between items-center">
-        {/* search button */}
-        {isSearch && (
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-            placeholder={t("Search")}
-            className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
-          />
-        )}
-        {/* filters  for upperside*/}
-        <div className="flex flex-row flex-wrap gap-4 ">
-          {filters &&
-            filters.map(
-              (filter, index) =>
-                filter.isUpperSide && (
-                  <div
-                    key={index}
-                    className="flex flex-row gap-2 justify-between items-center"
-                  >
-                    {filter.label && <H5>{filter.label}</H5>}
-                    {filter.node}
-                  </div>
-                )
-            )}
-        </div>
-      </div>
+    <div
+      className={` ${
+        shouldDisplayFilterPanel ? "flex flex-col sm:flex-row gap-2" : ""
+      }`}
+    >
+      {shouldDisplayFilterPanel && <FilterPanel filters={filterPanelFilters} />}
 
-      <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
-        {/* header part */}
-
-        <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
-          {title && <H4 className="mr-auto">{title}</H4>}
-          <div className="ml-auto flex flex-row gap-4">
-            <div className="flex flex-row flex-wrap gap-4  ">
-              {/* filters for lowerside */}
-              {filters &&
-                filters.map(
-                  (filter, index) =>
-                    !filter.isUpperSide && (
-                      <div
-                        key={index}
-                        className="flex flex-row gap-2 justify-between items-center"
-                      >
-                        {filter.label && <H5>{filter.label}</H5>}
-                        {filter.node}
-                      </div>
-                    )
-                )}
-            </div>
-            {/* add button */}
-            {addButton && (
-              <button
-                className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
-                  addButton.className
-                    ? `${addButton.className}`
-                    : "bg-black border-black hover:text-black"
-                } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
-                onClick={() => actionOnClick(addButton, {} as unknown as T)}
-              >
-                <H5>{addButton.name}</H5>
-              </button>
-            )}
+      <div
+        className={`mx-auto overflow-scroll flex flex-col gap-4 __className_a182b8 ${
+          shouldDisplayFilterPanel ? "" : "md:col-span-2"
+        }`}
+      >
+        <div className=" flex flex-row gap-4 justify-between items-center">
+          {/* search button */}
+          {isSearch && (
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder={t("Search")}
+              className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
+            />
+          )}
+          {/* filters  for upperside*/}
+          <div className="flex flex-row flex-wrap gap-4 ">
+            {filters &&
+              filters.map(
+                (filter, index) =>
+                  filter.isUpperSide && (
+                    <div
+                      key={index}
+                      className="flex flex-row gap-2 justify-between items-center"
+                    >
+                      {filter.label && <H5>{filter.label}</H5>}
+                      {filter.node}
+                    </div>
+                  )
+              )}
           </div>
         </div>
-        {/* table part */}
-        <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">
-          <div className="border border-gray-100 rounded-md w-full overflow-auto   ">
-            <table className="bg-white w-full ">
-              <thead className="border-b  ">
-                <tr>
-                  {isCollapsible && <th></th>}
-                  {columns.map((column, index) => {
-                    if (column.node) {
-                      return column.node();
-                    }
-                    return (
-                      <th
-                        key={index}
-                        className={`${
-                          columns.length === 2 && "justify-between  "
-                        } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
-                      >
-                        <H5
-                          className={`w-fit flex gap-2 ${
-                            columns.length === 2 && index == 1 && "  mx-auto"
-                          } ${
-                            index === columns.length - 1 &&
-                            actions &&
-                            isActionsActive
-                              ? "mx-auto"
-                              : ""
-                          }`}
+
+        <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
+          {/* header part */}
+
+          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
+            {title && <H4 className="mr-auto">{title}</H4>}
+            <div className="ml-auto flex flex-row gap-4">
+              <div className="flex flex-row flex-wrap gap-4  ">
+                {/* filters for lowerside */}
+                {filters &&
+                  filters.map(
+                    (filter, index) =>
+                      !filter.isUpperSide && (
+                        <div
+                          key={index}
+                          className="flex flex-row gap-2 justify-between items-center"
                         >
-                          {column.key}{" "}
-                          {column.isSortable && (
-                            <div
-                              className="sort-buttons"
-                              style={{ display: "inline-block" }}
-                            >
-                              {sortConfig?.key === rowKeys[index]?.key &&
-                              sortConfig?.direction === "ascending" ? (
-                                <button
-                                  onClick={() =>
-                                    sortRows(
-                                      rowKeys[index].key as Extract<
-                                        keyof T,
-                                        string
-                                      >
-                                    )
-                                  }
-                                >
-                                  ↓
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() =>
-                                    sortRows(
-                                      rowKeys[index].key as Extract<
-                                        keyof T,
-                                        string
-                                      >
-                                    )
-                                  }
-                                >
-                                  ↑
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </H5>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>{currentRowsContent}</tbody>
-            </table>
-          </div>
-          {rows.length > 0 && isRowsPerPage && (
-            <div className="w-fit ml-auto flex flex-row gap-4">
-              {/* Rows per page */}
-              <div className="flex flex-row gap-2 px-6 items-center">
-                <Caption>{t("Rows per page")}:</Caption>
-                <select
-                  className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(Number(e.target.value));
-                    const totalNewPages = Math.ceil(
-                      totalRows / Number(e.target.value)
-                    );
-                    if (currentPage > totalNewPages) {
-                      setCurrentPage(totalNewPages);
-                    }
-                  }}
-                >
-                  {rowsPerPageOptions.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                  <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
-                </select>
+                          {filter.label && <H5>{filter.label}</H5>}
+                          {filter.node}
+                        </div>
+                      )
+                  )}
               </div>
-
-              {/* Pagination */}
-
-              {isPagination && (
-                <div className=" flex flex-row gap-2 items-center">
-                  <Caption>
-                    {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}–
-                    {Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
-                    {totalRows}
-                  </Caption>
-                  <div className="flex flex-row gap-4">
-                    <button
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      className="cursor-pointer"
-                      disabled={currentPage === 1}
-                    >
-                      {"<"}
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      className="cursor-pointer"
-                      disabled={currentPage === totalPages}
-                    >
-                      {">"}
-                    </button>
-                  </div>
-                </div>
+              {/* add button */}
+              {addButton && (
+                <button
+                  className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
+                    addButton.className
+                      ? `${addButton.className}`
+                      : "bg-black border-black hover:text-black"
+                  } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                  onClick={() => actionOnClick(addButton, {} as unknown as T)}
+                >
+                  <H5>{addButton.name}</H5>
+                </button>
               )}
             </div>
+          </div>
+          {/* table part */}
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">
+            <div className="border border-gray-100 rounded-md w-full overflow-auto   ">
+              <table className="bg-white w-full ">
+                <thead className="border-b  ">
+                  <tr>
+                    {isCollapsible && <th></th>}
+                    {columns.map((column, index) => {
+                      if (column.node) {
+                        return column.node();
+                      }
+                      return (
+                        <th
+                          key={index}
+                          className={`${
+                            columns.length === 2 && "justify-between  "
+                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
+                        >
+                          <H5
+                            className={`w-fit flex gap-2 ${
+                              columns.length === 2 && index == 1 && "  mx-auto"
+                            } ${
+                              index === columns.length - 1 &&
+                              actions &&
+                              isActionsActive
+                                ? "mx-auto"
+                                : ""
+                            }`}
+                          >
+                            {column.key}{" "}
+                            {column.isSortable && (
+                              <div
+                                className="sort-buttons"
+                                style={{ display: "inline-block" }}
+                              >
+                                {sortConfig?.key === rowKeys[index]?.key &&
+                                sortConfig?.direction === "ascending" ? (
+                                  <button
+                                    onClick={() =>
+                                      sortRows(
+                                        rowKeys[index].key as Extract<
+                                          keyof T,
+                                          string
+                                        >
+                                      )
+                                    }
+                                  >
+                                    ↓
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      sortRows(
+                                        rowKeys[index].key as Extract<
+                                          keyof T,
+                                          string
+                                        >
+                                      )
+                                    }
+                                  >
+                                    ↑
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </H5>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>{currentRowsContent}</tbody>
+              </table>
+            </div>
+            {rows.length > 0 && isRowsPerPage && (
+              <div className="w-fit ml-auto flex flex-row gap-4">
+                {/* Rows per page */}
+                <div className="flex flex-row gap-2 px-6 items-center">
+                  <Caption>{t("Rows per page")}:</Caption>
+                  <select
+                    className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      const totalNewPages = Math.ceil(
+                        totalRows / Number(e.target.value)
+                      );
+                      if (currentPage > totalNewPages) {
+                        setCurrentPage(totalNewPages);
+                      }
+                    }}
+                  >
+                    {rowsPerPageOptions.map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                    <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
+                  </select>
+                </div>
+
+                {/* Pagination */}
+
+                {isPagination && (
+                  <div className=" flex flex-row gap-2 items-center">
+                    <Caption>
+                      {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}
+                      –{Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
+                      {totalRows}
+                    </Caption>
+                    <div className="flex flex-row gap-4">
+                      <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className="cursor-pointer"
+                        disabled={currentPage === 1}
+                      >
+                        {"<"}
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className="cursor-pointer"
+                        disabled={currentPage === totalPages}
+                      >
+                        {">"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          {/* action modal if there is */}
+          {actions?.map((action, index) => {
+            if (action?.isModal && action?.isModalOpen && action?.modal) {
+              return <div key={index}>{action.modal}</div>;
+            }
+          })}
+          {/* addbutton modal if there is  */}
+          {addButton?.isModal && addButton?.isModalOpen && addButton?.modal && (
+            <div>{addButton.modal}</div>
           )}
+          {/* addCollapsible modal if there is  */}
+          {addCollapsible?.isModal &&
+            addCollapsible?.isModalOpen &&
+            addCollapsible?.modal && <div>{addCollapsible.modal}</div>}
         </div>
-        {/* action modal if there is */}
-        {actions?.map((action, index) => {
-          if (action?.isModal && action?.isModalOpen && action?.modal) {
-            return <div key={index}>{action.modal}</div>;
-          }
-        })}
-        {/* addbutton modal if there is  */}
-        {addButton?.isModal && addButton?.isModalOpen && addButton?.modal && (
-          <div>{addButton.modal}</div>
-        )}
-        {/* addCollapsible modal if there is  */}
-        {addCollapsible?.isModal &&
-          addCollapsible?.isModalOpen &&
-          addCollapsible?.modal && <div>{addCollapsible.modal}</div>}
       </div>
     </div>
   );

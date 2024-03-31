@@ -114,6 +114,8 @@ export type AccountInvoice = {
   vendor?: AccountVendor | string;
   documentNo?: string;
   location: Location | number;
+  price?: number;
+  kdv?: number;
 };
 export type AccountStock = {
   _id: string;
