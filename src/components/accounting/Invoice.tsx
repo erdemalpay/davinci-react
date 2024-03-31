@@ -482,7 +482,7 @@ const Invoice = (props: Props) => {
   ];
   const filterPanelFilters = [
     {
-      children: <div>osman</div>,
+      children: <div>Deneme</div>,
     },
   ];
   useEffect(() => {
