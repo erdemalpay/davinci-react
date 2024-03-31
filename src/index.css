@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.inputHideNumberArrows::-webkit-inner-spin-button,
+.inputHideNumberArrows::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
