@@ -18,6 +18,9 @@ const TextInput = ({
   disabled,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
+  const inputClassName = `${className} ${
+    type === "number" ? "inputHideNumberArrows" : ""
+  }`;
   return (
     <div className="flex flex-col gap-2">
       <H6>{label}</H6>
@@ -27,7 +30,7 @@ const TextInput = ({
         disabled={disabled}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={className}
+        className={inputClassName}
         {...(type === "number" ? { min: "0" } : {})}
       />
     </div>
