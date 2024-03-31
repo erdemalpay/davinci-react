@@ -7,7 +7,6 @@ import {
   AccountProduct,
   AccountStock,
   AccountStockType,
-  AccountUnit,
   Location,
 } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -69,18 +68,6 @@ const Stock = (props: Props) => {
 
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
-  const unitOptions = () => {
-    const selectedProduct = products.filter(
-      (product) => product._id === form.product
-    )[0];
-    if (!selectedProduct) return;
-    return [
-      {
-        value: (selectedProduct?.unit as AccountUnit)?._id,
-        label: (selectedProduct?.unit as AccountUnit)?.name,
-      },
-    ];
-  };
   const inputs = [
     {
       type: InputTypes.SELECT,
