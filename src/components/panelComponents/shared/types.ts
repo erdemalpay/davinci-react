@@ -48,9 +48,12 @@ export interface RowKeyType<T> {
 export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
+  className?: string;
   node?: () => React.ReactNode;
 }
-
+export interface PanelFilterType {
+  children: React.ReactNode;
+}
 export interface GenericInputType {
   type: InputTypes;
   required: boolean;

@@ -1,5 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetGames } from "../../utils/api/game";
 import { useGetAllUsers } from "../../utils/api/user";
 import { Autocomplete } from "../common/Autocomplete";
@@ -11,6 +12,7 @@ type WhoKnowsUser = {
 type Props = {};
 
 const WhoKnows = ({}: Props) => {
+  const { t } = useTranslation();
   const users = useGetAllUsers();
   const games = useGetGames();
   const [tableKey, setTableKey] = useState(1);
@@ -18,7 +20,7 @@ const WhoKnows = ({}: Props) => {
   const [search, setSearch] = useState(0);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
 
-  const columns = [{ key: "Mentor", isSortable: true }];
+  const columns = [{ key: t("Mentor"), isSortable: true }];
   useEffect(() => {
     const usersActive = showInactiveUsers
       ? users
@@ -45,7 +47,7 @@ const WhoKnows = ({}: Props) => {
   }, [users, search, showInactiveUsers]);
   const filters = [
     {
-      label: "Show Inactive Users",
+      label: t("Show Inactive Users"),
       isUpperSide: false,
       node: (
         <Switch
@@ -71,7 +73,7 @@ const WhoKnows = ({}: Props) => {
         <div className="w-80 ">
           <Autocomplete
             name="game"
-            label="Game"
+            label={t("Game")}
             suggestions={games}
             handleSelection={(game) => setSearch(game._id)}
             showSelected
@@ -84,7 +86,7 @@ const WhoKnows = ({}: Props) => {
           columns={columns}
           rows={rows}
           filters={filters}
-          title="Who Knows?"
+          title={t("Who Knows?")}
           isSearch={false}
         />
       </div>

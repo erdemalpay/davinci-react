@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import {
@@ -9,6 +10,7 @@ import {
   AccountInvoice,
   AccountProduct,
   AccountVendor,
+  Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -19,18 +21,21 @@ import {
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
 
 const Invoice = (props: Props) => {
+  const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
+  const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -38,6 +43,7 @@ const Invoice = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [form, setForm] = useState<Partial<AccountInvoice>>({
@@ -47,8 +53,11 @@ const Invoice = (props: Props) => {
     quantity: 0,
     totalExpense: 0,
     brand: "",
+    location: 0,
     vendor: "",
     documentNo: "",
+    price: 0,
+    kdv: 0,
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -64,10 +73,12 @@ const Invoice = (props: Props) => {
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
+        location: invoice.location as Location,
+        lctn: (invoice.location as Location)?.name,
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(1)
+          (invoice.totalExpense / invoice.quantity).toFixed(2)
         ),
-        unit: units.find(
+        unit: units?.find(
           (unit) =>
             unit._id === ((invoice.product as AccountProduct).unit as string)
         )?.name,
@@ -81,28 +92,28 @@ const Invoice = (props: Props) => {
     {
       type: InputTypes.DATE,
       formKey: "date",
-      label: "Date",
-      placeholder: "Date",
+      label: t("Date"),
+      placeholder: t("Date"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "product",
-      label: "Product",
+      label: t("Product"),
       options: products.map((product) => {
         return {
           value: product._id,
           label: product.name,
         };
       }),
-      placeholder: "Product",
+      placeholder: t("Product"),
       invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
       required: true,
     },
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
-      label: "Expense Type",
+      label: t("Expense Type"),
       options: expenseTypes
         .filter((exp) =>
           products
@@ -115,27 +126,27 @@ const Invoice = (props: Props) => {
             label: expenseType.name,
           };
         }),
-      placeholder: "Expense Type",
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: "Quantity",
-      placeholder: "Quantity",
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "totalExpense",
-      label: "Total Expense",
-      placeholder: "Total Expense",
+      placeholder: t("Expense Type"),
       required: true,
     },
     {
       type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+
+    {
+      type: InputTypes.SELECT,
       formKey: "brand",
-      label: "Brand",
+      label: t("Brand"),
       options: brands
         ?.filter((brnd) =>
           products
@@ -148,13 +159,13 @@ const Invoice = (props: Props) => {
             label: brand.name,
           };
         }),
-      placeholder: "Brand",
+      placeholder: t("Brand"),
       required: false,
     },
     {
       type: InputTypes.SELECT,
       formKey: "vendor",
-      label: "Vendor",
+      label: t("Vendor"),
       options: vendors
         ?.filter((vndr) =>
           products
@@ -167,15 +178,22 @@ const Invoice = (props: Props) => {
             label: vendor.name,
           };
         }),
-      placeholder: "Vendor",
+      placeholder: t("Vendor"),
       required: false,
     },
     {
       type: InputTypes.TEXT,
       formKey: "documentNo",
-      label: "Document No",
-      placeholder: "Document No",
+      label: t("Document No"),
+      placeholder: t("Document No"),
       required: false,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
     },
   ];
   const formKeys = [
@@ -185,87 +203,142 @@ const Invoice = (props: Props) => {
       type: FormKeyTypeEnum.STRING,
     },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "documentNo", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "ID", isSortable: true },
-    { key: "Date", isSortable: true },
-    { key: "Document No", isSortable: true },
-    { key: "Brand", isSortable: true },
-    { key: "Vendor", isSortable: true },
-    { key: "Expense Type", isSortable: true },
-    { key: "Product", isSortable: true },
-    { key: "Quantity", isSortable: true },
-    { key: "Unit", isSortable: true },
-    { key: "Unit Price", isSortable: true },
-    { key: "Total Expense", isSortable: true },
+    { key: t("Date"), isSortable: true },
+    {
+      key: t("Document No"),
+      isSortable: true,
+      node: () => {
+        return (
+          <th key="documentNoColumn">
+            <H5 className="min-w-32 my-auto h-full  py-3">
+              {t("Document No")}
+            </H5>
+          </th>
+        );
+      },
+    },
+    { key: t("Brand"), isSortable: true },
+    { key: t("Vendor"), isSortable: true },
+    { key: t("Location"), isSortable: true },
+    { key: t("Expense Type"), isSortable: true },
+    { key: t("Product"), isSortable: true },
+    { key: t("Quantity"), isSortable: true },
+    { key: t("Unit"), isSortable: true },
+    { key: t("Unit Price"), isSortable: true },
+    { key: t("Total Expense"), isSortable: true },
   ];
   const rowKeys = [
     {
       key: "_id",
+      className: "min-w-32 pr-2",
     },
     {
       key: "date",
-      className: "min-w-32",
+      className: "min-w-32 pr-2",
       node: (row: AccountInvoice) => {
         return formatAsLocalDate(row.date);
       },
     },
-    { key: "documentNo" },
-    { key: "brand" },
-    { key: "vendor" },
+    { key: "documentNo", className: "min-w-40 pr-2" },
+    { key: "brand", className: "min-w-32 pr-2" },
+    { key: "vendor", className: "min-w-32 pr-2" },
+    { key: "lctn", className: "min-w-32 pr-2" },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <p
-            className="w-fit rounded-md px-2 py-1 text-white"
-            style={{
-              backgroundColor: row?.expType?.backgroundColor,
-            }}
-          >
-            {(row?.expType as AccountExpenseType)?.name}
-          </p>
+          <div className=" min-w-32">
+            <p
+              className="w-fit rounded-md px-2 py-1 text-white"
+              style={{
+                backgroundColor: row?.expType?.backgroundColor,
+              }}
+            >
+              {(row?.expType as AccountExpenseType)?.name}
+            </p>
+          </div>
         );
       },
     },
     {
       key: "product",
-      className: "min-w-32",
+      className: "min-w-60 pr-2",
     },
     {
       key: "quantity",
+      className: "min-w-32",
     },
     {
       key: "unit",
+      className: "min-w-32",
     },
     {
       key: "unitPrice",
       node: (row: any) => {
-        return <P1>{row.unitPrice} ₺</P1>;
+        return (
+          <div className="min-w-32">
+            <P1>{row.unitPrice} ₺</P1>
+          </div>
+        );
       },
     },
     {
       key: "totalExpense",
       node: (row: any) => {
-        return <P1>{row.totalExpense} ₺</P1>;
+        return (
+          <div className="min-w-32">
+            <P1>{row.totalExpense} ₺</P1>
+          </div>
+        );
       },
     },
   ];
   const addButton = {
-    name: `Add Invoice`,
+    name: t(`Add Invoice`),
     isModal: true,
 
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
+        inputs={[
+          ...inputs,
+          {
+            type: InputTypes.NUMBER,
+            formKey: "price",
+            label: t("Price"),
+            placeholder: t("Price"),
+            required: true,
+          },
+          {
+            type: InputTypes.NUMBER,
+            formKey: "kdv",
+            label: "Kdv",
+            placeholder: "Kdv",
+            required: true,
+          },
+        ]}
+        formKeys={[
+          ...formKeys,
+          { key: "price", type: FormKeyTypeEnum.NUMBER },
+          { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+        ]}
+        submitFunction={() => {
+          form.price &&
+            form.kdv &&
+            createAccountInvoice({
+              ...form,
+              totalExpense: Number(form.price) + Number(form.kdv),
+            });
+        }}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
         setForm={setForm}
@@ -282,7 +355,7 @@ const Invoice = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
@@ -305,7 +378,7 @@ const Invoice = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       isDisabled: !isEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
@@ -315,8 +388,20 @@ const Invoice = (props: Props) => {
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
+          inputs={[
+            ...inputs,
+            {
+              type: InputTypes.NUMBER,
+              formKey: "totalExpense",
+              label: t("Total Expense"),
+              placeholder: t("Total Expense"),
+              required: true,
+            },
+          ]}
+          formKeys={[
+            ...formKeys,
+            { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+          ]}
           setForm={setForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
@@ -344,6 +429,7 @@ const Invoice = (props: Props) => {
                   ?.vendor as AccountVendor
               )?._id,
               documentNo: rowToAction.documentNo,
+              location: (rowToAction.location as Location)._id,
             },
           }}
         />
@@ -356,9 +442,9 @@ const Invoice = (props: Props) => {
     },
   ];
 
-  const filters = [
+  const tableFilters = [
     {
-      label: "Enable Edit",
+      label: t("Enable Edit"),
       isUpperSide: false,
       node: (
         <Switch
@@ -375,6 +461,29 @@ const Invoice = (props: Props) => {
         </Switch>
       ),
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={showFilters}
+          onChange={() => setShowFilters((value) => !value)}
+          className={`${showFilters ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${showFilters ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
+  const filterPanelFilters = [
+    {
+      children: <div>Deneme</div>,
+    },
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
@@ -387,15 +496,17 @@ const Invoice = (props: Props) => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(1)
+            (invoice.totalExpense / invoice.quantity).toFixed(2)
           ),
-          unit: units.find(
+          lctn: (invoice.location as Location)?.name,
+          unit: units?.find(
             (unit) =>
               unit._id === ((invoice.product as AccountProduct).unit as string)
           )?.name,
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
+          location: invoice.location as Location,
         };
       })
     );
@@ -408,16 +519,18 @@ const Invoice = (props: Props) => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          filters={filters}
+          filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
             isEnableEdit
-              ? [...columns, { key: "Action", isSortable: false }]
+              ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
           rows={rows}
-          title="Invoices"
+          title={t("Invoices")}
           addButton={addButton}
+          isFilterPanel={showFilters}
+          filterPanelFilters={filterPanelFilters}
         />
       </div>
     </>

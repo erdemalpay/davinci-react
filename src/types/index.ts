@@ -74,8 +74,10 @@ export type AccountProduct = {
   name: string;
   unit: AccountUnit | string;
   expenseType: string[];
+  stockType: string | AccountStockType;
   vendor?: string[];
   brand?: string[];
+  unitPrice: number;
 };
 
 export type AccountUnit = {
@@ -111,11 +113,14 @@ export type AccountInvoice = {
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
   documentNo?: string;
+  location: Location | number;
+  price?: number;
+  kdv?: number;
 };
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
-  unit?: string | AccountUnit;
+
   location: number | Location;
   stockType?: string | AccountStockType;
   quantity: number;
@@ -167,6 +172,10 @@ export type MenuItem = {
   priceBahceli: number;
   priceNeorama: number;
   order: number;
+  itemProduction?: {
+    product: string;
+    quantity: number;
+  }[];
 };
 
 export enum ReservationStatusEnum {
@@ -212,6 +221,7 @@ export enum RowPerPageEnum {
   FIRST = 10,
   SECOND = 20,
   THIRD = 50,
+  ALL = 10000000000,
 }
 
 export enum RoleEnum {

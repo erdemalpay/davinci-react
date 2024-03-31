@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { User } from "../../types";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -22,6 +23,7 @@ export interface GameplayGroupRow {
 }
 
 export default function GameplaysByMentor() {
+  const { t } = useTranslation();
   const [gameplayGroupRows, setGameplayGroupRows] = useState<
     GameplayGroupRow[]
   >([]);
@@ -79,14 +81,14 @@ export default function GameplaysByMentor() {
   const columns = [
     {
       id: "game",
-      header: "Game",
+      header: t("Game"),
       cell: (row: GameplayGroupRow) => (
         <button className="truncate w-full text-left">{`${row.mentor} (${row.secondary.length}/${row.total})`}</button>
       ),
     },
     {
       id: "mentor",
-      header: "Mentor",
+      header: t("Mentor"),
       cell: (row: GameplayGroupRow) => {
         if (row.open) {
           return (
@@ -141,7 +143,7 @@ export default function GameplaysByMentor() {
         <div className="mb-5 rounded-tl-lg rounded-tr-lg">
           <div className="flex items-center justify-between mb-4">
             <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
-              Gameplays by Mentors
+              {t("Gameplays by Mentors")}
             </p>
           </div>
           <div className="flex items-center mt-4 sm:mt-0">
@@ -150,14 +152,14 @@ export default function GameplaysByMentor() {
                 <Input
                   variant="standard"
                   name="startDay"
-                  label="After"
+                  label={t("After")}
                   type="date"
                   onChange={handleStartDateSelection}
                 />
                 <Input
                   variant="standard"
                   name="endDay"
-                  label="Before"
+                  label={t("Before")}
                   type="date"
                   onChange={handleEndDateSelection}
                 />
@@ -165,7 +167,7 @@ export default function GameplaysByMentor() {
               <div className="mt-2">
                 <Autocomplete
                   name="mentor"
-                  label="Mentor"
+                  label={t("Mentor")}
                   suggestions={
                     showInactiveUsers
                       ? users
@@ -177,7 +179,7 @@ export default function GameplaysByMentor() {
               </div>
               {/* show inactive users filter */}
               <div className="ml-auto mt-4 flex flex-row gap-2 justify-between items-center">
-                <p>Show Inactive Users</p>
+                <p>{t("Show Inactive Users")}</p>
                 <Switch
                   checked={showInactiveUsers}
                   onChange={() => setShowInactiveUsers((value) => !value)}

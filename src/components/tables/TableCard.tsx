@@ -7,6 +7,7 @@ import {
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Game, Gameplay, Table, User } from "../../types";
 import {
@@ -29,6 +30,7 @@ export interface TableCardProps {
 }
 
 export function TableCard({ table, mentors, games }: TableCardProps) {
+  const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
@@ -146,7 +148,7 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
               </span>
             </Tooltip>
           )}
-          <Tooltip content="Delete">
+          <Tooltip content={t("Delete")}>
             <span>
               <CardAction
                 onClick={() => setIsDeleteConfirmationDialogOpen(true)}
@@ -160,14 +162,14 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
         <div className="flex gap-4 flex-row">
           <InputWithLabel
             name="startHour"
-            label="Start Time"
+            label={t("Start Time")}
             type="time"
             value={table.startHour}
             onChange={updateTableHandler}
           />
           <InputWithLabel
             name="finishHour"
-            label="End Time"
+            label={t("End Time")}
             type="time"
             value={table.finishHour}
             onChange={updateTableHandler}
@@ -176,7 +178,7 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
         <div className="flex flex-col gap-4">
           <InputWithLabel
             name="playerCount"
-            label="Player Count"
+            label={t("Player Count")}
             type="number"
             defaultValue={table.playerCount}
             onChange={updateTableHandler}
@@ -244,14 +246,14 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
         isOpen={isDeleteConfirmationDialogOpen}
         close={() => setIsDeleteConfirmationDialogOpen(false)}
         confirm={handleTableDelete}
-        title="Delete Table"
+        title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
       <ConfirmationDialog
         isOpen={isCloseConfirmationDialogOpen}
         close={() => setIsCloseConfirmationDialogOpen(false)}
         confirm={finishTable}
-        title="Close Table"
+        title={t("Close Table")}
         text="Table is being closed. Are you sure?"
       />
     </div>

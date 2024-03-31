@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
@@ -24,9 +25,12 @@ type Props<T> = {
   topClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
   setForm?: (item: T) => void;
+  handleUpdate?: () => void;
+  submitFunction?: () => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
+  buttonName?: string;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -44,15 +48,18 @@ const GenericAddEditPanel = <T,>({
   inputs,
   formKeys,
   topClassName,
-
+  buttonName,
   constantValues,
   isEditMode = false,
   itemToEdit,
   folderName,
+  handleUpdate,
+  submitFunction,
   setForm,
 
   submitItem,
 }: Props<T>) => {
+  const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -143,8 +150,14 @@ const GenericAddEditPanel = <T,>({
     try {
       if (isEditMode && itemToEdit) {
         submitItem({ id: itemToEdit.id, updates: formElements as T });
+      } else if (isEditMode && handleUpdate) {
+        handleUpdate();
       } else {
-        submitItem(formElements as T);
+        if (submitFunction) {
+          submitFunction();
+        } else {
+          submitItem(formElements as T);
+        }
       }
       setFormElements({});
       close();
@@ -197,7 +210,7 @@ const GenericAddEditPanel = <T,>({
                     key={input.formKey}
                     className="w-fit ml-auto inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto border-b sm:border-b-0"
                   >
-                    Upload
+                    {t("Upload")}
                     <input
                       type="file"
                       accept="image/*"
@@ -261,8 +274,6 @@ const GenericAddEditPanel = <T,>({
                     );
                     if (changedInput?.invalidateKeys) {
                       changedInput.invalidateKeys.forEach((key) => {
-                        console.log(key);
-                        console.log(formElements);
                         setFormElements((prev) => ({
                           ...prev,
                           [key.key]: key.defaultValue,
@@ -296,10 +307,18 @@ const GenericAddEditPanel = <T,>({
                             ? input.formKey
                             : input.formKey + formElements[input.formKey]
                         }
-                        value={input.options?.find(
-                          (option) =>
-                            option.value === formElements[input.formKey]
-                        )}
+                        value={
+                          input.isMultiple
+                            ? input.options?.filter((option) =>
+                                formElements[input.formKey]?.includes(
+                                  option.value
+                                )
+                              )
+                            : input.options?.find(
+                                (option) =>
+                                  option.value === formElements[input.formKey]
+                              )
+                        }
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
@@ -331,7 +350,7 @@ const GenericAddEditPanel = <T,>({
               onClick={close}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               onClick={() => {
@@ -360,7 +379,7 @@ const GenericAddEditPanel = <T,>({
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
             >
-              {isEditMode ? "Update" : "Create"}
+              {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
             </button>
           </div>
         </div>

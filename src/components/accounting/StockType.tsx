@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountStockType } from "../../types";
@@ -12,27 +13,9 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-  {
-    type: InputTypes.COLOR,
-    formKey: "backgroundColor",
-    label: "Background Color",
-    placeholder: "Background Color",
-    required: true,
-  },
-];
-const formKeys = [
-  { key: "name", type: FormKeyTypeEnum.STRING },
-  { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
-];
+
 const StockType = (props: Props) => {
+  const { t } = useTranslation();
   const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -47,9 +30,31 @@ const StockType = (props: Props) => {
     deleteAccountStockType,
     updateAccountStockType,
   } = useAccountStockTypeMutations();
+
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "name",
+      label: t("Name"),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.COLOR,
+      formKey: "backgroundColor",
+      label: t("Background Color"),
+      placeholder: t("Background Color"),
+      required: true,
+    },
+  ];
+
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
   const columns = [
-    { key: "Name", isSortable: true },
-    { key: "Actions", isSortable: false },
+    { key: t("Name"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -65,7 +70,7 @@ const StockType = (props: Props) => {
     },
   ];
   const addButton = {
-    name: `Add Stock Type`,
+    name: t("Add Stock Type"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -85,7 +90,7 @@ const StockType = (props: Props) => {
   };
   const actions = [
     {
-      name: "Delete",
+      name: t("Delete"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -97,7 +102,7 @@ const StockType = (props: Props) => {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Stock Type"
-          text={`${rowToAction.name} will be deleted. Are you sure you want to continue?`}
+          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl ml-auto ",
@@ -107,7 +112,7 @@ const StockType = (props: Props) => {
       isPath: false,
     },
     {
-      name: "Edit",
+      name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
@@ -142,7 +147,7 @@ const StockType = (props: Props) => {
           actions={actions}
           columns={columns}
           rows={stockTypes}
-          title="Stock Types"
+          title={t("Stock Types")}
           addButton={addButton}
         />
       </div>

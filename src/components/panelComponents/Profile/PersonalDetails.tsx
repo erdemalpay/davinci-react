@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { User } from "../../../types";
 import { useUserMutations } from "../../../utils/api/user";
 import TextInput from "../FormElements/TextInput";
@@ -12,6 +13,7 @@ type Props = {
 
 const PersonalDetails = ({ isEditable, user }: Props) => {
   const { updateUser } = useUserMutations();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     fullName: user.fullName ?? "",
@@ -35,31 +37,33 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
   return (
     <ItemContainer>
       <div className="flex flex-col gap-2">
-        <H4>Personal Details</H4>
+        <H4>{t("Personal Details")}</H4>
         {isEditable && (
-          <P2>To change your personal detail, edit and save from here</P2>
+          <P2>
+            {t("To change your personal detail, edit and save from here")}
+          </P2>
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextInput
-          label="Full Name"
-          placeholder={`${isEditable ? "Enter full name" : ""}`}
+          label={t("Full Name")}
+          placeholder={`${isEditable ? t("Enter full name") : ""}`}
           type="text"
           value={formData.fullName}
           disabled={!isEditable}
           onChange={(value) => handleChange("fullName", value)}
         />
         <TextInput
-          label="Phone"
-          placeholder={`${isEditable ? "Enter phone number" : ""}`}
+          label={t("Phone")}
+          placeholder={`${isEditable ? t("Enter phone number") : ""}`}
           type="text"
           value={formData.phone}
           disabled={!isEditable}
           onChange={(value) => handleChange("phone", value)}
         />
         <TextInput
-          label="Address"
-          placeholder={`${isEditable ? "Enter address" : ""}`}
+          label={t("Address")}
+          placeholder={`${isEditable ? t("Enter address") : ""}`}
           type="text"
           value={formData.address}
           disabled={!isEditable}
@@ -71,7 +75,7 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
           className="w-fit bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md ml-auto"
           onClick={handleSave}
         >
-          Save
+          {t("Save")}
         </button>
       )}
     </ItemContainer>
