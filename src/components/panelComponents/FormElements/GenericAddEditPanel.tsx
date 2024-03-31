@@ -26,7 +26,7 @@ type Props<T> = {
   submitItem: (item: T | UpdatePayload<T>) => void;
   setForm?: (item: T) => void;
   handleUpdate?: () => void;
-
+  submitFunction?: () => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
@@ -54,6 +54,7 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   folderName,
   handleUpdate,
+  submitFunction,
   setForm,
 
   submitItem,
@@ -152,7 +153,11 @@ const GenericAddEditPanel = <T,>({
       } else if (isEditMode && handleUpdate) {
         handleUpdate();
       } else {
-        submitItem(formElements as T);
+        if (submitFunction) {
+          submitFunction();
+        } else {
+          submitItem(formElements as T);
+        }
       }
       setFormElements({});
       close();

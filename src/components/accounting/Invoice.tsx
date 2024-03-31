@@ -43,6 +43,7 @@ const Invoice = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [form, setForm] = useState<Partial<AccountInvoice>>({
@@ -55,6 +56,8 @@ const Invoice = (props: Props) => {
     location: 0,
     vendor: "",
     documentNo: "",
+    price: 0,
+    kdv: 0,
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -70,6 +73,7 @@ const Invoice = (props: Props) => {
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
+        location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(2)
@@ -138,20 +142,7 @@ const Invoice = (props: Props) => {
       placeholder: t("Location"),
       required: true,
     },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "totalExpense",
-      label: t("Total Expense"),
-      placeholder: t("Total Expense"),
-      required: true,
-    },
+
     {
       type: InputTypes.SELECT,
       formKey: "brand",
@@ -197,6 +188,13 @@ const Invoice = (props: Props) => {
       placeholder: t("Document No"),
       required: false,
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -210,7 +208,6 @@ const Invoice = (props: Props) => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "documentNo", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "ID", isSortable: true },
@@ -312,8 +309,36 @@ const Invoice = (props: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
+        inputs={[
+          ...inputs,
+          {
+            type: InputTypes.NUMBER,
+            formKey: "price",
+            label: t("Price"),
+            placeholder: t("Price"),
+            required: true,
+          },
+          {
+            type: InputTypes.NUMBER,
+            formKey: "kdv",
+            label: "Kdv",
+            placeholder: "Kdv",
+            required: true,
+          },
+        ]}
+        formKeys={[
+          ...formKeys,
+          { key: "price", type: FormKeyTypeEnum.NUMBER },
+          { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+        ]}
+        submitFunction={() => {
+          form.price &&
+            form.kdv &&
+            createAccountInvoice({
+              ...form,
+              totalExpense: Number(form.price) + Number(form.kdv),
+            });
+        }}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
         setForm={setForm}
@@ -363,8 +388,20 @@ const Invoice = (props: Props) => {
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
+          inputs={[
+            ...inputs,
+            {
+              type: InputTypes.NUMBER,
+              formKey: "totalExpense",
+              label: t("Total Expense"),
+              placeholder: t("Total Expense"),
+              required: true,
+            },
+          ]}
+          formKeys={[
+            ...formKeys,
+            { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+          ]}
           setForm={setForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
@@ -392,6 +429,7 @@ const Invoice = (props: Props) => {
                   ?.vendor as AccountVendor
               )?._id,
               documentNo: rowToAction.documentNo,
+              location: (rowToAction.location as Location)._id,
             },
           }}
         />
@@ -404,7 +442,7 @@ const Invoice = (props: Props) => {
     },
   ];
 
-  const filters = [
+  const tableFilters = [
     {
       label: t("Enable Edit"),
       isUpperSide: false,
@@ -422,6 +460,29 @@ const Invoice = (props: Props) => {
           />
         </Switch>
       ),
+    },
+    {
+      label: t("Show Filters"),
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={showFilters}
+          onChange={() => setShowFilters((value) => !value)}
+          className={`${showFilters ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${showFilters ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
+  const filterPanelFilters = [
+    {
+      children: <div>Deneme</div>,
     },
   ];
   useEffect(() => {
@@ -445,6 +506,7 @@ const Invoice = (props: Props) => {
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
+          location: invoice.location as Location,
         };
       })
     );
@@ -457,7 +519,7 @@ const Invoice = (props: Props) => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          filters={filters}
+          filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
             isEnableEdit
@@ -467,6 +529,8 @@ const Invoice = (props: Props) => {
           rows={rows}
           title={t("Invoices")}
           addButton={addButton}
+          isFilterPanel={showFilters}
+          filterPanelFilters={filterPanelFilters}
         />
       </div>
     </>
