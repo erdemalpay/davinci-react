@@ -10,6 +10,7 @@ import {
   AccountInvoice,
   AccountProduct,
   AccountVendor,
+  Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -20,6 +21,7 @@ import {
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -33,6 +35,7 @@ const Invoice = (props: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
+  const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -49,6 +52,7 @@ const Invoice = (props: Props) => {
     quantity: 0,
     totalExpense: 0,
     brand: "",
+    location: 0,
     vendor: "",
     documentNo: "",
   });
@@ -66,10 +70,11 @@ const Invoice = (props: Props) => {
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
+        lctn: (invoice.location as Location)?.name,
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(2)
         ),
-        unit: units.find(
+        unit: units?.find(
           (unit) =>
             unit._id === ((invoice.product as AccountProduct).unit as string)
         )?.name,
@@ -118,6 +123,19 @@ const Invoice = (props: Props) => {
           };
         }),
       placeholder: t("Expense Type"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Location"),
       required: true,
     },
     {
@@ -187,6 +205,7 @@ const Invoice = (props: Props) => {
       type: FormKeyTypeEnum.STRING,
     },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "documentNo", type: FormKeyTypeEnum.STRING },
@@ -201,12 +220,17 @@ const Invoice = (props: Props) => {
       isSortable: true,
       node: () => {
         return (
-          <H5 className="min-w-32 my-auto h-full  py-3">{t("Document No")}</H5>
+          <th key="documentNoColumn">
+            <H5 className="min-w-32 my-auto h-full  py-3">
+              {t("Document No")}
+            </H5>
+          </th>
         );
       },
     },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
+    { key: t("Location"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
@@ -217,18 +241,19 @@ const Invoice = (props: Props) => {
   const rowKeys = [
     {
       key: "_id",
+      className: "min-w-32 pr-2",
     },
     {
       key: "date",
-      className: "min-w-32",
+      className: "min-w-32 pr-2",
       node: (row: AccountInvoice) => {
         return formatAsLocalDate(row.date);
       },
     },
-    { key: "documentNo", className: "min-w-40" },
-    { key: "brand", className: "min-w-32" },
-    { key: "vendor", className: "min-w-32" },
-
+    { key: "documentNo", className: "min-w-40 pr-2" },
+    { key: "brand", className: "min-w-32 pr-2" },
+    { key: "vendor", className: "min-w-32 pr-2" },
+    { key: "lctn", className: "min-w-32 pr-2" },
     {
       key: "expenseType",
       node: (row: any) => {
@@ -248,7 +273,7 @@ const Invoice = (props: Props) => {
     },
     {
       key: "product",
-      className: "min-w-60",
+      className: "min-w-60 pr-2",
     },
     {
       key: "quantity",
@@ -412,7 +437,8 @@ const Invoice = (props: Props) => {
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(2)
           ),
-          unit: units.find(
+          lctn: (invoice.location as Location)?.name,
+          unit: units?.find(
             (unit) =>
               unit._id === ((invoice.product as AccountProduct).unit as string)
           )?.name,
