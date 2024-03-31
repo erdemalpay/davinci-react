@@ -14,8 +14,9 @@ import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import { P1 } from "../panelComponents/Typography";
 
 type Props = {};
 
@@ -229,7 +230,16 @@ const Product = (props: Props) => {
         }
       },
     },
-    { key: "unitPrice" },
+    {
+      key: "unitPrice",
+      node: (row: any) => {
+        return (
+          <div className="min-w-32">
+            <P1>{row.unitPrice} ₺</P1>
+          </div>
+        );
+      },
+    },
   ];
   const addButton = {
     name: t(`Add Product`),
