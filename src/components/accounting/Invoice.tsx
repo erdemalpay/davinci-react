@@ -260,7 +260,7 @@ const Invoice = (props: Props) => {
         return (
           <div className=" min-w-32">
             <p
-              className="w-fit rounded-md px-2 py-1 text-white"
+              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
