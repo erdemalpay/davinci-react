@@ -252,7 +252,7 @@ const Invoice = (props: Props) => {
     { key: "documentNo", className: "min-w-40 pr-2" },
     { key: "brand", className: "min-w-32 pr-2" },
     { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-2" },
+    { key: "lctn", className: "min-w-32 pr-4" },
     {
       key: "expenseType",
       node: (row: any) => {
