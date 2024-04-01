@@ -30,8 +30,7 @@ type Props<T> = {
   title?: string;
   addButton?: ActionType<T>;
   addCollapsible?: ActionType<T>;
-  filterPanelFilters?: PanelFilterType[];
-  isFilterPanel?: boolean;
+  filterPanel?: PanelFilterType<T>;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -54,8 +53,7 @@ const GenericTable = <T,>({
   addCollapsible,
   isActionsActive = true,
   isDraggable = false,
-  isFilterPanel = false,
-  filterPanelFilters,
+  filterPanel,
   collapsibleActions,
   onDragEnter,
   isSearch = true,
@@ -83,7 +81,6 @@ const GenericTable = <T,>({
     setExpandedRows,
   } = useGeneralContext();
   const navigate = useNavigate();
-  const shouldDisplayFilterPanel = isFilterPanel && filterPanelFilters;
   const [tableRows, setTableRows] = useState(rows);
 
   const initialRows = () => {
@@ -424,11 +421,12 @@ const GenericTable = <T,>({
   return (
     <div
       className={` ${
-        shouldDisplayFilterPanel ? "flex flex-col sm:flex-row gap-2" : ""
+        filterPanel?.isFilterPanelActive
+          ? "flex flex-col sm:flex-row gap-2"
+          : ""
       }`}
     >
-      {shouldDisplayFilterPanel && <FilterPanel filters={filterPanelFilters} />}
-
+      {filterPanel?.isFilterPanelActive && <FilterPanel {...filterPanel} />}
       <div
         className={`mx-auto overflow-scroll flex flex-col gap-4 __className_a182b8 `}
       >

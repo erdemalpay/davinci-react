@@ -63,6 +63,7 @@ const Invoice = (props: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+
   const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
     useAccountInvoiceMutations();
   const [rows, setRows] = useState(
@@ -482,11 +483,6 @@ const Invoice = (props: Props) => {
       ),
     },
   ];
-  const filterPanelFilters = [
-    {
-      children: <div>Deneme</div>,
-    },
-  ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
@@ -515,6 +511,12 @@ const Invoice = (props: Props) => {
       })
     );
   }, [invoices]);
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: inputs,
+    formKeys: formKeys,
+    closeFilters: () => setShowFilters(false),
+  };
 
   return (
     <>
@@ -533,8 +535,7 @@ const Invoice = (props: Props) => {
           rows={rows}
           title={t("Invoices")}
           addButton={addButton}
-          isFilterPanel={showFilters}
-          filterPanelFilters={filterPanelFilters}
+          filterPanel={filterPanel}
         />
       </div>
     </>
