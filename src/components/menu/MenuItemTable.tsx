@@ -58,8 +58,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
             product: itemProduction.product,
             name: products?.find(
-              (product) => product._id === itemProduction.product
-            )?._id,
+              (product: AccountProduct) =>
+                product._id === itemProduction.product
+            )?.name,
             unit: (
               products?.find(
                 (product) => product._id === itemProduction.product
@@ -98,8 +99,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
               product: itemProduction.product,
               name: products?.find(
-                (product) => product._id === itemProduction.product
-              )?._id,
+                (product: AccountProduct) =>
+                  product._id === itemProduction.product
+              )?.name,
               unit: (
                 products?.find(
                   (product) => product._id === itemProduction.product
@@ -229,7 +231,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             return acc + unitPrice * curr.quantity;
           }, 0) ?? 0;
 
-        return total === 0 ? "-" : `${total.toFixed(2)} ₺`;
+        return total === 0
+          ? "-"
+          : `${parseFloat(total.toFixed(3)).toString()} ₺`;
       },
     },
   ];
