@@ -76,7 +76,9 @@ const Invoice = (props: Props) => {
         location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(2)
+          `${parseFloat(
+            (invoice.totalExpense / invoice.quantity).toFixed(4)
+          ).toString()}`
         ),
         unit: units?.find(
           (unit) =>
@@ -496,7 +498,9 @@ const Invoice = (props: Props) => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(2)
+            `${parseFloat(
+              (invoice.totalExpense / invoice.quantity).toFixed(4)
+            ).toString()}`
           ),
           lctn: (invoice.location as Location)?.name,
           unit: units?.find(
