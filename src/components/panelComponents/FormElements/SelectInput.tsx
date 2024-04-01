@@ -1,3 +1,4 @@
+import { IoIosClose } from "react-icons/io";
 import { MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
@@ -34,6 +35,7 @@ interface SelectInputProps {
     value: SingleValue<OptionType> | MultiValue<OptionType>,
     actionMeta: ActionMeta<OptionType>
   ) => void;
+  onClear?: () => void;
   placeholder: string;
   isMultiple?: boolean;
 }
@@ -45,6 +47,7 @@ const SelectInput = ({
   onChange,
   isMultiple,
   placeholder,
+  onClear,
 }: SelectInputProps) => {
   const customStyles = {
     control: (base: any) => ({
@@ -75,26 +78,39 @@ const SelectInput = ({
   return (
     <div className="flex flex-col gap-2 __className_a182b8">
       <H6>{label}</H6>
-      {isMultiple ? (
-        <Select
-          isMulti
-          options={options}
-          onChange={onChange}
-          value={value}
-          components={{ Option: CustomOption }}
-          placeholder={placeholder}
-          styles={customStyles}
-        />
-      ) : (
-        <Select
-          options={options}
-          onChange={(value, actionMeta) => onChange(value, actionMeta)}
-          value={value}
-          components={{ Option: CustomOption }}
-          placeholder={placeholder}
-          styles={customStyles}
-        />
-      )}
+      <div className="flex flex-row gap-2 w-full ">
+        <div className="w-full">
+          {isMultiple ? (
+            <Select
+              isMulti
+              options={options}
+              onChange={onChange}
+              value={value}
+              components={{ Option: CustomOption }}
+              placeholder={placeholder}
+              styles={customStyles}
+            />
+          ) : (
+            <Select
+              options={options}
+              onChange={(value, actionMeta) => onChange(value, actionMeta)}
+              value={value}
+              components={{ Option: CustomOption }}
+              placeholder={placeholder}
+              styles={customStyles}
+            />
+          )}
+        </div>
+
+        {((isMultiple && value) || (!isMultiple && value)) && onClear && (
+          <button
+            onClick={onClear}
+            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-gray-700"
+          >
+            <IoIosClose />
+          </button>
+        )}
+      </div>
     </div>
   );
 };
