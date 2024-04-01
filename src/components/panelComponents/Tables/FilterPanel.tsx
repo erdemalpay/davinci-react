@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
-import { FormKeyTypeEnum, InputTypes, PanelFilterType } from "../shared/types";
+import { InputTypes, PanelFilterType } from "../shared/types";
 import { H4, H6 } from "../Typography";
 
 type OptionType = { value: string; label: string };
@@ -14,42 +13,12 @@ type FormElementsState = {
 };
 const FilterPanel = <T,>({
   inputs,
-  formKeys,
-  setForm,
+  formElements,
+  setFormElements,
   closeFilters,
 }: PanelFilterType<T>) => {
   const { t } = useTranslation();
-  const [formElements, setFormElements] = useState(() => {
-    const initialState = formKeys.reduce<FormElementsState>(
-      (acc, { key, type }) => {
-        let defaultValue;
-        switch (type) {
-          case FormKeyTypeEnum.STRING:
-            defaultValue = "";
-            break;
-          case FormKeyTypeEnum.NUMBER:
-            defaultValue = 0;
-            break;
-          case FormKeyTypeEnum.BOOLEAN:
-            defaultValue = false;
-            break;
-          case FormKeyTypeEnum.DATE:
-            defaultValue = new Date();
-            break;
-          default:
-            defaultValue = null;
-        }
-        acc[key] = defaultValue;
-        return acc;
-      },
-      {}
-    );
-    return initialState;
-  });
 
-  useEffect(() => {
-    setForm && setForm(formElements as T);
-  }, [formElements, inputs]);
   return (
     <div className="flex flex-col gap-3 __className_a182b8 min-w-[20rem] border h-fit pb-20 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
       <div className="flex flex-row justify-between">
@@ -122,6 +91,9 @@ const FilterPanel = <T,>({
                 label={input.label ?? ""}
                 placeholder={input.placeholder ?? ""}
                 onChange={handleChange(input.formKey)}
+                onClear={() =>
+                  setFormElements((prev) => ({ ...prev, [input.formKey]: "" }))
+                }
               />
             )}
 
@@ -146,6 +118,12 @@ const FilterPanel = <T,>({
                 placeholder={input.placeholder ?? ""}
                 isMultiple={input.isMultiple ?? false}
                 onChange={handleChangeForSelect(input.formKey)}
+                onClear={() => {
+                  setFormElements((prev) => ({
+                    ...prev,
+                    [input.formKey]: input.isMultiple ? [] : "",
+                  }));
+                }}
               />
             )}
             {input.type === InputTypes.TEXTAREA && (

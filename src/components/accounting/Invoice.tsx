@@ -30,6 +30,9 @@ import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
+type FormElementsState = {
+  [key: string]: any;
+};
 
 const Invoice = (props: Props) => {
   const { t } = useTranslation();
@@ -59,6 +62,12 @@ const Invoice = (props: Props) => {
     price: 0,
     kdv: 0,
   });
+
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      product: "",
+    });
+
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -196,6 +205,22 @@ const Invoice = (props: Props) => {
       formKey: "quantity",
       label: t("Quantity"),
       placeholder: t("Quantity"),
+      required: true,
+    },
+  ];
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name,
+        };
+      }),
+      placeholder: t("Product"),
+      invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
       required: true,
     },
   ];
@@ -486,35 +511,45 @@ const Invoice = (props: Props) => {
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
-      invoices.map((invoice) => {
-        return {
-          ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          unitPrice: parseFloat(
-            `${parseFloat(
-              (invoice.totalExpense / invoice.quantity).toFixed(4)
-            ).toString()}`
-          ),
-          lctn: (invoice.location as Location)?.name,
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          location: invoice.location as Location,
-        };
-      })
+      invoices
+        .filter((invoice) => {
+          return (
+            filterPanelFormElements.product === "" ||
+            (invoice.product as AccountProduct)?._id ===
+              filterPanelFormElements.product
+          );
+        })
+        .map((invoice) => {
+          return {
+            ...invoice,
+            product: (invoice.product as AccountProduct)?.name,
+            expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+            brand: (invoice.brand as AccountBrand)?.name,
+            vendor: (invoice.vendor as AccountVendor)?.name,
+            unitPrice: parseFloat(
+              `${parseFloat(
+                (invoice.totalExpense / invoice.quantity).toFixed(4)
+              ).toString()}`
+            ),
+            lctn: (invoice.location as Location)?.name,
+            unit: units?.find(
+              (unit) =>
+                unit._id ===
+                ((invoice.product as AccountProduct).unit as string)
+            )?.name,
+            expType: invoice.expenseType as AccountExpenseType,
+            brnd: invoice.brand as AccountBrand,
+            vndr: invoice.vendor as AccountVendor,
+            location: invoice.location as Location,
+          };
+        })
     );
-  }, [invoices]);
+  }, [invoices, filterPanelFormElements]);
   const filterPanel = {
     isFilterPanelActive: showFilters,
-    inputs: inputs,
-    formKeys: formKeys,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
 
