@@ -66,34 +66,35 @@ const GenericAddEditPanel = <T,>({
   const nonImageInputs = inputs.filter(
     (input) => input.type !== InputTypes.IMAGE
   );
+  const initialState = formKeys.reduce<FormElementsState>(
+    (acc, { key, type }) => {
+      let defaultValue;
+      switch (type) {
+        case FormKeyTypeEnum.STRING:
+          defaultValue = "";
+          break;
+        case FormKeyTypeEnum.NUMBER:
+          defaultValue = "";
+          break;
+        case FormKeyTypeEnum.BOOLEAN:
+          defaultValue = false;
+          break;
+        case FormKeyTypeEnum.DATE:
+          defaultValue = "";
+          break;
+        default:
+          defaultValue = null;
+      }
+      acc[key] = defaultValue;
+      return acc;
+    },
+    {}
+  );
+
   const [formElements, setFormElements] = useState(() => {
     if (isEditMode && itemToEdit) {
       return itemToEdit.updates as unknown as FormElementsState;
     }
-    const initialState = formKeys.reduce<FormElementsState>(
-      (acc, { key, type }) => {
-        let defaultValue;
-        switch (type) {
-          case FormKeyTypeEnum.STRING:
-            defaultValue = "";
-            break;
-          case FormKeyTypeEnum.NUMBER:
-            defaultValue = 0;
-            break;
-          case FormKeyTypeEnum.BOOLEAN:
-            defaultValue = false;
-            break;
-          case FormKeyTypeEnum.DATE:
-            defaultValue = new Date();
-            break;
-          default:
-            defaultValue = null;
-        }
-        acc[key] = defaultValue;
-        return acc;
-      },
-      {}
-    );
 
     const mergedInitialState = { ...initialState, ...constantValues };
 
@@ -173,7 +174,20 @@ const GenericAddEditPanel = <T,>({
       return value !== undefined && value !== null && value !== "";
     });
   };
-
+  const handleInputClear = (input: GenericInputType) => {
+    setFormElements((prev) => ({
+      ...prev,
+      [input.formKey]: initialState[input.formKey],
+    }));
+    if (input.invalidateKeys) {
+      input.invalidateKeys.forEach((key) => {
+        setFormElements((prev) => ({
+          ...prev,
+          [key.key]: initialState[key.key],
+        }));
+      });
+    }
+  };
   return (
     <div
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
@@ -297,6 +311,9 @@ const GenericAddEditPanel = <T,>({
                         label={input.label ?? ""}
                         placeholder={input.placeholder ?? ""}
                         onChange={handleChange(input.formKey)}
+                        onClear={() => {
+                          handleInputClear(input);
+                        }}
                       />
                     )}
 
@@ -324,6 +341,9 @@ const GenericAddEditPanel = <T,>({
                         placeholder={input.placeholder ?? ""}
                         isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
+                        onClear={() => {
+                          handleInputClear(input);
+                        }}
                       />
                     )}
                     {input.type === InputTypes.TEXTAREA && (

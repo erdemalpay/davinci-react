@@ -112,7 +112,7 @@ export type AccountInvoice = {
   date: string;
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
-  documentNo?: string;
+  note?: string;
   location: Location | number;
   price?: number;
   kdv?: number;
