@@ -8,9 +8,6 @@ import { H4, H6 } from "../Typography";
 
 type OptionType = { value: string; label: string };
 
-type FormElementsState = {
-  [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.
-};
 const FilterPanel = <T,>({
   inputs,
   formElements,
@@ -20,7 +17,7 @@ const FilterPanel = <T,>({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-3 __className_a182b8 min-w-[20rem] border h-fit pb-20 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
+    <div className="flex flex-col gap-3 __className_a182b8 bg-white min-w-full sm:min-w-[20rem] border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
       <div className="flex flex-row justify-between">
         <H4 className="my-1">{t("Filters")}</H4>
         <button onClick={closeFilters}>
@@ -143,6 +140,20 @@ const FilterPanel = <T,>({
           </div>
         );
       })}
+      <button
+        className="ml-auto mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
+        onClick={() => {
+          setFormElements((prev) => {
+            const newFormElements = { ...prev };
+            inputs.forEach((input) => {
+              newFormElements[input.formKey] = "";
+            });
+            return newFormElements;
+          });
+        }}
+      >
+        Clear All
+      </button>
     </div>
   );
 };

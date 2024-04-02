@@ -421,9 +421,7 @@ const GenericTable = <T,>({
   return (
     <div
       className={` ${
-        filterPanel?.isFilterPanelActive
-          ? "flex flex-col sm:flex-row gap-2"
-          : ""
+        filterPanel?.isFilterPanelActive ? "flex flex-row gap-2" : ""
       }`}
     >
       {filterPanel?.isFilterPanelActive && <FilterPanel {...filterPanel} />}

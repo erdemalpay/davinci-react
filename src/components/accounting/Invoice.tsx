@@ -23,6 +23,7 @@ import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -66,6 +67,12 @@ const Invoice = (props: Props) => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
+      vendor: "",
+      brand: "",
+      expenseType: "",
+      location: "",
+      before: "",
+      after: "",
     });
 
   const [
@@ -220,7 +227,72 @@ const Invoice = (props: Props) => {
         };
       }),
       placeholder: t("Product"),
-      invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "vendor",
+      label: t("Vendor"),
+      options: vendors.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Vendor"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "brand",
+      label: t("Brand"),
+      options: brands.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Brand"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: t("ExpenseType"),
+      options: expenseTypes.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("ExpenseType"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("After"),
+      placeholder: t("After"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("Before"),
+      placeholder: t("Before"),
       required: true,
     },
   ];
@@ -298,7 +370,7 @@ const Invoice = (props: Props) => {
     },
     {
       key: "product",
-      className: "min-w-60 pr-2",
+      className: "min-w-32 pr-2",
     },
     {
       key: "quantity",
@@ -306,7 +378,6 @@ const Invoice = (props: Props) => {
     },
     {
       key: "unit",
-      className: "min-w-32",
     },
     {
       key: "unitPrice",
@@ -508,15 +579,37 @@ const Invoice = (props: Props) => {
       ),
     },
   ];
+
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
       invoices
         .filter((invoice) => {
           return (
-            filterPanelFormElements.product === "" ||
-            (invoice.product as AccountProduct)?._id ===
-              filterPanelFormElements.product
+            (passesFilter(
+              filterPanelFormElements.product,
+              (invoice.product as AccountProduct)?._id
+            ) &&
+              passesFilter(
+                filterPanelFormElements.vendor,
+                (invoice.vendor as AccountVendor)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.brand,
+                (invoice.brand as AccountBrand)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.expenseType,
+                (invoice.expenseType as AccountExpenseType)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.location,
+                (invoice.location as Location)?._id
+              ) &&
+              filterPanelFormElements.before === "") ||
+            (invoice.date <= filterPanelFormElements.before &&
+              (filterPanelFormElements.after === "" ||
+                invoice.date >= filterPanelFormElements.after))
           );
         })
         .map((invoice) => {
@@ -545,6 +638,7 @@ const Invoice = (props: Props) => {
         })
     );
   }, [invoices, filterPanelFormElements]);
+
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
