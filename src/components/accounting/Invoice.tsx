@@ -571,7 +571,7 @@ const Invoice = (props: Props) => {
       isUpperSide: true,
       node: (
         <div className="flex flex-row gap-2">
-          <p>{generalTotalExpense.toFixed(2)}</p>
+          <p>{generalTotalExpense.toFixed(2)} ₺</p>
         </div>
       ),
     },
