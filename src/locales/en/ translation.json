@@ -191,5 +191,6 @@
   "Filters": "Filters",
   "Vat": "Vat",
   "Note": "Note",
+  "ExpenseType": "Expense Type",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

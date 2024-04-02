@@ -107,6 +107,9 @@ const Invoice = (props: Props) => {
       };
     })
   );
+  const [generalTotalExpense, setGeneralTotalExpense] = useState(
+    invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
+  );
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -564,8 +567,17 @@ const Invoice = (props: Props) => {
       ),
     },
     {
+      label: t("Total") + " :",
+      isUpperSide: true,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>{generalTotalExpense.toFixed(2)}</p>
+        </div>
+      ),
+    },
+    {
       label: t("Show Filters"),
-      isUpperSide: false,
+      isUpperSide: true,
       node: (
         <Switch
           checked={showFilters}
@@ -585,61 +597,64 @@ const Invoice = (props: Props) => {
 
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-    setRows(
-      invoices
-        .filter((invoice) => {
-          return (
-            (filterPanelFormElements.before === "" ||
-              invoice.date <= filterPanelFormElements.before) &&
-            (filterPanelFormElements.after === "" ||
-              invoice.date >= filterPanelFormElements.after) &&
-            passesFilter(
-              filterPanelFormElements.product,
-              (invoice.product as AccountProduct)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.vendor,
-              (invoice.vendor as AccountVendor)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.brand,
-              (invoice.brand as AccountBrand)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.expenseType,
-              (invoice.expenseType as AccountExpenseType)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.location,
-              (invoice.location as Location)?._id
-            )
-          );
-        })
-        .map((invoice) => {
-          return {
-            ...invoice,
-            product: (invoice.product as AccountProduct)?.name,
-            expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-            brand: (invoice.brand as AccountBrand)?.name,
-            vendor: (invoice.vendor as AccountVendor)?.name,
-            unitPrice: parseFloat(
-              `${parseFloat(
-                (invoice.totalExpense / invoice.quantity).toFixed(4)
-              ).toString()}`
-            ),
-            lctn: (invoice.location as Location)?.name,
-            unit: units?.find(
-              (unit) =>
-                unit._id ===
-                ((invoice.product as AccountProduct).unit as string)
-            )?.name,
-            expType: invoice.expenseType as AccountExpenseType,
-            brnd: invoice.brand as AccountBrand,
-            vndr: invoice.vendor as AccountVendor,
-            location: invoice.location as Location,
-          };
-        })
+    const processedRows = invoices
+      .filter((invoice) => {
+        return (
+          (filterPanelFormElements.before === "" ||
+            invoice.date <= filterPanelFormElements.before) &&
+          (filterPanelFormElements.after === "" ||
+            invoice.date >= filterPanelFormElements.after) &&
+          passesFilter(
+            filterPanelFormElements.product,
+            (invoice.product as AccountProduct)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.vendor,
+            (invoice.vendor as AccountVendor)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.brand,
+            (invoice.brand as AccountBrand)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.expenseType,
+            (invoice.expenseType as AccountExpenseType)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.location,
+            (invoice.location as Location)?._id
+          )
+        );
+      })
+      .map((invoice) => {
+        return {
+          ...invoice,
+          product: (invoice.product as AccountProduct)?.name,
+          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          brand: (invoice.brand as AccountBrand)?.name,
+          vendor: (invoice.vendor as AccountVendor)?.name,
+          unitPrice: parseFloat(
+            `${parseFloat(
+              (invoice.totalExpense / invoice.quantity).toFixed(4)
+            ).toString()}`
+          ),
+          lctn: (invoice.location as Location)?.name,
+          unit: units?.find(
+            (unit) =>
+              unit._id === ((invoice.product as AccountProduct).unit as string)
+          )?.name,
+          expType: invoice.expenseType as AccountExpenseType,
+          brnd: invoice.brand as AccountBrand,
+          vndr: invoice.vendor as AccountVendor,
+          location: invoice.location as Location,
+        };
+      });
+    const newGeneralTotalExpense = processedRows.reduce(
+      (acc, invoice) => acc + invoice.totalExpense,
+      0
     );
+    setRows(processedRows);
+    setGeneralTotalExpense(newGeneralTotalExpense);
   }, [invoices, filterPanelFormElements]);
 
   const filterPanel = {
