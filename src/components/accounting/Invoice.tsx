@@ -420,8 +420,8 @@ const Invoice = (props: Props) => {
           {
             type: InputTypes.NUMBER,
             formKey: "kdv",
-            label: "Kdv",
-            placeholder: "Kdv",
+            label: t("Vat") + "%",
+            placeholder: t("Vat") + "%",
             required: true,
           },
         ]}
@@ -435,7 +435,9 @@ const Invoice = (props: Props) => {
             form.kdv &&
             createAccountInvoice({
               ...form,
-              totalExpense: Number(form.price) + Number(form.kdv),
+              totalExpense:
+                Number(form.price) +
+                Number(form.kdv) * (Number(form.price) / 100),
             });
         }}
         submitItem={createAccountInvoice as any}
