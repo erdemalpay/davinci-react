@@ -2,8 +2,10 @@ import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
   AccountExpenseType,
@@ -39,6 +41,7 @@ const Invoice = (props: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
+  const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -50,6 +53,7 @@ const Invoice = (props: Props) => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [temporarySearch, setTemporarySearch] = useState("");
   const [form, setForm] = useState<Partial<AccountInvoice>>({
     date: "",
     product: "",
@@ -649,13 +653,27 @@ const Invoice = (props: Props) => {
           location: invoice.location as Location,
         };
       });
-    const newGeneralTotalExpense = processedRows.reduce(
+    const filteredRows = processedRows.filter((row) =>
+      rowKeys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        const query = searchQuery.toLowerCase();
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(query);
+        } else if (typeof value === "number") {
+          return value.toString().includes(query);
+        } else if (typeof value === "boolean") {
+          return (value ? "true" : "false").includes(query);
+        }
+        return false;
+      })
+    );
+    const newGeneralTotalExpense = filteredRows.reduce(
       (acc, invoice) => acc + invoice.totalExpense,
       0
     );
-    setRows(processedRows);
+    setRows(filteredRows);
     setGeneralTotalExpense(newGeneralTotalExpense);
-  }, [invoices, filterPanelFormElements]);
+  }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,
@@ -663,6 +681,35 @@ const Invoice = (props: Props) => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+  };
+  const outsideSearch = () => {
+    return (
+      <div className="flex flex-row relative">
+        <input
+          type="text"
+          value={temporarySearch}
+          onChange={(e) => {
+            setTemporarySearch(e.target.value);
+            if (e.target.value === "") {
+              setSearchQuery(e.target.value);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSearchQuery(temporarySearch);
+            }
+          }}
+          placeholder={t("Search")}
+          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
+        />
+        <CiSearch
+          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
+          onClick={() => {
+            setSearchQuery(temporarySearch);
+          }}
+        />
+      </div>
+    );
   };
 
   return (
@@ -683,6 +730,8 @@ const Invoice = (props: Props) => {
           title={t("Invoices")}
           addButton={addButton}
           filterPanel={filterPanel}
+          isSearch={false}
+          outsideSearch={outsideSearch}
         />
       </div>
     </>

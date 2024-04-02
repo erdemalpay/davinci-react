@@ -31,6 +31,7 @@ type Props<T> = {
   addButton?: ActionType<T>;
   addCollapsible?: ActionType<T>;
   filterPanel?: PanelFilterType<T>;
+  outsideSearch?: () => React.ReactNode;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -56,6 +57,7 @@ const GenericTable = <T,>({
   filterPanel,
   collapsibleActions,
   onDragEnter,
+  outsideSearch,
   isSearch = true,
   isCollapsible = false,
   isPagination = true,
@@ -442,8 +444,11 @@ const GenericTable = <T,>({
               className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
             />
           )}
+          {/* outside search button */}
+          {outsideSearch?.()}
+
           {/* filters  for upperside*/}
-          <div className="flex flex-row flex-wrap gap-4 ">
+          <div className="flex flex-row flex-wrap gap-4 ml-auto ">
             {filters &&
               filters.map(
                 (filter, index) =>
@@ -452,7 +457,9 @@ const GenericTable = <T,>({
                       key={index}
                       className="flex flex-row gap-2 justify-between items-center"
                     >
-                      {filter.label && <H5>{filter.label}</H5>}
+                      {filter.label && (
+                        <H5 className="w-fit">{filter.label}</H5>
+                      )}
                       {filter.node}
                     </div>
                   )
