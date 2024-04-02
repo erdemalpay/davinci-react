@@ -23,6 +23,7 @@ import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,6 +31,9 @@ import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
+type FormElementsState = {
+  [key: string]: any;
+};
 
 const Invoice = (props: Props) => {
   const { t } = useTranslation();
@@ -59,10 +63,23 @@ const Invoice = (props: Props) => {
     price: 0,
     kdv: 0,
   });
+
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      product: "",
+      vendor: "",
+      brand: "",
+      expenseType: "",
+      location: "",
+      before: "",
+      after: "",
+    });
+
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+
   const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
     useAccountInvoiceMutations();
   const [rows, setRows] = useState(
@@ -76,7 +93,9 @@ const Invoice = (props: Props) => {
         location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(2)
+          `${parseFloat(
+            (invoice.totalExpense / invoice.quantity).toFixed(4)
+          ).toString()}`
         ),
         unit: units?.find(
           (unit) =>
@@ -196,6 +215,87 @@ const Invoice = (props: Props) => {
       required: true,
     },
   ];
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name,
+        };
+      }),
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "vendor",
+      label: t("Vendor"),
+      options: vendors.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Vendor"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "brand",
+      label: t("Brand"),
+      options: brands.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Brand"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: t("ExpenseType"),
+      options: expenseTypes.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("ExpenseType"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("After"),
+      placeholder: t("After"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("Before"),
+      placeholder: t("Before"),
+      required: true,
+    },
+  ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     {
@@ -250,14 +350,14 @@ const Invoice = (props: Props) => {
     { key: "documentNo", className: "min-w-40 pr-2" },
     { key: "brand", className: "min-w-32 pr-2" },
     { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-2" },
+    { key: "lctn", className: "min-w-32 pr-4" },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
           <div className=" min-w-32">
             <p
-              className="w-fit rounded-md px-2 py-1 text-white"
+              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -270,7 +370,7 @@ const Invoice = (props: Props) => {
     },
     {
       key: "product",
-      className: "min-w-60 pr-2",
+      className: "min-w-32 pr-2",
     },
     {
       key: "quantity",
@@ -278,7 +378,6 @@ const Invoice = (props: Props) => {
     },
     {
       key: "unit",
-      className: "min-w-32",
     },
     {
       key: "unitPrice",
@@ -480,37 +579,73 @@ const Invoice = (props: Props) => {
       ),
     },
   ];
-  const filterPanelFilters = [
-    {
-      children: <div>Deneme</div>,
-    },
-  ];
+
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(
-      invoices.map((invoice) => {
-        return {
-          ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(2)
-          ),
-          lctn: (invoice.location as Location)?.name,
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          location: invoice.location as Location,
-        };
-      })
+      invoices
+        .filter((invoice) => {
+          return (
+            (passesFilter(
+              filterPanelFormElements.product,
+              (invoice.product as AccountProduct)?._id
+            ) &&
+              passesFilter(
+                filterPanelFormElements.vendor,
+                (invoice.vendor as AccountVendor)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.brand,
+                (invoice.brand as AccountBrand)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.expenseType,
+                (invoice.expenseType as AccountExpenseType)?._id
+              ) &&
+              passesFilter(
+                filterPanelFormElements.location,
+                (invoice.location as Location)?._id
+              ) &&
+              filterPanelFormElements.before === "") ||
+            (invoice.date <= filterPanelFormElements.before &&
+              (filterPanelFormElements.after === "" ||
+                invoice.date >= filterPanelFormElements.after))
+          );
+        })
+        .map((invoice) => {
+          return {
+            ...invoice,
+            product: (invoice.product as AccountProduct)?.name,
+            expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+            brand: (invoice.brand as AccountBrand)?.name,
+            vendor: (invoice.vendor as AccountVendor)?.name,
+            unitPrice: parseFloat(
+              `${parseFloat(
+                (invoice.totalExpense / invoice.quantity).toFixed(4)
+              ).toString()}`
+            ),
+            lctn: (invoice.location as Location)?.name,
+            unit: units?.find(
+              (unit) =>
+                unit._id ===
+                ((invoice.product as AccountProduct).unit as string)
+            )?.name,
+            expType: invoice.expenseType as AccountExpenseType,
+            brnd: invoice.brand as AccountBrand,
+            vndr: invoice.vendor as AccountVendor,
+            location: invoice.location as Location,
+          };
+        })
     );
-  }, [invoices]);
+  }, [invoices, filterPanelFormElements]);
+
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
 
   return (
     <>
@@ -529,8 +664,7 @@ const Invoice = (props: Props) => {
           rows={rows}
           title={t("Invoices")}
           addButton={addButton}
-          isFilterPanel={showFilters}
-          filterPanelFilters={filterPanelFilters}
+          filterPanel={filterPanel}
         />
       </div>
     </>

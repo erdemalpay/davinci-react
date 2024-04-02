@@ -336,7 +336,7 @@ const GenericAddEditPanel = <T,>({
                             handleChange(input.formKey)(e.target.value);
                           }}
                           placeholder={input.placeholder ?? ""}
-                          className="border border-gray-300 rounded-md p-2"
+                          className="border text-sm border-gray-300 rounded-md p-2"
                         />
                       </div>
                     )}

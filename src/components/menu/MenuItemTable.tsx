@@ -27,9 +27,9 @@ type Props = {
 
 const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const { t } = useTranslation();
+  const { i18n } = useTranslation();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
@@ -37,6 +37,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     product: "",
     quantity: 0,
   });
+  const [tableKey, setTableKey] = useState(0);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -58,8 +59,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
             product: itemProduction.product,
             name: products?.find(
-              (product) => product._id === itemProduction.product
-            )?._id,
+              (product: AccountProduct) =>
+                product._id === itemProduction.product
+            )?.name,
             unit: (
               products?.find(
                 (product) => product._id === itemProduction.product
@@ -98,8 +100,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
               product: itemProduction.product,
               name: products?.find(
-                (product) => product._id === itemProduction.product
-              )?._id,
+                (product: AccountProduct) =>
+                  product._id === itemProduction.product
+              )?.name,
               unit: (
                 products?.find(
                   (product) => product._id === itemProduction.product
@@ -121,7 +124,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         };
       })
     );
-  }, [singleItemGroup.items, products]);
+    setTableKey((prev) => prev + 1);
+  }, [singleItemGroup.items, products, i18n.language]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
@@ -229,7 +233,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             return acc + unitPrice * curr.quantity;
           }, 0) ?? 0;
 
-        return total === 0 ? "-" : `${total.toFixed(2)} ₺`;
+        return total === 0
+          ? "-"
+          : `${parseFloat(total.toFixed(3)).toString()} ₺`;
       },
     },
   ];
@@ -406,6 +412,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
+        key={tableKey}
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}

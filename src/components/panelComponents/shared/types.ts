@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 export interface Tab {
   number: number;
   content: React.ReactNode;
@@ -51,8 +52,16 @@ export interface ColumnType<T> {
   className?: string;
   node?: () => React.ReactNode;
 }
-export interface PanelFilterType {
-  children: React.ReactNode;
+type FormElementsState = {
+  [key: string]: any; // Adjust the type as needed for your form elements
+};
+
+export interface PanelFilterType<T> {
+  isFilterPanelActive: boolean;
+  inputs: GenericInputType[];
+  formElements: FormElementsState; // Add this to hold the current form state
+  setFormElements: Dispatch<SetStateAction<FormElementsState>>; // Add this to update the form state
+  closeFilters: () => void;
 }
 export interface GenericInputType {
   type: InputTypes;
