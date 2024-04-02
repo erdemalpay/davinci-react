@@ -54,6 +54,7 @@ const SelectInput = ({
       ...base,
       border: "1px solid #E2E8F0",
       borderRadius: "4px",
+      fontSize: "14px",
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -105,7 +106,7 @@ const SelectInput = ({
         {((isMultiple && value) || (!isMultiple && value)) && onClear && (
           <button
             onClick={onClear}
-            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-gray-700"
+            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
           </button>

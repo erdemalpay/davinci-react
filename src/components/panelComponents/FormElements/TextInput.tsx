@@ -51,7 +51,7 @@ const TextInput = ({
         {onClear && value && (
           <button
             onClick={onClear}
-            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-gray-700"
+            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
           </button>
