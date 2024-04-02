@@ -27,7 +27,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { H5, P1 } from "../panelComponents/Typography";
+import { P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
@@ -59,7 +59,7 @@ const Invoice = (props: Props) => {
     brand: "",
     location: 0,
     vendor: "",
-    documentNo: "",
+    note: "",
     price: 0,
     kdv: 0,
   });
@@ -205,13 +205,6 @@ const Invoice = (props: Props) => {
       required: false,
     },
     {
-      type: InputTypes.TEXT,
-      formKey: "documentNo",
-      label: t("Document No"),
-      placeholder: t("Document No"),
-      required: false,
-    },
-    {
       type: InputTypes.NUMBER,
       formKey: "quantity",
       label: t("Quantity"),
@@ -291,6 +284,7 @@ const Invoice = (props: Props) => {
       label: t("After"),
       placeholder: t("After"),
       required: true,
+      isBlur: true,
     },
     {
       type: InputTypes.DATE,
@@ -298,6 +292,7 @@ const Invoice = (props: Props) => {
       label: t("Before"),
       placeholder: t("Before"),
       required: true,
+      isBlur: true,
     },
   ];
   const formKeys = [
@@ -310,25 +305,13 @@ const Invoice = (props: Props) => {
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
-    { key: "documentNo", type: FormKeyTypeEnum.STRING },
+    { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
-    {
-      key: t("Document No"),
-      isSortable: true,
-      node: () => {
-        return (
-          <th key="documentNoColumn">
-            <H5 className="min-w-32 my-auto h-full  py-3">
-              {t("Document No")}
-            </H5>
-          </th>
-        );
-      },
-    },
+    { key: t("Note"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Location"), isSortable: true },
@@ -351,7 +334,7 @@ const Invoice = (props: Props) => {
         return formatAsLocalDate(row.date);
       },
     },
-    { key: "documentNo", className: "min-w-40 pr-2" },
+    { key: "note", className: "min-w-40 pr-2" },
     { key: "brand", className: "min-w-32 pr-2" },
     { key: "vendor", className: "min-w-32 pr-2" },
     { key: "lctn", className: "min-w-32 pr-4" },
@@ -428,6 +411,13 @@ const Invoice = (props: Props) => {
             placeholder: t("Vat") + "%",
             required: true,
           },
+          {
+            type: InputTypes.TEXTAREA,
+            formKey: "note",
+            label: t("Note"),
+            placeholder: t("Note"),
+            required: false,
+          },
         ]}
         formKeys={[
           ...formKeys,
@@ -502,6 +492,13 @@ const Invoice = (props: Props) => {
               placeholder: t("Total Expense"),
               required: true,
             },
+            {
+              type: InputTypes.TEXTAREA,
+              formKey: "note",
+              label: t("Note"),
+              placeholder: t("Note"),
+              required: false,
+            },
           ]}
           formKeys={[
             ...formKeys,
@@ -533,7 +530,7 @@ const Invoice = (props: Props) => {
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.vendor as AccountVendor
               )?._id,
-              documentNo: rowToAction.documentNo,
+              note: rowToAction.note,
               location: (rowToAction.location as Location)._id,
             },
           }}
@@ -592,30 +589,30 @@ const Invoice = (props: Props) => {
       invoices
         .filter((invoice) => {
           return (
-            (passesFilter(
+            (filterPanelFormElements.before === "" ||
+              invoice.date <= filterPanelFormElements.before) &&
+            (filterPanelFormElements.after === "" ||
+              invoice.date >= filterPanelFormElements.after) &&
+            passesFilter(
               filterPanelFormElements.product,
               (invoice.product as AccountProduct)?._id
             ) &&
-              passesFilter(
-                filterPanelFormElements.vendor,
-                (invoice.vendor as AccountVendor)?._id
-              ) &&
-              passesFilter(
-                filterPanelFormElements.brand,
-                (invoice.brand as AccountBrand)?._id
-              ) &&
-              passesFilter(
-                filterPanelFormElements.expenseType,
-                (invoice.expenseType as AccountExpenseType)?._id
-              ) &&
-              passesFilter(
-                filterPanelFormElements.location,
-                (invoice.location as Location)?._id
-              ) &&
-              filterPanelFormElements.before === "") ||
-            (invoice.date <= filterPanelFormElements.before &&
-              (filterPanelFormElements.after === "" ||
-                invoice.date >= filterPanelFormElements.after))
+            passesFilter(
+              filterPanelFormElements.vendor,
+              (invoice.vendor as AccountVendor)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.brand,
+              (invoice.brand as AccountBrand)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.expenseType,
+              (invoice.expenseType as AccountExpenseType)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.location,
+              (invoice.location as Location)?._id
+            )
           );
         })
         .map((invoice) => {
