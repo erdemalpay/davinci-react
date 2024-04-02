@@ -74,13 +74,13 @@ const GenericAddEditPanel = <T,>({
           defaultValue = "";
           break;
         case FormKeyTypeEnum.NUMBER:
-          defaultValue = 0;
+          defaultValue = "";
           break;
         case FormKeyTypeEnum.BOOLEAN:
           defaultValue = false;
           break;
         case FormKeyTypeEnum.DATE:
-          defaultValue = new Date();
+          defaultValue = "";
           break;
         default:
           defaultValue = null;

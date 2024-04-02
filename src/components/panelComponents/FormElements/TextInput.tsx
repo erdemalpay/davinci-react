@@ -37,12 +37,11 @@ const TextInput = ({
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+  const handleInputChange = (value: string) => {
     if (!isBlur) {
-      onChange(newValue);
+      onChange(value);
     } else {
-      setLocalValue(newValue);
+      setLocalValue(value);
     }
   };
 
@@ -51,7 +50,11 @@ const TextInput = ({
       onChange(localValue);
     }
   };
-
+  const handleMouseOut = () => {
+    if (isBlur) {
+      onChange(localValue);
+    }
+  };
   return (
     <div className="flex flex-col gap-2">
       <H6>{label}</H6>
@@ -61,11 +64,13 @@ const TextInput = ({
           placeholder={placeholder}
           disabled={disabled}
           value={isBlur ? localValue : value}
-          onChange={handleInputChange}
+          onChange={(e) => handleInputChange(e.target.value)}
           onBlur={handleBlur}
+          onMouseOut={handleMouseOut}
           className={inputClassName}
           {...(type === "number" ? { min: "0", onWheel: handleWheel } : {})}
         />
+
         {onClear && value && (
           <button
             onClick={onClear}
