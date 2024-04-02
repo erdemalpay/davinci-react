@@ -126,7 +126,11 @@ const Invoice = (props: Props) => {
         };
       }),
       placeholder: t("Product"),
-      invalidateKeys: [{ key: "expenseType", defaultValue: 0 }],
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+      ],
       required: true,
     },
     {
