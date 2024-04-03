@@ -74,6 +74,7 @@ export interface GenericInputType {
   folderName?: string;
   inputClassName?: string;
   isMultiple?: boolean;
+  isBlur?: boolean;
   invalidateKeys?: {
     key: string;
     defaultValue: string | boolean | number;

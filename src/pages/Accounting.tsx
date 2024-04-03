@@ -1,7 +1,10 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaFileInvoiceDollar } from "react-icons/fa6";
+import {
+  FaFileInvoiceDollar,
+  FaMagnifyingGlassLocation,
+} from "react-icons/fa6";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
@@ -12,6 +15,7 @@ import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
 import Product from "../components/accounting/Product";
 import Stock from "../components/accounting/Stock";
+import StockLocations from "../components/accounting/StockLocation";
 import StockType from "../components/accounting/StockType";
 import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
@@ -21,7 +25,8 @@ import { useGeneralContext } from "../context/General.context";
 
 export default function Accounting() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<number>(6);
+  const startingTab = 7;
+  const [activeTab, setActiveTab] = useState<number>(startingTab);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
   const { setCurrentPage, setSearchQuery, setRowsPerPage } =
@@ -71,13 +76,20 @@ export default function Accounting() {
     },
     {
       number: 6,
+      label: t("Stock Locations"),
+      icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
+      content: <StockLocations />,
+      isDisabled: showConstants,
+    },
+    {
+      number: 7,
       label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
-      number: 7,
+      number: 8,
       label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
@@ -100,7 +112,7 @@ export default function Accounting() {
               onChange={() => {
                 setShowConstants((value) => !value);
                 if (!showConstants) {
-                  setActiveTab(6);
+                  setActiveTab(startingTab);
                 } else {
                   setActiveTab(0);
                 }

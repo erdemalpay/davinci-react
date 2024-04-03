@@ -102,6 +102,10 @@ export type AccountStockType = {
   name: string;
   backgroundColor: string;
 };
+export type AccountStockLocation = {
+  _id: string;
+  name: string;
+};
 
 export type AccountInvoice = {
   _id: number;
@@ -112,7 +116,7 @@ export type AccountInvoice = {
   date: string;
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
-  documentNo?: string;
+  note?: string;
   location: Location | number;
   price?: number;
   kdv?: number;
@@ -120,8 +124,7 @@ export type AccountInvoice = {
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
-
-  location: number | Location;
+  location: string | AccountStockLocation;
   stockType?: string | AccountStockType;
   quantity: number;
   unitPrice?: number;

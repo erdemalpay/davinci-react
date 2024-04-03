@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { H6 } from "../Typography";
 
@@ -10,6 +11,7 @@ type TextInputProps = {
   className?: string;
   disabled?: boolean;
   onClear?: () => void;
+  isBlur?: boolean;
 };
 
 const TextInput = ({
@@ -20,34 +22,55 @@ const TextInput = ({
   onChange,
   disabled,
   onClear,
+  isBlur = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
+  const [localValue, setLocalValue] = useState(value);
+
   const inputClassName = `${className} w-full text-sm ${
     type === "number" ? "inputHideNumberArrows" : ""
   }`;
 
-  // disable scroll while type is text
   const handleWheel = () => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
   };
+
+  const handleInputChange = (value: string) => {
+    if (!isBlur) {
+      onChange(value);
+    } else {
+      setLocalValue(value);
+    }
+  };
+
+  const handleBlur = () => {
+    if (isBlur) {
+      onChange(localValue);
+    }
+  };
+  const handleMouseOut = () => {
+    if (isBlur) {
+      onChange(localValue);
+    }
+  };
   return (
     <div className="flex flex-col gap-2">
       <H6>{label}</H6>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2 items-center">
         <input
           type={type}
           placeholder={placeholder}
           disabled={disabled}
-          value={value}
-          {...(type === "number"
-            ? { min: "0", onMouseWheel: handleWheel }
-            : {})}
-          onChange={(e) => onChange(e.target.value)}
+          value={isBlur ? localValue : value}
+          onChange={(e) => handleInputChange(e.target.value)}
+          onBlur={handleBlur}
+          onMouseOut={handleMouseOut}
           className={inputClassName}
-          {...(type === "number" ? { onWheel: handleWheel } : {})}
+          {...(type === "number" ? { min: "0", onWheel: handleWheel } : {})}
         />
+
         {onClear && value && (
           <button
             onClick={onClear}
