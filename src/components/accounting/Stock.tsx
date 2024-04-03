@@ -6,17 +6,17 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import {
   AccountProduct,
   AccountStock,
+  AccountStockLocation,
   AccountStockType,
-  Location,
 } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { useGetLocations } from "../../utils/api/location";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -29,7 +29,7 @@ const Stock = (props: Props) => {
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
   const units = useGetAccountUnits();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -38,7 +38,7 @@ const Stock = (props: Props) => {
   const [rowToAction, setRowToAction] = useState<AccountStock>();
   const [form, setForm] = useState({
     product: "",
-    location: 0,
+    location: "",
     quantity: 0,
     unitPrice: 0,
   });
@@ -51,7 +51,7 @@ const Stock = (props: Props) => {
       return {
         ...stock,
         prdct: (stock.product as AccountProduct).name,
-        lctn: (stock.location as Location).name,
+        lctn: (stock.location as AccountStockLocation).name,
         stockType: stockTypes?.find(
           (stockType) =>
             stockType._id === (stock.product as AccountProduct).stockType
@@ -223,7 +223,7 @@ const Stock = (props: Props) => {
               )?._id,
               location: (
                 stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.location as Location
+                  ?.location as AccountStockLocation
               )?._id,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
@@ -266,7 +266,7 @@ const Stock = (props: Props) => {
         return {
           ...stock,
           prdct: (stock.product as AccountProduct).name,
-          lctn: (stock.location as Location).name,
+          lctn: (stock.location as AccountStockLocation).name,
           stockType: stockTypes?.find(
             (stockType) =>
               stockType._id === (stock.product as AccountProduct).stockType
