@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useGeneralContext } from "../../context/General.context";
 import {
   AccountProduct,
   AccountStock,
@@ -41,6 +42,7 @@ const Stock = (props: Props) => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const { setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       location: "",
@@ -324,6 +326,7 @@ const Stock = (props: Props) => {
           };
         })
     );
+    setCurrentPage(1);
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
   const filterPanelInputs = [

@@ -673,6 +673,7 @@ const Invoice = (props: Props) => {
     );
     setRows(filteredRows);
     setGeneralTotalExpense(newGeneralTotalExpense);
+    setCurrentPage(1);
   }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
