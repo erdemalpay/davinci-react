@@ -428,7 +428,7 @@ const GenericTable = <T,>({
     >
       {filterPanel?.isFilterPanelActive && <FilterPanel {...filterPanel} />}
       <div
-        className={`mx-auto overflow-scroll flex flex-col gap-4 __className_a182b8 `}
+        className={`mx-auto w-full overflow-scroll flex flex-col gap-4 __className_a182b8 `}
       >
         <div className=" flex flex-row gap-4 justify-between items-center">
           {/* search button */}

@@ -17,6 +17,7 @@ import {
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -24,6 +25,9 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
 
+type FormElementsState = {
+  [key: string]: any;
+};
 const Stock = (props: Props) => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
@@ -35,7 +39,13 @@ const Stock = (props: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      location: "",
+      stockType: "",
+    });
   const [form, setForm] = useState({
     product: "",
     location: "",
@@ -259,30 +269,98 @@ const Stock = (props: Props) => {
         </Switch>
       ),
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: (
+        <Switch
+          checked={showFilters}
+          onChange={() => setShowFilters((value) => !value)}
+          className={`${showFilters ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${showFilters ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
   ];
   useEffect(() => {
     setRows(
-      stocks.map((stock) => {
-        return {
-          ...stock,
-          prdct: (stock.product as AccountProduct).name,
-          lctn: (stock.location as AccountStockLocation).name,
-          stockType: stockTypes?.find(
-            (stockType) =>
-              stockType._id === (stock.product as AccountProduct).stockType
-          )?.name,
-          unit: units?.find(
-            (unit) => unit._id === (stock.product as AccountProduct).unit
-          )?.name,
-          totalPrice: parseFloat(
-            ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
-          ),
-        };
-      })
+      stocks
+        .filter((stock) => {
+          return (
+            passesFilter(
+              filterPanelFormElements.location,
+              (stock.location as AccountStockLocation)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.stockType,
+              stockTypes?.find(
+                (stockType) =>
+                  stockType._id === (stock.product as AccountProduct).stockType
+              )?._id
+            )
+          );
+        })
+        .map((stock) => {
+          return {
+            ...stock,
+            prdct: (stock.product as AccountProduct).name,
+            lctn: (stock.location as AccountStockLocation).name,
+            stockType: stockTypes?.find(
+              (stockType) =>
+                stockType._id === (stock.product as AccountProduct).stockType
+            )?.name,
+            unit: units?.find(
+              (unit) => unit._id === (stock.product as AccountProduct).unit
+            )?.name,
+            totalPrice: parseFloat(
+              ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+            ),
+          };
+        })
     );
     setTableKey((prev) => prev + 1);
-  }, [stocks]);
-
+  }, [stocks, filterPanelFormElements]);
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "stockType",
+      label: t("Stock Type"),
+      options: stockTypes.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Stock Type"),
+      required: true,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -299,6 +377,7 @@ const Stock = (props: Props) => {
           rows={rows}
           title={t("Stocks")}
           addButton={addButton}
+          filterPanel={filterPanel}
         />
       </div>
     </>
