@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { H6 } from "../Typography";
-
 import {
   FormKeyType,
   FormKeyTypeEnum,
@@ -27,6 +26,7 @@ type Props<T> = {
   setForm?: (item: T) => void;
   handleUpdate?: () => void;
   submitFunction?: () => void;
+  additionalSubmitFunction?: () => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
@@ -55,11 +55,12 @@ const GenericAddEditPanel = <T,>({
   folderName,
   handleUpdate,
   submitFunction,
+  additionalSubmitFunction,
   setForm,
-
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -161,6 +162,7 @@ const GenericAddEditPanel = <T,>({
         }
       }
       setFormElements({});
+      additionalSubmitFunction?.();
       close();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
