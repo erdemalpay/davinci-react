@@ -1,4 +1,5 @@
 import { Switch } from "@headlessui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -8,6 +9,7 @@ import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
+  joinProducts,
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
@@ -29,6 +31,7 @@ type FormElementsState = {
 const Product = (props: Props) => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
+  const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -40,6 +43,7 @@ const Product = (props: Props) => {
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const [showFilters, setShowFilters] = useState(false);
   const { setCurrentPage } = useGeneralContext();
+  const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       brand: "",
@@ -65,6 +69,34 @@ const Product = (props: Props) => {
       };
     })
   );
+  const joinProductInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "stayedProduct",
+      label: t("Stayed Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
+        };
+      }),
+      placeholder: t("Stayed Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "removedProduct",
+      label: t("Removed Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
+        };
+      }),
+      placeholder: t("Removed Product"),
+      required: true,
+    },
+  ];
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -208,6 +240,10 @@ const Product = (props: Props) => {
       isMultiple: true,
       required: false,
     },
+  ];
+  const joinProductFormKeys = [
+    { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
+    { key: "removedProduct", type: FormKeyTypeEnum.STRING },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -407,7 +443,6 @@ const Product = (props: Props) => {
     },
   ];
   useEffect(() => {
-    setTableKey((prev) => prev + 1);
     setRows(
       products
         .filter((product) => {
@@ -440,7 +475,9 @@ const Product = (props: Props) => {
         })
     );
     setCurrentPage(1);
+    setTableKey((prev) => prev + 1);
   }, [products, filterPanelFormElements]);
+
   const filters = [
     {
       label: t("Show Filters"),
@@ -458,6 +495,19 @@ const Product = (props: Props) => {
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
           />
         </Switch>
+      ),
+    },
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            setIsJoinProductModalOpen(true);
+          }}
+        >
+          {t("Join Products")}
+        </button>
       ),
     },
   ];
@@ -482,6 +532,18 @@ const Product = (props: Props) => {
           filters={filters}
           filterPanel={filterPanel}
         />
+        {isJoinProductModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isJoinProductModalOpen}
+            close={() => setIsJoinProductModalOpen(false)}
+            inputs={joinProductInputs}
+            formKeys={joinProductFormKeys}
+            submitItem={joinProducts as any}
+            isEditMode={false}
+            topClassName="flex flex-col gap-2 "
+            buttonName={t("Join")}
+          />
+        )}
       </div>
     </>
   );
