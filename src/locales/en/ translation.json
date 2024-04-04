@@ -193,5 +193,9 @@
   "Note": "Note",
   "ExpenseType": "Expense Type",
   "Stock Locations": "Stock Locations",
+  "Stayed Product": "Stayed Product",
+  "Removed Product": "Removed Product",
+  "Join Products": "Join Products",
+  "Join": "Join",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

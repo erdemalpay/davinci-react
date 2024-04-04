@@ -141,7 +141,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         .map((product) => {
           return {
             value: product._id,
-            label: product.name,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
           };
         }),
       placeholder: t("Product"),
