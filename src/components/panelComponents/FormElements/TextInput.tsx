@@ -11,7 +11,6 @@ type TextInputProps = {
   className?: string;
   disabled?: boolean;
   onClear?: () => void;
-  isBlur?: boolean;
 };
 
 const TextInput = ({
@@ -22,7 +21,6 @@ const TextInput = ({
   onChange,
   disabled,
   onClear,
-  isBlur = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -37,24 +35,6 @@ const TextInput = ({
     }
   };
 
-  const handleInputChange = (value: string) => {
-    if (!isBlur) {
-      onChange(value);
-    } else {
-      setLocalValue(value);
-    }
-  };
-
-  const handleBlur = () => {
-    if (isBlur) {
-      onChange(localValue);
-    }
-  };
-  const handleMouseOut = () => {
-    if (isBlur) {
-      onChange(localValue);
-    }
-  };
   return (
     <div className="flex flex-col gap-2">
       <H6>{label}</H6>
@@ -63,10 +43,8 @@ const TextInput = ({
           type={type}
           placeholder={placeholder}
           disabled={disabled}
-          value={isBlur ? localValue : value}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onBlur={handleBlur}
-          onMouseOut={handleMouseOut}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className={inputClassName}
           {...(type === "number" ? { min: "0", onWheel: handleWheel } : {})}
         />
