@@ -11,6 +11,7 @@ import {
   AccountExpenseType,
   AccountInvoice,
   AccountProduct,
+  AccountUnit,
   AccountVendor,
   Location,
 } from "../../types";
@@ -114,6 +115,20 @@ const Invoice = (props: Props) => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
+  // open add modal on ` key press
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "`") {
+        event.preventDefault();
+        setIsAddModalOpen(true);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    // Cleanup function
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -129,7 +144,7 @@ const Invoice = (props: Props) => {
       options: products.map((product) => {
         return {
           value: product._id,
-          label: product.name,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
         };
       }),
       placeholder: t("Product"),
@@ -575,7 +590,12 @@ const Invoice = (props: Props) => {
       isUpperSide: true,
       node: (
         <div className="flex flex-row gap-2">
-          <p>{generalTotalExpense.toFixed(2)} ₺</p>
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
         </div>
       ),
     },
