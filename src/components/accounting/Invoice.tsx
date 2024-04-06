@@ -11,6 +11,7 @@ import {
   AccountExpenseType,
   AccountInvoice,
   AccountProduct,
+  AccountUnit,
   AccountVendor,
   Location,
 } from "../../types";
@@ -114,6 +115,23 @@ const Invoice = (props: Props) => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
+  useEffect(() => {
+    // Define the function to handle the keydown event
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "`") {
+        event.preventDefault(); // Optional: prevent the default tabbing behavior
+        setIsAddModalOpen(true);
+      }
+    }
+
+    // Add event listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -129,7 +147,7 @@ const Invoice = (props: Props) => {
       options: products.map((product) => {
         return {
           value: product._id,
-          label: product.name,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
         };
       }),
       placeholder: t("Product"),
