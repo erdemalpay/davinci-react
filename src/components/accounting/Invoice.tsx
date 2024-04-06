@@ -115,19 +115,16 @@ const Invoice = (props: Props) => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
+  // open add modal on ` key press
   useEffect(() => {
-    // Define the function to handle the keydown event
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "`") {
-        event.preventDefault(); // Optional: prevent the default tabbing behavior
+        event.preventDefault();
         setIsAddModalOpen(true);
       }
     }
-
-    // Add event listener
     document.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup function to remove the event listener
+    // Cleanup function
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
