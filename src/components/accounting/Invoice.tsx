@@ -277,14 +277,14 @@ const Invoice = (props: Props) => {
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
-      label: t("ExpenseType"),
+      label: t("Expense Type"),
       options: expenseTypes.map((item) => {
         return {
           value: item._id,
           label: item.name,
         };
       }),
-      placeholder: t("ExpenseType"),
+      placeholder: t("Expense Type"),
       required: true,
     },
     {
