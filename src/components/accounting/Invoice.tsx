@@ -306,7 +306,7 @@ const Invoice = (props: Props) => {
       label: t("After"),
       placeholder: t("After"),
       required: true,
-      isBlur: true,
+      isDatePicker: true,
     },
     {
       type: InputTypes.DATE,
@@ -314,7 +314,7 @@ const Invoice = (props: Props) => {
       label: t("Before"),
       placeholder: t("Before"),
       required: true,
-      isBlur: true,
+      isDatePicker: true,
     },
   ];
   const formKeys = [
