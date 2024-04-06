@@ -118,7 +118,7 @@ const Invoice = (props: Props) => {
   // open add modal on ` key press
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "`") {
+      if (event.key === "w" && event.ctrlKey) {
         event.preventDefault();
         setIsAddModalOpen(true);
       }
@@ -319,10 +319,7 @@ const Invoice = (props: Props) => {
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    {
-      key: "product",
-      type: FormKeyTypeEnum.STRING,
-    },
+    { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
@@ -345,10 +342,7 @@ const Invoice = (props: Props) => {
     { key: t("Total Expense"), isSortable: true },
   ];
   const rowKeys = [
-    {
-      key: "_id",
-      className: "min-w-32 pr-2",
-    },
+    { key: "_id", className: "min-w-32 pr-2" },
     {
       key: "date",
       className: "min-w-32 pr-2",
@@ -377,17 +371,9 @@ const Invoice = (props: Props) => {
         );
       },
     },
-    {
-      key: "product",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "quantity",
-      className: "min-w-32",
-    },
-    {
-      key: "unit",
-    },
+    { key: "product", className: "min-w-32 pr-2" },
+    { key: "quantity", className: "min-w-32" },
+    { key: "unit" },
     {
       key: "unitPrice",
       node: (row: any) => {
