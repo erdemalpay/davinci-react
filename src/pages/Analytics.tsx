@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { PiGooglePlayLogo } from "react-icons/pi";
-import { RiGameLine } from "react-icons/ri";
+import { RiBarChartFill, RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
-import GameplaysByGames from "../components/analytics/GameplaysByGame";
-import GameplaysByMentor from "../components/analytics/GameplaysByMentor";
-import KnownGamesCount from "../components/analytics/KnownGamesCount";
-import { MentorAnalyticChart } from "../components/analytics/MentorAnalyticChart";
-import WhoKnows from "../components/analytics/WhoKnows";
+import ProductPriceChart from "../components/analytics/accounting/ProductPriceChart";
+import GameplaysByGames from "../components/analytics/gameplay/GameplaysByGame";
+import GameplaysByMentor from "../components/analytics/gameplay/GameplaysByMentor";
+import KnownGamesCount from "../components/analytics/gameplay/KnownGamesCount";
+import { MentorAnalyticChart } from "../components/analytics/gameplay/MentorAnalyticChart";
+import WhoKnows from "../components/analytics/gameplay/WhoKnows";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { DateFilter } from "../utils/dateUtil";
@@ -91,6 +92,13 @@ export default function Analytics() {
       label: t("Who Knows?"),
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
+      isDisabled: false,
+    },
+    {
+      number: 6,
+      label: t("Product Price Chart"),
+      icon: <RiBarChartFill className="text-lg font-thin" />,
+      content: <ProductPriceChart />,
       isDisabled: false,
     },
   ];

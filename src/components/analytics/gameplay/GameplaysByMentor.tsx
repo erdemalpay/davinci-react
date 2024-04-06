@@ -2,14 +2,14 @@ import { Switch } from "@headlessui/react";
 import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { User } from "../../types";
-import { useGetGames } from "../../utils/api/game";
+import { User } from "../../../types";
+import { useGetGames } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
-} from "../../utils/api/gameplay";
-import { useGetAllUsers } from "../../utils/api/user";
-import { Autocomplete } from "../common/Autocomplete";
+} from "../../../utils/api/gameplay";
+import { useGetAllUsers } from "../../../utils/api/user";
+import { Autocomplete } from "../../common/Autocomplete";
 export interface SecondGroupRow {
   field: string;
   count: number;
