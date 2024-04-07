@@ -77,7 +77,7 @@ const SelectInput = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 mt-4">
+    <div className="flex flex-col gap-2 mt-4 __className_a182b8">
       <label className="font-medium text-gray-900">{label}</label>
       <Select
         options={options}
