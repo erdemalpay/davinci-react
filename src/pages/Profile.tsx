@@ -8,8 +8,8 @@ import ChangePassword from "../components/panelComponents/Profile/ChangePassword
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import GamesIKnow from "../components/tables/GamesIKnow";
-import GamesIMentored from "../components/tables/GamesIMentored";
+import GamesIKnow from "../components/user/GamesIKnow";
+import GamesIMentored from "../components/user/GamesIMentored";
 import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
