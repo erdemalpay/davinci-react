@@ -1,8 +1,8 @@
 import { User } from "../../types";
 import { useGetMentorGamePlays } from "../../utils/api/gameplay";
 
-import GamesIKnow from "../tables/GamesIKnow";
-import GamesIMentored from "../tables/GamesIMentored";
+import GamesIKnow from "./GamesIKnow";
+import GamesIMentored from "./GamesIMentored";
 
 type Props = {
   user: User;

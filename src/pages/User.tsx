@@ -2,24 +2,38 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import GamesIKnow from "../components/tables/GamesIKnow";
-import GamesIMentored from "../components/tables/GamesIMentored";
-import { RoleEnum } from "../types";
+import GamesIKnow from "../components/user/GamesIKnow";
+import GamesIMentored from "../components/user/GamesIMentored";
+import { useGeneralContext } from "../context/General.context";
+import { RoleEnum, RowPerPageEnum, User } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
-import { useGetUserWithId } from "../utils/api/user";
+import { useGetUsers, useGetUserWithId } from "../utils/api/user";
 
 export default function UserView() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { userId } = useParams();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
+  const [tabPanelKey, setTabPanelKey] = useState(0);
+  const [selectedUser, setSelectedUser] = useState<User>();
   const user = useGetUserWithId(userId as string);
   const { t } = useTranslation();
-
+  const users = useGetUsers();
   const { data } = useGetMentorGamePlays(userId as string);
-
+  const userOptions = users
+    ?.filter((user) => user.active === true)
+    ?.map((user) => {
+      return {
+        value: user._id,
+        label: user.name,
+      };
+    });
   const tabs = [
     {
       number: 0,
@@ -63,13 +77,47 @@ export default function UserView() {
   return (
     <>
       <Header showLocationSelector={false} />
-      {user && (
-        <TabPanel
-          tabs={tabs}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-      )}
+      <div className="flex flex-col gap-4">
+        <div className="w-[95%] mx-auto">
+          <div className="sm:w-1/2 ">
+            <SelectInput
+              label={t("User")}
+              options={userOptions}
+              value={
+                selectedUser
+                  ? {
+                      value: selectedUser._id,
+                      label: selectedUser.name,
+                    }
+                  : {
+                      value: user._id,
+                      label: user.name,
+                    }
+              }
+              onChange={(selectedOption) => {
+                setSelectedUser(
+                  users?.find((user) => user._id === selectedOption?.value)
+                );
+                setCurrentPage(1);
+                setRowsPerPage(RowPerPageEnum.FIRST);
+                setSearchQuery("");
+                setTabPanelKey(tabPanelKey + 1);
+                navigate(`/user/${selectedOption?.value}`);
+              }}
+              placeholder={t("Select a user")}
+            />
+          </div>
+        </div>
+
+        {user && (
+          <TabPanel
+            key={tabPanelKey}
+            tabs={tabs}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        )}
+      </div>
     </>
   );
 }

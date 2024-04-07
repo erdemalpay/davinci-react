@@ -7,6 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
+import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
 import { useTranslation } from "react-i18next";
@@ -48,7 +49,30 @@ const TextInput = ({
       document.activeElement.blur();
     }
   };
+  if (type === "color") {
+    return (
+      <div className=" flex flex-col gap-2">
+        <H6 className="min-w-10">{label}</H6>
+        <div className=" flex flex-row gap-2">
+          <SketchPicker
+            color={value !== "" ? value : "#000000"}
+            onChange={(color) => {
+              onChange(color.hex);
+            }}
+          />
 
+          <button
+            onClick={() => {
+              onChange("");
+            }}
+            className="flex items-center justify-center h-8 w-8 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors duration-300"
+          >
+            <IoIosClose size={20} />
+          </button>
+        </div>
+      </div>
+    );
+  }
   if (isDatePicker) {
     return (
       <div className="flex flex-col gap-2">
