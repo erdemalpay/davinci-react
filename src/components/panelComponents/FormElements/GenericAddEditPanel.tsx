@@ -74,6 +74,9 @@ const GenericAddEditPanel = <T,>({
         case FormKeyTypeEnum.STRING:
           defaultValue = "";
           break;
+        case FormKeyTypeEnum.COLOR:
+          defaultValue = "#ffffff";
+          break;
         case FormKeyTypeEnum.NUMBER:
           defaultValue = "";
           break;
