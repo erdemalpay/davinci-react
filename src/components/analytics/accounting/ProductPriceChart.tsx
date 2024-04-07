@@ -203,7 +203,14 @@ export default function ProductPriceChart({}: Props) {
           options={productOptions}
           value={
             selectedProduct
-              ? { value: selectedProduct._id, label: selectedProduct.name }
+              ? {
+                  value: selectedProduct._id,
+                  label:
+                    selectedProduct.name +
+                    " (" +
+                    (selectedProduct.unit as AccountUnit).name +
+                    ")",
+                }
               : null
           }
           onChange={(selectedOption) => {

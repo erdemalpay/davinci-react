@@ -13,9 +13,12 @@ import { MentorAnalyticChart } from "../components/analytics/gameplay/MentorAnal
 import WhoKnows from "../components/analytics/gameplay/WhoKnows";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import { useUserContext } from "../context/User.context";
+import { Role, RoleEnum } from "../types";
 import { DateFilter } from "../utils/dateUtil";
 
 export default function Analytics() {
+  const { user } = useUserContext();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [tabPanelKey, setTabPanelKey] = useState<number>(0);
@@ -99,7 +102,7 @@ export default function Analytics() {
       label: t("Product Price Chart"),
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPriceChart />,
-      isDisabled: false,
+      isDisabled: user ? (user.role as Role)._id !== RoleEnum.MANAGER : true,
     },
   ];
   useEffect(() => {
