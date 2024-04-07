@@ -1,15 +1,15 @@
 import { Input, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Game } from "../../types";
-import { useGetGames } from "../../utils/api/game";
+import { Game } from "../../../types";
+import { useGetGames } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
-} from "../../utils/api/gameplay";
-import { useGetAllUsers } from "../../utils/api/user";
-import { Autocomplete } from "../common/Autocomplete";
-import SelectInput from "../common/SelectInput";
+} from "../../../utils/api/gameplay";
+import { useGetAllUsers } from "../../../utils/api/user";
+import { Autocomplete } from "../../common/Autocomplete";
+import SelectInput from "../../common/SelectInput";
 
 interface SecondGroupRow {
   field: string;

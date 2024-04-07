@@ -11,74 +11,56 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Paths } from "../../utils/api/factory";
-import { useGetGameplayAnalytics } from "../../utils/api/gameplay";
-import { useGetUsers } from "../../utils/api/user";
-import { colors } from "../../utils/color";
-import { DateFilter, getStartEndDates } from "../../utils/dateUtil";
-import { EditableText } from "../common/EditableText";
-import { InputWithLabel } from "../common/InputWithLabel";
+import { Paths } from "../../../utils/api/factory";
+import { useGetGames } from "../../../utils/api/game";
+import { useGetGameplayAnalytics } from "../../../utils/api/gameplay";
+import { useGetUsers } from "../../../utils/api/user";
+import { colors } from "../../../utils/color";
+import { DateFilter, getStartEndDates } from "../../../utils/dateUtil";
+import { EditableText } from "../../common/EditableText";
+import { InputWithLabel } from "../../common/InputWithLabel";
 
 export interface GameCount {
   name: string;
   count: number;
 }
 
-export interface ChartProps {
-  unique?: boolean;
-  dateFilter: DateFilter;
-  setDateFilter: (dateFilter: DateFilter) => void;
-  startDate: string;
-  setStartDate: (startDate: string) => void;
-  endDate: string | undefined;
-  setEndDate: (endDate: string | undefined) => void;
-  location: string;
-  setLocation: (location: string) => void;
-  itemLimit: number;
-  setItemLimit: (itemLimit: number) => void;
-}
-
-export function MentorAnalyticChart({
-  unique = false,
-  dateFilter,
-  setDateFilter,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  location,
-  setLocation,
-  itemLimit,
-  setItemLimit,
-}: ChartProps) {
-  const queryClient = useQueryClient();
+export function GameAnalyticChart() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const games = useGetGames();
+  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string | undefined>("");
+  const [location, setLocation] = useState<string>("1,2");
+  const [mentor, setMentor] = useState<string>("");
+  const [itemLimit, setItemLimit] = useState(5);
+  const users = useGetUsers();
 
   const { data: gameAnalytics } = useGetGameplayAnalytics(
-    "mentor",
+    "game",
     itemLimit,
     startDate,
     location,
-    endDate
+    endDate,
+    mentor
   );
-  const users = useGetUsers();
-  const [mentorData, setMentorData] = useState<GameCount[]>([]);
+
+  const [gameData, setGameData] = useState<GameCount[]>([]);
 
   useEffect(() => {
     if (!gameAnalytics) return;
-    if (!users?.length) return;
+    if (!games?.length) return;
     const data = gameAnalytics.map((gameplayAnalytic) => {
-      const game = users.find((user) => user._id === gameplayAnalytic._id);
+      const game = games.find((game) => game._id === gameplayAnalytic._id);
       return {
         name: game ? game.name : gameplayAnalytic._id,
-        count: unique
-          ? gameplayAnalytic.uniqueCount
-          : gameplayAnalytic.playCount,
+        count: gameplayAnalytic.playCount,
       } as GameCount;
     });
     data.sort((a, b) => b.count - a.count);
-    setMentorData(data);
-  }, [gameAnalytics, users]);
+    setGameData(data);
+  }, [gameAnalytics, games]);
 
   useEffect(() => {
     if (dateFilter === DateFilter.MANUAL) return;
@@ -92,14 +74,10 @@ export function MentorAnalyticChart({
   }, [startDate, endDate, itemLimit, queryClient]);
 
   return (
-    <div className="w-[95%] flex flex-col gap-8 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8  h-screen">
-      <p className="text-base lg:text-2xl font-medium leading-normal text-gray-800">
-        {unique ? t("Unique") : ""}
-        {t("Gameplay By Game Mentors")}
-      </p>
-
+    <div className="p-4 pb-[200px] w-auto lg:w-1/2 border-2 h-[140%]">
+      <h1 className="text-xl mb-4">Gameplay By Games</h1>
       <div className="flex flex-col w-1/2 mb-4">
-        <label className="flex items-center text-xs">{t("Date Filter")}:</label>
+        <label className="flex items-center text-xs">Date Filter:</label>
         <select
           onChange={(value) => setDateFilter(value.target.value as DateFilter)}
           className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
@@ -146,11 +124,26 @@ export function MentorAnalyticChart({
           <select
             onChange={(value) => setLocation(value.target.value)}
             className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
-            defaultValue="Canada"
+            value={location}
           >
             <option value="1,2">{t("All")}</option>
             <option value="1">Bahçeli</option>
             <option value="2">Neorama</option>
+          </select>
+        </div>
+        <div className="flex flex-col w-1/2">
+          <label className="flex items-center text-xs ">{t("Mentor")}:</label>
+          <select
+            onChange={(value) => setMentor(value.target.value)}
+            className="py-2 border-b-[1px] border-b-grey-300 focus:outline-none text-sm"
+            value={mentor}
+          >
+            <option value="">{t("All")}</option>
+            {users?.map((mentor) => (
+              <option key={mentor._id} value={mentor._id}>
+                {mentor.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex flex-col w-1/2">
@@ -169,10 +162,10 @@ export function MentorAnalyticChart({
           />
         </div>
       </div>
-      {mentorData?.length ? (
+      {gameData?.length ? (
         <ResponsiveContainer className={"w-[600px] h-[400px]"}>
           <BarChart
-            data={mentorData}
+            data={gameData}
             margin={{
               top: 50,
               right: 30,
@@ -185,7 +178,7 @@ export function MentorAnalyticChart({
             <YAxis />
             <Tooltip />
             <Bar dataKey="count" fill="#8884d8" label={{ position: "top" }}>
-              {mentorData.map((entry, index) => (
+              {gameData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={colors[index % 10]} />
               ))}
             </Bar>

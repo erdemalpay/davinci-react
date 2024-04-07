@@ -11,6 +11,7 @@ import {
   AccountExpenseType,
   AccountInvoice,
   AccountProduct,
+  AccountUnit,
   AccountVendor,
   Location,
 } from "../../types";
@@ -114,6 +115,20 @@ const Invoice = (props: Props) => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
+  // open add modal on ` key press
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "w" && event.ctrlKey) {
+        event.preventDefault();
+        setIsAddModalOpen(true);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    // Cleanup function
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -129,7 +144,7 @@ const Invoice = (props: Props) => {
       options: products.map((product) => {
         return {
           value: product._id,
-          label: product.name,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
         };
       }),
       placeholder: t("Product"),
@@ -262,14 +277,14 @@ const Invoice = (props: Props) => {
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
-      label: t("ExpenseType"),
+      label: t("Expense Type"),
       options: expenseTypes.map((item) => {
         return {
           value: item._id,
           label: item.name,
         };
       }),
-      placeholder: t("ExpenseType"),
+      placeholder: t("Expense Type"),
       required: true,
     },
     {
@@ -291,7 +306,7 @@ const Invoice = (props: Props) => {
       label: t("After"),
       placeholder: t("After"),
       required: true,
-      isBlur: true,
+      isDatePicker: true,
     },
     {
       type: InputTypes.DATE,
@@ -299,15 +314,12 @@ const Invoice = (props: Props) => {
       label: t("Before"),
       placeholder: t("Before"),
       required: true,
-      isBlur: true,
+      isDatePicker: true,
     },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    {
-      key: "product",
-      type: FormKeyTypeEnum.STRING,
-    },
+    { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
@@ -330,10 +342,7 @@ const Invoice = (props: Props) => {
     { key: t("Total Expense"), isSortable: true },
   ];
   const rowKeys = [
-    {
-      key: "_id",
-      className: "min-w-32 pr-2",
-    },
+    { key: "_id", className: "min-w-32 pr-2" },
     {
       key: "date",
       className: "min-w-32 pr-2",
@@ -362,17 +371,9 @@ const Invoice = (props: Props) => {
         );
       },
     },
-    {
-      key: "product",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "quantity",
-      className: "min-w-32",
-    },
-    {
-      key: "unit",
-    },
+    { key: "product", className: "min-w-32 pr-2" },
+    { key: "quantity", className: "min-w-32" },
+    { key: "unit" },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -575,7 +576,12 @@ const Invoice = (props: Props) => {
       isUpperSide: true,
       node: (
         <div className="flex flex-row gap-2">
-          <p>{generalTotalExpense.toFixed(2)} ₺</p>
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
         </div>
       ),
     },
