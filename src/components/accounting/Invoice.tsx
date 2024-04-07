@@ -118,7 +118,7 @@ const Invoice = (props: Props) => {
   // open add modal on ` key press
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "w" && event.ctrlKey) {
+      if (event.key === "q" && event.ctrlKey) {
         event.preventDefault();
         setIsAddModalOpen(true);
       }
