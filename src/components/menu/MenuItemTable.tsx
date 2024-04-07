@@ -219,8 +219,22 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     { key: "imageUrl", isImage: true },
     { key: "name" },
     { key: "description" },
-    { key: "priceBahceli" },
-    { key: "priceNeorama" },
+    {
+      key: "priceBahceli",
+      node: (item: MenuItem) => {
+        return item.priceBahceli === 0
+          ? "-"
+          : `${parseFloat(item.priceBahceli.toFixed(3)).toString()} ₺`;
+      },
+    },
+    {
+      key: "priceNeorama",
+      node: (item: MenuItem) => {
+        return item.priceNeorama === 0
+          ? "-"
+          : `${parseFloat(item.priceNeorama.toFixed(3)).toString()} ₺`;
+      },
+    },
     {
       key: "cost",
       node: (item: MenuItem) => {
