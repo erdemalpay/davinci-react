@@ -55,7 +55,7 @@ const TextInput = ({
         <H6 className="min-w-10">{label}</H6>
         <div className=" flex flex-row gap-2">
           <SketchPicker
-            color={value !== "" ? value : "#000000"}
+            color={value}
             onChange={(color) => {
               onChange(color.hex);
             }}
