@@ -234,10 +234,11 @@ export default function ProductPriceChart({}: Props) {
           </div>
           <div>
             <Typography variant="h6" color="blue-gray">
-              {selectedProduct?.name +
-                "(" +
-                (selectedProduct?.unit as AccountUnit).name +
-                ")"}
+              {selectedProduct &&
+                selectedProduct?.name +
+                  "(" +
+                  (selectedProduct?.unit as AccountUnit)?.name +
+                  ")"}
             </Typography>
           </div>
         </CardHeader>
