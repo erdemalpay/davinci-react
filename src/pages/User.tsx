@@ -79,9 +79,9 @@ export default function UserView() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
-          <div className="sm:w-1/2 ">
+          <div className="sm:w-1/4 ">
             <SelectInput
-              label={t("User")}
+              // label={t("User")}
               options={userOptions}
               value={
                 selectedUser

@@ -197,7 +197,7 @@ export default function ProductPriceChart({}: Props) {
 
   return (
     <div className="flex flex-col gap-4  mx-auto">
-      <div className="sm:w-1/2 px-4">
+      <div className="sm:w-1/4 px-4">
         <SelectInput
           label={t("Product")}
           options={productOptions}
@@ -227,7 +227,7 @@ export default function ProductPriceChart({}: Props) {
           floated={false}
           shadow={false}
           color="transparent"
-          className="flex flex-col gap-4 rounded-none md:flex-row md:items-center"
+          className="flex flex-row gap-4 rounded-none  items-center"
         >
           <div className="w-max rounded-lg bg-gray-900 p-5 text-white">
             <Square3Stack3DIcon className="h-6 w-6" />

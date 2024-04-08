@@ -2,23 +2,19 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { PiGooglePlayLogo } from "react-icons/pi";
-import { RiBarChartFill, RiGameLine } from "react-icons/ri";
+import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
-import ProductPriceChart from "../components/analytics/accounting/ProductPriceChart";
-import GameplaysByGames from "../components/analytics/gameplay/GameplaysByGame";
-import GameplaysByMentor from "../components/analytics/gameplay/GameplaysByMentor";
-import KnownGamesCount from "../components/analytics/gameplay/KnownGamesCount";
-import { MentorAnalyticChart } from "../components/analytics/gameplay/MentorAnalyticChart";
-import WhoKnows from "../components/analytics/gameplay/WhoKnows";
-import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import { useUserContext } from "../context/User.context";
-import { Role, RoleEnum } from "../types";
-import { DateFilter } from "../utils/dateUtil";
+import { DateFilter } from "../../utils/dateUtil";
+import { Header } from "../header/Header";
+import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import GameplaysByGames from "./gameplay/GameplaysByGame";
+import GameplaysByMentor from "./gameplay/GameplaysByMentor";
+import KnownGamesCount from "./gameplay/KnownGamesCount";
+import { MentorAnalyticChart } from "./gameplay/MentorAnalyticChart";
+import WhoKnows from "./gameplay/WhoKnows";
 
-export default function Analytics() {
-  const { user } = useUserContext();
+export default function GameplayAnalytics() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [tabPanelKey, setTabPanelKey] = useState<number>(0);
@@ -96,13 +92,6 @@ export default function Analytics() {
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
       isDisabled: false,
-    },
-    {
-      number: 6,
-      label: t("Product Price Chart"),
-      icon: <RiBarChartFill className="text-lg font-thin" />,
-      content: <ProductPriceChart />,
-      isDisabled: user ? (user.role as Role)._id !== RoleEnum.MANAGER : true,
     },
   ];
   useEffect(() => {

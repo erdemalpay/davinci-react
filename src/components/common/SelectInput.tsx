@@ -26,7 +26,7 @@ const CustomOption = (
 };
 
 type Props = {
-  label: string;
+  label?: string;
   options: { value: string; label: string }[];
   value: SingleValue<{ value: string; label: string }>;
   onChange: (
@@ -78,7 +78,7 @@ const SelectInput = ({
 
   return (
     <div className="flex flex-col gap-2 mt-4 __className_a182b8">
-      <label className="font-medium text-gray-900">{label}</label>
+      {label && <label className="font-medium text-gray-900">{label}</label>}
       <Select
         options={options}
         onChange={onChange}
