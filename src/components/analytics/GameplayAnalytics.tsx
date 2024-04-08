@@ -6,7 +6,6 @@ import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
 import { DateFilter } from "../../utils/dateUtil";
-import { Header } from "../header/Header";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import GameplaysByGames from "./gameplay/GameplaysByGame";
 import GameplaysByMentor from "./gameplay/GameplaysByMentor";
@@ -99,8 +98,6 @@ export default function GameplayAnalytics() {
   }, [activeTab]);
   return (
     <>
-      <Header showLocationSelector={false} />
-
       <TabPanel
         key={tabPanelKey}
         tabs={tabs}

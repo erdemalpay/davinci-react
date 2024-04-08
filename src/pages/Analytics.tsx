@@ -1,123 +1,75 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BsFillPatchQuestionFill } from "react-icons/bs";
-import { PiGooglePlayLogo } from "react-icons/pi";
-import { RiBarChartFill, RiGameLine } from "react-icons/ri";
-import { SiLegacygames, SiWegame } from "react-icons/si";
-import { TbPlayCard } from "react-icons/tb";
-import ProductPriceChart from "../components/analytics/accounting/ProductPriceChart";
-import GameplaysByGames from "../components/analytics/gameplay/GameplaysByGame";
-import GameplaysByMentor from "../components/analytics/gameplay/GameplaysByMentor";
-import KnownGamesCount from "../components/analytics/gameplay/KnownGamesCount";
-import { MentorAnalyticChart } from "../components/analytics/gameplay/MentorAnalyticChart";
-import WhoKnows from "../components/analytics/gameplay/WhoKnows";
+import AccountingAnalytics from "../components/analytics/AccountingAnalytics";
+import GameplayAnalytics from "../components/analytics/GameplayAnalytics";
+import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useUserContext } from "../context/User.context";
 import { Role, RoleEnum } from "../types";
-import { DateFilter } from "../utils/dateUtil";
 
+type AnalyticOption = {
+  id: string;
+  label: string;
+  component: JSX.Element;
+  isDisabled: boolean;
+};
 export default function Analytics() {
   const { user } = useUserContext();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<number>(0);
-  const [tabPanelKey, setTabPanelKey] = useState<number>(0);
-  const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string | undefined>("");
-  const [location, setLocation] = useState<string>("1,2");
-  const [itemLimit, setItemLimit] = useState(5);
-  const tabs = [
+  const analyticOptions: AnalyticOption[] = [
     {
-      number: 0,
-      label: "Gameplay By Game Mentors",
-      icon: <RiGameLine className="text-lg font-thin" />,
-      content: (
-        <MentorAnalyticChart
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          location={location}
-          setLocation={setLocation}
-          itemLimit={itemLimit}
-          setItemLimit={setItemLimit}
-        />
-      ),
+      id: "0",
+      label: "Gameplay",
+      component: <GameplayAnalytics />,
       isDisabled: false,
     },
     {
-      number: 1,
-      label: t("Unique Gameplay By Game Mentors"),
-      icon: <SiWegame className="text-lg font-thin" />,
-      content: (
-        <MentorAnalyticChart
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          location={location}
-          setLocation={setLocation}
-          itemLimit={itemLimit}
-          setItemLimit={setItemLimit}
-          unique
-        />
-      ),
-      isDisabled: false,
-    },
-    {
-      number: 2,
-      label: t("Gameplays By Mentors Details"),
-      icon: <TbPlayCard className="text-lg font-thin" />,
-      content: <GameplaysByMentor />,
-      isDisabled: false,
-    },
-    {
-      number: 3,
-      label: t("Gameplays By Games"),
-      icon: <PiGooglePlayLogo className="text-lg font-thin" />,
-      content: <GameplaysByGames />,
-      isDisabled: false,
-    },
-    {
-      number: 4,
-      label: t("Known Games Count"),
-      icon: <SiLegacygames className="text-lg font-thin" />,
-      content: <KnownGamesCount />,
-      isDisabled: false,
-    },
-    {
-      number: 5,
-      label: t("Who Knows?"),
-      icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
-      content: <WhoKnows />,
-      isDisabled: false,
-    },
-    {
-      number: 6,
-      label: t("Product Price Chart"),
-      icon: <RiBarChartFill className="text-lg font-thin" />,
-      content: <ProductPriceChart />,
+      id: "1",
+      label: "Accounting",
+      component: <AccountingAnalytics />,
       isDisabled: user ? (user.role as Role)._id !== RoleEnum.MANAGER : true,
     },
   ];
-  useEffect(() => {
-    setTabPanelKey((prev) => prev + 1);
-  }, [activeTab]);
+  const [selectedOption, setSelectedOption] = useState(analyticOptions[0]);
+
   return (
     <>
       <Header showLocationSelector={false} />
-
-      <TabPanel
-        key={tabPanelKey}
-        tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      {analyticOptions &&
+        analyticOptions.filter((option) => option.isDisabled === false).length >
+          1 && (
+          <div className="w-[95%] mx-auto">
+            <div className="sm:w-1/5 ">
+              <SelectInput
+                options={analyticOptions
+                  .filter((option) => option.isDisabled === false)
+                  .map((option) => {
+                    return {
+                      value: option.id,
+                      label: option.label,
+                    };
+                  })}
+                value={
+                  selectedOption
+                    ? {
+                        value: selectedOption.id,
+                        label: selectedOption.label,
+                      }
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  setSelectedOption(
+                    analyticOptions.find(
+                      (option) => option.id === selectedOption?.value
+                    ) as AnalyticOption
+                  );
+                }}
+                placeholder={t("Select an analytic type")}
+              />
+            </div>
+          </div>
+        )}
+      {selectedOption && selectedOption.component}
     </>
   );
 }

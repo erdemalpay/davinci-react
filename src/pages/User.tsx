@@ -81,7 +81,6 @@ export default function UserView() {
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput
-              // label={t("User")}
               options={userOptions}
               value={
                 selectedUser
