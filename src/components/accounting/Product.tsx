@@ -21,7 +21,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 
 type Props = {};
 
@@ -506,7 +506,7 @@ const Product = (props: Props) => {
             setIsJoinProductModalOpen(true);
           }}
         >
-          {t("Join Products")}
+          <H5> {t("Join Products")}</H5>
         </button>
       ),
     },
