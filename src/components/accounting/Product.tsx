@@ -264,14 +264,8 @@ const Product = (props: Props) => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    {
-      key: "name",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "unit",
-      className: "min-w-32",
-    },
+    { key: "name", className: "min-w-32 pr-1" },
+    { key: "unit", className: "min-w-32" },
     {
       key: "expenseType",
       className: "min-w-32",
@@ -312,7 +306,7 @@ const Product = (props: Props) => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         if (row.brand) {
-          return row?.brand?.map((brand: string) => {
+          return row?.brand?.map((brand: string, index) => {
             const foundBrand = brands.find((br) => br._id === brand);
             if (!foundBrand)
               return <div key={row._id + "not found brand"}>-</div>;
@@ -322,6 +316,7 @@ const Product = (props: Props) => {
                 className={`text-sm   mr-1  w-fit`}
               >
                 {foundBrand?.name}
+                {(row?.brand?.length ?? 0) - 1 !== index && ","}
               </span>
             );
           });
@@ -333,7 +328,7 @@ const Product = (props: Props) => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         if (row.vendor) {
-          return row?.vendor?.map((vendor: string) => {
+          return row?.vendor?.map((vendor: string, index) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
             if (!foundVendor)
               return <div key={row._id + "not found vendor"}>-</div>;
@@ -343,6 +338,7 @@ const Product = (props: Props) => {
                 className={`text-sm mr-1  w-fit`}
               >
                 {foundVendor?.name}
+                {(row?.vendor?.length ?? 0) - 1 !== index && ","}
               </span>
             );
           });
