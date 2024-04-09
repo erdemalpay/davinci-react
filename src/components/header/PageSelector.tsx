@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
-import { RolePermissionEnum, RowPerPageEnum } from "../../types";
+import { Role, RolePermissionEnum, RowPerPageEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
@@ -19,7 +19,28 @@ export function PageSelector() {
     useGeneralContext();
   const routes = Object.values(RolePermissionEnum)
     .filter((permission) => user?.role.permissions.includes(permission))
-    .map((permission) => allRoutes[permission])
+    .map((permission) => {
+      const exceptionRoutes = Object.values(RolePermissionEnum).reduce<
+        {
+          name: string;
+          path: string;
+          isOnSidebar: boolean;
+          exceptionRoleIds?: number[];
+          element: () => JSX.Element;
+        }[]
+      >((acc, permission) => {
+        const routesWithExceptions = allRoutes[permission]
+          .filter(
+            (route) =>
+              route.exceptionRoleIds &&
+              route.exceptionRoleIds.includes((user?.role as Role)._id)
+          )
+          .map((route) => ({ ...route, permission }));
+
+        return acc.concat(routesWithExceptions);
+      }, []);
+      return [...allRoutes[permission], ...exceptionRoutes];
+    })
     .flat();
 
   function logout() {

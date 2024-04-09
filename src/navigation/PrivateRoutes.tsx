@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useUserContext } from "../context/User.context";
 import useAuth from "../hooks/useAuth";
 import { RolePermissionEnum } from "../types";
-import { PublicRoutes } from "./constants";
+import { allRoutes, PublicRoutes } from "./constants";
 
 interface PrivateRoutesProps {
   requiredPermissions: RolePermissionEnum[];
@@ -17,8 +17,12 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   if (!user) return <></>;
 
   if (
-    requiredPermissions.every((permission) =>
-      user?.role?.permissions?.includes(permission)
+    requiredPermissions.every(
+      (permission) =>
+        user?.role?.permissions?.includes(permission) ||
+        allRoutes[permission]
+          .find((route) => route.path === location.pathname)
+          ?.exceptionRoleIds?.includes(user.role._id)
     )
   ) {
     return <Outlet />;
