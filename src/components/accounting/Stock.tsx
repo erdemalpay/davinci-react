@@ -152,8 +152,18 @@ const Stock = (props: Props) => {
     { key: "unit" },
     { key: "lctn" },
     { key: "quantity" },
-    { key: "unitPrice" },
-    { key: "totalPrice", className: !isEnableEdit ? "text-center" : "" },
+    {
+      key: "unitPrice",
+      node: (row: any) => <div>{row.unitPrice} ₺</div>,
+    },
+    {
+      key: "totalPrice",
+      node: (row: any) => (
+        <div className={!isEnableEdit ? "text-center" : ""}>
+          {row.totalPrice} ₺
+        </div>
+      ),
+    },
   ];
   const addButton = {
     name: t("Add Stock"),
