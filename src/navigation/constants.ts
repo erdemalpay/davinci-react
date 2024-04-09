@@ -11,7 +11,7 @@ import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
 import Visits from "../pages/Visits";
-import { RolePermissionEnum } from "../types";
+import { RoleEnum, RolePermissionEnum } from "../types";
 
 export enum PublicRoutes {
   NotFound = "*",
@@ -39,6 +39,7 @@ export const allRoutes: {
     name: string;
     path: string;
     isOnSidebar: boolean;
+    exceptionRoleIds?: number[];
     element: () => JSX.Element;
   }[];
 } = {
@@ -107,6 +108,7 @@ export const allRoutes: {
       path: Routes.Menu,
       element: Menu,
       isOnSidebar: true,
+      exceptionRoleIds: [RoleEnum.BARISTA],
     },
     {
       name: "User",
