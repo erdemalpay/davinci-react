@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiViewList } from "react-icons/ci";
 import {
   FaFileInvoiceDollar,
   FaMagnifyingGlassLocation,
@@ -11,6 +12,7 @@ import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
+import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
 import Product from "../components/accounting/Product";
@@ -25,12 +27,12 @@ import { useGeneralContext } from "../context/General.context";
 
 export default function Accounting() {
   const { t } = useTranslation();
-  const startingTab = 7;
+  const startingTab = 8;
   const [activeTab, setActiveTab] = useState<number>(startingTab);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
-  const { setCurrentPage, setSearchQuery, setRowsPerPage } =
-    useGeneralContext();
+  const { setCurrentPage, setSearchQuery } = useGeneralContext();
+
   const tabs = [
     {
       number: 0,
@@ -83,13 +85,20 @@ export default function Accounting() {
     },
     {
       number: 7,
+      label: t("Count Lists"),
+      icon: <CiViewList className="text-lg font-thin" />,
+      content: <CountLists />,
+      isDisabled: showConstants,
+    },
+    {
+      number: 8,
       label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
-      number: 8,
+      number: 9,
       label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
