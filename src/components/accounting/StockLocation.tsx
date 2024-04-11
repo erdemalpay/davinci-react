@@ -52,7 +52,7 @@ const StockLocations = (props: Props) => {
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
-    name: t(`Add StockLocations`),
+    name: t(`Add Stock Location`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -83,7 +83,7 @@ const StockLocations = (props: Props) => {
             deleteAccountStockLocation(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete StockLocations")}
+          title={t("Delete Stock Location")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
