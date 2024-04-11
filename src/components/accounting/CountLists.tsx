@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountStockLocation } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { AccountCountList } from "../../types";
 import {
-  useAccountStockLocationMutations,
-  useGetAccountStockLocations,
-} from "../../utils/api/account/stockLocation";
+  useAccountCountListMutations,
+  useGetAccountCountLists,
+} from "../../utils/api/account/countList";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -14,27 +15,42 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
 
-const StockLocations = (props: Props) => {
+const CountLists = (props: Props) => {
   const { t } = useTranslation();
-  const stockLocations = useGetAccountStockLocations();
+  const navigate = useNavigate();
+  const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountStockLocation>();
+  const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const {
-    createAccountStockLocation,
-    deleteAccountStockLocation,
-    updateAccountStockLocation,
-  } = useAccountStockLocationMutations();
+    createAccountCountList,
+    deleteAccountCountList,
+    updateAccountCountList,
+  } = useAccountCountListMutations();
   const columns = [
+    { key: "ID", isSortable: true },
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
+    {
+      key: "_id",
+      node: (row: AccountCountList) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            navigate(`/count-list/${row._id}`);
+          }}
+        >
+          {row._id}
+        </p>
+      ),
+    },
     {
       key: "name",
       className: "min-w-32 pr-1",
@@ -52,7 +68,7 @@ const StockLocations = (props: Props) => {
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
-    name: t(`Add Stock Location`),
+    name: t(`Add Count List`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -60,7 +76,7 @@ const StockLocations = (props: Props) => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
-        submitItem={createAccountStockLocation as any}
+        submitItem={createAccountCountList as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
@@ -80,10 +96,10 @@ const StockLocations = (props: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountStockLocation(rowToAction?._id);
+            deleteAccountCountList(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Stock Location")}
+          title={t("Delete Count List")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -105,7 +121,7 @@ const StockLocations = (props: Props) => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAccountStockLocation as any}
+          submitItem={updateAccountCountList as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
@@ -118,7 +134,7 @@ const StockLocations = (props: Props) => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [stockLocations]);
+  useEffect(() => setTableKey((prev) => prev + 1), [countLists]);
 
   return (
     <>
@@ -128,8 +144,8 @@ const StockLocations = (props: Props) => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={stockLocations}
-          title={t("Stock Locations")}
+          rows={countLists}
+          title={t("Count Lists")}
           addButton={addButton}
         />
       </div>
@@ -137,4 +153,4 @@ const StockLocations = (props: Props) => {
   );
 };
 
-export default StockLocations;
+export default CountLists;

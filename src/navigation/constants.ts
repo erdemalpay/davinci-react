@@ -1,5 +1,6 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
+import CountList from "../pages/CountList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
@@ -32,6 +33,7 @@ export enum Routes {
   Gameplays = "/gameplays",
   Profile = "/profile",
   Accounting = "/accounting",
+  CountList = "/count-list/:countListId",
 }
 
 export const allRoutes: {
@@ -40,6 +42,7 @@ export const allRoutes: {
     path: string;
     isOnSidebar: boolean;
     exceptionRoleIds?: number[];
+    disabledRoleIds?: number[];
     element: () => JSX.Element;
   }[];
 } = {
@@ -117,10 +120,17 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
+      name: "Count List",
+      path: Routes.CountList,
+      element: CountList,
+      isOnSidebar: false,
+    },
+    {
       name: "Accounting",
       path: Routes.Accounting,
       element: Accounting,
       isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
 
     {

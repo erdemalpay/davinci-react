@@ -84,6 +84,11 @@ export type AccountUnit = {
   _id: string;
   name: string;
 };
+export type AccountCountList = {
+  _id: string;
+  name: string;
+  products?: string[];
+};
 export type AccountExpenseType = {
   _id: string;
   name: string;

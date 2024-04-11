@@ -19,7 +19,10 @@ export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
   if (
     requiredPermissions.every(
       (permission) =>
-        user?.role?.permissions?.includes(permission) ||
+        (user?.role?.permissions?.includes(permission) &&
+          !allRoutes[permission]
+            .find((route) => route.path === location.pathname)
+            ?.disabledRoleIds?.includes(user.role._id)) ||
         allRoutes[permission]
           .find((route) => route.path === location.pathname)
           ?.exceptionRoleIds?.includes(user.role._id)
