@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 import { AccountCountList } from "../../types";
 import {
   useAccountCountListMutations,
@@ -16,6 +17,7 @@ type Props = {};
 
 const CountLists = (props: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -31,10 +33,24 @@ const CountLists = (props: Props) => {
     updateAccountCountList,
   } = useAccountCountListMutations();
   const columns = [
+    { key: "ID", isSortable: true },
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
+    {
+      key: "_id",
+      node: (row: AccountCountList) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            navigate(`/count-list/${row._id}`);
+          }}
+        >
+          {row._id}
+        </p>
+      ),
+    },
     {
       key: "name",
       className: "min-w-32 pr-1",
