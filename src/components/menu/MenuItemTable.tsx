@@ -397,8 +397,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       isModal: false,
       icon: null,
       node: (row: MenuItem) => {
-        const isPopular = popularItems.some(
-          (popularItem) => (popularItem.item as MenuItem)._id === row._id
+        const isPopular = popularItems?.some(
+          (popularItem) => (popularItem.item as MenuItem)?._id === row?._id
         );
         return isPopular ? (
           <button
