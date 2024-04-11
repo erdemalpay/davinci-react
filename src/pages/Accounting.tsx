@@ -27,7 +27,7 @@ import { useGeneralContext } from "../context/General.context";
 
 export default function Accounting() {
   const { t } = useTranslation();
-  const startingTab = 7;
+  const startingTab = 8;
   const [activeTab, setActiveTab] = useState<number>(startingTab);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
