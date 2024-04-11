@@ -40,6 +40,7 @@ export const allRoutes: {
     path: string;
     isOnSidebar: boolean;
     exceptionRoleIds?: number[];
+    disabledRoleIds?: number[];
     element: () => JSX.Element;
   }[];
 } = {
@@ -121,6 +122,7 @@ export const allRoutes: {
       path: Routes.Accounting,
       element: Accounting,
       isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
 
     {

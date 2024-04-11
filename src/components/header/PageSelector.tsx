@@ -39,7 +39,33 @@ export function PageSelector() {
 
         return acc.concat(routesWithExceptions);
       }, []);
-      return [...allRoutes[permission], ...exceptionRoutes];
+      const disabledRoutes = Object.values(RolePermissionEnum).reduce<
+        {
+          name: string;
+          path: string;
+          isOnSidebar: boolean;
+          exceptionRoleIds?: number[];
+          element: () => JSX.Element;
+        }[]
+      >((acc, permission) => {
+        const disabledRoutes = allRoutes[permission]
+          .filter(
+            (route) =>
+              route.disabledRoleIds &&
+              route.disabledRoleIds.includes((user?.role as Role)._id)
+          )
+          .map((route) => ({ ...route, permission }));
+
+        return acc.concat(disabledRoutes);
+      }, []);
+      const enabledRoutes = [...allRoutes[permission], ...exceptionRoutes];
+      const routes = enabledRoutes.filter(
+        (route) =>
+          !disabledRoutes.some(
+            (disabledRoute) => disabledRoute.path === route.path
+          )
+      );
+      return routes;
     })
     .flat();
 
