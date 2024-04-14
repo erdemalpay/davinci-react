@@ -207,5 +207,7 @@
   "Select a user": "Bir kullanıcı seçin",
   "Select an analytic type": "Bir analiz türü seçin",
   "Enter Consumption": "Tüketim Gir",
+  "Select a count list": "Bir sayım listesi seçin",
+  "Submit": "Gönder",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

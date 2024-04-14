@@ -215,6 +215,7 @@ const CountLists = (props: Props) => {
             inputs={consumptInputs}
             formKeys={consumptFormKeys}
             submitItem={consumptStock as any}
+            buttonName={t("Submit")}
             topClassName="flex flex-col gap-2 "
           />
         )}
