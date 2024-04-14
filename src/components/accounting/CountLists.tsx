@@ -3,15 +3,19 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
-import { AccountCountList } from "../../types";
+import { AccountCountList, AccountUnit } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useConsumptStockMutation } from "../../utils/api/account/stock";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import { H5 } from "../panelComponents/Typography";
 
 type Props = {};
 
@@ -21,7 +25,11 @@ const CountLists = (props: Props) => {
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const products = useGetAccountProducts();
+  const locations = useGetAccountStockLocations();
+  const { mutate: consumptStock } = useConsumptStockMutation();
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -33,13 +41,52 @@ const CountLists = (props: Props) => {
     updateAccountCountList,
   } = useAccountCountListMutations();
   const columns = [
-    { key: "ID", isSortable: true },
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
+  const consumptInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name + `(${(product.unit as AccountUnit).name})`,
+        };
+      }),
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
+  ];
+  const consumptFormKeys = [
+    { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   const rowKeys = [
     {
-      key: "_id",
+      key: "name",
       node: (row: AccountCountList) => (
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
@@ -47,12 +94,9 @@ const CountLists = (props: Props) => {
             navigate(`/count-list/${row._id}`);
           }}
         >
-          {row._id}
+          {row.name}
         </p>
       ),
-    },
-    {
-      key: "name",
       className: "min-w-32 pr-1",
     },
   ];
@@ -134,6 +178,21 @@ const CountLists = (props: Props) => {
       isPath: false,
     },
   ];
+  const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            setIsConsumptModalOpen(true);
+          }}
+        >
+          <H5> {t("Enter Consumption")}</H5>
+        </button>
+      ),
+    },
+  ];
   useEffect(() => setTableKey((prev) => prev + 1), [countLists]);
 
   return (
@@ -146,8 +205,19 @@ const CountLists = (props: Props) => {
           columns={columns}
           rows={countLists}
           title={t("Count Lists")}
+          filters={filters}
           addButton={addButton}
         />
+        {isConsumptModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isConsumptModalOpen}
+            close={() => setIsConsumptModalOpen(false)}
+            inputs={consumptInputs}
+            formKeys={consumptFormKeys}
+            submitItem={consumptStock as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
       </div>
     </>
   );
