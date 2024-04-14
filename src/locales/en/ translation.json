@@ -207,5 +207,8 @@
   "Select a product": "Select a product",
   "Select a user": "Select a user",
   "Select an analytic type": "Select an analytic type",
+  "Enter Consumption": "Enter Consumption",
+  "Select a count list": "Select a count list",
+  "Submit": "Submit",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

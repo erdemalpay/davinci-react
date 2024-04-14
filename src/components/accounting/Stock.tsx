@@ -33,8 +33,8 @@ type FormElementsState = {
 const Stock = (props: Props) => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
-  const products = useGetAccountProducts();
   const units = useGetAccountUnits();
+  const products = useGetAccountProducts();
   const locations = useGetAccountStockLocations();
   const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
