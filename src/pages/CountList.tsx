@@ -81,7 +81,7 @@ const CountList = () => {
   const addFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
+    { key: t("Unit"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
