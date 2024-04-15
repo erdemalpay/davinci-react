@@ -206,5 +206,10 @@
   "Select a product": "Bir ürün seçin",
   "Select a user": "Bir kullanıcı seçin",
   "Select an analytic type": "Bir analiz türü seçin",
+  "Enter Consumption": "Tüketim Gir",
+  "Select a count list": "Bir sayım listesi seçin",
+  "Submit": "Gönder",
+  "Delete Count List Item": "Sayım Listesi Öğesini Sil",
+  "Count": "Sayım Yap",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

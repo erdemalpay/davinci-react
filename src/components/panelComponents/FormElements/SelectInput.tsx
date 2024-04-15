@@ -63,6 +63,7 @@ const SelectInput = ({
       alignItems: "center",
       justifyContent: "space-between",
       color: "#4B5563",
+      cursor: "pointer",
       backgroundColor: state.isSelected ? "#EDF7FF" : base.backgroundColor,
       ":hover": {
         color: "#0057FF",

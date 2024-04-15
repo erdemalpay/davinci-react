@@ -27,7 +27,7 @@ import { useGeneralContext } from "../context/General.context";
 
 export default function Accounting() {
   const { t } = useTranslation();
-  const startingTab = 8;
+  const startingTab = 7;
   const [activeTab, setActiveTab] = useState<number>(startingTab);
   const [tableKey, setTableKey] = useState<number>(0);
   const [showConstants, setShowConstants] = useState<boolean>(true);
@@ -83,18 +83,19 @@ export default function Accounting() {
       content: <StockLocations />,
       isDisabled: showConstants,
     },
+
     {
       number: 7,
-      label: t("Count Lists"),
-      icon: <CiViewList className="text-lg font-thin" />,
-      content: <CountLists />,
-      isDisabled: showConstants,
-    },
-    {
-      number: 8,
       label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
+      isDisabled: false,
+    },
+    {
+      number: 8,
+      label: t("Count Lists"),
+      icon: <CiViewList className="text-lg font-thin" />,
+      content: <CountLists />,
       isDisabled: false,
     },
     {
