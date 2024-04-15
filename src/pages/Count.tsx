@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
-import { AccountCountList } from "../types";
+import { AccountCountList, AccountUnit } from "../types";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
 
@@ -86,7 +86,12 @@ const Count = () => {
                     className="border border-gray-200 rounded-md px-4 py-1"
                   >
                     <TextInput
-                      label={currentProduct?.name ?? ""}
+                      label={
+                        currentProduct?.name +
+                          " (" +
+                          (currentProduct?.unit as AccountUnit)?.name +
+                          ")" ?? ""
+                      }
                       value={deneme}
                       onChange={setDeneme}
                       type="number"
