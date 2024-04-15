@@ -63,12 +63,17 @@ const CountList = () => {
       type: InputTypes.SELECT,
       formKey: "product",
       label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
+      options: products
+        .filter((product) => {
+          const countList = countLists.find((item) => item._id === countListId);
+          return !countList?.products?.includes(product._id);
+        })
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
+          };
+        }),
       placeholder: t("Product"),
       required: true,
     },
