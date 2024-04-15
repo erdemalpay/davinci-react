@@ -6,17 +6,16 @@ import {
   PopoverHandler,
 } from "@material-tailwind/react";
 import { format, parseISO } from "date-fns";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
-import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { H6 } from "../Typography";
 
 type TextInputProps = {
   label: string;
-  placeholder: string;
+  placeholder?: string;
   type: string;
   value: string;
   onChange: (value: string) => void;
@@ -24,6 +23,8 @@ type TextInputProps = {
   disabled?: boolean;
   onClear?: () => void;
   isDatePicker?: boolean;
+  isTopFlexRow?: boolean;
+  inputWidth?: string;
 };
 
 const TextInput = ({
@@ -33,16 +34,23 @@ const TextInput = ({
   type,
   onChange,
   disabled,
+  isTopFlexRow,
   onClear,
+  inputWidth,
   isDatePicker = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
-  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const inputClassName = `${className} w-full text-sm ${
-    type === "number" ? "inputHideNumberArrows" : ""
-  }`;
+  const handleDivClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+  const inputClassName = `${className} ${
+    inputWidth ? "border-gray-100" : ""
+  } w-full text-sm ${type === "number" ? "inputHideNumberArrows" : ""}`;
 
   const handleWheel = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -51,9 +59,13 @@ const TextInput = ({
   };
   if (type === "color") {
     return (
-      <div className=" flex flex-col gap-2">
+      <div
+        className={` flex ${
+          isTopFlexRow ? "flex-row" : "flex-col"
+        } gap-2  w-full`}
+      >
         <H6 className="min-w-10">{label}</H6>
-        <div className=" flex flex-row gap-2">
+        <div className=" flex flex-row gap-2 ">
           <SketchPicker
             color={value}
             onChange={(color) => {
@@ -75,8 +87,12 @@ const TextInput = ({
   }
   if (isDatePicker) {
     return (
-      <div className="flex flex-col gap-2">
-        <H6 className="min-w-10">{label}</H6>
+      <div
+        className={` flex ${
+          isTopFlexRow ? "flex-row" : "flex-col"
+        } gap-2 items-center w-full `}
+      >
+        <H6 className="ml-auto min-w-10">{label}</H6>
         <div className="flex flex-row gap-2">
           <Popover placement="bottom">
             <PopoverHandler>
@@ -148,10 +164,22 @@ const TextInput = ({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <H6>{label}</H6>
-      <div className="flex flex-row gap-2 items-center">
+    <div
+      className={` flex ${
+        isTopFlexRow ? "flex-row gap-4 " : "flex-col gap-2"
+      }   w-full  `}
+      onClick={handleDivClick}
+    >
+      <H6 className={`${isTopFlexRow ? "min-w-20 " : "min-w-10"}   my-auto`}>
+        {label}
+      </H6>
+      <div
+        className={`flex flex-row gap-2 items-center  ${
+          inputWidth ? inputWidth : "w-full"
+        }`}
+      >
         <input
+          ref={inputRef}
           type={type}
           placeholder={placeholder}
           disabled={disabled}
