@@ -11,7 +11,7 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { P1 } from "../components/panelComponents/Typography";
+import { H5, P1 } from "../components/panelComponents/Typography";
 import { AccountCountList, AccountProduct, AccountUnit } from "../types";
 import {
   useAccountCountListMutations,
@@ -169,6 +169,21 @@ const CountList = () => {
       isPath: false,
     },
   ];
+  const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            navigate(`/count/${countListId}`);
+          }}
+        >
+          <H5> {t("Count")}</H5>
+        </button>
+      ),
+    },
+  ];
   return (
     <>
       <Header showLocationSelector={false} />
@@ -209,6 +224,7 @@ const CountList = () => {
           rows={rows()}
           actions={actions}
           addButton={addButton}
+          filters={filters}
           title={countLists.find((row) => row._id === countListId)?.name}
         />
       </div>
