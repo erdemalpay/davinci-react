@@ -1,5 +1,6 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
+import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
@@ -34,6 +35,7 @@ export enum Routes {
   Profile = "/profile",
   Accounting = "/accounting",
   CountList = "/count-list/:countListId",
+  Count = "/count/:countListId",
 }
 
 export const allRoutes: {
@@ -123,6 +125,12 @@ export const allRoutes: {
       name: "Count List",
       path: Routes.CountList,
       element: CountList,
+      isOnSidebar: false,
+    },
+    {
+      name: "Count",
+      path: Routes.Count,
+      element: Count,
       isOnSidebar: false,
     },
     {

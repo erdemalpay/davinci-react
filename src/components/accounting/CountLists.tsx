@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { AccountCountList, AccountUnit } from "../../types";
 import {
@@ -14,6 +15,7 @@ import { useGetAccountStockLocations } from "../../utils/api/account/stockLocati
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { H5 } from "../panelComponents/Typography";
 
@@ -147,7 +149,7 @@ const CountLists = (props: Props) => {
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl  ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
@@ -156,7 +158,7 @@ const CountLists = (props: Props) => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -176,6 +178,28 @@ const CountLists = (props: Props) => {
       setIsModal: setIsEditModalOpen,
 
       isPath: false,
+    },
+    {
+      name: t("Count"),
+      setRow: setRowToAction,
+      icon: <TbPencilPlus />,
+      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      isModal: false,
+      isPath: false,
+      node: (row: AccountCountList) => {
+        return (
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              navigate(`/count/${row._id}`);
+            }}
+          >
+            <ButtonTooltip content={t("Count")}>
+              <TbPencilPlus className="text-blue-500 cursor-pointer text-xl " />
+            </ButtonTooltip>
+          </button>
+        );
+      },
     },
   ];
   const filters = [
