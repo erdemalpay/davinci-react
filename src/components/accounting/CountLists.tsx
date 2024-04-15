@@ -189,7 +189,7 @@ const CountLists = (props: Props) => {
       node: (row: AccountCountList) => {
         return (
           <button
-            className="cursor-pointer"
+            className="cursor-pointer mt-1"
             onClick={() => {
               navigate(`/count/${row._id}`);
             }}
