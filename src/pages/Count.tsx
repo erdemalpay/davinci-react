@@ -22,7 +22,7 @@ const Count = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
-  const [deneme, setDeneme] = useState("");
+  const [countProductsKey, setCountProductsKey] = useState(0);
   const locations = useGetAccountStockLocations();
   const [searchQuery, setSearchQuery] = useState("");
   const products = useGetAccountProducts();
@@ -32,10 +32,13 @@ const Count = () => {
   const [form, setForm] = useState({
     location: "",
   });
-  const [countProducts, setCountProducts] =
-    useState<
-      { product: string; stockQuantity: number; countQuantity: number | null }[]
-    >();
+  const [countProducts, setCountProducts] = useState<
+    {
+      product: string;
+      stockQuantity: number;
+      countQuantity: number | string;
+    }[]
+  >();
   const { countListId } = useParams();
   const [selectedOption, setSelectedOption] = useState<AccountCountList>();
   const countListOptions = countLists?.map((countList) => {
@@ -69,7 +72,7 @@ const Count = () => {
         const newCountProducts = foundList.products.map((product) => ({
           product: product,
           stockQuantity: 0,
-          countQuantity: null,
+          countQuantity: "",
         }));
 
         setCountProducts(newCountProducts);
@@ -80,6 +83,7 @@ const Count = () => {
         );
       }
     }
+    setCountProductsKey((prev) => prev + 1);
   }, [countListId, countLists]);
 
   const handleCountProductChange = (
@@ -104,6 +108,7 @@ const Count = () => {
     );
   };
   const createFormKeys = [{ key: "location", type: FormKeyTypeEnum.STRING }];
+
   return (
     <>
       <Header />
@@ -148,8 +153,12 @@ const Count = () => {
           className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
         />
         {/* count inputs */}
-        <div className=" flex flex-col gap-2 sm:grid sm:grid-cols-1 md:grid-cols-3 __className_a182b8">
+        <div
+          key={countProductsKey}
+          className=" flex flex-col gap-2 sm:grid sm:grid-cols-1 md:grid-cols-3 __className_a182b8"
+        >
           {countListId &&
+            countProducts &&
             countLists
               .find((row) => row._id === countListId)
               ?.products?.filter((item) => {
@@ -162,6 +171,10 @@ const Count = () => {
                 const currentProduct = products.find(
                   (item) => item._id === product
                 );
+                const currentValue = countProducts
+                  ?.find((item) => item.product === currentProduct?._id)
+                  ?.countQuantity?.toString();
+
                 return (
                   <div
                     key={currentProduct?._id}
@@ -174,8 +187,14 @@ const Count = () => {
                           (currentProduct?.unit as AccountUnit)?.name +
                           ")" ?? ""
                       }
-                      value={deneme}
-                      onChange={setDeneme}
+                      value={currentValue ?? ""}
+                      onChange={(target) => {
+                        handleCountProductChange(
+                          currentProduct?._id ?? "",
+                          "countQuantity",
+                          target
+                        );
+                      }}
                       type="number"
                       inputWidth={"w-[30%] ml-auto "}
                       isTopFlexRow={true}
@@ -210,6 +229,7 @@ const Count = () => {
                 date: format(new Date(), "yyyy-MM-dd"),
                 user: user._id,
               });
+            localStorage.removeItem(`count-${countListId}`);
           }}
           submitItem={createAccountCount as any}
           topClassName="flex flex-col gap-2 "
