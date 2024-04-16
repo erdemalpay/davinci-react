@@ -89,6 +89,18 @@ export type AccountCountList = {
   name: string;
   products?: string[];
 };
+export type AccountCount = {
+  _id: string;
+  status: string;
+  date: string;
+  location: string | AccountStockLocation;
+  user: string | User;
+  products?: {
+    product: string;
+    stockQuantity: number;
+    countQuantity: number;
+  }[];
+};
 export type AccountExpenseType = {
   _id: string;
   name: string;
