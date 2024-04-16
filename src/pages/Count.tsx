@@ -136,7 +136,7 @@ const Count = () => {
           />
         </div>
       </div>
-      <div className="my-10  px-10  flex flex-col gap-4">
+      <div className="my-10 px-4 sm:px-10  flex flex-col gap-4">
         {/* search button */}
         <input
           type="text"
