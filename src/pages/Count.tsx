@@ -234,6 +234,7 @@ const Count = () => {
             ) {
               createAccountCount({
                 ...form,
+                countList: countListId,
                 status: "NotChecked",
                 date: format(new Date(), "yyyy-MM-dd"),
                 user: user._id,
