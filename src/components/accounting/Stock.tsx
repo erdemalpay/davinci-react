@@ -177,6 +177,7 @@ const Stock = (props: Props) => {
         setForm={setForm}
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
+        generalClassName="overflow-visible"
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -232,6 +233,7 @@ const Stock = (props: Props) => {
           submitItem={updateAccountStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-visible"
           itemToEdit={{
             id: rowToAction._id,
             updates: {
