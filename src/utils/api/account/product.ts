@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AccountProduct } from "../../../types";
 import { post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
@@ -27,6 +28,19 @@ export function joinProducts({
   return post<JoinProductsRequest, AccountProduct>({
     path: `${Paths.Accounting}/products/join`,
     payload: { stayedProduct, removedProduct },
+  });
+}
+
+export function useJoinProductsMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(joinProducts, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
   });
 }
 

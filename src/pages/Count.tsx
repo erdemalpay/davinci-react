@@ -12,7 +12,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import { H5 } from "../components/panelComponents/Typography";
 import { useUserContext } from "../context/User.context";
-import { AccountCountList, AccountUnit } from "../types";
+import { AccountCountList, AccountUnit, RoleEnum } from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -112,35 +112,39 @@ const Count = () => {
   return (
     <>
       <Header />
-      <div className="w-[95%] mx-auto ">
-        <div className="sm:w-1/4 ">
-          <SelectInput
-            options={countListOptions}
-            value={
-              selectedOption
-                ? {
-                    value: selectedOption._id,
-                    label: selectedOption.name,
-                  }
-                : {
-                    value:
-                      countLists.find((l) => l._id === countListId)?._id ?? "",
-                    label:
-                      countLists.find((l) => l._id === countListId)?.name ?? "",
-                  }
-            }
-            onChange={(selectedOption) => {
-              setSelectedOption(
-                countLists?.find(
-                  (option) => option._id === selectedOption?.value
-                )
-              );
-              navigate(`/count/${selectedOption?.value}`);
-            }}
-            placeholder={t("Select a count list")}
-          />
+      {user?.role._id === RoleEnum.MANAGER && (
+        <div className="w-[95%] mx-auto ">
+          <div className="sm:w-1/4 ">
+            <SelectInput
+              options={countListOptions}
+              value={
+                selectedOption
+                  ? {
+                      value: selectedOption._id,
+                      label: selectedOption.name,
+                    }
+                  : {
+                      value:
+                        countLists.find((l) => l._id === countListId)?._id ??
+                        "",
+                      label:
+                        countLists.find((l) => l._id === countListId)?.name ??
+                        "",
+                    }
+              }
+              onChange={(selectedOption) => {
+                setSelectedOption(
+                  countLists?.find(
+                    (option) => option._id === selectedOption?.value
+                  )
+                );
+                navigate(`/count/${selectedOption?.value}`);
+              }}
+              placeholder={t("Select a count list")}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className="my-10 px-4 sm:px-10  flex flex-col gap-4">
         {/* search button */}
         <input
