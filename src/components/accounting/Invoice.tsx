@@ -432,6 +432,7 @@ const Invoice = (props: Props) => {
           { key: "price", type: FormKeyTypeEnum.NUMBER },
           { key: "kdv", type: FormKeyTypeEnum.NUMBER },
         ]}
+        generalClassName="overflow-scroll"
         submitFunction={() => {
           form.price &&
             form.kdv &&
@@ -516,6 +517,7 @@ const Invoice = (props: Props) => {
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-scroll"
           itemToEdit={{
             id: rowToAction._id,
             updates: {

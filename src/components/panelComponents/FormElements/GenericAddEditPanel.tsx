@@ -22,6 +22,7 @@ type Props<T> = {
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
+  generalClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
   setForm?: (item: T) => void;
   handleUpdate?: () => void;
@@ -48,6 +49,7 @@ const GenericAddEditPanel = <T,>({
   inputs,
   formKeys,
   topClassName,
+  generalClassName,
   buttonName,
   constantValues,
   isEditMode = false,
@@ -202,7 +204,7 @@ const GenericAddEditPanel = <T,>({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full max-h-[90vh] z-[100] overflow-visible overflow-scroll"
+        className={`bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full  max-h-[90vh] z-[100]   ${generalClassName}`}
       >
         <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
           <div
