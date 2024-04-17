@@ -100,6 +100,7 @@ export type AccountCount = {
     stockQuantity: number;
     countQuantity: number;
   }[];
+  countList: string | AccountCountList;
 };
 export type AccountExpenseType = {
   _id: string;
