@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -224,15 +225,45 @@ const Count = () => {
           inputs={createInputs}
           formKeys={createFormKeys}
           submitFunction={() => {
-            form.location &&
+            if (
+              form.location &&
               user &&
+              countProducts?.filter((item) => item.countQuantity === "")
+                .length === 0 &&
+              countProducts.length > 0
+            ) {
               createAccountCount({
                 ...form,
                 status: "NotChecked",
                 date: format(new Date(), "yyyy-MM-dd"),
                 user: user._id,
+                products: countProducts.map((item) => ({
+                  product: item.product,
+                  countQuantity: item.countQuantity as number,
+                  stockQuantity: item.stockQuantity,
+                })),
               });
-            localStorage.removeItem(`count-${countListId}`);
+              const foundList = countLists.find(
+                (item) => item._id === countListId
+              );
+              if (foundList?.products) {
+                const newCountProducts = foundList.products.map((product) => ({
+                  product: product,
+                  stockQuantity: 0,
+                  countQuantity: "",
+                }));
+
+                setCountProducts(newCountProducts);
+
+                localStorage.setItem(
+                  `count-${countListId}`,
+                  JSON.stringify(newCountProducts)
+                );
+                setCountProductsKey((prev) => prev + 1);
+              }
+            } else {
+              toast.error(t("Please fill all the fields"));
+            }
           }}
           submitItem={createAccountCount as any}
           topClassName="flex flex-col gap-2 "
