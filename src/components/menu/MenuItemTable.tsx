@@ -222,17 +222,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     {
       key: "priceBahceli",
       node: (item: MenuItem) => {
-        return item.priceBahceli === 0
-          ? "-"
-          : `${parseFloat(item.priceBahceli.toFixed(3)).toString()} ₺`;
+        return item.priceBahceli === 0 ? "-" : `${item.priceBahceli} ₺`;
       },
     },
     {
       key: "priceNeorama",
       node: (item: MenuItem) => {
-        return item.priceNeorama === 0
-          ? "-"
-          : `${parseFloat(item.priceNeorama.toFixed(3)).toString()} ₺`;
+        return item.priceNeorama === 0 ? "-" : `${item.priceNeorama} ₺`;
       },
     },
     {
