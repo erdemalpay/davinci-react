@@ -195,7 +195,7 @@ const CountLists = (props: Props) => {
             }}
           >
             <ButtonTooltip content={t("Count")}>
-              <TbPencilPlus className="text-blue-500 cursor-pointer text-xl " />
+              <TbPencilPlus className="text-green-500 cursor-pointer text-xl " />
             </ButtonTooltip>
           </button>
         );
