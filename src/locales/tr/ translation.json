@@ -213,5 +213,8 @@
   "Delete Count List Item": "Sayım Listesi Öğesini Sil",
   "Count": "Sayım Yap",
   "Please fill all the fields": "Lütfen tüm alanları doldurun",
+  "Count List": "Sayım Listesi",
+  "Status": "Durum",
+  "Count Archieve": "Sayım Arşivi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
