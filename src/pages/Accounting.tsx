@@ -6,12 +6,14 @@ import {
   FaFileInvoiceDollar,
   FaMagnifyingGlassLocation,
 } from "react-icons/fa6";
+import { FiArchive } from "react-icons/fi";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
+import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
@@ -100,6 +102,13 @@ export default function Accounting() {
     },
     {
       number: 9,
+      label: t("Count Archieve"),
+      icon: <FiArchive className="text-lg font-thin" />,
+      content: <CountArchive />,
+      isDisabled: false,
+    },
+    {
+      number: 10,
       label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
