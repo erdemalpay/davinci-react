@@ -39,6 +39,22 @@ const SingleCountArchieve = () => {
     { key: "stockQuantity" },
     { key: "countQuantity" },
   ];
+  function getBgColor(row: {
+    stockQuantity: number;
+    countQuantity: number;
+    product: string;
+    unit: string;
+  }) {
+    console.log(row);
+    if (Number(row.stockQuantity) === Number(row.countQuantity)) {
+      return "bg-blue-100";
+    } else if (Number(row.stockQuantity) > Number(row.countQuantity)) {
+      return "bg-green-100";
+    } else if (Number(row.stockQuantity) < Number(row.countQuantity)) {
+      return "bg-red-100";
+    }
+    return "bg-green-500";
+  }
   useEffect(() => {
     setRows(
       counts
@@ -65,6 +81,7 @@ const SingleCountArchieve = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          rowClassNameFunction={getBgColor}
           title={`${(foundCount?.user as User)?.name} ${formatAsLocalDate(
             foundCount?.date ?? ""
           )} ${t("Countu")}`}
