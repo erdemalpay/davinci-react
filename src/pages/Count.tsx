@@ -99,7 +99,7 @@ const Count = () => {
             ?.location as AccountStockLocation
         )._id,
         countList: countListId,
-        status: "NotChecked",
+        status: false,
         date: format(new Date(), "yyyy-MM-dd"),
         user: user._id,
         products: countProducts.map((item) => ({
@@ -127,6 +127,7 @@ const Count = () => {
       toast.error(t("Please fill all the fields"));
     }
   };
+
   return (
     <>
       <Header />

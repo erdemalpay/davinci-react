@@ -221,5 +221,7 @@
   "Stock Quantity": "Stock Quantity",
   "Count Quantity": "Count Quantity",
   "Countu": "Count",
+  "Completed": "Completed",
+  "Not Completed": "Not Completed",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

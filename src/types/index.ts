@@ -92,7 +92,7 @@ export type AccountCountList = {
 };
 export type AccountCount = {
   _id: string;
-  status: string;
+  status: boolean;
   date: string;
   location: string | AccountStockLocation;
   user: string | User;
