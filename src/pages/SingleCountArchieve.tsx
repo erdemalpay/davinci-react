@@ -45,7 +45,6 @@ const SingleCountArchieve = () => {
     product: string;
     unit: string;
   }) {
-    console.log(row);
     if (Number(row.stockQuantity) === Number(row.countQuantity)) {
       return "bg-blue-100";
     } else if (Number(row.stockQuantity) > Number(row.countQuantity)) {
@@ -76,16 +75,18 @@ const SingleCountArchieve = () => {
     <>
       <Header />
       <div className="w-[95%] mx-auto my-10 ">
-        <GenericTable
-          key={tableKey}
-          rowKeys={rowKeys}
-          columns={columns}
-          rows={rows}
-          rowClassNameFunction={getBgColor}
-          title={`${(foundCount?.user as User)?.name} ${formatAsLocalDate(
-            foundCount?.date ?? ""
-          )} ${t("Countu")}`}
-        />
+        {foundCount && (
+          <GenericTable
+            key={tableKey}
+            rowKeys={rowKeys}
+            columns={columns}
+            rows={rows}
+            rowClassNameFunction={getBgColor}
+            title={`${(foundCount?.user as User)?.name} ${formatAsLocalDate(
+              foundCount?.date ?? ""
+            )} ${t("Countu")}`}
+          />
+        )}
       </div>
     </>
   );
