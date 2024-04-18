@@ -49,7 +49,7 @@ const CountArchive = () => {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
-            navigate(`/count-list/${row._id}`);
+            navigate(`/archive/${row._id}`);
           }}
         >
           {(row.countList as AccountCountList).name}
