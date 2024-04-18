@@ -218,5 +218,8 @@
   "Status": "Status",
   "Count Archieve": "Count Archieve",
   "User": "User",
+  "Stock Quantity": "Stock Quantity",
+  "Count Quantity": "Count Quantity",
+  "Countu": "Count",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

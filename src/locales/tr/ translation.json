@@ -217,5 +217,8 @@
   "Status": "Durum",
   "Count Archieve": "Sayım Arşivi",
   "User": "Kullanıcı",
+  "Stock Quantity": "Stok Miktarı",
+  "Count Quantity": "Sayım Miktarı",
+  "Countu": "Sayımı",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
