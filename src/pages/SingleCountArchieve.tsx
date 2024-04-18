@@ -48,9 +48,9 @@ const SingleCountArchieve = () => {
     if (Number(row.stockQuantity) === Number(row.countQuantity)) {
       return "bg-blue-100";
     } else if (Number(row.stockQuantity) > Number(row.countQuantity)) {
-      return "bg-green-100";
-    } else if (Number(row.stockQuantity) < Number(row.countQuantity)) {
       return "bg-red-100";
+    } else if (Number(row.stockQuantity) < Number(row.countQuantity)) {
+      return "bg-green-100";
     }
     return "bg-green-500";
   }
