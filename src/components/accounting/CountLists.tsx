@@ -23,9 +23,7 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { H5 } from "../panelComponents/Typography";
 
-type Props = {};
-
-const CountLists = (props: Props) => {
+const CountLists = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
