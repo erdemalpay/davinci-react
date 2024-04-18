@@ -59,7 +59,24 @@ const CountArchive = () => {
     },
     { key: "lctn" },
     { key: "usr" },
-    { key: "status" },
+    {
+      key: "status",
+      node: (row: AccountCount) => {
+        if (row.status) {
+          return (
+            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white">
+              {t("Completed")}
+            </span>
+          );
+        } else {
+          return (
+            <span className="bg-red-500  w-fit px-2 py-1 rounded-md text-white">
+              {t("Not Completed")}
+            </span>
+          );
+        }
+      },
+    },
   ];
   useEffect(() => {
     setRows(
