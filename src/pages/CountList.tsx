@@ -34,7 +34,7 @@ const CountList = () => {
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const products = useGetAccountProducts();
   const [form, setForm] = useState({
-    product: "",
+    product: [],
   });
   const countListOptions = countLists?.map((countList) => {
     return {
@@ -74,6 +74,7 @@ const CountList = () => {
             label: product.name + `(${(product.unit as AccountUnit).name})`,
           };
         }),
+      isMultiple: true,
       placeholder: t("Product"),
       required: true,
     },
@@ -116,7 +117,7 @@ const CountList = () => {
             const products =
               countLists.find((item) => item._id === countListId)?.products ||
               [];
-            productRows = [...products, form.product];
+            productRows = [...products, ...form.product];
             return productRows;
           };
           updateAccountCountList({

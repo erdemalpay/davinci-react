@@ -4,7 +4,11 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
-import { AccountCountList, AccountUnit } from "../../types";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  AccountUnit,
+} from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -44,6 +48,7 @@ const CountLists = (props: Props) => {
   } = useAccountCountListMutations();
   const columns = [
     { key: t("Name"), isSortable: true },
+    { key: t("Location"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const consumptInputs = [
@@ -100,6 +105,12 @@ const CountLists = (props: Props) => {
         </p>
       ),
       className: "min-w-32 pr-1",
+    },
+    {
+      key: "location",
+      node: (row: AccountCountList) => (
+        <p>{(row.location as AccountStockLocation).name}</p>
+      ),
     },
   ];
   const inputs = [
