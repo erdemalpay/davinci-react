@@ -87,6 +87,7 @@ export type AccountUnit = {
 export type AccountCountList = {
   _id: string;
   name: string;
+  location: string | AccountStockLocation;
   products?: string[];
 };
 export type AccountCount = {

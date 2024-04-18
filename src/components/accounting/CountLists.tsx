@@ -110,8 +110,24 @@ const CountLists = (props: Props) => {
       placeholder: t("Name"),
       required: true,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
   ];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
 
   const addButton = {
     name: t(`Add Count List`),
