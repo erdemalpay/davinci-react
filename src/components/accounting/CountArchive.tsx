@@ -30,7 +30,7 @@ const CountArchive = () => {
   );
   const columns = [
     { key: t("Date"), isSortable: true },
-    { key: t("Count List"), isSortable: true },
+    { key: t("NounCount"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Status"), isSortable: false },
