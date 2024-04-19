@@ -20,7 +20,6 @@ const PopularTable = ({ popularItems }: Props) => {
     order: popularItem.order,
     _id: popularItem._id,
   }));
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -29,8 +28,9 @@ const PopularTable = ({ popularItems }: Props) => {
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: true },
-    { key: `${t("Price")} (Bahçeli)`, isSortable: true },
-    { key: `${t("Price")} (Neorama)`, isSortable: true },
+    { key: "Bahçeli", isSortable: false },
+    { key: "Neorama", isSortable: false },
+    { key: `${t("Price")}`, isSortable: true },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -43,10 +43,34 @@ const PopularTable = ({ popularItems }: Props) => {
       key: "description",
     },
     {
-      key: "priceBahceli",
+      key: "bahceli",
+      node: (row: MenuItem) => (
+        <p
+          className={`w-fit px-2 py-1 rounded-md text-white ${
+            row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {row.locations.includes(1) ? t("Yes") : t("No")}
+        </p>
+      ),
     },
     {
-      key: "priceNeorama",
+      key: "neorama",
+      node: (row: MenuItem) => (
+        <p
+          className={`w-fit px-2 py-1 rounded-md text-white ${
+            row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {row.locations.includes(2) ? t("Yes") : t("No")}
+        </p>
+      ),
+    },
+    {
+      key: "price",
+      node: (item: MenuItem) => {
+        return `${item.price} ₺`;
+      },
     },
   ];
 

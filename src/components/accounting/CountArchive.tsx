@@ -30,7 +30,7 @@ const CountArchive = () => {
   );
   const columns = [
     { key: t("Date"), isSortable: true },
-    { key: t("Count List"), isSortable: true },
+    { key: t("NounCount"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Status"), isSortable: false },
@@ -64,13 +64,13 @@ const CountArchive = () => {
       node: (row: AccountCount) => {
         if (row.status) {
           return (
-            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white">
+            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
               {t("Completed")}
             </span>
           );
         } else {
           return (
-            <span className="bg-red-500  w-fit px-2 py-1 rounded-md text-white">
+            <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
               {t("Not Completed")}
             </span>
           );

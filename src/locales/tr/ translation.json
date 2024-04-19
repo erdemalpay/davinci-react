@@ -214,7 +214,6 @@
   "Count": "Sayım Yap",
   "Please fill all the fields": "Lütfen tüm alanları doldurun",
   "Count List": "Sayım Listesi",
-  "Status": "Durum",
   "Count Archieve": "Sayım Arşivi",
   "User": "Kullanıcı",
   "Stock Quantity": "Stok Miktarı",
@@ -222,5 +221,8 @@
   "Countu": "Sayımı",
   "Completed": "Tamamlandı",
   "Not Completed": "Tamamlanmadı",
+  "NounCount": "Sayım",
+  "Menu Item updated successfully": "Menü öğesi başarıyla güncellendi",
+  "Location Edit": "Konum Düzenle",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
