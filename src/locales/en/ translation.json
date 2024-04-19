@@ -224,5 +224,7 @@
   "Completed": "Completed",
   "Not Completed": "Not Completed",
   "NounCount": "Count",
+  "Menu Item updated successfully": "Menu Item updated successfully",
+  "Location Edit": "Location Edit",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

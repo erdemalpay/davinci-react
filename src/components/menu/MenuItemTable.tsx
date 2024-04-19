@@ -1,8 +1,10 @@
+import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import {
@@ -13,6 +15,7 @@ import {
 } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -32,6 +35,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
   const [form, setForm] = useState({
     product: "",
@@ -45,6 +49,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const [rowToAction, setRowToAction] = useState<MenuItem>();
   const [rows, setRows] = useState(
     singleItemGroup.items.map((item) => {
+      console.log(item);
       return {
         ...item,
         collapsible: {
@@ -73,6 +78,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
               )?.unitPrice ?? 0) * itemProduction.quantity,
             quantity: itemProduction.quantity,
           })),
+          locations: item.locations,
           collapsibleRowKeys: [
             { key: "name" },
             { key: "unit" },
@@ -83,6 +89,21 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       };
     })
   );
+  function handleLocationUpdate(item: MenuItem, location: number) {
+    const newLocations = item.locations || [];
+    // Add if it doesn't exist, remove otherwise
+    const index = newLocations.indexOf(location);
+    if (index === -1) {
+      newLocations.push(location);
+    } else {
+      newLocations.splice(index, 1);
+    }
+    updateItem({
+      id: item._id,
+      updates: { locations: newLocations },
+    });
+    toast.success(`${t("Menu Item updated successfully")}`);
+  }
   useEffect(() => {
     setRows(
       singleItemGroup.items.map((item) => {
@@ -114,6 +135,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                 )?.unitPrice ?? 0) * itemProduction.quantity,
               quantity: itemProduction.quantity,
             })),
+            locations: item.locations,
             collapsibleRowKeys: [
               { key: "name" },
               { key: "unit" },
@@ -177,16 +199,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     },
     {
       type: InputTypes.NUMBER,
-      formKey: "priceBahceli",
-      label: `${t("Price")} (Bahçeli)`,
-      placeholder: `${t("Price")} (Bahçeli)`,
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "priceNeorama",
-      label: `${t("Price")} (Neorama)`,
-      placeholder: `${t("Price")} (Neorama)`,
+      formKey: "price",
+      label: `${t("Price")}`,
+      placeholder: `${t("Price")}`,
       required: true,
     },
     {
@@ -200,8 +215,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "description", type: FormKeyTypeEnum.STRING },
-    { key: "priceBahceli", type: FormKeyTypeEnum.NUMBER },
-    { key: "priceNeorama", type: FormKeyTypeEnum.NUMBER },
+    { key: "price", type: FormKeyTypeEnum.NUMBER },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
@@ -209,8 +223,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: true },
-    { key: `${t("Price")} (Bahçeli)`, isSortable: true },
-    { key: `${t("Price")} (Neorama)`, isSortable: true },
+    { key: "Bahçeli", isSortable: false },
+    { key: "Neorama", isSortable: false },
+    { key: `${t("Price")}`, isSortable: true },
     { key: t("Cost"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
@@ -220,15 +235,45 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     { key: "name" },
     { key: "description" },
     {
-      key: "priceBahceli",
-      node: (item: MenuItem) => {
-        return item.priceBahceli === 0 ? "-" : `${item.priceBahceli} ₺`;
-      },
+      key: "bahceli",
+      node: (row: MenuItem) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(1)}
+            onChange={() => handleLocationUpdate(row, 1)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(1) ? t("Yes") : t("No")}
+          </p>
+        ),
     },
     {
-      key: "priceNeorama",
+      key: "neorama",
+      node: (row: MenuItem) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(2)}
+            onChange={() => handleLocationUpdate(row, 2)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(2) ? t("Yes") : t("No")}
+          </p>
+        ),
+    },
+    {
+      key: "price",
       node: (item: MenuItem) => {
-        return item.priceNeorama === 0 ? "-" : `${item.priceNeorama} ₺`;
+        return `${item.price} ₺`;
       },
     },
     {
@@ -418,7 +463,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       },
     },
   ];
-
+  const filters = [
+    {
+      label: t("Location Edit"),
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
@@ -427,6 +491,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         actions={actions}
         columns={columns}
         rows={rows}
+        filters={filters}
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}

@@ -198,6 +198,12 @@ export type MenuItem = {
     product: string;
     quantity: number;
   }[];
+  price: number;
+  locations: number[];
+  priceHistory: {
+    date: string;
+    price: number;
+  }[];
 };
 
 export enum ReservationStatusEnum {
