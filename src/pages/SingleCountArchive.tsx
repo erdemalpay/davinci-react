@@ -29,7 +29,7 @@ const SingleCountArchive = () => {
   const products = useGetAccountProducts();
   const { setAccountingActiveTab } = useGeneralContext();
   const foundCount = counts?.find((count) => count._id === archiveId);
-  const navigations = [
+  const pageNavigations = [
     {
       name: t("Count Archive"),
       path: Routes.Accounting,
@@ -126,7 +126,7 @@ const SingleCountArchive = () => {
   return (
     <>
       <Header />
-      <PageNavigator navigations={navigations} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] mx-auto my-10 ">
         {foundCount && (
           <GenericTable
