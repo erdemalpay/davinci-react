@@ -84,6 +84,7 @@ export type AccountUnit = {
   _id: string;
   name: string;
 };
+
 export type AccountCountList = {
   _id: string;
   name: string;
@@ -107,6 +108,11 @@ export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+};
+export type AccountPackageType = {
+  _id: string;
+  name: string;
+  quantity: number;
 };
 export type AccountBrand = {
   _id: string;
