@@ -7,6 +7,7 @@ import {
   FaMagnifyingGlassLocation,
 } from "react-icons/fa6";
 import { FiArchive } from "react-icons/fi";
+import { LuPackageOpen } from "react-icons/lu";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
@@ -17,6 +18,7 @@ import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
+import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Stock from "../components/accounting/Stock";
 import StockLocations from "../components/accounting/StockLocation";
@@ -68,6 +70,13 @@ export default function Accounting() {
       label: t("Brands"),
       icon: <TbBrandBlogger className="text-lg font-thin" />,
       content: <Brand />,
+      isDisabled: showAccountingConstants,
+    },
+    {
+      number: AccountingPageTabEnum.PACKAGETYPE,
+      label: t("Package Types"),
+      icon: <LuPackageOpen className="text-lg font-thin" />,
+      content: <PackageType />,
       isDisabled: showAccountingConstants,
     },
     {

@@ -84,6 +84,7 @@ export type AccountUnit = {
   _id: string;
   name: string;
 };
+
 export type AccountCountList = {
   _id: string;
   name: string;
@@ -107,6 +108,11 @@ export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+};
+export type AccountPackageType = {
+  _id: string;
+  name: string;
+  quantity: number;
 };
 export type AccountBrand = {
   _id: string;
@@ -267,11 +273,12 @@ export enum AccountingPageTabEnum {
   UNIT = 1,
   VENDOR = 2,
   BRAND = 3,
-  PRODUCT = 4,
-  STOCKTYPE = 5,
-  STOCKLOCATION = 6,
-  INVOICE = 7,
-  COUNTLIST = 8,
-  COUNTARCHIVE = 9,
-  STOCK = 10,
+  PACKAGETYPE = 4,
+  PRODUCT = 5,
+  STOCKTYPE = 6,
+  STOCKLOCATION = 7,
+  INVOICE = 8,
+  COUNTLIST = 9,
+  COUNTARCHIVE = 10,
+  STOCK = 11,
 }
