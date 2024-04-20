@@ -262,3 +262,16 @@ export enum RoleEnum {
   SERVICE = 7,
   CLEANING = 8,
 }
+export enum AccountingPageTabEnum {
+  EXPENSETYPE = 0,
+  UNIT = 1,
+  VENDOR = 2,
+  BRAND = 3,
+  PRODUCT = 4,
+  STOCKTYPE = 5,
+  STOCKLOCATION = 6,
+  INVOICE = 7,
+  COUNTLIST = 8,
+  COUNTARCHIVE = 9,
+  STOCK = 10,
+}

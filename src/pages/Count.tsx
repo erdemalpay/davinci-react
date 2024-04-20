@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { H5 } from "../components/panelComponents/Typography";
+import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import {
-  AccountCountList,
+  AccountingPageTabEnum,
   AccountStockLocation,
   AccountUnit,
-  RoleEnum,
 } from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
@@ -25,6 +25,7 @@ const Count = () => {
   const [countProductsKey, setCountProductsKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const products = useGetAccountProducts();
+  const { setAccountingActiveTab } = useGeneralContext();
   const { createAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [countProducts, setCountProducts] = useState<
@@ -35,13 +36,6 @@ const Count = () => {
     }[]
   >([]);
   const { countListId } = useParams();
-  const [selectedOption, setSelectedOption] = useState<AccountCountList>();
-  const countListOptions = countLists?.map((countList) => {
-    return {
-      value: countList._id,
-      label: countList.name,
-    };
-  });
 
   useEffect(() => {
     const localData = localStorage.getItem(`count-${countListId}`);
@@ -123,6 +117,8 @@ const Count = () => {
         );
         setCountProductsKey((prev) => prev + 1);
       }
+      setAccountingActiveTab(AccountingPageTabEnum.COUNTLIST);
+      navigate(Routes.Accounting);
     } else {
       toast.error(t("Please fill all the fields"));
     }
@@ -131,39 +127,6 @@ const Count = () => {
   return (
     <>
       <Header />
-      {user?.role._id === RoleEnum.MANAGER && (
-        <div className="w-[95%] mx-auto ">
-          <div className="sm:w-1/4 ">
-            <SelectInput
-              options={countListOptions}
-              value={
-                selectedOption
-                  ? {
-                      value: selectedOption._id,
-                      label: selectedOption.name,
-                    }
-                  : {
-                      value:
-                        countLists.find((l) => l._id === countListId)?._id ??
-                        "",
-                      label:
-                        countLists.find((l) => l._id === countListId)?.name ??
-                        "",
-                    }
-              }
-              onChange={(selectedOption) => {
-                setSelectedOption(
-                  countLists?.find(
-                    (option) => option._id === selectedOption?.value
-                  )
-                );
-                navigate(`/count/${selectedOption?.value}`);
-              }}
-              placeholder={t("Select a count list")}
-            />
-          </div>
-        </div>
-      )}
       <div className="my-10 px-4 sm:px-10  flex flex-col gap-4">
         {/* search button */}
         <input

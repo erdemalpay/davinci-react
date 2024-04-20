@@ -49,7 +49,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const [rowToAction, setRowToAction] = useState<MenuItem>();
   const [rows, setRows] = useState(
     singleItemGroup.items.map((item) => {
-      console.log(item);
       return {
         ...item,
         collapsible: {

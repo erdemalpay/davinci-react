@@ -101,7 +101,7 @@ const CountArchive = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Count Archieve")}
+          title={t("Count Archive")}
         />
       </div>
     </>
