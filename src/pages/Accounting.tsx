@@ -26,6 +26,7 @@ import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { AccountingPageTabEnum } from "../types";
 
 export default function Accounting() {
   const { t } = useTranslation();
@@ -37,49 +38,49 @@ export default function Accounting() {
 
   const tabs = [
     {
-      number: 0,
+      number: AccountingPageTabEnum.EXPENSETYPE,
       label: t("Expense Types"),
       icon: <TbZoomMoney className="text-lg font-thin" />,
       content: <ExpenseType />,
       isDisabled: showConstants,
     },
     {
-      number: 1,
+      number: AccountingPageTabEnum.UNIT,
       label: t("Units"),
       icon: <TbWeight className="text-lg font-thin" />,
       content: <Unit />,
       isDisabled: showConstants,
     },
     {
-      number: 2,
+      number: AccountingPageTabEnum.VENDOR,
       label: t("Vendors"),
       icon: <SiImprovmx className="text-lg font-thin" />,
       content: <Vendor />,
       isDisabled: showConstants,
     },
     {
-      number: 3,
+      number: AccountingPageTabEnum.BRAND,
       label: t("Brands"),
       icon: <TbBrandBlogger className="text-lg font-thin" />,
       content: <Brand />,
       isDisabled: showConstants,
     },
     {
-      number: 4,
+      number: AccountingPageTabEnum.PRODUCT,
       label: t("Products"),
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
       isDisabled: showConstants,
     },
     {
-      number: 5,
+      number: AccountingPageTabEnum.STOCKTYPE,
       label: t("Stock Types"),
       icon: <VscTypeHierarchy className="text-lg font-thin" />,
       content: <StockType />,
       isDisabled: showConstants,
     },
     {
-      number: 6,
+      number: AccountingPageTabEnum.STOCKLOCATION,
       label: t("Stock Locations"),
       icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
       content: <StockLocations />,
@@ -87,28 +88,28 @@ export default function Accounting() {
     },
 
     {
-      number: 7,
+      number: AccountingPageTabEnum.INVOICE,
       label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
-      number: 8,
+      number: AccountingPageTabEnum.COUNTLIST,
       label: t("Count Lists"),
       icon: <CiViewList className="text-lg font-thin" />,
       content: <CountLists />,
       isDisabled: false,
     },
     {
-      number: 9,
+      number: AccountingPageTabEnum.COUNTARCHIVE,
       label: t("Count Archieve"),
       icon: <FiArchive className="text-lg font-thin" />,
       content: <CountArchive />,
       isDisabled: false,
     },
     {
-      number: 10,
+      number: AccountingPageTabEnum.STOCK,
       label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
