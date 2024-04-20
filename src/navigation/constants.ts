@@ -9,7 +9,7 @@ import Menu from "../pages/Menu";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
-import SingleCountArchieve from "../pages/SingleCountArchieve";
+import SingleCountArchive from "../pages/SingleCountArchive";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
@@ -138,7 +138,7 @@ export const allRoutes: {
     {
       name: "Single Count Archive",
       path: Routes.SingleCountArchive,
-      element: SingleCountArchieve,
+      element: SingleCountArchive,
       isOnSidebar: false,
     },
     {

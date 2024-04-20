@@ -2,9 +2,17 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
-import { AccountUnit, User } from "../types";
+import { useGeneralContext } from "../context/General.context";
+import { Routes } from "../navigation/constants";
+import {
+  AccountCountList,
+  AccountingPageTabEnum,
+  AccountUnit,
+  User,
+} from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -12,14 +20,31 @@ import {
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { formatAsLocalDate } from "../utils/format";
 
-const SingleCountArchieve = () => {
+const SingleCountArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
+  const { setAccountingActiveTab } = useGeneralContext();
   const foundCount = counts?.find((count) => count._id === archiveId);
+  const navigations = [
+    {
+      name: t("Count Archive"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setAccountingActiveTab(AccountingPageTabEnum.COUNTARCHIVE);
+      },
+    },
+    {
+      name:
+        (foundCount?.countList as AccountCountList)?.name + " " + t("Countu"),
+      path: `/archive/${archiveId}`,
+      canBeClicked: false,
+    },
+  ];
   const [rows, setRows] = useState(
     counts
       ?.find((count) => count._id === archiveId)
@@ -101,6 +126,7 @@ const SingleCountArchieve = () => {
   return (
     <>
       <Header />
+      <PageNavigator navigations={navigations} />
       <div className="w-[95%] mx-auto my-10 ">
         {foundCount && (
           <GenericTable
@@ -120,4 +146,4 @@ const SingleCountArchieve = () => {
   );
 };
 
-export default SingleCountArchieve;
+export default SingleCountArchive;

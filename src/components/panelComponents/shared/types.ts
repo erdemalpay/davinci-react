@@ -104,3 +104,10 @@ export enum FormKeyTypeEnum {
   DATE = "date",
   BOOLEAN = "boolean",
 }
+
+export interface NavigationType {
+  name: string;
+  path: string;
+  additionalSubmitFunction?: () => void;
+  canBeClicked: boolean;
+}

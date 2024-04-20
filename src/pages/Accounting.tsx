@@ -30,11 +30,16 @@ import { AccountingPageTabEnum } from "../types";
 
 export default function Accounting() {
   const { t } = useTranslation();
-  const startingTab = 7;
-  const [activeTab, setActiveTab] = useState<number>(startingTab);
   const [tableKey, setTableKey] = useState<number>(0);
-  const [showConstants, setShowConstants] = useState<boolean>(true);
-  const { setCurrentPage, setSearchQuery } = useGeneralContext();
+
+  const {
+    setCurrentPage,
+    setSearchQuery,
+    accountingActiveTab,
+    setAccountingActiveTab,
+    showAccountingConstants,
+    setShowAccountingConstants,
+  } = useGeneralContext();
 
   const tabs = [
     {
@@ -42,49 +47,49 @@ export default function Accounting() {
       label: t("Expense Types"),
       icon: <TbZoomMoney className="text-lg font-thin" />,
       content: <ExpenseType />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.UNIT,
       label: t("Units"),
       icon: <TbWeight className="text-lg font-thin" />,
       content: <Unit />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.VENDOR,
       label: t("Vendors"),
       icon: <SiImprovmx className="text-lg font-thin" />,
       content: <Vendor />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.BRAND,
       label: t("Brands"),
       icon: <TbBrandBlogger className="text-lg font-thin" />,
       content: <Brand />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.PRODUCT,
       label: t("Products"),
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.STOCKTYPE,
       label: t("Stock Types"),
       icon: <VscTypeHierarchy className="text-lg font-thin" />,
       content: <StockType />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
     {
       number: AccountingPageTabEnum.STOCKLOCATION,
       label: t("Stock Locations"),
       icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
       content: <StockLocations />,
-      isDisabled: showConstants,
+      isDisabled: showAccountingConstants,
     },
 
     {
@@ -118,7 +123,7 @@ export default function Accounting() {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [activeTab, showConstants]);
+  }, [accountingActiveTab, showAccountingConstants]);
 
   return (
     <>
@@ -128,22 +133,24 @@ export default function Accounting() {
           <div className="flex flex-row gap-2 justify-center items-center">
             <p className=" text-lg font-medium">{t("Show Constants")}</p>
             <Switch
-              checked={!showConstants}
+              checked={!showAccountingConstants}
               onChange={() => {
-                setShowConstants((value) => !value);
-                if (!showConstants) {
-                  setActiveTab(startingTab);
+                setShowAccountingConstants(!showAccountingConstants);
+                if (!showAccountingConstants) {
+                  setAccountingActiveTab(AccountingPageTabEnum.INVOICE);
                 } else {
-                  setActiveTab(0);
+                  setAccountingActiveTab(0);
                 }
               }}
-              className={`${!showConstants ? "bg-green-500" : "bg-red-500"}
+              className={`${
+                !showAccountingConstants ? "bg-green-500" : "bg-red-500"
+              }
            ml-auto relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
             >
               <span
                 aria-hidden="true"
                 className={`${
-                  !showConstants ? "translate-x-4" : "translate-x-0"
+                  !showAccountingConstants ? "translate-x-4" : "translate-x-0"
                 }
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
               />
@@ -154,8 +161,8 @@ export default function Accounting() {
         <TabPanel
           key={tableKey}
           tabs={tabs}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          activeTab={accountingActiveTab}
+          setActiveTab={setAccountingActiveTab}
           additionalOpenAction={() => {
             setCurrentPage(1);
             setSearchQuery("");
