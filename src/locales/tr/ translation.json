@@ -225,5 +225,8 @@
   "Menu Item updated successfully": "Menü öğesi başarıyla güncellendi",
   "Location Edit": "Konum Düzenle",
   "Menu Item Price Chart": "Menü Öğesi Fiyat Grafiği",
+  "Add Package Type": "Paket Türü Ekle",
+  "Delete Package Type": "Paket Türünü Sil",
+  "Package Types": "Paket Türleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

@@ -215,7 +215,6 @@
   "Count": "Count",
   "Please fill all the fields": "Please fill all the fields",
   "Count List": "Count List",
-  "Status": "Status",
   "Count Archive": "Count Archive",
   "User": "User",
   "Stock Quantity": "Stock Quantity",
@@ -227,5 +226,8 @@
   "Menu Item updated successfully": "Menu Item updated successfully",
   "Location Edit": "Location Edit",
   "Menu Item Price Chart": "Menu Item Price Chart",
+  "Add Package Type": "Add Package Type",
+  "Delete Package Type": "Delete Package Type",
+  "Package Types": "Package Types",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
