@@ -4,7 +4,11 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
-import { AccountCountList, AccountUnit } from "../../types";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  AccountUnit,
+} from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -19,9 +23,7 @@ import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { H5 } from "../panelComponents/Typography";
 
-type Props = {};
-
-const CountLists = (props: Props) => {
+const CountLists = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
@@ -44,6 +46,7 @@ const CountLists = (props: Props) => {
   } = useAccountCountListMutations();
   const columns = [
     { key: t("Name"), isSortable: true },
+    { key: t("Location"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const consumptInputs = [
@@ -101,6 +104,12 @@ const CountLists = (props: Props) => {
       ),
       className: "min-w-32 pr-1",
     },
+    {
+      key: "location",
+      node: (row: AccountCountList) => (
+        <p>{(row.location as AccountStockLocation).name}</p>
+      ),
+    },
   ];
   const inputs = [
     {
@@ -110,8 +119,24 @@ const CountLists = (props: Props) => {
       placeholder: t("Name"),
       required: true,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
   ];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
 
   const addButton = {
     name: t(`Add Count List`),
@@ -195,7 +220,7 @@ const CountLists = (props: Props) => {
             }}
           >
             <ButtonTooltip content={t("Count")}>
-              <TbPencilPlus className="text-blue-500 cursor-pointer text-xl " />
+              <TbPencilPlus className="text-green-500 cursor-pointer text-xl " />
             </ButtonTooltip>
           </button>
         );

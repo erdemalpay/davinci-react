@@ -84,14 +84,16 @@ export type AccountUnit = {
   _id: string;
   name: string;
 };
+
 export type AccountCountList = {
   _id: string;
   name: string;
+  location: string | AccountStockLocation;
   products?: string[];
 };
 export type AccountCount = {
   _id: string;
-  status: string;
+  status: boolean;
   date: string;
   location: string | AccountStockLocation;
   user: string | User;
@@ -100,11 +102,17 @@ export type AccountCount = {
     stockQuantity: number;
     countQuantity: number;
   }[];
+  countList: string | AccountCountList;
 };
 export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+};
+export type AccountPackageType = {
+  _id: string;
+  name: string;
+  quantity: number;
 };
 export type AccountBrand = {
   _id: string;
@@ -196,6 +204,12 @@ export type MenuItem = {
     product: string;
     quantity: number;
   }[];
+  price: number;
+  locations: number[];
+  priceHistory: {
+    date: string;
+    price: number;
+  }[];
 };
 
 export enum ReservationStatusEnum {
@@ -253,4 +267,18 @@ export enum RoleEnum {
   KITCHEN = 6,
   SERVICE = 7,
   CLEANING = 8,
+}
+export enum AccountingPageTabEnum {
+  EXPENSETYPE = 0,
+  UNIT = 1,
+  VENDOR = 2,
+  BRAND = 3,
+  PACKAGETYPE = 4,
+  PRODUCT = 5,
+  STOCKTYPE = 6,
+  STOCKLOCATION = 7,
+  INVOICE = 8,
+  COUNTLIST = 9,
+  COUNTARCHIVE = 10,
+  STOCK = 11,
 }

@@ -9,6 +9,7 @@ import Menu from "../pages/Menu";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
+import SingleCountArchive from "../pages/SingleCountArchive";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
@@ -36,6 +37,7 @@ export enum Routes {
   Accounting = "/accounting",
   CountList = "/count-list/:countListId",
   Count = "/count/:countListId",
+  SingleCountArchive = "/archive/:archiveId",
 }
 
 export const allRoutes: {
@@ -131,6 +133,12 @@ export const allRoutes: {
       name: "Count",
       path: Routes.Count,
       element: Count,
+      isOnSidebar: false,
+    },
+    {
+      name: "Single Count Archive",
+      path: Routes.SingleCountArchive,
+      element: SingleCountArchive,
       isOnSidebar: false,
     },
     {

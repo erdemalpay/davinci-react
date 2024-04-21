@@ -90,9 +90,9 @@ const TextInput = ({
       <div
         className={` flex ${
           isTopFlexRow ? "flex-row" : "flex-col"
-        } gap-2 items-center w-full `}
+        } gap-2  w-full `}
       >
-        <H6 className="ml-auto min-w-10">{label}</H6>
+        <H6 className=" min-w-10">{label}</H6>
         <div className="flex flex-row gap-2">
           <Popover placement="bottom">
             <PopoverHandler>

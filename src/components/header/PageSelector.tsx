@@ -72,6 +72,7 @@ export function PageSelector() {
   function logout() {
     Cookies.remove("jwt");
     setUser(undefined);
+    localStorage.clear();
     navigate("/login");
   }
 

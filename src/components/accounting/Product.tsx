@@ -1,5 +1,4 @@
 import { Switch } from "@headlessui/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -9,9 +8,9 @@ import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
-  joinProducts,
   useAccountProductMutations,
   useGetAccountProducts,
+  useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
@@ -31,7 +30,6 @@ type FormElementsState = {
 const Product = (props: Props) => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
-  const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -43,6 +41,7 @@ const Product = (props: Props) => {
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const [showFilters, setShowFilters] = useState(false);
   const { setCurrentPage } = useGeneralContext();
+  const { mutate: joinProducts } = useJoinProductsMutation();
   const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -52,6 +51,10 @@ const Product = (props: Props) => {
       stockType: "",
       unit: "",
     });
+  const [form, setForm] = useState({
+    stayedProduct: "",
+    removedProduct: "",
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -74,12 +77,14 @@ const Product = (props: Props) => {
       type: InputTypes.SELECT,
       formKey: "stayedProduct",
       label: t("Stayed Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
+      options: products
+        .filter((product) => product._id !== form.removedProduct)
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
+          };
+        }),
       placeholder: t("Stayed Product"),
       required: true,
     },
@@ -87,12 +92,14 @@ const Product = (props: Props) => {
       type: InputTypes.SELECT,
       formKey: "removedProduct",
       label: t("Removed Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
+      options: products
+        .filter((product) => product._id !== form.stayedProduct)
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
+          };
+        }),
       placeholder: t("Removed Product"),
       required: true,
     },
@@ -535,6 +542,7 @@ const Product = (props: Props) => {
             inputs={joinProductInputs}
             formKeys={joinProductFormKeys}
             submitItem={joinProducts as any}
+            setForm={setForm}
             isEditMode={false}
             topClassName="flex flex-col gap-2 "
             buttonName={t("Join")}

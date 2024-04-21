@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import MenuItemPriceChart from "./accounting/MenuItemPriceChart";
 import ProductPriceChart from "./accounting/ProductPriceChart";
 
 export default function AccountingAnalytics() {
@@ -14,6 +16,13 @@ export default function AccountingAnalytics() {
       label: t("Product Price Chart"),
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPriceChart />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
+      label: t("Menu Item Price Chart"),
+      icon: <MdOutlineRestaurantMenu className="text-lg font-thin" />,
+      content: <MenuItemPriceChart />,
       isDisabled: false,
     },
   ];

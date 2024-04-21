@@ -2,81 +2,55 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import SelectInput from "../components/common/SelectInput";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
-import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
-import {
-  FormKeyTypeEnum,
-  InputTypes,
-} from "../components/panelComponents/shared/types";
 import { H5 } from "../components/panelComponents/Typography";
+import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountCountList, AccountUnit } from "../types";
+import { Routes } from "../navigation/constants";
+import {
+  AccountingPageTabEnum,
+  AccountStockLocation,
+  AccountUnit,
+} from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
 
 const Count = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
   const [countProductsKey, setCountProductsKey] = useState(0);
-  const locations = useGetAccountStockLocations();
   const [searchQuery, setSearchQuery] = useState("");
   const products = useGetAccountProducts();
+  const { setAccountingActiveTab } = useGeneralContext();
   const { createAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [form, setForm] = useState({
-    location: "",
-  });
   const [countProducts, setCountProducts] = useState<
     {
       product: string;
       stockQuantity: number;
       countQuantity: number | string;
     }[]
-  >();
+  >([]);
   const { countListId } = useParams();
-  const [selectedOption, setSelectedOption] = useState<AccountCountList>();
-  const countListOptions = countLists?.map((countList) => {
-    return {
-      value: countList._id,
-      label: countList.name,
-    };
-  });
-  const createInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-  ];
+
   useEffect(() => {
     const localData = localStorage.getItem(`count-${countListId}`);
     if (localData) {
       setCountProducts(JSON.parse(localData));
     } else {
       const foundList = countLists.find((item) => item._id === countListId);
+
       if (foundList?.products) {
         const newCountProducts = foundList.products.map((product) => ({
           product: product,
           stockQuantity: 0,
           countQuantity: "",
         }));
-
         setCountProducts(newCountProducts);
-
         localStorage.setItem(
           `count-${countListId}`,
           JSON.stringify(newCountProducts)
@@ -107,40 +81,52 @@ const Count = () => {
       JSON.stringify(newCountProducts)
     );
   };
-  const createFormKeys = [{ key: "location", type: FormKeyTypeEnum.STRING }];
+  const submitFunction = () => {
+    if (
+      user &&
+      countProducts?.filter((item) => item.countQuantity === "").length === 0 &&
+      countProducts.length > 0
+    ) {
+      createAccountCount({
+        location: (
+          countLists.find((item) => item._id === countListId)
+            ?.location as AccountStockLocation
+        )._id,
+        countList: countListId,
+        status: false,
+        date: format(new Date(), "yyyy-MM-dd"),
+        user: user._id,
+        products: countProducts.map((item) => ({
+          product: item.product,
+          countQuantity: item.countQuantity as number,
+          stockQuantity: item.stockQuantity,
+        })),
+      });
+      const foundList = countLists.find((item) => item._id === countListId);
+      if (foundList?.products) {
+        const newCountProducts = foundList.products.map((product) => ({
+          product: product,
+          stockQuantity: 0,
+          countQuantity: "",
+        }));
+        setCountProducts(newCountProducts);
+
+        localStorage.setItem(
+          `count-${countListId}`,
+          JSON.stringify(newCountProducts)
+        );
+        setCountProductsKey((prev) => prev + 1);
+      }
+      setAccountingActiveTab(AccountingPageTabEnum.COUNTLIST);
+      navigate(Routes.Accounting);
+    } else {
+      toast.error(t("Please fill all the fields"));
+    }
+  };
 
   return (
     <>
       <Header />
-      <div className="w-[95%] mx-auto ">
-        <div className="sm:w-1/4 ">
-          <SelectInput
-            options={countListOptions}
-            value={
-              selectedOption
-                ? {
-                    value: selectedOption._id,
-                    label: selectedOption.name,
-                  }
-                : {
-                    value:
-                      countLists.find((l) => l._id === countListId)?._id ?? "",
-                    label:
-                      countLists.find((l) => l._id === countListId)?.name ?? "",
-                  }
-            }
-            onChange={(selectedOption) => {
-              setSelectedOption(
-                countLists?.find(
-                  (option) => option._id === selectedOption?.value
-                )
-              );
-              navigate(`/count/${selectedOption?.value}`);
-            }}
-            placeholder={t("Select a count list")}
-          />
-        </div>
-      </div>
       <div className="my-10 px-4 sm:px-10  flex flex-col gap-4">
         {/* search button */}
         <input
@@ -205,37 +191,12 @@ const Count = () => {
         </div>
         {/* complete button */}
         <button
-          disabled={true} //it willl be fixed
           className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-          onClick={() => {
-            setIsAddModalOpen(true);
-          }}
+          onClick={submitFunction}
         >
           <H5> {t("Complete")}</H5>
         </button>
       </div>
-      {isAddModalOpen && (
-        <GenericAddEditPanel
-          isOpen={isAddModalOpen}
-          close={() => setIsAddModalOpen(false)}
-          inputs={createInputs}
-          formKeys={createFormKeys}
-          submitFunction={() => {
-            form.location &&
-              user &&
-              createAccountCount({
-                ...form,
-                status: "NotChecked",
-                date: format(new Date(), "yyyy-MM-dd"),
-                user: user._id,
-              });
-            localStorage.removeItem(`count-${countListId}`);
-          }}
-          submitItem={createAccountCount as any}
-          topClassName="flex flex-col gap-2 "
-          setForm={setForm}
-        />
-      )}
     </>
   );
 };
