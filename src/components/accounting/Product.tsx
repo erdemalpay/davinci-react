@@ -7,6 +7,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -36,6 +37,7 @@ const Product = (props: Props) => {
   const stockTypes = useGetAccountStockTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
+  const packages = useGetAccountPackageTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
@@ -50,10 +52,21 @@ const Product = (props: Props) => {
       expenseType: "",
       stockType: "",
       unit: "",
+      package: "",
+      name: "",
     });
   const [form, setForm] = useState({
     stayedProduct: "",
     removedProduct: "",
+  });
+  const [inputForm, setInputForm] = useState({
+    brand: [],
+    vendor: [],
+    expenseType: [],
+    stockType: "",
+    unit: "",
+    packages: [],
+    name: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -157,6 +170,7 @@ const Product = (props: Props) => {
       placeholder: t("Stock Type"),
       required: true,
     },
+
     {
       type: InputTypes.SELECT,
       formKey: "unit",
@@ -221,6 +235,20 @@ const Product = (props: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "packages",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Package Type"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "brand",
       label: t("Brand"),
       options: brands.map((brand) => {
@@ -257,6 +285,7 @@ const Product = (props: Props) => {
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "stockType", type: FormKeyTypeEnum.STRING },
+    { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
@@ -265,6 +294,7 @@ const Product = (props: Props) => {
     { key: t("Unit"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Stock Type"), isSortable: true },
+    { key: t("Package Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -306,6 +336,24 @@ const Product = (props: Props) => {
             {row?.stckType?.name}
           </span>
         );
+      },
+    },
+    {
+      key: "packages",
+      className: "min-w-32",
+      node: (row: AccountProduct) => {
+        return row?.packages?.map((item, index) => {
+          const foundPackage = packages.find((p) => p._id === item.package);
+          return (
+            <span
+              key={foundPackage?.name ?? "" + row._id}
+              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit `}
+            >
+              {foundPackage?.name}
+              {(row?.packages?.length ?? 0) - 1 !== index && ","}
+            </span>
+          );
+        });
       },
     },
     {
@@ -372,7 +420,27 @@ const Product = (props: Props) => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
+        setForm={setInputForm}
         submitItem={createAccountProduct as any}
+        submitFunction={() => {
+          createAccountProduct({
+            ...inputForm,
+            packages:
+              inputForm?.packages.map((pkg: any) => ({
+                package: pkg as string,
+                packageUnitPrice: 0,
+              })) ?? [],
+          });
+          setInputForm({
+            brand: [],
+            vendor: [],
+            expenseType: [],
+            stockType: "",
+            unit: "",
+            packages: [],
+            name: "",
+          });
+        }}
         topClassName="flex flex-col gap-2 "
       />
     ),
@@ -420,21 +488,33 @@ const Product = (props: Props) => {
           submitItem={updateAccountProduct as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{
-            id: rowToAction._id,
-            updates: {
-              name: rowToAction.name,
-              unit: units.find(
-                (unit) => unit.name === (rowToAction?.unit as string)
-              )?._id,
-              expenseType: rowToAction.expenseType,
-              stockType: stockTypes.find(
-                (stockType) =>
-                  stockType.name === (rowToAction?.stockType as string)
-              )?._id,
-              brand: rowToAction.brand,
-              vendor: rowToAction.vendor,
-            },
+          setForm={setInputForm}
+          constantValues={{
+            name: rowToAction.name,
+            unit: units.find(
+              (unit) => unit.name === (rowToAction?.unit as string)
+            )?._id,
+            expenseType: rowToAction.expenseType,
+            stockType: stockTypes.find(
+              (stockType) =>
+                stockType.name === (rowToAction?.stockType as string)
+            )?._id,
+            brand: rowToAction.brand,
+            vendor: rowToAction.vendor,
+            packages: rowToAction?.packages?.map((pkg) => pkg.package),
+          }}
+          handleUpdate={() => {
+            updateAccountProduct({
+              id: rowToAction?._id,
+              updates: {
+                ...inputForm,
+                packages:
+                  inputForm?.packages.map((pkg: any) => ({
+                    package: pkg as string,
+                    packageUnitPrice: 0,
+                  })) ?? [],
+              },
+            });
           }}
         />
       ) : null,

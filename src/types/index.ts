@@ -78,6 +78,10 @@ export type AccountProduct = {
   vendor?: string[];
   brand?: string[];
   unitPrice: number;
+  packages?: {
+    package: string;
+    packageUnitPrice: number;
+  }[];
 };
 
 export type AccountUnit = {
