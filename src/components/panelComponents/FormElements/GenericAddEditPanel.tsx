@@ -382,14 +382,14 @@ const GenericAddEditPanel = <T,>({
             <button
               onClick={() => {
                 if (!allRequiredFilled) {
-                  toast.error("Please fill all required fields");
+                  toast.error(t("Please fill all required fields"));
                 } else {
                   const phoneValidationFailed = inputs
                     .filter((input) => input.additionalType === "phone")
                     .some((input) => {
                       const inputValue = formElements[input.formKey];
                       if (!inputValue.match(/^[0-9]{11}$/)) {
-                        toast.error("Check phone number.");
+                        toast.error(t("Check phone number."));
                         return true; // Validation failed for phone number
                       }
                       return false; // Validation passed for phone number
