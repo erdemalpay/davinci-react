@@ -228,5 +228,8 @@
   "Add Package Type": "Paket Türü Ekle",
   "Delete Package Type": "Paket Türünü Sil",
   "Package Types": "Paket Türleri",
+  "Package Type": "Paket Türü",
+  "Please fill all required fields": "Lütfen tüm gerekli alanları doldurun",
+  "Check phone number.": "Telefon numarasını kontrol edin.",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

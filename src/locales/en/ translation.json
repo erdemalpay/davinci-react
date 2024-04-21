@@ -229,5 +229,8 @@
   "Add Package Type": "Add Package Type",
   "Delete Package Type": "Delete Package Type",
   "Package Types": "Package Types",
+  "Package Type": "Package Type",
+  "Please fill all required fields": "Please fill all required fields",
+  "Check phone number.": "Check phone number.",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
