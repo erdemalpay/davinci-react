@@ -170,7 +170,19 @@ const Product = (props: Props) => {
       placeholder: t("Stock Type"),
       required: true,
     },
-
+    {
+      type: InputTypes.SELECT,
+      formKey: "package",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
+      required: true,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "unit",
@@ -545,6 +557,10 @@ const Product = (props: Props) => {
             (filterPanelFormElements.expenseType === "" ||
               product.expenseType?.includes(
                 filterPanelFormElements.expenseType
+              )) &&
+            (filterPanelFormElements.package === "" ||
+              product.packages?.some(
+                (pkg) => pkg.package === filterPanelFormElements.package
               ))
           );
         })
