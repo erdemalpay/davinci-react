@@ -75,8 +75,12 @@ const Stock = () => {
         )?.name,
         stckType: (
           (stock.product as AccountProduct).stockType as AccountStockType
-        ).name,
-        unitPrice: (stock.product as AccountProduct)?.unitPrice,
+        )?.name,
+        unitPrice: stock?.packageType
+          ? (stock.product as AccountProduct).packages?.find(
+              (pkg) => pkg.package === stock.packageType
+            )?.packageUnitPrice
+          : (stock.product as AccountProduct)?.unitPrice,
         totalPrice: parseFloat(
           (
             ((stock.product as AccountProduct).unitPrice ?? 0) * stock.quantity
@@ -347,7 +351,7 @@ const Stock = () => {
             passesFilter(
               filterPanelFormElements.stockType,
               ((stock.product as AccountProduct)?.stockType as AccountStockType)
-                ._id
+                ?._id
             )
           );
         })
@@ -361,8 +365,12 @@ const Stock = () => {
               .stockType as AccountStockType,
             stckType: (
               (stock.product as AccountProduct).stockType as AccountStockType
-            ).name,
-            unitPrice: (stock.product as AccountProduct).unitPrice,
+            )?.name,
+            unitPrice: stock?.packageType
+              ? (stock.product as AccountProduct).packages?.find(
+                  (pkg) => pkg.package === stock.packageType
+                )?.packageUnitPrice
+              : (stock.product as AccountProduct)?.unitPrice,
             unit: units?.find(
               (unit) => unit._id === (stock.product as AccountProduct).unit
             )?.name,
