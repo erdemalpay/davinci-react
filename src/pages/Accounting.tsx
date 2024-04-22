@@ -117,7 +117,7 @@ export default function Accounting() {
     },
     {
       number: AccountingPageTabEnum.COUNTARCHIVE,
-      label: t("Count Archieve"),
+      label: t("Count Archives"),
       icon: <FiArchive className="text-lg font-thin" />,
       content: <CountArchive />,
       isDisabled: false,

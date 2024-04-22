@@ -55,7 +55,6 @@ const Stock = () => {
     product: "",
     location: "",
     quantity: 0,
-    unitPrice: 0,
     packageType: "",
   });
   const [
@@ -69,15 +68,19 @@ const Stock = () => {
         prdct: (stock.product as AccountProduct).name,
         pckgType: (stock?.packageType as AccountPackageType)?.name,
         lctn: (stock.location as AccountStockLocation).name,
-        stockType: stockTypes?.find(
-          (stockType) =>
-            stockType._id === (stock.product as AccountProduct).stockType
-        )?.name,
+        stockType: (stock.product as AccountProduct)
+          .stockType as AccountStockType,
         unit: units?.find(
           (unit) => unit._id === (stock.product as AccountProduct).unit
         )?.name,
+        stckType: (
+          (stock.product as AccountProduct).stockType as AccountStockType
+        ).name,
+        unitPrice: (stock.product as AccountProduct)?.unitPrice,
         totalPrice: parseFloat(
-          ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+          (
+            ((stock.product as AccountProduct).unitPrice ?? 0) * stock.quantity
+          ).toFixed(1)
         ),
       };
     })
@@ -158,18 +161,15 @@ const Stock = () => {
 
   const rowKeys = [
     {
-      key: "stockType",
+      key: "stckType",
       node: (row: any) => (
         <div
           className={` px-2 py-1 rounded-md  w-fit text-white`}
           style={{
-            backgroundColor: stockTypes?.find(
-              (stockType) =>
-                stockType._id === (row.product as AccountProduct).stockType
-            )?.backgroundColor,
+            backgroundColor: row?.stockType?.backgroundColor,
           }}
         >
-          {row?.stockType}
+          {row?.stockType?.name}
         </div>
       ),
     },
@@ -278,8 +278,10 @@ const Stock = () => {
               )?._id,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
-              unitPrice: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.unitPrice,
+              unitPrice: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.product as AccountProduct
+              )?.unitPrice,
             },
           }}
         />
@@ -344,10 +346,8 @@ const Stock = () => {
             ) &&
             passesFilter(
               filterPanelFormElements.stockType,
-              stockTypes?.find(
-                (stockType) =>
-                  stockType._id === (stock.product as AccountProduct).stockType
-              )?._id
+              ((stock.product as AccountProduct)?.stockType as AccountStockType)
+                ._id
             )
           );
         })
@@ -357,15 +357,20 @@ const Stock = () => {
             prdct: (stock.product as AccountProduct).name,
             pckgType: (stock?.packageType as AccountPackageType)?.name,
             lctn: (stock.location as AccountStockLocation).name,
-            stockType: stockTypes?.find(
-              (stockType) =>
-                stockType._id === (stock.product as AccountProduct).stockType
-            )?.name,
+            stockType: (stock.product as AccountProduct)
+              .stockType as AccountStockType,
+            stckType: (
+              (stock.product as AccountProduct).stockType as AccountStockType
+            ).name,
+            unitPrice: (stock.product as AccountProduct).unitPrice,
             unit: units?.find(
               (unit) => unit._id === (stock.product as AccountProduct).unit
             )?.name,
             totalPrice: parseFloat(
-              ((stock?.unitPrice ?? 0) * stock.quantity).toFixed(1)
+              (
+                ((stock.product as AccountProduct).unitPrice ?? 0) *
+                stock.quantity
+              ).toFixed(1)
             ),
           };
         })

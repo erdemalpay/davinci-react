@@ -157,7 +157,6 @@ export type AccountStock = {
   location: string | AccountStockLocation;
   stockType?: string | AccountStockType;
   quantity: number;
-  unitPrice?: number;
   packageType?: AccountPackageType | string;
 };
 
