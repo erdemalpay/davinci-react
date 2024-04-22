@@ -10,6 +10,7 @@ import {
   AccountBrand,
   AccountExpenseType,
   AccountInvoice,
+  AccountPackageType,
   AccountProduct,
   AccountUnit,
   AccountVendor,
@@ -21,6 +22,7 @@ import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
+import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -42,6 +44,7 @@ const Invoice = (props: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
+  const packages = useGetAccountPackageTypes();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -61,6 +64,7 @@ const Invoice = (props: Props) => {
     expenseType: "",
     quantity: 0,
     totalExpense: 0,
+    packageType: "",
     brand: "",
     location: 0,
     vendor: "",
@@ -75,6 +79,7 @@ const Invoice = (props: Props) => {
       vendor: "",
       brand: "",
       expenseType: "",
+      packageType: "",
       location: "",
       before: "",
       after: "",
@@ -93,10 +98,12 @@ const Invoice = (props: Props) => {
         ...invoice,
         product: (invoice.product as AccountProduct)?.name,
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        packageType: (invoice.packageType as AccountPackageType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
         location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
+        date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           `${parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -109,6 +116,7 @@ const Invoice = (props: Props) => {
         expType: invoice.expenseType as AccountExpenseType,
         brnd: invoice.brand as AccountBrand,
         vndr: invoice.vendor as AccountVendor,
+        pckgTyp: invoice.packageType as AccountPackageType,
       };
     })
   );
@@ -152,8 +160,27 @@ const Invoice = (props: Props) => {
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
+        { key: "packageType", defaultValue: "" },
       ],
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
+      required:
+        (products.find((prod) => prod._id === form?.product)?.packages
+          ?.length ?? 0) > 0,
+      isDisabled:
+        (products?.find((prod) => prod._id === form?.product)?.packages
+          ?.length ?? 0) < 1,
     },
     {
       type: InputTypes.SELECT,
@@ -250,6 +277,19 @@ const Invoice = (props: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "vendor",
       label: t("Vendor"),
       options: vendors.map((item) => {
@@ -320,6 +360,7 @@ const Invoice = (props: Props) => {
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
@@ -336,6 +377,7 @@ const Invoice = (props: Props) => {
     { key: t("Location"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
+    { key: t("Package Type"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -347,7 +389,7 @@ const Invoice = (props: Props) => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: AccountInvoice) => {
-        return formatAsLocalDate(row.date);
+        return row.date;
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -372,6 +414,7 @@ const Invoice = (props: Props) => {
       },
     },
     { key: "product", className: "min-w-32 pr-2" },
+    { key: "packageType", className: "min-w-32 " },
     { key: "quantity", className: "min-w-32" },
     { key: "unit" },
     {
@@ -532,6 +575,10 @@ const Invoice = (props: Props) => {
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
+              packageType: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.packageType as AccountPackageType
+              )?._id,
               brand: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.brand as AccountBrand
@@ -617,6 +664,10 @@ const Invoice = (props: Props) => {
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
           passesFilter(
+            filterPanelFormElements.packageType,
+            (invoice.packageType as AccountPackageType)?._id
+          ) &&
+          passesFilter(
             filterPanelFormElements.product,
             (invoice.product as AccountProduct)?._id
           ) &&
@@ -643,14 +694,17 @@ const Invoice = (props: Props) => {
           ...invoice,
           product: (invoice.product as AccountProduct)?.name,
           expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
+          date: formatAsLocalDate(invoice.date),
+          location: invoice.location as Location,
+          lctn: (invoice.location as Location)?.name,
           unitPrice: parseFloat(
             `${parseFloat(
               (invoice.totalExpense / invoice.quantity).toFixed(4)
             ).toString()}`
           ),
-          lctn: (invoice.location as Location)?.name,
           unit: units?.find(
             (unit) =>
               unit._id === ((invoice.product as AccountProduct).unit as string)
@@ -658,7 +712,7 @@ const Invoice = (props: Props) => {
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
-          location: invoice.location as Location,
+          pckgTyp: invoice.packageType as AccountPackageType,
         };
       });
     const filteredRows = processedRows.filter((row) =>

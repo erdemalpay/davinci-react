@@ -145,6 +145,7 @@ export type AccountInvoice = {
   date: string;
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
+  packageType?: AccountPackageType | string;
   note?: string;
   location: Location | number;
   price?: number;
@@ -156,7 +157,7 @@ export type AccountStock = {
   location: string | AccountStockLocation;
   stockType?: string | AccountStockType;
   quantity: number;
-  unitPrice?: number;
+  packageType?: AccountPackageType | string;
 };
 
 export type Visit = {
