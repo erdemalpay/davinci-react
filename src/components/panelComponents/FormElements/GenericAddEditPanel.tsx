@@ -303,72 +303,77 @@ const GenericAddEditPanel = <T,>({
                     }
                   };
 
-                return (
-                  <div key={input.formKey} className="flex flex-col gap-2">
-                    {(input.type === InputTypes.TEXT ||
-                      input.type === InputTypes.NUMBER ||
-                      input.type === InputTypes.DATE ||
-                      input.type === InputTypes.TIME ||
-                      input.type === InputTypes.COLOR ||
-                      input.type === InputTypes.PASSWORD) && (
-                      <TextInput
-                        key={input.formKey}
-                        type={input.type}
-                        value={value}
-                        label={input.label ?? ""}
-                        placeholder={input.placeholder ?? ""}
-                        onChange={handleChange(input.formKey)}
-                        onClear={() => {
-                          handleInputClear(input);
-                        }}
-                      />
-                    )}
-
-                    {input.type === InputTypes.SELECT && (
-                      <SelectInput
-                        key={
-                          input.isMultiple
-                            ? input.formKey
-                            : input.formKey + formElements[input.formKey]
-                        }
-                        value={
-                          input.isMultiple
-                            ? input.options?.filter((option) =>
-                                formElements[input.formKey]?.includes(
-                                  option.value
-                                )
-                              )
-                            : input.options?.find(
-                                (option) =>
-                                  option.value === formElements[input.formKey]
-                              )
-                        }
-                        label={input.label ?? ""}
-                        options={input.options ?? []}
-                        placeholder={input.placeholder ?? ""}
-                        isMultiple={input.isMultiple ?? false}
-                        onChange={handleChangeForSelect(input.formKey)}
-                        onClear={() => {
-                          handleInputClear(input);
-                        }}
-                      />
-                    )}
-                    {input.type === InputTypes.TEXTAREA && (
-                      <div className="flex flex-col gap-2" key={input.formKey}>
-                        <H6>{input.label}</H6>
-
-                        <textarea
+                if (!input?.isDisabled) {
+                  return (
+                    <div key={input.formKey} className="flex flex-col gap-2">
+                      {(input.type === InputTypes.TEXT ||
+                        input.type === InputTypes.NUMBER ||
+                        input.type === InputTypes.DATE ||
+                        input.type === InputTypes.TIME ||
+                        input.type === InputTypes.COLOR ||
+                        input.type === InputTypes.PASSWORD) && (
+                        <TextInput
+                          key={input.formKey}
+                          type={input.type}
                           value={value}
-                          onChange={(e) => {
-                            handleChange(input.formKey)(e.target.value);
-                          }}
+                          label={input.label ?? ""}
                           placeholder={input.placeholder ?? ""}
-                          className="border text-sm border-gray-300 rounded-md p-2"
+                          onChange={handleChange(input.formKey)}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
                         />
-                      </div>
-                    )}
-                  </div>
-                );
+                      )}
+
+                      {input.type === InputTypes.SELECT && (
+                        <SelectInput
+                          key={
+                            input.isMultiple
+                              ? input.formKey
+                              : input.formKey + formElements[input.formKey]
+                          }
+                          value={
+                            input.isMultiple
+                              ? input.options?.filter((option) =>
+                                  formElements[input.formKey]?.includes(
+                                    option.value
+                                  )
+                                )
+                              : input.options?.find(
+                                  (option) =>
+                                    option.value === formElements[input.formKey]
+                                )
+                          }
+                          label={input.label ?? ""}
+                          options={input.options ?? []}
+                          placeholder={input.placeholder ?? ""}
+                          isMultiple={input.isMultiple ?? false}
+                          onChange={handleChangeForSelect(input.formKey)}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.TEXTAREA && (
+                        <div
+                          className="flex flex-col gap-2"
+                          key={input.formKey}
+                        >
+                          <H6>{input.label}</H6>
+
+                          <textarea
+                            value={value}
+                            onChange={(e) => {
+                              handleChange(input.formKey)(e.target.value);
+                            }}
+                            placeholder={input.placeholder ?? ""}
+                            className="border text-sm border-gray-300 rounded-md p-2"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
               })}
             </div>
           </div>
