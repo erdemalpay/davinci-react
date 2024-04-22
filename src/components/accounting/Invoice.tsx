@@ -103,6 +103,7 @@ const Invoice = (props: Props) => {
         vendor: (invoice.vendor as AccountVendor)?.name,
         location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
+        date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           `${parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -388,7 +389,7 @@ const Invoice = (props: Props) => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: AccountInvoice) => {
-        return formatAsLocalDate(row.date);
+        return row.date;
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -696,6 +697,7 @@ const Invoice = (props: Props) => {
           packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
+          date: formatAsLocalDate(invoice.date),
           location: invoice.location as Location,
           lctn: (invoice.location as Location)?.name,
           unitPrice: parseFloat(
