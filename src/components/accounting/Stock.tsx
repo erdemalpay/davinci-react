@@ -5,12 +5,14 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import {
+  AccountPackageType,
   AccountProduct,
   AccountStock,
   AccountStockLocation,
   AccountStockType,
   AccountUnit,
 } from "../../types";
+import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -25,16 +27,15 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type Props = {};
-
 type FormElementsState = {
   [key: string]: any;
 };
-const Stock = (props: Props) => {
+const Stock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
   const units = useGetAccountUnits();
   const products = useGetAccountProducts();
+  const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
   const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
@@ -48,12 +49,14 @@ const Stock = (props: Props) => {
     useState<FormElementsState>({
       location: "",
       stockType: "",
+      packageType: "",
     });
   const [form, setForm] = useState({
     product: "",
     location: "",
     quantity: 0,
     unitPrice: 0,
+    packageType: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -64,6 +67,7 @@ const Stock = (props: Props) => {
       return {
         ...stock,
         prdct: (stock.product as AccountProduct).name,
+        pckgType: (stock?.packageType as AccountPackageType)?.name,
         lctn: (stock.location as AccountStockLocation).name,
         stockType: stockTypes?.find(
           (stockType) =>
@@ -92,8 +96,27 @@ const Stock = (props: Props) => {
           label: product.name + `(${(product.unit as AccountUnit).name})`,
         };
       }),
+      invalidateKeys: [{ key: "packageType", defaultValue: "" }],
       placeholder: t("Product"),
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
+      required:
+        (products.find((prod) => prod._id === form?.product)?.packages
+          ?.length ?? 0) > 0,
+      isDisabled:
+        (products?.find((prod) => prod._id === form?.product)?.packages
+          ?.length ?? 0) < 1,
     },
     {
       type: InputTypes.SELECT,
@@ -118,12 +141,14 @@ const Stock = (props: Props) => {
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: t("Stock Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
+    { key: t("Package Type"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
@@ -149,6 +174,7 @@ const Stock = (props: Props) => {
       ),
     },
     { key: "prdct" },
+    { key: "pckgType", className: "min-w-32 " },
     { key: "unit" },
     { key: "lctn" },
     { key: "quantity" },
@@ -313,6 +339,10 @@ const Stock = (props: Props) => {
               (stock.location as AccountStockLocation)?._id
             ) &&
             passesFilter(
+              filterPanelFormElements.packageType,
+              (stock.packageType as AccountPackageType)?._id
+            ) &&
+            passesFilter(
               filterPanelFormElements.stockType,
               stockTypes?.find(
                 (stockType) =>
@@ -325,6 +355,7 @@ const Stock = (props: Props) => {
           return {
             ...stock,
             prdct: (stock.product as AccountProduct).name,
+            pckgType: (stock?.packageType as AccountPackageType)?.name,
             lctn: (stock.location as AccountStockLocation).name,
             stockType: stockTypes?.find(
               (stockType) =>
@@ -367,6 +398,19 @@ const Stock = (props: Props) => {
         };
       }),
       placeholder: t("Stock Type"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
       required: true,
     },
   ];

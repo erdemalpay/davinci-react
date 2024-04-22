@@ -158,6 +158,7 @@ export type AccountStock = {
   stockType?: string | AccountStockType;
   quantity: number;
   unitPrice?: number;
+  packageType?: AccountPackageType | string;
 };
 
 export type Visit = {
