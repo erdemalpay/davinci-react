@@ -292,6 +292,10 @@ const Stock = () => {
               )?._id,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
+              packageType: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.packageType as AccountPackageType
+              )?._id,
               unitPrice: (
                 stocks.find((stock) => stock._id === rowToAction._id)
                   ?.product as AccountProduct

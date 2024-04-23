@@ -96,7 +96,7 @@ const GenericTable = <T,>({
   const filteredRows = initialRows().filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.trimStart().toLowerCase();
 
       if (typeof value === "string") {
         return value.toLowerCase().includes(query);
