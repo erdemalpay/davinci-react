@@ -105,9 +105,11 @@ const Invoice = (props: Props) => {
         lctn: (invoice.location as Location)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
-          `${parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ).toString()}`
+          (
+            invoice.totalExpense /
+            (invoice.quantity *
+              ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
+          ).toFixed(4)
         ),
         unit: units?.find(
           (unit) =>
@@ -701,9 +703,11 @@ const Invoice = (props: Props) => {
           location: invoice.location as Location,
           lctn: (invoice.location as Location)?.name,
           unitPrice: parseFloat(
-            `${parseFloat(
-              (invoice.totalExpense / invoice.quantity).toFixed(4)
-            ).toString()}`
+            (
+              invoice.totalExpense /
+              (invoice.quantity *
+                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
+            ).toFixed(4)
           ),
           unit: units?.find(
             (unit) =>
