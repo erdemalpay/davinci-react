@@ -78,14 +78,24 @@ const Stock = () => {
         )?.name,
         unitPrice: stock?.packageType
           ? (stock.product as AccountProduct).packages?.find(
-              (pkg) => pkg.package === stock.packageType
+              (pkg) =>
+                pkg.package === (stock?.packageType as AccountPackageType)?._id
             )?.packageUnitPrice
           : (stock.product as AccountProduct)?.unitPrice,
-        totalPrice: parseFloat(
-          (
-            ((stock.product as AccountProduct).unitPrice ?? 0) * stock.quantity
-          ).toFixed(1)
-        ),
+        totalPrice: stock?.packageType
+          ? parseFloat(
+              (
+                ((stock.product as AccountProduct).unitPrice ?? 0) *
+                stock.quantity *
+                (stock.packageType as AccountPackageType).quantity
+              ).toFixed(1)
+            )
+          : parseFloat(
+              (
+                ((stock.product as AccountProduct).unitPrice ?? 0) *
+                stock.quantity
+              ).toFixed(1)
+            ),
       };
     })
   );
@@ -368,18 +378,32 @@ const Stock = () => {
             )?.name,
             unitPrice: stock?.packageType
               ? (stock.product as AccountProduct).packages?.find(
-                  (pkg) => pkg.package === stock.packageType
+                  (pkg) =>
+                    pkg.package ===
+                    (stock?.packageType as AccountPackageType)?._id
                 )?.packageUnitPrice
               : (stock.product as AccountProduct)?.unitPrice,
             unit: units?.find(
               (unit) => unit._id === (stock.product as AccountProduct).unit
             )?.name,
-            totalPrice: parseFloat(
-              (
-                ((stock.product as AccountProduct).unitPrice ?? 0) *
-                stock.quantity
-              ).toFixed(1)
-            ),
+            totalPrice: stock?.packageType
+              ? parseFloat(
+                  (
+                    ((stock?.product as AccountProduct)?.packages?.find(
+                      (pkg) =>
+                        pkg.package ===
+                        (stock.packageType as AccountPackageType)?._id
+                    )?.packageUnitPrice ?? 0) *
+                    stock.quantity *
+                    (stock.packageType as AccountPackageType).quantity
+                  ).toFixed(1)
+                )
+              : parseFloat(
+                  (
+                    ((stock.product as AccountProduct).unitPrice ?? 0) *
+                    stock.quantity
+                  ).toFixed(1)
+                ),
           };
         })
     );
