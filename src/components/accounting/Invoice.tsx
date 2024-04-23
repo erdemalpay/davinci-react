@@ -27,7 +27,7 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
-import { formatAsLocalDate } from "../../utils/format";
+import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -566,7 +566,7 @@ const Invoice = (props: Props) => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              date: rowToAction.date,
+              date: convertDateFormat(rowToAction.date),
               product: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.product as AccountProduct
@@ -722,7 +722,7 @@ const Invoice = (props: Props) => {
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
-        const query = searchQuery.toLowerCase();
+        const query = searchQuery.trimStart().toLowerCase();
         if (typeof value === "string") {
           return value.toLowerCase().includes(query);
         } else if (typeof value === "number") {

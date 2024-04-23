@@ -25,6 +25,7 @@ const CountArchive = () => {
         cntLst: (count.countList as AccountCountList).name,
         lctn: (count.location as AccountStockLocation).name,
         usr: (count.user as User)?.name,
+        date: formatAsLocalDate(count.date),
       };
     })
   );
@@ -40,7 +41,7 @@ const CountArchive = () => {
       key: "date",
       className: "min-w-32",
       node: (row: AccountCount) => {
-        return formatAsLocalDate(row.date);
+        return row.date;
       },
     },
     {
@@ -86,6 +87,7 @@ const CountArchive = () => {
           cntLst: (count.countList as AccountCountList).name,
           lctn: (count.location as AccountStockLocation).name,
           usr: (count.user as User)?.name,
+          date: formatAsLocalDate(count.date),
         };
       })
     );
