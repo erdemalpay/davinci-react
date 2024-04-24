@@ -290,4 +290,5 @@ export enum AccountingPageTabEnum {
   COUNTLIST = 9,
   COUNTARCHIVE = 10,
   STOCK = 11,
+  EXPENSECATEGORY = 12,
 }

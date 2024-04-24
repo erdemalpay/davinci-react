@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BiCategoryAlt } from "react-icons/bi";
 import { CiViewList } from "react-icons/ci";
 import {
   FaFileInvoiceDollar,
@@ -16,6 +17,7 @@ import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
+import ExpenseCategory from "../components/accounting/ExpenseCategory";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Invoice from "../components/accounting/Invoice";
 import PackageType from "../components/accounting/PackageType";
@@ -49,6 +51,13 @@ export default function Accounting() {
       label: t("Expense Types"),
       icon: <TbZoomMoney className="text-lg font-thin" />,
       content: <ExpenseType />,
+      isDisabled: showAccountingConstants,
+    },
+    {
+      number: AccountingPageTabEnum.EXPENSECATEGORY,
+      label: t("Expense Categories"),
+      icon: <BiCategoryAlt className="text-lg font-thin" />,
+      content: <ExpenseCategory />,
       isDisabled: showAccountingConstants,
     },
     {
