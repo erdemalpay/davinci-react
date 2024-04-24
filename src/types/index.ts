@@ -113,6 +113,10 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
+export type AccountExpenseCategory = {
+  _id: string;
+  name: string;
+};
 export type AccountPackageType = {
   _id: string;
   name: string;
