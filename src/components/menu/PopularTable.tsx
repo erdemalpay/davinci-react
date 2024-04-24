@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, MenuPopular } from "../../types";
+import { useGetCategories } from "../../utils/api/menu/category";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -13,12 +14,16 @@ type Props = {
 
 const PopularTable = ({ popularItems }: Props) => {
   const { t } = useTranslation();
+  const categories = useGetCategories();
   const { deletePopular, updatePopular } = usePopularMutations();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
-  const rows: MenuItem[] = popularItems.map((popularItem) => ({
+  const rows = popularItems.map((popularItem) => ({
     ...(popularItem.item as MenuItem),
     order: popularItem.order,
     _id: popularItem._id,
+    category: categories?.find(
+      (c) => c._id === (popularItem.item as MenuItem)?.category
+    )?.name,
   }));
   const [
     isCloseAllConfirmationDialogOpen,
@@ -28,6 +33,7 @@ const PopularTable = ({ popularItems }: Props) => {
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: true },
+    { key: t("Category"), isSortable: true },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
@@ -36,11 +42,11 @@ const PopularTable = ({ popularItems }: Props) => {
 
   const rowKeys = [
     { key: "imageUrl", isImage: true },
+    { key: "name", className: "pr-2" },
+    { key: "description" },
     {
-      key: "name",
-    },
-    {
-      key: "description",
+      key: "category",
+      className: "min-w-32 pr-2",
     },
     {
       key: "bahceli",
