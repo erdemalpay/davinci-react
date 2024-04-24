@@ -113,6 +113,10 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
+export type AccountExpenseCategory = {
+  _id: string;
+  name: string;
+};
 export type AccountPackageType = {
   _id: string;
   name: string;
@@ -286,4 +290,5 @@ export enum AccountingPageTabEnum {
   COUNTLIST = 9,
   COUNTARCHIVE = 10,
   STOCK = 11,
+  EXPENSECATEGORY = 12,
 }

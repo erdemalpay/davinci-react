@@ -233,5 +233,8 @@
   "Please fill all required fields": "Please fill all required fields",
   "Check phone number.": "Check phone number.",
   "Count Archives": "Count Archives",
+  "Add Expense Category": "Add Expense Category",
+  "Delete Expense Category": "Delete Expense Category",
+  "Expense Categories": "Expense Categories",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
