@@ -269,14 +269,15 @@ export enum RowPerPageEnum {
 
 export enum RoleEnum {
   MANAGER = 1,
-  GAMEMASTER = 2,
-  GAMEMANAGER = 3,
-  CATERINGMANAGER = 4,
-  BARISTA = 5,
-  KITCHEN = 6,
-  SERVICE = 7,
-  CLEANING = 8,
+  GAMEMASTER,
+  GAMEMANAGER,
+  CATERINGMANAGER,
+  BARISTA,
+  KITCHEN,
+  SERVICE,
+  CLEANING,
 }
+
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
   EXPENSECATEGORY,
