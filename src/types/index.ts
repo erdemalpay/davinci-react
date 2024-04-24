@@ -206,8 +206,6 @@ export type MenuItem = {
   description: string;
   imageUrl: string;
   category: MenuCategory | number;
-  priceBahceli: number;
-  priceNeorama: number;
   order: number;
   itemProduction?: {
     product: string;

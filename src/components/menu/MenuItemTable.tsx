@@ -303,7 +303,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         inputs={inputs}
         formKeys={formKeys}
         submitItem={createItem as any}
-        constantValues={{ category: singleItemGroup.category }}
+        constantValues={{
+          category: singleItemGroup.category,
+          locations: [1, 2],
+        }}
         folderName="menu"
       />
     ),
