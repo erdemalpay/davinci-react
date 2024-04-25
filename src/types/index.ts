@@ -82,6 +82,14 @@ export type AccountProduct = {
     packageUnitPrice: number;
   }[];
 };
+export type AccountFixture = {
+  _id: string;
+  name: string;
+  expenseType: string[];
+  vendor?: string[];
+  brand?: string[];
+  unitPrice: number;
+};
 
 export type AccountUnit = {
   _id: string;
