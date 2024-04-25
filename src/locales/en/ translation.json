@@ -240,5 +240,9 @@
   "Ingredients": "Ingredients",
   "Expenses": "Expenses",
   "Expense Category": "Expense Category",
+  "Fixtures": "Fixtures",
+  "Fixture": "Fixture",
+  "Add Fixture": "Add Fixture",
+  "Delete Fixture": "Delete Fixture",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

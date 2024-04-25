@@ -2,6 +2,7 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiViewList } from "react-icons/ci";
+import { FaAnchor } from "react-icons/fa";
 import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { FiArchive } from "react-icons/fi";
 import { LuPackageOpen } from "react-icons/lu";
@@ -13,6 +14,7 @@ import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
+import Fixture from "../components/accounting/Fixture";
 import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Stock from "../components/accounting/Stock";
@@ -79,6 +81,13 @@ export default function Accounting() {
       label: t("Products"),
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
+      isDisabled: showAccountingConstants,
+    },
+    {
+      number: AccountingPageTabEnum.FIXTURES,
+      label: t("Fixtures"),
+      icon: <FaAnchor className="text-lg font-thin" />,
+      content: <Fixture />,
       isDisabled: showAccountingConstants,
     },
     {
