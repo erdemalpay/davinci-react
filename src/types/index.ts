@@ -82,6 +82,14 @@ export type AccountProduct = {
     packageUnitPrice: number;
   }[];
 };
+export type AccountFixture = {
+  _id: string;
+  name: string;
+  expenseType: string[];
+  vendor?: string[];
+  brand?: string[];
+  unitPrice: number;
+};
 
 export type AccountUnit = {
   _id: string;
@@ -266,6 +274,9 @@ export enum RoleEnum {
   SERVICE,
   CLEANING,
 }
+export enum ExpensesPageTabEnum {
+  INVOICE,
+}
 
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
@@ -274,9 +285,9 @@ export enum AccountingPageTabEnum {
   BRAND,
   PACKAGETYPE,
   PRODUCT,
+  FIXTURES,
   STOCKLOCATION,
-  INVOICE,
+  STOCK,
   COUNTLIST,
   COUNTARCHIVE,
-  STOCK,
 }

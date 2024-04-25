@@ -239,5 +239,9 @@
   "Ingredients": "Malzemeler",
   "Expenses": "Giderler",
   "Expense Category": "Gider Kategorisi",
+  "Fixtures": "Demirbaşlar",
+  "Fixture": "Demirbaş",
+  "Add Fixture": "Demirbaş Ekle",
+  "Delete Fixture": "Demirbaşı Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
