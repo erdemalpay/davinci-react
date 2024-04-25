@@ -237,5 +237,8 @@
   "Delete Expense Category": "Delete Expense Category",
   "Expense Categories": "Expense Categories",
   "Category": "Category",
+  "Ingredients": "Ingredients",
+  "Expenses": "Expenses",
+  "Expense Category": "Expense Category",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

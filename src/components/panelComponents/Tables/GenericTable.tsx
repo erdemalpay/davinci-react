@@ -521,10 +521,10 @@ const GenericTable = <T,>({
                           key={index}
                           className={`${
                             columns.length === 2 && "justify-between  "
-                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
+                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
                         >
                           <H5
-                            className={`w-fit flex gap-2 ${
+                            className={`w-fit flex gap-2 text-gray-600 ${
                               columns.length === 2 && index == 1 && "  mx-auto"
                             } ${
                               index === columns.length - 1 &&

@@ -4,8 +4,14 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
+import {
+  AccountExpenseCategory,
+  AccountProduct,
+  AccountStockType,
+  AccountUnit,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
+import { useGetAccountExpenseCategorys } from "../../utils/api/account/expenseCategory";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
@@ -34,6 +40,7 @@ const Product = (props: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
+  const expenseCategories = useGetAccountExpenseCategorys();
   const stockTypes = useGetAccountStockTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -50,6 +57,7 @@ const Product = (props: Props) => {
       brand: "",
       vendor: "",
       expenseType: "",
+      expenseCategory: "",
       stockType: "",
       unit: "",
       package: "",
@@ -64,6 +72,7 @@ const Product = (props: Props) => {
     vendor: [],
     expenseType: [],
     stockType: "",
+    expenseCategory: "",
     unit: "",
     packages: [],
     name: "",
@@ -82,6 +91,8 @@ const Product = (props: Props) => {
         unit: (product.unit as AccountUnit)?.name,
         stockType: (product.stockType as AccountStockType)?.name,
         stckType: product.stockType,
+        expenseCategory: (product.expenseCategory as AccountExpenseCategory)
+          ?.name,
       };
     })
   );
@@ -172,6 +183,19 @@ const Product = (props: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "expenseCategory",
+      label: t("Expense Category"),
+      options: expenseCategories.map((expenseCategory) => {
+        return {
+          value: expenseCategory._id,
+          label: expenseCategory.name,
+        };
+      }),
+      placeholder: t("Expense Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "package",
       label: t("Package Type"),
       options: packages.map((item) => {
@@ -247,6 +271,19 @@ const Product = (props: Props) => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "expenseCategory",
+      label: t("Expense Category"),
+      options: expenseCategories.map((expenseCategory) => {
+        return {
+          value: expenseCategory._id,
+          label: expenseCategory.name,
+        };
+      }),
+      placeholder: t("Expense Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "packages",
       label: t("Package Type"),
       options: packages.map((item) => {
@@ -297,6 +334,7 @@ const Product = (props: Props) => {
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "stockType", type: FormKeyTypeEnum.STRING },
+    { key: "expenseCategory", type: FormKeyTypeEnum.STRING },
     { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
@@ -305,6 +343,7 @@ const Product = (props: Props) => {
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
+    { key: t("Category"), isSortable: true },
     { key: t("Stock Type"), isSortable: true },
     { key: t("Package Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
@@ -335,6 +374,7 @@ const Product = (props: Props) => {
         });
       },
     },
+    { key: "expenseCategory", className: "min-w-32" },
     {
       key: "stockType",
       className: "min-w-32",
@@ -434,6 +474,7 @@ const Product = (props: Props) => {
         formKeys={formKeys}
         setForm={setInputForm}
         submitItem={createAccountProduct as any}
+        generalClassName="overflow-scroll"
         submitFunction={() => {
           createAccountProduct({
             ...inputForm,
@@ -448,6 +489,7 @@ const Product = (props: Props) => {
             vendor: [],
             expenseType: [],
             stockType: "",
+            expenseCategory: "",
             unit: "",
             packages: [],
             name: "",
@@ -456,6 +498,7 @@ const Product = (props: Props) => {
         topClassName="flex flex-col gap-2 "
       />
     ),
+
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
@@ -497,6 +540,7 @@ const Product = (props: Props) => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          generalClassName="overflow-scroll"
           submitItem={updateAccountProduct as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
@@ -513,6 +557,10 @@ const Product = (props: Props) => {
             )?._id,
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
+            expenseCategory: expenseCategories.find(
+              (expenseCategory) =>
+                expenseCategory.name === rowToAction?.expenseCategory
+            )?._id,
             packages: rowToAction?.packages?.map((pkg) => pkg.package),
           }}
           handleUpdate={() => {
@@ -533,7 +581,6 @@ const Product = (props: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
@@ -549,6 +596,10 @@ const Product = (props: Props) => {
             passesFilter(
               filterPanelFormElements.unit,
               (product.unit as AccountUnit)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.expenseCategory,
+              (product.expenseCategory as AccountExpenseCategory)?._id
             ) &&
             (filterPanelFormElements.brand === "" ||
               product.brand?.includes(filterPanelFormElements.brand)) &&
@@ -570,6 +621,8 @@ const Product = (props: Props) => {
             unit: (product.unit as AccountUnit)?.name,
             stockType: (product.stockType as AccountStockType)?.name,
             stckType: product.stockType,
+            expenseCategory: (product.expenseCategory as AccountExpenseCategory)
+              ?.name,
           };
         })
     );

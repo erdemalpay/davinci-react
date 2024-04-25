@@ -443,7 +443,6 @@ const Invoice = (props: Props) => {
   const addButton = {
     name: t(`Add Invoice`),
     isModal: true,
-
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}

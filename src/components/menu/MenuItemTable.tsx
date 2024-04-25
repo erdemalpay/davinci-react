@@ -52,7 +52,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       return {
         ...item,
         collapsible: {
-          collapsibleHeader: "Ingredients",
+          collapsibleHeader: t("Ingredients"),
           collapsibleColumns: [
             { key: t("Product"), isSortable: true },
             { key: t("Unit"), isSortable: true },
@@ -109,7 +109,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         return {
           ...item,
           collapsible: {
-            collapsibleHeader: "Ingredients",
+            collapsibleHeader: t("Ingredients"),
             collapsibleColumns: [
               { key: t("Product"), isSortable: true },
               { key: t("Unit"), isSortable: true },

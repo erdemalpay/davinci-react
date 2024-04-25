@@ -112,7 +112,7 @@ export default function Accounting() {
 
     {
       number: AccountingPageTabEnum.INVOICE,
-      label: t("Invoices"),
+      label: t("Expenses"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,

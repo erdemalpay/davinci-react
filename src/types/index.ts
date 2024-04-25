@@ -82,6 +82,7 @@ export type AccountProduct = {
     package: string;
     packageUnitPrice: number;
   }[];
+  expenseCategory: string | AccountExpenseCategory;
 };
 
 export type AccountUnit = {
