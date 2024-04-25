@@ -82,7 +82,6 @@ export type AccountProduct = {
     package: string;
     packageUnitPrice: number;
   }[];
-  expenseCategory: string | AccountExpenseCategory;
 };
 
 export type AccountUnit = {
@@ -114,10 +113,7 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
-export type AccountExpenseCategory = {
-  _id: string;
-  name: string;
-};
+
 export type AccountPackageType = {
   _id: string;
   name: string;
@@ -279,7 +275,6 @@ export enum RoleEnum {
 
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
-  EXPENSECATEGORY,
   UNIT,
   VENDOR,
   BRAND,

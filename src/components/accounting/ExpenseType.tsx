@@ -12,9 +12,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type Props = {};
-
-const ExpenseType = (props: Props) => {
+const ExpenseType = () => {
   const { t } = useTranslation();
   const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);

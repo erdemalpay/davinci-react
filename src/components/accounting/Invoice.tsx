@@ -35,12 +35,11 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type Props = {};
 type FormElementsState = {
   [key: string]: any;
 };
 
-const Invoice = (props: Props) => {
+const Invoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
@@ -597,7 +596,6 @@ const Invoice = (props: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
