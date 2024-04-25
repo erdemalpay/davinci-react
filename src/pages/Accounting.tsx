@@ -2,10 +2,7 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiViewList } from "react-icons/ci";
-import {
-  FaFileInvoiceDollar,
-  FaMagnifyingGlassLocation,
-} from "react-icons/fa6";
+import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { FiArchive } from "react-icons/fi";
 import { LuPackageOpen } from "react-icons/lu";
 import { RiProductHuntLine } from "react-icons/ri";
@@ -16,7 +13,6 @@ import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
-import Invoice from "../components/accounting/Invoice";
 import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Stock from "../components/accounting/Stock";
@@ -92,12 +88,11 @@ export default function Accounting() {
       content: <StockLocations />,
       isDisabled: showAccountingConstants,
     },
-
     {
-      number: AccountingPageTabEnum.INVOICE,
-      label: t("Expenses"),
-      icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
-      content: <Invoice />,
+      number: AccountingPageTabEnum.STOCK,
+      label: t("Stocks"),
+      icon: <SlBasketLoaded className="text-lg font-thin" />,
+      content: <Stock />,
       isDisabled: false,
     },
     {
@@ -112,13 +107,6 @@ export default function Accounting() {
       label: t("Count Archives"),
       icon: <FiArchive className="text-lg font-thin" />,
       content: <CountArchive />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.STOCK,
-      label: t("Stocks"),
-      icon: <SlBasketLoaded className="text-lg font-thin" />,
-      content: <Stock />,
       isDisabled: false,
     },
   ];
@@ -138,7 +126,7 @@ export default function Accounting() {
               onChange={() => {
                 setShowAccountingConstants(!showAccountingConstants);
                 if (!showAccountingConstants) {
-                  setAccountingActiveTab(AccountingPageTabEnum.INVOICE);
+                  setAccountingActiveTab(AccountingPageTabEnum.STOCK);
                 } else {
                   setAccountingActiveTab(0);
                 }

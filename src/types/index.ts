@@ -266,6 +266,9 @@ export enum RoleEnum {
   SERVICE,
   CLEANING,
 }
+export enum ExpensesPageTabEnum {
+  INVOICE,
+}
 
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
@@ -275,8 +278,7 @@ export enum AccountingPageTabEnum {
   PACKAGETYPE,
   PRODUCT,
   STOCKLOCATION,
-  INVOICE,
+  STOCK,
   COUNTLIST,
   COUNTARCHIVE,
-  STOCK,
 }
