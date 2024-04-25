@@ -74,7 +74,6 @@ export type AccountProduct = {
   name: string;
   unit: AccountUnit | string;
   expenseType: string[];
-  stockType: string | AccountStockType;
   vendor?: string[];
   brand?: string[];
   unitPrice: number;
@@ -127,11 +126,7 @@ export type AccountVendor = {
   _id: string;
   name: string;
 };
-export type AccountStockType = {
-  _id: string;
-  name: string;
-  backgroundColor: string;
-};
+
 export type AccountStockLocation = {
   _id: string;
   name: string;
@@ -156,7 +151,6 @@ export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
   location: string | AccountStockLocation;
-  stockType?: string | AccountStockType;
   quantity: number;
   packageType?: AccountPackageType | string;
 };
@@ -280,7 +274,6 @@ export enum AccountingPageTabEnum {
   BRAND,
   PACKAGETYPE,
   PRODUCT,
-  STOCKTYPE,
   STOCKLOCATION,
   INVOICE,
   COUNTLIST,

@@ -9,7 +9,6 @@ import {
   AccountProduct,
   AccountStock,
   AccountStockLocation,
-  AccountStockType,
   AccountUnit,
 } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -19,7 +18,6 @@ import {
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -37,7 +35,6 @@ const Stock = () => {
   const products = useGetAccountProducts();
   const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
-  const stockTypes = useGetAccountStockTypes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -48,7 +45,6 @@ const Stock = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       location: "",
-      stockType: "",
       packageType: "",
     });
   const [form, setForm] = useState({
@@ -68,13 +64,8 @@ const Stock = () => {
         prdct: (stock.product as AccountProduct).name,
         pckgType: (stock?.packageType as AccountPackageType)?.name,
         lctn: (stock.location as AccountStockLocation).name,
-        stockType: (stock.product as AccountProduct)
-          .stockType as AccountStockType,
         unit: units?.find(
           (unit) => unit._id === (stock.product as AccountProduct).unit
-        )?.name,
-        stckType: (
-          (stock.product as AccountProduct).stockType as AccountStockType
         )?.name,
         unitPrice: stock?.packageType
           ? (stock.product as AccountProduct).packages?.find(
@@ -163,7 +154,6 @@ const Stock = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
-    { key: t("Stock Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
     { key: t("Package Type"), isSortable: true },
     { key: t("Unit"), isSortable: true },
@@ -174,19 +164,6 @@ const Stock = () => {
   ];
 
   const rowKeys = [
-    {
-      key: "stckType",
-      node: (row: any) => (
-        <div
-          className={` px-2 py-1 rounded-md  w-fit text-white`}
-          style={{
-            backgroundColor: row?.stockType?.backgroundColor,
-          }}
-        >
-          {row?.stockType?.name}
-        </div>
-      ),
-    },
     { key: "prdct" },
     { key: "pckgType", className: "min-w-32 " },
     { key: "unit" },
@@ -281,11 +258,6 @@ const Stock = () => {
                 stocks.find((stock) => stock._id === rowToAction._id)
                   ?.product as AccountProduct
               )?._id,
-
-              stockType: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.stockType as AccountStockType
-              )?._id,
               location: (
                 stocks.find((stock) => stock._id === rowToAction._id)
                   ?.location as AccountStockLocation
@@ -307,7 +279,6 @@ const Stock = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
@@ -361,11 +332,6 @@ const Stock = () => {
             passesFilter(
               filterPanelFormElements.packageType,
               (stock.packageType as AccountPackageType)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.stockType,
-              ((stock.product as AccountProduct)?.stockType as AccountStockType)
-                ?._id
             )
           );
         })
@@ -375,11 +341,6 @@ const Stock = () => {
             prdct: (stock.product as AccountProduct).name,
             pckgType: (stock?.packageType as AccountPackageType)?.name,
             lctn: (stock.location as AccountStockLocation).name,
-            stockType: (stock.product as AccountProduct)
-              .stockType as AccountStockType,
-            stckType: (
-              (stock.product as AccountProduct).stockType as AccountStockType
-            )?.name,
             unitPrice: stock?.packageType
               ? (stock.product as AccountProduct).packages?.find(
                   (pkg) =>
@@ -426,19 +387,6 @@ const Stock = () => {
         };
       }),
       placeholder: t("Location"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "stockType",
-      label: t("Stock Type"),
-      options: stockTypes.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Stock Type"),
       required: true,
     },
     {

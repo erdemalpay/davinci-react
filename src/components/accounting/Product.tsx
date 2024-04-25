@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountStockType, AccountUnit } from "../../types";
+import { AccountProduct, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -14,7 +14,6 @@ import {
   useGetAccountProducts,
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
-import { useGetAccountStockTypes } from "../../utils/api/account/stockType";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { passesFilter } from "../../utils/passesFilter";
@@ -33,7 +32,6 @@ const Product = () => {
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
-  const stockTypes = useGetAccountStockTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const packages = useGetAccountPackageTypes();
@@ -49,7 +47,6 @@ const Product = () => {
       brand: "",
       vendor: "",
       expenseType: "",
-      stockType: "",
       unit: "",
       package: "",
       name: "",
@@ -62,7 +59,6 @@ const Product = () => {
     brand: [],
     vendor: [],
     expenseType: [],
-    stockType: "",
     unit: "",
     packages: [],
     name: "",
@@ -79,8 +75,6 @@ const Product = () => {
       return {
         ...product,
         unit: (product.unit as AccountUnit)?.name,
-        stockType: (product.stockType as AccountStockType)?.name,
-        stckType: product.stockType,
       };
     })
   );
@@ -158,19 +152,6 @@ const Product = () => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "stockType",
-      label: t("Stock Type"),
-      options: stockTypes.map((stockType) => {
-        return {
-          value: stockType._id,
-          label: stockType.name,
-        };
-      }),
-      placeholder: t("Stock Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
       formKey: "package",
       label: t("Package Type"),
       options: packages.map((item) => {
@@ -233,19 +214,6 @@ const Product = () => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "stockType",
-      label: t("Stock Type"),
-      options: stockTypes.map((stockType) => {
-        return {
-          value: stockType._id,
-          label: stockType.name,
-        };
-      }),
-      placeholder: t("Stock Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
       formKey: "packages",
       label: t("Package Type"),
       options: packages.map((item) => {
@@ -295,7 +263,6 @@ const Product = () => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "stockType", type: FormKeyTypeEnum.STRING },
     { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
@@ -304,7 +271,6 @@ const Product = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
-    { key: t("Stock Type"), isSortable: true },
     { key: t("Package Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
@@ -332,21 +298,6 @@ const Product = () => {
             </span>
           );
         });
-      },
-    },
-    {
-      key: "stockType",
-      className: "min-w-32",
-      node: (row: any) => {
-        return (
-          <span
-            key={row?.stckType?.name ?? "" + row._id}
-            className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
-            style={{ backgroundColor: row?.stckType?.backgroundColor }}
-          >
-            {row?.stckType?.name}
-          </span>
-        );
       },
     },
     {
@@ -447,7 +398,6 @@ const Product = () => {
             brand: [],
             vendor: [],
             expenseType: [],
-            stockType: "",
             unit: "",
             packages: [],
             name: "",
@@ -509,10 +459,6 @@ const Product = () => {
               (unit) => unit.name === (rowToAction?.unit as string)
             )?._id,
             expenseType: rowToAction.expenseType,
-            stockType: stockTypes.find(
-              (stockType) =>
-                stockType.name === (rowToAction?.stockType as string)
-            )?._id,
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
             packages: rowToAction?.packages?.map((pkg) => pkg.package),
@@ -532,7 +478,6 @@ const Product = () => {
           }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
@@ -543,10 +488,6 @@ const Product = () => {
       products
         .filter((product) => {
           return (
-            passesFilter(
-              filterPanelFormElements.stockType,
-              (product.stockType as AccountStockType)?._id
-            ) &&
             passesFilter(
               filterPanelFormElements.unit,
               (product.unit as AccountUnit)?._id
@@ -569,8 +510,6 @@ const Product = () => {
           return {
             ...product,
             unit: (product.unit as AccountUnit)?.name,
-            stockType: (product.stockType as AccountStockType)?.name,
-            stckType: product.stockType,
           };
         })
     );

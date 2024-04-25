@@ -12,7 +12,6 @@ import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
-import { VscTypeHierarchy } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
@@ -22,7 +21,6 @@ import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Stock from "../components/accounting/Stock";
 import StockLocations from "../components/accounting/StockLocation";
-import StockType from "../components/accounting/StockType";
 import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
@@ -85,13 +83,6 @@ export default function Accounting() {
       label: t("Products"),
       icon: <RiProductHuntLine className="text-lg font-thin" />,
       content: <Product />,
-      isDisabled: showAccountingConstants,
-    },
-    {
-      number: AccountingPageTabEnum.STOCKTYPE,
-      label: t("Stock Types"),
-      icon: <VscTypeHierarchy className="text-lg font-thin" />,
-      content: <StockType />,
       isDisabled: showAccountingConstants,
     },
     {
