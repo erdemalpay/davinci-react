@@ -261,8 +261,6 @@ const Product = () => {
         submitItem={createAccountProduct as any}
         generalClassName="overflow-scroll"
         submitFunction={() => {
-          console.log(inputForm, "inputForm");
-
           createAccountProduct({
             ...inputForm,
             packages:
