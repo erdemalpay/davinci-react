@@ -9,15 +9,15 @@ import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useConsumptStockMutation } from "../../utils/api/account/stock";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   NameInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
-} from "../../utils/api/account/panelInputs";
-import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useConsumptStockMutation } from "../../utils/api/account/stock";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+} from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";

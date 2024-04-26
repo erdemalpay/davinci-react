@@ -11,12 +11,6 @@ import {
   AccountStockLocation,
 } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import {
-  PackageTypeInput,
-  ProductInput,
-  QuantityInput,
-  StockLocationInput,
-} from "../../utils/api/account/panelInputs";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -24,6 +18,12 @@ import {
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import {
+  PackageTypeInput,
+  ProductInput,
+  QuantityInput,
+  StockLocationInput,
+} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";

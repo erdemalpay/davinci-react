@@ -11,13 +11,13 @@ import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
 } from "../../utils/api/account/fixture";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import {
   BrandInput,
   ExpenseTypeInput,
   NameInput,
   VendorInput,
-} from "../../utils/api/account/panelInputs";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+} from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";

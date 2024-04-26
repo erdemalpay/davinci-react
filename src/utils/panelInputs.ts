@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { InputTypes } from "../../../components/panelComponents/shared/types";
+import { InputTypes } from "../components/panelComponents/shared/types";
 import {
   AccountBrand,
   AccountExpenseType,
@@ -10,7 +10,7 @@ import {
   AccountUnit,
   AccountVendor,
   Location,
-} from "./../../../types/index";
+} from "../types/index";
 
 export function NameInput({ required = true } = {}) {
   const { t } = useTranslation();

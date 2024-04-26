@@ -9,20 +9,20 @@ import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
-  BrandInput,
-  ExpenseTypeInput,
-  NameInput,
-  PackageTypeInput,
-  UnitInput,
-  VendorInput,
-} from "../../utils/api/account/panelInputs";
-import {
   useAccountProductMutations,
   useGetAccountProducts,
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  BrandInput,
+  ExpenseTypeInput,
+  NameInput,
+  PackageTypeInput,
+  UnitInput,
+  VendorInput,
+} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";

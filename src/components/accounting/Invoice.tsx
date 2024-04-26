@@ -22,6 +22,11 @@ import {
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetLocations } from "../../utils/api/location";
+import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
@@ -31,12 +36,7 @@ import {
   ProductInput,
   QuantityInput,
   VendorInput,
-} from "../../utils/api/account/panelInputs";
-import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
-import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
+} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
