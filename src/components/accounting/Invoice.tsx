@@ -12,7 +12,6 @@ import {
   AccountInvoice,
   AccountPackageType,
   AccountProduct,
-  AccountUnit,
   AccountVendor,
   Location,
 } from "../../types";
@@ -23,6 +22,16 @@ import {
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import {
+  BrandInput,
+  DateInput,
+  ExpenseTypeInput,
+  LocationInput,
+  PackageTypeInput,
+  ProductInput,
+  QuantityInput,
+  VendorInput,
+} from "../../utils/api/account/panelInputs";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -139,50 +148,26 @@ const Invoice = () => {
     };
   }, []);
   const inputs = [
-    {
-      type: InputTypes.DATE,
-      formKey: "date",
-      label: t("Date"),
-      placeholder: t("Date"),
+    DateInput(),
+    ProductInput({
+      products: products,
       required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
-      placeholder: t("Product"),
       invalidateKeys: [
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
         { key: "packageType", defaultValue: "" },
       ],
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
+    }),
+    PackageTypeInput({
+      packages: packages,
       required:
         (products.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) > 0,
       isDisabled:
         (products?.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) < 1,
-    },
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
@@ -202,20 +187,7 @@ const Invoice = () => {
       placeholder: t("Expense Type"),
       required: true,
     },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-
+    LocationInput({ locations }),
     {
       type: InputTypes.SELECT,
       formKey: "brand",
@@ -254,93 +226,15 @@ const Invoice = () => {
       placeholder: t("Vendor"),
       required: false,
     },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
+    QuantityInput(),
   ];
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
-      placeholder: t("Product"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
+    ProductInput({ products: products, required: true }),
+    PackageTypeInput({ packages: packages, required: true }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    LocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -602,8 +496,22 @@ const Invoice = () => {
 
   const tableFilters = [
     {
+      label: t("Total") + " :",
+      isUpperSide: true,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
       label: t("Enable Edit"),
-      isUpperSide: false,
+      isUpperSide: true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -617,20 +525,6 @@ const Invoice = () => {
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
           />
         </Switch>
-      ),
-    },
-    {
-      label: t("Total") + " :",
-      isUpperSide: true,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
-            ₺
-          </p>
-        </div>
       ),
     },
     {
@@ -748,7 +642,7 @@ const Invoice = () => {
   };
   const outsideSearch = () => {
     return (
-      <div className="flex flex-row relative">
+      <div className="flex flex-row relative min-w-32">
         <input
           type="text"
           value={temporarySearch}

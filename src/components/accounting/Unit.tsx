@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountUnit } from "../../types";
+import { NameInput } from "../../utils/api/account/panelInputs";
 import {
   useAccountUnitMutations,
   useGetAccountUnits,
@@ -10,7 +11,7 @@ import {
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 const Unit = () => {
   const { t } = useTranslation();
@@ -35,15 +36,7 @@ const Unit = () => {
       className: "min-w-32 pr-1",
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {

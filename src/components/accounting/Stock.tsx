@@ -9,9 +9,14 @@ import {
   AccountProduct,
   AccountStock,
   AccountStockLocation,
-  AccountUnit,
 } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import {
+  PackageTypeInput,
+  ProductInput,
+  QuantityInput,
+  StockLocationInput,
+} from "../../utils/api/account/panelInputs";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -90,62 +95,24 @@ const Stock = () => {
       };
     })
   );
-
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
   const inputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
+    ProductInput({
+      products: products,
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
-      placeholder: t("Product"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
+    }),
+    PackageTypeInput({
+      packages: packages,
       required:
         (products.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) > 0,
       isDisabled:
         (products?.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) < 1,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
+    }),
+    StockLocationInput({ locations: locations }),
+    QuantityInput(),
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },

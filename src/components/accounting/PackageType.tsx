@@ -7,10 +7,11 @@ import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
 } from "../../utils/api/account/packageType";
+import { NameInput, QuantityInput } from "../../utils/api/account/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 const PackageType = () => {
   const { t } = useTranslation();
@@ -43,22 +44,7 @@ const PackageType = () => {
       className: "min-w-32 pr-1",
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput(), QuantityInput()];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
