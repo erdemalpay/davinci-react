@@ -19,7 +19,6 @@ import {
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import {
-  PackageTypeInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -102,15 +101,24 @@ const Stock = () => {
       products: products,
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
     }),
-    PackageTypeInput({
-      packages: packages,
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: packages.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Package Type"),
       required:
         (products.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) > 0,
       isDisabled:
         (products?.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) < 1,
-    }),
+    },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
   ];
@@ -343,19 +351,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
       formKey: "packageType",
