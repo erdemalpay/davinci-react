@@ -125,8 +125,12 @@ const Product = () => {
   ];
   const inputs = [
     NameInput(),
-    UnitInput({ units: units }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
+    UnitInput({ units: units, required: true }),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      isMultiple: true,
+      required: true,
+    }),
     PackageTypeInput({ packages: packages, isMultiple: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
