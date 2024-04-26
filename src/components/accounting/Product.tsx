@@ -9,20 +9,20 @@ import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
-  BrandInput,
-  ExpenseTypeInput,
-  NameInput,
-  PackageTypeInput,
-  UnitInput,
-  VendorInput,
-} from "../../utils/api/account/panelInputs";
-import {
   useAccountProductMutations,
   useGetAccountProducts,
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  BrandInput,
+  ExpenseTypeInput,
+  NameInput,
+  PackageTypeInput,
+  UnitInput,
+  VendorInput,
+} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -55,7 +55,7 @@ const Product = () => {
       vendor: "",
       expenseType: "",
       unit: "",
-      package: "",
+      packages: "",
       name: "",
     });
   const [form, setForm] = useState({
@@ -181,7 +181,7 @@ const Product = () => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         return row?.packages?.map((item, index) => {
-          const foundPackage = packages.find((p) => p._id === item.package);
+          const foundPackage = packages?.find((p) => p._id === item.package);
           return (
             <span
               key={foundPackage?.name ?? "" + row._id}
@@ -223,8 +223,7 @@ const Product = () => {
         if (row.vendor) {
           return row?.vendor?.map((vendor: string, index) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
-            if (!foundVendor)
-              return <div key={row._id + "not found vendor"}>-</div>;
+            if (!foundVendor) return <div key={row._id + vendor}>-</div>;
             return (
               <span
                 key={foundVendor.name + foundVendor._id + row._id}
@@ -265,7 +264,7 @@ const Product = () => {
           createAccountProduct({
             ...inputForm,
             packages:
-              inputForm?.packages.map((pkg: any) => ({
+              inputForm?.packages?.map((pkg: any) => ({
                 package: pkg as string,
                 packageUnitPrice: 0,
               })) ?? [],
@@ -344,7 +343,7 @@ const Product = () => {
               updates: {
                 ...inputForm,
                 packages:
-                  inputForm?.packages.map((pkg: any) => ({
+                  inputForm?.packages?.map((pkg: any) => ({
                     package: pkg as string,
                     packageUnitPrice: 0,
                   })) ?? [],
@@ -375,7 +374,7 @@ const Product = () => {
               product.expenseType?.includes(
                 filterPanelFormElements.expenseType
               )) &&
-            (filterPanelFormElements.package === "" ||
+            (filterPanelFormElements.packages === "" ||
               product.packages?.some(
                 (pkg) => pkg.package === filterPanelFormElements.package
               ))

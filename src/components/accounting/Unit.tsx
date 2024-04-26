@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountUnit } from "../../types";
-import { NameInput } from "../../utils/api/account/panelInputs";
 import {
   useAccountUnitMutations,
   useGetAccountUnits,
 } from "../../utils/api/account/unit";
+import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";

@@ -21,6 +21,9 @@ import {
   useAccountFixtureInvoiceMutations,
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetLocations } from "../../utils/api/location";
+import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
@@ -29,10 +32,7 @@ import {
   LocationInput,
   QuantityInput,
   VendorInput,
-} from "../../utils/api/account/panelInputs";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
-import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
+} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";

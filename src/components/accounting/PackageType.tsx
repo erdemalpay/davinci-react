@@ -7,7 +7,7 @@ import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
 } from "../../utils/api/account/packageType";
-import { NameInput, QuantityInput } from "../../utils/api/account/panelInputs";
+import { NameInput, QuantityInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";

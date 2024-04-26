@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { AccountStockLocation } from "../../types";
-import { NameInput } from "../../utils/api/account/panelInputs";
 import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
 } from "../../utils/api/account/stockLocation";
+import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
