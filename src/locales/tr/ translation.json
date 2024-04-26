@@ -243,5 +243,7 @@
   "Fixture": "Demirbaş",
   "Add Fixture": "Demirbaş Ekle",
   "Delete Fixture": "Demirbaşı Sil",
+  "Fixture Invoices": "Demirbaş Faturaları",
+  "Fixture Invoice": "Demirbaş Faturası",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

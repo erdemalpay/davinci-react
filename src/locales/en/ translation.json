@@ -244,5 +244,7 @@
   "Fixture": "Fixture",
   "Add Fixture": "Add Fixture",
   "Delete Fixture": "Delete Fixture",
+  "Fixture Invoices": "Fixture Invoices",
+  "Fixture Invoice": "Fixture Invoice",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
