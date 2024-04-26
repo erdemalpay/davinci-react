@@ -155,6 +155,21 @@ export type AccountInvoice = {
   price?: number;
   kdv?: number;
 };
+export type AccountFixtureInvoice = {
+  _id: number;
+  fixture: AccountFixture | string;
+  expenseType: AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  brand?: AccountBrand | string;
+  vendor?: AccountVendor | string;
+  note?: string;
+  location: Location | number;
+  price?: number;
+  kdv?: number;
+};
+
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
