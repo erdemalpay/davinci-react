@@ -63,7 +63,7 @@ const Fixture = () => {
   const filterPanelInputs = [
     BrandInput({ brands: brands }),
     VendorInput({ vendors: vendors }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes }),
   ];
   const inputs = [
     NameInput(),
