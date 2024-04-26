@@ -291,6 +291,7 @@ export enum RoleEnum {
 }
 export enum ExpensesPageTabEnum {
   INVOICE,
+  FIXTUREINVOICE,
 }
 
 export enum AccountingPageTabEnum {

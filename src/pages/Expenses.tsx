@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { GiAnchor } from "react-icons/gi";
+import FixtureInvoice from "../components/accounting/FixtureInvoice";
 import Invoice from "../components/accounting/Invoice";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -23,6 +25,13 @@ export default function Expenses() {
       label: t("Invoices"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
+      isDisabled: false,
+    },
+    {
+      number: ExpensesPageTabEnum.FIXTUREINVOICE,
+      label: t("Fixture Invoices"),
+      icon: <GiAnchor className="text-lg font-thin" />,
+      content: <FixtureInvoice />,
       isDisabled: false,
     },
   ];
