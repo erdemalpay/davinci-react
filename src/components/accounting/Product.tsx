@@ -6,9 +6,16 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountProduct, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import {
+  BrandInput,
+  ExpenseTypeInput,
+  NameInput,
+  PackageTypeInput,
+  UnitInput,
+  VendorInput,
+} from "../../utils/api/account/panelInputs";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -69,7 +76,6 @@ const Product = () => {
   ] = useState(false);
   const { createAccountProduct, deleteAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
-
   const [rows, setRows] = useState(
     products.map((product) => {
       return {
@@ -111,153 +117,19 @@ const Product = () => {
     },
   ];
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((brand) => {
-        return {
-          value: brand._id,
-          label: brand.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((vendor) => {
-        return {
-          value: vendor._id,
-          label: vendor.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "package",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "unit",
-      label: t("Unit"),
-      options: units.map((unit) => {
-        return {
-          value: unit._id,
-          label: unit.name,
-        };
-      }),
-      placeholder: t("Unit"),
-      required: true,
-    },
+    BrandInput({ brands: brands }),
+    VendorInput({ vendors: vendors }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes }),
+    PackageTypeInput({ packages: packages }),
+    UnitInput({ units: units }),
   ];
   const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "unit",
-      label: t("Unit"),
-      options: units.map((unit) => {
-        return {
-          value: unit._id,
-          label: unit.name,
-        };
-      }),
-      placeholder: t("Unit"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      isMultiple: true,
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "packages",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Package Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((brand) => {
-        return {
-          value: brand._id,
-          label: brand.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      isMultiple: true,
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((vendor) => {
-        return {
-          value: vendor._id,
-          label: vendor.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      isMultiple: true,
-      required: false,
-    },
-  ];
-  const joinProductFormKeys = [
-    { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
-    { key: "removedProduct", type: FormKeyTypeEnum.STRING },
+    NameInput(),
+    UnitInput({ units: units }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
+    PackageTypeInput({ packages: packages, isMultiple: true }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -266,6 +138,10 @@ const Product = () => {
     { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
+  ];
+  const joinProductFormKeys = [
+    { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
+    { key: "removedProduct", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
     { key: t("Name"), isSortable: true },
@@ -406,7 +282,6 @@ const Product = () => {
         topClassName="flex flex-col gap-2 "
       />
     ),
-
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,

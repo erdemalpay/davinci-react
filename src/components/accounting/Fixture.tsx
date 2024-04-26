@@ -11,10 +11,16 @@ import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
 } from "../../utils/api/account/fixture";
+import {
+  BrandInput,
+  ExpenseTypeInput,
+  NameInput,
+  VendorInput,
+} from "../../utils/api/account/panelInputs";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 
@@ -55,96 +61,19 @@ const Fixture = () => {
   const [rows, setRows] = useState(fixtures);
 
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((brand) => {
-        return {
-          value: brand._id,
-          label: brand.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((vendor) => {
-        return {
-          value: vendor._id,
-          label: vendor.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      required: true,
-    },
+    BrandInput({ brands: brands }),
+    VendorInput({ vendors: vendors }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
   ];
   const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
+    NameInput(),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
       required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
       isMultiple: true,
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((brand) => {
-        return {
-          value: brand._id,
-          label: brand.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      isMultiple: true,
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((vendor) => {
-        return {
-          value: vendor._id,
-          label: vendor.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      isMultiple: true,
-      required: false,
-    },
+    }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },

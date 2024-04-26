@@ -21,6 +21,15 @@ import {
   useAccountFixtureInvoiceMutations,
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
+import {
+  BrandInput,
+  DateInput,
+  ExpenseTypeInput,
+  FixtureInput,
+  LocationInput,
+  QuantityInput,
+  VendorInput,
+} from "../../utils/api/account/panelInputs";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
@@ -124,31 +133,16 @@ const FixtureInvoice = () => {
     };
   }, []);
   const inputs = [
-    {
-      type: InputTypes.DATE,
-      formKey: "date",
-      label: t("Date"),
-      placeholder: t("Date"),
+    DateInput(),
+    FixtureInput({
+      fixtures: fixtures,
       required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "fixture",
-      label: t("Fixture"),
-      options: fixtures.map((fixture) => {
-        return {
-          value: fixture._id,
-          label: fixture.name,
-        };
-      }),
-      placeholder: t("Fixture"),
       invalidateKeys: [
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
       ],
-      required: true,
-    },
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
@@ -168,20 +162,7 @@ const FixtureInvoice = () => {
       placeholder: t("Expense Type"),
       required: true,
     },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-
+    LocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
       formKey: "brand",
@@ -220,80 +201,14 @@ const FixtureInvoice = () => {
       placeholder: t("Vendor"),
       required: false,
     },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
+    QuantityInput(),
   ];
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "fixture",
-      label: t("Fixture"),
-      options: fixtures.map((fixture) => {
-        return {
-          value: fixture._id,
-          label: fixture.name,
-        };
-      }),
-      placeholder: t("Fixture"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Vendor"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Brand"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
+    FixtureInput({ fixtures: fixtures, required: true }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    LocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
