@@ -143,7 +143,7 @@ export function PackageTypeInput({
 
   return {
     type: InputTypes.SELECT,
-    formKey: "package",
+    formKey: "packages",
     label: t("Package Type"),
     options: packages.map((item) => {
       return {

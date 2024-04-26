@@ -22,7 +22,10 @@ import {
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import {
+  useAccountProductMutations,
+  useGetAccountProducts,
+} from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
@@ -32,16 +35,18 @@ import {
   DateInput,
   ExpenseTypeInput,
   LocationInput,
+  NameInput,
   PackageTypeInput,
   ProductInput,
   QuantityInput,
+  UnitInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -62,10 +67,20 @@ const Invoice = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isProductInputOpen, setIsProductInputOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
+  const { createAccountProduct } = useAccountProductMutations();
+  const [productInputForm, setProductInputForm] = useState({
+    brand: [],
+    vendor: [],
+    expenseType: [],
+    unit: "",
+    packages: [],
+    name: "",
+  });
   const [form, setForm] = useState<Partial<AccountInvoice>>({
     date: "",
     product: "",
@@ -159,15 +174,27 @@ const Invoice = () => {
         { key: "packageType", defaultValue: "" },
       ],
     }),
-    PackageTypeInput({
-      packages: packages,
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: products
+        .find((prod) => prod._id === form?.product)
+        ?.packages?.map((item) => {
+          const packageType = packages.find((pkg) => pkg._id === item.package);
+          return {
+            value: packageType?._id,
+            label: packageType?.name,
+          };
+        }),
+      placeholder: t("Package Type"),
       required:
         (products.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) > 0,
       isDisabled:
         (products?.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) < 1,
-    }),
+    },
     {
       type: InputTypes.SELECT,
       formKey: "expenseType",
@@ -251,6 +278,22 @@ const Invoice = () => {
       required: true,
       isDatePicker: true,
     },
+  ];
+  const productInputs = [
+    NameInput(),
+    UnitInput({ units: units }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
+    PackageTypeInput({ packages: packages, isMultiple: true }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
+  ];
+  const productFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "unit", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "packages", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -545,6 +588,19 @@ const Invoice = () => {
         </Switch>
       ),
     },
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            setIsProductInputOpen(true);
+          }}
+        >
+          <H5> {t("Add Product")}</H5>
+        </button>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -691,6 +747,36 @@ const Invoice = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
         />
+        {isProductInputOpen && (
+          <GenericAddEditPanel
+            isOpen={isProductInputOpen}
+            close={() => setIsProductInputOpen(false)}
+            inputs={productInputs}
+            formKeys={productFormKeys}
+            setForm={setProductInputForm}
+            submitItem={createAccountProduct as any}
+            generalClassName="overflow-scroll"
+            submitFunction={() => {
+              createAccountProduct({
+                ...productInputForm,
+                packages:
+                  productInputForm?.packages?.map((pkg: any) => ({
+                    package: pkg as string,
+                    packageUnitPrice: 0,
+                  })) ?? [],
+              });
+              setProductInputForm({
+                brand: [],
+                vendor: [],
+                expenseType: [],
+                unit: "",
+                packages: [],
+                name: "",
+              });
+            }}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
       </div>
     </>
   );
