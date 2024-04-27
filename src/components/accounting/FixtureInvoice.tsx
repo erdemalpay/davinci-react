@@ -429,8 +429,22 @@ const FixtureInvoice = () => {
 
   const tableFilters = [
     {
+      label: t("Total") + " :",
+      isUpperSide: true,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
       label: t("Enable Edit"),
-      isUpperSide: false,
+      isUpperSide: true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -444,20 +458,6 @@ const FixtureInvoice = () => {
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
           />
         </Switch>
-      ),
-    },
-    {
-      label: t("Total") + " :",
-      isUpperSide: true,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
-            ₺
-          </p>
-        </div>
       ),
     },
     {
