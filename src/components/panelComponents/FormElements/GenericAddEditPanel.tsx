@@ -139,6 +139,20 @@ const GenericAddEditPanel = <T,>({
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    // Cleanup function
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
       setImageFormKey(input.formKey);
