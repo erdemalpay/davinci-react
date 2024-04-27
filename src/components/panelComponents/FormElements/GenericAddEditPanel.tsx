@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,7 +62,6 @@ const GenericAddEditPanel = <T,>({
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -96,14 +95,11 @@ const GenericAddEditPanel = <T,>({
     },
     {}
   );
-
   const [formElements, setFormElements] = useState(() => {
     if (isEditMode && itemToEdit) {
       return itemToEdit.updates as unknown as FormElementsState;
     }
-
     const mergedInitialState = { ...initialState, ...constantValues };
-
     return mergedInitialState;
   });
 
@@ -128,7 +124,6 @@ const GenericAddEditPanel = <T,>({
       onSuccess: (data) => {
         setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
       },
-
       onError: (error) => {
         console.error("Error uploading file:", error);
       },
@@ -138,6 +133,20 @@ const GenericAddEditPanel = <T,>({
     setForm && setForm(formElements as T);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    // Cleanup function
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
@@ -178,6 +187,7 @@ const GenericAddEditPanel = <T,>({
     return inputs.every((input) => {
       if (!input.required) return true;
       const value = formElements[input.formKey];
+      if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== "";
     });
   };
