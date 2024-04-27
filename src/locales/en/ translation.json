@@ -250,5 +250,6 @@
   "Service": "Service",
   "Add Service": "Add Service",
   "Delete Service": "Delete Service",
+  "Service Invoices": "Service Invoices",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -11,6 +11,7 @@ import {
   AccountVendor,
   Location,
 } from "../types/index";
+import { AccountService } from "./../types/index";
 
 export function NameInput({ required = true } = {}) {
   const { t } = useTranslation();
@@ -288,6 +289,35 @@ export function FixtureInput({
       };
     }),
     placeholder: t("Fixture"),
+    invalidateKeys: invalidateKeys,
+    isMultiple: isMultiple,
+    required: required,
+  };
+}
+
+export function ServiceInput({
+  required = false,
+  isMultiple = false,
+  invalidateKeys = [],
+  services,
+}: {
+  required?: boolean;
+  isMultiple?: boolean;
+  invalidateKeys?: { key: string; defaultValue: string }[];
+  services: AccountService[];
+}) {
+  const { t } = useTranslation();
+  return {
+    type: InputTypes.SELECT,
+    formKey: "service",
+    label: t("Service"),
+    options: services.map((service) => {
+      return {
+        value: service._id,
+        label: service.name,
+      };
+    }),
+    placeholder: t("Service"),
     invalidateKeys: invalidateKeys,
     isMultiple: isMultiple,
     required: required,

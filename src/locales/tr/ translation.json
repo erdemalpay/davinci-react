@@ -249,5 +249,6 @@
   "Service": "Hizmet",
   "Add Service": "Hizmet Ekle",
   "Delete Service": "Hizmeti Sil",
+  "Service Invoices": "Hizmet Faturaları",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
