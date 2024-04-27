@@ -16,7 +16,10 @@ import {
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountFixtures } from "../../utils/api/account/fixture";
+import {
+  useAccountFixtureMutations,
+  useGetAccountFixtures,
+} from "../../utils/api/account/fixture";
 import {
   useAccountFixtureInvoiceMutations,
   useGetAccountFixtureInvoices,
@@ -30,6 +33,7 @@ import {
   ExpenseTypeInput,
   FixtureInput,
   LocationInput,
+  NameInput,
   QuantityInput,
   VendorInput,
 } from "../../utils/panelInputs";
@@ -37,7 +41,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -60,6 +64,14 @@ const FixtureInvoice = () => {
   const [rowToAction, setRowToAction] = useState<AccountFixtureInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
+  const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
+  const { createAccountFixture } = useAccountFixtureMutations();
+  const [addFixtureForm, setAddFixtureForm] = useState({
+    name: "",
+    brand: [],
+    vendor: [],
+    expenseType: [],
+  });
   const [form, setForm] = useState<Partial<AccountFixtureInvoice>>({
     date: "",
     fixture: "",
@@ -193,6 +205,23 @@ const FixtureInvoice = () => {
       required: true,
       isDatePicker: true,
     },
+  ];
+
+  const addFixtureInputs = [
+    NameInput(),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      required: true,
+      isMultiple: true,
+    }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
+  ];
+  const addFixtureFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -478,6 +507,19 @@ const FixtureInvoice = () => {
         </Switch>
       ),
     },
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            setIsAddFixtureModalOpen(true);
+          }}
+        >
+          <H5> {t("Add Fixture")}</H5>
+        </button>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -610,6 +652,29 @@ const FixtureInvoice = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
         />
+        {isAddFixtureModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddFixtureModalOpen}
+            close={() => setIsAddFixtureModalOpen(false)}
+            inputs={addFixtureInputs}
+            formKeys={addFixtureFormKeys}
+            setForm={setAddFixtureForm}
+            submitItem={createAccountFixture as any}
+            generalClassName="overflow-visible"
+            submitFunction={() => {
+              createAccountFixture({
+                ...addFixtureForm,
+              });
+              setAddFixtureForm({
+                name: "",
+                brand: [],
+                vendor: [],
+                expenseType: [],
+              });
+            }}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
       </div>
     </>
   );
