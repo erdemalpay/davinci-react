@@ -308,6 +308,7 @@ export enum AccountingPageTabEnum {
   PACKAGETYPE,
   PRODUCT,
   FIXTURES,
+  SERVICES,
   STOCKLOCATION,
   STOCK,
   COUNTLIST,
