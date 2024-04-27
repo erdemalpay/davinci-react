@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GiAnchor } from "react-icons/gi";
+import { MdOutlineLocalLaundryService } from "react-icons/md";
 import FixtureInvoice from "../components/accounting/FixtureInvoice";
 import Invoice from "../components/accounting/Invoice";
+import ServiceInvoice from "../components/accounting/ServiceInvoice";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -32,6 +34,13 @@ export default function Expenses() {
       label: t("Fixture Invoices"),
       icon: <GiAnchor className="text-lg font-thin" />,
       content: <FixtureInvoice />,
+      isDisabled: false,
+    },
+    {
+      number: ExpensesPageTabEnum.SERVICEINVOICE,
+      label: t("Service Invoices"),
+      icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
+      content: <ServiceInvoice />,
       isDisabled: false,
     },
   ];

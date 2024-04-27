@@ -176,6 +176,20 @@ export type AccountFixtureInvoice = {
   kdv?: number;
 };
 
+export type AccountServiceInvoice = {
+  _id: number;
+  service: AccountService | string;
+  expenseType: AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  vendor?: AccountVendor | string;
+  note?: string;
+  location: Location | number;
+  price?: number;
+  kdv?: number;
+};
+
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
@@ -298,6 +312,7 @@ export enum RoleEnum {
 export enum ExpensesPageTabEnum {
   INVOICE,
   FIXTUREINVOICE,
+  SERVICEINVOICE,
 }
 
 export enum AccountingPageTabEnum {
