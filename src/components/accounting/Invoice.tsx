@@ -755,7 +755,7 @@ const Invoice = () => {
             formKeys={productFormKeys}
             setForm={setProductInputForm}
             submitItem={createAccountProduct as any}
-            generalClassName="overflow-scroll"
+            generalClassName="overflow-visible"
             submitFunction={() => {
               createAccountProduct({
                 ...productInputForm,
