@@ -177,7 +177,7 @@ const Fixture = () => {
         formKeys={formKeys}
         setForm={setInputForm}
         submitItem={createAccountFixture as any}
-        generalClassName="overflow-scroll"
+        generalClassName="overflow-visible"
         submitFunction={() => {
           createAccountFixture({
             ...inputForm,

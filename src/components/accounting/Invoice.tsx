@@ -195,64 +195,32 @@ const Invoice = () => {
         (products?.find((prod) => prod._id === form?.product)?.packages
           ?.length ?? 0) < 1,
     },
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes
-        .filter((exp) =>
+    ExpenseTypeInput({
+      expenseTypes:
+        expenseTypes.filter((exp) =>
           products
             .find((prod) => prod._id === form?.product)
             ?.expenseType.includes(exp._id)
-        )
-        ?.map((expenseType) => {
-          return {
-            value: expenseType._id,
-            label: expenseType.name,
-          };
-        }),
-      placeholder: t("Expense Type"),
+        ) ?? [],
       required: true,
-    },
+    }),
     LocationInput({ locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "brand",
-      label: t("Brand"),
-      options: brands
-        ?.filter((brnd) =>
+    BrandInput({
+      brands:
+        brands?.filter((brnd) =>
           products
             .find((prod) => prod._id === form?.product)
             ?.brand?.includes(brnd._id)
-        )
-        ?.map((brand) => {
-          return {
-            value: brand._id,
-            label: brand.name,
-          };
-        }),
-      placeholder: t("Brand"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "vendor",
-      label: t("Vendor"),
-      options: vendors
-        ?.filter((vndr) =>
+        ) ?? [],
+    }),
+    VendorInput({
+      vendors:
+        vendors?.filter((vndr) =>
           products
             .find((prod) => prod._id === form?.product)
             ?.vendor?.includes(vndr._id)
-        )
-        ?.map((vendor) => {
-          return {
-            value: vendor._id,
-            label: vendor.name,
-          };
-        }),
-      placeholder: t("Vendor"),
-      required: false,
-    },
+        ) ?? [],
+    }),
     QuantityInput(),
   ];
   const filterPanelInputs = [
@@ -755,7 +723,7 @@ const Invoice = () => {
             formKeys={productFormKeys}
             setForm={setProductInputForm}
             submitItem={createAccountProduct as any}
-            generalClassName="overflow-scroll"
+            generalClassName="overflow-visible"
             submitFunction={() => {
               createAccountProduct({
                 ...productInputForm,

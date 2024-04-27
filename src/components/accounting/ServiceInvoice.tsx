@@ -14,7 +14,10 @@ import {
   Location,
 } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountServices } from "../../utils/api/account/service";
+import {
+  useAccountServiceMutations,
+  useGetAccountServices,
+} from "../../utils/api/account/service";
 import {
   useAccountServiceInvoiceMutations,
   useGetAccountServiceInvoices,
@@ -26,6 +29,7 @@ import {
   DateInput,
   ExpenseTypeInput,
   LocationInput,
+  NameInput,
   QuantityInput,
   ServiceInput,
   VendorInput,
@@ -34,7 +38,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
+import { H5, P1 } from "../panelComponents/Typography";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -56,6 +60,12 @@ const ServiceInvoice = () => {
   const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
+  const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
+  const [addServiceForm, setAddServiceForm] = useState({
+    name: "",
+    vendor: [],
+    expenseType: [],
+  });
   const [form, setForm] = useState<Partial<AccountServiceInvoice>>({
     date: "",
     service: "",
@@ -89,6 +99,7 @@ const ServiceInvoice = () => {
     deleteAccountServiceInvoice,
     updateAccountServiceInvoice,
   } = useAccountServiceInvoiceMutations();
+  const { createAccountService } = useAccountServiceMutations();
   const [rows, setRows] = useState(
     invoices.map((invoice) => {
       return {
@@ -175,6 +186,21 @@ const ServiceInvoice = () => {
       required: true,
       isDatePicker: true,
     },
+  ];
+
+  const addServiceInputs = [
+    NameInput(),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      required: true,
+      isMultiple: true,
+    }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
+  ];
+  const addServiceFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -404,8 +430,22 @@ const ServiceInvoice = () => {
 
   const tableFilters = [
     {
+      label: t("Total") + " :",
+      isUpperSide: true,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
       label: t("Enable Edit"),
-      isUpperSide: false,
+      isUpperSide: true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -419,20 +459,6 @@ const ServiceInvoice = () => {
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
           />
         </Switch>
-      ),
-    },
-    {
-      label: t("Total") + " :",
-      isUpperSide: true,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
-            ₺
-          </p>
-        </div>
       ),
     },
     {
@@ -451,6 +477,19 @@ const ServiceInvoice = () => {
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
           />
         </Switch>
+      ),
+    },
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          onClick={() => {
+            setIsAddServiceModalOpen(true);
+          }}
+        >
+          <H5> {t("Add Service")}</H5>
+        </button>
       ),
     },
   ];
@@ -580,6 +619,28 @@ const ServiceInvoice = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
         />
+        {isAddServiceModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddServiceModalOpen}
+            close={() => setIsAddServiceModalOpen(false)}
+            inputs={addServiceInputs}
+            formKeys={addServiceFormKeys}
+            setForm={setAddServiceForm}
+            submitItem={createAccountService as any}
+            generalClassName="overflow-visible"
+            submitFunction={() => {
+              createAccountService({
+                ...addServiceForm,
+              });
+              setAddServiceForm({
+                name: "",
+                vendor: [],
+                expenseType: [],
+              });
+            }}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
       </div>
     </>
   );
