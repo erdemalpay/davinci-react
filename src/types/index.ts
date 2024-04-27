@@ -90,7 +90,13 @@ export type AccountFixture = {
   brand?: string[];
   unitPrice: number;
 };
-
+export type AccountService = {
+  _id: string;
+  name: string;
+  expenseType: string[];
+  vendor?: string[];
+  unitPrice: number;
+};
 export type AccountUnit = {
   _id: string;
   name: string;
@@ -302,6 +308,7 @@ export enum AccountingPageTabEnum {
   PACKAGETYPE,
   PRODUCT,
   FIXTURES,
+  SERVICES,
   STOCKLOCATION,
   STOCK,
   COUNTLIST,

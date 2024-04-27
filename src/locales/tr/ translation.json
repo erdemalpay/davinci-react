@@ -245,5 +245,9 @@
   "Delete Fixture": "Demirbaşı Sil",
   "Fixture Invoices": "Demirbaş Faturaları",
   "Fixture Invoice": "Demirbaş Faturası",
+  "Services": "Hizmetler",
+  "Service": "Hizmet",
+  "Add Service": "Hizmet Ekle",
+  "Delete Service": "Hizmeti Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
