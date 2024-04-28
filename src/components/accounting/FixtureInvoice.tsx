@@ -486,7 +486,7 @@ const FixtureInvoice = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName="Add Fixture"
+          buttonName={t("Add Fixture")}
           onclick={() => {
             setIsAddFixtureModalOpen(true);
           }}

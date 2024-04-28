@@ -406,7 +406,7 @@ const Product = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName="Join Products"
+          buttonName={t("Join Products")}
           onclick={() => {
             setIsJoinProductModalOpen(true);
           }}

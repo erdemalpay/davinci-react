@@ -458,7 +458,7 @@ const ServiceInvoice = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName="Add Service"
+          buttonName={t("Add Service")}
           onclick={() => {
             setIsAddServiceModalOpen(true);
           }}

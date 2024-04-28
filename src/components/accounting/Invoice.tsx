@@ -539,7 +539,7 @@ const Invoice = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName="Add Product"
+          buttonName={t("Add Product")}
           onclick={() => {
             setIsProductInputOpen(true);
           }}
