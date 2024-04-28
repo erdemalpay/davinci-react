@@ -1,10 +1,10 @@
-import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetAllUsers } from "../../../utils/api/user";
 import { Autocomplete } from "../../common/Autocomplete";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
+import SwitchButton from "../../panelComponents/common/SwitchButton";
 
 type WhoKnowsUser = {
   mentor: string;
@@ -50,18 +50,10 @@ const WhoKnows = ({}: Props) => {
       label: t("Show Inactive Users"),
       isUpperSide: false,
       node: (
-        <Switch
+        <SwitchButton
           checked={showInactiveUsers}
-          onChange={() => setShowInactiveUsers((value) => !value)}
-          className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-        >
-          <span
-            aria-hidden="true"
-            className={`${showInactiveUsers ? "translate-x-4" : "translate-x-0"}
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
+          onChange={setShowInactiveUsers}
+        />
       ),
     },
   ];
