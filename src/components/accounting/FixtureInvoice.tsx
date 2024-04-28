@@ -40,7 +40,8 @@ import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { H5, P1 } from "../panelComponents/Typography";
+import { P1 } from "../panelComponents/Typography";
+import ButtonFilter from "../panelComponents/common/ButtonFIlter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -484,18 +485,15 @@ const FixtureInvoice = () => {
     {
       isUpperSide: false,
       node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-          onClick={() => {
+        <ButtonFilter
+          buttonName="Add Fixture"
+          onclick={() => {
             setIsAddFixtureModalOpen(true);
           }}
-        >
-          <H5> {t("Add Fixture")}</H5>
-        </button>
+        />
       ),
     },
   ];
-
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     const processedRows = invoices
