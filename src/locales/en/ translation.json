@@ -251,5 +251,7 @@
   "Add Service": "Add Service",
   "Delete Service": "Delete Service",
   "Service Invoices": "Service Invoices",
+  "Transfer to Fixture": "Transfer to Fixture",
+  "Transfer to Service": "Transfer to Service",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

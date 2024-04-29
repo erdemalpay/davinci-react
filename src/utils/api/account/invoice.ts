@@ -24,7 +24,14 @@ export function transferToFixtureInvoice({ id }: { id: number }) {
     },
   });
 }
-
+export function transferToServiceInvoice({ id }: { id: number }) {
+  return patch({
+    path: `${baseUrl}/transfer_to_service_invoice/${id}`,
+    payload: {
+      id: id,
+    },
+  });
+}
 export function useTransferFixtureInvoiceMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
@@ -35,6 +42,19 @@ export function useTransferFixtureInvoiceMutation() {
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
       queryClient.invalidateQueries([`${Paths.Accounting}/fixture-invoice`]);
+    },
+  });
+}
+export function useTransferServiceInvoiceMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(transferToServiceInvoice, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Accounting}/service-invoice`]);
     },
   });
 }
