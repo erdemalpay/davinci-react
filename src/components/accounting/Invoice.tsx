@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -19,6 +20,7 @@ import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
+  useTransferFixtureInvoiceMutation,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
@@ -46,7 +48,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-import ButtonFilter from "../panelComponents/common/ButtonFIlter";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -65,6 +67,8 @@ const Invoice = () => {
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
+  const { mutate: transferToFixtureInvoice } =
+    useTransferFixtureInvoiceMutation();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -506,6 +510,23 @@ const Invoice = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+    {
+      name: t("Transfer"),
+      isDisabled: !isEnableEdit,
+      icon: <TbTransfer />,
+      setRow: setRowToAction,
+      node: (row: AccountInvoice) => {
+        return (
+          <TbTransfer
+            className="text-red-500 cursor-pointer text-2xl"
+            onClick={() => transferToFixtureInvoice({ id: row._id })}
+          />
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: false,
       isPath: false,
     },
   ];
