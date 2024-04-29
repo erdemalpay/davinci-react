@@ -1,5 +1,8 @@
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaRegFilePdf } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
@@ -26,6 +29,7 @@ type Props<T> = {
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
+  isPdf?: boolean;
   collapsibleActions?: ActionType<T>[];
   title?: string;
   addButton?: ActionType<T>;
@@ -59,11 +63,11 @@ const GenericTable = <T,>({
   onDragEnter,
   outsideSearch,
   isSearch = true,
+  isPdf = false,
   isCollapsible = false,
   isPagination = true,
   isRowsPerPage = true,
   tooltipLimit = 40,
-
   rowClassNameFunction,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
@@ -189,6 +193,72 @@ const GenericTable = <T,>({
       navigate(action.path);
     }
   };
+  const generatePDF = () => {
+    const data = [];
+    let isGray = false;
+
+    // Dynamic columns headers based on props
+    data.push(
+      columns
+        .filter((column) => column.correspondingKey)
+        ?.map((column) => ({
+          text: column.key, // Adjust based on your actual column definition
+          style: "tableHeader",
+        }))
+    );
+
+    // Dynamic rows data based on filtered and sorted data
+    rows.forEach((row) => {
+      const rowData: any[] = [];
+
+      columns.forEach((column) => {
+        if (column.correspondingKey) {
+          const value = row[column.correspondingKey];
+          rowData.push(value);
+        }
+      });
+
+      // Toggle row background color
+      isGray = !isGray;
+
+      data.push([...rowData]);
+    });
+
+    const documentDefinition = {
+      content: [
+        {
+          table: {
+            headerRows: 1,
+            body: data,
+          },
+          layout: {
+            fillColor: (rowIndex: number) => {
+              return rowIndex === 0
+                ? "#000080"
+                : rowIndex % 2 === 0
+                ? "#d8d2d2"
+                : "#ffffff";
+            },
+          },
+        },
+      ],
+      styles: {
+        yourTextStyle: {
+          font: "Helvetica",
+        },
+        header: {
+          fontSize: 12,
+        },
+        tableHeader: {
+          bold: true,
+          color: "#fff",
+        },
+      },
+    };
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+    pdfMake.createPdf(documentDefinition).open();
+  };
+
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
     <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
       {actions?.map((action, index) => {
@@ -476,6 +546,16 @@ const GenericTable = <T,>({
 
             <div className="ml-auto flex flex-row gap-4">
               <div className="flex flex-row flex-wrap gap-4  ">
+                {isPdf && (
+                  <div className="my-auto">
+                    <ButtonTooltip content="Pdf">
+                      <FaRegFilePdf
+                        className="w-6 h-6 my-auto cursor-pointer"
+                        onClick={generatePDF}
+                      />
+                    </ButtonTooltip>
+                  </div>
+                )}
                 {/* filters for lowerside */}
                 {filters &&
                   filters.map(

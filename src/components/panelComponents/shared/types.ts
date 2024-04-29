@@ -50,6 +50,7 @@ export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
   className?: string;
+  correspondingKey?: string;
   node?: () => React.ReactNode;
 }
 type FormElementsState = {
