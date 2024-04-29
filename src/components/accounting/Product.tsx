@@ -24,7 +24,7 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFIlter";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -406,7 +406,7 @@ const Product = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName="Join Products"
+          buttonName={t("Join Products")}
           onclick={() => {
             setIsJoinProductModalOpen(true);
           }}
