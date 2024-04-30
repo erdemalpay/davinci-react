@@ -27,7 +27,7 @@ const Unit = () => {
   const { createAccountUnit, deleteAccountUnit, updateAccountUnit } =
     useAccountUnitMutations();
   const columns = [
-    { key: t("Name"), isSortable: true, correspondingKey: "name" },
+    { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -118,7 +118,6 @@ const Unit = () => {
           columns={columns}
           rows={units}
           title={t("Units")}
-          isPdf={true}
           addButton={addButton}
         />
       </div>
