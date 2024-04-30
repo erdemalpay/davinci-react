@@ -253,5 +253,9 @@
   "Transfer to Fixture": "Demirbaşa Transfer Et",
   "Transfer to Service": "Hizmete Transfer Et",
   "Transfer": "Transfer",
+  "Add Fixture Stock": "Demirbaş Stok Ekle",
+  "Delete Fixture Stock": "Demirbaş Stoğunu Sil",
+  "Fixture Stocks": "Demirbaş Stokları",
+  "Fixture Stock": "Demirbaş Stoğu",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

@@ -253,5 +253,9 @@
   "Service Invoices": "Service Invoices",
   "Transfer to Fixture": "Transfer to Fixture",
   "Transfer to Service": "Transfer to Service",
+  "Add Fixture Stock": "Add Fixture Stock",
+  "Delete Fixture Stock": "Delete Fixture Stock",
+  "Fixture Stocks": "Fixture Stocks",
+  "Fixture Stock": "Fixture Stock",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

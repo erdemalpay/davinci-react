@@ -10,11 +10,13 @@ import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
+import { VscServerEnvironment } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Fixture from "../components/accounting/Fixture";
+import FixtureStock from "../components/accounting/FixtureStock";
 import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Service from "../components/accounting/Service";
@@ -27,6 +29,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { AccountingPageTabEnum } from "../types";
 
+FixtureStock;
 export default function Accounting() {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState<number>(0);
@@ -110,6 +113,13 @@ export default function Accounting() {
       label: t("Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <Stock />,
+      isDisabled: false,
+    },
+    {
+      number: AccountingPageTabEnum.FIXTURESTOCK,
+      label: t("Fixture Stocks"),
+      icon: <VscServerEnvironment className="text-lg font-thin" />,
+      content: <FixtureStock />,
       isDisabled: false,
     },
     {
