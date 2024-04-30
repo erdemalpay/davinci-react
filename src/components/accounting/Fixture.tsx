@@ -3,156 +3,87 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountUnit } from "../../types";
+import { AccountFixture } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import {
-  useAccountProductMutations,
-  useGetAccountProducts,
-  useJoinProductsMutation,
-} from "../../utils/api/account/product";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
+  useAccountFixtureMutations,
+  useGetAccountFixtures,
+} from "../../utils/api/account/fixture";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import {
   BrandInput,
   ExpenseTypeInput,
   NameInput,
-  PackageTypeInput,
-  UnitInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 
 type FormElementsState = {
   [key: string]: any;
 };
-const Product = () => {
+const Fixture = () => {
   const { t } = useTranslation();
-  const products = useGetAccountProducts();
+  const fixtures = useGetAccountFixtures();
   const [tableKey, setTableKey] = useState(0);
-  const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
-  const packages = useGetAccountPackageTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountProduct>();
+  const [rowToAction, setRowToAction] = useState<AccountFixture>();
   const [showFilters, setShowFilters] = useState(false);
   const { setCurrentPage } = useGeneralContext();
-  const { mutate: joinProducts } = useJoinProductsMutation();
-  const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       brand: "",
       vendor: "",
       expenseType: "",
-      unit: "",
-      packages: "",
       name: "",
     });
-  const [form, setForm] = useState({
-    stayedProduct: "",
-    removedProduct: "",
-  });
   const [inputForm, setInputForm] = useState({
     brand: [],
     vendor: [],
     expenseType: [],
-    unit: "",
-    packages: [],
     name: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const { createAccountProduct, deleteAccountProduct, updateAccountProduct } =
-    useAccountProductMutations();
-  const [rows, setRows] = useState(
-    products.map((product) => {
-      return {
-        ...product,
-        unit: (product.unit as AccountUnit)?.name,
-      };
-    })
-  );
-  const joinProductInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "stayedProduct",
-      label: t("Stayed Product"),
-      options: products
-        .filter((product) => product._id !== form.removedProduct)
-        .map((product) => {
-          return {
-            value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
-          };
-        }),
-      placeholder: t("Stayed Product"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "removedProduct",
-      label: t("Removed Product"),
-      options: products
-        .filter((product) => product._id !== form.stayedProduct)
-        .map((product) => {
-          return {
-            value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
-          };
-        }),
-      placeholder: t("Removed Product"),
-      required: true,
-    },
-  ];
+  const { createAccountFixture, deleteAccountFixture, updateAccountFixture } =
+    useAccountFixtureMutations();
+  const [rows, setRows] = useState(fixtures);
+
   const filterPanelInputs = [
     BrandInput({ brands: brands }),
     VendorInput({ vendors: vendors }),
     ExpenseTypeInput({ expenseTypes: expenseTypes }),
-    PackageTypeInput({ packages: packages }),
-    UnitInput({ units: units }),
   ];
   const inputs = [
     NameInput(),
-    UnitInput({ units: units, required: true }),
     ExpenseTypeInput({
       expenseTypes: expenseTypes,
-      isMultiple: true,
       required: true,
+      isMultiple: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
-  const joinProductFormKeys = [
-    { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
-    { key: "removedProduct", type: FormKeyTypeEnum.STRING },
-  ];
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -160,11 +91,10 @@ const Product = () => {
   ];
   const rowKeys = [
     { key: "name", className: "min-w-32 pr-1" },
-    { key: "unit", className: "min-w-32" },
     {
       key: "expenseType",
       className: "min-w-32",
-      node: (row: AccountProduct) => {
+      node: (row: AccountFixture) => {
         return row.expenseType.map((expType: string) => {
           const foundExpenseType = expenseTypes.find(
             (expenseType) => expenseType._id === expType
@@ -182,27 +112,9 @@ const Product = () => {
       },
     },
     {
-      key: "packages",
-      className: "min-w-32",
-      node: (row: AccountProduct) => {
-        return row?.packages?.map((item, index) => {
-          const foundPackage = packages?.find((p) => p._id === item.package);
-          return (
-            <span
-              key={foundPackage?.name ?? "" + row._id}
-              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit `}
-            >
-              {foundPackage?.name}
-              {(row?.packages?.length ?? 0) - 1 !== index && ","}
-            </span>
-          );
-        });
-      },
-    },
-    {
       key: "brand",
       className: "min-w-32",
-      node: (row: AccountProduct) => {
+      node: (row: AccountFixture) => {
         if (row.brand) {
           return row?.brand?.map((brand: string, index) => {
             const foundBrand = brands.find((br) => br._id === brand);
@@ -224,11 +136,12 @@ const Product = () => {
     {
       key: "vendor",
       className: "min-w-32",
-      node: (row: AccountProduct) => {
+      node: (row: AccountFixture) => {
         if (row.vendor) {
           return row?.vendor?.map((vendor: string, index) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
-            if (!foundVendor) return <div key={row._id + vendor}>-</div>;
+            if (!foundVendor)
+              return <div key={row._id + "not found vendor"}>-</div>;
             return (
               <span
                 key={foundVendor.name + foundVendor._id + row._id}
@@ -254,7 +167,7 @@ const Product = () => {
     },
   ];
   const addButton = {
-    name: t(`Add Product`),
+    name: t(`Add Fixture`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -263,23 +176,16 @@ const Product = () => {
         inputs={inputs}
         formKeys={formKeys}
         setForm={setInputForm}
-        submitItem={createAccountProduct as any}
-        generalClassName="overflow-scroll"
+        submitItem={createAccountFixture as any}
+        generalClassName="overflow-visible"
         submitFunction={() => {
-          createAccountProduct({
+          createAccountFixture({
             ...inputForm,
-            packages:
-              inputForm?.packages?.map((pkg: any) => ({
-                package: pkg as string,
-                packageUnitPrice: 0,
-              })) ?? [],
           });
           setInputForm({
             brand: [],
             vendor: [],
             expenseType: [],
-            unit: "",
-            packages: [],
             name: "",
           });
         }}
@@ -302,10 +208,10 @@ const Product = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountProduct(rowToAction?._id);
+            deleteAccountFixture(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Product")}
+          title={t("Delete Fixture")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -328,30 +234,21 @@ const Product = () => {
           inputs={inputs}
           formKeys={formKeys}
           generalClassName="overflow-scroll"
-          submitItem={updateAccountProduct as any}
+          submitItem={updateAccountFixture as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           setForm={setInputForm}
           constantValues={{
             name: rowToAction.name,
-            unit: units.find(
-              (unit) => unit.name === (rowToAction?.unit as string)
-            )?._id,
             expenseType: rowToAction.expenseType,
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
-            packages: rowToAction?.packages?.map((pkg) => pkg.package),
           }}
           handleUpdate={() => {
-            updateAccountProduct({
+            updateAccountFixture({
               id: rowToAction?._id,
               updates: {
                 ...inputForm,
-                packages:
-                  inputForm?.packages?.map((pkg: any) => ({
-                    package: pkg as string,
-                    packageUnitPrice: 0,
-                  })) ?? [],
               },
             });
           }}
@@ -364,54 +261,34 @@ const Product = () => {
   ];
   useEffect(() => {
     setRows(
-      products
-        .filter((product) => {
+      fixtures
+        .filter((fixture) => {
           return (
-            passesFilter(
-              filterPanelFormElements.unit,
-              (product.unit as AccountUnit)?._id
-            ) &&
             (filterPanelFormElements.brand === "" ||
-              product.brand?.includes(filterPanelFormElements.brand)) &&
+              fixture.brand?.includes(filterPanelFormElements.brand)) &&
             (filterPanelFormElements.vendor === "" ||
-              product.vendor?.includes(filterPanelFormElements.vendor)) &&
+              fixture.vendor?.includes(filterPanelFormElements.vendor)) &&
             (filterPanelFormElements.expenseType === "" ||
-              product.expenseType?.includes(
+              fixture.expenseType?.includes(
                 filterPanelFormElements.expenseType
-              )) &&
-            (filterPanelFormElements.packages === "" ||
-              product.packages?.some(
-                (pkg) => pkg.package === filterPanelFormElements.package
               ))
           );
         })
-        .map((product) => {
+        .map((fixture) => {
           return {
-            ...product,
-            unit: (product.unit as AccountUnit)?.name,
+            ...fixture,
           };
         })
     );
     setCurrentPage(1);
     setTableKey((prev) => prev + 1);
-  }, [products, filterPanelFormElements]);
+  }, [fixtures, filterPanelFormElements]);
 
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Join Products")}
-          onclick={() => {
-            setIsJoinProductModalOpen(true);
-          }}
-        />
-      ),
     },
   ];
   const filterPanel = {
@@ -430,27 +307,14 @@ const Product = () => {
           actions={actions}
           columns={columns}
           rows={rows}
-          title={t("Products")}
+          title={t("Fixtures")}
           addButton={addButton}
           filters={filters}
           filterPanel={filterPanel}
         />
-        {isJoinProductModalOpen && (
-          <GenericAddEditPanel
-            isOpen={isJoinProductModalOpen}
-            close={() => setIsJoinProductModalOpen(false)}
-            inputs={joinProductInputs}
-            formKeys={joinProductFormKeys}
-            submitItem={joinProducts as any}
-            setForm={setForm}
-            isEditMode={false}
-            topClassName="flex flex-col gap-2 "
-            buttonName={t("Join")}
-          />
-        )}
       </div>
     </>
   );
 };
 
-export default Product;
+export default Fixture;

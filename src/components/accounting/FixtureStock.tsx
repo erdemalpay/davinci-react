@@ -4,21 +4,18 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import {
-  AccountPackageType,
-  AccountProduct,
-  AccountStock,
+  AccountFixture,
+  AccountFixtureStock,
   AccountStockLocation,
 } from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import {
-  useAccountStockMutations,
-  useGetAccountStocks,
-} from "../../utils/api/account/stock";
+  useAccountFixtureStockMutations,
+  useGetAccountFixtureStocks,
+} from "../../utils/api/account/fixtureStock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import {
-  ProductInput,
+  FixtureInput,
   QuantityInput,
   StockLocationInput,
 } from "../../utils/panelInputs";
@@ -27,35 +24,31 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
 };
-const Stock = () => {
+const FixtureStock = () => {
   const { t } = useTranslation();
-  const stocks = useGetAccountStocks();
-  const units = useGetAccountUnits();
-  const products = useGetAccountProducts();
-  const packages = useGetAccountPackageTypes();
+  const stocks = useGetAccountFixtureStocks();
+  const fixtures = useGetAccountFixtures();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const [rowToAction, setRowToAction] = useState<AccountFixtureStock>();
   const { setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       location: "",
-      packageType: "",
     });
   const [form, setForm] = useState({
-    product: "",
+    fixture: "",
     location: "",
     quantity: 0,
-    packageType: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -65,73 +58,36 @@ const Stock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        prdct: (stock.product as AccountProduct).name,
-        pckgType: (stock?.packageType as AccountPackageType)?.name,
+        fxtr: (stock.fixture as AccountFixture).name,
         lctn: (stock.location as AccountStockLocation).name,
-        unit: units?.find(
-          (unit) => unit._id === (stock.product as AccountProduct).unit
-        )?.name,
-        unitPrice: stock?.packageType
-          ? (stock.product as AccountProduct).packages?.find(
-              (pkg) =>
-                pkg.package === (stock?.packageType as AccountPackageType)?._id
-            )?.packageUnitPrice
-          : (stock.product as AccountProduct)?.unitPrice,
-        totalPrice: stock?.packageType
-          ? parseFloat(
-              (
-                ((stock.product as AccountProduct).unitPrice ?? 0) *
-                stock.quantity *
-                (stock.packageType as AccountPackageType).quantity
-              ).toFixed(1)
-            )
-          : parseFloat(
-              (
-                ((stock.product as AccountProduct).unitPrice ?? 0) *
-                stock.quantity
-              ).toFixed(1)
-            ),
+        unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
+        totalPrice: parseFloat(
+          (
+            ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+          ).toFixed(1)
+        ),
       };
     })
   );
-  const { createAccountStock, deleteAccountStock, updateAccountStock } =
-    useAccountStockMutations();
+  const {
+    createAccountFixtureStock,
+    deleteAccountFixtureStock,
+    updateAccountFixtureStock,
+  } = useAccountFixtureStockMutations();
   const inputs = [
-    ProductInput({
-      products: products,
-      invalidateKeys: [{ key: "packageType", defaultValue: "" }],
+    FixtureInput({
+      fixtures: fixtures,
     }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
-      isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
-    },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
   ];
   const formKeys = [
-    { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "packageType", type: FormKeyTypeEnum.STRING },
+    { key: "fixture", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
-    { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
+    { key: t("Fixture"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -139,9 +95,7 @@ const Stock = () => {
   ];
 
   const rowKeys = [
-    { key: "prdct" },
-    { key: "pckgType", className: "min-w-32 " },
-    { key: "unit" },
+    { key: "fxtr" },
     { key: "lctn" },
     { key: "quantity" },
     {
@@ -158,7 +112,7 @@ const Stock = () => {
     },
   ];
   const addButton = {
-    name: t("Add Stock"),
+    name: t("Add Fixture Stock"),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -167,7 +121,7 @@ const Stock = () => {
         inputs={inputs}
         formKeys={formKeys}
         setForm={setForm}
-        submitItem={createAccountStock as any}
+        submitItem={createAccountFixtureStock as any}
         topClassName="flex flex-col gap-2 "
         generalClassName="overflow-visible"
       />
@@ -188,12 +142,12 @@ const Stock = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountStock(rowToAction?._id);
+            deleteAccountFixtureStock(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Stock")}
+          title={t("Delete Fixture Stock")}
           text={`${
-            (rowToAction.product as AccountProduct).name
+            (rowToAction.fixture as AccountFixture).name
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -210,10 +164,10 @@ const Stock = () => {
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
-      onClick: (row: AccountStock) => {
+      onClick: (row: AccountFixtureStock) => {
         setForm({
           ...form,
-          product: (row.product as AccountProduct)._id,
+          fixture: (row.fixture as AccountFixture)._id,
         });
       },
       modal: rowToAction ? (
@@ -222,16 +176,16 @@ const Stock = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAccountStock as any}
+          submitItem={updateAccountFixtureStock as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-visible"
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              product: (
+              fixture: (
                 stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.product as AccountProduct
+                  ?.fixture as AccountFixture
               )?._id,
               location: (
                 stocks.find((stock) => stock._id === rowToAction._id)
@@ -239,19 +193,14 @@ const Stock = () => {
               )?._id,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
-              packageType: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.packageType as AccountPackageType
-              )?._id,
               unitPrice: (
                 stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.product as AccountProduct
+                  ?.fixture as AccountFixture
               )?.unitPrice,
             },
           }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
@@ -273,73 +222,30 @@ const Stock = () => {
     setRows(
       stocks
         .filter((stock) => {
-          return (
-            passesFilter(
-              filterPanelFormElements.location,
-              (stock.location as AccountStockLocation)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.packageType,
-              (stock.packageType as AccountPackageType)?._id
-            )
+          return passesFilter(
+            filterPanelFormElements.location,
+            (stock.location as AccountStockLocation)?._id
           );
         })
         .map((stock) => {
           return {
             ...stock,
-            prdct: (stock.product as AccountProduct).name,
-            pckgType: (stock?.packageType as AccountPackageType)?.name,
+            fxtr: (stock.fixture as AccountFixture).name,
             lctn: (stock.location as AccountStockLocation).name,
-            unitPrice: stock?.packageType
-              ? (stock.product as AccountProduct).packages?.find(
-                  (pkg) =>
-                    pkg.package ===
-                    (stock?.packageType as AccountPackageType)?._id
-                )?.packageUnitPrice
-              : (stock.product as AccountProduct)?.unitPrice,
-            unit: units?.find(
-              (unit) => unit._id === (stock.product as AccountProduct).unit
-            )?.name,
-            totalPrice: stock?.packageType
-              ? parseFloat(
-                  (
-                    ((stock?.product as AccountProduct)?.packages?.find(
-                      (pkg) =>
-                        pkg.package ===
-                        (stock.packageType as AccountPackageType)?._id
-                    )?.packageUnitPrice ?? 0) *
-                    stock.quantity *
-                    (stock.packageType as AccountPackageType).quantity
-                  ).toFixed(1)
-                )
-              : parseFloat(
-                  (
-                    ((stock.product as AccountProduct).unitPrice ?? 0) *
-                    stock.quantity
-                  ).toFixed(1)
-                ),
+            unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
+            totalPrice: parseFloat(
+              (
+                ((stock.fixture as AccountFixture).unitPrice ?? 0) *
+                stock.quantity
+              ).toFixed(1)
+            ),
           };
         })
     );
     setCurrentPage(1);
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
-  const filterPanelInputs = [
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-      placeholder: t("Package Type"),
-      required: true,
-    },
-  ];
+  const filterPanelInputs = [StockLocationInput({ locations: locations })];
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -361,7 +267,7 @@ const Stock = () => {
               : columns
           }
           rows={rows}
-          title={t("Stocks")}
+          title={t("Fixture Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
         />
@@ -370,4 +276,4 @@ const Stock = () => {
   );
 };
 
-export default Stock;
+export default FixtureStock;

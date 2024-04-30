@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,7 +62,6 @@ const GenericAddEditPanel = <T,>({
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -96,14 +95,11 @@ const GenericAddEditPanel = <T,>({
     },
     {}
   );
-
   const [formElements, setFormElements] = useState(() => {
     if (isEditMode && itemToEdit) {
       return itemToEdit.updates as unknown as FormElementsState;
     }
-
     const mergedInitialState = { ...initialState, ...constantValues };
-
     return mergedInitialState;
   });
 
@@ -128,7 +124,6 @@ const GenericAddEditPanel = <T,>({
       onSuccess: (data) => {
         setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
       },
-
       onError: (error) => {
         console.error("Error uploading file:", error);
       },
@@ -138,6 +133,20 @@ const GenericAddEditPanel = <T,>({
     setForm && setForm(formElements as T);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    // Cleanup function
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
@@ -178,6 +187,7 @@ const GenericAddEditPanel = <T,>({
     return inputs.every((input) => {
       if (!input.required) return true;
       const value = formElements[input.formKey];
+      if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== "";
     });
   };
@@ -303,72 +313,77 @@ const GenericAddEditPanel = <T,>({
                     }
                   };
 
-                return (
-                  <div key={input.formKey} className="flex flex-col gap-2">
-                    {(input.type === InputTypes.TEXT ||
-                      input.type === InputTypes.NUMBER ||
-                      input.type === InputTypes.DATE ||
-                      input.type === InputTypes.TIME ||
-                      input.type === InputTypes.COLOR ||
-                      input.type === InputTypes.PASSWORD) && (
-                      <TextInput
-                        key={input.formKey}
-                        type={input.type}
-                        value={value}
-                        label={input.label ?? ""}
-                        placeholder={input.placeholder ?? ""}
-                        onChange={handleChange(input.formKey)}
-                        onClear={() => {
-                          handleInputClear(input);
-                        }}
-                      />
-                    )}
-
-                    {input.type === InputTypes.SELECT && (
-                      <SelectInput
-                        key={
-                          input.isMultiple
-                            ? input.formKey
-                            : input.formKey + formElements[input.formKey]
-                        }
-                        value={
-                          input.isMultiple
-                            ? input.options?.filter((option) =>
-                                formElements[input.formKey]?.includes(
-                                  option.value
-                                )
-                              )
-                            : input.options?.find(
-                                (option) =>
-                                  option.value === formElements[input.formKey]
-                              )
-                        }
-                        label={input.label ?? ""}
-                        options={input.options ?? []}
-                        placeholder={input.placeholder ?? ""}
-                        isMultiple={input.isMultiple ?? false}
-                        onChange={handleChangeForSelect(input.formKey)}
-                        onClear={() => {
-                          handleInputClear(input);
-                        }}
-                      />
-                    )}
-                    {input.type === InputTypes.TEXTAREA && (
-                      <div className="flex flex-col gap-2" key={input.formKey}>
-                        <H6>{input.label}</H6>
-
-                        <textarea
+                if (!input?.isDisabled) {
+                  return (
+                    <div key={input.formKey} className="flex flex-col gap-2">
+                      {(input.type === InputTypes.TEXT ||
+                        input.type === InputTypes.NUMBER ||
+                        input.type === InputTypes.DATE ||
+                        input.type === InputTypes.TIME ||
+                        input.type === InputTypes.COLOR ||
+                        input.type === InputTypes.PASSWORD) && (
+                        <TextInput
+                          key={input.formKey}
+                          type={input.type}
                           value={value}
-                          onChange={(e) => {
-                            handleChange(input.formKey)(e.target.value);
-                          }}
+                          label={input.label ?? ""}
                           placeholder={input.placeholder ?? ""}
-                          className="border text-sm border-gray-300 rounded-md p-2"
+                          onChange={handleChange(input.formKey)}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
                         />
-                      </div>
-                    )}
-                  </div>
-                );
+                      )}
+
+                      {input.type === InputTypes.SELECT && (
+                        <SelectInput
+                          key={
+                            input.isMultiple
+                              ? input.formKey
+                              : input.formKey + formElements[input.formKey]
+                          }
+                          value={
+                            input.isMultiple
+                              ? input.options?.filter((option) =>
+                                  formElements[input.formKey]?.includes(
+                                    option.value
+                                  )
+                                )
+                              : input.options?.find(
+                                  (option) =>
+                                    option.value === formElements[input.formKey]
+                                )
+                          }
+                          label={input.label ?? ""}
+                          options={input.options ?? []}
+                          placeholder={input.placeholder ?? ""}
+                          isMultiple={input.isMultiple ?? false}
+                          onChange={handleChangeForSelect(input.formKey)}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.TEXTAREA && (
+                        <div
+                          className="flex flex-col gap-2"
+                          key={input.formKey}
+                        >
+                          <H6>{input.label}</H6>
+
+                          <textarea
+                            value={value}
+                            onChange={(e) => {
+                              handleChange(input.formKey)(e.target.value);
+                            }}
+                            placeholder={input.placeholder ?? ""}
+                            className="border text-sm border-gray-300 rounded-md p-2"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
               })}
             </div>
           </div>
@@ -382,14 +397,14 @@ const GenericAddEditPanel = <T,>({
             <button
               onClick={() => {
                 if (!allRequiredFilled) {
-                  toast.error("Please fill all required fields");
+                  toast.error(t("Please fill all required fields"));
                 } else {
                   const phoneValidationFailed = inputs
                     .filter((input) => input.additionalType === "phone")
                     .some((input) => {
                       const inputValue = formElements[input.formKey];
                       if (!inputValue.match(/^[0-9]{11}$/)) {
-                        toast.error("Check phone number.");
+                        toast.error(t("Check phone number."));
                         return true; // Validation failed for phone number
                       }
                       return false; // Validation passed for phone number

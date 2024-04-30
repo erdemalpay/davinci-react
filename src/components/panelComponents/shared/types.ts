@@ -50,6 +50,7 @@ export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
   className?: string;
+  correspondingKey?: string;
   node?: () => React.ReactNode;
 }
 type FormElementsState = {
@@ -75,6 +76,7 @@ export interface GenericInputType {
   inputClassName?: string;
   isMultiple?: boolean;
   isDatePicker?: boolean;
+  isDisabled?: boolean;
   invalidateKeys?: {
     key: string;
     defaultValue: string | boolean | number;

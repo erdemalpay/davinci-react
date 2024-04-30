@@ -4,31 +4,25 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbTransfer, TbTransferIn } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
   AccountExpenseType,
-  AccountInvoice,
-  AccountPackageType,
-  AccountProduct,
+  AccountFixture,
+  AccountFixtureInvoice,
   AccountVendor,
   Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
-  useAccountInvoiceMutations,
-  useGetAccountInvoices,
-  useTransferFixtureInvoiceMutation,
-  useTransferServiceInvoiceMutation,
-} from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+  useAccountFixtureMutations,
+  useGetAccountFixtures,
+} from "../../utils/api/account/fixture";
 import {
-  useAccountProductMutations,
-  useGetAccountProducts,
-} from "../../utils/api/account/product";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
+  useAccountFixtureInvoiceMutations,
+  useGetAccountFixtureInvoices,
+} from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
@@ -36,67 +30,55 @@ import {
   BrandInput,
   DateInput,
   ExpenseTypeInput,
+  FixtureInput,
   LocationInput,
   NameInput,
-  PackageTypeInput,
-  ProductInput,
   QuantityInput,
-  UnitInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
 };
 
-const Invoice = () => {
+const FixtureInvoice = () => {
   const { t } = useTranslation();
-  const invoices = useGetAccountInvoices();
-  const units = useGetAccountUnits();
-  const packages = useGetAccountPackageTypes();
+  const invoices = useGetAccountFixtureInvoices();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
-  const products = useGetAccountProducts();
-  const { mutate: transferToFixtureInvoice } =
-    useTransferFixtureInvoiceMutation();
-  const { mutate: transferToServiceInvoice } =
-    useTransferServiceInvoiceMutation();
+  const fixtures = useGetAccountFixtures();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isProductInputOpen, setIsProductInputOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountInvoice>();
+  const [rowToAction, setRowToAction] = useState<AccountFixtureInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const { createAccountProduct } = useAccountProductMutations();
-  const [productInputForm, setProductInputForm] = useState({
+  const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
+  const { createAccountFixture } = useAccountFixtureMutations();
+  const [addFixtureForm, setAddFixtureForm] = useState({
+    name: "",
     brand: [],
     vendor: [],
     expenseType: [],
-    unit: "",
-    packages: [],
-    name: "",
   });
-  const [form, setForm] = useState<Partial<AccountInvoice>>({
+  const [form, setForm] = useState<Partial<AccountFixtureInvoice>>({
     date: "",
-    product: "",
+    fixture: "",
     expenseType: "",
     quantity: 0,
     totalExpense: 0,
-    packageType: "",
     brand: "",
     location: 0,
     vendor: "",
@@ -107,11 +89,10 @@ const Invoice = () => {
 
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
+      fixture: "",
       vendor: "",
       brand: "",
       expenseType: "",
-      packageType: "",
       location: "",
       before: "",
       after: "",
@@ -122,35 +103,28 @@ const Invoice = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
 
-  const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
-    useAccountInvoiceMutations();
+  const {
+    createAccountFixtureInvoice,
+    deleteAccountFixtureInvoice,
+    updateAccountFixtureInvoice,
+  } = useAccountFixtureInvoiceMutations();
   const [rows, setRows] = useState(
     invoices.map((invoice) => {
       return {
         ...invoice,
-        product: (invoice.product as AccountProduct)?.name,
+        fixture: (invoice.fixture as AccountFixture)?.name,
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-        packageType: (invoice.packageType as AccountPackageType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
         location: invoice.location as Location,
         lctn: (invoice.location as Location)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
-          (
-            invoice.totalExpense /
-            (invoice.quantity *
-              ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-          ).toFixed(4)
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
-        unit: units?.find(
-          (unit) =>
-            unit._id === ((invoice.product as AccountProduct).unit as string)
-        )?.name,
         expType: invoice.expenseType as AccountExpenseType,
         brnd: invoice.brand as AccountBrand,
         vndr: invoice.vendor as AccountVendor,
-        pckgTyp: invoice.packageType as AccountPackageType,
       };
     })
   );
@@ -173,68 +147,45 @@ const Invoice = () => {
   }, []);
   const inputs = [
     DateInput(),
-    ProductInput({
-      products: products,
+    FixtureInput({
+      fixtures: fixtures,
       required: true,
       invalidateKeys: [
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
-        { key: "packageType", defaultValue: "" },
       ],
     }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: products
-        .find((prod) => prod._id === form?.product)
-        ?.packages?.map((item) => {
-          const packageType = packages.find((pkg) => pkg._id === item.package);
-          return {
-            value: packageType?._id,
-            label: packageType?.name,
-          };
-        }),
-      placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
-      isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
-    },
     ExpenseTypeInput({
       expenseTypes:
         expenseTypes.filter((exp) =>
-          products
-            .find((prod) => prod._id === form?.product)
+          fixtures
+            .find((item) => item._id === form?.fixture)
             ?.expenseType.includes(exp._id)
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations }),
+    LocationInput({ locations: locations }),
     BrandInput({
       brands:
         brands?.filter((brnd) =>
-          products
-            .find((prod) => prod._id === form?.product)
+          fixtures
+            .find((item) => item._id === form?.fixture)
             ?.brand?.includes(brnd._id)
         ) ?? [],
     }),
     VendorInput({
       vendors:
         vendors?.filter((vndr) =>
-          products
-            .find((prod) => prod._id === form?.product)
+          fixtures
+            .find((item) => item._id === form?.fixture)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
     QuantityInput(),
   ];
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
-    PackageTypeInput({ packages: packages, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
@@ -256,30 +207,26 @@ const Invoice = () => {
       isDatePicker: true,
     },
   ];
-  const productInputs = [
+
+  const addFixtureInputs = [
     NameInput(),
-    UnitInput({ units: units, required: true }),
     ExpenseTypeInput({
       expenseTypes: expenseTypes,
-      isMultiple: true,
       required: true,
+      isMultiple: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
-  const productFormKeys = [
+  const addFixtureFormKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "packages", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "packageType", type: FormKeyTypeEnum.STRING },
+    { key: "fixture", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
@@ -295,10 +242,8 @@ const Invoice = () => {
     { key: t("Vendor"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
+    { key: t("Fixture"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -307,7 +252,7 @@ const Invoice = () => {
     {
       key: "date",
       className: "min-w-32 pr-2",
-      node: (row: AccountInvoice) => {
+      node: (row: AccountFixtureInvoice) => {
         return row.date;
       },
     },
@@ -332,10 +277,8 @@ const Invoice = () => {
         );
       },
     },
-    { key: "product", className: "min-w-32 pr-2" },
-    { key: "packageType", className: "min-w-32 " },
+    { key: "fixture", className: "min-w-32 pr-2" },
     { key: "quantity", className: "min-w-32" },
-    { key: "unit" },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -397,14 +340,14 @@ const Invoice = () => {
         submitFunction={() => {
           form.price &&
             form.kdv &&
-            createAccountInvoice({
+            createAccountFixtureInvoice({
               ...form,
               totalExpense:
                 Number(form.price) +
                 Number(form.kdv) * (Number(form.price) / 100),
             });
         }}
-        submitItem={createAccountInvoice as any}
+        submitItem={createAccountFixtureInvoice as any}
         topClassName="flex flex-col gap-2 "
         setForm={setForm}
         constantValues={{
@@ -420,44 +363,6 @@ const Invoice = () => {
   };
   const actions = [
     {
-      name: t("Transfer"),
-      isDisabled: !isEnableEdit,
-      icon: <TbTransfer />,
-      setRow: setRowToAction,
-      node: (row: AccountInvoice) => {
-        return (
-          <ButtonTooltip content={t("Transfer to Fixture")}>
-            <TbTransfer
-              className="text-red-500 cursor-pointer text-2xl"
-              onClick={() => transferToFixtureInvoice({ id: row._id })}
-            />
-          </ButtonTooltip>
-        );
-      },
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: false,
-      isPath: false,
-    },
-    {
-      name: t("Transfer"),
-      isDisabled: !isEnableEdit,
-      icon: <TbTransferIn />,
-      setRow: setRowToAction,
-      node: (row: AccountInvoice) => {
-        return (
-          <ButtonTooltip content={t("Transfer to Service")}>
-            <TbTransferIn
-              className="text-green-500 cursor-pointer text-2xl"
-              onClick={() => transferToServiceInvoice({ id: row._id })}
-            />
-          </ButtonTooltip>
-        );
-      },
-      className: "text-green-500 cursor-pointer text-2xl  ",
-      isModal: false,
-      isPath: false,
-    },
-    {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
@@ -467,11 +372,11 @@ const Invoice = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountInvoice(rowToAction?._id);
+            deleteAccountFixtureInvoice(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Invoice"
-          text={`${rowToAction.product} invoice will be deleted. Are you sure you want to continue?`}
+          text={`${rowToAction.fixture} invoice will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl  ",
@@ -513,7 +418,7 @@ const Invoice = () => {
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
           setForm={setForm}
-          submitItem={updateAccountInvoice as any}
+          submitItem={updateAccountFixtureInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-scroll"
@@ -521,9 +426,9 @@ const Invoice = () => {
             id: rowToAction._id,
             updates: {
               date: convertDateFormat(rowToAction.date),
-              product: (
+              fixture: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.product as AccountProduct
+                  ?.fixture as AccountFixture
               )?._id,
               expenseType: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
@@ -531,10 +436,6 @@ const Invoice = () => {
               )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
-              packageType: (
-                invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.packageType as AccountPackageType
-              )?._id,
               brand: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.brand as AccountBrand
@@ -585,15 +486,14 @@ const Invoice = () => {
       isUpperSide: false,
       node: (
         <ButtonFilter
-          buttonName={t("Add Product")}
+          buttonName={t("Add Fixture")}
           onclick={() => {
-            setIsProductInputOpen(true);
+            setIsAddFixtureModalOpen(true);
           }}
         />
       ),
     },
   ];
-
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     const processedRows = invoices
@@ -604,12 +504,8 @@ const Invoice = () => {
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
           passesFilter(
-            filterPanelFormElements.packageType,
-            (invoice.packageType as AccountPackageType)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.product,
-            (invoice.product as AccountProduct)?._id
+            filterPanelFormElements.fixture,
+            (invoice.fixture as AccountFixture)?._id
           ) &&
           passesFilter(
             filterPanelFormElements.vendor,
@@ -632,29 +528,19 @@ const Invoice = () => {
       .map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
+          fixture: (invoice.fixture as AccountFixture)?.name,
           expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
           location: invoice.location as Location,
           lctn: (invoice.location as Location)?.name,
           unitPrice: parseFloat(
-            (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-            ).toFixed(4)
+            (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
-          pckgTyp: invoice.packageType as AccountPackageType,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -689,7 +575,7 @@ const Invoice = () => {
   };
   const outsideSearch = () => {
     return (
-      <div className="flex flex-row relative min-w-32">
+      <div className="flex flex-row relative">
         <input
           type="text"
           value={temporarySearch}
@@ -732,37 +618,30 @@ const Invoice = () => {
               : columns
           }
           rows={rows}
-          title={t("Invoices")}
+          title={t("Fixture Invoices")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}
           outsideSearch={outsideSearch}
         />
-        {isProductInputOpen && (
+        {isAddFixtureModalOpen && (
           <GenericAddEditPanel
-            isOpen={isProductInputOpen}
-            close={() => setIsProductInputOpen(false)}
-            inputs={productInputs}
-            formKeys={productFormKeys}
-            setForm={setProductInputForm}
-            submitItem={createAccountProduct as any}
+            isOpen={isAddFixtureModalOpen}
+            close={() => setIsAddFixtureModalOpen(false)}
+            inputs={addFixtureInputs}
+            formKeys={addFixtureFormKeys}
+            setForm={setAddFixtureForm}
+            submitItem={createAccountFixture as any}
             generalClassName="overflow-visible"
             submitFunction={() => {
-              createAccountProduct({
-                ...productInputForm,
-                packages:
-                  productInputForm?.packages?.map((pkg: any) => ({
-                    package: pkg as string,
-                    packageUnitPrice: 0,
-                  })) ?? [],
+              createAccountFixture({
+                ...addFixtureForm,
               });
-              setProductInputForm({
+              setAddFixtureForm({
+                name: "",
                 brand: [],
                 vendor: [],
                 expenseType: [],
-                unit: "",
-                packages: [],
-                name: "",
               });
             }}
             topClassName="flex flex-col gap-2 "
@@ -773,4 +652,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default FixtureInvoice;

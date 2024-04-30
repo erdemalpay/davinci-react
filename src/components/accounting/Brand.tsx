@@ -7,23 +7,13 @@ import {
   useAccountBrandMutations,
   useGetAccountBrands,
 } from "../../utils/api/account/brand";
+import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-type Props = {};
-const inputs = [
-  {
-    type: InputTypes.TEXT,
-    formKey: "name",
-    label: "Name",
-    placeholder: "Name",
-    required: true,
-  },
-];
-const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-const Brand = (props: Props) => {
+const Brand = () => {
   const { t } = useTranslation();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
@@ -46,6 +36,8 @@ const Brand = (props: Props) => {
       className: "min-w-32 pr-1",
     },
   ];
+  const inputs = [NameInput()];
+  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Brand`),
     isModal: true,
@@ -109,7 +101,6 @@ const Brand = (props: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];

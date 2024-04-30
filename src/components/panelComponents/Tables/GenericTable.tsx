@@ -1,5 +1,7 @@
+import "pdfmake/build/pdfmake";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaRegFilePdf } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
@@ -26,6 +28,7 @@ type Props<T> = {
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
+  isPdf?: boolean;
   collapsibleActions?: ActionType<T>[];
   title?: string;
   addButton?: ActionType<T>;
@@ -59,11 +62,11 @@ const GenericTable = <T,>({
   onDragEnter,
   outsideSearch,
   isSearch = true,
+  isPdf = false,
   isCollapsible = false,
   isPagination = true,
   isRowsPerPage = true,
   tooltipLimit = 40,
-
   rowClassNameFunction,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
@@ -96,7 +99,7 @@ const GenericTable = <T,>({
   const filteredRows = initialRows().filter((row) =>
     rowKeys.some((rowKey) => {
       const value = row[rowKey.key as keyof typeof row];
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.trimStart().toLowerCase();
 
       if (typeof value === "string") {
         return value.toLowerCase().includes(query);
@@ -189,6 +192,84 @@ const GenericTable = <T,>({
       navigate(action.path);
     }
   };
+  const generatePDF = () => {
+    const pdfMake = (window as any).pdfMake;
+    const data = [];
+    let isGray = false;
+
+    // Dynamic columns headers based on props
+    data.push(
+      columns
+        .filter((column) => column.correspondingKey)
+        ?.map((column) => ({
+          text: column.key, // Adjust based on your actual column definition
+          style: "tableHeader",
+        }))
+    );
+
+    // Dynamic rows data based on filtered and sorted data
+    rows.forEach((row) => {
+      const rowData: any[] = [];
+
+      columns.forEach((column) => {
+        if (column.correspondingKey) {
+          const value = row[column.correspondingKey];
+          rowData.push(value);
+        }
+      });
+
+      // Toggle row background color
+      isGray = !isGray;
+
+      data.push([...rowData]);
+    });
+
+    const documentDefinition = {
+      content: [
+        {
+          table: {
+            headerRows: 1,
+            body: data,
+          },
+          layout: {
+            fillColor: (rowIndex: number) => {
+              return rowIndex === 0
+                ? "#000080"
+                : rowIndex % 2 === 0
+                ? "#d8d2d2"
+                : "#ffffff";
+            },
+          },
+        },
+      ],
+      styles: {
+        yourTextStyle: {
+          font: "Helvetica",
+        },
+        header: {
+          fontSize: 12,
+        },
+        tableHeader: {
+          bold: true,
+          color: "#fff",
+        },
+      },
+    };
+
+    pdfMake.fonts = {
+      Roboto: {
+        normal:
+          "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf",
+        bold: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf",
+        italics:
+          "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf",
+        bolditalics:
+          "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf",
+      },
+    };
+    pdfMake.createPdf(documentDefinition).open();
+  };
+
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
     <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
       {actions?.map((action, index) => {
@@ -252,9 +333,10 @@ const GenericTable = <T,>({
               );
             }
             if (
-              !rowKey?.isImage &&
-              (row[rowKey.key as keyof T] === undefined ||
-                row[rowKey.key as keyof T] === null)
+              (!rowKey?.isImage &&
+                (row[rowKey.key as keyof T] === undefined ||
+                  row[rowKey.key as keyof T] === null)) ||
+              row[rowKey.key as keyof T] === ""
             ) {
               return (
                 <td
@@ -472,8 +554,19 @@ const GenericTable = <T,>({
 
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
             {title && <H4 className="mr-auto">{title}</H4>}
+
             <div className="ml-auto flex flex-row gap-4">
               <div className="flex flex-row flex-wrap gap-4  ">
+                {isPdf && (
+                  <div className="my-auto">
+                    <ButtonTooltip content="Pdf">
+                      <FaRegFilePdf
+                        className="w-6 h-6 my-auto cursor-pointer"
+                        onClick={generatePDF}
+                      />
+                    </ButtonTooltip>
+                  </div>
+                )}
                 {/* filters for lowerside */}
                 {filters &&
                   filters.map(
@@ -520,10 +613,10 @@ const GenericTable = <T,>({
                           key={index}
                           className={`${
                             columns.length === 2 && "justify-between  "
-                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8`}
+                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
                         >
                           <H5
-                            className={`w-fit flex gap-2 ${
+                            className={`w-fit flex gap-2 text-gray-600 ${
                               columns.length === 2 && index == 1 && "  mx-auto"
                             } ${
                               index === columns.length - 1 &&

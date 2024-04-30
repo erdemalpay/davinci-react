@@ -7,14 +7,13 @@ import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
+import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-type Props = {};
-
-const ExpenseType = (props: Props) => {
+const ExpenseType = () => {
   const { t } = useTranslation();
   const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
@@ -48,22 +47,7 @@ const ExpenseType = (props: Props) => {
       ),
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-    {
-      type: InputTypes.COLOR,
-      formKey: "backgroundColor",
-      label: t("Background Color"),
-      placeholder: t("Background Color"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput(), BackgroundColorInput()];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },

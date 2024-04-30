@@ -7,14 +7,13 @@ import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
 } from "../../utils/api/account/stockLocation";
+import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-type Props = {};
-
-const StockLocations = (props: Props) => {
+const StockLocations = () => {
   const { t } = useTranslation();
   const stockLocations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
@@ -40,15 +39,7 @@ const StockLocations = (props: Props) => {
       className: "min-w-32 pr-1",
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {

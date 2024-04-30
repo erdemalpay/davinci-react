@@ -7,14 +7,13 @@ import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-type Props = {};
-
-const Vendor = (props: Props) => {
+const Vendor = () => {
   const { t } = useTranslation();
   const vendors = useGetAccountVendors();
   const [tableKey, setTableKey] = useState(0);
@@ -37,15 +36,7 @@ const Vendor = (props: Props) => {
       className: "min-w-32 pr-1",
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Vendor`),
@@ -110,7 +101,6 @@ const Vendor = (props: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];

@@ -4,11 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
-import {
-  AccountCountList,
-  AccountStockLocation,
-  AccountUnit,
-} from "../../types";
+import { AccountCountList, AccountStockLocation } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -16,9 +12,15 @@ import {
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import {
+  NameInput,
+  ProductInput,
+  QuantityInput,
+  StockLocationInput,
+} from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { H5 } from "../panelComponents/Typography";
@@ -50,39 +52,9 @@ const CountLists = () => {
     { key: t("Actions"), isSortable: false },
   ];
   const consumptInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name + `(${(product.unit as AccountUnit).name})`,
-        };
-      }),
-      placeholder: t("Product"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
+    ProductInput({ products: products, required: true }),
+    StockLocationInput({ locations: locations }),
+    QuantityInput({ required: true }),
   ];
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
@@ -111,28 +83,7 @@ const CountLists = () => {
       ),
     },
   ];
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "location",
-      label: t("Location"),
-      options: locations.map((location) => {
-        return {
-          value: location._id,
-          label: location.name,
-        };
-      }),
-      placeholder: t("Location"),
-      required: true,
-    },
-  ];
+  const inputs = [NameInput(), StockLocationInput({ locations: locations })];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },

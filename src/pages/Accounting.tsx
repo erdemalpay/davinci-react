@@ -2,27 +2,26 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiViewList } from "react-icons/ci";
-import {
-  FaFileInvoiceDollar,
-  FaMagnifyingGlassLocation,
-} from "react-icons/fa6";
+import { FaAnchor, FaServicestack } from "react-icons/fa";
+import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { FiArchive } from "react-icons/fi";
 import { LuPackageOpen } from "react-icons/lu";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { SlBasketLoaded } from "react-icons/sl";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
-import { VscTypeHierarchy } from "react-icons/vsc";
+import { VscServerEnvironment } from "react-icons/vsc";
 import Brand from "../components/accounting/Brand";
 import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import ExpenseType from "../components/accounting/ExpenseType";
-import Invoice from "../components/accounting/Invoice";
+import Fixture from "../components/accounting/Fixture";
+import FixtureStock from "../components/accounting/FixtureStock";
 import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
+import Service from "../components/accounting/Service";
 import Stock from "../components/accounting/Stock";
 import StockLocations from "../components/accounting/StockLocation";
-import StockType from "../components/accounting/StockType";
 import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
@@ -30,6 +29,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { AccountingPageTabEnum } from "../types";
 
+FixtureStock;
 export default function Accounting() {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState<number>(0);
@@ -51,6 +51,7 @@ export default function Accounting() {
       content: <ExpenseType />,
       isDisabled: showAccountingConstants,
     },
+
     {
       number: AccountingPageTabEnum.UNIT,
       label: t("Units"),
@@ -87,10 +88,17 @@ export default function Accounting() {
       isDisabled: showAccountingConstants,
     },
     {
-      number: AccountingPageTabEnum.STOCKTYPE,
-      label: t("Stock Types"),
-      icon: <VscTypeHierarchy className="text-lg font-thin" />,
-      content: <StockType />,
+      number: AccountingPageTabEnum.FIXTURES,
+      label: t("Fixtures"),
+      icon: <FaAnchor className="text-lg font-thin" />,
+      content: <Fixture />,
+      isDisabled: showAccountingConstants,
+    },
+    {
+      number: AccountingPageTabEnum.SERVICES,
+      label: t("Services"),
+      icon: <FaServicestack className="text-lg font-thin" />,
+      content: <Service />,
       isDisabled: showAccountingConstants,
     },
     {
@@ -100,12 +108,18 @@ export default function Accounting() {
       content: <StockLocations />,
       isDisabled: showAccountingConstants,
     },
-
     {
-      number: AccountingPageTabEnum.INVOICE,
-      label: t("Invoices"),
-      icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
-      content: <Invoice />,
+      number: AccountingPageTabEnum.STOCK,
+      label: t("Stocks"),
+      icon: <SlBasketLoaded className="text-lg font-thin" />,
+      content: <Stock />,
+      isDisabled: false,
+    },
+    {
+      number: AccountingPageTabEnum.FIXTURESTOCK,
+      label: t("Fixture Stocks"),
+      icon: <VscServerEnvironment className="text-lg font-thin" />,
+      content: <FixtureStock />,
       isDisabled: false,
     },
     {
@@ -117,16 +131,9 @@ export default function Accounting() {
     },
     {
       number: AccountingPageTabEnum.COUNTARCHIVE,
-      label: t("Count Archieve"),
+      label: t("Count Archives"),
       icon: <FiArchive className="text-lg font-thin" />,
       content: <CountArchive />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.STOCK,
-      label: t("Stocks"),
-      icon: <SlBasketLoaded className="text-lg font-thin" />,
-      content: <Stock />,
       isDisabled: false,
     },
   ];
@@ -146,7 +153,7 @@ export default function Accounting() {
               onChange={() => {
                 setShowAccountingConstants(!showAccountingConstants);
                 if (!showAccountingConstants) {
-                  setAccountingActiveTab(AccountingPageTabEnum.INVOICE);
+                  setAccountingActiveTab(AccountingPageTabEnum.STOCK);
                 } else {
                   setAccountingActiveTab(0);
                 }

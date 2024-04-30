@@ -74,12 +74,29 @@ export type AccountProduct = {
   name: string;
   unit: AccountUnit | string;
   expenseType: string[];
-  stockType: string | AccountStockType;
+  vendor?: string[];
+  brand?: string[];
+  unitPrice: number;
+  packages?: {
+    package: string;
+    packageUnitPrice: number;
+  }[];
+};
+export type AccountFixture = {
+  _id: string;
+  name: string;
+  expenseType: string[];
   vendor?: string[];
   brand?: string[];
   unitPrice: number;
 };
-
+export type AccountService = {
+  _id: string;
+  name: string;
+  expenseType: string[];
+  vendor?: string[];
+  unitPrice: number;
+};
 export type AccountUnit = {
   _id: string;
   name: string;
@@ -109,6 +126,7 @@ export type AccountExpenseType = {
   name: string;
   backgroundColor: string;
 };
+
 export type AccountPackageType = {
   _id: string;
   name: string;
@@ -122,11 +140,7 @@ export type AccountVendor = {
   _id: string;
   name: string;
 };
-export type AccountStockType = {
-  _id: string;
-  name: string;
-  backgroundColor: string;
-};
+
 export type AccountStockLocation = {
   _id: string;
   name: string;
@@ -141,18 +155,54 @@ export type AccountInvoice = {
   date: string;
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
+  packageType?: AccountPackageType | string;
   note?: string;
   location: Location | number;
   price?: number;
   kdv?: number;
 };
+export type AccountFixtureInvoice = {
+  _id: number;
+  fixture: AccountFixture | string;
+  expenseType: AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  brand?: AccountBrand | string;
+  vendor?: AccountVendor | string;
+  note?: string;
+  location: Location | number;
+  price?: number;
+  kdv?: number;
+};
+
+export type AccountServiceInvoice = {
+  _id: number;
+  service: AccountService | string;
+  expenseType: AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  vendor?: AccountVendor | string;
+  note?: string;
+  location: Location | number;
+  price?: number;
+  kdv?: number;
+};
+
 export type AccountStock = {
   _id: string;
   product: AccountProduct | string;
   location: string | AccountStockLocation;
-  stockType?: string | AccountStockType;
   quantity: number;
-  unitPrice?: number;
+  packageType?: AccountPackageType | string;
+};
+
+export type AccountFixtureStock = {
+  _id: string;
+  fixture: AccountFixture | string;
+  location: string | AccountStockLocation;
+  quantity: number;
 };
 
 export type Visit = {
@@ -197,8 +247,6 @@ export type MenuItem = {
   description: string;
   imageUrl: string;
   category: MenuCategory | number;
-  priceBahceli: number;
-  priceNeorama: number;
   order: number;
   itemProduction?: {
     product: string;
@@ -260,25 +308,32 @@ export enum RowPerPageEnum {
 
 export enum RoleEnum {
   MANAGER = 1,
-  GAMEMASTER = 2,
-  GAMEMANAGER = 3,
-  CATERINGMANAGER = 4,
-  BARISTA = 5,
-  KITCHEN = 6,
-  SERVICE = 7,
-  CLEANING = 8,
+  GAMEMASTER,
+  GAMEMANAGER,
+  CATERINGMANAGER,
+  BARISTA,
+  KITCHEN,
+  SERVICE,
+  CLEANING,
 }
+export enum ExpensesPageTabEnum {
+  INVOICE,
+  FIXTUREINVOICE,
+  SERVICEINVOICE,
+}
+
 export enum AccountingPageTabEnum {
-  EXPENSETYPE = 0,
-  UNIT = 1,
-  VENDOR = 2,
-  BRAND = 3,
-  PACKAGETYPE = 4,
-  PRODUCT = 5,
-  STOCKTYPE = 6,
-  STOCKLOCATION = 7,
-  INVOICE = 8,
-  COUNTLIST = 9,
-  COUNTARCHIVE = 10,
-  STOCK = 11,
+  EXPENSETYPE,
+  UNIT,
+  VENDOR,
+  BRAND,
+  PACKAGETYPE,
+  PRODUCT,
+  FIXTURES,
+  SERVICES,
+  STOCKLOCATION,
+  STOCK,
+  FIXTURESTOCK,
+  COUNTLIST,
+  COUNTARCHIVE,
 }
