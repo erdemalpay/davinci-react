@@ -1,4 +1,3 @@
-import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -194,6 +193,7 @@ const GenericTable = <T,>({
     }
   };
   const generatePDF = () => {
+    const pdfMake = (window as any).pdfMake;
     const data = [];
     let isGray = false;
 
@@ -255,6 +255,7 @@ const GenericTable = <T,>({
         },
       },
     };
+
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
     pdfMake.createPdf(documentDefinition).open();
   };
