@@ -198,6 +198,13 @@ export type AccountStock = {
   packageType?: AccountPackageType | string;
 };
 
+export type AccountFixtureStock = {
+  _id: string;
+  fixture: AccountFixture | string;
+  location: string | AccountStockLocation;
+  quantity: number;
+};
+
 export type Visit = {
   _id: number;
   location: number;
@@ -326,6 +333,7 @@ export enum AccountingPageTabEnum {
   SERVICES,
   STOCKLOCATION,
   STOCK,
+  FIXTURESTOCK,
   COUNTLIST,
   COUNTARCHIVE,
 }
