@@ -1,3 +1,4 @@
+import "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
