@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GiAnchor } from "react-icons/gi";
@@ -13,14 +12,12 @@ import { ExpensesPageTabEnum } from "../types";
 
 export default function Expenses() {
   const { t } = useTranslation();
-  const [tableKey, setTableKey] = useState<number>(0);
   const {
     setCurrentPage,
     setSearchQuery,
     expensesActiveTab,
     setExpensesActiveTab,
   } = useGeneralContext();
-
   const tabs = [
     {
       number: ExpensesPageTabEnum.INVOICE,
@@ -44,16 +41,11 @@ export default function Expenses() {
       isDisabled: false,
     },
   ];
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [expensesActiveTab]);
-
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          key={tableKey}
           tabs={tabs}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}
