@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
@@ -9,7 +9,6 @@ import ProductPriceChart from "./accounting/ProductPriceChart";
 export default function AccountingAnalytics() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [tabPanelKey, setTabPanelKey] = useState<number>(0);
   const tabs = [
     {
       number: 0,
@@ -26,17 +25,9 @@ export default function AccountingAnalytics() {
       isDisabled: false,
     },
   ];
-  useEffect(() => {
-    setTabPanelKey((prev) => prev + 1);
-  }, [activeTab]);
   return (
     <>
-      <TabPanel
-        key={tabPanelKey}
-        tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     </>
   );
 }
