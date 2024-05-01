@@ -139,7 +139,7 @@ export default function Accounting() {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [accountingActiveTab, showAccountingConstants]);
+  }, [showAccountingConstants]);
 
   return (
     <>

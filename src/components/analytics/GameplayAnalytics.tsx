@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { PiGooglePlayLogo } from "react-icons/pi";
@@ -16,7 +16,6 @@ import WhoKnows from "./gameplay/WhoKnows";
 export default function GameplayAnalytics() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [tabPanelKey, setTabPanelKey] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string | undefined>("");
@@ -93,17 +92,10 @@ export default function GameplayAnalytics() {
       isDisabled: false,
     },
   ];
-  useEffect(() => {
-    setTabPanelKey((prev) => prev + 1);
-  }, [activeTab]);
+
   return (
     <>
-      <TabPanel
-        key={tabPanelKey}
-        tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
     </>
   );
 }
