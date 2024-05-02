@@ -257,5 +257,7 @@
   "Delete Fixture Stock": "Delete Fixture Stock",
   "Fixture Stocks": "Fixture Stocks",
   "Fixture Stock": "Fixture Stock",
+  "Transfer to Invoice": "Transfer to Invoice",
+  "Enable Transfer": "Enable Transfer",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

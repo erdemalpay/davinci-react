@@ -80,6 +80,7 @@ const Invoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct } = useAccountProductMutations();
   const [productInputForm, setProductInputForm] = useState({
@@ -421,7 +422,7 @@ const Invoice = () => {
   const actions = [
     {
       name: t("Transfer"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
       node: (row: AccountInvoice) => {
@@ -439,8 +440,8 @@ const Invoice = () => {
       isPath: false,
     },
     {
-      name: t("Transfer"),
-      isDisabled: !isEnableEdit,
+      name: t("TransferService"),
+      isDisabled: !isTransferEdit,
       icon: <TbTransferIn />,
       setRow: setRowToAction,
       node: (row: AccountInvoice) => {
@@ -559,7 +560,7 @@ const Invoice = () => {
   const tableFilters = [
     {
       label: t("Total") + " :",
-      isUpperSide: true,
+      isUpperSide: false,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -575,6 +576,13 @@ const Invoice = () => {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+    {
+      label: t("Enable Transfer"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -727,7 +735,7 @@ const Invoice = () => {
           filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
-            isEnableEdit
+            isEnableEdit || isTransferEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }

@@ -622,7 +622,7 @@ const GenericTable = <T,>({
                               index === columns.length - 1 &&
                               actions &&
                               isActionsActive
-                                ? "mx-auto"
+                                ? "mx-auto px-4"
                                 : ""
                             }`}
                           >

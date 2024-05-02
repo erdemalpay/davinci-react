@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
@@ -13,6 +14,7 @@ import {
   Location,
 } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
@@ -36,6 +38,7 @@ import {
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -53,6 +56,8 @@ const ServiceInvoice = () => {
   const locations = useGetLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
+  const { mutate: transferServiceInvoiceToInvoice } =
+    useServiceInvoiceTransferInvoiceMutation();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -338,6 +343,25 @@ const ServiceInvoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
+    {
+      name: t("Transfer"),
+      isDisabled: !isEnableEdit,
+      icon: <TbTransfer />,
+      setRow: setRowToAction,
+      node: (row: AccountServiceInvoice) => {
+        return (
+          <ButtonTooltip content={t("Transfer to Invoice")}>
+            <TbTransfer
+              className="text-red-500 cursor-pointer text-2xl"
+              onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}
+            />
+          </ButtonTooltip>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: false,
+      isPath: false,
+    },
     {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
