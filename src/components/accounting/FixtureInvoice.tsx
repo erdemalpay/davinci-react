@@ -11,8 +11,8 @@ import {
   AccountExpenseType,
   AccountFixture,
   AccountFixtureInvoice,
+  AccountStockLocation,
   AccountVendor,
-  Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -25,17 +25,17 @@ import {
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
 import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
   ExpenseTypeInput,
   FixtureInput,
-  LocationInput,
   NameInput,
   QuantityInput,
+  StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -56,7 +56,7 @@ const FixtureInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountFixtureInvoices();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -86,7 +86,7 @@ const FixtureInvoice = () => {
     quantity: 0,
     totalExpense: 0,
     brand: "",
-    location: 0,
+    location: "",
     vendor: "",
     note: "",
     price: 0,
@@ -122,8 +122,8 @@ const FixtureInvoice = () => {
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as Location,
-        lctn: (invoice.location as Location)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -171,7 +171,7 @@ const FixtureInvoice = () => {
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     BrandInput({
       brands:
         brands?.filter((brnd) =>
@@ -195,7 +195,7 @@ const FixtureInvoice = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -470,7 +470,7 @@ const FixtureInvoice = () => {
                   ?.vendor as AccountVendor
               )?._id,
               note: rowToAction.note,
-              location: (rowToAction.location as Location)._id,
+              location: (rowToAction.location as AccountStockLocation)._id,
             },
           }}
         />
@@ -553,7 +553,7 @@ const FixtureInvoice = () => {
           ) &&
           passesFilter(
             filterPanelFormElements.location,
-            (invoice.location as Location)?._id
+            (invoice.location as AccountStockLocation)?._id
           )
         );
       })
@@ -565,8 +565,8 @@ const FixtureInvoice = () => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
-          location: invoice.location as Location,
-          lctn: (invoice.location as Location)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
