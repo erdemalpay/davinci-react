@@ -28,9 +28,15 @@ export interface TableCardProps {
   table: Table;
   mentors: User[];
   games: Game[];
+  showAllGameplays?: boolean;
 }
 
-export function TableCard({ table, mentors, games }: TableCardProps) {
+export function TableCard({
+  table,
+  mentors,
+  games,
+  showAllGameplays = false,
+}: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
@@ -185,7 +191,7 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
             onChange={updateTableHandler}
           />
           {/* total gameplays number  */}
-          {!isGameplaysVisible && (
+          {!(isGameplaysVisible || showAllGameplays) && (
             <div
               className="flex flex-row justify-between items-center cursor-pointer py-2"
               onClick={() => {
@@ -201,48 +207,51 @@ export function TableCard({ table, mentors, games }: TableCardProps) {
         </div>
 
         {/* table gameplays */}
-        {isGameplaysVisible && table.gameplays.length > 0 && (
-          <div className="flex flex-col space-y-2 mt-2">
-            {table.gameplays.map((gameplay) => {
-              return (
-                <div
-                  key={gameplay._id || gameplay.startHour}
-                  className="flex justify-between text-xs cursor-pointer"
-                  onClick={() => editGameplay(gameplay)}
-                >
-                  <div className="flex w-4/5">
-                    <div className="overflow-hidden whitespace-nowrap text-ellipsis text-xs mr-1">
-                      {getGameName(gameplay.game as number)}
-                    </div>
-                    <h1 className="text-xs">({gameplay.playerCount})</h1>
-                  </div>
-                  <div className="flex">
-                    {gameplay.mentor?._id !== "dv" ? (
-                      <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
-                        {gameplay.mentor?.name}
+        {(isGameplaysVisible || showAllGameplays) &&
+          table.gameplays.length > 0 && (
+            <div className="flex flex-col space-y-2 mt-2">
+              {table.gameplays.map((gameplay) => {
+                return (
+                  <div
+                    key={gameplay._id || gameplay.startHour}
+                    className="flex justify-between text-xs cursor-pointer"
+                    onClick={() => editGameplay(gameplay)}
+                  >
+                    <div className="flex w-4/5">
+                      <div className="overflow-hidden whitespace-nowrap text-ellipsis text-xs mr-1">
+                        {getGameName(gameplay.game as number)}
                       </div>
-                    ) : (
-                      <></>
-                    )}
-
-                    <h5 className="text-xs whitespace-nowrap">
-                      {getDuration(
-                        gameplay.date,
-                        gameplay.startHour,
-                        gameplay.finishHour
+                      <h1 className="text-xs">({gameplay.playerCount})</h1>
+                    </div>
+                    <div className="flex">
+                      {gameplay.mentor?._id !== "dv" ? (
+                        <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
+                          {gameplay.mentor?.name}
+                        </div>
+                      ) : (
+                        <></>
                       )}
-                    </h5>
-                  </div>
-                </div>
-              );
-            })}
 
-            <IoIosArrowUp
-              className="text-xl cursor-pointer mx-auto"
-              onClick={() => setIsGameplaysVisible(false)}
-            />
-          </div>
-        )}
+                      <h5 className="text-xs whitespace-nowrap">
+                        {getDuration(
+                          gameplay.date,
+                          gameplay.startHour,
+                          gameplay.finishHour
+                        )}
+                      </h5>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {!showAllGameplays && (
+                <IoIosArrowUp
+                  className="text-xl cursor-pointer mx-auto"
+                  onClick={() => setIsGameplaysVisible(false)}
+                />
+              )}
+            </div>
+          )}
       </div>
       {isGameplayDialogOpen && (
         <CreateGameplayDialog
