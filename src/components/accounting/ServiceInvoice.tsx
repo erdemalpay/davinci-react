@@ -223,7 +223,7 @@ const ServiceInvoice = () => {
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
-    { key: t("AccountStockLocation"), isSortable: true },
+    { key: t("Location"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Service"), isSortable: true },
     { key: t("Quantity"), isSortable: true },

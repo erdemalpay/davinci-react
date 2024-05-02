@@ -294,7 +294,7 @@ const Invoice = () => {
     { key: t("Note"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
-    { key: t("AccountStockLocation"), isSortable: true },
+    { key: t("Location"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
     { key: t("Package Type"), isSortable: true },
