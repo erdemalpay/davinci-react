@@ -69,6 +69,7 @@ const FixtureInvoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixtureInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const { createAccountFixture } = useAccountFixtureMutations();
@@ -369,7 +370,7 @@ const FixtureInvoice = () => {
   const actions = [
     {
       name: t("Transfer"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
       node: (row: AccountFixtureInvoice) => {
@@ -484,7 +485,7 @@ const FixtureInvoice = () => {
   const tableFilters = [
     {
       label: t("Total") + " :",
-      isUpperSide: true,
+      isUpperSide: false,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -500,6 +501,13 @@ const FixtureInvoice = () => {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+    {
+      label: t("Enable Transfer"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -637,7 +645,7 @@ const FixtureInvoice = () => {
           filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
-            isEnableEdit
+            isEnableEdit || isTransferEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
