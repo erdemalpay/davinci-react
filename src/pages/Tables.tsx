@@ -32,6 +32,7 @@ const TablesPage = () => {
   ] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
+  const [showAllGameplays, setShowAllGameplays] = useState(true);
   const navigate = useNavigate();
   const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
@@ -222,30 +223,54 @@ const TablesPage = () => {
             <PreviousVisitList visits={visits} />
           )}
         </div>
-        <div className="flex justify-end gap-4 items-center">
-          <h1 className="text-md">{t("Show Closed Tables")}</h1>
-          <Switch
-            checked={showAllTables}
-            onChange={() => setShowAllTables((value) => !value)}
-            className={`${showAllTables ? "bg-green-500" : "bg-red-500"}
+        <div className="flex flex-row gap-4 justify-end mt-4">
+          <div className="flex  gap-4 items-center">
+            <h1 className="text-md">{t("Show All Gameplays")}</h1>
+            <Switch
+              checked={showAllGameplays}
+              onChange={() => setShowAllGameplays((value) => !value)}
+              className={`${showAllGameplays ? "bg-green-500" : "bg-red-500"}
           relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-          >
-            <span
-              aria-hidden="true"
-              className={`${showAllTables ? "translate-x-4" : "translate-x-0"}
+            >
+              <span
+                aria-hidden="true"
+                className={`${
+                  showAllGameplays ? "translate-x-4" : "translate-x-0"
+                }
             pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-            />
-          </Switch>
+              />
+            </Switch>
+          </div>
+          <div className="flex justify-end gap-4 items-center">
+            <h1 className="text-md">{t("Show Closed Tables")}</h1>
+            <Switch
+              checked={showAllTables}
+              onChange={() => setShowAllTables((value) => !value)}
+              className={`${showAllTables ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+            >
+              <span
+                aria-hidden="true"
+                className={`${showAllTables ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+              />
+            </Switch>
+          </div>
         </div>
+
         <div className="h-full hidden lg:grid grid-cols-4 mt-4 gap-x-8">
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
               {tables.map((table) => (
                 <TableCard
-                  key={table._id || table.startHour}
+                  key={
+                    table._id + String(showAllGameplays) ||
+                    table.startHour + String(showAllGameplays)
+                  }
                   table={table}
                   mentors={mentors}
                   games={games}
+                  showAllGameplays={showAllGameplays}
                 />
               ))}
             </div>
@@ -254,10 +279,14 @@ const TablesPage = () => {
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
           {tables.map((table) => (
             <TableCard
-              key={table._id || table.startHour}
+              key={
+                table._id + String(showAllGameplays) ||
+                table.startHour + String(showAllGameplays)
+              }
               table={table}
               mentors={mentors}
               games={games as Game[]}
+              showAllGameplays={showAllGameplays}
             />
           ))}
         </div>
