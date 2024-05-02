@@ -152,10 +152,11 @@ export default function Accounting() {
               checked={!showAccountingConstants}
               onChange={() => {
                 setShowAccountingConstants(!showAccountingConstants);
-                if (!showAccountingConstants) {
+                if (
+                  !showAccountingConstants &&
+                  accountingActiveTab < AccountingPageTabEnum.STOCK
+                ) {
                   setAccountingActiveTab(AccountingPageTabEnum.STOCK);
-                } else {
-                  setAccountingActiveTab(0);
                 }
               }}
               className={`${
