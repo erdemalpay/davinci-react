@@ -65,6 +65,7 @@ const ServiceInvoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
   const [addServiceForm, setAddServiceForm] = useState({
@@ -345,7 +346,7 @@ const ServiceInvoice = () => {
   const actions = [
     {
       name: t("Transfer"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
       node: (row: AccountServiceInvoice) => {
@@ -456,7 +457,7 @@ const ServiceInvoice = () => {
   const tableFilters = [
     {
       label: t("Total") + " :",
-      isUpperSide: true,
+      isUpperSide: false,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -472,6 +473,13 @@ const ServiceInvoice = () => {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+    {
+      label: t("Enable Transfer"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -604,7 +612,7 @@ const ServiceInvoice = () => {
           filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
-            isEnableEdit
+            isEnableEdit || isTransferEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
