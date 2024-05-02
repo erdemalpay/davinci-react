@@ -257,5 +257,7 @@
   "Delete Fixture Stock": "Demirbaş Stoğunu Sil",
   "Fixture Stocks": "Demirbaş Stokları",
   "Fixture Stock": "Demirbaş Stoğu",
+  "Transfer to Invoice": "Faturaya Transfer Et",
+  "Enable Transfer": "Transferi Etkinleştir",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
