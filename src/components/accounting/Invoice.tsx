@@ -12,8 +12,8 @@ import {
   AccountInvoice,
   AccountPackageType,
   AccountProduct,
+  AccountStockLocation,
   AccountVendor,
-  Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -28,19 +28,19 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
   ExpenseTypeInput,
-  LocationInput,
   NameInput,
   PackageTypeInput,
   ProductInput,
   QuantityInput,
+  StockLocationInput,
   UnitInput,
   VendorInput,
 } from "../../utils/panelInputs";
@@ -64,7 +64,7 @@ const Invoice = () => {
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -99,7 +99,7 @@ const Invoice = () => {
     totalExpense: 0,
     packageType: "",
     brand: "",
-    location: 0,
+    location: "",
     vendor: "",
     note: "",
     price: 0,
@@ -134,8 +134,8 @@ const Invoice = () => {
         packageType: (invoice.packageType as AccountPackageType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as Location,
-        lctn: (invoice.location as Location)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (
@@ -214,7 +214,7 @@ const Invoice = () => {
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations }),
+    StockLocationInput({ locations }),
     BrandInput({
       brands:
         brands?.filter((brnd) =>
@@ -239,7 +239,7 @@ const Invoice = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -294,7 +294,7 @@ const Invoice = () => {
     { key: t("Note"), isSortable: true },
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
+    { key: t("AccountStockLocation"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Product"), isSortable: true },
     { key: t("Package Type"), isSortable: true },
@@ -545,7 +545,7 @@ const Invoice = () => {
                   ?.vendor as AccountVendor
               )?._id,
               note: rowToAction.note,
-              location: (rowToAction.location as Location)._id,
+              location: (rowToAction.location as AccountStockLocation)._id,
             },
           }}
         />
@@ -633,7 +633,7 @@ const Invoice = () => {
           ) &&
           passesFilter(
             filterPanelFormElements.location,
-            (invoice.location as Location)?._id
+            (invoice.location as AccountStockLocation)?._id
           )
         );
       })
@@ -646,8 +646,8 @@ const Invoice = () => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
-          location: invoice.location as Location,
-          lctn: (invoice.location as Location)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (
               invoice.totalExpense /

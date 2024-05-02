@@ -10,8 +10,8 @@ import {
   AccountExpenseType,
   AccountService,
   AccountServiceInvoice,
+  AccountStockLocation,
   AccountVendor,
-  Location,
 } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
@@ -23,16 +23,16 @@ import {
   useAccountServiceInvoiceMutations,
   useGetAccountServiceInvoices,
 } from "../../utils/api/account/serviceInvoice";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   DateInput,
   ExpenseTypeInput,
-  LocationInput,
   NameInput,
   QuantityInput,
   ServiceInput,
+  StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -53,7 +53,7 @@ const ServiceInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountServiceInvoices();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const { mutate: transferServiceInvoiceToInvoice } =
@@ -79,7 +79,7 @@ const ServiceInvoice = () => {
     expenseType: "",
     quantity: 0,
     totalExpense: 0,
-    location: 0,
+    location: "",
     vendor: "",
     note: "",
     price: 0,
@@ -114,8 +114,8 @@ const ServiceInvoice = () => {
         service: (invoice.service as AccountService)?.name,
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as Location,
-        lctn: (invoice.location as Location)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -161,7 +161,7 @@ const ServiceInvoice = () => {
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     VendorInput({
       vendors:
         vendors?.filter((vndr) =>
@@ -176,7 +176,7 @@ const ServiceInvoice = () => {
     ServiceInput({ services: services, required: true }),
     VendorInput({ vendors: vendors, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -223,7 +223,7 @@ const ServiceInvoice = () => {
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
+    { key: t("AccountStockLocation"), isSortable: true },
     { key: t("Expense Type"), isSortable: true },
     { key: t("Service"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
@@ -442,7 +442,7 @@ const ServiceInvoice = () => {
                   ?.vendor as AccountVendor
               )?._id,
               note: rowToAction.note,
-              location: (rowToAction.location as Location)._id,
+              location: (rowToAction.location as AccountStockLocation)._id,
             },
           }}
         />
@@ -521,7 +521,7 @@ const ServiceInvoice = () => {
           ) &&
           passesFilter(
             filterPanelFormElements.location,
-            (invoice.location as Location)?._id
+            (invoice.location as AccountStockLocation)?._id
           )
         );
       })
@@ -533,8 +533,8 @@ const ServiceInvoice = () => {
 
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
-          location: invoice.location as Location,
-          lctn: (invoice.location as Location)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),

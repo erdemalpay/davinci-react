@@ -157,7 +157,7 @@ export type AccountInvoice = {
   vendor?: AccountVendor | string;
   packageType?: AccountPackageType | string;
   note?: string;
-  location: Location | number;
+  location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
 };
@@ -171,7 +171,7 @@ export type AccountFixtureInvoice = {
   brand?: AccountBrand | string;
   vendor?: AccountVendor | string;
   note?: string;
-  location: Location | number;
+  location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
 };
@@ -185,7 +185,7 @@ export type AccountServiceInvoice = {
   date: string;
   vendor?: AccountVendor | string;
   note?: string;
-  location: Location | number;
+  location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
 };
