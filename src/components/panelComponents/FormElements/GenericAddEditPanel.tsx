@@ -323,7 +323,7 @@ const GenericAddEditPanel = <T,>({
                         input.type === InputTypes.COLOR ||
                         input.type === InputTypes.PASSWORD) && (
                         <TextInput
-                          key={input.formKey}
+                          key={input.formKey + formElements[input.formKey]}
                           type={input.type}
                           value={value}
                           label={input.label ?? ""}

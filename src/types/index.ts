@@ -337,6 +337,7 @@ export enum AccountingPageTabEnum {
 export enum StocksPageTabEnum {
   STOCK,
   FIXTURESTOCK,
+  ENTERCONSUMPTION,
   COUNTLIST,
   COUNTARCHIVE,
 }
