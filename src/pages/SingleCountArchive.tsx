@@ -9,8 +9,8 @@ import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
 import {
   AccountCountList,
-  AccountingPageTabEnum,
   AccountUnit,
+  StocksPageTabEnum,
   User,
 } from "../types";
 import {
@@ -27,15 +27,15 @@ const SingleCountArchive = () => {
   const counts = useGetAccountCounts();
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
-  const { setAccountingActiveTab } = useGeneralContext();
+  const { setStocksActiveTab } = useGeneralContext();
   const foundCount = counts?.find((count) => count._id === archiveId);
   const pageNavigations = [
     {
       name: t("Count Archive"),
-      path: Routes.Accounting,
+      path: Routes.Stocks,
       canBeClicked: true,
       additionalSubmitFunction: () => {
-        setAccountingActiveTab(AccountingPageTabEnum.COUNTARCHIVE);
+        setStocksActiveTab(StocksPageTabEnum.COUNTARCHIVE);
       },
     },
     {
