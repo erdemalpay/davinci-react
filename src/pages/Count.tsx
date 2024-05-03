@@ -9,11 +9,7 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import {
-  AccountingPageTabEnum,
-  AccountStockLocation,
-  AccountUnit,
-} from "../types";
+import { AccountingPageTabEnum, AccountStockLocation } from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -167,12 +163,7 @@ const Count = () => {
                     className="border border-gray-200 rounded-md px-4 py-1"
                   >
                     <TextInput
-                      label={
-                        currentProduct?.name +
-                          " (" +
-                          (currentProduct?.unit as AccountUnit)?.name +
-                          ")" ?? ""
-                      }
+                      label={currentProduct?.name ?? ""}
                       value={currentValue ?? ""}
                       onChange={(target) => {
                         handleCountProductChange(

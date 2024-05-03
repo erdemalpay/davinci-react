@@ -32,7 +32,7 @@ const TablesPage = () => {
   ] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
-  const [showAllGameplays, setShowAllGameplays] = useState(true);
+  const [showAllGameplays, setShowAllGameplays] = useState(false);
   const navigate = useNavigate();
   const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();

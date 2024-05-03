@@ -11,8 +11,8 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { H5, P1 } from "../components/panelComponents/Typography";
-import { AccountCountList, AccountProduct, AccountUnit } from "../types";
+import { H5 } from "../components/panelComponents/Typography";
+import { AccountCountList, AccountProduct } from "../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -71,7 +71,7 @@ const CountList = () => {
         .map((product) => {
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name,
           };
         }),
       isMultiple: true,
@@ -82,16 +82,9 @@ const CountList = () => {
   const addFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Unit"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
-  const rowKeys = [
-    { key: "name" },
-    {
-      key: "unit",
-      node: (row: AccountProduct) => <P1>{(row.unit as AccountUnit)?.name}</P1>,
-    },
-  ];
+  const rowKeys = [{ key: "name" }];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [countLists, products, countListId]);
@@ -131,7 +124,6 @@ const CountList = () => {
     ) : null,
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
-
     isPath: false,
   };
   const actions = [
@@ -188,35 +180,39 @@ const CountList = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[95%] mx-auto">
-        <div className="sm:w-1/4 ">
-          <SelectInput
-            options={countListOptions}
-            value={
-              selectedOption
-                ? {
-                    value: selectedOption._id,
-                    label: selectedOption.name,
-                  }
-                : {
-                    value:
-                      countLists.find((l) => l._id === countListId)?._id ?? "",
-                    label:
-                      countLists.find((l) => l._id === countListId)?.name ?? "",
-                  }
-            }
-            onChange={(selectedOption) => {
-              setSelectedOption(
-                countLists?.find(
-                  (option) => option._id === selectedOption?.value
-                )
-              );
-              navigate(`/count-list/${selectedOption?.value}`);
-            }}
-            placeholder={t("Select a count list")}
-          />
+      {countListOptions.length > 1 && (
+        <div className="w-[95%] mx-auto">
+          <div className="sm:w-1/4 ">
+            <SelectInput
+              options={countListOptions}
+              value={
+                selectedOption
+                  ? {
+                      value: selectedOption._id,
+                      label: selectedOption.name,
+                    }
+                  : {
+                      value:
+                        countLists.find((l) => l._id === countListId)?._id ??
+                        "",
+                      label:
+                        countLists.find((l) => l._id === countListId)?.name ??
+                        "",
+                    }
+              }
+              onChange={(selectedOption) => {
+                setSelectedOption(
+                  countLists?.find(
+                    (option) => option._id === selectedOption?.value
+                  )
+                );
+                navigate(`/count-list/${selectedOption?.value}`);
+              }}
+              placeholder={t("Select a count list")}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className="w-[95%] my-10 mx-auto ">
         <GenericTable
           key={tableKey}
