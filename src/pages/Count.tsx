@@ -9,7 +9,7 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountingPageTabEnum, AccountStockLocation } from "../types";
+import { AccountStockLocation, StocksPageTabEnum } from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -113,8 +113,8 @@ const Count = () => {
         );
         setCountProductsKey((prev) => prev + 1);
       }
-      setAccountingActiveTab(AccountingPageTabEnum.COUNTLIST);
-      navigate(Routes.Accounting);
+      setAccountingActiveTab(StocksPageTabEnum.COUNTLIST);
+      navigate(Routes.Stocks);
     } else {
       toast.error(t("Please fill all the fields"));
     }

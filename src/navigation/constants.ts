@@ -11,6 +11,7 @@ import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import SingleCountArchive from "../pages/SingleCountArchive";
+import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
@@ -37,6 +38,7 @@ export enum Routes {
   Profile = "/profile",
   Accounting = "/accounting",
   Expenses = "/expenses",
+  Stocks = "/stocks",
   CountList = "/count-list/:countListId",
   Count = "/count/:countListId",
   SingleCountArchive = "/archive/:archiveId",
@@ -157,7 +159,13 @@ export const allRoutes: {
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
-
+    {
+      name: "Stocks",
+      path: Routes.Stocks,
+      element: Stocks,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
     {
       name: "Users",
       path: Routes.Users,
