@@ -4,14 +4,15 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
   AccountExpenseType,
   AccountFixture,
   AccountFixtureInvoice,
+  AccountStockLocation,
   AccountVendor,
-  Location,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -23,22 +24,24 @@ import {
   useAccountFixtureInvoiceMutations,
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
+import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
   ExpenseTypeInput,
   FixtureInput,
-  LocationInput,
   NameInput,
   QuantityInput,
+  StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -53,17 +56,20 @@ const FixtureInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountFixtureInvoices();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const fixtures = useGetAccountFixtures();
+  const { mutate: transferFixtureInvoiceToInvoice } =
+    useFixtureInvoiceTransferInvoiceMutation();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixtureInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const { createAccountFixture } = useAccountFixtureMutations();
@@ -80,7 +86,7 @@ const FixtureInvoice = () => {
     quantity: 0,
     totalExpense: 0,
     brand: "",
-    location: 0,
+    location: "",
     vendor: "",
     note: "",
     price: 0,
@@ -116,8 +122,8 @@ const FixtureInvoice = () => {
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         brand: (invoice.brand as AccountBrand)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as Location,
-        lctn: (invoice.location as Location)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -165,7 +171,7 @@ const FixtureInvoice = () => {
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     BrandInput({
       brands:
         brands?.filter((brnd) =>
@@ -189,7 +195,7 @@ const FixtureInvoice = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -363,6 +369,25 @@ const FixtureInvoice = () => {
   };
   const actions = [
     {
+      name: t("Transfer"),
+      isDisabled: !isTransferEdit,
+      icon: <TbTransfer />,
+      setRow: setRowToAction,
+      node: (row: AccountFixtureInvoice) => {
+        return (
+          <ButtonTooltip content={t("Transfer to Invoice")}>
+            <TbTransfer
+              className="text-red-500 cursor-pointer text-2xl"
+              onClick={() => transferFixtureInvoiceToInvoice({ id: row._id })}
+            />
+          </ButtonTooltip>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: false,
+      isPath: false,
+    },
+    {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
@@ -445,7 +470,7 @@ const FixtureInvoice = () => {
                   ?.vendor as AccountVendor
               )?._id,
               note: rowToAction.note,
-              location: (rowToAction.location as Location)._id,
+              location: (rowToAction.location as AccountStockLocation)._id,
             },
           }}
         />
@@ -460,7 +485,7 @@ const FixtureInvoice = () => {
   const tableFilters = [
     {
       label: t("Total") + " :",
-      isUpperSide: true,
+      isUpperSide: false,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -476,6 +501,13 @@ const FixtureInvoice = () => {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+    {
+      label: t("Enable Transfer"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -521,7 +553,7 @@ const FixtureInvoice = () => {
           ) &&
           passesFilter(
             filterPanelFormElements.location,
-            (invoice.location as Location)?._id
+            (invoice.location as AccountStockLocation)?._id
           )
         );
       })
@@ -533,8 +565,8 @@ const FixtureInvoice = () => {
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
-          location: invoice.location as Location,
-          lctn: (invoice.location as Location)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
@@ -613,7 +645,7 @@ const FixtureInvoice = () => {
           filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
-            isEnableEdit
+            isEnableEdit || isTransferEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }

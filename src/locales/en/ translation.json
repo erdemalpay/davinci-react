@@ -257,5 +257,9 @@
   "Delete Fixture Stock": "Delete Fixture Stock",
   "Fixture Stocks": "Fixture Stocks",
   "Fixture Stock": "Fixture Stock",
+  "Transfer to Invoice": "Transfer to Invoice",
+  "Enable Transfer": "Enable Transfer",
+  "Show All Gameplays": "Show All Gameplays",
+  "Clear All Filters": "Clear All",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

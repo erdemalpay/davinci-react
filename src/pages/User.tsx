@@ -101,6 +101,7 @@ export default function UserView() {
                 setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
+                setActiveTab(0);
                 navigate(`/user/${selectedOption?.value}`);
               }}
               placeholder={t("Select a user")}

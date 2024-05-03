@@ -4,15 +4,17 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
   AccountService,
   AccountServiceInvoice,
+  AccountStockLocation,
   AccountVendor,
-  Location,
 } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
@@ -21,21 +23,22 @@ import {
   useAccountServiceInvoiceMutations,
   useGetAccountServiceInvoices,
 } from "../../utils/api/account/serviceInvoice";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import {
   DateInput,
   ExpenseTypeInput,
-  LocationInput,
   NameInput,
   QuantityInput,
   ServiceInput,
+  StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -50,9 +53,11 @@ const ServiceInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountServiceInvoices();
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
+  const { mutate: transferServiceInvoiceToInvoice } =
+    useServiceInvoiceTransferInvoiceMutation();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -60,6 +65,7 @@ const ServiceInvoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
   const [addServiceForm, setAddServiceForm] = useState({
@@ -73,7 +79,7 @@ const ServiceInvoice = () => {
     expenseType: "",
     quantity: 0,
     totalExpense: 0,
-    location: 0,
+    location: "",
     vendor: "",
     note: "",
     price: 0,
@@ -108,8 +114,8 @@ const ServiceInvoice = () => {
         service: (invoice.service as AccountService)?.name,
         expenseType: (invoice.expenseType as AccountExpenseType)?.name,
         vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as Location,
-        lctn: (invoice.location as Location)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         date: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
@@ -155,7 +161,7 @@ const ServiceInvoice = () => {
         ) ?? [],
       required: true,
     }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     VendorInput({
       vendors:
         vendors?.filter((vndr) =>
@@ -170,7 +176,7 @@ const ServiceInvoice = () => {
     ServiceInput({ services: services, required: true }),
     VendorInput({ vendors: vendors, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    LocationInput({ locations: locations }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -339,6 +345,25 @@ const ServiceInvoice = () => {
   };
   const actions = [
     {
+      name: t("Transfer"),
+      isDisabled: !isTransferEdit,
+      icon: <TbTransfer />,
+      setRow: setRowToAction,
+      node: (row: AccountServiceInvoice) => {
+        return (
+          <ButtonTooltip content={t("Transfer to Invoice")}>
+            <TbTransfer
+              className="text-red-500 cursor-pointer text-2xl"
+              onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}
+            />
+          </ButtonTooltip>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: false,
+      isPath: false,
+    },
+    {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
       icon: <HiOutlineTrash />,
@@ -417,7 +442,7 @@ const ServiceInvoice = () => {
                   ?.vendor as AccountVendor
               )?._id,
               note: rowToAction.note,
-              location: (rowToAction.location as Location)._id,
+              location: (rowToAction.location as AccountStockLocation)._id,
             },
           }}
         />
@@ -432,7 +457,7 @@ const ServiceInvoice = () => {
   const tableFilters = [
     {
       label: t("Total") + " :",
-      isUpperSide: true,
+      isUpperSide: false,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -448,6 +473,13 @@ const ServiceInvoice = () => {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+    {
+      label: t("Enable Transfer"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -489,7 +521,7 @@ const ServiceInvoice = () => {
           ) &&
           passesFilter(
             filterPanelFormElements.location,
-            (invoice.location as Location)?._id
+            (invoice.location as AccountStockLocation)?._id
           )
         );
       })
@@ -501,8 +533,8 @@ const ServiceInvoice = () => {
 
           vendor: (invoice.vendor as AccountVendor)?.name,
           date: formatAsLocalDate(invoice.date),
-          location: invoice.location as Location,
-          lctn: (invoice.location as Location)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
@@ -580,7 +612,7 @@ const ServiceInvoice = () => {
           filters={tableFilters}
           isActionsActive={isEnableEdit}
           columns={
-            isEnableEdit
+            isEnableEdit || isTransferEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }

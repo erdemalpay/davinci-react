@@ -153,7 +153,7 @@ const FilterPanel = <T,>({
           });
         }}
       >
-        Clear All
+        {t("Clear All Filters")}
       </button>
     </div>
   );

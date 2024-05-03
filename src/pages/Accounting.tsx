@@ -1,5 +1,4 @@
 import { Switch } from "@headlessui/react";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiViewList } from "react-icons/ci";
 import { FaAnchor, FaServicestack } from "react-icons/fa";
@@ -32,8 +31,6 @@ import { AccountingPageTabEnum } from "../types";
 FixtureStock;
 export default function Accounting() {
   const { t } = useTranslation();
-  const [tableKey, setTableKey] = useState<number>(0);
-
   const {
     setCurrentPage,
     setSearchQuery,
@@ -137,9 +134,6 @@ export default function Accounting() {
       isDisabled: false,
     },
   ];
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [accountingActiveTab, showAccountingConstants]);
 
   return (
     <>
@@ -152,10 +146,11 @@ export default function Accounting() {
               checked={!showAccountingConstants}
               onChange={() => {
                 setShowAccountingConstants(!showAccountingConstants);
-                if (!showAccountingConstants) {
+                if (
+                  !showAccountingConstants &&
+                  accountingActiveTab < AccountingPageTabEnum.STOCK
+                ) {
                   setAccountingActiveTab(AccountingPageTabEnum.STOCK);
-                } else {
-                  setAccountingActiveTab(0);
                 }
               }}
               className={`${
@@ -175,7 +170,7 @@ export default function Accounting() {
         </div>
 
         <TabPanel
-          key={tableKey}
+          key={String(showAccountingConstants)}
           tabs={tabs}
           activeTab={accountingActiveTab}
           setActiveTab={setAccountingActiveTab}
