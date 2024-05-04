@@ -101,6 +101,7 @@ const Stock = () => {
     ProductInput({
       products: products,
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
+      required: true,
     }),
     {
       type: InputTypes.SELECT,
