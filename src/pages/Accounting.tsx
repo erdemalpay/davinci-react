@@ -102,7 +102,10 @@ export default function Accounting() {
       <Header showLocationSelector={false} />
       <TabPanel
         key={String(false)}
-        tabs={tabs}
+        tabs={tabs?.map((tab) => ({
+          ...tab,
+          number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
+        }))}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}
         additionalOpenAction={() => {

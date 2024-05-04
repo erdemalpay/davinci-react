@@ -95,7 +95,14 @@ export default function GameplayAnalytics() {
 
   return (
     <>
-      <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabPanel
+        tabs={tabs?.map((tab) => ({
+          ...tab,
+          number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
+        }))}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
     </>
   );
 }
