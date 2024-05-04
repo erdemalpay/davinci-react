@@ -370,43 +370,34 @@ const GenericAddComponent = <T,>({
             })}
           </div>
         </div>
-        <div className="ml-auto flex flex-row gap-4">
-          <button
-            onClick={close}
-            className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
-          >
-            {t("Cancel")}
-          </button>
-          <button
-            onClick={() => {
-              if (!allRequiredFilled) {
-                toast.error(t("Please fill all required fields"));
-              } else {
-                const phoneValidationFailed = inputs
-                  .filter((input) => input.additionalType === "phone")
-                  .some((input) => {
-                    const inputValue = formElements[input.formKey];
-                    if (!inputValue.match(/^[0-9]{11}$/)) {
-                      toast.error(t("Check phone number."));
-                      return true; // Validation failed for phone number
-                    }
-                    return false; // Validation passed for phone number
-                  });
 
-                if (!phoneValidationFailed) {
-                  handleSubmit();
-                }
+        <button
+          onClick={() => {
+            if (!allRequiredFilled) {
+              toast.error(t("Please fill all required fields"));
+            } else {
+              const phoneValidationFailed = inputs
+                .filter((input) => input.additionalType === "phone")
+                .some((input) => {
+                  const inputValue = formElements[input.formKey];
+                  if (!inputValue.match(/^[0-9]{11}$/)) {
+                    toast.error(t("Check phone number."));
+                    return true; // Validation failed for phone number
+                  }
+                  return false; // Validation passed for phone number
+                });
+
+              if (!phoneValidationFailed) {
+                handleSubmit();
               }
-            }}
-            className={`inline-block ${
-              !allRequiredFilled
-                ? "bg-gray-500"
-                : "bg-blue-500 hover:bg-blue-600"
-            } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
-          >
-            {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
-          </button>
-        </div>
+            }
+          }}
+          className={`inline-block ${
+            !allRequiredFilled ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+          } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit ml-auto`}
+        >
+          {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
+        </button>
       </div>
     </div>
   );
