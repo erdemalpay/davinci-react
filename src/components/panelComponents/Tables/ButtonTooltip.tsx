@@ -22,7 +22,7 @@ export default function ButtonTooltip({ children, content }: Props) {
             position: "absolute",
             transform: "translateX(-20%)",
             bottom: "100%",
-            left: "30%",
+            right: "1%",
             width: "max-content",
             padding: "0px 10px",
             overflow: "auto",
