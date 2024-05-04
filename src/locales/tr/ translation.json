@@ -262,5 +262,6 @@
   "Show All Gameplays": "Oyun Anlatımlarını Göster",
   "Clear All Filters": "Filtreleri Temizle",
   "Enter Product Consumption": "Ürün Tüketimi Gir",
+  "required": "zorunlu alan",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
