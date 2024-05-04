@@ -48,6 +48,7 @@ const Stock = () => {
   const { setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
+      product: "",
       location: "",
       packageType: "",
     });
@@ -279,6 +280,10 @@ const Stock = () => {
               (stock.location as AccountStockLocation)?._id
             ) &&
             passesFilter(
+              filterPanelFormElements.product,
+              (stock.product as AccountProduct)?._id
+            ) &&
+            passesFilter(
               filterPanelFormElements.packageType,
               (stock.packageType as AccountPackageType)?._id
             )
@@ -325,6 +330,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
   const filterPanelInputs = [
+    ProductInput({ products: products, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
