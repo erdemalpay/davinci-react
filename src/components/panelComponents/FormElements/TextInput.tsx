@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
+import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { H6 } from "../Typography";
 
@@ -25,6 +26,7 @@ type TextInputProps = {
   isDatePicker?: boolean;
   isTopFlexRow?: boolean;
   inputWidth?: string;
+  requiredField?: boolean;
 };
 
 const TextInput = ({
@@ -38,11 +40,12 @@ const TextInput = ({
   onClear,
   inputWidth,
   isDatePicker = false,
+  requiredField = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const { t } = useTranslation();
   const handleDivClick = () => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -64,7 +67,17 @@ const TextInput = ({
           isTopFlexRow ? "flex-row" : "flex-col"
         } gap-2  w-full`}
       >
-        <H6 className="min-w-10">{label}</H6>
+        <H6 className="min-w-10">
+          {label}
+          {requiredField && (
+            <>
+              <span className="text-red-400">* </span>
+              <span className="text-xs  text-gray-400">
+                {"("} {t("required")} {")"}
+              </span>
+            </>
+          )}
+        </H6>
         <div className=" flex flex-row gap-2 ">
           <SketchPicker
             color={value}
@@ -92,7 +105,17 @@ const TextInput = ({
           isTopFlexRow ? "flex-row" : "flex-col"
         } gap-2  w-full `}
       >
-        <H6 className=" min-w-10">{label}</H6>
+        <H6 className=" min-w-10">
+          {label}
+          {requiredField && (
+            <>
+              <span className="text-red-400">* </span>
+              <span className="text-xs  text-gray-400">
+                {"("} {t("required")} {")"}
+              </span>
+            </>
+          )}
+        </H6>
         <div className="flex flex-row gap-2">
           <Popover placement="bottom">
             <PopoverHandler>
@@ -172,6 +195,14 @@ const TextInput = ({
     >
       <H6 className={`${isTopFlexRow ? "min-w-20 " : "min-w-10"}   my-auto`}>
         {label}
+        {requiredField && (
+          <>
+            <span className="text-red-400">* </span>
+            <span className="text-xs  text-gray-400">
+              {"("} {t("required")} {")"}
+            </span>
+          </>
+        )}
       </H6>
       <div
         className={`flex flex-row gap-2 items-center  ${

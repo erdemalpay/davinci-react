@@ -78,6 +78,7 @@ const FixtureStock = () => {
   const inputs = [
     FixtureInput({
       fixtures: fixtures,
+      required: true,
     }),
     StockLocationInput({ locations: locations }),
     QuantityInput(),

@@ -28,6 +28,7 @@ type Props<T> = {
   additionalSubmitFunction?: () => void;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
+  showRequired?: boolean;
   folderName?: string;
   buttonName?: string;
   itemToEdit?: {
@@ -48,6 +49,7 @@ const GenericAddComponent = <T,>({
   constantValues,
   topClassName,
   header,
+  showRequired = false,
   isEditMode = false,
   itemToEdit,
   folderName,
@@ -317,6 +319,7 @@ const GenericAddComponent = <T,>({
                         label={input.label ?? ""}
                         placeholder={input.placeholder ?? ""}
                         onChange={handleChange(input.formKey)}
+                        requiredField={input.required && showRequired}
                         onClear={() => {
                           handleInputClear(input);
                         }}
@@ -345,6 +348,7 @@ const GenericAddComponent = <T,>({
                         label={input.label ?? ""}
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
+                        requiredField={input.required && showRequired}
                         isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
                         onClear={() => {
@@ -354,8 +358,17 @@ const GenericAddComponent = <T,>({
                     )}
                     {input.type === InputTypes.TEXTAREA && (
                       <div className="flex flex-col gap-2" key={input.formKey}>
-                        <H6>{input.label}</H6>
-
+                        <div className="flex flex-row items-center ">
+                          <H6>{input.label}</H6>
+                          {input.required && showRequired && (
+                            <>
+                              <span className="text-red-400">* </span>
+                              <span className="text-xs text-gray-400">
+                                {"("} {t("required")} {")"}
+                              </span>
+                            </>
+                          )}
+                        </div>
                         <textarea
                           value={value}
                           onChange={(e) => {

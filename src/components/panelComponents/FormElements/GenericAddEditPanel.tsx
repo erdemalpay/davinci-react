@@ -326,9 +326,14 @@ const GenericAddEditPanel = <T,>({
                           key={input.formKey}
                           type={input.type}
                           value={value}
-                          label={input.label ?? ""}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
                           placeholder={input.placeholder ?? ""}
                           onChange={handleChange(input.formKey)}
+                          requiredField={input.required}
                           onClear={() => {
                             handleInputClear(input);
                           }}
@@ -354,10 +359,15 @@ const GenericAddEditPanel = <T,>({
                                     option.value === formElements[input.formKey]
                                 )
                           }
-                          label={input.label ?? ""}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}
                           isMultiple={input.isMultiple ?? false}
+                          requiredField={input.required}
                           onChange={handleChangeForSelect(input.formKey)}
                           onClear={() => {
                             handleInputClear(input);
@@ -369,7 +379,17 @@ const GenericAddEditPanel = <T,>({
                           className="flex flex-col gap-2"
                           key={input.formKey}
                         >
-                          <H6>{input.label}</H6>
+                          <div className="flex flex-row items-center ">
+                            <H6>{input.label}</H6>
+                            {input.required && (
+                              <>
+                                <span className="text-red-400">* </span>
+                                <span className="text-xs text-gray-400">
+                                  {"("} {t("required")} {")"}
+                                </span>
+                              </>
+                            )}
+                          </div>
 
                           <textarea
                             value={value}
