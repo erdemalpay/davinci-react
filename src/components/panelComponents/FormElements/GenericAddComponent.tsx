@@ -60,6 +60,7 @@ const GenericAddComponent = <T,>({
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const [textInputKey, setTextInputKey] = useState<number>(0);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
     (input) => input.type !== InputTypes.IMAGE
@@ -171,6 +172,7 @@ const GenericAddComponent = <T,>({
         }
       }
       setFormElements({ ...initialState, ...constantValues });
+      setTextInputKey((prev) => prev + 1);
       additionalSubmitFunction?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
@@ -309,7 +311,7 @@ const GenericAddComponent = <T,>({
                       input.type === InputTypes.COLOR ||
                       input.type === InputTypes.PASSWORD) && (
                       <TextInput
-                        key={input.formKey + formElements[input.formKey]}
+                        key={input.formKey + String(textInputKey)}
                         type={input.type}
                         value={value}
                         label={input.label ?? ""}
