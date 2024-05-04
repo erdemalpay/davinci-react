@@ -46,7 +46,10 @@ export default function Expenses() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          tabs={tabs}
+          tabs={tabs?.map((tab) => ({
+            ...tab,
+            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
+          }))}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}
           additionalOpenAction={() => {

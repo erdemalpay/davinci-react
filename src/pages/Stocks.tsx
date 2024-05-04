@@ -63,7 +63,11 @@ export default function Stocks() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          tabs={tabs}
+          // to be able to control the tab panel moving underline we need to delete the isDisabled ones from the number
+          tabs={tabs?.map((tab) => ({
+            ...tab,
+            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
+          }))}
           activeTab={stocksActiveTab}
           setActiveTab={setStocksActiveTab}
           additionalOpenAction={() => {

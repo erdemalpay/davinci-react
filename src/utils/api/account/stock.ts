@@ -7,6 +7,7 @@ interface ConsumptStockPayload {
   product: string;
   location: string;
   quantity: number;
+  packageType: string;
 }
 
 const baseUrl = `${Paths.Accounting}/stocks`;
