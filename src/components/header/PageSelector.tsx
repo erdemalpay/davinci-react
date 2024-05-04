@@ -6,7 +6,7 @@ import {
   MenuList,
 } from "@material-tailwind/react";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
@@ -14,6 +14,8 @@ import { Role, RolePermissionEnum, RowPerPageEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
   const { setCurrentPage, setRowsPerPage, setExpandedRows, setSearchQuery } =
     useGeneralContext();
@@ -88,6 +90,9 @@ export function PageSelector() {
           if (!route.isOnSidebar) return <div key={route.name}></div>;
           return (
             <MenuItem
+              className={`${
+                route.path === currentRoute ? "bg-gray-100  text-black" : ""
+              }  `}
               key={route.name}
               onClick={() => {
                 setCurrentPage(1);
