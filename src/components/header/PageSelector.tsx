@@ -95,6 +95,7 @@ export function PageSelector() {
               }  `}
               key={route.name}
               onClick={() => {
+                if (currentRoute === route.path) return;
                 setCurrentPage(1);
                 setRowsPerPage(RowPerPageEnum.FIRST);
                 setExpandedRows({});
