@@ -440,7 +440,7 @@ const Invoice = () => {
       isPath: false,
     },
     {
-      name: t("TransferService"),
+      name: "Transfer Service",
       isDisabled: !isTransferEdit,
       icon: <TbTransferIn />,
       setRow: setRowToAction,
