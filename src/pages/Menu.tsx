@@ -173,7 +173,6 @@ export default function Menu() {
               setExpandedRows({});
               setSearchQuery("");
             }
-
             setCategoryPageChanged(false);
           }}
         />

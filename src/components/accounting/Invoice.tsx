@@ -685,7 +685,12 @@ const Invoice = () => {
     );
     setRows(filteredRows);
     setGeneralTotalExpense(newGeneralTotalExpense);
-    setCurrentPage(1);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
+      setCurrentPage(1);
+    }
   }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
