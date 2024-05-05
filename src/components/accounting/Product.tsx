@@ -132,7 +132,7 @@ const Product = () => {
       isMultiple: true,
       required: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true }),
+    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
