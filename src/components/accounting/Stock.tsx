@@ -327,7 +327,9 @@ const Stock = () => {
           };
         })
     );
-    setCurrentPage(1);
+    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+      setCurrentPage(1);
+    }
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
   const filterPanelInputs = [

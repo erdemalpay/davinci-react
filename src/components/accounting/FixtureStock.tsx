@@ -254,8 +254,10 @@ const FixtureStock = () => {
           };
         })
     );
-    setCurrentPage(1);
     setTableKey((prev) => prev + 1);
+    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+      setCurrentPage(1);
+    }
   }, [stocks, filterPanelFormElements]);
   const filterPanel = {
     isFilterPanelActive: showFilters,

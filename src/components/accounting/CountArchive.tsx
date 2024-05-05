@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useGeneralContext } from "../../context/General.context";
 import {
   AccountCount,
   AccountCountList,
@@ -16,7 +15,6 @@ const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
-  const { setCurrentPage } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const [rows, setRows] = useState(
     counts.map((count) => {
@@ -91,7 +89,6 @@ const CountArchive = () => {
         };
       })
     );
-    setCurrentPage(1);
     setTableKey((prev) => prev + 1);
   }, [counts]);
 
