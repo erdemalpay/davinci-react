@@ -6,6 +6,7 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { RowPerPageEnum } from "../../../types";
+import ImageModal from "../Modals/ImageModal";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
@@ -87,7 +88,8 @@ const GenericTable = <T,>({
   } = useGeneralContext();
   const navigate = useNavigate();
   const [tableRows, setTableRows] = useState(rows);
-
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imageModalSrc, setImageModalSrc] = useState("");
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -392,7 +394,13 @@ const GenericTable = <T,>({
                   <img
                     src={(row[rowKey.key as keyof T] as string) || imageHolder}
                     alt="img"
-                    className="w-12 h-12 rounded-full"
+                    className="w-12 h-12 rounded-full cursor-pointer"
+                    onClick={() => {
+                      setImageModalSrc(
+                        (row[rowKey.key as keyof T] as string) ?? imageHolder
+                      );
+                      setIsImageModalOpen(true);
+                    }}
                   />
                 ) : cellValue.length > tooltipLimit ? (
                   <Tooltip content={cellValue}>
@@ -742,6 +750,16 @@ const GenericTable = <T,>({
           {addCollapsible?.isModal &&
             addCollapsible?.isModalOpen &&
             addCollapsible?.modal && <div>{addCollapsible.modal}</div>}
+          {/* image modal if it opens */}
+          {isImageModalOpen && (
+            <ImageModal
+              isOpen={isImageModalOpen}
+              close={() => {
+                setIsImageModalOpen(false);
+              }}
+              img={imageModalSrc}
+            />
+          )}
         </div>
       </div>
     </div>
