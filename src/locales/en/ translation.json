@@ -263,5 +263,13 @@
   "Clear All Filters": "Clear All",
   "Enter Product Consumption": "Enter Product Consumption",
   "required": "required",
+  "Rewards": "Rewards",
+  "Tables": "Tables",
+  "Visits": "Visits",
+  "Gameplays": "Gameplays",
+  "Profile": "Profile",
+  "Analytics": "Analytics",
+  "Menu": "Menu",
+  "Accounting": "Accounting",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
