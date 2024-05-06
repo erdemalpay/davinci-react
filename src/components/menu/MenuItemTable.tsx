@@ -445,7 +445,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         );
         return isPopular ? (
           <button
-            className="text-blue-500 cursor-pointer text-xl"
+            className="text-blue-500 cursor-pointer text-xl mt-1"
             onClick={() => deletePopular(row._id)}
           >
             <ButtonTooltip content={t("Unpopular")}>
@@ -454,7 +454,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           </button>
         ) : (
           <button
-            className="text-gray-500 cursor-pointer text-xl"
+            className="text-gray-500 cursor-pointer text-xl mt-1"
             onClick={() => createPopular({ item: row._id })}
           >
             <ButtonTooltip content={t("Popular")}>
