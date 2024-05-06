@@ -622,7 +622,7 @@ const ServiceInvoice = () => {
               : columns
           }
           rows={rows}
-          title={t("Service Invoices")}
+          title={t("Service Expenses")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}

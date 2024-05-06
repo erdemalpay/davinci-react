@@ -68,15 +68,6 @@ const EnterConsumption = () => {
       formKeys={consumptFormKeys}
       setForm={setForm}
       submitItem={consumptStock as any}
-      submitFunction={() => {
-        consumptStock({
-          ...form,
-          quantity:
-            form.quantity *
-            (packages?.find((pkg) => pkg?._id === form?.packageType)
-              ?.quantity ?? 1),
-        });
-      }}
       buttonName={t("Submit")}
       topClassName="flex flex-col gap-2 "
     />

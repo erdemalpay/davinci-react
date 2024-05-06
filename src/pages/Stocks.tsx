@@ -24,7 +24,7 @@ export default function Stocks() {
   const tabs = [
     {
       number: StocksPageTabEnum.STOCK,
-      label: t("Stocks"),
+      label: t("Product Stocks"),
       icon: <GiGreatPyramid className="text-lg font-thin" />,
       content: <Stock />,
       isDisabled: false,

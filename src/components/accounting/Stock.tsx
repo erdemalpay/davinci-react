@@ -370,7 +370,7 @@ const Stock = () => {
               : columns
           }
           rows={rows}
-          title={t("Stocks")}
+          title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
         />

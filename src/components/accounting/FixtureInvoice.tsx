@@ -655,7 +655,7 @@ const FixtureInvoice = () => {
               : columns
           }
           rows={rows}
-          title={t("Fixture Invoices")}
+          title={t("Fixture Expenses")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}
