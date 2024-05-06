@@ -687,9 +687,6 @@ const Invoice = () => {
       (acc, invoice) => acc + invoice.totalExpense,
       0
     );
-    console.log("newGeneralTotalExpense", newGeneralTotalExpense);
-    console.log("filteredRows", filteredRows);
-
     setRows(filteredRows);
     setGeneralTotalExpense(newGeneralTotalExpense);
     if (
@@ -698,10 +695,6 @@ const Invoice = () => {
     ) {
       setCurrentPage(1);
     }
-    console.log("filteredRows", filteredRows);
-    console.log("searchQuery", searchQuery);
-    console.log("proccessedRows", processedRows);
-    console.log(rows);
   }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
@@ -740,7 +733,6 @@ const Invoice = () => {
       </div>
     );
   };
-  console.log("rows", rows);
   return (
     <>
       <div className="w-[95%] mx-auto ">
