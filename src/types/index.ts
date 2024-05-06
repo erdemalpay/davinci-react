@@ -317,6 +317,10 @@ export enum RoleEnum {
   SERVICE,
   CLEANING,
 }
+export enum LocationEnum {
+  BAHCELI = 1,
+  NEORAMA,
+}
 export enum ExpensesPageTabEnum {
   INVOICE,
   FIXTUREINVOICE,
