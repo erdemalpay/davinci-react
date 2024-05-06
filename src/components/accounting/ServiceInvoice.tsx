@@ -116,7 +116,7 @@ const ServiceInvoice = () => {
         vendor: (invoice.vendor as AccountVendor)?.name,
         location: invoice.location as AccountStockLocation,
         lctn: (invoice.location as AccountStockLocation)?.name,
-        date: formatAsLocalDate(invoice.date),
+        formattedDate: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
@@ -235,8 +235,8 @@ const ServiceInvoice = () => {
     {
       key: "date",
       className: "min-w-32 pr-2",
-      node: (row: AccountServiceInvoice) => {
-        return row.date;
+      node: (row: any) => {
+        return row.formattedDate;
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -530,9 +530,8 @@ const ServiceInvoice = () => {
           ...invoice,
           service: (invoice.service as AccountService)?.name,
           expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-
           vendor: (invoice.vendor as AccountVendor)?.name,
-          date: formatAsLocalDate(invoice.date),
+          formattedDate: formatAsLocalDate(invoice.date),
           location: invoice.location as AccountStockLocation,
           lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
@@ -545,9 +544,13 @@ const ServiceInvoice = () => {
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
+        const timeValue = row["formattedDate"];
         const query = searchQuery.trimStart().toLowerCase();
         if (typeof value === "string") {
-          return value.toLowerCase().includes(query);
+          return (
+            value.toLowerCase().includes(query) ||
+            timeValue.toLowerCase().includes(query)
+          );
         } else if (typeof value === "number") {
           return value.toString().includes(query);
         } else if (typeof value === "boolean") {
