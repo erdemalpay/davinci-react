@@ -234,6 +234,7 @@ export type MenuCategory = {
   name: string;
   order: number;
   imageUrl: string;
+  locations: number[];
 };
 export type MenuPopular = {
   _id: number;

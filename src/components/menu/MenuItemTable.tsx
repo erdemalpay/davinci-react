@@ -77,7 +77,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
               )?.unitPrice ?? 0) * itemProduction.quantity,
             quantity: itemProduction.quantity,
           })),
-          locations: item.locations,
           collapsibleRowKeys: [
             { key: "name" },
             { key: "unit" },
@@ -134,7 +133,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                 )?.unitPrice ?? 0) * itemProduction.quantity,
               quantity: itemProduction.quantity,
             })),
-            locations: item.locations,
             collapsibleRowKeys: [
               { key: "name" },
               { key: "unit" },
