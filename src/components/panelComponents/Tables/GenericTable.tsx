@@ -98,21 +98,23 @@ const GenericTable = <T,>({
       return tableRows;
     }
   };
-  const filteredRows = initialRows().filter((row) =>
-    rowKeys.some((rowKey) => {
-      const value = row[rowKey.key as keyof typeof row];
-      const query = searchQuery.trimStart().toLowerCase();
+  const filteredRows = !isSearch
+    ? initialRows()
+    : initialRows().filter((row) =>
+        rowKeys.some((rowKey) => {
+          const value = row[rowKey.key as keyof typeof row];
+          const query = searchQuery.trimStart().toLowerCase();
 
-      if (typeof value === "string") {
-        return value.toLowerCase().includes(query);
-      } else if (typeof value === "number") {
-        return value.toString().includes(query);
-      } else if (typeof value === "boolean") {
-        return (value ? "true" : "false").includes(query);
-      }
-      return false;
-    })
-  );
+          if (typeof value === "string") {
+            return value.toLowerCase().includes(query);
+          } else if (typeof value === "number") {
+            return value.toString().includes(query);
+          } else if (typeof value === "boolean") {
+            return (value ? "true" : "false").includes(query);
+          }
+          return false;
+        })
+      );
   const totalRows = filteredRows.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
   const currentRows = isRowsPerPage

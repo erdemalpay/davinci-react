@@ -272,5 +272,10 @@
   "Menu": "Menü",
   "Accounting": "Muhasebe",
   "Logout": "Çıkış Yap",
+  "Product Expenses": "Ürün Giderleri",
+  "Fixture Expenses": "Demirbaş Giderleri",
+  "Service Expenses": "Hizmet Giderleri",
+  "Product Stocks": "Ürün Stokları",
+  "Transfer to Product Expense": "Ürün Giderine Transfer Et",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
