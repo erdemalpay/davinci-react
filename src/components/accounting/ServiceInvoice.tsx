@@ -351,7 +351,7 @@ const ServiceInvoice = () => {
       setRow: setRowToAction,
       node: (row: AccountServiceInvoice) => {
         return (
-          <ButtonTooltip content={t("Transfer to Invoice")}>
+          <ButtonTooltip content={t("Transfer to Product Expense")}>
             <TbTransfer
               className="text-red-500 cursor-pointer text-2xl"
               onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}

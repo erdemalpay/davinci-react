@@ -375,7 +375,7 @@ const FixtureInvoice = () => {
       setRow: setRowToAction,
       node: (row: AccountFixtureInvoice) => {
         return (
-          <ButtonTooltip content={t("Transfer to Invoice")}>
+          <ButtonTooltip content={t("Transfer to Product Expense")}>
             <TbTransfer
               className="text-red-500 cursor-pointer text-2xl"
               onClick={() => transferFixtureInvoiceToInvoice({ id: row._id })}
