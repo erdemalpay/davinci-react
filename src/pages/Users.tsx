@@ -188,10 +188,12 @@ export default function Users() {
       isPath: false,
       icon: null,
       node: (row: TableUser) => (
-        <CheckSwitch
-          checked={row.active}
-          onChange={() => handleUserUpdate(row)}
-        ></CheckSwitch>
+        <div className="mt-2">
+          <CheckSwitch
+            checked={row.active}
+            onChange={() => handleUserUpdate(row)}
+          ></CheckSwitch>
+        </div>
       ),
     },
   ];
@@ -224,7 +226,7 @@ export default function Users() {
           checked={showInactiveUsers}
           onChange={() => setShowInactiveUsers((value) => !value)}
           className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none  `}
         >
           <span
             aria-hidden="true"
