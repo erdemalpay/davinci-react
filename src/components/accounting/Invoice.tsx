@@ -31,7 +31,7 @@ import {
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
@@ -521,7 +521,7 @@ const Invoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              date: convertDateFormat(rowToAction.date),
+              date: rowToAction.date,
               product: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.product as AccountProduct

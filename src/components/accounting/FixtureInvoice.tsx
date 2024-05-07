@@ -27,7 +27,7 @@ import {
 import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   DateInput,
@@ -450,7 +450,7 @@ const FixtureInvoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              date: convertDateFormat(rowToAction.date),
+              date: rowToAction.date,
               fixture: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.fixture as AccountFixture
