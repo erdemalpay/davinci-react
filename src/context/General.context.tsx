@@ -3,6 +3,7 @@ import {
   AccountingPageTabEnum,
   ExpensesPageTabEnum,
   RowPerPageEnum,
+  StocksPageTabEnum,
 } from "../types";
 
 type GeneralContextType = {
@@ -12,8 +13,8 @@ type GeneralContextType = {
   setAccountingActiveTab: (tab: number) => void;
   expensesActiveTab: number;
   setExpensesActiveTab: (tab: number) => void;
-  showAccountingConstants: boolean;
-  setShowAccountingConstants: (show: boolean) => void;
+  stocksActiveTab: number;
+  setStocksActiveTab: (tab: number) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   rowsPerPage: number;
@@ -27,11 +28,11 @@ type GeneralContextType = {
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setAccountingActiveTab: () => {},
-  accountingActiveTab: AccountingPageTabEnum.STOCK,
+  accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   setExpensesActiveTab: () => {},
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
-  showAccountingConstants: false,
-  setShowAccountingConstants: () => {},
+  setStocksActiveTab: () => {},
+  stocksActiveTab: StocksPageTabEnum.STOCK,
   setCurrentPage: () => {},
   currentPage: 1,
   searchQuery: "",
@@ -48,11 +49,12 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(
     ExpensesPageTabEnum.INVOICE
   );
-  const [accountingActiveTab, setAccountingActiveTab] = useState<number>(
-    AccountingPageTabEnum.STOCK
+  const [stocksActiveTab, setStocksActiveTab] = useState<number>(
+    StocksPageTabEnum.STOCK
   );
-  const [showAccountingConstants, setShowAccountingConstants] =
-    useState<boolean>(true);
+  const [accountingActiveTab, setAccountingActiveTab] = useState<number>(
+    AccountingPageTabEnum.EXPENSETYPE
+  );
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -65,6 +67,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         rowsPerPage,
         setRowsPerPage,
         expandedRows,
+        stocksActiveTab,
+        setStocksActiveTab,
         setExpandedRows,
         searchQuery,
         setSearchQuery,
@@ -72,8 +76,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setAccountingActiveTab,
         expensesActiveTab,
         setExpensesActiveTab,
-        showAccountingConstants,
-        setShowAccountingConstants,
       }}
     >
       {children}

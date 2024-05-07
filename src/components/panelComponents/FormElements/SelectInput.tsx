@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { MdOutlineDone } from "react-icons/md";
 import Select, {
@@ -38,6 +39,7 @@ interface SelectInputProps {
   onClear?: () => void;
   placeholder: string;
   isMultiple?: boolean;
+  requiredField?: boolean;
 }
 
 const SelectInput = ({
@@ -48,6 +50,7 @@ const SelectInput = ({
   isMultiple,
   placeholder,
   onClear,
+  requiredField = false,
 }: SelectInputProps) => {
   const customStyles = {
     control: (base: any) => ({
@@ -76,10 +79,20 @@ const SelectInput = ({
       fontWeight: 400,
     }),
   };
-
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2 __className_a182b8">
-      <H6>{label}</H6>
+      <H6>
+        {label}
+        {requiredField && (
+          <>
+            <span className="text-red-400">* </span>
+            <span className="text-xs  text-gray-400">
+              {"("} {t("required")} {")"}
+            </span>
+          </>
+        )}
+      </H6>
       <div className="flex flex-row gap-2 w-full ">
         <div className="w-full">
           {isMultiple ? (

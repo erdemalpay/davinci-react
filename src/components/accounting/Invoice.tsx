@@ -136,7 +136,7 @@ const Invoice = () => {
         vendor: (invoice.vendor as AccountVendor)?.name,
         location: invoice.location as AccountStockLocation,
         lctn: (invoice.location as AccountStockLocation)?.name,
-        date: formatAsLocalDate(invoice.date),
+        formattedDate: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (
             invoice.totalExpense /
@@ -265,7 +265,7 @@ const Invoice = () => {
       isMultiple: true,
       required: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true }),
+    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
@@ -308,8 +308,8 @@ const Invoice = () => {
     {
       key: "date",
       className: "min-w-32 pr-2",
-      node: (row: AccountInvoice) => {
-        return row.date;
+      node: (row: any) => {
+        return row.formattedDate;
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -440,7 +440,7 @@ const Invoice = () => {
       isPath: false,
     },
     {
-      name: t("TransferService"),
+      name: "Transfer Service",
       isDisabled: !isTransferEdit,
       icon: <TbTransferIn />,
       setRow: setRowToAction,
@@ -645,7 +645,7 @@ const Invoice = () => {
           packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
-          date: formatAsLocalDate(invoice.date),
+          formattedDate: formatAsLocalDate(invoice.date),
           location: invoice.location as AccountStockLocation,
           lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
@@ -668,9 +668,13 @@ const Invoice = () => {
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
+        const timeValue = row["formattedDate"];
         const query = searchQuery.trimStart().toLowerCase();
         if (typeof value === "string") {
-          return value.toLowerCase().includes(query);
+          return (
+            value.toLowerCase().includes(query) ||
+            timeValue.toLowerCase().includes(query)
+          );
         } else if (typeof value === "number") {
           return value.toString().includes(query);
         } else if (typeof value === "boolean") {
@@ -685,7 +689,12 @@ const Invoice = () => {
     );
     setRows(filteredRows);
     setGeneralTotalExpense(newGeneralTotalExpense);
-    setCurrentPage(1);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
+      setCurrentPage(1);
+    }
   }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
@@ -724,7 +733,6 @@ const Invoice = () => {
       </div>
     );
   };
-
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -740,7 +748,7 @@ const Invoice = () => {
               : columns
           }
           rows={rows}
-          title={t("Invoices")}
+          title={t("Product Expenses")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}

@@ -21,21 +21,21 @@ export default function Expenses() {
   const tabs = [
     {
       number: ExpensesPageTabEnum.INVOICE,
-      label: t("Invoices"),
+      label: t("Product Expenses"),
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
       number: ExpensesPageTabEnum.FIXTUREINVOICE,
-      label: t("Fixture Invoices"),
+      label: t("Fixture Expenses"),
       icon: <GiAnchor className="text-lg font-thin" />,
       content: <FixtureInvoice />,
       isDisabled: false,
     },
     {
       number: ExpensesPageTabEnum.SERVICEINVOICE,
-      label: t("Service Invoices"),
+      label: t("Service Expenses"),
       icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
       content: <ServiceInvoice />,
       isDisabled: false,
@@ -46,7 +46,10 @@ export default function Expenses() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          tabs={tabs}
+          tabs={tabs?.map((tab) => ({
+            ...tab,
+            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
+          }))}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}
           additionalOpenAction={() => {

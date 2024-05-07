@@ -6,7 +6,9 @@ import {
   MenuList,
 } from "@material-tailwind/react";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { IoIosLogOut } from "react-icons/io";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
@@ -14,6 +16,9 @@ import { Role, RolePermissionEnum, RowPerPageEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const location = useLocation();
+  const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
   const { setCurrentPage, setRowsPerPage, setExpandedRows, setSearchQuery } =
     useGeneralContext();
@@ -88,8 +93,12 @@ export function PageSelector() {
           if (!route.isOnSidebar) return <div key={route.name}></div>;
           return (
             <MenuItem
+              className={`${
+                route.path === currentRoute ? "bg-gray-100  text-black" : ""
+              }  `}
               key={route.name}
               onClick={() => {
+                if (currentRoute === route.path) return;
                 setCurrentPage(1);
                 setRowsPerPage(RowPerPageEnum.FIRST);
                 setExpandedRows({});
@@ -97,11 +106,14 @@ export function PageSelector() {
                 navigate(route.path);
               }}
             >
-              {route.name}
+              {t(route.name)}
             </MenuItem>
           );
         })}
-        <MenuItem onClick={logout}>Logout</MenuItem>
+        <MenuItem className="flex flex-row gap-2 items-center" onClick={logout}>
+          <IoIosLogOut className="text-lg" />
+          {t("Logout")}
+        </MenuItem>
       </MenuList>
     </Menu>
   );

@@ -43,6 +43,7 @@ const FixtureStock = () => {
   const { setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
+      fixture: "",
       location: "",
     });
   const [form, setForm] = useState({
@@ -77,9 +78,14 @@ const FixtureStock = () => {
   const inputs = [
     FixtureInput({
       fixtures: fixtures,
+      required: true,
     }),
     StockLocationInput({ locations: locations }),
     QuantityInput(),
+  ];
+  const filterPanelInputs = [
+    FixtureInput({ fixtures: fixtures, required: true }),
+    StockLocationInput({ locations: locations }),
   ];
   const formKeys = [
     { key: "fixture", type: FormKeyTypeEnum.STRING },
@@ -222,9 +228,15 @@ const FixtureStock = () => {
     setRows(
       stocks
         .filter((stock) => {
-          return passesFilter(
-            filterPanelFormElements.location,
-            (stock.location as AccountStockLocation)?._id
+          return (
+            passesFilter(
+              filterPanelFormElements.fixture,
+              (stock.fixture as AccountFixture)?._id
+            ) &&
+            passesFilter(
+              filterPanelFormElements.location,
+              (stock.location as AccountStockLocation)?._id
+            )
           );
         })
         .map((stock) => {
@@ -242,10 +254,11 @@ const FixtureStock = () => {
           };
         })
     );
-    setCurrentPage(1);
     setTableKey((prev) => prev + 1);
+    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+      setCurrentPage(1);
+    }
   }, [stocks, filterPanelFormElements]);
-  const filterPanelInputs = [StockLocationInput({ locations: locations })];
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,

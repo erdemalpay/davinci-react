@@ -48,6 +48,7 @@ const Stock = () => {
   const { setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
+      product: "",
       location: "",
       packageType: "",
     });
@@ -100,6 +101,7 @@ const Stock = () => {
     ProductInput({
       products: products,
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
+      required: true,
     }),
     {
       type: InputTypes.SELECT,
@@ -279,6 +281,10 @@ const Stock = () => {
               (stock.location as AccountStockLocation)?._id
             ) &&
             passesFilter(
+              filterPanelFormElements.product,
+              (stock.product as AccountProduct)?._id
+            ) &&
+            passesFilter(
               filterPanelFormElements.packageType,
               (stock.packageType as AccountPackageType)?._id
             )
@@ -321,10 +327,13 @@ const Stock = () => {
           };
         })
     );
-    setCurrentPage(1);
+    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+      setCurrentPage(1);
+    }
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements]);
   const filterPanelInputs = [
+    ProductInput({ products: products, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -361,7 +370,7 @@ const Stock = () => {
               : columns
           }
           rows={rows}
-          title={t("Stocks")}
+          title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
         />

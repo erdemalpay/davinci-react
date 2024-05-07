@@ -10,6 +10,7 @@ import { ItemGroup } from "../../pages/Menu";
 import {
   AccountProduct,
   AccountUnit,
+  LocationEnum,
   MenuItem,
   MenuPopular,
 } from "../../types";
@@ -77,7 +78,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
               )?.unitPrice ?? 0) * itemProduction.quantity,
             quantity: itemProduction.quantity,
           })),
-          locations: item.locations,
           collapsibleRowKeys: [
             { key: "name" },
             { key: "unit" },
@@ -134,7 +134,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                 )?.unitPrice ?? 0) * itemProduction.quantity,
               quantity: itemProduction.quantity,
             })),
-            locations: item.locations,
             collapsibleRowKeys: [
               { key: "name" },
               { key: "unit" },
@@ -293,6 +292,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       },
     },
   ];
+  if (!singleItemGroup.category.locations.includes(LocationEnum.BAHCELI)) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Bahçeli"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "bahceli"),
+      1
+    );
+  }
+  if (!singleItemGroup.category.locations.includes(LocationEnum.NEORAMA)) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Neorama"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "neorama"),
+      1
+    );
+  }
   const addButton = {
     name: t(`Add Item`),
     isModal: true,
@@ -445,7 +464,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         );
         return isPopular ? (
           <button
-            className="text-blue-500 cursor-pointer text-xl"
+            className="text-blue-500 cursor-pointer text-xl mt-1"
             onClick={() => deletePopular(row._id)}
           >
             <ButtonTooltip content={t("Unpopular")}>
@@ -454,7 +473,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           </button>
         ) : (
           <button
-            className="text-gray-500 cursor-pointer text-xl"
+            className="text-gray-500 cursor-pointer text-xl mt-1"
             onClick={() => createPopular({ item: row._id })}
           >
             <ButtonTooltip content={t("Popular")}>

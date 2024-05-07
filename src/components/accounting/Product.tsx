@@ -132,7 +132,7 @@ const Product = () => {
       isMultiple: true,
       required: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true }),
+    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
@@ -392,7 +392,9 @@ const Product = () => {
           };
         })
     );
-    setCurrentPage(1);
+    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+      setCurrentPage(1);
+    }
     setTableKey((prev) => prev + 1);
   }, [products, filterPanelFormElements]);
 

@@ -36,7 +36,6 @@ export default function Menu() {
     setCurrentPage,
     rowsPerPage,
     setExpandedRows,
-    setRowsPerPage,
     setSearchQuery,
   } = useGeneralContext();
   const [categoryPageChanged, setCategoryPageChanged] = useState(false);
@@ -86,7 +85,11 @@ export default function Menu() {
         icon: null,
         content: (
           <MenuItemTable
-            key={itemGroup.category.name + tableKeys}
+            key={
+              itemGroup.category.name +
+              tableKeys +
+              itemGroup.category.locations.length
+            }
             singleItemGroup={itemGroup}
             popularItems={popularItems}
             products={products}
@@ -102,7 +105,7 @@ export default function Menu() {
             icon: null,
             content: (
               <MenuItemTable
-                key={category.name + tableKeys}
+                key={category.name + tableKeys + category.locations.length}
                 singleItemGroup={{ category, order: category.order, items: [] }}
                 popularItems={popularItems}
                 products={products}
@@ -173,7 +176,6 @@ export default function Menu() {
               setExpandedRows({});
               setSearchQuery("");
             }
-
             setCategoryPageChanged(false);
           }}
         />
