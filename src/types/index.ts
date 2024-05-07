@@ -234,6 +234,7 @@ export type MenuCategory = {
   name: string;
   order: number;
   imageUrl: string;
+  locations: number[];
 };
 export type MenuPopular = {
   _id: number;
@@ -315,6 +316,10 @@ export enum RoleEnum {
   KITCHEN,
   SERVICE,
   CLEANING,
+}
+export enum LocationEnum {
+  BAHCELI = 1,
+  NEORAMA,
 }
 export enum ExpensesPageTabEnum {
   INVOICE,

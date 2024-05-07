@@ -1,10 +1,14 @@
+import { Switch } from "@headlessui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
+import { NameInput } from "../../utils/panelInputs";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -23,19 +27,13 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "name",
-      label: t("Name"),
-      placeholder: t("Name"),
-      required: true,
-    },
+    NameInput(),
     {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
@@ -44,6 +42,21 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
       folderName: "menu",
     },
   ];
+  function handleLocationUpdate(item: MenuCategory, location: number) {
+    const newLocations = item.locations || [];
+    // Add if it doesn't exist, remove otherwise
+    const index = newLocations.indexOf(location);
+    if (index === -1) {
+      newLocations.push(location);
+    } else {
+      newLocations.splice(index, 1);
+    }
+    updateCategory({
+      id: item._id,
+      updates: { locations: newLocations },
+    });
+    toast.success(`${t("Category updated successfully")}`);
+  }
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
@@ -51,6 +64,8 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
   const columns = [
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
+    { key: "Bahçeli", isSortable: false },
+    { key: "Neorama", isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -58,6 +73,42 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     { key: "imageUrl", isImage: true },
     {
       key: "name",
+    },
+    {
+      key: "bahceli",
+      node: (row: MenuCategory) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(1)}
+            onChange={() => handleLocationUpdate(row, 1)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(1) ? t("Yes") : t("No")}
+          </p>
+        ),
+    },
+    {
+      key: "neorama",
+      node: (row: MenuCategory) =>
+        isEnableEdit ? (
+          <CheckSwitch
+            checked={row.locations?.includes(2)}
+            onChange={() => handleLocationUpdate(row, 2)}
+          />
+        ) : (
+          <p
+            className={`w-fit px-2 py-1 rounded-md text-white ${
+              row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {row.locations.includes(2) ? t("Yes") : t("No")}
+          </p>
+        ),
     },
   ];
   const addButton = {
@@ -138,11 +189,29 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
-
+  const filters = [
+    {
+      label: t("Location Edit"),
+      isUpperSide: false,
+      node: (
+        <Switch
+          checked={isEnableEdit}
+          onChange={() => setIsEnableEdit((value) => !value)}
+          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
+          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+        >
+          <span
+            aria-hidden="true"
+            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      ),
+    },
+  ];
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
@@ -150,6 +219,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         actions={actions}
         columns={columns}
         rows={categories}
+        filters={filters}
         title={t("Categories")}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
