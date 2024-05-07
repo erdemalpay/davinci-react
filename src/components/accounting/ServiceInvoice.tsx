@@ -25,7 +25,7 @@ import {
 } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
+import { formatAsLocalDate } from "../../utils/format";
 import {
   DateInput,
   ExpenseTypeInput,
@@ -426,7 +426,7 @@ const ServiceInvoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              date: convertDateFormat(rowToAction.date),
+              date: rowToAction.date,
               service: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
                   ?.service as AccountService
