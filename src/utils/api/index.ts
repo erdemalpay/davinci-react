@@ -1,3 +1,4 @@
+import { QueryKey } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
 import { axiosClient } from "./axiosClient";
 
@@ -16,6 +17,7 @@ interface RequestWithPayloadAndHeader<P> extends RequestWithPayload<P> {
 export interface UpdatePayload<P> {
   id: number | string;
   updates: Partial<P>;
+  additionalInvalidates?: QueryKey[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
