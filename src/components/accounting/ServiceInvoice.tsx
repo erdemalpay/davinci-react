@@ -68,6 +68,9 @@ const ServiceInvoice = () => {
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
+  const [serviceEditModalItem, setServiceEditModalItem] =
+    useState<AccountService>();
+  const [isServiceEditModalOpen, setIsServiceEditModalOpen] = useState(false);
   const [addServiceForm, setAddServiceForm] = useState({
     name: "",
     vendor: [],
@@ -106,7 +109,8 @@ const ServiceInvoice = () => {
     deleteAccountServiceInvoice,
     updateAccountServiceInvoice,
   } = useAccountServiceInvoiceMutations();
-  const { createAccountService } = useAccountServiceMutations();
+  const { createAccountService, updateAccountService } =
+    useAccountServiceMutations();
   const [rows, setRows] = useState(
     invoices.map((invoice) => {
       return {
@@ -122,6 +126,7 @@ const ServiceInvoice = () => {
         ),
         expType: invoice.expenseType as AccountExpenseType,
         vndr: invoice.vendor as AccountVendor,
+        srvc: invoice.service as AccountService,
       };
     })
   );
@@ -259,7 +264,24 @@ const ServiceInvoice = () => {
         );
       },
     },
-    { key: "service", className: "min-w-32 pr-2" },
+    {
+      key: "service",
+      className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              setIsServiceEditModalOpen(true);
+              setServiceEditModalItem(row.srvc as AccountService);
+            }}
+          >
+            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+              {row.service}
+            </p>
+          </div>
+        );
+      },
+    },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unitPrice",
@@ -345,7 +367,7 @@ const ServiceInvoice = () => {
   };
   const actions = [
     {
-      name: t("Transfer"),
+      name: "Transfer",
       isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
@@ -539,6 +561,7 @@ const ServiceInvoice = () => {
           ),
           expType: invoice.expenseType as AccountExpenseType,
           vndr: invoice.vendor as AccountVendor,
+          srvc: invoice.service as AccountService,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -651,6 +674,32 @@ const ServiceInvoice = () => {
               });
             }}
             topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isServiceEditModalOpen && serviceEditModalItem && (
+          <GenericAddEditPanel
+            isOpen={isServiceEditModalOpen}
+            close={() => setIsServiceEditModalOpen(false)}
+            inputs={addServiceInputs}
+            formKeys={addServiceFormKeys}
+            generalClassName="overflow-scroll"
+            submitItem={updateAccountService as any}
+            setForm={setAddServiceForm}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            constantValues={{
+              name: serviceEditModalItem.name,
+              expenseType: serviceEditModalItem.expenseType,
+              vendor: serviceEditModalItem.vendor,
+            }}
+            handleUpdate={() => {
+              updateAccountService({
+                id: serviceEditModalItem?._id,
+                updates: {
+                  ...addServiceForm,
+                },
+              });
+            }}
           />
         )}
       </div>
