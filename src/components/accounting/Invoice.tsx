@@ -99,11 +99,11 @@ const Invoice = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isAddPackageTypeOpen, setIsAddPackageTypeOpen] = useState(false);
-  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
   const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -112,11 +112,11 @@ const Invoice = () => {
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
   const { createAccountPackageType } = useAccountPackageTypeMutations();
-  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
   const { createAccountUnit } = useAccountUnitMutations();
   const { createAccountStockLocation } = useAccountStockLocationMutations();
   const { createAccountBrand } = useAccountBrandMutations();
   const { createAccountVendor } = useAccountVendorMutations();
+  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
     vendor: [],
