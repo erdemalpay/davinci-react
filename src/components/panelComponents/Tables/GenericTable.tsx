@@ -637,12 +637,12 @@ const GenericTable = <T,>({
                                 : ""
                             }`}
                           >
-                            <span
-                              className="flex flex-row gap-1 items-center justify-center"
-                              onClick={() => column?.onClick?.()}
-                            >
+                            <span className="flex flex-row gap-1 items-center justify-center">
                               {column?.isAddable && (
-                                <GoPlusCircle className=" hover:text-blue-500 transition-transform cursor-pointer text-lg" />
+                                <GoPlusCircle
+                                  onClick={() => column?.onClick?.()}
+                                  className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
+                                />
                               )}
                               {column.key}{" "}
                             </span>
