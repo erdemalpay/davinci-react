@@ -15,24 +15,43 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountBrandMutations,
+  useGetAccountBrands,
+} from "../../utils/api/account/brand";
+import {
+  useAccountExpenseTypeMutations,
+  useGetAccountExpenseTypes,
+} from "../../utils/api/account/expenseType";
 import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
   useTransferFixtureInvoiceMutation,
   useTransferServiceInvoiceMutation,
 } from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import {
+  useAccountPackageTypeMutations,
+  useGetAccountPackageTypes,
+} from "../../utils/api/account/packageType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  useAccountStockLocationMutations,
+  useGetAccountStockLocations,
+} from "../../utils/api/account/stockLocation";
+import {
+  useAccountUnitMutations,
+  useGetAccountUnits,
+} from "../../utils/api/account/unit";
+import {
+  useAccountVendorMutations,
+  useGetAccountVendors,
+} from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
+  BackgroundColorInput,
   BrandInput,
   DateInput,
   ExpenseTypeInput,
@@ -46,7 +65,6 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -79,7 +97,13 @@ const Invoice = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isProductInputOpen, setIsProductInputOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isAddPackageTypeOpen, setIsAddPackageTypeOpen] = useState(false);
+  const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
+  const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -87,6 +111,12 @@ const Invoice = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
+  const { createAccountPackageType } = useAccountPackageTypeMutations();
+  const { createAccountUnit } = useAccountUnitMutations();
+  const { createAccountStockLocation } = useAccountStockLocationMutations();
+  const { createAccountBrand } = useAccountBrandMutations();
+  const { createAccountVendor } = useAccountVendorMutations();
+  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
     vendor: [],
@@ -109,7 +139,6 @@ const Invoice = () => {
     price: 0,
     kdv: 0,
   });
-
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -177,6 +206,64 @@ const Invoice = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const filterPanelInputs = [
+    ProductInput({ products: products, required: true }),
+    PackageTypeInput({ packages: packages, required: true }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("After"),
+      placeholder: t("After"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("Before"),
+      placeholder: t("Before"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
+  const productInputs = [
+    NameInput(),
+    UnitInput({ units: units, required: true }),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      isMultiple: true,
+      required: true,
+    }),
+    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
+  ];
+  const productFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "unit", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "packages", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
+  ];
+
+  const packageTypeInputs = [NameInput(), QuantityInput()];
+  const packageTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
+  const expenseTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
   const inputs = [
     DateInput(),
     ProductInput({
@@ -238,50 +325,6 @@ const Invoice = () => {
     }),
     QuantityInput(),
   ];
-  const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
-    PackageTypeInput({ packages: packages, required: true }),
-    VendorInput({ vendors: vendors, required: true }),
-    BrandInput({ brands: brands, required: true }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("After"),
-      placeholder: t("After"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("Before"),
-      placeholder: t("Before"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const productInputs = [
-    NameInput(),
-    UnitInput({ units: units, required: true }),
-    ExpenseTypeInput({
-      expenseTypes: expenseTypes,
-      isMultiple: true,
-      required: true,
-    }),
-    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
-    BrandInput({ brands: brands, isMultiple: true }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
-  ];
-  const productFormKeys = [
-    { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "unit", type: FormKeyTypeEnum.STRING },
-    { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "packages", type: FormKeyTypeEnum.STRING },
-    { key: "brand", type: FormKeyTypeEnum.STRING },
-    { key: "vendor", type: FormKeyTypeEnum.STRING },
-  ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "product", type: FormKeyTypeEnum.STRING },
@@ -297,14 +340,51 @@ const Invoice = () => {
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
-    { key: t("Brand"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
+    {
+      key: t("Brand"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddBrandOpen(true),
+    },
+    {
+      key: t("Vendor"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddVendorOpen(true),
+    },
+    {
+      key: t("Location"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddLocationOpen(true),
+    },
+    {
+      key: t("Expense Type"),
+      className: `${isEnableEdit && "min-w-40"}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddExpenseTypeOpen(true),
+    },
+    {
+      key: t("Product"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddProductOpen(true),
+    },
+    {
+      key: t("Package Type"),
+      className: `${isEnableEdit && "min-w-40"}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddPackageTypeOpen(true),
+    },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
+    {
+      key: t("Unit"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddUnitOpen(true),
+    },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -616,17 +696,6 @@ const Invoice = () => {
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Add Product")}
-          onclick={() => {
-            setIsProductInputOpen(true);
-          }}
-        />
-      ),
-    },
   ];
 
   useEffect(() => {
@@ -782,10 +851,10 @@ const Invoice = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
         />
-        {isProductInputOpen && (
+        {isAddProductOpen && (
           <GenericAddEditPanel
-            isOpen={isProductInputOpen}
-            close={() => setIsProductInputOpen(false)}
+            isOpen={isAddProductOpen}
+            close={() => setIsAddProductOpen(false)}
             inputs={productInputs}
             formKeys={productFormKeys}
             setForm={setProductInputForm}
@@ -809,6 +878,66 @@ const Invoice = () => {
                 name: "",
               });
             }}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddPackageTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddPackageTypeOpen}
+            close={() => setIsAddPackageTypeOpen(false)}
+            inputs={packageTypeInputs}
+            formKeys={packageTypeFormKeys}
+            submitItem={createAccountPackageType as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddUnitOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddUnitOpen}
+            close={() => setIsAddUnitOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountUnit as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddLocationOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddLocationOpen}
+            close={() => setIsAddLocationOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountStockLocation as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddBrandOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddBrandOpen}
+            close={() => setIsAddBrandOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountBrand as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddVendorOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddVendorOpen}
+            close={() => setIsAddVendorOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountVendor as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddExpenseTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddExpenseTypeOpen}
+            close={() => setIsAddExpenseTypeOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={createAccountExpenseType as any}
             topClassName="flex flex-col gap-2 "
           />
         )}

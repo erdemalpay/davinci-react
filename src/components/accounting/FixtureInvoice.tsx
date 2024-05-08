@@ -14,8 +14,14 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountBrandMutations,
+  useGetAccountBrands,
+} from "../../utils/api/account/brand";
+import {
+  useAccountExpenseTypeMutations,
+  useGetAccountExpenseTypes,
+} from "../../utils/api/account/expenseType";
 import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
@@ -25,10 +31,17 @@ import {
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
 import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  useAccountStockLocationMutations,
+  useGetAccountStockLocations,
+} from "../../utils/api/account/stockLocation";
+import {
+  useAccountVendorMutations,
+  useGetAccountVendors,
+} from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
+  BackgroundColorInput,
   BrandInput,
   DateInput,
   ExpenseTypeInput,
@@ -44,7 +57,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -72,6 +84,14 @@ const FixtureInvoice = () => {
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
+  const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
+  const { createAccountStockLocation } = useAccountStockLocationMutations();
+  const { createAccountBrand } = useAccountBrandMutations();
+  const { createAccountVendor } = useAccountVendorMutations();
+  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
   const { createAccountFixture, updateAccountFixture } =
     useAccountFixtureMutations();
   const [fixtureEditModalItem, setFixtureEditModalItem] =
@@ -156,45 +176,14 @@ const FixtureInvoice = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  const inputs = [
-    DateInput(),
-    FixtureInput({
-      fixtures: fixtures,
-      required: true,
-      invalidateKeys: [
-        { key: "expenseType", defaultValue: "" },
-        { key: "brand", defaultValue: "" },
-        { key: "vendor", defaultValue: "" },
-      ],
-    }),
-    ExpenseTypeInput({
-      expenseTypes:
-        expenseTypes.filter((exp) =>
-          fixtures
-            .find((item) => item._id === form?.fixture)
-            ?.expenseType.includes(exp._id)
-        ) ?? [],
-      required: true,
-    }),
-    StockLocationInput({ locations: locations }),
-    BrandInput({
-      brands:
-        brands?.filter((brnd) =>
-          fixtures
-            .find((item) => item._id === form?.fixture)
-            ?.brand?.includes(brnd._id)
-        ) ?? [],
-    }),
-    VendorInput({
-      vendors:
-        vendors?.filter((vndr) =>
-          fixtures
-            .find((item) => item._id === form?.fixture)
-            ?.vendor?.includes(vndr._id)
-        ) ?? [],
-    }),
-    QuantityInput(),
+  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
+  const expenseTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
   ];
+
   const filterPanelInputs = [
     FixtureInput({ fixtures: fixtures, required: true }),
     VendorInput({ vendors: vendors, required: true }),
@@ -235,6 +224,45 @@ const FixtureInvoice = () => {
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
+  const inputs = [
+    DateInput(),
+    FixtureInput({
+      fixtures: fixtures,
+      required: true,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+      ],
+    }),
+    ExpenseTypeInput({
+      expenseTypes:
+        expenseTypes.filter((exp) =>
+          fixtures
+            .find((item) => item._id === form?.fixture)
+            ?.expenseType.includes(exp._id)
+        ) ?? [],
+      required: true,
+    }),
+    StockLocationInput({ locations: locations }),
+    BrandInput({
+      brands:
+        brands?.filter((brnd) =>
+          fixtures
+            .find((item) => item._id === form?.fixture)
+            ?.brand?.includes(brnd._id)
+        ) ?? [],
+    }),
+    VendorInput({
+      vendors:
+        vendors?.filter((vndr) =>
+          fixtures
+            .find((item) => item._id === form?.fixture)
+            ?.vendor?.includes(vndr._id)
+        ) ?? [],
+    }),
+    QuantityInput(),
+  ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "fixture", type: FormKeyTypeEnum.STRING },
@@ -249,11 +277,37 @@ const FixtureInvoice = () => {
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
-    { key: t("Brand"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Fixture"), isSortable: true },
+    {
+      key: t("Brand"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddBrandOpen(true),
+    },
+    {
+      key: t("Vendor"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddVendorOpen(true),
+    },
+    {
+      key: t("Location"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddLocationOpen(true),
+    },
+    {
+      key: t("Expense Type"),
+      className: `${isEnableEdit && "min-w-40"}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddExpenseTypeOpen(true),
+    },
+    {
+      key: t("Fixture"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddFixtureModalOpen(true),
+    },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
@@ -541,17 +595,6 @@ const FixtureInvoice = () => {
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Add Fixture")}
-          onclick={() => {
-            setIsAddFixtureModalOpen(true);
-          }}
-        />
-      ),
-    },
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
@@ -741,6 +784,46 @@ const FixtureInvoice = () => {
                 },
               });
             }}
+          />
+        )}
+        {isAddLocationOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddLocationOpen}
+            close={() => setIsAddLocationOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountStockLocation as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddBrandOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddBrandOpen}
+            close={() => setIsAddBrandOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountBrand as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddVendorOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddVendorOpen}
+            close={() => setIsAddVendorOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountVendor as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddExpenseTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddExpenseTypeOpen}
+            close={() => setIsAddExpenseTypeOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={createAccountExpenseType as any}
+            topClassName="flex flex-col gap-2 "
           />
         )}
       </div>

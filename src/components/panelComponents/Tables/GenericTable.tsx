@@ -3,6 +3,7 @@ import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegFilePdf } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
+import { GoPlusCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { RowPerPageEnum } from "../../../types";
@@ -626,9 +627,9 @@ const GenericTable = <T,>({
                           } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
                         >
                           <H5
-                            className={`w-fit flex gap-2 text-gray-600 ${
+                            className={`w-fit flex gap-2 "text-gray-600" ${
                               columns.length === 2 && index == 1 && "  mx-auto"
-                            } ${
+                            } ${column?.className} ${
                               index === columns.length - 1 &&
                               actions &&
                               isActionsActive
@@ -636,7 +637,15 @@ const GenericTable = <T,>({
                                 : ""
                             }`}
                           >
-                            {column.key}{" "}
+                            <span
+                              className="flex flex-row gap-1 items-center justify-center"
+                              onClick={() => column?.onClick?.()}
+                            >
+                              {column?.isAddable && (
+                                <GoPlusCircle className=" hover:text-blue-500 transition-transform cursor-pointer text-lg" />
+                              )}
+                              {column.key}{" "}
+                            </span>
                             {column.isSortable && (
                               <div
                                 className="sort-buttons"
