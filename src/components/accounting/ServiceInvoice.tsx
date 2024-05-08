@@ -163,36 +163,7 @@ const ServiceInvoice = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  const inputs = [
-    DateInput(),
-    ServiceInput({
-      services: services,
-      required: true,
-      invalidateKeys: [
-        { key: "expenseType", defaultValue: "" },
-        { key: "vendor", defaultValue: "" },
-      ],
-    }),
-    ExpenseTypeInput({
-      expenseTypes:
-        expenseTypes.filter((exp) =>
-          services
-            .find((item) => item._id === form?.service)
-            ?.expenseType.includes(exp._id)
-        ) ?? [],
-      required: true,
-    }),
-    StockLocationInput({ locations: locations }),
-    VendorInput({
-      vendors:
-        vendors?.filter((vndr) =>
-          services
-            .find((item) => item._id === form?.service)
-            ?.vendor?.includes(vndr._id)
-        ) ?? [],
-    }),
-    QuantityInput(),
-  ];
+
   const filterPanelInputs = [
     ServiceInput({ services: services, required: true }),
     VendorInput({ vendors: vendors, required: true }),
@@ -229,6 +200,36 @@ const ServiceInvoice = () => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
+  ];
+  const inputs = [
+    DateInput(),
+    ServiceInput({
+      services: services,
+      required: true,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+      ],
+    }),
+    ExpenseTypeInput({
+      expenseTypes:
+        expenseTypes.filter((exp) =>
+          services
+            .find((item) => item._id === form?.service)
+            ?.expenseType.includes(exp._id)
+        ) ?? [],
+      required: true,
+    }),
+    StockLocationInput({ locations: locations }),
+    VendorInput({
+      vendors:
+        vendors?.filter((vndr) =>
+          services
+            .find((item) => item._id === form?.service)
+            ?.vendor?.includes(vndr._id)
+        ) ?? [],
+    }),
+    QuantityInput(),
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -316,11 +317,18 @@ const ServiceInvoice = () => {
         return (
           <div
             onClick={() => {
+              if (!isEnableEdit) return;
               setIsServiceEditModalOpen(true);
               setServiceEditModalItem(row.srvc as AccountService);
             }}
           >
-            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
               {row.service}
             </p>
           </div>

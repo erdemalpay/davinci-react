@@ -349,11 +349,18 @@ const FixtureInvoice = () => {
         return (
           <div
             onClick={() => {
+              if (!isEnableEdit) return;
               setIsFixtureEditModalOpen(true);
               setFixtureEditModalItem(row.fxtr as AccountFixture);
             }}
           >
-            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
               {row.fixture}
             </p>
           </div>
