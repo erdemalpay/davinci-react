@@ -374,7 +374,12 @@ const Invoice = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.totalExpense} ₺</P1>
+            <P1>
+              {parseFloat(row.totalExpense)
+                .toFixed(4)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </P1>
           </div>
         );
       },
