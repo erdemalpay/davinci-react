@@ -13,7 +13,10 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountExpenseTypeMutations,
+  useGetAccountExpenseTypes,
+} from "../../utils/api/account/expenseType";
 import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
 import {
   useAccountServiceMutations,
@@ -23,10 +26,17 @@ import {
   useAccountServiceInvoiceMutations,
   useGetAccountServiceInvoices,
 } from "../../utils/api/account/serviceInvoice";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  useAccountStockLocationMutations,
+  useGetAccountStockLocations,
+} from "../../utils/api/account/stockLocation";
+import {
+  useAccountVendorMutations,
+  useGetAccountVendors,
+} from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
+  BackgroundColorInput,
   DateInput,
   ExpenseTypeInput,
   NameInput,
@@ -41,7 +51,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -68,6 +77,13 @@ const ServiceInvoice = () => {
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
+  const { createAccountStockLocation } = useAccountStockLocationMutations();
+  const { createAccountVendor } = useAccountVendorMutations();
+  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
+
   const [serviceEditModalItem, setServiceEditModalItem] =
     useState<AccountService>();
   const [isServiceEditModalOpen, setIsServiceEditModalOpen] = useState(false);
@@ -223,14 +239,43 @@ const ServiceInvoice = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
+  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
+  const expenseTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
+
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Service"), isSortable: true },
+    {
+      key: t("Vendor"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddVendorOpen(true),
+    },
+    {
+      key: t("Location"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddLocationOpen(true),
+    },
+    {
+      key: t("Expense Type"),
+      className: `${isEnableEdit && "min-w-40"}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddExpenseTypeOpen(true),
+    },
+    {
+      key: t("Service"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddServiceModalOpen(true),
+    },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
@@ -513,17 +558,6 @@ const ServiceInvoice = () => {
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Add Service")}
-          onclick={() => {
-            setIsAddServiceModalOpen(true);
-          }}
-        />
-      ),
-    },
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
@@ -705,6 +739,36 @@ const ServiceInvoice = () => {
                 },
               });
             }}
+          />
+        )}
+        {isAddLocationOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddLocationOpen}
+            close={() => setIsAddLocationOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountStockLocation as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddVendorOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddVendorOpen}
+            close={() => setIsAddVendorOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountVendor as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddExpenseTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddExpenseTypeOpen}
+            close={() => setIsAddExpenseTypeOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={createAccountExpenseType as any}
+            topClassName="flex flex-col gap-2 "
           />
         )}
       </div>
