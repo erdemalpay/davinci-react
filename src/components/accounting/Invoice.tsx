@@ -425,11 +425,18 @@ const Invoice = () => {
         return (
           <div
             onClick={() => {
+              if (!isEnableEdit) return;
               setIsProductEditModalOpen(true);
               setProductEditModalItem(row.prdct as AccountProduct);
             }}
           >
-            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
               {row.product}
             </p>
           </div>
