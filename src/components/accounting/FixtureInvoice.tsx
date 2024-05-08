@@ -72,7 +72,11 @@ const FixtureInvoice = () => {
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddFixtureModalOpen, setIsAddFixtureModalOpen] = useState(false);
-  const { createAccountFixture } = useAccountFixtureMutations();
+  const { createAccountFixture, updateAccountFixture } =
+    useAccountFixtureMutations();
+  const [fixtureEditModalItem, setFixtureEditModalItem] =
+    useState<AccountFixture>();
+  const [isFixtureEditModalOpen, setIsFixtureEditModalOpen] = useState(false);
   const [addFixtureForm, setAddFixtureForm] = useState({
     name: "",
     brand: [],
@@ -131,6 +135,7 @@ const FixtureInvoice = () => {
         expType: invoice.expenseType as AccountExpenseType,
         brnd: invoice.brand as AccountBrand,
         vndr: invoice.vendor as AccountVendor,
+        fxtr: invoice.fixture as AccountFixture,
       };
     })
   );
@@ -283,7 +288,24 @@ const FixtureInvoice = () => {
         );
       },
     },
-    { key: "fixture", className: "min-w-32 pr-2" },
+    {
+      key: "fixture",
+      className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              setIsFixtureEditModalOpen(true);
+              setFixtureEditModalItem(row.fxtr as AccountFixture);
+            }}
+          >
+            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+              {row.fixture}
+            </p>
+          </div>
+        );
+      },
+    },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unitPrice",
@@ -573,6 +595,7 @@ const FixtureInvoice = () => {
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
+          fxtr: invoice.fixture as AccountFixture,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -686,6 +709,33 @@ const FixtureInvoice = () => {
               });
             }}
             topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isFixtureEditModalOpen && fixtureEditModalItem && (
+          <GenericAddEditPanel
+            isOpen={isFixtureEditModalOpen}
+            close={() => setIsFixtureEditModalOpen(false)}
+            inputs={addFixtureInputs}
+            formKeys={addFixtureFormKeys}
+            generalClassName="overflow-scroll"
+            submitItem={updateAccountFixture as any}
+            setForm={setAddFixtureForm}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            constantValues={{
+              name: fixtureEditModalItem.name,
+              expenseType: fixtureEditModalItem.expenseType,
+              brand: fixtureEditModalItem.brand,
+              vendor: fixtureEditModalItem.vendor,
+            }}
+            handleUpdate={() => {
+              updateAccountFixture({
+                id: fixtureEditModalItem?._id,
+                updates: {
+                  ...addFixtureForm,
+                },
+              });
+            }}
           />
         )}
       </div>

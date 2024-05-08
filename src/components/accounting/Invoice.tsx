@@ -66,6 +66,9 @@ const Invoice = () => {
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
+  const [productEditModalItem, setProductEditModalItem] =
+    useState<AccountProduct>();
+  const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
@@ -82,7 +85,8 @@ const Invoice = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const { createAccountProduct } = useAccountProductMutations();
+  const { createAccountProduct, updateAccountProduct } =
+    useAccountProductMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
     vendor: [],
@@ -152,6 +156,7 @@ const Invoice = () => {
         brnd: invoice.brand as AccountBrand,
         vndr: invoice.vendor as AccountVendor,
         pckgTyp: invoice.packageType as AccountPackageType,
+        prdct: invoice.product as AccountProduct,
       };
     })
   );
@@ -333,7 +338,24 @@ const Invoice = () => {
         );
       },
     },
-    { key: "product", className: "min-w-32 pr-2" },
+    {
+      key: "product",
+      className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              setIsProductEditModalOpen(true);
+              setProductEditModalItem(row.prdct as AccountProduct);
+            }}
+          >
+            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+              {row.product}
+            </p>
+          </div>
+        );
+      },
+    },
     { key: "packageType", className: "min-w-32 " },
     { key: "quantity", className: "min-w-32" },
     { key: "unit" },
@@ -663,6 +685,7 @@ const Invoice = () => {
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
           pckgTyp: invoice.packageType as AccountPackageType,
+          prdct: invoice.product as AccountProduct,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -782,6 +805,44 @@ const Invoice = () => {
               });
             }}
             topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isProductEditModalOpen && productEditModalItem && (
+          <GenericAddEditPanel
+            isOpen={isProductEditModalOpen}
+            close={() => setIsProductEditModalOpen(false)}
+            inputs={productInputs}
+            formKeys={productFormKeys}
+            generalClassName="overflow-scroll"
+            submitItem={updateAccountProduct as any}
+            setForm={setProductInputForm}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            constantValues={{
+              name: productEditModalItem.name,
+              unit: units.find(
+                (unit) => unit.name === (productEditModalItem?.unit as string)
+              )?._id,
+              expenseType: productEditModalItem.expenseType,
+              brand: productEditModalItem.brand,
+              vendor: productEditModalItem.vendor,
+              packages: productEditModalItem?.packages?.map(
+                (pkg) => pkg.package
+              ),
+            }}
+            handleUpdate={() => {
+              updateAccountProduct({
+                id: productEditModalItem?._id,
+                updates: {
+                  ...productInputForm,
+                  packages:
+                    productInputForm?.packages?.map((pkg: any) => ({
+                      package: pkg as string,
+                      packageUnitPrice: 0,
+                    })) ?? [],
+                },
+              });
+            }}
           />
         )}
       </div>

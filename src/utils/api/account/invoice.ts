@@ -16,6 +16,7 @@ export function useAccountInvoiceMutations() {
 
   return { deleteAccountInvoice, updateAccountInvoice, createAccountInvoice };
 }
+
 export function transferToFixtureInvoice({ id }: { id: number }) {
   return patch({
     path: `${baseUrl}/transfer_to_fixture_invoice/${id}`,
