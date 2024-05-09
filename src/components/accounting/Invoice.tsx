@@ -89,6 +89,10 @@ const Invoice = () => {
   const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
   const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [isUnitEditModalOpen, setIsUnitEditModalOpen] = useState(false);
+  const [isPackageTypeEditModalOpen, setIsPackageTypeEditModalOpen] =
+    useState(false);
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
@@ -114,14 +118,16 @@ const Invoice = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
-  const { createAccountPackageType } = useAccountPackageTypeMutations();
+  const { createAccountPackageType, updateAccountPackageType } =
+    useAccountPackageTypeMutations();
   const { createAccountUnit, updateAccountUnit } = useAccountUnitMutations();
   const { createAccountStockLocation, updateAccountStockLocation } =
     useAccountStockLocationMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
   const { createAccountVendor, updateAccountVendor } =
     useAccountVendorMutations();
-  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
+  const { createAccountExpenseType, updateAccountExpenseType } =
+    useAccountExpenseTypeMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
     vendor: [],
@@ -482,9 +488,20 @@ const Invoice = () => {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32">
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsExpenseTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+            className=" min-w-32"
+          >
             <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
+              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                isEnableEdit
+                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : "text-white"
+              }`}
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -519,7 +536,30 @@ const Invoice = () => {
         );
       },
     },
-    { key: "packageType", className: "min-w-32 " },
+    {
+      key: "packageType",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsPackageTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` "min-w-32 " ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.packageType}
+            </p>
+          </div>
+        );
+      },
+    },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unit",
@@ -1147,6 +1187,36 @@ const Invoice = () => {
                   unit._id ===
                   ((currentRow.prdct as AccountProduct).unit as string)
               ),
+            }}
+          />
+        )}
+        {isExpenseTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isExpenseTypeEditModalOpen}
+            close={() => setIsExpenseTypeEditModalOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={updateAccountExpenseType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.expType._id,
+              updates: currentRow.expType,
+            }}
+          />
+        )}
+        {isPackageTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isPackageTypeEditModalOpen}
+            close={() => setIsPackageTypeEditModalOpen(false)}
+            inputs={packageTypeInputs}
+            formKeys={packageTypeFormKeys}
+            submitItem={updateAccountPackageType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.pckgTyp._id,
+              updates: currentRow.pckgTyp,
             }}
           />
         )}

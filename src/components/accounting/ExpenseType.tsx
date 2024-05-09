@@ -115,7 +115,6 @@ const ExpenseType = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];

@@ -10,6 +10,7 @@ export function useAccountExpenseTypeMutations() {
     createItem: createAccountExpenseType,
   } = useMutationApi<AccountExpenseType>({
     baseQuery: baseUrl,
+    additionalInvalidates: [[`${Paths.Accounting}/invoices`]],
   });
 
   return {
