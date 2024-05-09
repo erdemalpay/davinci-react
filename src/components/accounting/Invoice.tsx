@@ -84,9 +84,11 @@ const Invoice = () => {
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
-  const [productEditModalItem, setProductEditModalItem] =
-    useState<AccountProduct>();
   const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
+  const [isBrandEditModalOpen, setIsBrandEditModalOpen] = useState(false);
+  const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
+  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
+  const [isUnitEditModalOpen, setIsUnitEditModalOpen] = useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
@@ -98,6 +100,7 @@ const Invoice = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [currentRow, setCurrentRow] = useState<any>();
   const [isAddPackageTypeOpen, setIsAddPackageTypeOpen] = useState(false);
   const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
   const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
@@ -112,10 +115,12 @@ const Invoice = () => {
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
   const { createAccountPackageType } = useAccountPackageTypeMutations();
-  const { createAccountUnit } = useAccountUnitMutations();
-  const { createAccountStockLocation } = useAccountStockLocationMutations();
-  const { createAccountBrand } = useAccountBrandMutations();
-  const { createAccountVendor } = useAccountVendorMutations();
+  const { createAccountUnit, updateAccountUnit } = useAccountUnitMutations();
+  const { createAccountStockLocation, updateAccountStockLocation } =
+    useAccountStockLocationMutations();
+  const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
+  const { createAccountVendor, updateAccountVendor } =
+    useAccountVendorMutations();
   const { createAccountExpenseType } = useAccountExpenseTypeMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
@@ -342,12 +347,14 @@ const Invoice = () => {
     { key: t("Note"), isSortable: true },
     {
       key: t("Brand"),
+      className: "min-w-32 pr-2",
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddBrandOpen(true),
     },
     {
       key: t("Vendor"),
+      className: "min-w-32 pr-2",
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddVendorOpen(true),
@@ -367,6 +374,7 @@ const Invoice = () => {
     },
     {
       key: t("Product"),
+      className: "min-w-32 pr-2",
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddProductOpen(true),
@@ -398,9 +406,78 @@ const Invoice = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
-    { key: "brand", className: "min-w-32 pr-2" },
-    { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-4" },
+    {
+      key: "brand",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsBrandEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.brand ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "vendor",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsVendorEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.vendor ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "lctn",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsLocationEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-4 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.lctn ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "expenseType",
       node: (row: any) => {
@@ -420,18 +497,17 @@ const Invoice = () => {
     },
     {
       key: "product",
-      className: "min-w-32 pr-2",
       node: (row: any) => {
         return (
           <div
             onClick={() => {
               if (!isEnableEdit) return;
               setIsProductEditModalOpen(true);
-              setProductEditModalItem(row.prdct as AccountProduct);
+              setCurrentRow(row);
             }}
           >
             <p
-              className={`${
+              className={` "min-w-32 pr-2" ${
                 isEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
@@ -445,7 +521,30 @@ const Invoice = () => {
     },
     { key: "packageType", className: "min-w-32 " },
     { key: "quantity", className: "min-w-32" },
-    { key: "unit" },
+    {
+      key: "unit",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsUnitEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.unit ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -535,7 +634,7 @@ const Invoice = () => {
   };
   const actions = [
     {
-      name: t("Transfer"),
+      name: "Transfer",
       isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
@@ -799,7 +898,7 @@ const Invoice = () => {
     ) {
       setCurrentPage(1);
     }
-  }, [invoices, filterPanelFormElements, searchQuery]);
+  }, [invoices, filterPanelFormElements, searchQuery, products]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,
@@ -948,7 +1047,7 @@ const Invoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isProductEditModalOpen && productEditModalItem && (
+        {isProductEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isProductEditModalOpen}
             close={() => setIsProductEditModalOpen(false)}
@@ -960,20 +1059,22 @@ const Invoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: productEditModalItem.name,
+              name: (currentRow.prdct as AccountProduct).name,
               unit: units.find(
-                (unit) => unit.name === (productEditModalItem?.unit as string)
+                (unit) =>
+                  unit.name ===
+                  ((currentRow.prdct as AccountProduct)?.unit as string)
               )?._id,
-              expenseType: productEditModalItem.expenseType,
-              brand: productEditModalItem.brand,
-              vendor: productEditModalItem.vendor,
-              packages: productEditModalItem?.packages?.map(
+              expenseType: (currentRow.prdct as AccountProduct).expenseType,
+              brand: (currentRow.prdct as AccountProduct).brand,
+              vendor: (currentRow.prdct as AccountProduct).vendor,
+              packages: (currentRow.prdct as AccountProduct)?.packages?.map(
                 (pkg) => pkg.package
               ),
             }}
             handleUpdate={() => {
               updateAccountProduct({
-                id: productEditModalItem?._id,
+                id: (currentRow.prdct as AccountProduct)?._id,
                 updates: {
                   ...productInputForm,
                   packages:
@@ -983,6 +1084,69 @@ const Invoice = () => {
                     })) ?? [],
                 },
               });
+            }}
+          />
+        )}
+        {isBrandEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isBrandEditModalOpen}
+            close={() => setIsBrandEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountBrand as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.brnd._id, updates: currentRow.brnd }}
+          />
+        )}
+        {isVendorEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isVendorEditModalOpen}
+            close={() => setIsVendorEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountVendor as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+          />
+        )}
+        {isLocationEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isLocationEditModalOpen}
+            close={() => setIsLocationEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountStockLocation as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.location._id,
+              updates: currentRow.location,
+            }}
+          />
+        )}
+        {isUnitEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isUnitEditModalOpen}
+            close={() => setIsUnitEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountUnit as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id:
+                units?.find(
+                  (unit) =>
+                    unit._id ===
+                    ((currentRow.prdct as AccountProduct).unit as string)
+                )?._id ?? "",
+              updates: units?.find(
+                (unit) =>
+                  unit._id ===
+                  ((currentRow.prdct as AccountProduct).unit as string)
+              ),
             }}
           />
         )}
