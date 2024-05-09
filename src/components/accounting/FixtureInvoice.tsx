@@ -77,6 +77,10 @@ const FixtureInvoice = () => {
     useFixtureInvoiceTransferInvoiceMutation();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [currentRow, setCurrentRow] = useState<any>();
+  const [isBrandEditModalOpen, setIsBrandEditModalOpen] = useState(false);
+  const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
+  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixtureInvoice>();
@@ -88,14 +92,17 @@ const FixtureInvoice = () => {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
-  const { createAccountStockLocation } = useAccountStockLocationMutations();
-  const { createAccountBrand } = useAccountBrandMutations();
-  const { createAccountVendor } = useAccountVendorMutations();
-  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
+  const { createAccountStockLocation, updateAccountStockLocation } =
+    useAccountStockLocationMutations();
+  const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
+  const { createAccountVendor, updateAccountVendor } =
+    useAccountVendorMutations();
+  const { createAccountExpenseType, updateAccountExpenseType } =
+    useAccountExpenseTypeMutations();
   const { createAccountFixture, updateAccountFixture } =
     useAccountFixtureMutations();
-  const [fixtureEditModalItem, setFixtureEditModalItem] =
-    useState<AccountFixture>();
   const [isFixtureEditModalOpen, setIsFixtureEditModalOpen] = useState(false);
   const [addFixtureForm, setAddFixtureForm] = useState({
     name: "",
@@ -322,16 +329,96 @@ const FixtureInvoice = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
-    { key: "brand", className: "min-w-32 pr-2" },
-    { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-4" },
+    {
+      key: "brand",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsBrandEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.brand ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "vendor",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsVendorEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.vendor ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "lctn",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsLocationEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-4 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.lctn ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32">
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsExpenseTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+            className=" min-w-32"
+          >
             <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
+              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                isEnableEdit
+                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : "text-white"
+              }`}
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -351,7 +438,7 @@ const FixtureInvoice = () => {
             onClick={() => {
               if (!isEnableEdit) return;
               setIsFixtureEditModalOpen(true);
-              setFixtureEditModalItem(row.fxtr as AccountFixture);
+              setCurrentRow(row);
             }}
           >
             <p
@@ -766,7 +853,7 @@ const FixtureInvoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isFixtureEditModalOpen && fixtureEditModalItem && (
+        {isFixtureEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isFixtureEditModalOpen}
             close={() => setIsFixtureEditModalOpen(false)}
@@ -778,14 +865,14 @@ const FixtureInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: fixtureEditModalItem.name,
-              expenseType: fixtureEditModalItem.expenseType,
-              brand: fixtureEditModalItem.brand,
-              vendor: fixtureEditModalItem.vendor,
+              name: currentRow.fxtr.name,
+              expenseType: currentRow.fxtr.expenseType,
+              brand: currentRow.fxtr.brand,
+              vendor: currentRow.fxtr.vendor,
             }}
             handleUpdate={() => {
               updateAccountFixture({
-                id: fixtureEditModalItem?._id,
+                id: currentRow.fxtr?._id,
                 updates: {
                   ...addFixtureForm,
                 },
@@ -831,6 +918,61 @@ const FixtureInvoice = () => {
             formKeys={expenseTypeFormKeys}
             submitItem={createAccountExpenseType as any}
             topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isBrandEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isBrandEditModalOpen}
+            close={() => setIsBrandEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountBrand as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.brnd._id, updates: currentRow.brnd }}
+          />
+        )}
+        {isVendorEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isVendorEditModalOpen}
+            close={() => setIsVendorEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountVendor as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+          />
+        )}
+        {isLocationEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isLocationEditModalOpen}
+            close={() => setIsLocationEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountStockLocation as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.location._id,
+              updates: currentRow.location,
+            }}
+          />
+        )}
+
+        {isExpenseTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isExpenseTypeEditModalOpen}
+            close={() => setIsExpenseTypeEditModalOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={updateAccountExpenseType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.expType._id,
+              updates: currentRow.expType,
+            }}
           />
         )}
       </div>

@@ -10,7 +10,10 @@ export function useAccountBrandMutations() {
     createItem: createAccountBrand,
   } = useMutationApi<AccountBrand>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Accounting}/invoices`]],
+    additionalInvalidates: [
+      [`${Paths.Accounting}/invoices`],
+      [`${Paths.Accounting}/fixture-invoice`],
+    ],
   });
 
   return {

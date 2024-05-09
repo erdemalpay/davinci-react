@@ -10,7 +10,10 @@ export function useAccountVendorMutations() {
     createItem: createAccountVendor,
   } = useMutationApi<AccountVendor>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Accounting}/invoices`]],
+    additionalInvalidates: [
+      [`${Paths.Accounting}/invoices`],
+      [`${Paths.Accounting}/fixture-invoice`],
+    ],
   });
 
   return {

@@ -9,7 +9,10 @@ export function useAccountStockLocationMutations() {
     createItem: createAccountStockLocation,
   } = useMutationApi<AccountStockLocation>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Accounting}/invoices`]],
+    additionalInvalidates: [
+      [`${Paths.Accounting}/invoices`],
+      [`${Paths.Accounting}/fixture-invoice`],
+    ],
   });
 
   return {
