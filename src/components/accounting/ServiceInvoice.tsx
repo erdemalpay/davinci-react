@@ -75,17 +75,22 @@ const ServiceInvoice = () => {
   const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
+  const [currentRow, setCurrentRow] = useState<any>();
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
+  const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
+  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
-  const { createAccountStockLocation } = useAccountStockLocationMutations();
-  const { createAccountVendor } = useAccountVendorMutations();
-  const { createAccountExpenseType } = useAccountExpenseTypeMutations();
-
-  const [serviceEditModalItem, setServiceEditModalItem] =
-    useState<AccountService>();
+  const { createAccountStockLocation, updateAccountStockLocation } =
+    useAccountStockLocationMutations();
+  const { createAccountVendor, updateAccountVendor } =
+    useAccountVendorMutations();
+  const { createAccountExpenseType, updateAccountExpenseType } =
+    useAccountExpenseTypeMutations();
   const [isServiceEditModalOpen, setIsServiceEditModalOpen] = useState(false);
   const [addServiceForm, setAddServiceForm] = useState({
     name: "",
@@ -291,15 +296,71 @@ const ServiceInvoice = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
-    { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-4" },
+    {
+      key: "vendor",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsVendorEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.vendor ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "lctn",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsLocationEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-4 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.lctn ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32">
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsExpenseTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
             <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
+              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                isEnableEdit
+                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : "text-white"
+              }`}
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -319,7 +380,7 @@ const ServiceInvoice = () => {
             onClick={() => {
               if (!isEnableEdit) return;
               setIsServiceEditModalOpen(true);
-              setServiceEditModalItem(row.srvc as AccountService);
+              setCurrentRow(row);
             }}
           >
             <p
@@ -723,7 +784,7 @@ const ServiceInvoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isServiceEditModalOpen && serviceEditModalItem && (
+        {isServiceEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isServiceEditModalOpen}
             close={() => setIsServiceEditModalOpen(false)}
@@ -735,13 +796,13 @@ const ServiceInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: serviceEditModalItem.name,
-              expenseType: serviceEditModalItem.expenseType,
-              vendor: serviceEditModalItem.vendor,
+              name: currentRow.srvc.name,
+              expenseType: currentRow.srvc.expenseType,
+              vendor: currentRow.srvc.vendor,
             }}
             handleUpdate={() => {
               updateAccountService({
-                id: serviceEditModalItem?._id,
+                id: currentRow.srvc?._id,
                 updates: {
                   ...addServiceForm,
                 },
@@ -777,6 +838,49 @@ const ServiceInvoice = () => {
             formKeys={expenseTypeFormKeys}
             submitItem={createAccountExpenseType as any}
             topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isVendorEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isVendorEditModalOpen}
+            close={() => setIsVendorEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountVendor as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+          />
+        )}
+        {isLocationEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isLocationEditModalOpen}
+            close={() => setIsLocationEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountStockLocation as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.location._id,
+              updates: currentRow.location,
+            }}
+          />
+        )}
+
+        {isExpenseTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isExpenseTypeEditModalOpen}
+            close={() => setIsExpenseTypeEditModalOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={updateAccountExpenseType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.expType._id,
+              updates: currentRow.expType,
+            }}
           />
         )}
       </div>
