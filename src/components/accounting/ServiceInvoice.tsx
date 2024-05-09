@@ -271,7 +271,7 @@ const ServiceInvoice = () => {
     },
     {
       key: t("Expense Type"),
-      className: `${isEnableEdit && "min-w-40"}`,
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
