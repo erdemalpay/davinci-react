@@ -79,6 +79,8 @@ const FixtureInvoice = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>();
   const [isBrandEditModalOpen, setIsBrandEditModalOpen] = useState(false);
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
   const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
   const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -92,8 +94,6 @@ const FixtureInvoice = () => {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
-  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
-    useState(false);
   const { createAccountStockLocation, updateAccountStockLocation } =
     useAccountStockLocationMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
@@ -365,7 +365,7 @@ const FixtureInvoice = () => {
             }}
           >
             <p
-              className={`${
+              className={` min-w-32 pr-2 ${
                 isEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""

@@ -12,6 +12,7 @@ export function useAccountStockLocationMutations() {
     additionalInvalidates: [
       [`${Paths.Accounting}/invoices`],
       [`${Paths.Accounting}/fixture-invoice`],
+      [`${Paths.Accounting}/service-invoice`],
     ],
   });
 

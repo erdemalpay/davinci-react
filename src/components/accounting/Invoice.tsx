@@ -448,7 +448,7 @@ const Invoice = () => {
             }}
           >
             <p
-              className={`${
+              className={`min-w-32 pr-2 ${
                 isEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
