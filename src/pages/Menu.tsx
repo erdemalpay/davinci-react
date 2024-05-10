@@ -54,6 +54,7 @@ export default function Menu() {
             (itemCategory as MenuCategory)?._id === category?._id
         ).length === 0
     );
+    console.log(emptyCategories);
     const itemGroups: ItemGroup[] = [];
     if (!items) return;
     items.forEach((item) => {
@@ -125,7 +126,12 @@ export default function Menu() {
         number: itemCategories.length + emptyCategories.length + 1,
         label: "Categories",
         icon: null,
-        content: <CategoryTable categories={categories as MenuCategory[]} />,
+        content: (
+          <CategoryTable
+            key={"categories" + tableKeys}
+            categories={categories as MenuCategory[]}
+          />
+        ),
         isDisabled: false,
       },
     ]);
