@@ -185,7 +185,6 @@ const CategoryTable = ({ categories }: Props) => {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
@@ -214,6 +213,7 @@ const CategoryTable = ({ categories }: Props) => {
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
+        key={categories.length}
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
