@@ -49,9 +49,11 @@ export interface RowKeyType<T> {
 export interface ColumnType<T> {
   key: string;
   isSortable: boolean;
+  isAddable?: boolean;
   className?: string;
   correspondingKey?: string;
   node?: () => React.ReactNode;
+  onClick?: () => void;
 }
 type FormElementsState = {
   [key: string]: any; // Adjust the type as needed for your form elements

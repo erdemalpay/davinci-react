@@ -16,6 +16,7 @@ export function useAccountProductMutations() {
     createItem: createAccountProduct,
   } = useMutationApi<AccountProduct>({
     baseQuery: baseUrl,
+    additionalInvalidates: [[`${Paths.Accounting}/invoices`]],
   });
 
   return { deleteAccountProduct, updateAccountProduct, createAccountProduct };

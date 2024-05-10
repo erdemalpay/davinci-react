@@ -34,6 +34,7 @@ interface Props<T> {
   baseQuery: string;
   queryKey?: QueryKey;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
+  additionalInvalidates?: QueryKey[];
 }
 
 export function useGet<T>(path: string, queryKey?: QueryKey) {
@@ -51,6 +52,7 @@ export function useMutationApi<T extends { _id: number | string }>({
   baseQuery,
   queryKey = [baseQuery],
   sortFunction,
+  additionalInvalidates,
 }: Props<T>) {
   function createRequest(itemDetails: Partial<T>): Promise<T> {
     return post<Partial<T>, T>({
@@ -108,6 +110,9 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         queryClient.invalidateQueries(queryKey);
+        additionalInvalidates?.forEach((key) => {
+          queryClient.invalidateQueries(key);
+        });
       },
     });
   }
@@ -148,6 +153,9 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         queryClient.invalidateQueries(queryKey);
+        additionalInvalidates?.forEach((key) => {
+          queryClient.invalidateQueries(key);
+        });
       },
     });
   }
@@ -193,6 +201,9 @@ export function useMutationApi<T extends { _id: number | string }>({
       // Always refetch after error or success:
       onSettled: async () => {
         queryClient.invalidateQueries(queryKey);
+        additionalInvalidates?.forEach((key) => {
+          queryClient.invalidateQueries(key);
+        });
       },
     });
   }

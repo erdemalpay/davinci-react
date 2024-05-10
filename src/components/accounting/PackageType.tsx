@@ -113,7 +113,6 @@ const PackageType = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];

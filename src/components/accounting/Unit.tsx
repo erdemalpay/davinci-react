@@ -99,10 +99,8 @@ const Unit = () => {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];

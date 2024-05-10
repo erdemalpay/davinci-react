@@ -1,10 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { CiViewList } from "react-icons/ci";
 import { FiArchive } from "react-icons/fi";
 import { GiEatingPelican, GiGreatPyramid } from "react-icons/gi";
 import { SlBasketLoaded } from "react-icons/sl";
 import CountArchive from "../components/accounting/CountArchive";
-import CountLists from "../components/accounting/CountLists";
 import FixtureStock from "../components/accounting/FixtureStock";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
@@ -41,13 +39,6 @@ export default function Stocks() {
       label: t("Enter Consumption"),
       icon: <GiEatingPelican className="text-xl font-thin" />,
       content: <EnterConsumption />,
-      isDisabled: false,
-    },
-    {
-      number: StocksPageTabEnum.COUNTLIST,
-      label: t("Count Lists"),
-      icon: <CiViewList className="text-lg font-thin" />,
-      content: <CountLists />,
       isDisabled: false,
     },
     {

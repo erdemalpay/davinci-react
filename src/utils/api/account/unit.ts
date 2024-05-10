@@ -9,6 +9,10 @@ export function useAccountUnitMutations() {
     createItem: createAccountUnit,
   } = useMutationApi<AccountUnit>({
     baseQuery: baseUrl,
+    additionalInvalidates: [
+      [`${Paths.Accounting}/products`],
+      [`${Paths.Accounting}/invoices`],
+    ],
   });
 
   return { deleteAccountUnit, updateAccountUnit, createAccountUnit };

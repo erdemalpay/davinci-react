@@ -1,32 +1,29 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { useNavigate, useParams } from "react-router-dom";
-import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import SelectInput from "../components/common/SelectInput";
-import { Header } from "../components/header/Header";
-import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
-import {
-  FormKeyTypeEnum,
-  InputTypes,
-} from "../components/panelComponents/shared/types";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { H5 } from "../components/panelComponents/Typography";
-import { AccountCountList, AccountProduct } from "../types";
+import { useNavigate } from "react-router-dom";
+import { AccountProduct } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
-} from "../utils/api/account/countList";
-import { useGetAccountProducts } from "../utils/api/account/product";
+} from "../../utils/api/account/countList";
+import { useGetAccountProducts } from "../../utils/api/account/product";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import { H5 } from "../panelComponents/Typography";
 
-const CountList = () => {
+type Props = {
+  countListId: string;
+};
+const CountList = ({ countListId }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { countListId } = useParams();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -36,21 +33,16 @@ const CountList = () => {
   const [form, setForm] = useState({
     product: [],
   });
-  const countListOptions = countLists?.map((countList) => {
-    return {
-      value: countList._id,
-      label: countList.name,
-    };
-  });
-  const [selectedOption, setSelectedOption] = useState<AccountCountList>();
   const rows = () => {
     let productRows = [];
     const currentCountList = countLists.find(
       (item) => item._id === countListId
     );
     if (currentCountList && currentCountList.products) {
-      for (let productId of currentCountList.products) {
-        const product = products.find((product) => product._id === productId);
+      for (let item of currentCountList.products) {
+        const product = products.find(
+          (product) => product._id === item.product
+        );
         if (product) {
           productRows.push(product);
         }
@@ -64,9 +56,9 @@ const CountList = () => {
       formKey: "product",
       label: t("Product"),
       options: products
-        .filter((product) => {
+        .filter((item) => {
           const countList = countLists.find((item) => item._id === countListId);
-          return !countList?.products?.includes(product._id);
+          return !countList?.products?.some((pro) => pro.product === item._id);
         })
         .map((product) => {
           return {
@@ -143,7 +135,7 @@ const CountList = () => {
                   products: countLists
                     .find((item) => item._id === countListId)
                     ?.products?.filter(
-                      (product) => product !== rowToAction._id
+                      (item) => item.product !== rowToAction._id
                     ),
                 },
               });
@@ -179,41 +171,7 @@ const CountList = () => {
   ];
   return (
     <>
-      <Header showLocationSelector={false} />
-      {countListOptions.length > 1 && (
-        <div className="w-[95%] mx-auto">
-          <div className="sm:w-1/4 ">
-            <SelectInput
-              options={countListOptions}
-              value={
-                selectedOption
-                  ? {
-                      value: selectedOption._id,
-                      label: selectedOption.name,
-                    }
-                  : {
-                      value:
-                        countLists.find((l) => l._id === countListId)?._id ??
-                        "",
-                      label:
-                        countLists.find((l) => l._id === countListId)?.name ??
-                        "",
-                    }
-              }
-              onChange={(selectedOption) => {
-                setSelectedOption(
-                  countLists?.find(
-                    (option) => option._id === selectedOption?.value
-                  )
-                );
-                navigate(`/count-list/${selectedOption?.value}`);
-              }}
-              placeholder={t("Select a count list")}
-            />
-          </div>
-        </div>
-      )}
-      <div className="w-[95%] my-10 mx-auto ">
+      <div className="w-[95%] my-5 mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}

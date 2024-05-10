@@ -15,24 +15,43 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountBrandMutations,
+  useGetAccountBrands,
+} from "../../utils/api/account/brand";
+import {
+  useAccountExpenseTypeMutations,
+  useGetAccountExpenseTypes,
+} from "../../utils/api/account/expenseType";
 import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
   useTransferFixtureInvoiceMutation,
   useTransferServiceInvoiceMutation,
 } from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import {
+  useAccountPackageTypeMutations,
+  useGetAccountPackageTypes,
+} from "../../utils/api/account/packageType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  useAccountStockLocationMutations,
+  useGetAccountStockLocations,
+} from "../../utils/api/account/stockLocation";
+import {
+  useAccountUnitMutations,
+  useGetAccountUnits,
+} from "../../utils/api/account/unit";
+import {
+  useAccountVendorMutations,
+  useGetAccountVendors,
+} from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
+  BackgroundColorInput,
   BrandInput,
   DateInput,
   ExpenseTypeInput,
@@ -46,7 +65,6 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -66,9 +84,15 @@ const Invoice = () => {
   const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
-  const [productEditModalItem, setProductEditModalItem] =
-    useState<AccountProduct>();
   const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
+  const [isBrandEditModalOpen, setIsBrandEditModalOpen] = useState(false);
+  const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
+  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
+  const [isUnitEditModalOpen, setIsUnitEditModalOpen] = useState(false);
+  const [isPackageTypeEditModalOpen, setIsPackageTypeEditModalOpen] =
+    useState(false);
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
@@ -79,7 +103,14 @@ const Invoice = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isProductInputOpen, setIsProductInputOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [currentRow, setCurrentRow] = useState<any>();
+  const [isAddPackageTypeOpen, setIsAddPackageTypeOpen] = useState(false);
+  const [isAddUnitOpen, setIsAddUnitOpen] = useState(false);
+  const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -87,6 +118,16 @@ const Invoice = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
+  const { createAccountPackageType, updateAccountPackageType } =
+    useAccountPackageTypeMutations();
+  const { createAccountUnit, updateAccountUnit } = useAccountUnitMutations();
+  const { createAccountStockLocation, updateAccountStockLocation } =
+    useAccountStockLocationMutations();
+  const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
+  const { createAccountVendor, updateAccountVendor } =
+    useAccountVendorMutations();
+  const { createAccountExpenseType, updateAccountExpenseType } =
+    useAccountExpenseTypeMutations();
   const [productInputForm, setProductInputForm] = useState({
     brand: [],
     vendor: [],
@@ -109,7 +150,6 @@ const Invoice = () => {
     price: 0,
     kdv: 0,
   });
-
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -177,6 +217,64 @@ const Invoice = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const filterPanelInputs = [
+    ProductInput({ products: products, required: true }),
+    PackageTypeInput({ packages: packages, required: true }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("After"),
+      placeholder: t("After"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("Before"),
+      placeholder: t("Before"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
+  const productInputs = [
+    NameInput(),
+    UnitInput({ units: units, required: true }),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      isMultiple: true,
+      required: true,
+    }),
+    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
+    BrandInput({ brands: brands, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
+  ];
+  const productFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "unit", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "packages", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
+  ];
+
+  const packageTypeInputs = [NameInput(), QuantityInput()];
+  const packageTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
+  const expenseTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
   const inputs = [
     DateInput(),
     ProductInput({
@@ -238,50 +336,6 @@ const Invoice = () => {
     }),
     QuantityInput(),
   ];
-  const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
-    PackageTypeInput({ packages: packages, required: true }),
-    VendorInput({ vendors: vendors, required: true }),
-    BrandInput({ brands: brands, required: true }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("After"),
-      placeholder: t("After"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("Before"),
-      placeholder: t("Before"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const productInputs = [
-    NameInput(),
-    UnitInput({ units: units, required: true }),
-    ExpenseTypeInput({
-      expenseTypes: expenseTypes,
-      isMultiple: true,
-      required: true,
-    }),
-    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
-    BrandInput({ brands: brands, isMultiple: true }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
-  ];
-  const productFormKeys = [
-    { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "unit", type: FormKeyTypeEnum.STRING },
-    { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "packages", type: FormKeyTypeEnum.STRING },
-    { key: "brand", type: FormKeyTypeEnum.STRING },
-    { key: "vendor", type: FormKeyTypeEnum.STRING },
-  ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "product", type: FormKeyTypeEnum.STRING },
@@ -297,14 +351,54 @@ const Invoice = () => {
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
-    { key: t("Brand"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
+    {
+      key: t("Brand"),
+      className: "min-w-32 pr-2",
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddBrandOpen(true),
+    },
+    {
+      key: t("Vendor"),
+      className: "min-w-32 pr-2",
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddVendorOpen(true),
+    },
+    {
+      key: t("Location"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddLocationOpen(true),
+    },
+    {
+      key: t("Expense Type"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddExpenseTypeOpen(true),
+    },
+    {
+      key: t("Product"),
+      className: "min-w-32 pr-2",
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddProductOpen(true),
+    },
+    {
+      key: t("Package Type"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddPackageTypeOpen(true),
+    },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
+    {
+      key: t("Unit"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddUnitOpen(true),
+    },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -318,16 +412,96 @@ const Invoice = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
-    { key: "brand", className: "min-w-32 pr-2" },
-    { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-4" },
+    {
+      key: "brand",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsBrandEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.brand ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "vendor",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsVendorEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={`min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.vendor ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "lctn",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsLocationEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-4 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.lctn ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32">
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsExpenseTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+            className=" min-w-32"
+          >
             <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
+              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                isEnableEdit
+                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : "text-white"
+              }`}
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -340,25 +514,77 @@ const Invoice = () => {
     },
     {
       key: "product",
-      className: "min-w-32 pr-2",
       node: (row: any) => {
         return (
           <div
             onClick={() => {
+              if (!isEnableEdit) return;
               setIsProductEditModalOpen(true);
-              setProductEditModalItem(row.prdct as AccountProduct);
+              setCurrentRow(row);
             }}
           >
-            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+            <p
+              className={` "min-w-32 pr-2" ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
               {row.product}
             </p>
           </div>
         );
       },
     },
-    { key: "packageType", className: "min-w-32 " },
+    {
+      key: "packageType",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsPackageTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` "min-w-32 " ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.packageType}
+            </p>
+          </div>
+        );
+      },
+    },
     { key: "quantity", className: "min-w-32" },
-    { key: "unit" },
+    {
+      key: "unit",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsUnitEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.unit ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -374,7 +600,12 @@ const Invoice = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.totalExpense} ₺</P1>
+            <P1>
+              {parseFloat(row.totalExpense)
+                .toFixed(4)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </P1>
           </div>
         );
       },
@@ -443,7 +674,7 @@ const Invoice = () => {
   };
   const actions = [
     {
-      name: t("Transfer"),
+      name: "Transfer",
       isDisabled: !isTransferEdit,
       icon: <TbTransfer />,
       setRow: setRowToAction,
@@ -611,17 +842,6 @@ const Invoice = () => {
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Add Product")}
-          onclick={() => {
-            setIsProductInputOpen(true);
-          }}
-        />
-      ),
-    },
   ];
 
   useEffect(() => {
@@ -718,7 +938,7 @@ const Invoice = () => {
     ) {
       setCurrentPage(1);
     }
-  }, [invoices, filterPanelFormElements, searchQuery]);
+  }, [invoices, filterPanelFormElements, searchQuery, products]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,
@@ -777,10 +997,10 @@ const Invoice = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
         />
-        {isProductInputOpen && (
+        {isAddProductOpen && (
           <GenericAddEditPanel
-            isOpen={isProductInputOpen}
-            close={() => setIsProductInputOpen(false)}
+            isOpen={isAddProductOpen}
+            close={() => setIsAddProductOpen(false)}
             inputs={productInputs}
             formKeys={productFormKeys}
             setForm={setProductInputForm}
@@ -807,7 +1027,67 @@ const Invoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isProductEditModalOpen && productEditModalItem && (
+        {isAddPackageTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddPackageTypeOpen}
+            close={() => setIsAddPackageTypeOpen(false)}
+            inputs={packageTypeInputs}
+            formKeys={packageTypeFormKeys}
+            submitItem={createAccountPackageType as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddUnitOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddUnitOpen}
+            close={() => setIsAddUnitOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountUnit as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddLocationOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddLocationOpen}
+            close={() => setIsAddLocationOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountStockLocation as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddBrandOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddBrandOpen}
+            close={() => setIsAddBrandOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountBrand as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddVendorOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddVendorOpen}
+            close={() => setIsAddVendorOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountVendor as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddExpenseTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddExpenseTypeOpen}
+            close={() => setIsAddExpenseTypeOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={createAccountExpenseType as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isProductEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isProductEditModalOpen}
             close={() => setIsProductEditModalOpen(false)}
@@ -819,20 +1099,22 @@ const Invoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: productEditModalItem.name,
+              name: (currentRow.prdct as AccountProduct).name,
               unit: units.find(
-                (unit) => unit.name === (productEditModalItem?.unit as string)
+                (unit) =>
+                  unit.name ===
+                  ((currentRow.prdct as AccountProduct)?.unit as string)
               )?._id,
-              expenseType: productEditModalItem.expenseType,
-              brand: productEditModalItem.brand,
-              vendor: productEditModalItem.vendor,
-              packages: productEditModalItem?.packages?.map(
+              expenseType: (currentRow.prdct as AccountProduct).expenseType,
+              brand: (currentRow.prdct as AccountProduct).brand,
+              vendor: (currentRow.prdct as AccountProduct).vendor,
+              packages: (currentRow.prdct as AccountProduct)?.packages?.map(
                 (pkg) => pkg.package
               ),
             }}
             handleUpdate={() => {
               updateAccountProduct({
-                id: productEditModalItem?._id,
+                id: (currentRow.prdct as AccountProduct)?._id,
                 updates: {
                   ...productInputForm,
                   packages:
@@ -842,6 +1124,99 @@ const Invoice = () => {
                     })) ?? [],
                 },
               });
+            }}
+          />
+        )}
+        {isBrandEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isBrandEditModalOpen}
+            close={() => setIsBrandEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountBrand as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.brnd._id, updates: currentRow.brnd }}
+          />
+        )}
+        {isVendorEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isVendorEditModalOpen}
+            close={() => setIsVendorEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountVendor as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+          />
+        )}
+        {isLocationEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isLocationEditModalOpen}
+            close={() => setIsLocationEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountStockLocation as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.location._id,
+              updates: currentRow.location,
+            }}
+          />
+        )}
+        {isUnitEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isUnitEditModalOpen}
+            close={() => setIsUnitEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountUnit as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id:
+                units?.find(
+                  (unit) =>
+                    unit._id ===
+                    ((currentRow.prdct as AccountProduct).unit as string)
+                )?._id ?? "",
+              updates: units?.find(
+                (unit) =>
+                  unit._id ===
+                  ((currentRow.prdct as AccountProduct).unit as string)
+              ),
+            }}
+          />
+        )}
+        {isExpenseTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isExpenseTypeEditModalOpen}
+            close={() => setIsExpenseTypeEditModalOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={updateAccountExpenseType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.expType._id,
+              updates: currentRow.expType,
+            }}
+          />
+        )}
+        {isPackageTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isPackageTypeEditModalOpen}
+            close={() => setIsPackageTypeEditModalOpen(false)}
+            inputs={packageTypeInputs}
+            formKeys={packageTypeFormKeys}
+            submitItem={updateAccountPackageType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.pckgTyp._id,
+              updates: currentRow.pckgTyp,
             }}
           />
         )}

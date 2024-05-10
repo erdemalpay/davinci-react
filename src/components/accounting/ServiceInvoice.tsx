@@ -13,7 +13,10 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountExpenseTypeMutations,
+  useGetAccountExpenseTypes,
+} from "../../utils/api/account/expenseType";
 import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
 import {
   useAccountServiceMutations,
@@ -23,10 +26,17 @@ import {
   useAccountServiceInvoiceMutations,
   useGetAccountServiceInvoices,
 } from "../../utils/api/account/serviceInvoice";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import {
+  useAccountStockLocationMutations,
+  useGetAccountStockLocations,
+} from "../../utils/api/account/stockLocation";
+import {
+  useAccountVendorMutations,
+  useGetAccountVendors,
+} from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
+  BackgroundColorInput,
   DateInput,
   ExpenseTypeInput,
   NameInput,
@@ -41,7 +51,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -66,10 +75,22 @@ const ServiceInvoice = () => {
   const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
+  const [currentRow, setCurrentRow] = useState<any>();
+  const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
+    useState(false);
+  const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
+  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
-  const [serviceEditModalItem, setServiceEditModalItem] =
-    useState<AccountService>();
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
+  const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
+  const { createAccountStockLocation, updateAccountStockLocation } =
+    useAccountStockLocationMutations();
+  const { createAccountVendor, updateAccountVendor } =
+    useAccountVendorMutations();
+  const { createAccountExpenseType, updateAccountExpenseType } =
+    useAccountExpenseTypeMutations();
   const [isServiceEditModalOpen, setIsServiceEditModalOpen] = useState(false);
   const [addServiceForm, setAddServiceForm] = useState({
     name: "",
@@ -147,36 +168,7 @@ const ServiceInvoice = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  const inputs = [
-    DateInput(),
-    ServiceInput({
-      services: services,
-      required: true,
-      invalidateKeys: [
-        { key: "expenseType", defaultValue: "" },
-        { key: "vendor", defaultValue: "" },
-      ],
-    }),
-    ExpenseTypeInput({
-      expenseTypes:
-        expenseTypes.filter((exp) =>
-          services
-            .find((item) => item._id === form?.service)
-            ?.expenseType.includes(exp._id)
-        ) ?? [],
-      required: true,
-    }),
-    StockLocationInput({ locations: locations }),
-    VendorInput({
-      vendors:
-        vendors?.filter((vndr) =>
-          services
-            .find((item) => item._id === form?.service)
-            ?.vendor?.includes(vndr._id)
-        ) ?? [],
-    }),
-    QuantityInput(),
-  ];
+
   const filterPanelInputs = [
     ServiceInput({ services: services, required: true }),
     VendorInput({ vendors: vendors, required: true }),
@@ -214,6 +206,36 @@ const ServiceInvoice = () => {
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
+  const inputs = [
+    DateInput(),
+    ServiceInput({
+      services: services,
+      required: true,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+      ],
+    }),
+    ExpenseTypeInput({
+      expenseTypes:
+        expenseTypes.filter((exp) =>
+          services
+            .find((item) => item._id === form?.service)
+            ?.expenseType.includes(exp._id)
+        ) ?? [],
+      required: true,
+    }),
+    StockLocationInput({ locations: locations }),
+    VendorInput({
+      vendors:
+        vendors?.filter((vndr) =>
+          services
+            .find((item) => item._id === form?.service)
+            ?.vendor?.includes(vndr._id)
+        ) ?? [],
+    }),
+    QuantityInput(),
+  ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "service", type: FormKeyTypeEnum.STRING },
@@ -223,14 +245,43 @@ const ServiceInvoice = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
+  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
+  const expenseTypeFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+  ];
+
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Service"), isSortable: true },
+    {
+      key: t("Vendor"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddVendorOpen(true),
+    },
+    {
+      key: t("Location"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddLocationOpen(true),
+    },
+    {
+      key: t("Expense Type"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddExpenseTypeOpen(true),
+    },
+    {
+      key: t("Service"),
+      isSortable: true,
+      isAddable: isEnableEdit,
+      onClick: () => setIsAddServiceModalOpen(true),
+    },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
@@ -245,15 +296,71 @@ const ServiceInvoice = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
-    { key: "vendor", className: "min-w-32 pr-2" },
-    { key: "lctn", className: "min-w-32 pr-4" },
+    {
+      key: "vendor",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsVendorEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-2 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.vendor ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "lctn",
+      node: (row: any) => {
+        return (
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsLocationEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
+            <p
+              className={` min-w-32 pr-4 ${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
+              {row.lctn ?? "-"}
+            </p>
+          </div>
+        );
+      },
+    },
     {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32">
+          <div
+            onClick={() => {
+              if (!isEnableEdit) return;
+              setIsExpenseTypeEditModalOpen(true);
+              setCurrentRow(row);
+            }}
+          >
             <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 text-white"
+              className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
+                isEnableEdit
+                  ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : "text-white"
+              }`}
               style={{
                 backgroundColor: row?.expType?.backgroundColor,
               }}
@@ -271,11 +378,18 @@ const ServiceInvoice = () => {
         return (
           <div
             onClick={() => {
+              if (!isEnableEdit) return;
               setIsServiceEditModalOpen(true);
-              setServiceEditModalItem(row.srvc as AccountService);
+              setCurrentRow(row);
             }}
           >
-            <p className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform">
+            <p
+              className={`${
+                isEnableEdit
+                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+                  : ""
+              }`}
+            >
               {row.service}
             </p>
           </div>
@@ -298,7 +412,12 @@ const ServiceInvoice = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.totalExpense} ₺</P1>
+            <P1>
+              {parseFloat(row.totalExpense)
+                .toFixed(4)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </P1>
           </div>
         );
       },
@@ -508,17 +627,6 @@ const ServiceInvoice = () => {
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Add Service")}
-          onclick={() => {
-            setIsAddServiceModalOpen(true);
-          }}
-        />
-      ),
-    },
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
@@ -676,7 +784,7 @@ const ServiceInvoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isServiceEditModalOpen && serviceEditModalItem && (
+        {isServiceEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isServiceEditModalOpen}
             close={() => setIsServiceEditModalOpen(false)}
@@ -688,17 +796,90 @@ const ServiceInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: serviceEditModalItem.name,
-              expenseType: serviceEditModalItem.expenseType,
-              vendor: serviceEditModalItem.vendor,
+              name: currentRow.srvc.name,
+              expenseType: currentRow.srvc.expenseType,
+              vendor: currentRow.srvc.vendor,
             }}
             handleUpdate={() => {
               updateAccountService({
-                id: serviceEditModalItem?._id,
+                id: currentRow.srvc?._id,
                 updates: {
                   ...addServiceForm,
                 },
               });
+            }}
+          />
+        )}
+        {isAddLocationOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddLocationOpen}
+            close={() => setIsAddLocationOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountStockLocation as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddVendorOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddVendorOpen}
+            close={() => setIsAddVendorOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={createAccountVendor as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isAddExpenseTypeOpen && (
+          <GenericAddEditPanel
+            isOpen={isAddExpenseTypeOpen}
+            close={() => setIsAddExpenseTypeOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={createAccountExpenseType as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        )}
+        {isVendorEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isVendorEditModalOpen}
+            close={() => setIsVendorEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountVendor as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+          />
+        )}
+        {isLocationEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isLocationEditModalOpen}
+            close={() => setIsLocationEditModalOpen(false)}
+            inputs={nameInput}
+            formKeys={nameFormKey}
+            submitItem={updateAccountStockLocation as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.location._id,
+              updates: currentRow.location,
+            }}
+          />
+        )}
+
+        {isExpenseTypeEditModalOpen && currentRow && (
+          <GenericAddEditPanel
+            isOpen={isExpenseTypeEditModalOpen}
+            close={() => setIsExpenseTypeEditModalOpen(false)}
+            inputs={expenseTypeInputs}
+            formKeys={expenseTypeFormKeys}
+            submitItem={updateAccountExpenseType as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{
+              id: currentRow.expType._id,
+              updates: currentRow.expType,
             }}
           />
         )}
