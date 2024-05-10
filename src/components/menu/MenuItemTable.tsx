@@ -193,7 +193,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       formKey: "description",
       label: t("Description"),
       placeholder: t("Description"),
-      required: true,
+      required: false,
     },
     {
       type: InputTypes.NUMBER,

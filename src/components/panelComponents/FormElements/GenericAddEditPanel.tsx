@@ -175,8 +175,8 @@ const GenericAddEditPanel = <T,>({
           submitItem(formElements as T);
         }
       }
-      setFormElements({});
       additionalSubmitFunction?.();
+      setFormElements({});
       close();
     } catch (error) {
       console.error("Failed to execute submit item:", error);

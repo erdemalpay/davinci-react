@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
@@ -13,15 +14,13 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type Props = {
   categories: MenuCategory[];
-  setActiveTab: (tab: number) => void;
-  activeTab: number;
 };
 
-const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
+const CategoryTable = ({ categories }: Props) => {
   const { t } = useTranslation();
+  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -71,9 +70,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
 
   const rowKeys = [
     { key: "imageUrl", isImage: true },
-    {
-      key: "name",
-    },
+    { key: "name" },
     {
       key: "bahceli",
       node: (row: MenuCategory) =>
@@ -85,10 +82,10 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         ) : (
           <p
             className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
+              row.locations?.includes(1) ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {row.locations.includes(1) ? t("Yes") : t("No")}
+            {row.locations?.includes(1) ? t("Yes") : t("No")}
           </p>
         ),
     },
@@ -103,10 +100,10 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
         ) : (
           <p
             className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
+              row.locations?.includes(2) ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {row.locations.includes(2) ? t("Yes") : t("No")}
+            {row.locations?.includes(2) ? t("Yes") : t("No")}
           </p>
         ),
     },
@@ -117,13 +114,15 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
+        submitItem={createCategory as any}
         close={() => {
-          setActiveTab(activeTab + 1);
           setIsAddModalOpen(false);
+        }}
+        additionalSubmitFunction={() => {
+          setMenuActiveTab(menuActiveTab + 1);
         }}
         inputs={inputs}
         formKeys={formKeys}
-        submitItem={createCategory as any}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -154,7 +153,7 @@ const CategoryTable = ({ categories, setActiveTab, activeTab }: Props) => {
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
             deleteCategory(rowToAction?._id);
-            setActiveTab(activeTab - 1);
+            setMenuActiveTab(menuActiveTab - 1);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Category")}

@@ -373,7 +373,7 @@ const Invoice = () => {
     },
     {
       key: t("Expense Type"),
-      className: `${isEnableEdit && "min-w-40"}`,
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
@@ -387,7 +387,7 @@ const Invoice = () => {
     },
     {
       key: t("Package Type"),
-      className: `${isEnableEdit && "min-w-40"}`,
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddPackageTypeOpen(true),

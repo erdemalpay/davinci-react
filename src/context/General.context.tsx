@@ -9,6 +9,8 @@ import {
 type GeneralContextType = {
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  menuActiveTab: number;
+  setMenuActiveTab: (tab: number) => void;
   accountingActiveTab: number;
   setAccountingActiveTab: (tab: number) => void;
   expensesActiveTab: number;
@@ -33,6 +35,8 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  menuActiveTab: 0,
+  setMenuActiveTab: () => {},
   setCurrentPage: () => {},
   currentPage: 1,
   searchQuery: "",
@@ -58,12 +62,15 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [menuActiveTab, setMenuActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   return (
     <GeneralContext.Provider
       value={{
         currentPage,
         setCurrentPage,
+        menuActiveTab,
+        setMenuActiveTab,
         rowsPerPage,
         setRowsPerPage,
         expandedRows,

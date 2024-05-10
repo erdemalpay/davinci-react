@@ -1,7 +1,7 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Count from "../pages/Count";
-import CountList from "../pages/CountList";
+import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
@@ -39,9 +39,9 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
-  CountList = "/count-list/:countListId",
   Count = "/count/:countListId",
   SingleCountArchive = "/archive/:archiveId",
+  CountListMenu = "/count-list-menu",
 }
 
 export const allRoutes: {
@@ -128,12 +128,6 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
-      name: "Count List",
-      path: Routes.CountList,
-      element: CountList,
-      isOnSidebar: false,
-    },
-    {
       name: "Count",
       path: Routes.Count,
       element: Count,
@@ -149,6 +143,13 @@ export const allRoutes: {
       name: "Accounting",
       path: Routes.Accounting,
       element: Accounting,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
+    {
+      name: "Count List Menu",
+      path: Routes.CountListMenu,
+      element: CountListMenu,
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
