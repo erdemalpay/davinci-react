@@ -54,7 +54,6 @@ export default function Menu() {
             (itemCategory as MenuCategory)?._id === category?._id
         ).length === 0
     );
-    console.log(emptyCategories);
     const itemGroups: ItemGroup[] = [];
     if (!items) return;
     items.forEach((item) => {
@@ -153,7 +152,6 @@ export default function Menu() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={categories?.length + items?.length}
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
