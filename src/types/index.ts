@@ -105,8 +105,11 @@ export type AccountUnit = {
 export type AccountCountList = {
   _id: string;
   name: string;
-  location: string | AccountStockLocation;
-  products?: string[];
+  locations: string[];
+  products?: {
+    product: string;
+    locations: string[];
+  }[];
 };
 export type AccountCount = {
   _id: string;
@@ -320,6 +323,11 @@ export enum RoleEnum {
 export enum LocationEnum {
   BAHCELI = 1,
   NEORAMA,
+}
+export enum StockLocationEnum {
+  BAHCELI = "bahceli",
+  NEORAMA = "neorama",
+  AMAZON = "amazon",
 }
 export enum ExpensesPageTabEnum {
   INVOICE,
