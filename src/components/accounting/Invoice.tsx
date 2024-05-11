@@ -53,7 +53,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
   BrandInput,
-  DateInput,
   ExpenseTypeInput,
   NameInput,
   PackageTypeInput,
@@ -276,7 +275,14 @@ const Invoice = () => {
     { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     ProductInput({
       products: products,
       required: true,

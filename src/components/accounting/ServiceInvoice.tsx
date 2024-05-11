@@ -37,7 +37,6 @@ import {
 import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
-  DateInput,
   ExpenseTypeInput,
   NameInput,
   QuantityInput,
@@ -207,7 +206,14 @@ const ServiceInvoice = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     ServiceInput({
       services: services,
       required: true,
