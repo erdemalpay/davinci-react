@@ -264,7 +264,7 @@ const Product = () => {
         formKeys={formKeys}
         setForm={setInputForm}
         submitItem={createAccountProduct as any}
-        generalClassName="overflow-scroll"
+        generalClassName="overflow-visible"
         submitFunction={() => {
           createAccountProduct({
             ...inputForm,
@@ -327,7 +327,7 @@ const Product = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          generalClassName="overflow-scroll"
+          generalClassName="overflow-visible"
           submitItem={updateAccountProduct as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
