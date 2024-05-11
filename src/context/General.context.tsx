@@ -3,6 +3,7 @@ import {
   AccountFixtureInvoice,
   AccountingPageTabEnum,
   AccountInvoice,
+  AccountServiceInvoice,
   ExpensesPageTabEnum,
   RowPerPageEnum,
   StocksPageTabEnum,
@@ -13,6 +14,8 @@ type GeneralContextType = {
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   fixtureExpenseForm: Partial<AccountFixtureInvoice>;
   setFixtureExpenseForm: (form: Partial<AccountFixtureInvoice>) => void;
+  serviceExpenseForm: Partial<AccountServiceInvoice>;
+  setServiceExpenseForm: (form: Partial<AccountServiceInvoice>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   menuActiveTab: number;
@@ -84,6 +87,19 @@ const GeneralContext = createContext<GeneralContextType>({
     kdv: 0,
   },
   setProductExpenseForm: () => {},
+  serviceExpenseForm: {
+    date: "",
+    service: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setServiceExpenseForm: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -94,6 +110,9 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   >({});
   const [fixtureExpenseForm, setFixtureExpenseForm] = useState<
     Partial<AccountFixtureInvoice>
+  >({});
+  const [serviceExpenseForm, setServiceExpenseForm] = useState<
+    Partial<AccountServiceInvoice>
   >({});
   const [isCategoryTabChanged, setIsCategoryTabChanged] =
     useState<boolean>(false);
@@ -136,6 +155,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setExpensesActiveTab,
         productExpenseForm,
         setProductExpenseForm,
+        serviceExpenseForm,
+        setServiceExpenseForm,
       }}
     >
       {children}
