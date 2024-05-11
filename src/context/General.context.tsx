@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import {
+  AccountFixtureInvoice,
   AccountingPageTabEnum,
   AccountInvoice,
   ExpensesPageTabEnum,
@@ -10,6 +11,8 @@ import {
 type GeneralContextType = {
   productExpenseForm: Partial<AccountInvoice>;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
+  fixtureExpenseForm: Partial<AccountFixtureInvoice>;
+  setFixtureExpenseForm: (form: Partial<AccountFixtureInvoice>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   menuActiveTab: number;
@@ -52,6 +55,20 @@ const GeneralContext = createContext<GeneralContextType>({
   setRowsPerPage: () => {},
   expandedRows: {},
   setExpandedRows: () => {},
+  fixtureExpenseForm: {
+    date: "",
+    fixture: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    brand: "",
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setFixtureExpenseForm: () => {},
   productExpenseForm: {
     date: "",
     product: "",
@@ -74,20 +91,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountInvoice>
-  >({
-    date: "",
-    product: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    packageType: "",
-    brand: "",
-    location: "",
-    vendor: "",
-    note: "",
-    price: 0,
-    kdv: 0,
-  });
+  >({});
+  const [fixtureExpenseForm, setFixtureExpenseForm] = useState<
+    Partial<AccountFixtureInvoice>
+  >({});
   const [isCategoryTabChanged, setIsCategoryTabChanged] =
     useState<boolean>(false);
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(
@@ -107,6 +114,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        fixtureExpenseForm,
+        setFixtureExpenseForm,
         isCategoryTabChanged,
         setIsCategoryTabChanged,
         currentPage,

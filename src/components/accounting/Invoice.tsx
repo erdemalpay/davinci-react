@@ -152,20 +152,6 @@ const Invoice = () => {
       before: "",
       after: "",
     });
-  const [form, setForm] = useState<Partial<AccountInvoice>>({
-    date: "",
-    product: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    packageType: "",
-    brand: "",
-    location: "",
-    vendor: "",
-    note: "",
-    price: 0,
-    kdv: 0,
-  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -759,6 +745,9 @@ const Invoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          additionalCancelFunction={() => {
+            setProductExpenseForm({});
+          }}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
@@ -782,7 +771,7 @@ const Invoice = () => {
             ...formKeys,
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
-          setForm={setForm}
+          setForm={setProductExpenseForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "

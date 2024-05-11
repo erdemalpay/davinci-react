@@ -142,6 +142,7 @@ const GenericAddEditPanel = <T,>({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
+        isEditMode ? additionalCancelFunction?.() : undefined;
         close();
       }
     }
@@ -217,7 +218,8 @@ const GenericAddEditPanel = <T,>({
       onClick={
         isBlurFieldClickCloseEnabled
           ? () => {
-              return close();
+              close();
+              isEditMode ? additionalCancelFunction?.() : undefined;
             }
           : undefined
       }
