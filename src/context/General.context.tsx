@@ -1,12 +1,15 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import {
   AccountingPageTabEnum,
+  AccountInvoice,
   ExpensesPageTabEnum,
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
 
 type GeneralContextType = {
+  productExpenseForm: Partial<AccountInvoice>;
+  setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   menuActiveTab: number;
@@ -49,11 +52,42 @@ const GeneralContext = createContext<GeneralContextType>({
   setRowsPerPage: () => {},
   expandedRows: {},
   setExpandedRows: () => {},
+  productExpenseForm: {
+    date: "",
+    product: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    packageType: "",
+    brand: "",
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setProductExpenseForm: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
+  const [productExpenseForm, setProductExpenseForm] = useState<
+    Partial<AccountInvoice>
+  >({
+    date: "",
+    product: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    packageType: "",
+    brand: "",
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  });
   const [isCategoryTabChanged, setIsCategoryTabChanged] =
     useState<boolean>(false);
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(
@@ -91,6 +125,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setAccountingActiveTab,
         expensesActiveTab,
         setExpensesActiveTab,
+        productExpenseForm,
+        setProductExpenseForm,
       }}
     >
       {children}

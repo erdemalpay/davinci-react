@@ -493,7 +493,6 @@ const FixtureInvoice = () => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
-        isBlurFieldClickCloseEnabled={false}
         close={() => setIsAddModalOpen(false)}
         inputs={[
           ...inputs,
@@ -601,7 +600,6 @@ const FixtureInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
-          isBlurFieldClickCloseEnabled={false}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[

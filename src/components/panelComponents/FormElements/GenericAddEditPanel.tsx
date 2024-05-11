@@ -28,6 +28,7 @@ type Props<T> = {
   handleUpdate?: () => void;
   submitFunction?: () => void;
   additionalSubmitFunction?: () => void;
+  additionalCancelFunction?: () => void;
   isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
@@ -60,6 +61,7 @@ const GenericAddEditPanel = <T,>({
   isBlurFieldClickCloseEnabled = true,
   submitFunction,
   additionalSubmitFunction,
+  additionalCancelFunction,
   setForm,
   submitItem,
 }: Props<T>) => {
@@ -420,7 +422,10 @@ const GenericAddEditPanel = <T,>({
           </div>
           <div className="ml-auto flex flex-row gap-4">
             <button
-              onClick={close}
+              onClick={() => {
+                additionalCancelFunction?.();
+                close();
+              }}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
               {t("Cancel")}
