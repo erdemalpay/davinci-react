@@ -284,5 +284,8 @@
   "Are you sure you want to cancel this entry?": "Are you sure you want to cancel this entry?",
   "Start Date": "Start Date",
   "End Date": "End Date",
+  "Reset Password": "Reset Password",
+  "Reset User Password": "Reset User Password",
+  "Are you sure you want to reset the password ?": "Are you sure you want to reset the password ?",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
