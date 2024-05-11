@@ -27,6 +27,7 @@ export default function Menu() {
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
   const {
+    isCategoryTabChanged,
     currentPage,
     setCurrentPage,
     rowsPerPage,
@@ -34,6 +35,7 @@ export default function Menu() {
     setSearchQuery,
     menuActiveTab,
     setMenuActiveTab,
+    setIsCategoryTabChanged,
   } = useGeneralContext();
   const handleTabChange = () => {
     const itemCategories = items
@@ -156,9 +158,12 @@ export default function Menu() {
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
         additionalOpenAction={() => {
-          setCurrentPage(1);
-          setExpandedRows({});
-          setSearchQuery("");
+          if (!isCategoryTabChanged) {
+            setCurrentPage(1);
+            setExpandedRows({});
+            setSearchQuery("");
+          }
+          setIsCategoryTabChanged(false);
         }}
       />
     </>

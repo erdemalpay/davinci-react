@@ -28,6 +28,7 @@ type Props<T> = {
   handleUpdate?: () => void;
   submitFunction?: () => void;
   additionalSubmitFunction?: () => void;
+  isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isEditMode?: boolean;
   folderName?: string;
@@ -56,6 +57,7 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   folderName,
   handleUpdate,
+  isBlurFieldClickCloseEnabled = true,
   submitFunction,
   additionalSubmitFunction,
   setForm,
@@ -210,7 +212,13 @@ const GenericAddEditPanel = <T,>({
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
-      onClick={close}
+      onClick={
+        isBlurFieldClickCloseEnabled
+          ? () => {
+              return close();
+            }
+          : undefined
+      }
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -334,6 +342,9 @@ const GenericAddEditPanel = <T,>({
                           placeholder={input.placeholder ?? ""}
                           onChange={handleChange(input.formKey)}
                           requiredField={input.required}
+                          isDateInitiallyOpen={
+                            input.isDateInitiallyOpen ?? false
+                          }
                           onClear={() => {
                             handleInputClear(input);
                           }}

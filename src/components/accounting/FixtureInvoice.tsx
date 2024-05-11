@@ -43,7 +43,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
   BrandInput,
-  DateInput,
   ExpenseTypeInput,
   FixtureInput,
   NameInput,
@@ -232,7 +231,14 @@ const FixtureInvoice = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     FixtureInput({
       fixtures: fixtures,
       required: true,
@@ -487,6 +493,7 @@ const FixtureInvoice = () => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
+        isBlurFieldClickCloseEnabled={false}
         close={() => setIsAddModalOpen(false)}
         inputs={[
           ...inputs,
@@ -594,6 +601,7 @@ const FixtureInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isBlurFieldClickCloseEnabled={false}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[

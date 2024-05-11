@@ -78,6 +78,7 @@ export interface GenericInputType {
   inputClassName?: string;
   isMultiple?: boolean;
   isDatePicker?: boolean;
+  isDateInitiallyOpen?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: {
     key: string;

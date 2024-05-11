@@ -102,7 +102,7 @@ const Fixture = () => {
           return (
             <span
               key={foundExpenseType?.name ?? "" + row._id}
-              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white`}
+              className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white font-semibold`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
               {foundExpenseType?.name}

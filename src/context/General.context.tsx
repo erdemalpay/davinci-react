@@ -12,6 +12,8 @@ type GeneralContextType = {
   menuActiveTab: number;
   setMenuActiveTab: (tab: number) => void;
   accountingActiveTab: number;
+  setIsCategoryTabChanged: (isChanged: boolean) => void;
+  isCategoryTabChanged: boolean;
   setAccountingActiveTab: (tab: number) => void;
   expensesActiveTab: number;
   setExpensesActiveTab: (tab: number) => void;
@@ -33,6 +35,8 @@ const GeneralContext = createContext<GeneralContextType>({
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   setExpensesActiveTab: () => {},
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
+  isCategoryTabChanged: false,
+  setIsCategoryTabChanged: () => {},
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
   menuActiveTab: 0,
@@ -50,6 +54,8 @@ const GeneralContext = createContext<GeneralContextType>({
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
+  const [isCategoryTabChanged, setIsCategoryTabChanged] =
+    useState<boolean>(false);
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(
     ExpensesPageTabEnum.INVOICE
   );
@@ -67,6 +73,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        isCategoryTabChanged,
+        setIsCategoryTabChanged,
         currentPage,
         setCurrentPage,
         menuActiveTab,

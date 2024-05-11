@@ -37,7 +37,6 @@ import {
 import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
-  DateInput,
   ExpenseTypeInput,
   NameInput,
   QuantityInput,
@@ -207,7 +206,14 @@ const ServiceInvoice = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     ServiceInput({
       services: services,
       required: true,
@@ -428,6 +434,7 @@ const ServiceInvoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
+        isBlurFieldClickCloseEnabled={false}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -536,6 +543,7 @@ const ServiceInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isBlurFieldClickCloseEnabled={false}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
