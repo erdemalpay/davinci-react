@@ -427,6 +427,7 @@ const ServiceInvoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
+        isCancelConfirmationDialogExist={true}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -543,6 +544,7 @@ const ServiceInvoice = () => {
           additionalCancelFunction={() => {
             setServiceExpenseForm({});
           }}
+          isCancelConfirmationDialogExist={true}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[

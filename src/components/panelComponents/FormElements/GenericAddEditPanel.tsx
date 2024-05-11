@@ -6,6 +6,7 @@ import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
+import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { H6 } from "../Typography";
 import {
   FormKeyType,
@@ -31,6 +32,7 @@ type Props<T> = {
   additionalCancelFunction?: () => void;
   isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
+  isCancelConfirmationDialogExist?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
@@ -62,12 +64,15 @@ const GenericAddEditPanel = <T,>({
   submitFunction,
   additionalSubmitFunction,
   additionalCancelFunction,
+  isCancelConfirmationDialogExist = false,
   setForm,
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
     (input) => input.type !== InputTypes.IMAGE
@@ -210,6 +215,31 @@ const GenericAddEditPanel = <T,>({
       });
     }
   };
+  const handleCancelButtonClick = () => {
+    additionalCancelFunction?.();
+    close();
+  };
+  const handleCreateButtonClick = () => {
+    if (!allRequiredFilled) {
+      toast.error(t("Please fill all required fields"));
+    } else {
+      const phoneValidationFailed = inputs
+        .filter((input) => input.additionalType === "phone")
+        .some((input) => {
+          const inputValue = formElements[input.formKey];
+          if (!inputValue.match(/^[0-9]{11}$/)) {
+            toast.error(t("Check phone number."));
+            return true; // Validation failed for phone number
+          }
+          return false; // Validation passed for phone number
+        });
+
+      if (!phoneValidationFailed) {
+        handleSubmit();
+      }
+    }
+  };
+
   return (
     <div
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
@@ -425,34 +455,16 @@ const GenericAddEditPanel = <T,>({
           <div className="ml-auto flex flex-row gap-4">
             <button
               onClick={() => {
-                additionalCancelFunction?.();
-                close();
+                isCancelConfirmationDialogExist
+                  ? setIsConfirmationDialogOpen(true)
+                  : handleCancelButtonClick();
               }}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
               {t("Cancel")}
             </button>
             <button
-              onClick={() => {
-                if (!allRequiredFilled) {
-                  toast.error(t("Please fill all required fields"));
-                } else {
-                  const phoneValidationFailed = inputs
-                    .filter((input) => input.additionalType === "phone")
-                    .some((input) => {
-                      const inputValue = formElements[input.formKey];
-                      if (!inputValue.match(/^[0-9]{11}$/)) {
-                        toast.error(t("Check phone number."));
-                        return true; // Validation failed for phone number
-                      }
-                      return false; // Validation passed for phone number
-                    });
-
-                  if (!phoneValidationFailed) {
-                    handleSubmit();
-                  }
-                }
-              }}
+              onClick={handleCreateButtonClick}
               className={`inline-block ${
                 !allRequiredFilled
                   ? "bg-gray-500"
@@ -464,6 +476,19 @@ const GenericAddEditPanel = <T,>({
           </div>
         </div>
       </div>
+      {isConfirmationDialogOpen && (
+        <ConfirmationDialog
+          isOpen={isConfirmationDialogOpen}
+          close={() => {
+            setIsConfirmationDialogOpen(false);
+          }}
+          confirm={() => {
+            handleCancelButtonClick();
+          }}
+          title={t("Cancel Entry")}
+          text={`${t("Are you sure you want to cancel this entry?")}`}
+        />
+      )}
     </div>
   );
 };

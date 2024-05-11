@@ -613,6 +613,7 @@ const Invoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
+        isCancelConfirmationDialogExist={true}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -745,6 +746,7 @@ const Invoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isCancelConfirmationDialogExist={true}
           additionalCancelFunction={() => {
             setProductExpenseForm({});
           }}
