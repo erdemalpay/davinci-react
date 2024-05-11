@@ -282,5 +282,7 @@
   "Count List Menu": "Count List Menu",
   "Cancel Entry": "Cancel Entry",
   "Are you sure you want to cancel this entry?": "Are you sure you want to cancel this entry?",
+  "Start Date": "Start Date",
+  "End Date": "End Date",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

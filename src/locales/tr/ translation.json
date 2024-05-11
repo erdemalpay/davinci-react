@@ -282,5 +282,7 @@
   "Count List Menu": "Sayım Listesi Menüsü",
   "Cancel Entry": "Girişi İptal Et",
   "Are you sure you want to cancel this entry?": "Bu girişi iptal etmek istediğinizden emin misiniz?",
+  "Start Date": "Başlangıç Tarihi",
+  "End Date": "Bitiş Tarihi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
