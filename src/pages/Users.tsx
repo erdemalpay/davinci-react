@@ -174,7 +174,7 @@ export default function Users() {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Reset User Password")}
-          text={`Are you sure you want to reset the password ?`}
+          text={t("Are you sure you want to reset the password ?")}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl  ",

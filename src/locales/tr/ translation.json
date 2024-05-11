@@ -287,5 +287,6 @@
   "Reset Password": "Şifreyi Sıfırla",
   "Reset User Password": "Kullanıcı Şifresini Sıfırla",
   "Are you sure you want to reset the password ?": "Şifreyi sıfırlamak istediğinizden emin misiniz?",
+  "Delete Product": "Ürünü Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
