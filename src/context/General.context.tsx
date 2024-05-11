@@ -1,12 +1,21 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import {
+  AccountFixtureInvoice,
   AccountingPageTabEnum,
+  AccountInvoice,
+  AccountServiceInvoice,
   ExpensesPageTabEnum,
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
 
 type GeneralContextType = {
+  productExpenseForm: Partial<AccountInvoice>;
+  setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
+  fixtureExpenseForm: Partial<AccountFixtureInvoice>;
+  setFixtureExpenseForm: (form: Partial<AccountFixtureInvoice>) => void;
+  serviceExpenseForm: Partial<AccountServiceInvoice>;
+  setServiceExpenseForm: (form: Partial<AccountServiceInvoice>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   menuActiveTab: number;
@@ -49,11 +58,62 @@ const GeneralContext = createContext<GeneralContextType>({
   setRowsPerPage: () => {},
   expandedRows: {},
   setExpandedRows: () => {},
+  fixtureExpenseForm: {
+    date: "",
+    fixture: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    brand: "",
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setFixtureExpenseForm: () => {},
+  productExpenseForm: {
+    date: "",
+    product: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    packageType: "",
+    brand: "",
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setProductExpenseForm: () => {},
+  serviceExpenseForm: {
+    date: "",
+    service: "",
+    expenseType: "",
+    quantity: 0,
+    totalExpense: 0,
+    location: "",
+    vendor: "",
+    note: "",
+    price: 0,
+    kdv: 0,
+  },
+  setServiceExpenseForm: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
+  const [productExpenseForm, setProductExpenseForm] = useState<
+    Partial<AccountInvoice>
+  >({});
+  const [fixtureExpenseForm, setFixtureExpenseForm] = useState<
+    Partial<AccountFixtureInvoice>
+  >({});
+  const [serviceExpenseForm, setServiceExpenseForm] = useState<
+    Partial<AccountServiceInvoice>
+  >({});
   const [isCategoryTabChanged, setIsCategoryTabChanged] =
     useState<boolean>(false);
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(
@@ -73,6 +133,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        fixtureExpenseForm,
+        setFixtureExpenseForm,
         isCategoryTabChanged,
         setIsCategoryTabChanged,
         currentPage,
@@ -91,6 +153,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setAccountingActiveTab,
         expensesActiveTab,
         setExpensesActiveTab,
+        productExpenseForm,
+        setProductExpenseForm,
+        serviceExpenseForm,
+        setServiceExpenseForm,
       }}
     >
       {children}

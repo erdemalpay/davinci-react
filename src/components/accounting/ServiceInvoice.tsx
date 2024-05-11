@@ -60,7 +60,13 @@ type FormElementsState = {
 const ServiceInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountServiceInvoices();
-  const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
+  const {
+    searchQuery,
+    setCurrentPage,
+    setSearchQuery,
+    serviceExpenseForm,
+    setServiceExpenseForm,
+  } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
@@ -96,19 +102,6 @@ const ServiceInvoice = () => {
     vendor: [],
     expenseType: [],
   });
-  const [form, setForm] = useState<Partial<AccountServiceInvoice>>({
-    date: "",
-    service: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    location: "",
-    vendor: "",
-    note: "",
-    price: 0,
-    kdv: 0,
-  });
-
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       service: "",
@@ -226,7 +219,7 @@ const ServiceInvoice = () => {
       expenseTypes:
         expenseTypes.filter((exp) =>
           services
-            .find((item) => item._id === form?.service)
+            .find((item) => item._id === serviceExpenseForm?.service)
             ?.expenseType.includes(exp._id)
         ) ?? [],
       required: true,
@@ -236,7 +229,7 @@ const ServiceInvoice = () => {
       vendors:
         vendors?.filter((vndr) =>
           services
-            .find((item) => item._id === form?.service)
+            .find((item) => item._id === serviceExpenseForm?.service)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
@@ -434,7 +427,7 @@ const ServiceInvoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
-        isBlurFieldClickCloseEnabled={false}
+        isCancelConfirmationDialogExist={true}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -468,20 +461,25 @@ const ServiceInvoice = () => {
         ]}
         generalClassName="overflow-scroll"
         submitFunction={() => {
-          form.price &&
-            form.kdv &&
+          serviceExpenseForm.price &&
+            serviceExpenseForm.kdv &&
             createAccountServiceInvoice({
-              ...form,
+              ...serviceExpenseForm,
               totalExpense:
-                Number(form.price) +
-                Number(form.kdv) * (Number(form.price) / 100),
+                Number(serviceExpenseForm.price) +
+                Number(serviceExpenseForm.kdv) *
+                  (Number(serviceExpenseForm.price) / 100),
             });
         }}
         submitItem={createAccountServiceInvoice as any}
         topClassName="flex flex-col gap-2 "
-        setForm={setForm}
+        setForm={setServiceExpenseForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          ...serviceExpenseForm,
+        }}
+        additionalCancelFunction={() => {
+          setServiceExpenseForm({});
         }}
       />
     ),
@@ -543,7 +541,10 @@ const ServiceInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
-          isBlurFieldClickCloseEnabled={false}
+          additionalCancelFunction={() => {
+            setServiceExpenseForm({});
+          }}
+          isCancelConfirmationDialogExist={true}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
@@ -567,7 +568,7 @@ const ServiceInvoice = () => {
             ...formKeys,
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
-          setForm={setForm}
+          setForm={setServiceExpenseForm}
           submitItem={updateAccountServiceInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
