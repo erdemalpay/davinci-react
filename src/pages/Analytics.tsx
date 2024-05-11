@@ -21,16 +21,26 @@ export default function Analytics() {
       id: "0",
       label: "Gameplay",
       component: <GameplayAnalytics />,
-      isDisabled: false,
+      isDisabled: user
+        ? (user.role as Role)._id === RoleEnum.CATERINGMANAGER
+        : false,
     },
     {
       id: "1",
       label: "Accounting",
       component: <AccountingAnalytics />,
-      isDisabled: user ? (user.role as Role)._id !== RoleEnum.MANAGER : true,
+      isDisabled: user
+        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+            (user.role as Role)._id
+          )
+        : true,
     },
   ];
-  const [selectedOption, setSelectedOption] = useState(analyticOptions[0]);
+  const [selectedOption, setSelectedOption] = useState(
+    analyticOptions.find(
+      (option) => option.isDisabled === false
+    ) as AnalyticOption
+  );
 
   return (
     <>
