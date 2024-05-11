@@ -428,6 +428,7 @@ const ServiceInvoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
+        isBlurFieldClickCloseEnabled={false}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -536,6 +537,7 @@ const ServiceInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isBlurFieldClickCloseEnabled={false}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[

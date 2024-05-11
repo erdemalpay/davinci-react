@@ -617,6 +617,7 @@ const Invoice = () => {
     modal: (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
+        isBlurFieldClickCloseEnabled={false}
         close={() => setIsAddModalOpen(false)}
         inputs={[
           ...inputs,
@@ -743,6 +744,7 @@ const Invoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isBlurFieldClickCloseEnabled={false}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
