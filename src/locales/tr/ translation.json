@@ -284,5 +284,8 @@
   "Are you sure you want to cancel this entry?": "Bu girişi iptal etmek istediğinizden emin misiniz?",
   "Start Date": "Başlangıç Tarihi",
   "End Date": "Bitiş Tarihi",
+  "Reset Password": "Şifreyi Sıfırla",
+  "Reset User Password": "Kullanıcı Şifresini Sıfırla",
+  "Are you sure you want to reset the password ?": "Şifreyi sıfırlamak istediğinizden emin misiniz?",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
