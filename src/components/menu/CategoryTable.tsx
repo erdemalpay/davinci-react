@@ -74,7 +74,17 @@ const CategoryTable = ({ categories }: Props) => {
 
   const rowKeys = [
     { key: "imageUrl", isImage: true },
-    { key: "name" },
+    {
+      key: "name",
+      node: (row: MenuCategory) => (
+        <p
+          onClick={() => setMenuActiveTab(row.order - 1)}
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+        >
+          {row.name}
+        </p>
+      ),
+    },
     {
       key: "bahceli",
       node: (row: MenuCategory) =>
