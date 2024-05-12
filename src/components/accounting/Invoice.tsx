@@ -53,7 +53,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
   BrandInput,
-  DateInput,
   ExpenseTypeInput,
   NameInput,
   PackageTypeInput,
@@ -81,7 +80,13 @@ const Invoice = () => {
   const invoices = useGetAccountInvoices();
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
-  const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
+  const {
+    searchQuery,
+    setCurrentPage,
+    setSearchQuery,
+    productExpenseForm,
+    setProductExpenseForm,
+  } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
@@ -136,20 +141,6 @@ const Invoice = () => {
     packages: [],
     name: "",
   });
-  const [form, setForm] = useState<Partial<AccountInvoice>>({
-    date: "",
-    product: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    packageType: "",
-    brand: "",
-    location: "",
-    vendor: "",
-    note: "",
-    price: 0,
-    kdv: 0,
-  });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -161,7 +152,6 @@ const Invoice = () => {
       before: "",
       after: "",
     });
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -228,16 +218,16 @@ const Invoice = () => {
     {
       type: InputTypes.DATE,
       formKey: "after",
-      label: t("After"),
-      placeholder: t("After"),
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
     },
     {
       type: InputTypes.DATE,
       formKey: "before",
-      label: t("Before"),
-      placeholder: t("Before"),
+      label: t("End Date"),
+      placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
     },
@@ -276,7 +266,14 @@ const Invoice = () => {
     { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     ProductInput({
       products: products,
       required: true,
@@ -292,7 +289,7 @@ const Invoice = () => {
       formKey: "packageType",
       label: t("Package Type"),
       options: products
-        .find((prod) => prod._id === form?.product)
+        .find((prod) => prod._id === productExpenseForm?.product)
         ?.packages?.map((item) => {
           const packageType = packages.find((pkg) => pkg._id === item.package);
           return {
@@ -302,17 +299,17 @@ const Invoice = () => {
         }),
       placeholder: t("Package Type"),
       required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
+        (products.find((prod) => prod._id === productExpenseForm?.product)
+          ?.packages?.length ?? 0) > 0,
       isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
+        (products?.find((prod) => prod._id === productExpenseForm?.product)
+          ?.packages?.length ?? 0) < 1,
     },
     ExpenseTypeInput({
       expenseTypes:
         expenseTypes.filter((exp) =>
           products
-            .find((prod) => prod._id === form?.product)
+            .find((prod) => prod._id === productExpenseForm?.product)
             ?.expenseType.includes(exp._id)
         ) ?? [],
       required: true,
@@ -322,7 +319,7 @@ const Invoice = () => {
       brands:
         brands?.filter((brnd) =>
           products
-            .find((prod) => prod._id === form?.product)
+            .find((prod) => prod._id === productExpenseForm?.product)
             ?.brand?.includes(brnd._id)
         ) ?? [],
     }),
@@ -330,7 +327,7 @@ const Invoice = () => {
       vendors:
         vendors?.filter((vndr) =>
           products
-            .find((prod) => prod._id === form?.product)
+            .find((prod) => prod._id === productExpenseForm?.product)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
@@ -524,7 +521,7 @@ const Invoice = () => {
             }}
           >
             <p
-              className={` "min-w-32 pr-2" ${
+              className={` min-w-32 pr-2 ${
                 isEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
@@ -616,6 +613,7 @@ const Invoice = () => {
     isModal: true,
     modal: (
       <GenericAddEditPanel
+        isCancelConfirmationDialogExist={true}
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
         inputs={[
@@ -647,22 +645,27 @@ const Invoice = () => {
           { key: "price", type: FormKeyTypeEnum.NUMBER },
           { key: "kdv", type: FormKeyTypeEnum.NUMBER },
         ]}
+        additionalCancelFunction={() => {
+          setProductExpenseForm({});
+        }}
         generalClassName="overflow-scroll"
         submitFunction={() => {
-          form.price &&
-            form.kdv &&
+          productExpenseForm.price &&
+            productExpenseForm.kdv &&
             createAccountInvoice({
-              ...form,
+              ...productExpenseForm,
               totalExpense:
-                Number(form.price) +
-                Number(form.kdv) * (Number(form.price) / 100),
+                Number(productExpenseForm.price) +
+                Number(productExpenseForm.kdv) *
+                  (Number(productExpenseForm.price) / 100),
             });
         }}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
-        setForm={setForm}
+        setForm={setProductExpenseForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          ...productExpenseForm,
         }}
       />
     ),
@@ -743,6 +746,10 @@ const Invoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isCancelConfirmationDialogExist={true}
+          additionalCancelFunction={() => {
+            setProductExpenseForm({});
+          }}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
@@ -766,7 +773,7 @@ const Invoice = () => {
             ...formKeys,
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
-          setForm={setForm}
+          setForm={setProductExpenseForm}
           submitItem={updateAccountInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
@@ -803,7 +810,6 @@ const Invoice = () => {
           }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,

@@ -2,9 +2,11 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { TbPasswordUser } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -17,6 +19,7 @@ import { WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
+  useResetPasswordMutation,
   useUserMutations,
 } from "../utils/api/user";
 
@@ -44,18 +47,22 @@ interface TableUser {
     }
   ];
 }
-
 export default function Users() {
   const { t } = useTranslation();
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
+  const { resetPassword } = useResetPasswordMutation();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { updateUser, createUser } = useUserMutations();
   const [tableKey, setTableKey] = useState(1); // reset table
   const users = useGetAllUsers();
   const navigate = useNavigate();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const roleOptions = users.map((user) => {
     return {
       label: user.role.name,
@@ -150,7 +157,32 @@ export default function Users() {
       options: roleOptions,
     },
   ];
+
   const actions = [
+    {
+      name: t("Reset Password"),
+      icon: <TbPasswordUser />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => {
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          confirm={() => {
+            resetPassword({ id: rowToAction._id });
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Reset User Password")}
+          text={t("Are you sure you want to reset the password ?")}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
     {
       name: t("Edit"),
       icon: <FiEdit />,

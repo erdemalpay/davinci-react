@@ -43,7 +43,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import {
   BackgroundColorInput,
   BrandInput,
-  DateInput,
   ExpenseTypeInput,
   FixtureInput,
   NameInput,
@@ -67,7 +66,13 @@ type FormElementsState = {
 const FixtureInvoice = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountFixtureInvoices();
-  const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
+  const {
+    searchQuery,
+    setCurrentPage,
+    setSearchQuery,
+    fixtureExpenseForm,
+    setFixtureExpenseForm,
+  } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -110,20 +115,6 @@ const FixtureInvoice = () => {
     vendor: [],
     expenseType: [],
   });
-  const [form, setForm] = useState<Partial<AccountFixtureInvoice>>({
-    date: "",
-    fixture: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    brand: "",
-    location: "",
-    vendor: "",
-    note: "",
-    price: 0,
-    kdv: 0,
-  });
-
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       fixture: "",
@@ -200,16 +191,16 @@ const FixtureInvoice = () => {
     {
       type: InputTypes.DATE,
       formKey: "after",
-      label: t("After"),
-      placeholder: t("After"),
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
     },
     {
       type: InputTypes.DATE,
       formKey: "before",
-      label: t("Before"),
-      placeholder: t("Before"),
+      label: t("End Date"),
+      placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
     },
@@ -232,7 +223,14 @@ const FixtureInvoice = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
   ];
   const inputs = [
-    DateInput(),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
     FixtureInput({
       fixtures: fixtures,
       required: true,
@@ -246,7 +244,7 @@ const FixtureInvoice = () => {
       expenseTypes:
         expenseTypes.filter((exp) =>
           fixtures
-            .find((item) => item._id === form?.fixture)
+            .find((item) => item._id === fixtureExpenseForm?.fixture)
             ?.expenseType.includes(exp._id)
         ) ?? [],
       required: true,
@@ -256,7 +254,7 @@ const FixtureInvoice = () => {
       brands:
         brands?.filter((brnd) =>
           fixtures
-            .find((item) => item._id === form?.fixture)
+            .find((item) => item._id === fixtureExpenseForm?.fixture)
             ?.brand?.includes(brnd._id)
         ) ?? [],
     }),
@@ -264,7 +262,7 @@ const FixtureInvoice = () => {
       vendors:
         vendors?.filter((vndr) =>
           fixtures
-            .find((item) => item._id === form?.fixture)
+            .find((item) => item._id === fixtureExpenseForm?.fixture)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
@@ -512,6 +510,10 @@ const FixtureInvoice = () => {
             required: false,
           },
         ]}
+        isCancelConfirmationDialogExist={true}
+        additionalCancelFunction={() => {
+          setFixtureExpenseForm({});
+        }}
         formKeys={[
           ...formKeys,
           { key: "price", type: FormKeyTypeEnum.NUMBER },
@@ -519,20 +521,22 @@ const FixtureInvoice = () => {
         ]}
         generalClassName="overflow-scroll"
         submitFunction={() => {
-          form.price &&
-            form.kdv &&
+          fixtureExpenseForm.price &&
+            fixtureExpenseForm.kdv &&
             createAccountFixtureInvoice({
-              ...form,
+              ...fixtureExpenseForm,
               totalExpense:
-                Number(form.price) +
-                Number(form.kdv) * (Number(form.price) / 100),
+                Number(fixtureExpenseForm.price) +
+                Number(fixtureExpenseForm.kdv) *
+                  (Number(fixtureExpenseForm.price) / 100),
             });
         }}
         submitItem={createAccountFixtureInvoice as any}
         topClassName="flex flex-col gap-2 "
-        setForm={setForm}
+        setForm={setFixtureExpenseForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          ...fixtureExpenseForm,
         }}
       />
     ),
@@ -594,6 +598,10 @@ const FixtureInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
+          isCancelConfirmationDialogExist={true}
+          additionalCancelFunction={() => {
+            setFixtureExpenseForm({});
+          }}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
@@ -617,7 +625,7 @@ const FixtureInvoice = () => {
             ...formKeys,
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
-          setForm={setForm}
+          setForm={setFixtureExpenseForm}
           submitItem={updateAccountFixtureInvoice as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
@@ -650,7 +658,6 @@ const FixtureInvoice = () => {
           }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,

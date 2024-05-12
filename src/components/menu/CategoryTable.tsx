@@ -13,6 +13,7 @@ import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   categories: MenuCategory[];
@@ -20,7 +21,8 @@ type Props = {
 
 const CategoryTable = ({ categories }: Props) => {
   const { t } = useTranslation();
-  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
+  const { menuActiveTab, setMenuActiveTab, setIsCategoryTabChanged } =
+    useGeneralContext();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -31,6 +33,7 @@ const CategoryTable = ({ categories }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+
   const inputs = [
     NameInput(),
     {
@@ -41,6 +44,7 @@ const CategoryTable = ({ categories }: Props) => {
       folderName: "menu",
     },
   ];
+
   function handleLocationUpdate(item: MenuCategory, location: number) {
     const newLocations = item.locations || [];
     // Add if it doesn't exist, remove otherwise
@@ -70,7 +74,17 @@ const CategoryTable = ({ categories }: Props) => {
 
   const rowKeys = [
     { key: "imageUrl", isImage: true },
-    { key: "name" },
+    {
+      key: "name",
+      node: (row: MenuCategory) => (
+        <p
+          onClick={() => setMenuActiveTab(row.order - 1)}
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+        >
+          {row.name}
+        </p>
+      ),
+    },
     {
       key: "bahceli",
       node: (row: MenuCategory) =>
@@ -120,6 +134,7 @@ const CategoryTable = ({ categories }: Props) => {
         }}
         additionalSubmitFunction={() => {
           setMenuActiveTab(menuActiveTab + 1);
+          setIsCategoryTabChanged(true);
         }}
         inputs={inputs}
         formKeys={formKeys}
@@ -154,6 +169,7 @@ const CategoryTable = ({ categories }: Props) => {
           confirm={() => {
             deleteCategory(rowToAction?._id);
             setMenuActiveTab(menuActiveTab - 1);
+            setIsCategoryTabChanged(true);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Category")}
@@ -185,7 +201,6 @@ const CategoryTable = ({ categories }: Props) => {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
@@ -214,6 +229,7 @@ const CategoryTable = ({ categories }: Props) => {
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
+        key={categories.length}
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}

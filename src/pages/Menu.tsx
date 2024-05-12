@@ -27,6 +27,7 @@ export default function Menu() {
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
   const {
+    isCategoryTabChanged,
     currentPage,
     setCurrentPage,
     rowsPerPage,
@@ -34,6 +35,7 @@ export default function Menu() {
     setSearchQuery,
     menuActiveTab,
     setMenuActiveTab,
+    setIsCategoryTabChanged,
   } = useGeneralContext();
   const handleTabChange = () => {
     const itemCategories = items
@@ -125,7 +127,12 @@ export default function Menu() {
         number: itemCategories.length + emptyCategories.length + 1,
         label: "Categories",
         icon: null,
-        content: <CategoryTable categories={categories as MenuCategory[]} />,
+        content: (
+          <CategoryTable
+            key={"categories" + tableKeys}
+            categories={categories as MenuCategory[]}
+          />
+        ),
         isDisabled: false,
       },
     ]);
@@ -147,14 +154,16 @@ export default function Menu() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={categories?.length + items?.length}
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
         additionalOpenAction={() => {
-          setCurrentPage(1);
-          setExpandedRows({});
-          setSearchQuery("");
+          if (!isCategoryTabChanged) {
+            setCurrentPage(1);
+            setExpandedRows({});
+            setSearchQuery("");
+          }
+          setIsCategoryTabChanged(false);
         }}
       />
     </>

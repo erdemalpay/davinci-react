@@ -34,7 +34,17 @@ export function useUpdatePasswordMutation() {
   const { mutate: updatePassword } = useMutation(updateUserPasswordRequest);
   return { updatePassword };
 }
+function resetUserPasswordRequest({ id }: { id: string }) {
+  return post({
+    path: `${Paths.Users}/resetPassword`,
+    payload: { id },
+  });
+}
 
+export function useResetPasswordMutation() {
+  const { mutate: resetPassword } = useMutation(resetUserPasswordRequest);
+  return { resetPassword };
+}
 function updateUserGames({
   gameId,
   updateType,

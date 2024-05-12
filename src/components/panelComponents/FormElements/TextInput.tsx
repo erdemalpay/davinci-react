@@ -6,7 +6,7 @@ import {
   PopoverHandler,
 } from "@material-tailwind/react";
 import { format, parseISO } from "date-fns";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
@@ -27,6 +27,7 @@ type TextInputProps = {
   isTopFlexRow?: boolean;
   inputWidth?: string;
   requiredField?: boolean;
+  isDateInitiallyOpen?: boolean;
 };
 
 const TextInput = ({
@@ -40,6 +41,7 @@ const TextInput = ({
   onClear,
   inputWidth,
   isDatePicker = false,
+  isDateInitiallyOpen = false,
   requiredField = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
@@ -51,6 +53,13 @@ const TextInput = ({
       inputRef.current.focus();
     }
   };
+  useEffect(() => {
+    if (isDateInitiallyOpen && type === "date" && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.click();
+    }
+  }, [isDateInitiallyOpen, type]);
+
   const inputClassName = `${className} ${
     inputWidth ? "border-gray-100" : ""
   } w-full text-sm ${type === "number" ? "inputHideNumberArrows" : ""}`;
@@ -124,6 +133,7 @@ const TextInput = ({
                 value={value ? format(parseISO(value), "dd/MM/yyyy") : ""}
                 disabled={disabled}
                 placeholder={placeholder}
+                data-initialized="true"
               />
             </PopoverHandler>
             <PopoverContent>
@@ -212,6 +222,7 @@ const TextInput = ({
         <input
           ref={inputRef}
           type={type}
+          autoFocus
           placeholder={placeholder}
           disabled={disabled}
           value={localValue}
