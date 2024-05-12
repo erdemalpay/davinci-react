@@ -8,6 +8,7 @@ import { H4, P2 } from "../Typography";
 import ItemContainer from "../common/ItemContainer";
 
 const ChangePassword = () => {
+  const [key, setKey] = useState(0);
   const { user } = useUserContext();
   const { updatePassword } = useUpdatePasswordMutation();
   const { t } = useTranslation();
@@ -30,11 +31,12 @@ const ChangePassword = () => {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    setKey((prev) => prev + 1);
   }
 
   if (!user) return <></>;
   return (
-    <ItemContainer>
+    <ItemContainer key={key}>
       <div className="flex flex-col gap-2">
         <H4>{t("Change Password")}</H4>
         <P2>{t("To change your password please confirm here")}</P2>
