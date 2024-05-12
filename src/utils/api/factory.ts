@@ -4,9 +4,9 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { UpdatePayload, get, patch, post, remove } from ".";
-
 export const Paths = {
   Games: "/games",
   Gameplays: "/gameplays",
@@ -73,7 +73,7 @@ export function useMutationApi<T extends { _id: number | string }>({
       payload: updates,
     });
   }
-
+  const { t } = useTranslation();
   function useCreateItemMutation() {
     const queryClient = useQueryClient();
     return useMutation(createRequest, {
@@ -98,7 +98,7 @@ export function useMutationApi<T extends { _id: number | string }>({
         return { previousItems };
       },
       // If the mutation fails, use the context returned from onMutate to roll back
-      onError: (_err, _newTable, context) => {
+      onError: (_err: any, _newTable, context) => {
         const previousItemContext = context as {
           previousItems: T[];
         };
@@ -106,6 +106,9 @@ export function useMutationApi<T extends { _id: number | string }>({
           const { previousItems } = previousItemContext;
           queryClient.setQueryData<T[]>(queryKey, previousItems);
         }
+        const errorMessage =
+          _err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
       onSettled: async () => {
@@ -113,7 +116,6 @@ export function useMutationApi<T extends { _id: number | string }>({
           queryClient.invalidateQueries(key);
         });
         queryClient.invalidateQueries(queryKey);
-        console.log("Query invalidated");
       },
     });
   }
@@ -149,7 +151,9 @@ export function useMutationApi<T extends { _id: number | string }>({
           const { previousItems } = previousItemContext;
           queryClient.setQueryData<T[]>(queryKey, previousItems);
         }
-        setTimeout(() => toast.error("This item cannot be deleted"), 200);
+        const errorMessage =
+          _err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
       onSettled: async () => {
@@ -190,7 +194,7 @@ export function useMutationApi<T extends { _id: number | string }>({
         return { previousItems };
       },
       // If the mutation fails, use the context returned from onMutate to roll back
-      onError: (_err, _newTable, context) => {
+      onError: (_err: any, _newTable, context) => {
         const previousItemContext = context as {
           previousItems: T[];
         };
@@ -198,6 +202,9 @@ export function useMutationApi<T extends { _id: number | string }>({
           const { previousItems } = previousItemContext;
           queryClient.setQueryData<T[]>(queryKey, previousItems);
         }
+        const errorMessage =
+          _err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(errorMessage)), 200);
       },
       // Always refetch after error or success:
       onSettled: async () => {

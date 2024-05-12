@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 import { get, patch, post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Visit } from "../../types";
 import { Paths, useGetList } from "./factory";
-
 interface UpdateVisitPayload {
   id: number;
 }
@@ -71,12 +71,15 @@ export function useCreateVisitMutation() {
       return { previousVisits };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newVisit, context) => {
+    onError: (_err: any, _newVisit, context) => {
       const previousVisitContext = context as { previousVisits: Visit[] };
       if (previousVisitContext?.previousVisits) {
         const { previousVisits } = previousVisitContext;
         queryClient.setQueryData<Visit[]>(queryKey, previousVisits);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -118,12 +121,15 @@ export function useFinishVisitMutation() {
       return { previousVisits };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newVisit, context) => {
+    onError: (_err: any, _newVisit, context) => {
       const previousVisitContext = context as { previousVisits: Visit[] };
       if (previousVisitContext?.previousVisits) {
         const { previousVisits } = previousVisitContext;
         queryClient.setQueryData<Visit[]>(queryKey, previousVisits);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { AccountInvoice } from "../../../types";
 import { patch } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
@@ -60,6 +61,11 @@ export function useTransferFixtureInvoiceMutation() {
       queryClient.invalidateQueries(queryKey);
       queryClient.invalidateQueries([`${Paths.Accounting}/fixture-invoice`]);
     },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }
 export function useFixtureInvoiceTransferInvoiceMutation() {
@@ -72,6 +78,11 @@ export function useFixtureInvoiceTransferInvoiceMutation() {
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
       queryClient.invalidateQueries([`${Paths.Accounting}/fixture-invoice`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }
@@ -86,6 +97,11 @@ export function useTransferServiceInvoiceMutation() {
       queryClient.invalidateQueries(queryKey);
       queryClient.invalidateQueries([`${Paths.Accounting}/service-invoice`]);
     },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }
 export function useServiceInvoiceTransferInvoiceMutation() {
@@ -98,6 +114,11 @@ export function useServiceInvoiceTransferInvoiceMutation() {
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
       queryClient.invalidateQueries([`${Paths.Accounting}/service-invoice`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }

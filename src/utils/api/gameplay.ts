@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Gameplay, Table } from "../../types/index";
@@ -271,12 +272,15 @@ export function useCreateGameplayMutation() {
       return { previousTables };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newGameplay, context) => {
+    onError: (_err: any, _newGameplay, context) => {
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         const { previousTables } = previousTableContext;
         queryClient.setQueryData<Table[]>(queryKey, previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -284,7 +288,6 @@ export function useCreateGameplayMutation() {
     },
   });
 }
-
 export function useUpdateGameplayMutation() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
@@ -333,12 +336,15 @@ export function useUpdateGameplayMutation() {
       return { previousTables };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newGameplay, context) => {
+    onError: (_err: any, _newGameplay, context) => {
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         const { previousTables } = previousTableContext;
         queryClient.setQueryData<Table[]>(queryKey, previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -388,12 +394,15 @@ export function useDeleteGameplayMutation() {
       return { previousTables };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newGameplay, context) => {
+    onError: (_err: any, _newGameplay, context) => {
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         const { previousTables } = previousTableContext;
         queryClient.setQueryData<Table[]>(queryKey, previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {
