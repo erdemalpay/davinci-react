@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { AccountProduct } from "../../../types";
 import { post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
@@ -41,6 +42,11 @@ export function useJoinProductsMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }

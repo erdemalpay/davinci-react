@@ -1,6 +1,6 @@
-import { Game } from "../../types";
-import { get } from ".";
 import { useQuery } from "@tanstack/react-query";
+import { get } from ".";
+import { Game } from "../../types";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
 const BASE_URL = `/games`;

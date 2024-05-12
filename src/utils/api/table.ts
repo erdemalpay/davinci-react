@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Table } from "../../types/index";
@@ -77,12 +78,15 @@ export function useCloseTableMutation() {
       return { previousTables };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newTable, context) => {
+    onError: (_err: any, _newTable, context) => {
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         const { previousTables } = previousTableContext;
         queryClient.setQueryData<Table[]>(queryKey, previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -117,12 +121,15 @@ export function useCloseAllTableMutation() {
 
       return { previousTables };
     },
-    onError: (_err, _variables, context) => {
+    onError: (_err: any, _variables, context) => {
       // Rollback on error
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         queryClient.setQueryData(queryKey, previousTableContext.previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     onSettled: () => {
       // Invalidate queries to refetch the table list
@@ -160,12 +167,15 @@ export function useReopenTableMutation() {
       return { previousTables };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (_err, _newTable, context) => {
+    onError: (_err: any, _newTable, context) => {
       const previousTableContext = context as { previousTables: Table[] };
       if (previousTableContext?.previousTables) {
         const { previousTables } = previousTableContext;
         queryClient.setQueryData<Table[]>(queryKey, previousTables);
       }
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
     onSettled: () => {

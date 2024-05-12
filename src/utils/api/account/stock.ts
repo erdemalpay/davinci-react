@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { AccountStock } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { post } from "../index";
@@ -43,6 +44,11 @@ export function useConsumptStockMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }
