@@ -106,7 +106,16 @@ const Product = () => {
       formKey: "removedProduct",
       label: t("Removed Product"),
       options: products
-        .filter((product) => product._id !== form.stayedProduct)
+        .filter((product) => {
+          const stayedProductUnit = products.find(
+            (p) => p._id === form?.stayedProduct
+          )?.unit;
+          return !(
+            product._id === form?.stayedProduct ||
+            (product.unit as AccountUnit)?._id !==
+              (stayedProductUnit as AccountUnit)?._id
+          );
+        })
         .map((product) => {
           return {
             value: product._id,
