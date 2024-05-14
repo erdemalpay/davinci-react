@@ -1,17 +1,23 @@
+import { forEach } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountExpenseType } from "../../types";
+import { AccountExpenseType, AccountUnit } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
+import {
+  useAccountProductMutations,
+  useGetAccountProducts,
+} from "../../utils/api/account/product";
 import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const ExpenseType = () => {
   const { t } = useTranslation();
@@ -19,6 +25,9 @@ const ExpenseType = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const products = useGetAccountProducts();
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const { updateAccountProduct } = useAccountProductMutations();
   const [rowToAction, setRowToAction] = useState<AccountExpenseType>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -29,6 +38,9 @@ const ExpenseType = () => {
     deleteAccountExpenseType,
     updateAccountExpenseType,
   } = useAccountExpenseTypeMutations();
+  const [form, setForm] = useState({
+    product: [],
+  });
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
@@ -52,6 +64,28 @@ const ExpenseType = () => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
   ];
+  const addProductInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products
+        .filter(
+          (product) =>
+            !product.expenseType?.some((item) => item === rowToAction?._id)
+        )
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
+          };
+        }),
+      isMultiple: true,
+      placeholder: t("Product"),
+      required: true,
+    },
+  ];
+  const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Expense Type`),
     isModal: true,
@@ -97,7 +131,7 @@ const ExpenseType = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -115,6 +149,44 @@ const ExpenseType = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+    {
+      name: t("Add Into Product"),
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1  mr-auto cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddProductModalOpen}
+          close={() => setIsAddProductModalOpen(false)}
+          inputs={addProductInputs}
+          formKeys={addProductFormKeys}
+          submitItem={updateAccountProduct as any}
+          isEditMode={true}
+          setForm={setForm}
+          topClassName="flex flex-col gap-2  "
+          handleUpdate={() => {
+            if (rowToAction) {
+              forEach(form.product, (product) => {
+                updateAccountProduct({
+                  id: product,
+                  updates: {
+                    expenseType: [
+                      ...(products?.find((p) => p._id === product)
+                        ?.expenseType || []),
+                      rowToAction._id,
+                    ],
+                  },
+                });
+              });
+            }
+          }}
+        />
+      ),
+      isModalOpen: isAddProductModalOpen,
+      setIsModal: setIsAddProductModalOpen,
       isPath: false,
     },
   ];

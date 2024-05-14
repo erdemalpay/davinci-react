@@ -310,5 +310,7 @@
   "Cannot remove product with menu items": "Cannot remove product with menu items",
   "Unit must be the same": "Unit must be the same",
   "Failed to create product": "Failed to create product",
+  "Error creating stock location": "Error creating stock location",
+  "Add Into Product": "Add Into Product",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
