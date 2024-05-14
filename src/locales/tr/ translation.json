@@ -311,5 +311,6 @@
   "Error creating stock location": "Stok konumu oluşturulurken hata oluştu",
   "Unit must be the same": "Birim aynı olmalıdır",
   "Failed to create product": "Ürün oluşturulamadı",
+  "Add Into Product": "Ürüne Ekle",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

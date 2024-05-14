@@ -50,7 +50,7 @@ const CountList = ({ countListId }: Props) => {
     }
     return productRows;
   };
-  const addInputs = [
+  const addProductInputs = [
     {
       type: InputTypes.SELECT,
       formKey: "product",
@@ -71,7 +71,7 @@ const CountList = ({ countListId }: Props) => {
       required: true,
     },
   ];
-  const addFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
+  const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
@@ -90,8 +90,8 @@ const CountList = ({ countListId }: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={addInputs}
-        formKeys={addFormKeys}
+        inputs={addProductInputs}
+        formKeys={addProductFormKeys}
         submitItem={updateAccountCountList as any}
         isEditMode={true}
         setForm={setForm}
