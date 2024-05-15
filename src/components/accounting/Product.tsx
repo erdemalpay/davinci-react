@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountProduct, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -41,6 +42,7 @@ const Product = () => {
   const units = useGetAccountUnits();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
+  const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const packages = useGetAccountPackageTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -168,7 +170,20 @@ const Product = () => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "name", className: "min-w-32 pr-1" },
+    {
+      key: "name",
+      className: "min-w-32 pr-1",
+      node: (row: AccountProduct) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            navigate(`/product/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
+    },
     { key: "unit", className: "min-w-32" },
     {
       key: "expenseType",
