@@ -377,7 +377,10 @@ const GenericTable = <T,>({
                     rowKey?.className
                   } min-w-32 md:min-w-0 `}
                 >
-                  <P1 className="w-fit px-2 py-1 rounded-md " style={style}>
+                  <P1
+                    className="w-fit px-2 py-1 rounded-md font-semibold"
+                    style={style}
+                  >
                     {matchedOption?.label}
                   </P1>
                 </td>
