@@ -390,7 +390,7 @@ const Product = () => {
               )) &&
             (filterPanelFormElements.packages === "" ||
               product.packages?.some(
-                (pkg) => pkg.package === filterPanelFormElements.package
+                (pkg) => pkg.package === filterPanelFormElements.packages
               ))
           );
         })
