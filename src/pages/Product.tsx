@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import ProductPrice from "../components/product/ProductPrice";
 import { useGeneralContext } from "../context/General.context";
 import { AccountProduct, AccountUnit, RowPerPageEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -25,7 +27,17 @@ export default function Product() {
       label: p.name + `(${(p.unit as AccountUnit).name})`,
     };
   });
+
   if (!currentProduct) return <></>;
+  const tabs = [
+    {
+      number: 0,
+      label: t("Product Price Chart"),
+      icon: <RiBarChartFill className="text-lg font-thin" />,
+      content: <ProductPrice selectedProduct={currentProduct} />,
+      isDisabled: false,
+    },
+  ];
   return (
     <>
       <Header showLocationSelector={false} />
@@ -63,7 +75,7 @@ export default function Product() {
 
         <TabPanel
           key={tabPanelKey}
-          tabs={[]}
+          tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />
