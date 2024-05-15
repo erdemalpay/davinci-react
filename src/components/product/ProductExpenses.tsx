@@ -56,7 +56,7 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
     });
   const columns = [
     { key: "ID", isSortable: true },
-    { key: t("Date"), isSortable: true },
+    { key: t("Date"), isSortable: true, className: "min-w-32 pr-2" },
     { key: t("Note"), isSortable: true },
     {
       key: t("Brand"),
