@@ -7,6 +7,7 @@ import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
@@ -40,6 +41,7 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Count = "/count/:countListId",
+  Product = "/product/:productId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
 }
@@ -131,6 +133,12 @@ export const allRoutes: {
       name: "Count",
       path: Routes.Count,
       element: Count,
+      isOnSidebar: false,
+    },
+    {
+      name: "Product",
+      path: Routes.Product,
+      element: Product,
       isOnSidebar: false,
     },
     {
