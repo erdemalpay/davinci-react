@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdOutlineMenuBook } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import MenuItemsWithProduct from "../components/product/MenuItemsWithProduct";
 import ProductPrice from "../components/product/ProductPrice";
 import { useGeneralContext } from "../context/General.context";
 import { AccountProduct, AccountUnit, RowPerPageEnum } from "../types";
@@ -35,6 +37,13 @@ export default function Product() {
       label: t("Product Price Chart"),
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPrice selectedProduct={currentProduct} />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
+      label: t("Menu Items with Product"),
+      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+      content: <MenuItemsWithProduct selectedProduct={currentProduct} />,
       isDisabled: false,
     },
   ];

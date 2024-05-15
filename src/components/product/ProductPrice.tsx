@@ -7,7 +7,6 @@ import PriceChart from "../analytics/accounting/PriceChart";
 type Props = { selectedProduct: AccountProduct };
 const ProductPrice = ({ selectedProduct }: Props) => {
   const invoices = useGetAccountInvoices();
-  const [chartKey, setChartKey] = useState(0);
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -173,11 +172,10 @@ const ProductPrice = ({ selectedProduct }: Props) => {
         },
       },
     });
-    setChartKey((prev) => prev + 1);
   }, [selectedProduct]);
   return (
     <PriceChart
-      key={chartKey}
+      key={selectedProduct._id}
       chartConfig={chartConfig}
       selectedProduct={selectedProduct}
     />
