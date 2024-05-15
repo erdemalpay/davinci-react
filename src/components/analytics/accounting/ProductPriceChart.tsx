@@ -1,18 +1,11 @@
-import { Square3Stack3DIcon } from "@heroicons/react/24/outline";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Typography,
-} from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
 import { AccountProduct, AccountUnit } from "../../../types";
 import { useGetAccountInvoices } from "../../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
 import { formatAsLocalDate } from "../../../utils/format";
 import SelectInput from "../../common/SelectInput";
+import PriceChart from "./PriceChart";
 
 type Props = {};
 export default function ProductPriceChart({}: Props) {
@@ -20,6 +13,7 @@ export default function ProductPriceChart({}: Props) {
 
   const products = useGetAccountProducts();
   const invoices = useGetAccountInvoices();
+  const [chartKey, setChartKey] = useState(0);
   const productOptions = products?.map((product) => {
     return {
       value: product._id,
@@ -193,6 +187,7 @@ export default function ProductPriceChart({}: Props) {
         },
       },
     });
+    setChartKey((prev) => prev + 1);
   }, [selectedProduct]);
 
   return (
@@ -222,30 +217,13 @@ export default function ProductPriceChart({}: Props) {
         />
       </div>
 
-      <Card className="shadow-none">
-        <CardHeader
-          floated={false}
-          shadow={false}
-          color="transparent"
-          className="flex flex-row gap-4 rounded-none  items-center"
-        >
-          <div className="w-max rounded-lg bg-gray-900 p-5 text-white">
-            <Square3Stack3DIcon className="h-6 w-6" />
-          </div>
-          <div>
-            <Typography variant="h6" color="blue-gray">
-              {selectedProduct &&
-                selectedProduct?.name +
-                  "(" +
-                  (selectedProduct?.unit as AccountUnit)?.name +
-                  ")"}
-            </Typography>
-          </div>
-        </CardHeader>
-        <CardBody className="px-2 pb-0">
-          <Chart {...(chartConfig as any)} />
-        </CardBody>
-      </Card>
+      {selectedProduct && (
+        <PriceChart
+          key={chartKey}
+          chartConfig={chartConfig}
+          selectedProduct={selectedProduct}
+        />
+      )}
     </div>
   );
 }
