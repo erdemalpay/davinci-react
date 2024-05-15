@@ -1,8 +1,14 @@
+import { forEach } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountVendor } from "../../types";
+import { AccountUnit, AccountVendor } from "../../types";
+import {
+  useAccountProductMutations,
+  useGetAccountProducts,
+} from "../../utils/api/account/product";
 import {
   useAccountVendorMutations,
   useGetAccountVendors,
@@ -11,14 +17,17 @@ import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Vendor = () => {
   const { t } = useTranslation();
   const vendors = useGetAccountVendors();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { updateAccountProduct } = useAccountProductMutations();
+  const products = useGetAccountProducts();
   const [rowToAction, setRowToAction] = useState<AccountVendor>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -26,6 +35,9 @@ const Vendor = () => {
   ] = useState(false);
   const { createAccountVendor, deleteAccountVendor, updateAccountVendor } =
     useAccountVendorMutations();
+  const [form, setForm] = useState({
+    product: [],
+  });
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Actions"), isSortable: false },
@@ -38,6 +50,28 @@ const Vendor = () => {
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const addProductInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products
+        .filter(
+          (product) =>
+            !product.vendor?.some((item) => item === rowToAction?._id)
+        )
+        .map((product) => {
+          return {
+            value: product._id,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
+          };
+        }),
+      isMultiple: true,
+      placeholder: t("Product"),
+      required: true,
+    },
+  ];
+  const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Vendor`),
     isModal: true,
@@ -83,7 +117,7 @@ const Vendor = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -101,6 +135,45 @@ const Vendor = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+    {
+      name: t("Add Into Product"),
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1  mr-auto cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddProductModalOpen}
+          close={() => setIsAddProductModalOpen(false)}
+          inputs={addProductInputs}
+          formKeys={addProductFormKeys}
+          submitItem={updateAccountProduct as any}
+          isEditMode={true}
+          setForm={setForm}
+          topClassName="flex flex-col gap-2  "
+          handleUpdate={() => {
+            if (rowToAction) {
+              forEach(form.product, (product) => {
+                updateAccountProduct({
+                  id: product,
+                  updates: {
+                    vendor: [
+                      ...(products
+                        ?.find((p) => p._id === product)
+                        ?.vendor?.filter((item) => item !== "") || []),
+                      rowToAction._id,
+                    ],
+                  },
+                });
+              });
+            }
+          }}
+        />
+      ),
+      isModalOpen: isAddProductModalOpen,
+      setIsModal: setIsAddProductModalOpen,
       isPath: false,
     },
   ];
