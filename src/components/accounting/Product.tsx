@@ -4,7 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountUnit } from "../../types";
+import { AccountProduct, AccountUnit, RowPerPageEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -49,7 +49,8 @@ const Product = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const [showFilters, setShowFilters] = useState(false);
-  const { setCurrentPage } = useGeneralContext();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const { mutate: joinProducts } = useJoinProductsMutation();
   const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -177,6 +178,9 @@ const Product = () => {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
+            setCurrentPage(1);
+            setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
             navigate(`/product/${row._id}`);
           }}
         >

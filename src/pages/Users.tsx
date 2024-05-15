@@ -15,7 +15,8 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { WorkType } from "../types";
+import { useGeneralContext } from "../context/General.context";
+import { RowPerPageEnum, WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -51,6 +52,8 @@ export default function Users() {
   const { t } = useTranslation();
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
   const { resetPassword } = useResetPasswordMutation();
@@ -138,6 +141,9 @@ export default function Users() {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
+            setCurrentPage(1);
+            setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
             navigate(`/user/${row._id}`);
           }}
         >
