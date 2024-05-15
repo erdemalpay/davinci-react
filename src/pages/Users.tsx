@@ -207,10 +207,8 @@ export default function Users() {
           }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
     {
