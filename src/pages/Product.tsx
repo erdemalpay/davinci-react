@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,6 +8,7 @@ import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import MenuItemsWithProduct from "../components/product/MenuItemsWithProduct";
+import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
 import { useGeneralContext } from "../context/General.context";
 import { AccountProduct, AccountUnit, RowPerPageEnum } from "../types";
@@ -44,6 +46,13 @@ export default function Product() {
       label: t("Menu Items with Product"),
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <MenuItemsWithProduct selectedProduct={currentProduct} />,
+      isDisabled: false,
+    },
+    {
+      number: 2,
+      label: t("Product Expenses"),
+      icon: <GiTakeMyMoney className="text-lg font-thin" />,
+      content: <ProductExpenses selectedProduct={currentProduct} />,
       isDisabled: false,
     },
   ];
