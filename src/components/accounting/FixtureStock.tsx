@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
@@ -40,7 +41,17 @@ const FixtureStock = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixtureStock>();
-  const { setCurrentPage } = useGeneralContext();
+  const { setCurrentPage, searchQuery, setSearchQuery } = useGeneralContext();
+  const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
+    return stocks.reduce((acc, stock) => {
+      const expense = parseFloat(
+        (
+          ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+        ).toFixed(1)
+      );
+      return acc + expense;
+    }, 0);
+  });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       fixture: "",
@@ -75,6 +86,37 @@ const FixtureStock = () => {
     deleteAccountFixtureStock,
     updateAccountFixtureStock,
   } = useAccountFixtureStockMutations();
+  const [temporarySearch, setTemporarySearch] = useState("");
+
+  const outsideSearch = () => {
+    return (
+      <div className="flex flex-row relative min-w-32">
+        <input
+          type="text"
+          value={temporarySearch}
+          onChange={(e) => {
+            setTemporarySearch(e.target.value);
+            if (e.target.value === "") {
+              setSearchQuery(e.target.value);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSearchQuery(temporarySearch);
+            }
+          }}
+          placeholder={t("Search")}
+          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
+        />
+        <CiSearch
+          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
+          onClick={() => {
+            setSearchQuery(temporarySearch);
+          }}
+        />
+      </div>
+    );
+  };
   const inputs = [
     FixtureInput({
       fixtures: fixtures,
@@ -214,6 +256,20 @@ const FixtureStock = () => {
   ];
   const filters = [
     {
+      label: t("Total") + " :",
+      isUpperSide: false,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
@@ -225,40 +281,65 @@ const FixtureStock = () => {
     },
   ];
   useEffect(() => {
-    setRows(
-      stocks
-        .filter((stock) => {
-          return (
-            passesFilter(
-              filterPanelFormElements.fixture,
-              (stock.fixture as AccountFixture)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.location,
-              (stock.location as AccountStockLocation)?._id
-            )
-          );
-        })
-        .map((stock) => {
-          return {
-            ...stock,
-            fxtr: (stock.fixture as AccountFixture).name,
-            lctn: (stock.location as AccountStockLocation).name,
-            unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
-            totalPrice: parseFloat(
-              (
-                ((stock.fixture as AccountFixture).unitPrice ?? 0) *
-                stock.quantity
-              ).toFixed(1)
-            ),
-          };
-        })
+    const processedRows = stocks
+      .filter((stock) => {
+        return (
+          passesFilter(
+            filterPanelFormElements.fixture,
+            (stock.fixture as AccountFixture)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.location,
+            (stock.location as AccountStockLocation)?._id
+          )
+        );
+      })
+      .map((stock) => {
+        return {
+          ...stock,
+          fxtr: (stock.fixture as AccountFixture).name,
+          lctn: (stock.location as AccountStockLocation).name,
+          unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
+          totalPrice: parseFloat(
+            (
+              ((stock.fixture as AccountFixture).unitPrice ?? 0) *
+              stock.quantity
+            ).toFixed(1)
+          ),
+        };
+      });
+    const filteredRows = processedRows.filter((row) =>
+      rowKeys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        const query = searchQuery.trimStart().toLowerCase();
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(query);
+        } else if (typeof value === "number") {
+          return value.toString().includes(query);
+        } else if (typeof value === "boolean") {
+          return (value ? "true" : "false").includes(query);
+        }
+        return false;
+      })
     );
-    setTableKey((prev) => prev + 1);
-    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+    const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
+      const expense = parseFloat(
+        (
+          ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+        ).toFixed(1)
+      );
+      return acc + expense;
+    }, 0);
+    setRows(filteredRows);
+    setGeneralTotalExpense(newGeneralTotalExpense);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
       setCurrentPage(1);
     }
-  }, [stocks, filterPanelFormElements]);
+    setTableKey((prev) => prev + 1);
+  }, [stocks, filterPanelFormElements, searchQuery]);
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -282,6 +363,8 @@ const FixtureStock = () => {
           rows={rows}
           title={t("Fixture Stocks")}
           addButton={addButton}
+          outsideSearch={outsideSearch}
+          isSearch={false}
           filterPanel={filterPanel}
         />
       </div>
