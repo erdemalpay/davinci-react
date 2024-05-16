@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
@@ -44,8 +45,28 @@ const Stock = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<AccountStock>();
-  const { setCurrentPage } = useGeneralContext();
+  const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
+    return stocks.reduce((acc, stock) => {
+      const expense = stock.packageType
+        ? parseFloat(
+            (
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
+              stock.quantity *
+              (stock.packageType as AccountPackageType).quantity
+            ).toFixed(1)
+          )
+        : parseFloat(
+            (
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
+              stock.quantity
+            ).toFixed(1)
+          );
+      return acc + expense;
+    }, 0);
+  });
+  const { setCurrentPage, setSearchQuery, searchQuery } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -261,6 +282,20 @@ const Stock = () => {
   ];
   const filters = [
     {
+      label: t("Total") + " :",
+      isUpperSide: false,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {typeof generalTotalExpense === "number"
+              ? generalTotalExpense.toFixed(4)
+              : parseFloat(generalTotalExpense).toFixed(4)}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
@@ -272,66 +307,100 @@ const Stock = () => {
     },
   ];
   useEffect(() => {
-    setRows(
-      stocks
-        .filter((stock) => {
-          return (
-            passesFilter(
-              filterPanelFormElements.location,
-              (stock.location as AccountStockLocation)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.product,
-              (stock.product as AccountProduct)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.packageType,
-              (stock.packageType as AccountPackageType)?._id
-            )
-          );
-        })
-        .map((stock) => {
-          return {
-            ...stock,
-            prdct: (stock.product as AccountProduct).name,
-            pckgType: (stock?.packageType as AccountPackageType)?.name,
-            lctn: (stock.location as AccountStockLocation).name,
-            unitPrice: stock?.packageType
-              ? (stock.product as AccountProduct).packages?.find(
-                  (pkg) =>
-                    pkg.package ===
-                    (stock?.packageType as AccountPackageType)?._id
-                )?.packageUnitPrice
-              : (stock.product as AccountProduct)?.unitPrice,
-            unit: units?.find(
-              (unit) => unit._id === (stock.product as AccountProduct).unit
-            )?.name,
-            totalPrice: stock?.packageType
-              ? parseFloat(
-                  (
-                    ((stock?.product as AccountProduct)?.packages?.find(
-                      (pkg) =>
-                        pkg.package ===
-                        (stock.packageType as AccountPackageType)?._id
-                    )?.packageUnitPrice ?? 0) *
-                    stock.quantity *
-                    (stock.packageType as AccountPackageType).quantity
-                  ).toFixed(1)
-                )
-              : parseFloat(
-                  (
-                    ((stock.product as AccountProduct).unitPrice ?? 0) *
-                    stock.quantity
-                  ).toFixed(1)
-                ),
-          };
-        })
+    const processedRows = stocks
+      .filter((stock) => {
+        return (
+          passesFilter(
+            filterPanelFormElements.location,
+            (stock.location as AccountStockLocation)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.product,
+            (stock.product as AccountProduct)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.packageType,
+            (stock.packageType as AccountPackageType)?._id
+          )
+        );
+      })
+      .map((stock) => {
+        return {
+          ...stock,
+          prdct: (stock.product as AccountProduct).name,
+          pckgType: (stock?.packageType as AccountPackageType)?.name,
+          lctn: (stock.location as AccountStockLocation).name,
+          unitPrice: stock?.packageType
+            ? (stock.product as AccountProduct).packages?.find(
+                (pkg) =>
+                  pkg.package ===
+                  (stock?.packageType as AccountPackageType)?._id
+              )?.packageUnitPrice
+            : (stock.product as AccountProduct)?.unitPrice,
+          unit: units?.find(
+            (unit) => unit._id === (stock.product as AccountProduct).unit
+          )?.name,
+          totalPrice: stock?.packageType
+            ? parseFloat(
+                (
+                  ((stock?.product as AccountProduct)?.packages?.find(
+                    (pkg) =>
+                      pkg.package ===
+                      (stock.packageType as AccountPackageType)?._id
+                  )?.packageUnitPrice ?? 0) *
+                  stock.quantity *
+                  (stock.packageType as AccountPackageType).quantity
+                ).toFixed(1)
+              )
+            : parseFloat(
+                (
+                  ((stock.product as AccountProduct).unitPrice ?? 0) *
+                  stock.quantity
+                ).toFixed(1)
+              ),
+        };
+      });
+    const filteredRows = processedRows.filter((row) =>
+      rowKeys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        const query = searchQuery.trimStart().toLowerCase();
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(query);
+        } else if (typeof value === "number") {
+          return value.toString().includes(query);
+        } else if (typeof value === "boolean") {
+          return (value ? "true" : "false").includes(query);
+        }
+        return false;
+      })
     );
-    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+    const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
+      const expense = stock.packageType
+        ? parseFloat(
+            (
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
+              stock.quantity *
+              (stock.packageType as AccountPackageType).quantity
+            ).toFixed(1)
+          )
+        : parseFloat(
+            (
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
+              stock.quantity
+            ).toFixed(1)
+          );
+      return acc + expense;
+    }, 0);
+    setRows(filteredRows);
+    setGeneralTotalExpense(newGeneralTotalExpense);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements]);
+  }, [stocks, filterPanelFormElements, searchQuery]);
   const filterPanelInputs = [
     ProductInput({ products: products, required: true }),
     StockLocationInput({ locations: locations }),
@@ -356,6 +425,35 @@ const Stock = () => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+  const outsideSearch = () => {
+    return (
+      <div className="flex flex-row relative min-w-32">
+        <input
+          type="text"
+          value={temporarySearch}
+          onChange={(e) => {
+            setTemporarySearch(e.target.value);
+            if (e.target.value === "") {
+              setSearchQuery(e.target.value);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSearchQuery(temporarySearch);
+            }
+          }}
+          placeholder={t("Search")}
+          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
+        />
+        <CiSearch
+          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
+          onClick={() => {
+            setSearchQuery(temporarySearch);
+          }}
+        />
+      </div>
+    );
+  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -373,6 +471,8 @@ const Stock = () => {
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
+          isSearch={false}
+          outsideSearch={outsideSearch}
         />
       </div>
     </>

@@ -1,26 +1,12 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AccountProduct, AccountUnit } from "../../../types";
-import { useGetAccountInvoices } from "../../../utils/api/account/invoice";
-import { useGetAccountProducts } from "../../../utils/api/account/product";
-import { formatAsLocalDate } from "../../../utils/format";
-import SelectInput from "../../common/SelectInput";
-import PriceChart from "./PriceChart";
+import { AccountProduct } from "../../types";
+import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { formatAsLocalDate } from "../../utils/format";
+import PriceChart from "../analytics/accounting/PriceChart";
 
-type Props = {};
-export default function ProductPriceChart({}: Props) {
-  const { t } = useTranslation();
-
-  const products = useGetAccountProducts();
+type Props = { selectedProduct: AccountProduct };
+const ProductPrice = ({ selectedProduct }: Props) => {
   const invoices = useGetAccountInvoices();
-  const [chartKey, setChartKey] = useState(0);
-  const productOptions = products?.map((product) => {
-    return {
-      value: product._id,
-      label: product.name + `(${(product.unit as AccountUnit).name})`,
-    };
-  });
-  const [selectedProduct, setSelectedProduct] = useState<AccountProduct>();
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -97,7 +83,6 @@ export default function ProductPriceChart({}: Props) {
       },
     },
   });
-
   useEffect(() => {
     const invoicesForProduct = invoices?.filter(
       (invoice) =>
@@ -187,43 +172,14 @@ export default function ProductPriceChart({}: Props) {
         },
       },
     });
-    setChartKey((prev) => prev + 1);
-  }, [selectedProduct]);
-
+  }, [selectedProduct, invoices]);
   return (
-    <div className="flex flex-col gap-4  mx-auto">
-      <div className="sm:w-1/4 px-4">
-        <SelectInput
-          label={t("Product")}
-          options={productOptions}
-          value={
-            selectedProduct
-              ? {
-                  value: selectedProduct._id,
-                  label:
-                    selectedProduct.name +
-                    " (" +
-                    (selectedProduct.unit as AccountUnit).name +
-                    ")",
-                }
-              : null
-          }
-          onChange={(selectedOption) => {
-            setSelectedProduct(
-              products?.find((product) => product._id === selectedOption?.value)
-            );
-          }}
-          placeholder={t("Select a product")}
-        />
-      </div>
-
-      {selectedProduct && (
-        <PriceChart
-          key={chartKey}
-          chartConfig={chartConfig}
-          selectedProduct={selectedProduct}
-        />
-      )}
-    </div>
+    <PriceChart
+      key={selectedProduct._id}
+      chartConfig={chartConfig}
+      selectedProduct={selectedProduct}
+    />
   );
-}
+};
+
+export default ProductPrice;

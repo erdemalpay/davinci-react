@@ -130,6 +130,18 @@ const TablesPage = () => {
     setSelectedDate(formatDate(newDate));
   };
 
+  // filter out unfinished visits and only show one visit per user
+  const seenUserIds = new Set<string>();
+  const filteredVisits = visits.filter((visit) => {
+    const isUnfinished = !visit.finishHour;
+    const isUserNotSeen = !seenUserIds.has(visit.user._id);
+    if (isUnfinished && isUserNotSeen) {
+      seenUserIds.add(visit.user._id);
+      return true;
+    }
+
+    return false;
+  });
   return (
     <>
       <Header />
@@ -220,7 +232,7 @@ const TablesPage = () => {
               visits={visits.filter((visit) => !visit.finishHour)}
             />
           ) : (
-            <PreviousVisitList visits={visits} />
+            <PreviousVisitList visits={filteredVisits} />
           )}
         </div>
         <div className="flex flex-row gap-4 justify-end mt-4">

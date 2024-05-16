@@ -308,7 +308,14 @@
   "Cannot remove product with countlists": "Sayım listelerinde kullanılan ürün kaldırılamaz",
   "Cannot remove product with invoices": "Faturalarla ilişkili ürün kaldırılamaz",
   "Cannot remove product with menu items": "Menü öğelerinde kullanılan ürün kaldırılamaz",
+  "Error creating stock location": "Stok konumu oluşturulurken hata oluştu",
   "Unit must be the same": "Birim aynı olmalıdır",
   "Failed to create product": "Ürün oluşturulamadı",
+  "Add Into Product": "Ürüne Ekle",
+  "Add Into Fixture": "Demirbaşa Ekle",
+  "Who's at cafe?": "Kafede kim vardı?",
+  "Select a product": "Bir ürün seçin",
+  "Menu Items with Product": "Ürün içeren menu öğeleri",
+  "Product Expenses": "Ürün Giderleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
