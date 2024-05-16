@@ -172,7 +172,7 @@ const ProductPrice = ({ selectedProduct }: Props) => {
         },
       },
     });
-  }, [selectedProduct]);
+  }, [selectedProduct, invoices]);
   return (
     <PriceChart
       key={selectedProduct._id}
