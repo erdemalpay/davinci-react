@@ -318,5 +318,9 @@
   "Menu Items with Product": "Menu Items with Product",
   "Product Expenses": "Product Expenses",
   "Enable Delete": "Enable Delete",
+  "Old Quantity": "Old Quantity",
+  "Changed": "Change",
+  "Product Stock History": "Product Stock History",
+  "Hour": "Hour",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

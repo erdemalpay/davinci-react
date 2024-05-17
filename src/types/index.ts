@@ -200,7 +200,17 @@ export type AccountStock = {
   quantity: number;
   packageType?: AccountPackageType | string;
 };
-
+export type AccountProductStockHistory = {
+  _id: number;
+  product: AccountProduct;
+  location: AccountStockLocation;
+  change: number;
+  currentAmount: number;
+  status: string;
+  user: User;
+  packageType?: AccountPackageType;
+  createdAt: Date;
+};
 export type AccountFixtureStock = {
   _id: string;
   fixture: AccountFixture | string;
@@ -352,4 +362,5 @@ export enum StocksPageTabEnum {
   FIXTURESTOCK,
   ENTERCONSUMPTION,
   COUNTARCHIVE,
+  PRODUCTSTOCKHISTORY,
 }
