@@ -261,9 +261,11 @@ const FixtureStock = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotalExpense)}{" "}
             ₺
           </p>
         </div>
