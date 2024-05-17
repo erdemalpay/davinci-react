@@ -218,7 +218,7 @@ const GenericTable = <T,>({
 
       columns.forEach((column) => {
         if (column.correspondingKey) {
-          const value = row[column.correspondingKey];
+          const value = String(row[column.correspondingKey]);
           rowData.push(value);
         }
       });

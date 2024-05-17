@@ -78,6 +78,7 @@ const Stock = () => {
     location: "",
     quantity: 0,
     packageType: "",
+    status: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -128,19 +129,18 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "packageType",
       label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
+      options: products
+        .find((prod) => prod._id === form?.product)
+        ?.packages?.map((item) => {
+          const packageType = packages.find((pkg) => pkg._id === item.package);
+          return {
+            value: packageType?._id,
+            label: packageType?.name,
+          };
+        }),
       placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
-      isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
+      required: true,
+      isDisabled: false,
     },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
@@ -193,6 +193,7 @@ const Stock = () => {
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
         generalClassName="overflow-visible"
+        constantValues={{ status: "stock entry" }}
       />
     ),
     isModalOpen: isAddModalOpen,
