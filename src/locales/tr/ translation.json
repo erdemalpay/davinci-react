@@ -315,5 +315,9 @@
   "Who's at cafe?": "Kafede kim var?",
   "Menu Items with Product": "Ürün içeren menu öğeleri",
   "Enable Delete": "Silmeyi etkinleştir",
+  "Old Quantity": "Eski Miktar",
+  "Changed": "Değişim",
+  "Product Stock History": "Ürün Stok Geçmişi",
+  "Hour": "Saat",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
