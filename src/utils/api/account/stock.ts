@@ -14,17 +14,13 @@ interface ConsumptStockPayload {
 const baseUrl = `${Paths.Accounting}/stocks`;
 
 export function useAccountStockMutations() {
-  const {
-    deleteItem: deleteAccountStock,
-    updateItem: updateAccountStock,
-    createItem: createAccountStock,
-  } = useMutationApi<AccountStock>({
-    baseQuery: baseUrl,
-  });
+  const { deleteItem: deleteAccountStock, createItem: createAccountStock } =
+    useMutationApi<AccountStock>({
+      baseQuery: baseUrl,
+    });
 
   return {
     deleteAccountStock,
-    updateAccountStock,
     createAccountStock,
   };
 }

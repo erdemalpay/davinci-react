@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
-import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import {
@@ -42,8 +41,7 @@ const Stock = () => {
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isEnableDelete, setIsEnableDelete] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<AccountStock>();
@@ -78,6 +76,7 @@ const Stock = () => {
     location: "",
     quantity: 0,
     packageType: "",
+    status: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -116,8 +115,7 @@ const Stock = () => {
       };
     })
   );
-  const { createAccountStock, deleteAccountStock, updateAccountStock } =
-    useAccountStockMutations();
+  const { createAccountStock, deleteAccountStock } = useAccountStockMutations();
   const inputs = [
     ProductInput({
       products: products,
@@ -128,19 +126,18 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "packageType",
       label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
+      options: products
+        .find((prod) => prod._id === form?.product)
+        ?.packages?.map((item) => {
+          const packageType = packages.find((pkg) => pkg._id === item.package);
+          return {
+            value: packageType?._id,
+            label: packageType?.name,
+          };
+        }),
       placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
-      isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
+      required: true,
+      isDisabled: false,
     },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
@@ -174,7 +171,7 @@ const Stock = () => {
     {
       key: "totalPrice",
       node: (row: any) => (
-        <div className={!isEnableEdit ? "text-center" : ""}>
+        <div className={!isEnableDelete ? "text-center" : ""}>
           {row.totalPrice} ₺
         </div>
       ),
@@ -193,6 +190,7 @@ const Stock = () => {
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
         generalClassName="overflow-visible"
+        constantValues={{ status: "stock entry" }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -220,63 +218,10 @@ const Stock = () => {
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-    },
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
-      isModal: true,
-      setRow: setRowToAction,
-      setForm: setForm,
-      onClick: (row: AccountStock) => {
-        setForm({
-          ...form,
-          product: (row.product as AccountProduct)._id,
-        });
-      },
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          submitItem={updateAccountStock as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          generalClassName="overflow-visible"
-          itemToEdit={{
-            id: rowToAction._id,
-            updates: {
-              product: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.product as AccountProduct
-              )?._id,
-              location: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.location as AccountStockLocation
-              )?._id,
-              quantity: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.quantity,
-              packageType: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.packageType as AccountPackageType
-              )?._id,
-              unitPrice: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.product as AccountProduct
-              )?.unitPrice,
-            },
-          }}
-        />
-      ) : null,
-
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
       isPath: false,
     },
   ];
@@ -296,9 +241,11 @@ const Stock = () => {
       ),
     },
     {
-      label: t("Enable Edit"),
+      label: t("Enable Delete"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton checked={isEnableDelete} onChange={setIsEnableDelete} />
+      ),
     },
     {
       label: t("Show Filters"),
@@ -460,10 +407,10 @@ const Stock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={isEnableEdit ? actions : []}
+          actions={isEnableDelete ? actions : []}
           filters={filters}
           columns={
-            isEnableEdit
+            isEnableDelete
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }
