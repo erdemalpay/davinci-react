@@ -147,7 +147,7 @@ const Invoice = () => {
       vendor: "",
       brand: "",
       expenseType: "",
-      packageType: "",
+      packages: "",
       location: "",
       before: "",
       after: "",
@@ -862,7 +862,7 @@ const Invoice = () => {
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
           passesFilter(
-            filterPanelFormElements.packageType,
+            filterPanelFormElements.packages,
             (invoice.packageType as AccountPackageType)?._id
           ) &&
           passesFilter(
