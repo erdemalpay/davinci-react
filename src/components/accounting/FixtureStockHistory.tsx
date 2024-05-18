@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountPackageType,
-  AccountProduct,
-  AccountStockLocation,
-} from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
+import { AccountFixture, AccountStockLocation } from "../../types";
+import { useGetAccountFixtures } from "../../utils/api/account/fixture";
+import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import {
-  PackageTypeInput,
-  ProductInput,
-  StockLocationInput,
-} from "../../utils/panelInputs";
+import { FixtureInput, StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -35,10 +26,6 @@ export const StockHistoryStatusEnumObject = {
     label: "Stock Entry",
     backgroundColor: "bg-blue-500",
   },
-  consumpt: {
-    label: "Consumption",
-    backgroundColor: "bg-purple-500",
-  },
   "update create": {
     label: "Update Create",
     backgroundColor: "bg-yellow-700",
@@ -53,18 +40,16 @@ export const StockHistoryStatusEnumObject = {
   },
 };
 
-const ProductStockHistory = () => {
+const FixtureStockHistory = () => {
   const { t } = useTranslation();
-  const stockHistories = useGetAccountProductStockHistorys();
+  const stockHistories = useGetAccountFixtureStockHistorys();
   const [tableKey, setTableKey] = useState(0);
-  const products = useGetAccountProducts();
-  const packages = useGetAccountPackageTypes();
+  const fixtures = useGetAccountFixtures();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
-      packages: "",
+      fixture: "",
       location: "",
       status: "",
       before: "",
@@ -76,8 +61,7 @@ const ProductStockHistory = () => {
       const date = new Date(stockHistory.createdAt);
       return {
         ...stockHistory,
-        prdct: stockHistory.product?.name,
-        pckgTyp: stockHistory?.packageType?.name,
+        fxtr: stockHistory.fixture?.name,
         lctn: stockHistory?.location?.name,
         usr: stockHistory?.user?.name,
         date: `${pad(date.getDate())}-${pad(
@@ -88,8 +72,7 @@ const ProductStockHistory = () => {
     });
   });
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
-    PackageTypeInput({ packages: packages, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -127,8 +110,7 @@ const ProductStockHistory = () => {
     { key: t("Date"), isSortable: true },
     { key: t("Hour"), isSortable: true },
     { key: t("User"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
+    { key: t("Fixture"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Old Quantity"), isSortable: true },
     { key: t("Changed"), isSortable: true },
@@ -148,11 +130,7 @@ const ProductStockHistory = () => {
       className: "min-w-32 pr-1",
     },
     {
-      key: "prdct",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "pckgTyp",
+      key: "fxtr",
       className: "min-w-32 pr-1",
     },
     {
@@ -195,12 +173,8 @@ const ProductStockHistory = () => {
             (filterPanelFormElements.after === "" ||
               stockHistory.createdAt >= filterPanelFormElements.after) &&
             passesFilter(
-              filterPanelFormElements.packages,
-              (stockHistory.packageType as AccountPackageType)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.product,
-              (stockHistory.product as AccountProduct)?._id
+              filterPanelFormElements.fixture,
+              (stockHistory.fixture as AccountFixture)?._id
             ) &&
             passesFilter(
               filterPanelFormElements.location,
@@ -213,8 +187,7 @@ const ProductStockHistory = () => {
           const date = new Date(stockHistory.createdAt);
           return {
             ...stockHistory,
-            prdct: stockHistory.product?.name,
-            pckgTyp: stockHistory?.packageType?.name,
+            fxtr: stockHistory.fixture?.name,
             lctn: stockHistory?.location?.name,
             usr: stockHistory?.user?.name,
             date: `${pad(date.getDate())}-${pad(
@@ -251,11 +224,11 @@ const ProductStockHistory = () => {
           rows={rows}
           filterPanel={filterPanel}
           filters={filters}
-          title={t("Product Stock History")}
+          title={t("Fixture Stock History")}
         />
       </div>
     </>
   );
 };
 
-export default ProductStockHistory;
+export default FixtureStockHistory;

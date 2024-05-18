@@ -328,5 +328,7 @@
   "Update Create": "Update Create",
   "Update Delete": "Update Delete",
   "Stock Delete": "Stock Delete",
+  "Fixture Stock History": "Fixture Stock History",
+  "Expense Delete": "Expense Delete",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

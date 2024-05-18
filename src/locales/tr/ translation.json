@@ -325,5 +325,7 @@
   "Update Create": "Güncelleme(Oluşturma)",
   "Update Delete": "Güncelleme(Silme)",
   "Stock Delete": "Stok Silme",
+  "Fixture Stock History": "Demirbaş Stok Geçmişi",
+  "Expense Delete": "Gider Silme",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

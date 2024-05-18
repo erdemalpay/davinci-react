@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { FaFileArchive } from "react-icons/fa";
 import { FiArchive } from "react-icons/fi";
 import {
   GiArchiveResearch,
@@ -8,6 +9,7 @@ import {
 import { SlBasketLoaded } from "react-icons/sl";
 import CountArchive from "../components/accounting/CountArchive";
 import FixtureStock from "../components/accounting/FixtureStock";
+import FixtureStockHistory from "../components/accounting/FixtureStockHistory";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
@@ -58,6 +60,13 @@ export default function Stocks() {
       label: t("Product Stock History"),
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory />,
+      isDisabled: false,
+    },
+    {
+      number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
+      label: t("Fixture Stock History"),
+      icon: <FaFileArchive className="text-lg font-thin" />,
+      content: <FixtureStockHistory />,
       isDisabled: false,
     },
   ];

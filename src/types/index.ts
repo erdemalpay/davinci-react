@@ -211,6 +211,16 @@ export type AccountProductStockHistory = {
   packageType?: AccountPackageType;
   createdAt: Date;
 };
+export type AccountFixtureStockHistory = {
+  _id: number;
+  fixture: AccountFixture;
+  location: AccountStockLocation;
+  change: number;
+  currentAmount: number;
+  status: string;
+  user: User;
+  createdAt: Date;
+};
 export type AccountFixtureStock = {
   _id: string;
   fixture: AccountFixture | string;
@@ -363,6 +373,7 @@ export enum StocksPageTabEnum {
   ENTERCONSUMPTION,
   COUNTARCHIVE,
   PRODUCTSTOCKHISTORY,
+  FIXTURESTOCKHISTORY,
 }
 export enum ProductPageTabEnum {
   PRODUCTPRICECHART,
