@@ -19,7 +19,7 @@ import { useGeneralContext } from "../context/General.context";
 import { StocksPageTabEnum } from "../types";
 
 export default function Stocks() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -75,7 +75,7 @@ export default function Stocks() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          // to be able to control the tab panel moving underline we need to delete the isDisabled ones from the number
+          key={i18n.language}
           tabs={tabs?.map((tab) => ({
             ...tab,
             number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,

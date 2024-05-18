@@ -13,6 +13,7 @@ import { useGeneralContext } from "../context/General.context";
 import { RoleEnum, RowPerPageEnum, User } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import { useGetUsers, useGetUserWithId } from "../utils/api/user";
+import i18n from "../utils/i18n";
 
 export default function UserView() {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ export default function UserView() {
 
         {user && (
           <TabPanel
-            key={tabPanelKey}
+            key={tabPanelKey + i18n.language}
             tabs={tabs}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
