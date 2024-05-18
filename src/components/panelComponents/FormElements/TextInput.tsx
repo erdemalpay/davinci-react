@@ -222,7 +222,6 @@ const TextInput = ({
         <input
           ref={inputRef}
           type={type}
-          autoFocus
           placeholder={placeholder}
           disabled={disabled}
           value={localValue}

@@ -12,7 +12,12 @@ import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
 import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
-import { AccountProduct, AccountUnit, RowPerPageEnum } from "../types";
+import {
+  AccountProduct,
+  AccountUnit,
+  ProductPageTabEnum,
+  RowPerPageEnum,
+} from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 
 export default function Product() {
@@ -36,28 +41,28 @@ export default function Product() {
   if (!currentProduct) return <></>;
   const tabs = [
     {
-      number: 0,
+      number: ProductPageTabEnum.PRODUCTPRICECHART,
       label: t("Product Price Chart"),
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPrice selectedProduct={currentProduct} />,
       isDisabled: false,
     },
     {
-      number: 1,
+      number: ProductPageTabEnum.MENUITEMSWITHPRODUCT,
       label: t("Menu Items with Product"),
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <MenuItemsWithProduct selectedProduct={currentProduct} />,
       isDisabled: false,
     },
     {
-      number: 2,
+      number: ProductPageTabEnum.PRODUCTEXPENSES,
       label: t("Product Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <ProductExpenses selectedProduct={currentProduct} />,
       isDisabled: false,
     },
     {
-      number: 3,
+      number: ProductPageTabEnum.PRODUCTSTOCKHISTORY,
       label: t("Product Stock History"),
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory selectedProduct={currentProduct} />,

@@ -10,9 +10,18 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
+import {
+  BrandInput,
+  StockLocationInput,
+  VendorInput,
+} from "../../utils/panelInputs";
+import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -26,12 +35,18 @@ type FormElementsState = {
 const ProductExpenses = ({ selectedProduct }: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
+  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
   const units = useGetAccountUnits();
+  const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       before: "",
       after: "",
+      location: "",
+      vendor: "",
+      brand: "",
     });
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -104,7 +119,11 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
       </div>
     );
   };
+
   const filterPanelInputs = [
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -242,7 +261,19 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
           (filterPanelFormElements.before === "" ||
             invoice.date <= filterPanelFormElements.before) &&
           (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after)
+            invoice.date >= filterPanelFormElements.after) &&
+          passesFilter(
+            filterPanelFormElements.vendor,
+            (invoice.vendor as AccountVendor)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.brand,
+            (invoice.brand as AccountBrand)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.location,
+            (invoice.location as AccountStockLocation)?._id
+          )
         );
       })
       .map((invoice) => {
