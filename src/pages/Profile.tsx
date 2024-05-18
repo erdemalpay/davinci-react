@@ -19,8 +19,7 @@ export default function Profile() {
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { t } = useTranslation();
-
+  const { t, i18n } = useTranslation();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
 
   const tabs = [
@@ -82,7 +81,12 @@ export default function Profile() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabPanel
+        key={i18n.language}
+        tabs={tabs}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
     </>
   );
 }

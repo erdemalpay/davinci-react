@@ -22,7 +22,7 @@ import { AccountingPageTabEnum } from "../types";
 
 FixtureStock;
 export default function Accounting() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -101,7 +101,7 @@ export default function Accounting() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={String(false)}
+        key={i18n.language}
         tabs={tabs?.map((tab) => ({
           ...tab,
           number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,

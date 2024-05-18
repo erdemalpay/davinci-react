@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaFileArchive } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import FixtureExpenses from "../components/fixture/FixtureExpenses";
+import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -35,6 +37,13 @@ export default function Fixture() {
       label: t("Fixture Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <FixtureExpenses selectedFixture={currentFixture} />,
+      isDisabled: false,
+    },
+    {
+      number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
+      label: t("Fixture Stock History"),
+      icon: <FaFileArchive className="text-lg font-thin" />,
+      content: <FixtureStockHistory selectedFixture={currentFixture} />,
       isDisabled: false,
     },
   ];
