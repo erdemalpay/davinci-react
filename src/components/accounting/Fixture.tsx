@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountFixture } from "../../types";
+import { AccountFixture, RowPerPageEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -29,6 +30,7 @@ type FormElementsState = {
 };
 const Fixture = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const fixtures = useGetAccountFixtures();
   const [tableKey, setTableKey] = useState(0);
   const expenseTypes = useGetAccountExpenseTypes();
@@ -38,7 +40,8 @@ const Fixture = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixture>();
   const [showFilters, setShowFilters] = useState(false);
-  const { setCurrentPage } = useGeneralContext();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       brand: "",
@@ -90,7 +93,23 @@ const Fixture = () => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "name", className: "min-w-32 pr-1" },
+    {
+      key: "name",
+      className: "min-w-32 pr-1",
+      node: (row: AccountFixture) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            setCurrentPage(1);
+            setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            navigate(`/fixture/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
+    },
     {
       key: "expenseType",
       className: "min-w-32",

@@ -370,3 +370,8 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
+
+export enum FixturePageTabEnum {
+  FIXTUREEXPENSES,
+  FIXTURESTOCKHISTORY,
+}
