@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountPackageType,
-  AccountProduct,
-  AccountStockLocation,
-} from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { AccountProduct, AccountStockLocation } from "../../types";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import {
-  PackageTypeInput,
-  ProductInput,
-  StockLocationInput,
-} from "../../utils/panelInputs";
+import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -48,19 +38,17 @@ export const StockHistoryStatusEnumObject = {
     backgroundColor: "bg-red-700",
   },
 };
-
-const ProductStockHistory = () => {
+type Props = {
+  selectedProduct: AccountProduct;
+};
+const ProductStockHistory = ({ selectedProduct }: Props) => {
   const { t } = useTranslation();
   const stockHistories = useGetAccountProductStockHistorys();
   const [tableKey, setTableKey] = useState(0);
-  const products = useGetAccountProducts();
-  const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
-      packages: "",
       location: "",
       status: "",
       before: "",
@@ -68,24 +56,24 @@ const ProductStockHistory = () => {
     });
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const [rows, setRows] = useState(() => {
-    return stockHistories.map((stockHistory) => {
-      const date = new Date(stockHistory.createdAt);
-      return {
-        ...stockHistory,
-        prdct: stockHistory.product?.name,
-        pckgTyp: stockHistory?.packageType?.name,
-        lctn: stockHistory?.location?.name,
-        usr: stockHistory?.user?.name,
-        date: `${pad(date.getDate())}-${pad(
-          date.getMonth() + 1
-        )}-${date.getFullYear()}`,
-        hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-      };
-    });
+    return stockHistories
+      .filter((item) => item.product._id === selectedProduct._id)
+      .map((stockHistory) => {
+        const date = new Date(stockHistory.createdAt);
+        return {
+          ...stockHistory,
+          prdct: stockHistory.product?.name,
+          pckgTyp: stockHistory?.packageType?.name,
+          lctn: stockHistory?.location?.name,
+          usr: stockHistory?.user?.name,
+          date: `${pad(date.getDate())}-${pad(
+            date.getMonth() + 1
+          )}-${date.getFullYear()}`,
+          hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+        };
+      });
   });
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
-    PackageTypeInput({ packages: packages, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -184,20 +172,13 @@ const ProductStockHistory = () => {
   useEffect(() => {
     setRows(
       stockHistories
+        .filter((item) => item.product._id === selectedProduct._id)
         .filter((stockHistory) => {
           return (
             (filterPanelFormElements.before === "" ||
               stockHistory.createdAt <= filterPanelFormElements.before) &&
             (filterPanelFormElements.after === "" ||
               stockHistory.createdAt >= filterPanelFormElements.after) &&
-            passesFilter(
-              filterPanelFormElements.packages,
-              (stockHistory.packageType as AccountPackageType)?._id
-            ) &&
-            passesFilter(
-              filterPanelFormElements.product,
-              (stockHistory.product as AccountProduct)?._id
-            ) &&
             passesFilter(
               filterPanelFormElements.location,
               (stockHistory.location as AccountStockLocation)?._id
@@ -221,7 +202,7 @@ const ProductStockHistory = () => {
         })
     );
     setTableKey((prev) => prev + 1);
-  }, [stockHistories, filterPanelFormElements]);
+  }, [stockHistories, filterPanelFormElements, selectedProduct]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

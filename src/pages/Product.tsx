@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GiTakeMyMoney } from "react-icons/gi";
+import { GiArchiveResearch, GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import MenuItemsWithProduct from "../components/product/MenuItemsWithProduct";
 import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
+import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
 import { AccountProduct, AccountUnit, RowPerPageEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -53,6 +54,13 @@ export default function Product() {
       label: t("Product Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <ProductExpenses selectedProduct={currentProduct} />,
+      isDisabled: false,
+    },
+    {
+      number: 3,
+      label: t("Product Stock History"),
+      icon: <GiArchiveResearch className="text-lg font-thin" />,
+      content: <ProductStockHistory selectedProduct={currentProduct} />,
       isDisabled: false,
     },
   ];
