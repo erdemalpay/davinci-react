@@ -322,5 +322,11 @@
   "Changed": "Change",
   "Product Stock History": "Product Stock History",
   "Hour": "Hour",
+  "Expense Entry": "Expense Entry",
+  "Stock Entry": "Stock Entry",
+  "Consumption": "Consumption",
+  "Update Create": "Update Create",
+  "Update Delete": "Update Delete",
+  "Stock Delete": "Stock Delete",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

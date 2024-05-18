@@ -319,5 +319,11 @@
   "Changed": "Değişim",
   "Product Stock History": "Ürün Stok Geçmişi",
   "Hour": "Saat",
+  "Expense Entry": "Gider Girişi",
+  "Stock Entry": "Stok Girişi",
+  "Consumption": "Tüketim",
+  "Update Create": "Güncelleme(Oluşturma)",
+  "Update Delete": "Güncelleme(Silme)",
+  "Stock Delete": "Stok Silme",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

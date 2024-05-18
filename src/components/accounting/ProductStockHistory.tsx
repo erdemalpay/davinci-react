@@ -18,9 +18,37 @@ import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 type FormElementsState = {
   [key: string]: any;
 };
+export const StockHistoryStatusEnumObject = {
+  "expense entry": {
+    label: "Expense Entry",
+    backgroundColor: "bg-green-500",
+  },
+  "stock entry": {
+    label: "Stock Entry",
+    backgroundColor: "bg-blue-500",
+  },
+  consumpt: {
+    label: "Consumption",
+    backgroundColor: "bg-purple-500",
+  },
+  "update create": {
+    label: "Update Create",
+    backgroundColor: "bg-yellow-500",
+  },
+  "update delete": {
+    label: "Update Delete",
+    backgroundColor: "bg-orange-500",
+  },
+  "stock delete": {
+    label: "Stock Delete",
+    backgroundColor: "bg-red-700",
+  },
+};
+
 const ProductStockHistory = () => {
   const { t } = useTranslation();
   const stockHistories = useGetAccountProductStockHistorys();
@@ -34,6 +62,7 @@ const ProductStockHistory = () => {
       product: "",
       packages: "",
       location: "",
+      status: "",
       before: "",
       after: "",
     });
@@ -58,6 +87,21 @@ const ProductStockHistory = () => {
     ProductInput({ products: products, required: true }),
     PackageTypeInput({ packages: packages, required: true }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: Object.entries(StockHistoryStatusEnumObject).map(
+        ([key, status]) => {
+          return {
+            value: key,
+            label: t(status.label),
+          };
+        }
+      ),
+      placeholder: t("Status"),
+      required: true,
+    },
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -122,9 +166,21 @@ const ProductStockHistory = () => {
     {
       key: "status",
       className: "min-w-32 pr-1",
+      node: (row: any) => {
+        const status =
+          StockHistoryStatusEnumObject[
+            row.status as keyof typeof StockHistoryStatusEnumObject
+          ];
+        return (
+          <div
+            className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
+          >
+            {t(status?.label)}
+          </div>
+        );
+      },
     },
   ];
-
   useEffect(() => {
     setRows(
       stockHistories
@@ -145,7 +201,8 @@ const ProductStockHistory = () => {
             passesFilter(
               filterPanelFormElements.location,
               (stockHistory.location as AccountStockLocation)?._id
-            )
+            ) &&
+            passesFilter(filterPanelFormElements.status, stockHistory.status)
           );
         })
         .map((stockHistory) => {
