@@ -44,14 +44,51 @@ const CountList = ({ countListId }: Props) => {
     product: [],
   });
 
-  function handleLocationUpdate(item: CountListRowType, location: string) {
+  function handleLocationUpdate(item: any, changedLocation: string) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId
     );
-    // updateAccountCountList({
-    //   id: item._id,
-    //   updates: { locations: newLocations },
-    // });
+    if (!currentCountList) return;
+    const newProducts = [
+      ...(currentCountList.products?.filter(
+        (p) =>
+          p.product !==
+          (products.find((it) => it.name === item.product)?._id ?? "")
+      ) || []),
+
+      {
+        product: products.find((it) => it.name === item.product)?._id ?? "",
+        locations: [
+          changedLocation === StockLocationEnum.BAHCELI
+            ? !item.bahceli
+              ? StockLocationEnum.BAHCELI
+              : null
+            : item.bahceli
+            ? StockLocationEnum.BAHCELI
+            : null,
+          changedLocation === StockLocationEnum.NEORAMA
+            ? !item.neorama
+              ? StockLocationEnum.NEORAMA
+              : null
+            : item.neorama
+            ? StockLocationEnum.NEORAMA
+            : null,
+          changedLocation === StockLocationEnum.AMAZON
+            ? !item.amazon
+              ? StockLocationEnum.AMAZON
+              : null
+            : item.amazon
+            ? StockLocationEnum.AMAZON
+            : null,
+        ].filter((location) => location !== null),
+      },
+    ];
+
+    console.log(newProducts);
+    updateAccountCountList({
+      id: currentCountList._id,
+      updates: { products: newProducts },
+    });
     toast.success(`${t("Count List updated successfully")}`);
   }
   const rows = () => {
@@ -64,7 +101,7 @@ const CountList = ({ countListId }: Props) => {
         const product = products.find((it) => it._id === item.product);
         if (product) {
           productRows.push({
-            name: product.name,
+            product: product.name,
             bahceli: item.locations?.includes(StockLocationEnum.BAHCELI),
             neorama: item.locations?.includes(StockLocationEnum.NEORAMA),
             amazon: item.locations?.includes(StockLocationEnum.AMAZON),
@@ -72,6 +109,15 @@ const CountList = ({ countListId }: Props) => {
         }
       }
     }
+    productRows = productRows.sort((a, b) => {
+      if (a.product < b.product) {
+        return -1;
+      }
+      if (a.product > b.product) {
+        return 1;
+      }
+      return 0;
+    });
     return productRows;
   };
   const addProductInputs = [
@@ -104,7 +150,7 @@ const CountList = ({ countListId }: Props) => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "name" },
+    { key: "product" },
     {
       key: "bahceli",
       node: (row: CountListRowType) =>
@@ -218,19 +264,19 @@ const CountList = ({ countListId }: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            if (countListId) {
+            if (countListId && rowToAction) {
+              const currentCountList = countLists.find(
+                (item) => item._id === countListId
+              );
+              const newProducts = currentCountList?.products?.filter(
+                (item) =>
+                  item.product !==
+                  products?.find((p) => p.name === rowToAction.product)?._id
+              );
               updateAccountCountList({
                 id: countListId,
                 updates: {
-                  products: countLists
-                    .find((item) => item._id === countListId)
-                    ?.products?.filter(
-                      (item) =>
-                        item.product !==
-                        products.find(
-                          (item) => item.name === rowToAction.product
-                        )?._id
-                    ),
+                  products: newProducts,
                 },
               });
             }

@@ -10,12 +10,17 @@ import { useGetAccountCountLists } from "../utils/api/account/countList";
 
 const CountListMenu = () => {
   const { t } = useTranslation();
-  const { setCurrentPage, setExpandedRows, setSearchQuery } =
-    useGeneralContext();
+  const {
+    setCurrentPage,
+    setExpandedRows,
+    setSearchQuery,
+    countListActiveTab,
+    setCountListActiveTab,
+  } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
+
   useEffect(() => {
     setTabs([
       ...countLists.map((countList, index) => ({
@@ -34,7 +39,7 @@ const CountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists]);
+  }, [countLists.length]);
 
   return (
     <>
@@ -43,8 +48,8 @@ const CountListMenu = () => {
         <TabPanel
           key={tabPanelKey}
           tabs={tabs.sort((a, b) => a.number - b.number)}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          activeTab={countListActiveTab}
+          setActiveTab={setCountListActiveTab}
           additionalOpenAction={() => {
             setCurrentPage(1);
             setExpandedRows({});
