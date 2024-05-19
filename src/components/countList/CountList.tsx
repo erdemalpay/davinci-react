@@ -333,6 +333,39 @@ const CountList = ({ countListId }: Props) => {
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [countLists, products, countListId]);
+  const locationsConfig = [
+    {
+      enum: StockLocationEnum.BAHCELI,
+      columnKey: "Bahçeli",
+      rowKey: "bahceli",
+    },
+    {
+      enum: StockLocationEnum.NEORAMA,
+      columnKey: "Neorama",
+      rowKey: "neorama",
+    },
+    { enum: StockLocationEnum.AMAZON, columnKey: "Amazon", rowKey: "amazon" },
+  ];
+
+  locationsConfig.forEach(({ enum: locationEnum, columnKey, rowKey }) => {
+    if (
+      !countLists
+        .find((item) => item._id === countListId)
+        ?.locations.includes(locationEnum)
+    ) {
+      const columnIndex = columns.findIndex(
+        (column) => column.key === columnKey
+      );
+      if (columnIndex !== -1) {
+        columns.splice(columnIndex, 1);
+      }
+      const rowKeyIndex = rowKeys.findIndex((rKey) => rKey.key === rowKey);
+      if (rowKeyIndex !== -1) {
+        rowKeys.splice(rowKeyIndex, 1);
+      }
+    }
+  });
+
   return (
     <>
       <div className="w-[95%] my-5 mx-auto ">
