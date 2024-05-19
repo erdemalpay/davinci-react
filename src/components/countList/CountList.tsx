@@ -83,8 +83,6 @@ const CountList = ({ countListId }: Props) => {
         ].filter((location) => location !== null),
       },
     ];
-
-    console.log(newProducts);
     updateAccountCountList({
       id: currentCountList._id,
       updates: { products: newProducts },
