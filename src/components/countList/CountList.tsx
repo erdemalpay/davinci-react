@@ -61,26 +61,26 @@ const CountList = ({ countListId }: Props) => {
         locations: [
           changedLocation === StockLocationEnum.BAHCELI
             ? !item.bahceli
-              ? StockLocationEnum.BAHCELI
-              : null
+              ? (StockLocationEnum.BAHCELI as string)
+              : ""
             : item.bahceli
-            ? StockLocationEnum.BAHCELI
-            : null,
+            ? (StockLocationEnum.BAHCELI as string)
+            : "",
           changedLocation === StockLocationEnum.NEORAMA
             ? !item.neorama
-              ? StockLocationEnum.NEORAMA
-              : null
+              ? (StockLocationEnum.NEORAMA as string)
+              : ""
             : item.neorama
-            ? StockLocationEnum.NEORAMA
-            : null,
+            ? (StockLocationEnum.NEORAMA as string)
+            : "",
           changedLocation === StockLocationEnum.AMAZON
             ? !item.amazon
-              ? StockLocationEnum.AMAZON
-              : null
+              ? (StockLocationEnum.AMAZON as string)
+              : ""
             : item.amazon
-            ? StockLocationEnum.AMAZON
-            : null,
-        ].filter((location) => location !== null),
+            ? (StockLocationEnum.AMAZON as string)
+            : "",
+        ].filter((location) => location !== ""),
       },
     ];
     updateAccountCountList({
@@ -211,7 +211,7 @@ const CountList = ({ countListId }: Props) => {
 
   const addButton = {
     name: t("Add Product"),
-    icon: null,
+    icon: "",
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     isModal: true,
     modal: countListId ? (
@@ -247,7 +247,9 @@ const CountList = ({ countListId }: Props) => {
           });
         }}
       />
-    ) : null,
+    ) : (
+      ""
+    ),
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
@@ -284,7 +286,9 @@ const CountList = ({ countListId }: Props) => {
           title={t("Delete Count List Item")}
           text={`${rowToAction.product} ${t("GeneralDeleteMessage")}`}
         />
-      ) : null,
+      ) : (
+        ""
+      ),
       className: "text-red-500 cursor-pointer text-2xl  ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
