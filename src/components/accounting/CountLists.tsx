@@ -23,12 +23,12 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 const CountLists = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -144,7 +144,7 @@ const CountLists = () => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => {
-          setMenuActiveTab(menuActiveTab + 1);
+          setCountListActiveTab(countListActiveTab + 1);
           setIsAddModalOpen(false);
         }}
         inputs={inputs}
@@ -172,7 +172,7 @@ const CountLists = () => {
           }}
           confirm={() => {
             deleteAccountCountList(rowToAction?._id);
-            setMenuActiveTab(menuActiveTab - 1);
+            setCountListActiveTab(countListActiveTab - 1);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count List")}
