@@ -4,7 +4,17 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { StockLocationEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  StockLocationEnum,
+  User,
+} from "../../types";
+import {
+  useAccountCountMutations,
+  useGetAccountCounts,
+} from "../../utils/api/account/count";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -31,6 +41,7 @@ type CountListRowType = {
 const CountList = ({ countListId }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
@@ -44,6 +55,7 @@ const CountList = ({ countListId }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<CountListRowType>();
+  const { createAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const [form, setForm] = useState({
     product: [],
@@ -51,6 +63,7 @@ const CountList = ({ countListId }: Props) => {
   const [countLocationForm, setCountLocationForm] = useState({
     location: "",
   });
+  const counts = useGetAccountCounts();
 
   const countLocationInputs = [
     StockLocationInput({
@@ -404,8 +417,30 @@ const CountList = ({ countListId }: Props) => {
             inputs={countLocationInputs}
             formKeys={countLocationFormKeys}
             submitItem={() => {}}
-            submitFunction={() => {
-              if (countLocationForm.location === "") return;
+            submitFunction={async () => {
+              if (countLocationForm.location === "" || !user) return;
+              if (
+                counts?.filter((item) => {
+                  return (
+                    item.isCompleted === false &&
+                    (item.location as AccountStockLocation)._id ===
+                      countLocationForm.location &&
+                    (item.user as User)._id === user._id &&
+                    (item.countList as AccountCountList)._id === countListId
+                  );
+                }).length > 0
+              ) {
+                toast.error(t("Count already exists and not finished"));
+                return;
+              }
+              createAccountCount({
+                location: countLocationForm.location,
+                countList: countListId,
+                isCompleted: false,
+                createdAt: new Date(),
+                user: user._id,
+              });
+
               navigate(`/count/${countLocationForm.location}/${countListId}`);
             }}
             setForm={setCountLocationForm}
