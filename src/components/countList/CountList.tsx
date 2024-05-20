@@ -10,12 +10,14 @@ import {
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
 import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { StockLocationInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { H5 } from "../panelComponents/Typography";
 
 type Props = {
   countListId: string;
@@ -29,10 +31,13 @@ type CountListRowType = {
 const CountList = ({ countListId }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const locations = useGetAccountStockLocations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
+    useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -43,7 +48,22 @@ const CountList = ({ countListId }: Props) => {
   const [form, setForm] = useState({
     product: [],
   });
+  const [countLocationForm, setCountLocationForm] = useState({
+    location: "",
+  });
 
+  const countLocationInputs = [
+    StockLocationInput({
+      locations: locations.filter((l) =>
+        countLists
+          .find((row) => row._id === countListId)
+          ?.locations?.includes(l._id)
+      ),
+    }),
+  ];
+  const countLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
   function handleLocationUpdate(item: any, changedLocation: string) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId
@@ -300,14 +320,12 @@ const CountList = ({ countListId }: Props) => {
     {
       isUpperSide: true,
       node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-          onClick={() => {
-            navigate(`/count/${countListId}`);
+        <ButtonFilter
+          buttonName={t("Count")}
+          onclick={() => {
+            setIsCountLocationModalOpen(true);
           }}
-        >
-          <H5> {t("Count")}</H5>
-        </button>
+        />
       ),
     },
     {
@@ -379,6 +397,23 @@ const CountList = ({ countListId }: Props) => {
           filters={filters}
           title={countLists.find((row) => row._id === countListId)?.name}
         />
+        {isCountLocationModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isCountLocationModalOpen}
+            close={() => setIsCountLocationModalOpen(false)}
+            inputs={countLocationInputs}
+            formKeys={countLocationFormKeys}
+            submitItem={() => {}}
+            submitFunction={() => {
+              if (countLocationForm.location === "") return;
+              navigate(`/count/${countLocationForm.location}/${countListId}`);
+            }}
+            setForm={setCountLocationForm}
+            isEditMode={false}
+            topClassName="flex flex-col gap-2 "
+            buttonName={t("Submit")}
+          />
+        )}
       </div>
     </>
   );

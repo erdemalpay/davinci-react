@@ -41,7 +41,7 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
-  Count = "/count/:countListId",
+  Count = "/count/:location/:countListId",
   Product = "/product/:productId",
   Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
