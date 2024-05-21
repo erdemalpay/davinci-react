@@ -70,8 +70,8 @@ const FixtureStock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        fxtr: (stock.fixture as AccountFixture).name,
-        lctn: (stock.location as AccountStockLocation).name,
+        fxtr: (stock.fixture as AccountFixture)?.name,
+        lctn: (stock.location as AccountStockLocation)?.name,
         unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
         totalPrice: parseFloat(
           (
@@ -299,8 +299,8 @@ const FixtureStock = () => {
       .map((stock) => {
         return {
           ...stock,
-          fxtr: (stock.fixture as AccountFixture).name,
-          lctn: (stock.location as AccountStockLocation).name,
+          fxtr: (stock.fixture as AccountFixture)?.name,
+          lctn: (stock.location as AccountStockLocation)?.name,
           unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
           totalPrice: parseFloat(
             (
