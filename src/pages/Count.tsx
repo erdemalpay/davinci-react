@@ -1,201 +1,103 @@
-// import { format } from "date-fns";
-// import { useEffect, useState } from "react";
-// import { useTranslation } from "react-i18next";
-// import { useNavigate, useParams } from "react-router-dom";
-// import { toast } from "react-toastify";
-// import { Header } from "../components/header/Header";
-// import TextInput from "../components/panelComponents/FormElements/TextInput";
-// import { H5 } from "../components/panelComponents/Typography";
-// import { useGeneralContext } from "../context/General.context";
-// import { useUserContext } from "../context/User.context";
-// import { Routes } from "../navigation/constants";
-// import { AccountStockLocation, StocksPageTabEnum } from "../types";
-// import { useAccountCountMutations } from "../utils/api/account/count";
-// import { useGetAccountCountLists } from "../utils/api/account/countList";
-// import { useGetAccountProducts } from "../utils/api/account/product";
-
-// const Count = () => {
-//   const { t } = useTranslation();
-//   const { user } = useUserContext();
-//   const navigate = useNavigate();
-//   const [countProductsKey, setCountProductsKey] = useState(0);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const products = useGetAccountProducts();
-//   const { setAccountingActiveTab } = useGeneralContext();
-//   const { createAccountCount } = useAccountCountMutations();
-//   const countLists = useGetAccountCountLists();
-//   const [countProducts, setCountProducts] = useState<
-//     {
-//       product: string;
-//       stockQuantity: number;
-//       countQuantity: number | string;
-//     }[]
-//   >([]);
-//   const { countListId } = useParams();
-
-//   useEffect(() => {
-//     const localData = localStorage.getItem(`count-${countListId}`);
-//     if (localData) {
-//       setCountProducts(JSON.parse(localData));
-//     } else {
-//       const foundList = countLists.find((item) => item._id === countListId);
-
-//       if (foundList?.products) {
-//         const newCountProducts = foundList.products.map((item) => ({
-//           product: item.product,
-//           stockQuantity: 0,
-//           countQuantity: "",
-//         }));
-//         setCountProducts(newCountProducts);
-//         localStorage.setItem(
-//           `count-${countListId}`,
-//           JSON.stringify(newCountProducts)
-//         );
-//       }
-//     }
-//     setCountProductsKey((prev) => prev + 1);
-//   }, [countListId, countLists]);
-
-//   const handleCountProductChange = (
-//     product: string,
-//     key: string,
-//     value: any
-//   ) => {
-//     const newCountProducts = countProducts?.map((item) => {
-//       if (item.product === product) {
-//         return {
-//           ...item,
-//           [key]: value,
-//         };
-//       }
-//       return item;
-//     });
-
-//     setCountProducts(newCountProducts);
-//     localStorage.setItem(
-//       `count-${countListId}`,
-//       JSON.stringify(newCountProducts)
-//     );
-//   };
-//   const submitFunction = () => {
-//     if (
-//       user &&
-//       countProducts?.filter((item) => item.countQuantity === "").length === 0 &&
-//       countProducts.length > 0
-//     ) {
-//       createAccountCount({
-//         location: (
-//           countLists.find((item) => item._id === countListId)
-//             ?.location as AccountStockLocation
-//         )._id,
-//         countList: countListId,
-//         status: false,
-//         date: format(new Date(), "yyyy-MM-dd"),
-//         user: user._id,
-//         products: countProducts.map((item) => ({
-//           product: item.product,
-//           countQuantity: item.countQuantity as number,
-//           stockQuantity: item.stockQuantity,
-//         })),
-//       });
-//       const foundList = countLists.find((item) => item._id === countListId);
-//       if (foundList?.products) {
-//         const newCountProducts = foundList.products.map((product) => ({
-//           product: product,
-//           stockQuantity: 0,
-//           countQuantity: "",
-//         }));
-//         setCountProducts(newCountProducts);
-
-//         localStorage.setItem(
-//           `count-${countListId}`,
-//           JSON.stringify(newCountProducts)
-//         );
-//         setCountProductsKey((prev) => prev + 1);
-//       }
-//       setAccountingActiveTab(StocksPageTabEnum.COUNTLIST);
-//       navigate(Routes.Stocks);
-//     } else {
-//       toast.error(t("Please fill all the fields"));
-//     }
-//   };
-
-//   return (
-//     <>
-//       <Header />
-//       <div className="my-10 px-4 sm:px-10  flex flex-col gap-4">
-//         {/* search button */}
-//         <input
-//           type="text"
-//           value={searchQuery}
-//           onChange={(e) => {
-//             setSearchQuery(e.target.value);
-//           }}
-//           placeholder={t("Search")}
-//           className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
-//         />
-//         {/* count inputs */}
-//         <div
-//           key={countProductsKey}
-//           className=" flex flex-col gap-2 sm:grid sm:grid-cols-1 md:grid-cols-3 __className_a182b8"
-//         >
-//           {countListId &&
-//             countProducts &&
-//             countLists
-//               .find((row) => row._id === countListId)
-//               ?.products?.filter((item) => {
-//                 return products
-//                   .find((o) => o._id === item)
-//                   ?.name.toLowerCase()
-//                   .includes(searchQuery.toLowerCase());
-//               })
-//               ?.map((product) => {
-//                 const currentProduct = products.find(
-//                   (item) => item._id === product
-//                 );
-//                 const currentValue = countProducts
-//                   ?.find((item) => item.product === currentProduct?._id)
-//                   ?.countQuantity?.toString();
-
-//                 return (
-//                   <div
-//                     key={currentProduct?._id}
-//                     className="border border-gray-200 rounded-md px-4 py-1"
-//                   >
-//                     <TextInput
-//                       label={currentProduct?.name ?? ""}
-//                       value={currentValue ?? ""}
-//                       onChange={(target) => {
-//                         handleCountProductChange(
-//                           currentProduct?._id ?? "",
-//                           "countQuantity",
-//                           target
-//                         );
-//                       }}
-//                       type="number"
-//                       inputWidth={"w-[30%] ml-auto "}
-//                       isTopFlexRow={true}
-//                     />
-//                   </div>
-//                 );
-//               })}
-//         </div>
-//         {/* complete button */}
-//         <button
-//           className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-//           onClick={submitFunction}
-//         >
-//           <H5> {t("Complete")}</H5>
-//         </button>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Count;
-
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { Header } from "../components/header/Header";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { AccountCountList, AccountStockLocation, User } from "../types";
+import {
+  useAccountCountMutations,
+  useGetAccountCounts,
+} from "../utils/api/account/count";
+import { useGetAccountCountLists } from "../utils/api/account/countList";
+import { useGetAccountProducts } from "../utils/api/account/product";
 const Count = () => {
-  return <div>Count</div>;
+  const { t } = useTranslation();
+  const { user } = useUserContext();
+  const navigate = useNavigate();
+  const products = useGetAccountProducts();
+  const counts = useGetAccountCounts();
+  const { setAccountingActiveTab } = useGeneralContext();
+  const { createAccountCount } = useAccountCountMutations();
+  const countLists = useGetAccountCountLists();
+  const [tableKey, setTableKey] = useState(0);
+  const { location, countListId } = useParams();
+  console.log(
+    counts?.find((item) => {
+      return (
+        item.isCompleted === false &&
+        (item.location as AccountStockLocation)._id === location &&
+        (item.user as User)._id === user?._id &&
+        (item.countList as AccountCountList)._id === countListId
+      );
+    })
+  );
+
+  const [rows, setRows] = useState(
+    countLists
+      .find((cl) => cl._id === countListId)
+      ?.products?.map((item) => {
+        if (location && item.locations.includes(location)) {
+          return {
+            product: products.find((p) => p._id === item.product)?.name || "",
+          };
+        }
+        return { product: "" };
+      })
+      .filter((item) => item.product !== "") || []
+  );
+  useEffect(() => {
+    setRows(
+      countLists
+        .find((cl) => cl._id === countListId)
+        ?.products?.map((item) => {
+          if (location && item.locations.includes(location)) {
+            return {
+              product: products.find((p) => p._id === item.product)?.name || "",
+              collapsible: {
+                collapsibleHeader: t("Package Details"),
+                collapsibleColumns: [
+                  { key: t("Package Type"), isSortable: true },
+                  { key: t("Quantity"), isSortable: true },
+                  {
+                    key: t("Action"),
+                    isSortable: false,
+                    className: "text-center",
+                  },
+                ],
+                collapsibleRows: [],
+                collapsibleRowKeys: [
+                  { key: "packageType" },
+                  { key: "quantity" },
+                ],
+              },
+            };
+          }
+          return { product: "" };
+        })
+        .filter((item) => item.product !== "") || []
+    );
+    setTableKey((prev) => prev + 1);
+  }, [countListId, countLists, location, products, counts]);
+
+  const columns = [{ key: t("Product"), isSortable: true }];
+  const rowKeys = [{ key: "product" }];
+  return (
+    <>
+      <Header />
+      <div className="w-[95%] my-10 mx-auto ">
+        <GenericTable
+          key={tableKey}
+          rowKeys={rowKeys}
+          columns={columns}
+          rows={rows}
+          title={t("Count")}
+          isCollapsible={products.length > 0}
+        />
+      </div>
+    </>
+  );
 };
 
 export default Count;
