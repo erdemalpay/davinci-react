@@ -88,11 +88,11 @@ const Stock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        prdct: (stock.product as AccountProduct).name,
+        prdct: (stock.product as AccountProduct)?.name,
         pckgType: (stock?.packageType as AccountPackageType)?.name,
-        lctn: (stock.location as AccountStockLocation).name,
+        lctn: (stock.location as AccountStockLocation)?.name,
         unit: units?.find(
-          (unit) => unit._id === (stock.product as AccountProduct).unit
+          (unit) => unit._id === (stock.product as AccountProduct)?.unit
         )?.name,
         unitPrice: stock?.packageType
           ? (stock.product as AccountProduct).packages?.find(
@@ -332,7 +332,7 @@ const Stock = () => {
           ...stock,
           prdct: (stock.product as AccountProduct).name,
           pckgType: (stock?.packageType as AccountPackageType)?.name,
-          lctn: (stock.location as AccountStockLocation).name,
+          lctn: (stock.location as AccountStockLocation)?.name,
           unitPrice: stock?.packageType
             ? (stock.product as AccountProduct).packages?.find(
                 (pkg) =>

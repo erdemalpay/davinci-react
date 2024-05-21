@@ -12,7 +12,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
-import SingleCountArchive from "../pages/SingleCountArchive";
+// import SingleCountArchive from "../pages/SingleCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -149,12 +149,12 @@ export const allRoutes: {
       element: Fixture,
       isOnSidebar: false,
     },
-    {
-      name: "Single Count Archive",
-      path: Routes.SingleCountArchive,
-      element: SingleCountArchive,
-      isOnSidebar: false,
-    },
+    // {
+    //   name: "Single Count Archive",
+    //   path: Routes.SingleCountArchive,
+    //   element: SingleCountArchive,
+    //   isOnSidebar: false,
+    // },
     {
       name: "Accounting",
       path: Routes.Accounting,
