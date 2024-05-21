@@ -371,18 +371,17 @@ const CountList = ({ countListId }: Props) => {
                   );
                 }).length > 0
               ) {
-                toast.error(t("Count already exists and not finished"));
-                return;
+                navigate(`/count/${countLocationForm.location}/${countListId}`);
+              } else {
+                createAccountCount({
+                  location: countLocationForm.location,
+                  countList: countListId,
+                  isCompleted: false,
+                  createdAt: new Date(),
+                  user: user._id,
+                });
+                navigate(`/count/${countLocationForm.location}/${countListId}`);
               }
-              createAccountCount({
-                location: countLocationForm.location,
-                countList: countListId,
-                isCompleted: false,
-                createdAt: new Date(),
-                user: user._id,
-              });
-
-              navigate(`/count/${countLocationForm.location}/${countListId}`);
             }}
             setForm={setCountLocationForm}
             isEditMode={false}
