@@ -4,47 +4,80 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { StockLocationEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountCountList, AccountStockLocation, User } from "../../types";
+import {
+  useAccountCountMutations,
+  useGetAccountCounts,
+} from "../../utils/api/account/count";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
 import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { StockLocationInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { H5 } from "../panelComponents/Typography";
 
 type Props = {
   countListId: string;
 };
-type CountListRowType = {
-  product: string;
-  bahceli: boolean;
-  neorama: boolean;
-  amazon: boolean;
-};
+interface LocationEntries {
+  [key: string]: boolean;
+}
+
 const CountList = ({ countListId }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useUserContext();
+  const locations = useGetAccountStockLocations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
+    useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<CountListRowType>();
+  const { createAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const [form, setForm] = useState({
     product: [],
   });
+  type CountListRowType = {
+    product: string;
+  };
+  const [countLocationForm, setCountLocationForm] = useState({
+    location: "",
+  });
+  const counts = useGetAccountCounts();
 
-  function handleLocationUpdate(item: any, changedLocation: string) {
+  const countLocationInputs = [
+    StockLocationInput({
+      locations: locations.filter((l) =>
+        countLists
+          .find((row) => row._id === countListId)
+          ?.locations?.includes(l._id)
+      ),
+    }),
+  ];
+  const countLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
+  function handleLocationUpdate(row: any, changedLocationId: string) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId
     );
@@ -53,40 +86,30 @@ const CountList = ({ countListId }: Props) => {
       ...(currentCountList.products?.filter(
         (p) =>
           p.product !==
-          (products.find((it) => it.name === item.product)?._id ?? "")
+          (products.find((it) => it.name === row.product)?._id ?? "")
       ) || []),
 
       {
-        product: products.find((it) => it.name === item.product)?._id ?? "",
-        locations: [
-          changedLocation === StockLocationEnum.BAHCELI
-            ? !item.bahceli
-              ? (StockLocationEnum.BAHCELI as string)
-              : ""
-            : item.bahceli
-            ? (StockLocationEnum.BAHCELI as string)
-            : "",
-          changedLocation === StockLocationEnum.NEORAMA
-            ? !item.neorama
-              ? (StockLocationEnum.NEORAMA as string)
-              : ""
-            : item.neorama
-            ? (StockLocationEnum.NEORAMA as string)
-            : "",
-          changedLocation === StockLocationEnum.AMAZON
-            ? !item.amazon
-              ? (StockLocationEnum.AMAZON as string)
-              : ""
-            : item.amazon
-            ? (StockLocationEnum.AMAZON as string)
-            : "",
-        ].filter((location) => location !== ""),
+        product: products.find((it) => it.name === row.product)?._id ?? "",
+        locations: Object.entries(row).reduce((acc, [key, value]) => {
+          if (key === "product" || typeof key !== "string") return acc;
+          if (key === changedLocationId) {
+            if (!value) {
+              acc.push(key);
+            }
+          } else if (value) {
+            acc.push(key);
+          }
+          return acc;
+        }, [] as string[]),
       },
     ];
+
     updateAccountCountList({
       id: currentCountList._id,
       updates: { products: newProducts },
     });
+
     toast.success(`${t("Count List updated successfully")}`);
   }
   const rows = () => {
@@ -98,11 +121,17 @@ const CountList = ({ countListId }: Props) => {
       for (let item of currentCountList.products) {
         const product = products.find((it) => it._id === item.product);
         if (product) {
+          const locationEntries = locations?.reduce<LocationEntries>(
+            (acc, location) => {
+              acc[location._id] =
+                item.locations?.includes(location._id) ?? false;
+              return acc;
+            },
+            {}
+          );
           productRows.push({
             product: product.name,
-            bahceli: item.locations?.includes(StockLocationEnum.BAHCELI),
-            neorama: item.locations?.includes(StockLocationEnum.NEORAMA),
-            amazon: item.locations?.includes(StockLocationEnum.AMAZON),
+            ...locationEntries,
           });
         }
       }
@@ -140,74 +169,30 @@ const CountList = ({ countListId }: Props) => {
     },
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
-    { key: "Amazon", isSortable: false },
-    { key: t("Actions"), isSortable: false },
-  ];
-  const rowKeys = [
-    { key: "product" },
-    {
-      key: "bahceli",
-      node: (row: CountListRowType) =>
+  const columns = [{ key: t("Name"), isSortable: true }];
+  const rowKeys: RowKeyType<any>[] = [{ key: "product" }];
+  locations.forEach((item) => {
+    columns.push({ key: t(item.name), isSortable: true });
+    rowKeys.push({
+      key: item._id,
+      node: (row: any) =>
         isEnableEdit ? (
           <CheckSwitch
-            checked={row.bahceli}
-            onChange={() =>
-              handleLocationUpdate(row, StockLocationEnum.BAHCELI)
-            }
+            checked={row[item._id]}
+            onChange={() => handleLocationUpdate(row, item._id)}
           />
         ) : (
           <p
             className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.bahceli ? "bg-green-500" : "bg-red-500"
+              row[item._id] ? "bg-green-500" : "bg-red-500"
             }`}
           >
-            {row.bahceli ? t("Yes") : t("No")}
+            {row[item._id] ? t("Yes") : t("No")}
           </p>
         ),
-    },
-    {
-      key: "neorama",
-      node: (row: CountListRowType) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.neorama}
-            onChange={() =>
-              handleLocationUpdate(row, StockLocationEnum.NEORAMA)
-            }
-          />
-        ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.neorama ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {row.neorama ? t("Yes") : t("No")}
-          </p>
-        ),
-    },
-    {
-      key: "amazon",
-      node: (row: CountListRowType) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.amazon}
-            onChange={() => handleLocationUpdate(row, StockLocationEnum.AMAZON)}
-          />
-        ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.amazon ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {row.amazon ? t("Yes") : t("No")}
-          </p>
-        ),
-    },
-  ];
+    });
+  });
+  columns.push({ key: t("Actions"), isSortable: false });
 
   const addButton = {
     name: t("Add Product"),
@@ -280,7 +265,6 @@ const CountList = ({ countListId }: Props) => {
                 },
               });
             }
-
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count List Item")}
@@ -300,14 +284,12 @@ const CountList = ({ countListId }: Props) => {
     {
       isUpperSide: true,
       node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-          onClick={() => {
-            navigate(`/count/${countListId}`);
+        <ButtonFilter
+          buttonName={t("Count")}
+          onclick={() => {
+            setIsCountLocationModalOpen(true);
           }}
-        >
-          <H5> {t("Count")}</H5>
-        </button>
+        />
       ),
     },
     {
@@ -333,33 +315,23 @@ const CountList = ({ countListId }: Props) => {
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [countLists, products, countListId]);
-  const locationsConfig = [
-    {
-      enum: StockLocationEnum.BAHCELI,
-      columnKey: "Bahçeli",
-      rowKey: "bahceli",
-    },
-    {
-      enum: StockLocationEnum.NEORAMA,
-      columnKey: "Neorama",
-      rowKey: "neorama",
-    },
-    { enum: StockLocationEnum.AMAZON, columnKey: "Amazon", rowKey: "amazon" },
-  ];
 
-  locationsConfig.forEach(({ enum: locationEnum, columnKey, rowKey }) => {
+  // adjust columns and rowkeys  according to locations deletes if neccessary
+  locations.forEach((location) => {
     if (
       !countLists
         .find((item) => item._id === countListId)
-        ?.locations.includes(locationEnum)
+        ?.locations.includes(location._id)
     ) {
       const columnIndex = columns.findIndex(
-        (column) => column.key === columnKey
+        (column) => column.key === location.name
       );
       if (columnIndex !== -1) {
         columns.splice(columnIndex, 1);
       }
-      const rowKeyIndex = rowKeys.findIndex((rKey) => rKey.key === rowKey);
+      const rowKeyIndex = rowKeys.findIndex(
+        (rKey) => rKey.key === location._id
+      );
       if (rowKeyIndex !== -1) {
         rowKeys.splice(rowKeyIndex, 1);
       }
@@ -379,6 +351,45 @@ const CountList = ({ countListId }: Props) => {
           filters={filters}
           title={countLists.find((row) => row._id === countListId)?.name}
         />
+        {isCountLocationModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isCountLocationModalOpen}
+            close={() => setIsCountLocationModalOpen(false)}
+            inputs={countLocationInputs}
+            formKeys={countLocationFormKeys}
+            submitItem={() => {}}
+            submitFunction={async () => {
+              if (countLocationForm.location === "" || !user) return;
+              if (
+                counts?.filter((item) => {
+                  return (
+                    item.isCompleted === false &&
+                    (item.location as AccountStockLocation)._id ===
+                      countLocationForm.location &&
+                    (item.user as User)._id === user._id &&
+                    (item.countList as AccountCountList)._id === countListId
+                  );
+                }).length > 0
+              ) {
+                toast.error(t("Count already exists and not finished"));
+                return;
+              }
+              createAccountCount({
+                location: countLocationForm.location,
+                countList: countListId,
+                isCompleted: false,
+                createdAt: new Date(),
+                user: user._id,
+              });
+
+              navigate(`/count/${countLocationForm.location}/${countListId}`);
+            }}
+            setForm={setCountLocationForm}
+            isEditMode={false}
+            topClassName="flex flex-col gap-2 "
+            buttonName={t("Submit")}
+          />
+        )}
       </div>
     </>
   );

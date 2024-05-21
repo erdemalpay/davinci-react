@@ -7,16 +7,17 @@ import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountCountList, StockLocationEnum } from "../../types";
+import { AccountCountList } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -25,6 +26,7 @@ const CountLists = () => {
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
+  const locations = useGetAccountStockLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -54,86 +56,32 @@ const CountLists = () => {
     });
     toast.success(`${t("Count List updated successfully")}`);
   }
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
-    { key: "Amazon", isSortable: false },
-    { key: t("Actions"), isSortable: false },
-  ];
-  const rowKeys = [
-    { key: "name" },
-    {
-      key: "bahceli",
+  const columns = [{ key: t("Name"), isSortable: true }];
+  const rowKeys: RowKeyType<AccountCountList>[] = [{ key: "name" }];
+  for (const location of locations) {
+    columns.push({ key: t(location.name), isSortable: true });
+    rowKeys.push({
+      key: location._id,
       node: (row: AccountCountList) =>
         isEnableEdit ? (
           <CheckSwitch
-            checked={row.locations?.includes(StockLocationEnum.BAHCELI)}
-            onChange={() =>
-              handleLocationUpdate(row, StockLocationEnum.BAHCELI)
-            }
+            checked={row.locations?.includes(location._id)}
+            onChange={() => handleLocationUpdate(row, location._id)}
           />
         ) : (
           <p
             className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations?.includes(StockLocationEnum.BAHCELI)
+              row.locations?.includes(location._id)
                 ? "bg-green-500"
                 : "bg-red-500"
             }`}
           >
-            {row.locations?.includes(StockLocationEnum.BAHCELI)
-              ? t("Yes")
-              : t("No")}
+            {row.locations?.includes(location._id) ? t("Yes") : t("No")}
           </p>
         ),
-    },
-    {
-      key: "neorama",
-      node: (row: AccountCountList) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.locations?.includes(StockLocationEnum.NEORAMA)}
-            onChange={() =>
-              handleLocationUpdate(row, StockLocationEnum.NEORAMA)
-            }
-          />
-        ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations?.includes(StockLocationEnum.NEORAMA)
-                ? "bg-green-500"
-                : "bg-red-500"
-            }`}
-          >
-            {row.locations?.includes(StockLocationEnum.NEORAMA)
-              ? t("Yes")
-              : t("No")}
-          </p>
-        ),
-    },
-    {
-      key: "amazon",
-      node: (row: AccountCountList) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.locations?.includes(StockLocationEnum.AMAZON)}
-            onChange={() => handleLocationUpdate(row, StockLocationEnum.AMAZON)}
-          />
-        ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations?.includes(StockLocationEnum.AMAZON)
-                ? "bg-green-500"
-                : "bg-red-500"
-            }`}
-          >
-            {row.locations?.includes(StockLocationEnum.AMAZON)
-              ? t("Yes")
-              : t("No")}
-          </p>
-        ),
-    },
-  ];
+    });
+  }
+  columns.push({ key: t("Actions"), isSortable: false });
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 

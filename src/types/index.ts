@@ -113,12 +113,14 @@ export type AccountCountList = {
 };
 export type AccountCount = {
   _id: string;
-  status: boolean;
-  date: string;
+  isCompleted: boolean;
+  createdAt: Date;
+  completedAt?: Date;
   location: string | AccountStockLocation;
   user: string | User;
   products?: {
     product: string;
+    packageType: string;
     stockQuantity: number;
     countQuantity: number;
   }[];
@@ -371,7 +373,6 @@ export enum StocksPageTabEnum {
   STOCK,
   FIXTURESTOCK,
   ENTERCONSUMPTION,
-  COUNTARCHIVE,
   PRODUCTSTOCKHISTORY,
   FIXTURESTOCKHISTORY,
 }

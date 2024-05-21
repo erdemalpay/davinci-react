@@ -327,5 +327,6 @@
   "Stock Delete": "Stok Silme",
   "Fixture Stock History": "Demirbaş Stok Geçmişi",
   "Expense Delete": "Gider Silme",
+  "Count already exists and not finished": "Sayım zaten var ve tamamlanmamış",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

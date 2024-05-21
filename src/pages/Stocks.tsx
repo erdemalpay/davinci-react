@@ -1,13 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { FaFileArchive } from "react-icons/fa";
-import { FiArchive } from "react-icons/fi";
 import {
   GiArchiveResearch,
   GiEatingPelican,
   GiGreatPyramid,
 } from "react-icons/gi";
 import { SlBasketLoaded } from "react-icons/sl";
-import CountArchive from "../components/accounting/CountArchive";
+// import CountArchive from "../components/accounting/CountArchive";
 import FixtureStock from "../components/accounting/FixtureStock";
 import FixtureStockHistory from "../components/accounting/FixtureStockHistory";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -48,13 +47,13 @@ export default function Stocks() {
       content: <EnterConsumption />,
       isDisabled: false,
     },
-    {
-      number: StocksPageTabEnum.COUNTARCHIVE,
-      label: t("Count Archives"),
-      icon: <FiArchive className="text-lg font-thin" />,
-      content: <CountArchive />,
-      isDisabled: false,
-    },
+    // {
+    //   number: StocksPageTabEnum.COUNTARCHIVE,
+    //   label: t("Count Archives"),
+    //   icon: <FiArchive className="text-lg font-thin" />,
+    //   content: <CountArchive />,
+    //   isDisabled: false,
+    // },
     {
       number: StocksPageTabEnum.PRODUCTSTOCKHISTORY,
       label: t("Product Stock History"),
