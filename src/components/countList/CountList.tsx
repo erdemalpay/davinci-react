@@ -77,7 +77,7 @@ const CountList = ({ countListId }: Props) => {
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  function handleLocationUpdate(row: any, changedLocation: string) {
+  function handleLocationUpdate(row: any, changedLocationId: string) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId
     );
@@ -93,9 +93,9 @@ const CountList = ({ countListId }: Props) => {
         product: products.find((it) => it.name === row.product)?._id ?? "",
         locations: Object.entries(row).reduce((acc, [key, value]) => {
           if (key === "product" || typeof key !== "string") return acc;
-          if (key === changedLocation) {
+          if (key === changedLocationId) {
             if (!value) {
-              acc.push(changedLocation);
+              acc.push(key);
             }
           } else if (value) {
             acc.push(key);
@@ -121,15 +121,14 @@ const CountList = ({ countListId }: Props) => {
       for (let item of currentCountList.products) {
         const product = products.find((it) => it._id === item.product);
         if (product) {
-          const locationEntries = locations.reduce<LocationEntries>(
+          const locationEntries = locations?.reduce<LocationEntries>(
             (acc, location) => {
               acc[location._id] =
-                item.locations?.includes(location._id) ?? false; // Default to false if undefined
+                item.locations?.includes(location._id) ?? false;
               return acc;
             },
             {}
           );
-
           productRows.push({
             product: product.name,
             ...locationEntries,
@@ -171,7 +170,7 @@ const CountList = ({ countListId }: Props) => {
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<CountListRowType>[] = [{ key: "product" }];
+  const rowKeys: RowKeyType<any>[] = [{ key: "product" }];
   locations.forEach((item) => {
     columns.push({ key: t(item.name), isSortable: true });
     rowKeys.push({
@@ -317,6 +316,7 @@ const CountList = ({ countListId }: Props) => {
     setTableKey((prev) => prev + 1);
   }, [countLists, products, countListId]);
 
+  // adjust columns and rowkeys  according to locations deletes if neccessary
   locations.forEach((location) => {
     if (
       !countLists
