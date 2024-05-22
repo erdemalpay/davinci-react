@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import CountArchive from "../components/accounting/CountArchive";
 import CountLists from "../components/accounting/CountLists";
 import CountList from "../components/countList/CountList";
 import { Header } from "../components/header/Header";
@@ -32,6 +33,13 @@ const CountListMenu = () => {
       })),
       {
         number: countLists.length,
+        label: t("Count Archive"),
+        icon: null,
+        content: <CountArchive />,
+        isDisabled: false,
+      },
+      {
+        number: countLists.length + 1,
         label: t("Count Lists"),
         icon: null,
         content: <CountLists />,
