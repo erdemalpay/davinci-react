@@ -438,7 +438,7 @@ const GenericTable = <T,>({
                       addCollapsible.className
                         ? `${addCollapsible.className}`
                         : "bg-black border-black hover:text-black"
-                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
                     onClick={() => actionOnClick(addCollapsible, row)}
                   >
                     <H5>{addCollapsible.name}</H5>
