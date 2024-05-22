@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
@@ -8,7 +8,6 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountCountList, AccountStockLocation, User } from "../types";
 import {
@@ -22,15 +21,13 @@ import { useGetAccountStocks } from "../utils/api/account/stock";
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
-  const navigate = useNavigate();
   const products = useGetAccountProducts();
   const packages = useGetAccountPackageTypes();
   const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
   const [rowToAction, setRowToAction] = useState<any>();
-  const { setAccountingActiveTab } = useGeneralContext();
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
-  const { createAccountCount, updateAccountCount } = useAccountCountMutations();
+  const { updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { location, countListId } = useParams();
@@ -68,7 +65,9 @@ const Count = () => {
                 ?.filter((p) => p.product === item.product)
                 ?.map((p) => {
                   return {
-                    packageType: p.packageType,
+                    packageType:
+                      packages.find((pck) => pck._id === p.packageType)?.name ||
+                      "",
                     quantity: p.countQuantity,
                   };
                 }),
@@ -111,7 +110,9 @@ const Count = () => {
                   ?.filter((p) => p.product === item.product)
                   ?.map((p) => {
                     return {
-                      packageType: p.packageType,
+                      packageType:
+                        packages.find((pck) => pck._id === p.packageType)
+                          ?.name || "",
                       quantity: p.countQuantity,
                     };
                   }),
