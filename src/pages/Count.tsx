@@ -18,6 +18,7 @@ import {
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountPackageTypes } from "../utils/api/account/packageType";
 import { useGetAccountProducts } from "../utils/api/account/product";
+import { useGetAccountStocks } from "../utils/api/account/stock";
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
@@ -25,6 +26,7 @@ const Count = () => {
   const products = useGetAccountProducts();
   const packages = useGetAccountPackageTypes();
   const counts = useGetAccountCounts();
+  const stocks = useGetAccountStocks();
   const [rowToAction, setRowToAction] = useState<any>();
   const { setAccountingActiveTab } = useGeneralContext();
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
@@ -125,7 +127,15 @@ const Count = () => {
         .filter((item) => item.product !== "") || []
     );
     setTableKey((prev) => prev + 1);
-  }, [countListId, countLists, location, products, counts, i18n.language]);
+  }, [
+    countListId,
+    countLists,
+    location,
+    products,
+    stocks,
+    counts,
+    i18n.language,
+  ]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
@@ -171,9 +181,43 @@ const Count = () => {
         isEditMode={true}
         setForm={setCollapsibleForm}
         handleUpdate={() => {
+          const rowProduct = products.find(
+            (p) => p.name === rowToAction?.product
+          );
+          const currentCount = counts?.find((item) => {
+            return (
+              item.isCompleted === false &&
+              (item.location as AccountStockLocation)._id === location &&
+              (item.user as User)._id === user?._id &&
+              (item.countList as AccountCountList)._id === countListId
+            );
+          });
+          if (!currentCount || !rowProduct) {
+            return;
+          }
+          const productStock = stocks?.find(
+            (s) =>
+              s.product === rowProduct?._id &&
+              s.packageType === collapsibleForm?.packageType
+          );
+          const newProducts = [
+            ...(currentCount?.products?.filter(
+              (p) =>
+                p.product !== rowProduct?._id ||
+                p.packageType !== collapsibleForm?.packageType
+            ) || []),
+            {
+              packageType: collapsibleForm?.packageType,
+              product: rowProduct?._id,
+              countQuantity: collapsibleForm?.quantity,
+              stockQuantity: productStock?.quantity || 0,
+            },
+          ];
           updateAccountCount({
-            id: rowToAction?._id,
-            updates: {},
+            id: currentCount?._id,
+            updates: {
+              products: newProducts,
+            },
           });
         }}
       />
