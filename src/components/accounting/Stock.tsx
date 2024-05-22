@@ -78,6 +78,7 @@ const Stock = () => {
     location: "",
     quantity: 0,
     packageType: "",
+    status: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -87,11 +88,11 @@ const Stock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        prdct: (stock.product as AccountProduct).name,
+        prdct: (stock.product as AccountProduct)?.name,
         pckgType: (stock?.packageType as AccountPackageType)?.name,
-        lctn: (stock.location as AccountStockLocation).name,
+        lctn: (stock.location as AccountStockLocation)?.name,
         unit: units?.find(
-          (unit) => unit._id === (stock.product as AccountProduct).unit
+          (unit) => unit._id === (stock.product as AccountProduct)?.unit
         )?.name,
         unitPrice: stock?.packageType
           ? (stock.product as AccountProduct).packages?.find(
@@ -128,19 +129,18 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "packageType",
       label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
+      options: products
+        .find((prod) => prod._id === form?.product)
+        ?.packages?.map((item) => {
+          const packageType = packages.find((pkg) => pkg._id === item.package);
+          return {
+            value: packageType?._id,
+            label: packageType?.name,
+          };
+        }),
       placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) > 0,
-      isDisabled:
-        (products?.find((prod) => prod._id === form?.product)?.packages
-          ?.length ?? 0) < 1,
+      required: true,
+      isDisabled: false,
     },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
@@ -193,6 +193,7 @@ const Stock = () => {
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
         generalClassName="overflow-visible"
+        constantValues={{ status: "stock entry" }}
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -287,9 +288,11 @@ const Stock = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotalExpense)}{" "}
             ₺
           </p>
         </div>
@@ -329,7 +332,7 @@ const Stock = () => {
           ...stock,
           prdct: (stock.product as AccountProduct).name,
           pckgType: (stock?.packageType as AccountPackageType)?.name,
-          lctn: (stock.location as AccountStockLocation).name,
+          lctn: (stock.location as AccountStockLocation)?.name,
           unitPrice: stock?.packageType
             ? (stock.product as AccountProduct).packages?.find(
                 (pkg) =>

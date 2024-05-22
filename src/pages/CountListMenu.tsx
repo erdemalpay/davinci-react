@@ -13,13 +13,14 @@ const CountListMenu = () => {
   const {
     setCurrentPage,
     setExpandedRows,
-    menuActiveTab,
-    setMenuActiveTab,
     setSearchQuery,
+    countListActiveTab,
+    setCountListActiveTab,
   } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [tabPanelKey, setTabPanelKey] = useState(0);
+
   useEffect(() => {
     setTabs([
       ...countLists.map((countList, index) => ({
@@ -38,7 +39,7 @@ const CountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists]);
+  }, [countLists.length]);
 
   return (
     <>
@@ -47,8 +48,8 @@ const CountListMenu = () => {
         <TabPanel
           key={tabPanelKey}
           tabs={tabs.sort((a, b) => a.number - b.number)}
-          activeTab={menuActiveTab}
-          setActiveTab={setMenuActiveTab}
+          activeTab={countListActiveTab}
+          setActiveTab={setCountListActiveTab}
           additionalOpenAction={() => {
             setCurrentPage(1);
             setExpandedRows({});

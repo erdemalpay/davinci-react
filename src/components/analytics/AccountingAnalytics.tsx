@@ -7,7 +7,7 @@ import MenuItemPriceChart from "./accounting/MenuItemPriceChart";
 import ProductPriceChart from "./accounting/ProductPriceChart";
 
 export default function AccountingAnalytics() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const tabs = [
     {
@@ -28,6 +28,7 @@ export default function AccountingAnalytics() {
   return (
     <>
       <TabPanel
+        key={i18n.language}
         tabs={tabs?.map((tab) => ({
           ...tab,
           number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,

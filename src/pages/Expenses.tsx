@@ -11,7 +11,7 @@ import { useGeneralContext } from "../context/General.context";
 import { ExpensesPageTabEnum } from "../types";
 
 export default function Expenses() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -46,6 +46,7 @@ export default function Expenses() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
+          key={i18n.language}
           tabs={tabs?.map((tab) => ({
             ...tab,
             number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,

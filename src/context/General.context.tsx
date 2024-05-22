@@ -20,6 +20,8 @@ type GeneralContextType = {
   setCurrentPage: (page: number) => void;
   menuActiveTab: number;
   setMenuActiveTab: (tab: number) => void;
+  countListActiveTab: number;
+  setCountListActiveTab: (tab: number) => void;
   accountingActiveTab: number;
   setIsCategoryTabChanged: (isChanged: boolean) => void;
   isCategoryTabChanged: boolean;
@@ -50,6 +52,8 @@ const GeneralContext = createContext<GeneralContextType>({
   stocksActiveTab: StocksPageTabEnum.STOCK,
   menuActiveTab: 0,
   setMenuActiveTab: () => {},
+  countListActiveTab: 0,
+  setCountListActiveTab: () => {},
   setCurrentPage: () => {},
   currentPage: 1,
   searchQuery: "",
@@ -129,6 +133,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     {}
   );
   const [menuActiveTab, setMenuActiveTab] = useState<number>(0);
+  const [countListActiveTab, setCountListActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   return (
     <GeneralContext.Provider
@@ -139,6 +144,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setIsCategoryTabChanged,
         currentPage,
         setCurrentPage,
+        countListActiveTab,
+        setCountListActiveTab,
         menuActiveTab,
         setMenuActiveTab,
         rowsPerPage,

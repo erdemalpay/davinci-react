@@ -113,12 +113,14 @@ export type AccountCountList = {
 };
 export type AccountCount = {
   _id: string;
-  status: boolean;
-  date: string;
+  isCompleted: boolean;
+  createdAt: Date;
+  completedAt?: Date;
   location: string | AccountStockLocation;
   user: string | User;
   products?: {
     product: string;
+    packageType: string;
     stockQuantity: number;
     countQuantity: number;
   }[];
@@ -200,7 +202,27 @@ export type AccountStock = {
   quantity: number;
   packageType?: AccountPackageType | string;
 };
-
+export type AccountProductStockHistory = {
+  _id: number;
+  product: AccountProduct;
+  location: AccountStockLocation;
+  change: number;
+  currentAmount: number;
+  status: string;
+  user: User;
+  packageType?: AccountPackageType;
+  createdAt: Date;
+};
+export type AccountFixtureStockHistory = {
+  _id: number;
+  fixture: AccountFixture;
+  location: AccountStockLocation;
+  change: number;
+  currentAmount: number;
+  status: string;
+  user: User;
+  createdAt: Date;
+};
 export type AccountFixtureStock = {
   _id: string;
   fixture: AccountFixture | string;
@@ -351,6 +373,17 @@ export enum StocksPageTabEnum {
   STOCK,
   FIXTURESTOCK,
   ENTERCONSUMPTION,
-  COUNTLIST,
-  COUNTARCHIVE,
+  PRODUCTSTOCKHISTORY,
+  FIXTURESTOCKHISTORY,
+}
+export enum ProductPageTabEnum {
+  PRODUCTPRICECHART,
+  MENUITEMSWITHPRODUCT,
+  PRODUCTEXPENSES,
+  PRODUCTSTOCKHISTORY,
+}
+
+export enum FixturePageTabEnum {
+  FIXTUREEXPENSES,
+  FIXTURESTOCKHISTORY,
 }

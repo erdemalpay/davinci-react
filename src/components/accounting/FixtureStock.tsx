@@ -70,8 +70,8 @@ const FixtureStock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        fxtr: (stock.fixture as AccountFixture).name,
-        lctn: (stock.location as AccountStockLocation).name,
+        fxtr: (stock.fixture as AccountFixture)?.name,
+        lctn: (stock.location as AccountStockLocation)?.name,
         unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
         totalPrice: parseFloat(
           (
@@ -261,9 +261,11 @@ const FixtureStock = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotalExpense)}{" "}
             ₺
           </p>
         </div>
@@ -297,8 +299,8 @@ const FixtureStock = () => {
       .map((stock) => {
         return {
           ...stock,
-          fxtr: (stock.fixture as AccountFixture).name,
-          lctn: (stock.location as AccountStockLocation).name,
+          fxtr: (stock.fixture as AccountFixture)?.name,
+          lctn: (stock.location as AccountStockLocation)?.name,
           unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
           totalPrice: parseFloat(
             (

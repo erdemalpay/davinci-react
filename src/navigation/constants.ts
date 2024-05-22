@@ -3,6 +3,7 @@ import Analytics from "../pages/Analytics";
 import Count from "../pages/Count";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
+import Fixture from "../pages/Fixture";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
@@ -11,7 +12,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
-import SingleCountArchive from "../pages/SingleCountArchive";
+// import SingleCountArchive from "../pages/SingleCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -40,8 +41,9 @@ export enum Routes {
   Accounting = "/accounting",
   Expenses = "/expenses",
   Stocks = "/stocks",
-  Count = "/count/:countListId",
+  Count = "/count/:location/:countListId",
   Product = "/product/:productId",
+  Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
 }
@@ -142,11 +144,17 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
-      name: "Single Count Archive",
-      path: Routes.SingleCountArchive,
-      element: SingleCountArchive,
+      name: "Fixture",
+      path: Routes.Fixture,
+      element: Fixture,
       isOnSidebar: false,
     },
+    // {
+    //   name: "Single Count Archive",
+    //   path: Routes.SingleCountArchive,
+    //   element: SingleCountArchive,
+    //   isOnSidebar: false,
+    // },
     {
       name: "Accounting",
       path: Routes.Accounting,

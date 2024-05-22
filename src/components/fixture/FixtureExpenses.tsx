@@ -5,13 +5,12 @@ import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
   AccountExpenseType,
-  AccountPackageType,
-  AccountProduct,
+  AccountFixture,
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -27,14 +26,14 @@ import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 type Props = {
-  selectedProduct: AccountProduct;
+  selectedFixture: AccountFixture;
 };
 type FormElementsState = {
   [key: string]: any;
 };
-const ProductExpenses = ({ selectedProduct }: Props) => {
+const FixtureExpenses = ({ selectedFixture }: Props) => {
   const { t } = useTranslation();
-  const invoices = useGetAccountInvoices();
+  const invoices = useGetAccountFixtureInvoices();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const units = useGetAccountUnits();
@@ -55,35 +54,25 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
     invoices
       ?.filter(
         (invoice) =>
-          (invoice.product as AccountProduct)._id === selectedProduct?._id
+          (invoice.fixture as AccountFixture)._id === selectedFixture?._id
       )
       ?.map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
+          fixture: (invoice.fixture as AccountFixture)?.name,
           expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           formattedDate: formatAsLocalDate(invoice.date),
           location: invoice.location as AccountStockLocation,
           lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
-            (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-            ).toFixed(4)
+            (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
-          pckgTyp: invoice.packageType as AccountPackageType,
-          prdct: invoice.product as AccountProduct,
+          fxtr: invoice.fixture as AccountFixture,
         };
       })
   );
@@ -162,17 +151,11 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
       isSortable: true,
     },
     {
-      key: t("Product"),
+      key: t("Fixture"),
       className: "min-w-32 pr-2",
       isSortable: true,
     },
-    {
-      key: t("Package Type"),
-      className: "min-w-32 ",
-      isSortable: true,
-    },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -213,17 +196,10 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
       },
     },
     {
-      key: "product",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "packageType",
+      key: "fixture",
       className: "min-w-32 pr-2",
     },
     { key: "quantity", className: "min-w-32" },
-    {
-      key: "unit",
-    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -254,7 +230,7 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
     const processedRows = invoices
       ?.filter(
         (invoice) =>
-          (invoice.product as AccountProduct)._id === selectedProduct?._id
+          (invoice.fixture as AccountFixture)._id === selectedFixture?._id
       )
       ?.filter((invoice) => {
         return (
@@ -279,30 +255,20 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
       .map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
+          fixture: (invoice.fixture as AccountFixture)?.name,
           expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
           brand: (invoice.brand as AccountBrand)?.name,
           vendor: (invoice.vendor as AccountVendor)?.name,
           formattedDate: formatAsLocalDate(invoice.date),
           location: invoice.location as AccountStockLocation,
           lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
-            (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-            ).toFixed(4)
+            (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
           expType: invoice.expenseType as AccountExpenseType,
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
-          pckgTyp: invoice.packageType as AccountPackageType,
-          prdct: invoice.product as AccountProduct,
+          fxtr: invoice.fixture as AccountFixture,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -370,13 +336,13 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedProduct?._id + tableKey}
+        key={selectedFixture?._id + tableKey}
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
         filterPanel={filterPanel}
         rows={rows}
-        title={t("Product Expenses")}
+        title={t("Fixture Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
       />
@@ -384,4 +350,4 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
   );
 };
 
-export default ProductExpenses;
+export default FixtureExpenses;

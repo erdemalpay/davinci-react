@@ -147,7 +147,7 @@ const Invoice = () => {
       vendor: "",
       brand: "",
       expenseType: "",
-      packageType: "",
+      packages: "",
       location: "",
       before: "",
       after: "",
@@ -823,9 +823,11 @@ const Invoice = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {typeof generalTotalExpense === "number"
-              ? generalTotalExpense.toFixed(4)
-              : parseFloat(generalTotalExpense).toFixed(4)}
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotalExpense)}{" "}
             ₺
           </p>
         </div>
@@ -860,7 +862,7 @@ const Invoice = () => {
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
           passesFilter(
-            filterPanelFormElements.packageType,
+            filterPanelFormElements.packages,
             (invoice.packageType as AccountPackageType)?._id
           ) &&
           passesFilter(

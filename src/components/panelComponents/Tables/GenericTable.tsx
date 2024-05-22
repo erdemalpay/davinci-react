@@ -211,14 +211,13 @@ const GenericTable = <T,>({
           style: "tableHeader",
         }))
     );
-
     // Dynamic rows data based on filtered and sorted data
     rows.forEach((row) => {
       const rowData: any[] = [];
 
       columns.forEach((column) => {
         if (column.correspondingKey) {
-          const value = row[column.correspondingKey];
+          const value = String(row[column.correspondingKey]);
           rowData.push(value);
         }
       });
@@ -524,7 +523,7 @@ const GenericTable = <T,>({
     >
       {filterPanel?.isFilterPanelActive && <FilterPanel {...filterPanel} />}
       <div
-        className={`mx-auto w-full overflow-scroll flex flex-col gap-4 __className_a182b8 `}
+        className={`mx-auto w-full overflow-scroll no-scrollbar flex flex-col gap-4 __className_a182b8 `}
       >
         <div className=" flex flex-row gap-4 justify-between items-center">
           {/* search button */}
@@ -612,8 +611,8 @@ const GenericTable = <T,>({
             </div>
           </div>
           {/* table part */}
-          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll ">
-            <div className="border border-gray-100 rounded-md w-full overflow-auto   ">
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar">
+            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar  ">
               <table className="bg-white w-full ">
                 <thead className="border-b  ">
                   <tr>
