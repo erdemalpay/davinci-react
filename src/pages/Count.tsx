@@ -19,7 +19,7 @@ import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountPackageTypes } from "../utils/api/account/packageType";
 import { useGetAccountProducts } from "../utils/api/account/product";
 const Count = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
   const products = useGetAccountProducts();
@@ -125,7 +125,7 @@ const Count = () => {
         .filter((item) => item.product !== "") || []
     );
     setTableKey((prev) => prev + 1);
-  }, [countListId, countLists, location, products, counts]);
+  }, [countListId, countLists, location, products, counts, i18n.language]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
