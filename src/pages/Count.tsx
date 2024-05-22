@@ -50,6 +50,15 @@ const Count = () => {
         if (location && item.locations.includes(location)) {
           return {
             product: products.find((p) => p._id === item.product)?.name || "",
+            packageDetails: currentCount?.products
+              ?.filter((p) => p.product === item.product)
+              ?.map((p) => {
+                return {
+                  packageType:
+                    packages.find((pck) => pck._id === p.packageType)?.name ||
+                    "",
+                };
+              }),
             collapsible: {
               collapsibleHeader: t("Package Details"),
               collapsibleColumns: [
@@ -75,7 +84,7 @@ const Count = () => {
             },
           };
         }
-        return { product: "" };
+        return { product: "", packageDetails: [] };
       })
       .filter((item) => item.product !== "") || []
   );
@@ -95,6 +104,15 @@ const Count = () => {
           if (location && item.locations.includes(location)) {
             return {
               product: products.find((p) => p._id === item.product)?.name || "",
+              packageDetails: currentCount?.products
+                ?.filter((p) => p.product === item.product)
+                ?.map((p) => {
+                  return {
+                    packageType:
+                      packages.find((pck) => pck._id === p.packageType)?.name ||
+                      "",
+                  };
+                }),
               collapsible: {
                 collapsibleHeader: t("Package Details"),
                 collapsibleColumns: [
@@ -123,7 +141,7 @@ const Count = () => {
               },
             };
           }
-          return { product: "" };
+          return { product: "", packageDetails: [] };
         })
         .filter((item) => item.product !== "") || []
     );
@@ -229,8 +247,29 @@ const Count = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
-  const columns = [{ key: t("Product"), isSortable: true }];
-  const rowKeys = [{ key: "product" }];
+  const columns = [
+    { key: t("Product"), isSortable: true },
+    { key: t("Entered Package Details"), isSortable: false },
+  ];
+  const rowKeys = [
+    { key: "product" },
+    {
+      key: "packageDetails",
+      node: (row: any) => {
+        return row?.packageDetails?.map((item: any, index: number) => {
+          return (
+            <p
+              key={row.product + item.packageType}
+              className={`text-sm  mx-auto  w-fit`}
+            >
+              {item.packageType}
+              {(row?.packageDetails?.length ?? 0) - 1 !== index && ","}
+            </p>
+          );
+        });
+      },
+    },
+  ];
   return (
     <>
       <Header />
