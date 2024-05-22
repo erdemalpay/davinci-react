@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GoPlusCircle } from "react-icons/go";
 import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -18,6 +19,7 @@ import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountPackageTypes } from "../utils/api/account/packageType";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetAccountStocks } from "../utils/api/account/stock";
+
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
@@ -184,72 +186,76 @@ const Count = () => {
     { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
-  const addCollapsible = {
-    name: "+",
-    isModal: true,
-    setRow: setRowToAction,
-    modal: rowToAction ? (
-      <GenericAddEditPanel
-        topClassName="flex flex-col gap-2 "
-        buttonName={t("Add")}
-        isOpen={isAddCollapsibleOpen}
-        close={() => setIsAddCollapsibleOpen(false)}
-        inputs={collapsibleInputs}
-        formKeys={collapsibleFormKeys}
-        submitItem={updateAccountCount as any}
-        isEditMode={true}
-        setForm={setCollapsibleForm}
-        handleUpdate={() => {
-          const rowProduct = products.find(
-            (p) => p.name === rowToAction?.product
-          );
-          const currentCount = counts?.find((item) => {
-            return (
-              item.isCompleted === false &&
-              (item.location as AccountStockLocation)._id === location &&
-              (item.user as User)._id === user?._id &&
-              (item.countList as AccountCountList)._id === countListId
+  const actions = [
+    {
+      name: "Add",
+
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          topClassName="flex flex-col gap-2 "
+          buttonName={t("Add")}
+          isOpen={isAddCollapsibleOpen}
+          close={() => setIsAddCollapsibleOpen(false)}
+          inputs={collapsibleInputs}
+          formKeys={collapsibleFormKeys}
+          submitItem={updateAccountCount as any}
+          isEditMode={true}
+          setForm={setCollapsibleForm}
+          handleUpdate={() => {
+            const rowProduct = products.find(
+              (p) => p.name === rowToAction?.product
             );
-          });
-          if (!currentCount || !rowProduct) {
-            return;
-          }
-          const productStock = stocks?.find(
-            (s) =>
-              s.product === rowProduct?._id &&
-              s.packageType === collapsibleForm?.packageType
-          );
-          const newProducts = [
-            ...(currentCount?.products?.filter(
-              (p) =>
-                p.product !== rowProduct?._id ||
-                p.packageType !== collapsibleForm?.packageType
-            ) || []),
-            {
-              packageType: collapsibleForm?.packageType,
-              product: rowProduct?._id,
-              countQuantity: collapsibleForm?.quantity,
-              stockQuantity: productStock?.quantity || 0,
-            },
-          ];
-          updateAccountCount({
-            id: currentCount?._id,
-            updates: {
-              products: newProducts,
-            },
-          });
-        }}
-      />
-    ) : null,
-    isModalOpen: isAddCollapsibleOpen,
-    setIsModal: setIsAddCollapsibleOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-  };
+            const currentCount = counts?.find((item) => {
+              return (
+                item.isCompleted === false &&
+                (item.location as AccountStockLocation)._id === location &&
+                (item.user as User)._id === user?._id &&
+                (item.countList as AccountCountList)._id === countListId
+              );
+            });
+            if (!currentCount || !rowProduct) {
+              return;
+            }
+            const productStock = stocks?.find(
+              (s) =>
+                s.product === rowProduct?._id &&
+                s.packageType === collapsibleForm?.packageType
+            );
+            const newProducts = [
+              ...(currentCount?.products?.filter(
+                (p) =>
+                  p.product !== rowProduct?._id ||
+                  p.packageType !== collapsibleForm?.packageType
+              ) || []),
+              {
+                packageType: collapsibleForm?.packageType,
+                product: rowProduct?._id,
+                countQuantity: collapsibleForm?.quantity,
+                stockQuantity: productStock?.quantity || 0,
+              },
+            ];
+            updateAccountCount({
+              id: currentCount?._id,
+              updates: {
+                products: newProducts,
+              },
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isAddCollapsibleOpen,
+      setIsModal: setIsAddCollapsibleOpen,
+      isPath: false,
+      icon: <GoPlusCircle className="w-5 h-5" />,
+      className: " hover:text-blue-500 hover:border-blue-500 cursor-pointer",
+    },
+  ];
   const columns = [
     { key: t("Product"), isSortable: true },
-    { key: t("Entered Package Details"), isSortable: false },
+    { key: t("Entered Package Types"), isSortable: false },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "product" },
@@ -260,7 +266,7 @@ const Count = () => {
           return (
             <p
               key={row.product + item.packageType}
-              className={`text-sm  mx-auto  w-fit`}
+              className={`text-sm   w-fit`}
             >
               {item.packageType}
               {(row?.packageDetails?.length ?? 0) - 1 !== index && ","}
@@ -280,7 +286,7 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
-          addCollapsible={addCollapsible}
+          actions={actions}
           isCollapsible={products.length > 0}
         />
       </div>
