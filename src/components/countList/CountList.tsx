@@ -172,7 +172,7 @@ const CountList = ({ countListId }: Props) => {
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<any>[] = [{ key: "product" }];
   locations.forEach((item) => {
-    columns.push({ key: t(item.name), isSortable: true });
+    columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
       key: item._id,
       node: (row: any) =>
