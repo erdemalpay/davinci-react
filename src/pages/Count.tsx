@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -11,19 +16,26 @@ import {
   useGetAccountCounts,
 } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
+import { useGetAccountPackageTypes } from "../utils/api/account/packageType";
 import { useGetAccountProducts } from "../utils/api/account/product";
 const Count = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
   const products = useGetAccountProducts();
+  const packages = useGetAccountPackageTypes();
   const counts = useGetAccountCounts();
+  const [rowToAction, setRowToAction] = useState<any>();
   const { setAccountingActiveTab } = useGeneralContext();
-  const { createAccountCount } = useAccountCountMutations();
+  const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
+  const { createAccountCount, updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { location, countListId } = useParams();
-
+  const [collapsibleForm, setCollapsibleForm] = useState({
+    packageType: "",
+    quantity: 0,
+  });
   const [rows, setRows] = useState(
     countLists
       .find((cl) => cl._id === countListId)
@@ -114,7 +126,64 @@ const Count = () => {
     );
     setTableKey((prev) => prev + 1);
   }, [countListId, countLists, location, products, counts]);
-
+  const collapsibleInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: products
+        ?.find((p) => p.name === rowToAction?.product)
+        ?.packages?.map((item) => {
+          const pck = packages?.find((p) => p._id === item.package);
+          return {
+            value: pck?._id,
+            label: pck?.name,
+          };
+        }),
+      placeholder: t("Package Type"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
+  ];
+  const collapsibleFormKeys = [
+    { key: "packageType", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const addCollapsible = {
+    name: "+",
+    isModal: true,
+    setRow: setRowToAction,
+    modal: rowToAction ? (
+      <GenericAddEditPanel
+        topClassName="flex flex-col gap-2 "
+        buttonName={t("Add")}
+        isOpen={isAddCollapsibleOpen}
+        close={() => setIsAddCollapsibleOpen(false)}
+        inputs={collapsibleInputs}
+        formKeys={collapsibleFormKeys}
+        submitItem={updateAccountCount as any}
+        isEditMode={true}
+        setForm={setCollapsibleForm}
+        handleUpdate={() => {
+          updateAccountCount({
+            id: rowToAction?._id,
+            updates: {},
+          });
+        }}
+      />
+    ) : null,
+    isModalOpen: isAddCollapsibleOpen,
+    setIsModal: setIsAddCollapsibleOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+  };
   const columns = [{ key: t("Product"), isSortable: true }];
   const rowKeys = [{ key: "product" }];
   return (
@@ -127,6 +196,7 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
+          addCollapsible={addCollapsible}
           isCollapsible={products.length > 0}
         />
       </div>
