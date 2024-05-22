@@ -23,24 +23,43 @@ const Count = () => {
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const { location, countListId } = useParams();
-  console.log(
-    counts?.find((item) => {
-      return (
-        item.isCompleted === false &&
-        (item.location as AccountStockLocation)._id === location &&
-        (item.user as User)._id === user?._id &&
-        (item.countList as AccountCountList)._id === countListId
-      );
-    })
-  );
 
   const [rows, setRows] = useState(
     countLists
       .find((cl) => cl._id === countListId)
       ?.products?.map((item) => {
+        const currentCount = counts?.find((item) => {
+          return (
+            item.isCompleted === false &&
+            (item.location as AccountStockLocation)._id === location &&
+            (item.user as User)._id === user?._id &&
+            (item.countList as AccountCountList)._id === countListId
+          );
+        });
         if (location && item.locations.includes(location)) {
           return {
             product: products.find((p) => p._id === item.product)?.name || "",
+            collapsible: {
+              collapsibleHeader: t("Package Details"),
+              collapsibleColumns: [
+                { key: t("Package Type"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+                {
+                  key: t("Action"),
+                  isSortable: false,
+                  className: "text-center",
+                },
+              ],
+              collapsibleRows: currentCount?.products
+                ?.filter((p) => p.product === item.product)
+                ?.map((p) => {
+                  return {
+                    packageType: p.packageType,
+                    quantity: p.countQuantity,
+                  };
+                }),
+              collapsibleRowKeys: [{ key: "packageType" }, { key: "quantity" }],
+            },
           };
         }
         return { product: "" };
@@ -52,6 +71,14 @@ const Count = () => {
       countLists
         .find((cl) => cl._id === countListId)
         ?.products?.map((item) => {
+          const currentCount = counts?.find((item) => {
+            return (
+              item.isCompleted === false &&
+              (item.location as AccountStockLocation)._id === location &&
+              (item.user as User)._id === user?._id &&
+              (item.countList as AccountCountList)._id === countListId
+            );
+          });
           if (location && item.locations.includes(location)) {
             return {
               product: products.find((p) => p._id === item.product)?.name || "",
@@ -66,7 +93,14 @@ const Count = () => {
                     className: "text-center",
                   },
                 ],
-                collapsibleRows: [],
+                collapsibleRows: currentCount?.products
+                  ?.filter((p) => p.product === item.product)
+                  ?.map((p) => {
+                    return {
+                      packageType: p.packageType,
+                      quantity: p.countQuantity,
+                    };
+                  }),
                 collapsibleRowKeys: [
                   { key: "packageType" },
                   { key: "quantity" },
