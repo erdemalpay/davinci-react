@@ -30,20 +30,35 @@ const CountArchive = () => {
         }
       })
       .map((count) => {
-        const date = new Date(count.createdAt);
+        const startDate = new Date(count.createdAt);
+        const endDate = new Date(count?.completedAt ?? 0);
         return {
           ...count,
           cntLst: (count.countList as AccountCountList).name,
           lctn: (count.location as AccountStockLocation).name,
           usr: (count.user as User)?.name,
-          date: `${pad(date.getDate())}-${pad(
-            date.getMonth() + 1
-          )}-${date.getFullYear()}`,
+          startDate: `${pad(startDate.getDate())}-${pad(
+            startDate.getMonth() + 1
+          )}-${startDate.getFullYear()}`,
+          startHour: `${pad(startDate.getHours())}:${pad(
+            startDate.getMinutes()
+          )}`,
+          endDate: count?.completedAt
+            ? `${pad(endDate.getDate())}-${pad(
+                endDate.getMonth() + 1
+              )}-${endDate.getFullYear()}`
+            : "-",
+          endHour: count?.completedAt
+            ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+            : "-",
         };
       })
   );
   const columns = [
-    { key: t("Date"), isSortable: true },
+    { key: t("Start Date"), isSortable: true },
+    { key: t("Start Hour"), isSortable: true },
+    { key: t("End Date"), isSortable: true },
+    { key: t("End Hour"), isSortable: true },
     { key: t("NounCount"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("User"), isSortable: true },
@@ -51,12 +66,8 @@ const CountArchive = () => {
   ];
   const rowKeys = [
     {
-      key: "date",
-      className: "min-w-32",
-    },
-    {
-      key: "cntLst",
-      node: (row: AccountCount) => (
+      key: "startDate",
+      node: (row: any) => (
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
@@ -71,9 +82,25 @@ const CountArchive = () => {
             }
           }}
         >
-          {(row.countList as AccountCountList).name}
+          {row.startDate}
         </p>
       ),
+      className: "min-w-32",
+    },
+    {
+      key: "startHour",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "endDate",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "endHour",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "cntLst",
       className: "min-w-32 pr-1",
     },
     { key: "lctn" },
@@ -109,15 +136,27 @@ const CountArchive = () => {
           }
         })
         .map((count) => {
-          const date = new Date(count.createdAt);
+          const startDate = new Date(count.createdAt);
+          const endDate = new Date(count?.completedAt ?? 0);
           return {
             ...count,
             cntLst: (count.countList as AccountCountList).name,
             lctn: (count.location as AccountStockLocation).name,
             usr: (count.user as User)?.name,
-            date: `${pad(date.getDate())}-${pad(
-              date.getMonth() + 1
-            )}-${date.getFullYear()}`,
+            startDate: `${pad(startDate.getDate())}-${pad(
+              startDate.getMonth() + 1
+            )}-${startDate.getFullYear()}`,
+            startHour: `${pad(startDate.getHours())}:${pad(
+              startDate.getMinutes()
+            )}`,
+            endDate: count?.completedAt
+              ? `${pad(endDate.getDate())}-${pad(
+                  endDate.getMonth() + 1
+                )}-${endDate.getFullYear()}`
+              : "-",
+            endHour: count?.completedAt
+              ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+              : "-",
           };
         })
     );
