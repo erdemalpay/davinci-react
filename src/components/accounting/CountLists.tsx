@@ -142,7 +142,7 @@ const CountLists = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl ",
+      className: "text-blue-500 cursor-pointer text-xl  ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -153,7 +153,7 @@ const CountLists = () => {
           formKeys={formKeys}
           submitItem={updateAccountCountList as any}
           isEditMode={true}
-          topClassName="flex flex-col gap-2 mr-auto "
+          topClassName="flex flex-col gap-2  "
           itemToEdit={{
             id: rowToAction._id,
             updates: {
