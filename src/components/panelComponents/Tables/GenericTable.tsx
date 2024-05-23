@@ -547,7 +547,8 @@ const GenericTable = <T,>({
             {filters &&
               filters.map(
                 (filter, index) =>
-                  filter.isUpperSide && (
+                  filter.isUpperSide &&
+                  !filter.isDisabled && (
                     <div
                       key={index}
                       className="flex flex-row gap-2 justify-between items-center"
@@ -584,7 +585,8 @@ const GenericTable = <T,>({
                 {filters &&
                   filters.map(
                     (filter, index) =>
-                      !filter.isUpperSide && (
+                      !filter.isUpperSide &&
+                      !filter.isDisabled && (
                         <div
                           key={index}
                           className="flex flex-row gap-2 justify-between items-center"
