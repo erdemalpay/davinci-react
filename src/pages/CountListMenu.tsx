@@ -47,7 +47,9 @@ const CountListMenu = () => {
         icon: null,
         content: <CountLists />,
         isDisabled: user
-          ? [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+          ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              user.role._id
+            )
           : true,
       },
     ]);

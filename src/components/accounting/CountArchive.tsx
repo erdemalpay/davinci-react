@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   AccountCount,
   AccountCountList,
   AccountStockLocation,
   RoleEnum,
+  RowPerPageEnum,
   User,
 } from "../../types";
 import { useGetAccountCounts } from "../../utils/api/account/count";
@@ -16,6 +18,8 @@ const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
@@ -72,8 +76,14 @@ const CountArchive = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             if (row.isCompleted) {
+              setCurrentPage(1);
+              setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
               navigate(`/archive/${row._id}`);
             } else {
+              setCurrentPage(1);
+              setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
               navigate(
                 `/count/${(row.location as AccountStockLocation)._id}/${
                   (row.countList as AccountCountList)._id
