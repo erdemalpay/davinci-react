@@ -136,6 +136,7 @@ export type AccountPackageType = {
   _id: string;
   name: string;
   quantity: number;
+  unit: AccountUnit | string;
 };
 export type AccountBrand = {
   _id: string;
