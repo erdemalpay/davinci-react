@@ -211,7 +211,6 @@ const Count = () => {
   const actions = [
     {
       name: "Add",
-
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (

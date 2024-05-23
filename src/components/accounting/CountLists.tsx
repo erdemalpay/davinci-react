@@ -3,11 +3,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountCountList, RowPerPageEnum } from "../../types";
+import { AccountCountList } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -18,7 +17,6 @@ import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const CountLists = () => {
@@ -64,6 +62,8 @@ const CountLists = () => {
   }
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<AccountCountList>[] = [{ key: "name" }];
+
+  // Adding location columns and rowkeys
   for (const location of locations) {
     columns.push({ key: location.name, isSortable: true });
     rowKeys.push({
@@ -142,7 +142,7 @@ const CountLists = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl ",
+      className: "text-blue-500 cursor-pointer text-xl  ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -153,7 +153,7 @@ const CountLists = () => {
           formKeys={formKeys}
           submitItem={updateAccountCountList as any}
           isEditMode={true}
-          topClassName="flex flex-col gap-2 "
+          topClassName="flex flex-col gap-2  "
           itemToEdit={{
             id: rowToAction._id,
             updates: {
@@ -165,31 +165,6 @@ const CountLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-    },
-    {
-      name: t("Count"),
-      setRow: setRowToAction,
-      icon: <TbPencilPlus />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
-      isModal: false,
-      isPath: false,
-      node: (row: AccountCountList) => {
-        return (
-          <button
-            className="cursor-pointer mt-1"
-            onClick={() => {
-              setCurrentPage(1);
-              setRowsPerPage(RowPerPageEnum.FIRST);
-              setSearchQuery("");
-              navigate(`/count/${row._id}`);
-            }}
-          >
-            <ButtonTooltip content={t("Count")}>
-              <TbPencilPlus className="text-green-500 cursor-pointer text-xl " />
-            </ButtonTooltip>
-          </button>
-        );
-      },
     },
   ];
   const filters = [
