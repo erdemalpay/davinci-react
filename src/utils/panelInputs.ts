@@ -163,13 +163,14 @@ export function UnitInput({
   required = false,
   isMultiple = false,
   units,
+  invalidateKeys = [],
 }: {
   required?: boolean;
   isMultiple?: boolean;
   units: AccountUnit[];
+  invalidateKeys?: { key: string; defaultValue: string }[];
 }) {
   const { t } = useTranslation();
-
   return {
     type: InputTypes.SELECT,
     formKey: "unit",
@@ -180,6 +181,7 @@ export function UnitInput({
         label: unit.name,
       };
     }),
+    invalidateKeys: invalidateKeys,
     placeholder: t("Unit"),
     isMultiple: isMultiple,
     required: required,

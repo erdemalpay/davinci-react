@@ -138,13 +138,23 @@ const Product = () => {
   ];
   const inputs = [
     NameInput(),
-    UnitInput({ units: units, required: true }),
+    UnitInput({
+      units: units,
+      invalidateKeys: [{ key: "packages", defaultValue: "" }],
+      required: true,
+    }),
     ExpenseTypeInput({
       expenseTypes: expenseTypes,
       isMultiple: true,
       required: true,
     }),
-    PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
+    PackageTypeInput({
+      packages: packages.filter(
+        (p) => (p.unit as AccountUnit)._id === inputForm.unit
+      ),
+      isMultiple: true,
+      required: true,
+    }),
     BrandInput({ brands: brands, isMultiple: true }),
     VendorInput({ vendors: vendors, isMultiple: true }),
   ];
