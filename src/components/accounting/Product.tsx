@@ -378,7 +378,7 @@ const Product = () => {
             expenseType: rowToAction.expenseType,
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
-            packages: rowToAction?.packages?.map((pkg) => pkg.package),
+            packages: rowToAction.packages?.map((pkg) => pkg.package),
           }}
           handleUpdate={() => {
             updateAccountProduct({

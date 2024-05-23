@@ -160,10 +160,15 @@ const PackageType = () => {
           submitItem={updateAccountPackageType as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+              unit: (rowToAction.unit as AccountUnit)._id,
+            },
+          }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
