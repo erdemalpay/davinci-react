@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GoPlusCircle } from "react-icons/go";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
@@ -9,6 +10,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
+import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
@@ -297,6 +299,51 @@ const Count = () => {
       },
     },
   ];
+  const collapsibleActions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      node: (row: any) => {
+        const currentCount = counts?.find((item) => {
+          return (
+            item.isCompleted === false &&
+            (item.location as AccountStockLocation)._id === location &&
+            (item.user as User)._id === user?._id &&
+            (item.countList as AccountCountList)._id === countListId
+          );
+        });
+        const rowProduct = products.find((p) => p.name === row?.product);
+        const newProducts = [
+          ...(currentCount?.products?.filter(
+            (p) =>
+              p.product !== rowProduct?._id ||
+              p.packageType !== collapsibleForm?.packageType
+          ) || []),
+        ];
+        if (!currentCount) return;
+        return (
+          <div
+            className="text-red-500 cursor-pointer text-xl"
+            onClick={() => {
+              updateAccountCount({
+                id: currentCount._id,
+                updates: {
+                  products: newProducts,
+                },
+              });
+            }}
+          >
+            <ButtonTooltip content={t("Delete")}>
+              <HiOutlineTrash />
+            </ButtonTooltip>
+          </div>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: false,
+      isPath: false,
+    },
+  ];
   return (
     <>
       <Header />
@@ -308,6 +355,7 @@ const Count = () => {
           rows={rows}
           title={t("Count")}
           actions={actions}
+          collapsibleActions={collapsibleActions}
           isCollapsible={products.length > 0}
         />
         <div className="flex justify-end mt-4">
