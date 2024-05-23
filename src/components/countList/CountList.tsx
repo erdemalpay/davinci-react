@@ -5,7 +5,12 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
-import { AccountCountList, AccountStockLocation, User } from "../../types";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  RoleEnum,
+  User,
+} from "../../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -192,7 +197,12 @@ const CountList = ({ countListId }: Props) => {
         ),
     });
   });
-  columns.push({ key: t("Actions"), isSortable: false });
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
 
   const addButton = {
     name: t("Add Product"),
@@ -295,6 +305,9 @@ const CountList = ({ countListId }: Props) => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
+      isDisabled: user
+        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+        : true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -338,6 +351,7 @@ const CountList = ({ countListId }: Props) => {
     }
   });
 
+  if (!user) return <></>;
   return (
     <>
       <div className="w-[95%] my-5 mx-auto ">
@@ -346,8 +360,16 @@ const CountList = ({ countListId }: Props) => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows()}
-          actions={actions}
-          addButton={addButton}
+          actions={
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? actions
+              : undefined
+          }
+          addButton={
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? addButton
+              : undefined
+          }
           filters={filters}
           title={countLists.find((row) => row._id === countListId)?.name}
         />
