@@ -19,6 +19,7 @@ import {
   AccountPackageType,
   AccountProduct,
   AccountStockLocation,
+  RowPerPageEnum,
   User,
 } from "../types";
 import {
@@ -43,7 +44,12 @@ const Count = () => {
   const { updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
-  const { setCountListActiveTab } = useGeneralContext();
+  const {
+    setCurrentPage,
+    setRowsPerPage,
+    setSearchQuery,
+    setCountListActiveTab,
+  } = useGeneralContext();
   const { location, countListId } = useParams();
   const [collapsibleForm, setCollapsibleForm] = useState({
     packageType: "",
@@ -329,6 +335,9 @@ const Count = () => {
                 },
               });
               setCountListActiveTab(countLists.length);
+              setCurrentPage(1);
+              setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
               navigate(Routes.CountListMenu);
             }}
           >

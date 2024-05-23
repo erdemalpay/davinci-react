@@ -53,7 +53,6 @@ const CountListMenu = () => {
     ]);
     setTabPanelKey((prev) => prev + 1);
   }, [countLists.length]);
-  console.log(user);
   return (
     <>
       <Header showLocationSelector={false} />
