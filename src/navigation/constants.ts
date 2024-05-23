@@ -12,7 +12,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
-// import SingleCountArchive from "../pages/SingleCountArchive";
+import SingleCountArchive from "../pages/SingleCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -116,6 +116,25 @@ export const allRoutes: {
       element: Analytics,
       isOnSidebar: true,
     },
+    {
+      name: "Count",
+      path: Routes.Count,
+      element: Count,
+      isOnSidebar: false,
+    },
+    {
+      name: "Single Count Archive",
+      path: Routes.SingleCountArchive,
+      element: SingleCountArchive,
+      isOnSidebar: false,
+    },
+    {
+      name: "Count List Menu",
+      path: Routes.CountListMenu,
+      element: CountListMenu,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
   ],
   [RolePermissionEnum.MANAGEMENT]: [
     {
@@ -132,12 +151,6 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
-      name: "Count",
-      path: Routes.Count,
-      element: Count,
-      isOnSidebar: false,
-    },
-    {
       name: "Product",
       path: Routes.Product,
       element: Product,
@@ -149,23 +162,10 @@ export const allRoutes: {
       element: Fixture,
       isOnSidebar: false,
     },
-    // {
-    //   name: "Single Count Archive",
-    //   path: Routes.SingleCountArchive,
-    //   element: SingleCountArchive,
-    //   isOnSidebar: false,
-    // },
     {
       name: "Accounting",
       path: Routes.Accounting,
       element: Accounting,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "Count List Menu",
-      path: Routes.CountListMenu,
-      element: CountListMenu,
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },

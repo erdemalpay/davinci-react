@@ -329,5 +329,9 @@
   "Expense Delete": "Gider Silme",
   "Count already exists and not finished": "Sayım zaten var ve tamamlanmamış",
   "Package Details": "Paket Detayları",
+  "Entered Package Types": "Girilen Paket Tipleri",
+  "Please complete all product counts.": "Lütfen tüm ürün sayımlarını tamamlayın.",
+  "Start Hour": "Başlangıç Saati",
+  "End Hour": "Bitiş Saati",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

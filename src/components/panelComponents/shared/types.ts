@@ -32,6 +32,7 @@ export interface FilterType<T> {
   node: React.ReactNode;
   label?: string;
   isUpperSide: boolean;
+  isDisabled?: boolean;
 }
 
 export interface RowKeyType<T> {

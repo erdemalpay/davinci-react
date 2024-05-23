@@ -332,5 +332,9 @@
   "Expense Delete": "Expense Delete",
   "Count already exists and not finished": "Count already exists and not finished",
   "Package Details": "Package Details",
+  "Entered Package Types": "Entered Package Types",
+  "Please complete all product counts.": "Please complete all product counts.",
+  "Start Hour": "Start Hour",
+  "End Hour": "End Hour",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
