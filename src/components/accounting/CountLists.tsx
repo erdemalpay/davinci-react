@@ -7,7 +7,7 @@ import { TbPencilPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountCountList } from "../../types";
+import { AccountCountList, RowPerPageEnum } from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -30,7 +30,13 @@ const CountLists = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
+  const {
+    countListActiveTab,
+    setCountListActiveTab,
+    setCurrentPage,
+    setRowsPerPage,
+    setSearchQuery,
+  } = useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -59,7 +65,7 @@ const CountLists = () => {
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<AccountCountList>[] = [{ key: "name" }];
   for (const location of locations) {
-    columns.push({ key: t(location.name), isSortable: true });
+    columns.push({ key: location.name, isSortable: true });
     rowKeys.push({
       key: location._id,
       node: (row: AccountCountList) =>
@@ -172,6 +178,9 @@ const CountLists = () => {
           <button
             className="cursor-pointer mt-1"
             onClick={() => {
+              setCurrentPage(1);
+              setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
               navigate(`/count/${row._id}`);
             }}
           >
