@@ -16,6 +16,7 @@ const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
+  const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rows, setRows] = useState(
@@ -29,12 +30,15 @@ const CountArchive = () => {
         }
       })
       .map((count) => {
+        const date = new Date(count.createdAt);
         return {
           ...count,
           cntLst: (count.countList as AccountCountList).name,
           lctn: (count.location as AccountStockLocation).name,
           usr: (count.user as User)?.name,
-          // date: formatAsLocalDate(count.date),
+          date: `${pad(date.getDate())}-${pad(
+            date.getMonth() + 1
+          )}-${date.getFullYear()}`,
         };
       })
   );
@@ -46,13 +50,10 @@ const CountArchive = () => {
     { key: t("Status"), isSortable: false },
   ];
   const rowKeys = [
-    // {
-    //   key: "date",
-    //   className: "min-w-32",
-    //   node: (row: AccountCount) => {
-    //     return row.date;
-    //   },
-    // },
+    {
+      key: "date",
+      className: "min-w-32",
+    },
     {
       key: "cntLst",
       node: (row: AccountCount) => (
@@ -108,12 +109,15 @@ const CountArchive = () => {
           }
         })
         .map((count) => {
+          const date = new Date(count.createdAt);
           return {
             ...count,
             cntLst: (count.countList as AccountCountList).name,
             lctn: (count.location as AccountStockLocation).name,
             usr: (count.user as User)?.name,
-            // date: formatAsLocalDate(count.date),
+            date: `${pad(date.getDate())}-${pad(
+              date.getMonth() + 1
+            )}-${date.getFullYear()}`,
           };
         })
     );

@@ -73,7 +73,7 @@ const SingleCountArchive = () => {
     { key: t("Count Quantity"), isSortable: true },
   ];
   const rowKeys = [
-    { key: "date" },
+    { key: "date", className: "min-w-32" },
     { key: "product" },
     { key: "unit" },
     { key: "packageType" },
