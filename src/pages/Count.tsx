@@ -77,6 +77,7 @@ const Count = () => {
                   packageType:
                     packages.find((pck) => pck._id === p.packageType)?.name ||
                     "",
+                  quantity: p.countQuantity,
                 };
               }),
             collapsible: {
@@ -131,6 +132,7 @@ const Count = () => {
                     packageType:
                       packages.find((pck) => pck._id === p.packageType)?.name ||
                       "",
+                    quantity: p.countQuantity,
                   };
                 }),
               collapsible: {
@@ -287,7 +289,7 @@ const Count = () => {
               key={row.product + item.packageType}
               className={`text-sm   w-fit`}
             >
-              {item.packageType}
+              {item?.quantity + "x" + item.packageType}
               {(row?.packageDetails?.length ?? 0) - 1 !== index && ","}
             </p>
           );
