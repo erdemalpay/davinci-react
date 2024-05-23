@@ -325,6 +325,7 @@ const Count = () => {
                 id: currentCount?._id,
                 updates: {
                   isCompleted: true,
+                  completedAt: new Date(),
                 },
               });
               setCountListActiveTab(countLists.length);
