@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GoPlusCircle } from "react-icons/go";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
@@ -9,8 +10,17 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { H5 } from "../components/panelComponents/Typography";
+import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountCountList, AccountStockLocation, User } from "../types";
+import { Routes } from "../navigation/constants";
+import {
+  AccountCountList,
+  AccountPackageType,
+  AccountProduct,
+  AccountStockLocation,
+  User,
+} from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -23,6 +33,7 @@ import { useGetAccountStocks } from "../utils/api/account/stock";
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
+  const navigate = useNavigate();
   const products = useGetAccountProducts();
   const packages = useGetAccountPackageTypes();
   const counts = useGetAccountCounts();
@@ -32,6 +43,7 @@ const Count = () => {
   const { updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
+  const { setCountListActiveTab } = useGeneralContext();
   const { location, countListId } = useParams();
   const [collapsibleForm, setCollapsibleForm] = useState({
     packageType: "",
@@ -220,8 +232,9 @@ const Count = () => {
             }
             const productStock = stocks?.find(
               (s) =>
-                s.product === rowProduct?._id &&
-                s.packageType === collapsibleForm?.packageType
+                (s.product as AccountProduct)._id === rowProduct?._id &&
+                (s.packageType as AccountPackageType)._id ===
+                  collapsibleForm?.packageType
             );
             const newProducts = [
               ...(currentCount?.products?.filter(
@@ -289,6 +302,38 @@ const Count = () => {
           actions={actions}
           isCollapsible={products.length > 0}
         />
+        <div className="flex justify-end mt-4">
+          <button
+            className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+            onClick={() => {
+              const currentCount = counts?.find((item) => {
+                return (
+                  item.isCompleted === false &&
+                  (item.location as AccountStockLocation)._id === location &&
+                  (item.user as User)._id === user?._id &&
+                  (item.countList as AccountCountList)._id === countListId
+                );
+              });
+              if (!currentCount) {
+                return;
+              }
+              if (rows?.some((row) => row.packageDetails?.length === 0)) {
+                toast.error(t("Please complete all product counts."));
+                return;
+              }
+              updateAccountCount({
+                id: currentCount?._id,
+                updates: {
+                  isCompleted: true,
+                },
+              });
+              setCountListActiveTab(countLists.length);
+              navigate(Routes.CountListMenu);
+            }}
+          >
+            <H5> {t("Complete")}</H5>
+          </button>
+        </div>
       </div>
     </>
   );
