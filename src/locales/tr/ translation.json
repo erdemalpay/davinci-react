@@ -330,5 +330,6 @@
   "Count already exists and not finished": "Sayım zaten var ve tamamlanmamış",
   "Package Details": "Paket Detayları",
   "Entered Package Types": "Girilen Paket Tipleri",
+  "Please complete all product counts.": "Lütfen tüm ürün sayımlarını tamamlayın.",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

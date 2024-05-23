@@ -60,7 +60,7 @@ const CountArchive = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             if (row.isCompleted) {
-              // navigate(`/archive/${row._id}`);
+              navigate(`/archive/${row._id}`);
             } else {
               navigate(
                 `/count/${(row.location as AccountStockLocation)._id}/${
