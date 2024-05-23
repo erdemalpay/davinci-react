@@ -13,7 +13,8 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
-import { NameInput, QuantityInput } from "../../utils/panelInputs";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { NameInput, QuantityInput, UnitInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -23,6 +24,7 @@ const PackageType = () => {
   const { t } = useTranslation();
   const packageTypes = useGetAccountPackageTypes();
   const [tableKey, setTableKey] = useState(0);
+  const units = useGetAccountUnits();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const products = useGetAccountProducts();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -43,6 +45,7 @@ const PackageType = () => {
   } = useAccountPackageTypeMutations();
   const columns = [
     { key: t("Name"), isSortable: true },
+    { key: t("Unit"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
@@ -52,13 +55,25 @@ const PackageType = () => {
       className: "min-w-32 pr-1",
     },
     {
+      key: "unit",
+      className: "min-w-32 pr-1",
+      node: (row: AccountPackageType) => {
+        return (row.unit as AccountUnit).name;
+      },
+    },
+    {
       key: "quantity",
       className: "min-w-32 pr-1",
     },
   ];
-  const inputs = [NameInput(), QuantityInput()];
+  const inputs = [
+    NameInput(),
+    UnitInput({ units: units, required: true }),
+    QuantityInput(),
+  ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
 
@@ -70,7 +85,11 @@ const PackageType = () => {
       options: products
         .filter(
           (product) =>
-            !product.packages?.some((item) => item.package === rowToAction?._id)
+            !product.packages?.some(
+              (item) => item.package === rowToAction?._id
+            ) &&
+            (product?.unit as AccountUnit)?._id ===
+              (rowToAction?.unit as AccountUnit)?._id
         )
         .map((product) => {
           return {
