@@ -59,7 +59,7 @@ const CountLists = () => {
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<AccountCountList>[] = [{ key: "name" }];
   for (const location of locations) {
-    columns.push({ key: t(location.name), isSortable: true });
+    columns.push({ key: location.name, isSortable: true });
     rowKeys.push({
       key: location._id,
       node: (row: AccountCountList) =>

@@ -7,10 +7,13 @@ import { Header } from "../components/header/Header";
 import { Tab } from "../components/panelComponents/shared/types";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { RoleEnum } from "../types";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 
 const CountListMenu = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const {
     setCurrentPage,
     setExpandedRows,
@@ -43,12 +46,14 @@ const CountListMenu = () => {
         label: t("Count Lists"),
         icon: null,
         content: <CountLists />,
-        isDisabled: false,
+        isDisabled: user
+          ? [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+          : true,
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
   }, [countLists.length]);
-
+  console.log(user);
   return (
     <>
       <Header showLocationSelector={false} />
