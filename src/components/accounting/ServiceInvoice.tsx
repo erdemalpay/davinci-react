@@ -544,6 +544,9 @@ const ServiceInvoice = () => {
           additionalCancelFunction={() => {
             setServiceExpenseForm({});
           }}
+          additionalSubmitFunction={() => {
+            setServiceExpenseForm({});
+          }}
           isCancelConfirmationDialogExist={true}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}

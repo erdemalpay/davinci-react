@@ -411,12 +411,14 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "packageType",
       label: t("Package Type"),
-      options: packages.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
+      options: packages
+        .sort((a, b) => a.quantity - b.quantity)
+        .map((item) => {
+          return {
+            value: item._id,
+            label: item.name,
+          };
+        }),
       placeholder: t("Package Type"),
       required: true,
     },
