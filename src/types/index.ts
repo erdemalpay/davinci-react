@@ -476,12 +476,12 @@ export const stockHistoryStatuses = [
   {
     value: StockHistoryStatusEnum.TRANSFERFIXTURETOINVOICE,
     label: "Transfer Fixture To Invoice",
-    backgroundColor: "bg-violet-500",
+    backgroundColor: "bg-blue-700",
   },
   {
     value: StockHistoryStatusEnum.TRANSFERINVOICETOFIXTURE,
     label: "Transfer Invoice To Fixture",
-    backgroundColor: "bg-fuchsia-500",
+    backgroundColor: "bg-lime-500",
   },
   {
     value: StockHistoryStatusEnum.TRANSFERINVOICETOSERVICE,
