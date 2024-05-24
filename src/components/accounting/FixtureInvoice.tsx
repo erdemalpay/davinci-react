@@ -602,6 +602,9 @@ const FixtureInvoice = () => {
           additionalCancelFunction={() => {
             setFixtureExpenseForm({});
           }}
+          additionalSubmitFunction={() => {
+            setFixtureExpenseForm({});
+          }}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
