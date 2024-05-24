@@ -353,5 +353,8 @@
   "Transfer Fixture To Invoice": "Transfer Fixture To Invoice",
   "Transfer Invoice To Fixture": "Transfer Invoice To Fixture",
   "Transfer Invoice To Service": "Transfer Invoice To Service",
+  "Vendor Products": "Vendor Products",
+  "Select a Vendor": "Select a Vendor",
+  "Vendor Expenses": "Vendor Expenses",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -5,7 +5,9 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
-import { AccountUnit, AccountVendor } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
+import { AccountUnit, AccountVendor, RowPerPageEnum } from "../../types";
 import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
@@ -25,6 +27,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Vendor = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,6 +38,8 @@ const Vendor = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
   const products = useGetAccountProducts();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountVendor>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -56,6 +61,19 @@ const Vendor = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
+      node: (row: AccountVendor) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            setCurrentPage(1);
+            setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            navigate(`/vendor/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
     },
   ];
   const inputs = [NameInput()];

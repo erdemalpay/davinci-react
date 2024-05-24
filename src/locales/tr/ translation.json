@@ -350,5 +350,8 @@
   "Transfer Fixture To Invoice": "Demirbaştan Faturaya Transfer",
   "Transfer Invoice To Fixture": "Faturadan Demirbaşa Transfer",
   "Transfer Invoice To Service": "Faturadan Hizmete Transfer",
+  "Vendor Products": "Satıcı Ürünleri",
+  "Select a Vendor": "Bir Satıcı Seçin",
+  "Vendor Expenses": "Satıcı Giderleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

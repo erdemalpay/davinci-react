@@ -383,6 +383,10 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
+export enum VendorPageTabEnum {
+  VENDORPRODUCTS,
+  VENDOREXPENSES,
+}
 
 export enum FixturePageTabEnum {
   FIXTUREEXPENSES,
