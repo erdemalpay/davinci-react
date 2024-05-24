@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccountFixture, AccountStockLocation } from "../../types";
-import { useGetAccountFixtures } from "../../utils/api/account/fixture";
+import {
+  AccountFixture,
+  AccountStockLocation,
+  stockHistoryStatuses,
+} from "../../types";
 import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -13,32 +16,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 type FormElementsState = {
   [key: string]: any;
 };
-export const StockHistoryStatusEnumObject = {
-  "expense entry": {
-    label: "Expense Entry",
-    backgroundColor: "bg-green-500",
-  },
-  "expense delete": {
-    label: "Expense Delete",
-    backgroundColor: "bg-gray-500",
-  },
-  "stock entry": {
-    label: "Stock Entry",
-    backgroundColor: "bg-blue-500",
-  },
-  "update create": {
-    label: "Update Create",
-    backgroundColor: "bg-yellow-700",
-  },
-  "update delete": {
-    label: "Update Delete",
-    backgroundColor: "bg-orange-500",
-  },
-  "stock delete": {
-    label: "Stock Delete",
-    backgroundColor: "bg-red-700",
-  },
-};
 type Props = {
   selectedFixture: AccountFixture;
 };
@@ -46,7 +23,6 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
   const { t } = useTranslation();
   const stockHistories = useGetAccountFixtureStockHistorys();
   const [tableKey, setTableKey] = useState(0);
-  const fixtures = useGetAccountFixtures();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -56,6 +32,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
       before: "",
       after: "",
     });
+
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const [rows, setRows] = useState(() => {
     return stockHistories
@@ -80,14 +57,12 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
       type: InputTypes.SELECT,
       formKey: "status",
       label: t("Status"),
-      options: Object.entries(StockHistoryStatusEnumObject).map(
-        ([key, status]) => {
-          return {
-            value: key,
-            label: t(status.label),
-          };
-        }
-      ),
+      options: stockHistoryStatuses.map((item) => {
+        return {
+          value: item.value,
+          label: t(item.label),
+        };
+      }),
       placeholder: t("Status"),
       required: true,
     },
@@ -151,10 +126,10 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
       key: "status",
       className: "min-w-32 pr-1",
       node: (row: any) => {
-        const status =
-          StockHistoryStatusEnumObject[
-            row.status as keyof typeof StockHistoryStatusEnumObject
-          ];
+        const status = stockHistoryStatuses.find(
+          (item) => item.value === row.status
+        );
+        if (!status) return null;
         return (
           <div
             className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}

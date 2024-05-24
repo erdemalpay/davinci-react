@@ -9,6 +9,7 @@ import {
   AccountProduct,
   AccountStock,
   AccountStockLocation,
+  StockHistoryStatusEnum,
 } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -193,7 +194,7 @@ const Stock = () => {
         submitItem={createAccountStock as any}
         topClassName="flex flex-col gap-2 "
         generalClassName="overflow-visible"
-        constantValues={{ status: "stock entry" }}
+        constantValues={{ status: StockHistoryStatusEnum.STOCKENTRY }}
       />
     ),
     isModalOpen: isAddModalOpen,

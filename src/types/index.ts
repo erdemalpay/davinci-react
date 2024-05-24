@@ -388,3 +388,104 @@ export enum FixturePageTabEnum {
   FIXTUREEXPENSES,
   FIXTURESTOCKHISTORY,
 }
+
+export enum StockHistoryStatusEnum {
+  EXPENSEENTRY = "EXPENSEENTRY",
+  EXPENSEDELETE = "EXPENSEDELETE",
+  EXPENSEUPDATEDELETE = "EXPENSEUPDATEDELETE",
+  EXPENSEUPDATEENTRY = "EXPENSEUPDATEENTRY",
+  EXPENSETRANSFER = "EXPENSETRANSFER",
+  EXPENSEUPDATE = "EXPENSEUPDATE",
+  STOCKDELETE = "STOCKDELETE",
+  STOCKENTRY = "STOCKENTRY",
+  STOCKUPDATE = "STOCKUPDATE",
+  STOCKUPDATEDELETE = "STOCKUPDATEDELETE",
+  STOCKUPDATEENTRY = "STOCKUPDATEENTRY",
+  CONSUMPTION = "CONSUMPTION",
+  TRANSFERSERVICETOINVOICE = "TRANSFERSERVICETOINVOICE",
+  TRANSFERFIXTURETOINVOICE = "TRANSFERFIXTURETOINVOICE",
+  TRANSFERINVOICETOFIXTURE = "TRANSFERINVOICETOFIXTURE",
+  TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
+}
+export const stockHistoryStatuses = [
+  {
+    value: StockHistoryStatusEnum.EXPENSEENTRY,
+    label: "Expense Entry",
+    backgroundColor: "bg-gray-500",
+  },
+  {
+    value: StockHistoryStatusEnum.EXPENSEDELETE,
+    label: "Expense Delete",
+    backgroundColor: "bg-red-500",
+  },
+  {
+    value: StockHistoryStatusEnum.EXPENSEUPDATEDELETE,
+    label: "Expense Update Delete",
+    backgroundColor: "bg-blue-500",
+  },
+  {
+    value: StockHistoryStatusEnum.EXPENSEUPDATEENTRY,
+    label: "Expense Update Entry",
+    backgroundColor: "bg-green-500",
+  },
+  {
+    value: StockHistoryStatusEnum.EXPENSETRANSFER,
+    label: "Expense Transfer",
+    backgroundColor: "bg-yellow-500",
+  },
+  {
+    value: StockHistoryStatusEnum.EXPENSEUPDATE,
+    label: "Expense Update",
+    backgroundColor: "bg-teal-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKDELETE,
+    label: "Stock Delete",
+    backgroundColor: "bg-purple-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKENTRY,
+    label: "Stock Entry",
+    backgroundColor: "bg-pink-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKUPDATE,
+    label: "Stock Update",
+    backgroundColor: "bg-orange-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKUPDATEDELETE,
+    label: "Stock Update Delete",
+    backgroundColor: "bg-indigo-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKUPDATEENTRY,
+    label: "Stock Update Entry",
+    backgroundColor: "bg-lime-500",
+  },
+  {
+    value: StockHistoryStatusEnum.CONSUMPTION,
+    label: "Consumption",
+    backgroundColor: "bg-cyan-500",
+  },
+  {
+    value: StockHistoryStatusEnum.TRANSFERSERVICETOINVOICE,
+    label: "Transfer Service To Invoice",
+    backgroundColor: "bg-amber-500",
+  },
+  {
+    value: StockHistoryStatusEnum.TRANSFERFIXTURETOINVOICE,
+    label: "Transfer Fixture To Invoice",
+    backgroundColor: "bg-violet-500",
+  },
+  {
+    value: StockHistoryStatusEnum.TRANSFERINVOICETOFIXTURE,
+    label: "Transfer Invoice To Fixture",
+    backgroundColor: "bg-fuchsia-500",
+  },
+  {
+    value: StockHistoryStatusEnum.TRANSFERINVOICETOSERVICE,
+    label: "Transfer Invoice To Service",
+    backgroundColor: "bg-rose-500",
+  },
+];
