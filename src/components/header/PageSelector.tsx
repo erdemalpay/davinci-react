@@ -75,9 +75,11 @@ export function PageSelector() {
     .flat();
 
   function logout() {
+    localStorage.clear();
+    localStorage.setItem("loggedOut", "true");
+    setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");
     setUser(undefined);
-    localStorage.clear();
     navigate("/login");
   }
 

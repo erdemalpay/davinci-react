@@ -46,11 +46,14 @@ export function useLogin(
       const { token } = response;
       Cookies.set("jwt", token);
       toast.success("Logged in successfully");
+      localStorage.setItem("jwt", token);
+      localStorage.setItem("loggedIn", "true");
       const target = location
         ? `${location.pathname}${location.search}`
         : Routes.Tables;
       navigate(target);
     },
+
     onError,
   });
   return { login };
