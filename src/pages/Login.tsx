@@ -1,6 +1,9 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
+import { ACCESS_TOKEN } from "../utils/api/axiosClient";
+import { Paths } from "../utils/api/factory";
+import { getUserWithToken } from "../utils/api/user";
 
 interface FormElements extends HTMLFormControlsCollection {
   username: HTMLInputElement;
@@ -17,6 +20,7 @@ type RedirectLocationState = {
 
 const Login = () => {
   const { state: locationState } = useLocation();
+  const navigate = useNavigate();
   const from = locationState
     ? (locationState as RedirectLocationState).from
     : undefined;
@@ -39,6 +43,24 @@ const Login = () => {
     setError(false);
     login(payload);
   };
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (token && localStorage.getItem("loggedIn")) {
+          const loggedInUser = await getUserWithToken();
+          if (loggedInUser) {
+            navigate(Paths.Tables, { replace: true });
+          }
+        }
+      } catch (error) {
+        return;
+      }
+    };
+
+    checkAuthentication();
+  }, []);
+
   return (
     <div>
       <section className="bg-white dark:bg-gray-900 {-- h-screen --}">

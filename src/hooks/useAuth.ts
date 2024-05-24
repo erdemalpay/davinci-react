@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/User.context";
@@ -8,27 +7,43 @@ import { getUserWithToken } from "../utils/api/user";
 
 const useAuth = () => {
   const { user, setUser } = useUserContext();
-  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      try {
-        if (user) return;
-        const token = Cookies.get(ACCESS_TOKEN);
-        if (!token)
-          return navigate(Paths.Login, {
-            replace: true,
-            state: { from: location },
-          });
-        const loggedInUser = await getUserWithToken();
-        setUser(loggedInUser);
-      } catch (e) {
-        console.log(e);
+      if (user) return;
+      let token = localStorage.getItem(ACCESS_TOKEN);
+      if (!token) {
+        navigate(Paths.Login, {
+          replace: true,
+          state: { from: useLocation() },
+        });
+      } else {
+        try {
+          const loggedInUser = await getUserWithToken();
+          setUser(loggedInUser);
+        } catch (e) {
+          console.log(e);
+        }
       }
     };
+
+    const handleStorageEvent = (event: StorageEvent) => {
+      if (event.key === "loggedOut" && event.newValue === "true") {
+        setUser(undefined);
+        navigate(Paths.Login, {
+          replace: true,
+        });
+      }
+    };
+
+    window.addEventListener("storage", handleStorageEvent);
     getUser();
-  }, [user, setUser, navigate, location]);
+    return () => {
+      window.removeEventListener("storage", handleStorageEvent);
+    };
+  }, [setUser, navigate]);
+  return { setUser };
 };
 
 export default useAuth;
