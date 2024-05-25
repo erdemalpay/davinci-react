@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountCountList } from "../../types";
@@ -19,22 +18,19 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-const CountLists = () => {
+type Props = {
+  actionActiveTab: number;
+  setActionActiveTab: (tab: number) => void;
+};
+const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const {
-    countListActiveTab,
-    setCountListActiveTab,
-    setCurrentPage,
-    setRowsPerPage,
-    setSearchQuery,
-  } = useGeneralContext();
+  const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -148,12 +144,25 @@ const CountLists = () => {
       modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
+          close={() => {
+            setIsEditModalOpen(false);
+            setTimeout(() => {
+              setActionActiveTab(actionActiveTab + 1);
+            }, 500);
+          }}
           inputs={inputs}
           formKeys={formKeys}
           submitItem={updateAccountCountList as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2  "
+          submitFunction={() => {
+            updateAccountCountList({
+              id: rowToAction._id,
+              updates: {
+                name: rowToAction.name,
+              },
+            });
+          }}
           itemToEdit={{
             id: rowToAction._id,
             updates: {

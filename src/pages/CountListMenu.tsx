@@ -14,6 +14,8 @@ import { useGetAccountCountLists } from "../utils/api/account/countList";
 const CountListMenu = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const [tabPanelKey, setTabPanelKey] = useState(0);
+  const [actionActiveTab, setActionActiveTab] = useState(0);
   const {
     setCurrentPage,
     setExpandedRows,
@@ -23,8 +25,9 @@ const CountListMenu = () => {
   } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
-  const [tabPanelKey, setTabPanelKey] = useState(0);
-
+  const handleActionActiveTabChange = (newTab: number) => {
+    setActionActiveTab(newTab);
+  };
   useEffect(() => {
     setTabs([
       ...countLists.map((countList, index) => ({
@@ -45,7 +48,12 @@ const CountListMenu = () => {
         number: countLists.length + 1,
         label: t("Count Lists"),
         icon: null,
-        content: <CountLists />,
+        content: (
+          <CountLists
+            actionActiveTab={actionActiveTab}
+            setActionActiveTab={handleActionActiveTabChange}
+          />
+        ),
         isDisabled: user
           ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
               user.role._id
@@ -54,23 +62,22 @@ const CountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists.length]);
+  }, [countLists.length, actionActiveTab]);
+
   return (
     <>
       <Header showLocationSelector={false} />
-      {tabs.length > 0 && (
-        <TabPanel
-          key={tabPanelKey}
-          tabs={tabs.sort((a, b) => a.number - b.number)}
-          activeTab={countListActiveTab}
-          setActiveTab={setCountListActiveTab}
-          additionalOpenAction={() => {
-            setCurrentPage(1);
-            setExpandedRows({});
-            setSearchQuery("");
-          }}
-        />
-      )}
+      <TabPanel
+        key={tabPanelKey + actionActiveTab}
+        tabs={tabs.sort((a, b) => a.number - b.number)}
+        activeTab={countListActiveTab}
+        setActiveTab={setCountListActiveTab}
+        additionalOpenAction={() => {
+          setCurrentPage(1);
+          setExpandedRows({});
+          setSearchQuery("");
+        }}
+      />
     </>
   );
 };
