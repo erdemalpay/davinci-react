@@ -737,6 +737,7 @@ const ServiceInvoice = () => {
               setSearchQuery(e.target.value);
             }
           }}
+          autoFocus={true}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               setSearchQuery(temporarySearch);
