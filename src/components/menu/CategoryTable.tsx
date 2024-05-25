@@ -17,12 +17,12 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   categories: MenuCategory[];
+  handleCategoryChange: () => void;
 };
 
-const CategoryTable = ({ categories }: Props) => {
+const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const { t } = useTranslation();
-  const { menuActiveTab, setMenuActiveTab, setIsCategoryTabChanged } =
-    useGeneralContext();
+  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
@@ -131,10 +131,10 @@ const CategoryTable = ({ categories }: Props) => {
         submitItem={createCategory as any}
         close={() => {
           setIsAddModalOpen(false);
+          handleCategoryChange();
         }}
         additionalSubmitFunction={() => {
           setMenuActiveTab(menuActiveTab + 1);
-          setIsCategoryTabChanged(true);
         }}
         inputs={inputs}
         formKeys={formKeys}
@@ -167,9 +167,9 @@ const CategoryTable = ({ categories }: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
+            handleCategoryChange();
             deleteCategory(rowToAction?._id);
             setMenuActiveTab(menuActiveTab - 1);
-            setIsCategoryTabChanged(true);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Category")}
