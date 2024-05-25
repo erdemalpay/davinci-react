@@ -22,12 +22,12 @@ export default function Menu() {
   const items = useGetMenuItems();
   const products = useGetAccountProducts();
   const popularItems = useGetPopularItems();
+  const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const seenCategories: { [key: string]: boolean } = {};
   const {
-    isCategoryTabChanged,
     currentPage,
     setCurrentPage,
     rowsPerPage,
@@ -35,8 +35,10 @@ export default function Menu() {
     setSearchQuery,
     menuActiveTab,
     setMenuActiveTab,
-    setIsCategoryTabChanged,
   } = useGeneralContext();
+  const handleCategoryChange = () => {
+    setIsCategoryTabChanged(true);
+  };
   const handleTabChange = () => {
     const itemCategories = items
       .map((item) => item.category)
@@ -131,6 +133,7 @@ export default function Menu() {
           <CategoryTable
             key={"categories" + tableKeys}
             categories={categories as MenuCategory[]}
+            handleCategoryChange={handleCategoryChange}
           />
         ),
         isDisabled: false,

@@ -19,6 +19,7 @@ import {
   RowPerPageEnum,
 } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
+import i18n from "../utils/i18n";
 
 export default function Product() {
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ export default function Product() {
         </div>
 
         <TabPanel
-          key={tabPanelKey}
+          key={tabPanelKey + i18n.language}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

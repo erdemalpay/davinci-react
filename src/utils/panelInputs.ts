@@ -146,12 +146,14 @@ export function PackageTypeInput({
     type: InputTypes.SELECT,
     formKey: "packages",
     label: t("Package Type"),
-    options: packages.map((item) => {
-      return {
-        value: item._id,
-        label: item.name,
-      };
-    }),
+    options: packages
+      .sort((a, b) => a.quantity - b.quantity)
+      .map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
     placeholder: t("Package Type"),
     isMultiple: isMultiple,
     isDisabled: isDisabled,

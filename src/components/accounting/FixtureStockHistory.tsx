@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccountFixture, AccountStockLocation } from "../../types";
+import {
+  AccountFixture,
+  AccountStockLocation,
+  stockHistoryStatuses,
+} from "../../types";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -12,32 +16,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
-};
-export const StockHistoryStatusEnumObject = {
-  "expense entry": {
-    label: "Expense Entry",
-    backgroundColor: "bg-green-500",
-  },
-  "expense delete": {
-    label: "Expense Delete",
-    backgroundColor: "bg-gray-500",
-  },
-  "stock entry": {
-    label: "Stock Entry",
-    backgroundColor: "bg-blue-500",
-  },
-  "update create": {
-    label: "Update Create",
-    backgroundColor: "bg-yellow-700",
-  },
-  "update delete": {
-    label: "Update Delete",
-    backgroundColor: "bg-orange-500",
-  },
-  "stock delete": {
-    label: "Stock Delete",
-    backgroundColor: "bg-red-700",
-  },
 };
 
 const FixtureStockHistory = () => {
@@ -78,14 +56,12 @@ const FixtureStockHistory = () => {
       type: InputTypes.SELECT,
       formKey: "status",
       label: t("Status"),
-      options: Object.entries(StockHistoryStatusEnumObject).map(
-        ([key, status]) => {
-          return {
-            value: key,
-            label: t(status.label),
-          };
-        }
-      ),
+      options: stockHistoryStatuses.map((item) => {
+        return {
+          value: item.value,
+          label: t(item.label),
+        };
+      }),
       placeholder: t("Status"),
       required: true,
     },
@@ -149,10 +125,10 @@ const FixtureStockHistory = () => {
       key: "status",
       className: "min-w-32 pr-1",
       node: (row: any) => {
-        const status =
-          StockHistoryStatusEnumObject[
-            row.status as keyof typeof StockHistoryStatusEnumObject
-          ];
+        const status = stockHistoryStatuses.find(
+          (item) => item.value === row.status
+        );
+        if (!status) return null;
         return (
           <div
             className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}

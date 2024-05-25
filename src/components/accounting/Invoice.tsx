@@ -750,6 +750,9 @@ const Invoice = () => {
           additionalCancelFunction={() => {
             setProductExpenseForm({});
           }}
+          additionalSubmitFunction={() => {
+            setProductExpenseForm({});
+          }}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[

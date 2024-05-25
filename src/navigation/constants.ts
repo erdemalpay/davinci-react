@@ -17,6 +17,7 @@ import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
 import Users from "../pages/Users";
+import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
 import { RoleEnum, RolePermissionEnum } from "../types";
 
@@ -43,6 +44,7 @@ export enum Routes {
   Stocks = "/stocks",
   Count = "/count/:location/:countListId",
   Product = "/product/:productId",
+  Vendor = "/vendor/:vendorId",
   Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
@@ -154,6 +156,12 @@ export const allRoutes: {
       name: "Product",
       path: Routes.Product,
       element: Product,
+      isOnSidebar: false,
+    },
+    {
+      name: "Vendor",
+      path: Routes.Vendor,
+      element: Vendor,
       isOnSidebar: false,
     },
     {
