@@ -1,49 +1,49 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaFileArchive } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
+import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
-import FixtureExpenses from "../components/fixture/FixtureExpenses";
-import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import VendorExpenses from "../components/vendor/VendorExpenses";
+import VendorProducts from "../components/vendor/VendorProducts";
 import { useGeneralContext } from "../context/General.context";
-import { AccountFixture, FixturePageTabEnum, RowPerPageEnum } from "../types";
-import { useGetAccountFixtures } from "../utils/api/account/fixture";
+import { AccountVendor, RowPerPageEnum, VendorPageTabEnum } from "../types";
+import { useGetAccountVendors } from "../utils/api/account/vendor";
 
-export default function Fixture() {
+export default function Vendor() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { fixtureId } = useParams();
+  const { vendorId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const [selectedFixture, setSelectedFixture] = useState<AccountFixture>();
-  const fixtures = useGetAccountFixtures();
-  const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
+  const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
+  const vendors = useGetAccountVendors();
+  const currentVendor = vendors?.find((item) => item._id === vendorId);
   const { t, i18n } = useTranslation();
-  const fixtureOptions = fixtures?.map((f) => {
+  const vendorOptions = vendors?.map((i) => {
     return {
-      value: f._id,
-      label: f.name,
+      value: i._id,
+      label: i.name,
     };
   });
 
-  if (!currentFixture) return <></>;
+  if (!currentVendor) return <></>;
   const tabs = [
     {
-      number: FixturePageTabEnum.FIXTUREEXPENSES,
-      label: t("Fixture Expenses"),
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <FixtureExpenses selectedFixture={currentFixture} />,
+      number: VendorPageTabEnum.VENDORPRODUCTS,
+      label: t("Vendor Products"),
+      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+      content: <VendorProducts selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {
-      number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
-      label: t("Fixture Stock History"),
-      icon: <FaFileArchive className="text-lg font-thin" />,
-      content: <FixtureStockHistory selectedFixture={currentFixture} />,
+      number: VendorPageTabEnum.VENDOREXPENSES,
+      label: t("Vendor Expenses"),
+      icon: <GiTakeMyMoney className="text-lg font-thin" />,
+      content: <VendorExpenses selectedVendor={currentVendor} />,
       isDisabled: false,
     },
   ];
@@ -54,30 +54,30 @@ export default function Fixture() {
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput
-              options={fixtureOptions}
+              options={vendorOptions}
               value={
-                selectedFixture
+                selectedVendor
                   ? {
-                      value: selectedFixture._id,
-                      label: selectedFixture.name,
+                      value: selectedVendor._id,
+                      label: selectedVendor.name,
                     }
                   : {
-                      value: currentFixture._id,
-                      label: currentFixture.name,
+                      value: currentVendor._id,
+                      label: currentVendor.name,
                     }
               }
               onChange={(selectedOption) => {
-                setSelectedFixture(
-                  fixtures?.find((p) => p._id === selectedOption?.value)
+                setSelectedVendor(
+                  vendors?.find((i) => i._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
                 setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
-                navigate(`/fixture/${selectedOption?.value}`);
+                navigate(`/vendor/${selectedOption?.value}`);
               }}
-              placeholder={t("Select a fixture")}
+              placeholder={t("Select a Vendor")}
             />
           </div>
         </div>
