@@ -167,7 +167,6 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            console.log("delete");
             handleCategoryChange();
             deleteCategory(rowToAction?._id);
             setMenuActiveTab(menuActiveTab - 1);
