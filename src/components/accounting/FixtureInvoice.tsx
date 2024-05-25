@@ -808,6 +808,7 @@ const FixtureInvoice = () => {
               setSearchQuery(temporarySearch);
             }
           }}
+          autoFocus={true}
           placeholder={t("Search")}
           className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
         />
