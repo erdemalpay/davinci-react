@@ -690,10 +690,10 @@ const ServiceInvoice = () => {
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
         const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLowerCase();
+        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
         if (typeof value === "string") {
           return (
-            value.toLowerCase().includes(query) ||
+            value.toLocaleLowerCase("tr-TR").includes(query) ||
             timeValue.toLowerCase().includes(query)
           );
         } else if (typeof value === "number") {
