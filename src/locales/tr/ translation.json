@@ -354,5 +354,8 @@
   "Select a Vendor": "Bir Satıcı Seçin",
   "Vendor Expenses": "Satıcı Giderleri",
   "All Expenses": "Tüm Giderler",
+  "Product Expense": "Ürün Gideri",
+  "Fixture Expense": "Demirbaş Gideri",
+  "Service Expense": "Hizmet Gideri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

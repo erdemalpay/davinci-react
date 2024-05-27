@@ -357,5 +357,8 @@
   "Select a Vendor": "Select a Vendor",
   "Vendor Expenses": "Vendor Expenses",
   "All Expenses": "All Expenses",
+  "Product Expense": "Product Expense",
+  "Fixture Expense": "Fixture Expense",
+  "Service Expense": "Service Expense",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
