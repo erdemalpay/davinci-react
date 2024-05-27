@@ -72,10 +72,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                 (product) => product._id === itemProduction.product
               )?.unit as AccountUnit
             )?.name,
-            price:
+            price: (
               (products?.find(
                 (product) => product._id === itemProduction.product
-              )?.unitPrice ?? 0) * itemProduction.quantity,
+              )?.unitPrice ?? 0) * itemProduction.quantity
+            ).toFixed(4),
             quantity: itemProduction.quantity,
           })),
           collapsibleRowKeys: [
@@ -128,10 +129,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                   (product) => product._id === itemProduction.product
                 )?.unit as AccountUnit
               )?.name,
-              price:
+              price: (
                 (products?.find(
                   (product) => product._id === itemProduction.product
-                )?.unitPrice ?? 0) * itemProduction.quantity,
+                )?.unitPrice ?? 0) * itemProduction.quantity
+              ).toFixed(4),
               quantity: itemProduction.quantity,
             })),
             collapsibleRowKeys: [
