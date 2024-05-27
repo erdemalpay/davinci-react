@@ -8,6 +8,7 @@ import { getUserWithToken } from "../utils/api/user";
 const useAuth = () => {
   const { user, setUser } = useUserContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -16,7 +17,7 @@ const useAuth = () => {
       if (!token) {
         navigate(Paths.Login, {
           replace: true,
-          state: { from: useLocation() },
+          state: { from: location },
         });
       } else {
         try {
@@ -24,6 +25,10 @@ const useAuth = () => {
           setUser(loggedInUser);
         } catch (e) {
           console.log(e);
+          navigate(Paths.Login, {
+            replace: true,
+            state: { from: location },
+          });
         }
       }
     };
@@ -42,7 +47,8 @@ const useAuth = () => {
     return () => {
       window.removeEventListener("storage", handleStorageEvent);
     };
-  }, [setUser, navigate]);
+    console.log("useAuth");
+  }, [user, setUser, navigate, location]);
   return { setUser };
 };
 

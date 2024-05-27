@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { MdOutlineDone } from "react-icons/md";
@@ -79,6 +80,16 @@ const SelectInput = ({
       fontWeight: 400,
     }),
   };
+  useEffect(() => {
+    if (options.length === 1 && !value) {
+      const actionMeta: ActionMeta<OptionType> = {
+        action: "select-option",
+        option: options[0],
+      };
+      onChange(options[0], actionMeta);
+    }
+  }, [options, value, onChange]);
+
   const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2 __className_a182b8">

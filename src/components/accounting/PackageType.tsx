@@ -43,6 +43,14 @@ const PackageType = () => {
     deleteAccountPackageType,
     updateAccountPackageType,
   } = useAccountPackageTypeMutations();
+  const [rows, setRows] = useState(() => {
+    return packageTypes.map((packageType) => {
+      return {
+        ...packageType,
+        unt: (packageType?.unit as AccountUnit)?.name,
+      };
+    });
+  });
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
@@ -55,11 +63,8 @@ const PackageType = () => {
       className: "min-w-32 pr-1",
     },
     {
-      key: "unit",
+      key: "unt",
       className: "min-w-32 pr-1",
-      node: (row: AccountPackageType) => {
-        return (row.unit as AccountUnit).name;
-      },
     },
     {
       key: "quantity",
@@ -215,7 +220,17 @@ const PackageType = () => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [packageTypes]);
+  useEffect(() => {
+    setRows(() => {
+      return packageTypes.map((packageType) => {
+        return {
+          ...packageType,
+          unt: (packageType?.unit as AccountUnit)?.name,
+        };
+      });
+    });
+    setTableKey((prev) => prev + 1);
+  }, [packageTypes]);
 
   return (
     <>
@@ -225,7 +240,7 @@ const PackageType = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={packageTypes}
+          rows={rows}
           title={t("Package Types")}
           addButton={addButton}
         />
