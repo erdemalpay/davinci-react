@@ -367,9 +367,9 @@ const Stock = () => {
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
-        const query = searchQuery.trimStart().toLowerCase();
+        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
         if (typeof value === "string") {
-          return value.toLowerCase().includes(query);
+          return value.toLocaleLowerCase("tr-TR").includes(query);
         } else if (typeof value === "number") {
           return value.toString().includes(query);
         } else if (typeof value === "boolean") {

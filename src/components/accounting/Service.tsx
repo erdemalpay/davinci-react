@@ -86,13 +86,13 @@ const Service = () => {
       key: "expenseType",
       className: "min-w-32",
       node: (row: AccountService) => {
-        return row.expenseType.map((expType: string) => {
+        return row.expenseType.map((expType: string, index) => {
           const foundExpenseType = expenseTypes.find(
             (expenseType) => expenseType._id === expType
           );
           return (
             <span
-              key={foundExpenseType?.name ?? "" + row._id}
+              key={row._id + "expenseType" + index}
               className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white font-semibold`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
@@ -110,10 +110,10 @@ const Service = () => {
           return row?.vendor?.map((vendor: string, index) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
             if (!foundVendor)
-              return <div key={row._id + "not found vendor"}>-</div>;
+              return <div key={row._id + "vendor" + index}>-</div>;
             return (
               <span
-                key={foundVendor.name + foundVendor._id + row._id}
+                key={row._id + "vendor" + index}
                 className={`text-sm mr-1  w-fit`}
               >
                 {foundVendor?.name}
