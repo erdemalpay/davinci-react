@@ -203,13 +203,13 @@ const Product = () => {
       key: "expenseType",
       className: "min-w-32",
       node: (row: AccountProduct) => {
-        return row.expenseType.map((expType: string) => {
+        return row.expenseType.map((expType: string, index) => {
           const foundExpenseType = expenseTypes.find(
             (expenseType) => expenseType._id === expType
           );
           return (
             <span
-              key={foundExpenseType?.name ?? "" + row._id}
+              key={foundExpenseType?.name ?? index + row._id + "expenseType"}
               className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white font-semibold`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
@@ -224,13 +224,16 @@ const Product = () => {
       className: "min-w-32",
       node: (row: AccountProduct) => {
         return row?.packages?.map((item, index) => {
-          const foundPackage = packages?.find((p) => p._id === item.package);
+          if (!item.package || !packages) return null;
           return (
             <span
-              key={foundPackage?.name ?? "" + row._id}
+              key={
+                packages?.find((p) => p._id === item.package)?.name ??
+                index + row._id + "packages"
+              }
               className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit `}
             >
-              {foundPackage?.name}
+              {packages?.find((p) => p._id === item.package)?.name}
               {(row?.packages?.length ?? 0) - 1 !== index && ","}
             </span>
           );
@@ -245,7 +248,7 @@ const Product = () => {
           return row?.brand?.map((brand: string, index) => {
             const foundBrand = brands.find((br) => br._id === brand);
             if (!foundBrand)
-              return <div key={row._id + "not found brand"}>-</div>;
+              return <div key={row._id + index + "brand"}>-</div>;
             return (
               <span
                 key={foundBrand.name + foundBrand._id + row._id}
@@ -266,7 +269,8 @@ const Product = () => {
         if (row.vendor) {
           return row?.vendor?.map((vendor: string, index) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
-            if (!foundVendor) return <div key={row._id + vendor}>-</div>;
+            if (!foundVendor)
+              return <div key={row._id + index + "vendor"}>-</div>;
             return (
               <span
                 key={foundVendor.name + foundVendor._id + row._id}

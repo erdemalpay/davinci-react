@@ -35,7 +35,7 @@ const ProductStockHistory = ({ selectedProduct }: Props) => {
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const [rows, setRows] = useState(() => {
     return stockHistories
-      .filter((item) => item.product._id === selectedProduct._id)
+      .filter((item) => item.product?._id === selectedProduct?._id)
       .map((stockHistory) => {
         const date = new Date(stockHistory.createdAt);
         return {
@@ -148,7 +148,7 @@ const ProductStockHistory = ({ selectedProduct }: Props) => {
   useEffect(() => {
     setRows(
       stockHistories
-        .filter((item) => item.product._id === selectedProduct._id)
+        .filter((item) => item.product?._id === selectedProduct?._id)
         .filter((stockHistory) => {
           return (
             (filterPanelFormElements.before === "" ||
