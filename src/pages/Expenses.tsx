@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GiAnchor } from "react-icons/gi";
+import { GrMoney } from "react-icons/gr";
 import { MdOutlineLocalLaundryService } from "react-icons/md";
+import AllExpenses from "../components/accounting/AllExpenses";
 import FixtureInvoice from "../components/accounting/FixtureInvoice";
 import Invoice from "../components/accounting/Invoice";
 import ServiceInvoice from "../components/accounting/ServiceInvoice";
@@ -38,6 +40,13 @@ export default function Expenses() {
       label: t("Service Expenses"),
       icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
       content: <ServiceInvoice />,
+      isDisabled: false,
+    },
+    {
+      number: ExpensesPageTabEnum.ALLEXPENSES,
+      label: t("All Expenses"),
+      icon: <GrMoney className="text-lg font-thin" />,
+      content: <AllExpenses />,
       isDisabled: false,
     },
   ];
