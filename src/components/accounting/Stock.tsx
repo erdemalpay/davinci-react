@@ -176,11 +176,7 @@ const Stock = () => {
     },
     {
       key: "totalPrice",
-      node: (row: any) => (
-        <div className={!isEnableEdit ? "text-center" : ""}>
-          {row.totalPrice} ₺
-        </div>
-      ),
+      node: (row: any) => <div>{row.totalPrice} ₺</div>,
     },
   ];
   if (
