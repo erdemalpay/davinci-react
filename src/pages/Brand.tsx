@@ -100,7 +100,7 @@ export default function Brand() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
-                navigate(`/Brand/${selectedOption?.value}`);
+                navigate(`/brand/${selectedOption?.value}`);
               }}
               placeholder={t("Select a Brand")}
             />
