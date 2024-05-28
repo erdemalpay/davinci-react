@@ -1,5 +1,6 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
+import Brand from "../pages/Brand";
 import Count from "../pages/Count";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
@@ -45,6 +46,7 @@ export enum Routes {
   Count = "/count/:location/:countListId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
+  Brand = "/brand/:brandId",
   Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
@@ -159,6 +161,12 @@ export const allRoutes: {
       name: "Vendor",
       path: Routes.Vendor,
       element: Vendor,
+      isOnSidebar: false,
+    },
+    {
+      name: "Brand",
+      path: Routes.Brand,
+      element: Brand,
       isOnSidebar: false,
     },
     {

@@ -5,6 +5,8 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { AccountBrand, AccountUnit } from "../../types";
 import {
   useAccountBrandMutations,
@@ -26,11 +28,14 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Brand = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const fixtures = useGetAccountFixtures();
   const { updateAccountProduct } = useAccountProductMutations();
@@ -51,6 +56,7 @@ const Brand = () => {
     useAccountBrandMutations();
   const allRows = brands?.map((brand) => {
     return {
+      _id: brand?._id,
       name: brand.name,
       productCount:
         products?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
@@ -72,6 +78,19 @@ const Brand = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
+      node: (row: AccountBrand) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            setCurrentPage(1);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            navigate(`/brand/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
     },
     { key: "productCount" },
     { key: "fixtureCount" },
