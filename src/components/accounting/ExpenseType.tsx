@@ -5,7 +5,8 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
-import { AccountExpenseType, AccountUnit } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountExpenseType, AccountUnit, RoleEnum } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
@@ -27,6 +28,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const ExpenseType = () => {
   const { t } = useTranslation();
   const expenseTypes = useGetAccountExpenseTypes();
+  const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -52,10 +54,15 @@ const ExpenseType = () => {
   const [fixtureForm, setFixtureForm] = useState({
     fixture: [],
   });
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
-  ];
+  const columns = [{ key: t("Name"), isSortable: true }];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -137,6 +144,13 @@ const ExpenseType = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
   };
   const actions = [
     {
@@ -160,6 +174,13 @@ const ExpenseType = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -183,6 +204,13 @@ const ExpenseType = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Fixture"),
@@ -221,6 +249,13 @@ const ExpenseType = () => {
       isModalOpen: isAddFixureModalOpen,
       setIsModal: setIsAddFixtureModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Product"),
@@ -259,6 +294,13 @@ const ExpenseType = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => setTableKey((prev) => prev + 1), [expenseTypes]);
@@ -274,6 +316,15 @@ const ExpenseType = () => {
           rows={expenseTypes}
           title={t("Expense Types")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

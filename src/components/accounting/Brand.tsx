@@ -7,7 +7,8 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountBrand, AccountUnit } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountBrand, AccountUnit, RoleEnum } from "../../types";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -28,6 +29,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Brand = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const navigate = useNavigate();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
@@ -71,8 +73,15 @@ const Brand = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
     { key: t("Fixture Count"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -156,6 +165,13 @@ const Brand = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
   };
   const actions = [
     {
@@ -179,6 +195,13 @@ const Brand = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -202,6 +225,13 @@ const Brand = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Fixture"),
@@ -241,6 +271,13 @@ const Brand = () => {
       isModalOpen: isAddFixureModalOpen,
       setIsModal: setIsAddFixtureModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Product"),
@@ -280,6 +317,13 @@ const Brand = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => {
@@ -298,6 +342,15 @@ const Brand = () => {
           rows={rows}
           title={t("Brands")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>
