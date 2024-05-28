@@ -53,10 +53,22 @@ const Vendor = () => {
   const [fixtureForm, setFixtureForm] = useState({
     fixture: [],
   });
+  const allRows = vendors?.map((vendor) => {
+    return {
+      name: vendor.name,
+      productCount:
+        products?.filter((item) => item?.vendor?.includes(vendor?._id))
+          ?.length ?? 0,
+      fixtureCount:
+        fixtures?.filter((item) => item?.vendor?.includes(vendor?._id))
+          ?.length ?? 0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Product Count"), isSortable: false },
-    { key: t("Fixture Count"), isSortable: false },
+    { key: t("Product Count"), isSortable: true },
+    { key: t("Fixture Count"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -77,26 +89,8 @@ const Vendor = () => {
         </p>
       ),
     },
-    {
-      key: "productCount",
-      className: "min-w-32 pr-1",
-      node: (row: AccountVendor) => (
-        <p>
-          {products?.filter((item) => item?.vendor?.includes(row?._id))
-            ?.length ?? 0}
-        </p>
-      ),
-    },
-    {
-      key: "fixtureCount",
-      className: "min-w-32 pr-1",
-      node: (row: AccountVendor) => (
-        <p>
-          {fixtures?.filter((item) => item?.vendor?.includes(row?._id))
-            ?.length ?? 0}
-        </p>
-      ),
-    },
+    { key: "productCount" },
+    { key: "fixtureCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -288,7 +282,10 @@ const Vendor = () => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [vendors]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [vendors]);
 
   return (
     <>
@@ -298,7 +295,7 @@ const Vendor = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={vendors}
+          rows={rows}
           title={t("Vendors")}
           addButton={addButton}
         />

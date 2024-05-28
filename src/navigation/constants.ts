@@ -143,21 +143,11 @@ export const allRoutes: {
       element: Stocks,
       isOnSidebar: true,
     },
-  ],
-  [RolePermissionEnum.MANAGEMENT]: [
     {
-      name: "Menu",
-      path: Routes.Menu,
-      element: Menu,
+      name: "Constants",
+      path: Routes.Accounting,
+      element: Accounting,
       isOnSidebar: true,
-      exceptionRoleIds: [RoleEnum.BARISTA],
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "User",
-      path: Routes.User,
-      element: User,
-      isOnSidebar: false,
     },
     {
       name: "Product",
@@ -177,12 +167,21 @@ export const allRoutes: {
       element: Fixture,
       isOnSidebar: false,
     },
+  ],
+  [RolePermissionEnum.MANAGEMENT]: [
     {
-      name: "Accounting",
-      path: Routes.Accounting,
-      element: Accounting,
+      name: "Menu",
+      path: Routes.Menu,
+      element: Menu,
       isOnSidebar: true,
+      exceptionRoleIds: [RoleEnum.BARISTA],
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
+    {
+      name: "User",
+      path: Routes.User,
+      element: User,
+      isOnSidebar: false,
     },
     {
       name: "Expenses",
