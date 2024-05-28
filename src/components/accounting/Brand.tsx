@@ -49,8 +49,23 @@ const Brand = () => {
   ] = useState(false);
   const { createAccountBrand, deleteAccountBrand, updateAccountBrand } =
     useAccountBrandMutations();
+  const allRows = brands?.map((brand) => {
+    return {
+      name: brand.name,
+      productCount:
+        products?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
+        0,
+      fixtureCount:
+        fixtures?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
+        0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
+
   const columns = [
     { key: t("Name"), isSortable: true },
+    { key: t("Product Count"), isSortable: true },
+    { key: t("Fixture Count"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -58,6 +73,8 @@ const Brand = () => {
       key: "name",
       className: "min-w-32 pr-1",
     },
+    { key: "productCount" },
+    { key: "fixtureCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -247,7 +264,10 @@ const Brand = () => {
       isPath: false,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [brands]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [brands]);
 
   return (
     <>
@@ -257,7 +277,7 @@ const Brand = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={brands}
+          rows={rows}
           title={t("Brands")}
           addButton={addButton}
         />
