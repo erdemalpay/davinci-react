@@ -137,6 +137,12 @@ export const allRoutes: {
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
+    {
+      name: "Stocks",
+      path: Routes.Stocks,
+      element: Stocks,
+      isOnSidebar: true,
+    },
   ],
   [RolePermissionEnum.MANAGEMENT]: [
     {
@@ -182,13 +188,6 @@ export const allRoutes: {
       name: "Expenses",
       path: Routes.Expenses,
       element: Expenses,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "Stocks",
-      path: Routes.Stocks,
-      element: Stocks,
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },

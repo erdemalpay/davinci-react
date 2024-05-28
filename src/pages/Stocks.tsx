@@ -15,10 +15,12 @@ import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import { useGeneralContext } from "../context/General.context";
-import { StocksPageTabEnum } from "../types";
+import { useUserContext } from "../context/User.context";
+import { RoleEnum, StocksPageTabEnum } from "../types";
 
 export default function Stocks() {
   const { t, i18n } = useTranslation();
+  const { user } = useUserContext();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -47,38 +49,48 @@ export default function Stocks() {
       content: <EnterConsumption />,
       isDisabled: false,
     },
-    // {
-    //   number: StocksPageTabEnum.COUNTARCHIVE,
-    //   label: t("Count Archives"),
-    //   icon: <FiArchive className="text-lg font-thin" />,
-    //   content: <CountArchive />,
-    //   isDisabled: false,
-    // },
     {
       number: StocksPageTabEnum.PRODUCTSTOCKHISTORY,
       label: t("Product Stock History"),
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
       label: t("Fixture Stock History"),
       icon: <FaFileArchive className="text-lg font-thin" />,
       content: <FixtureStockHistory />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
+  const filteredTabs = tabs
+    ?.filter((tab) => !tab.isDisabled)
+    .map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           key={i18n.language}
-          tabs={tabs?.map((tab) => ({
-            ...tab,
-            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
-          }))}
+          tabs={filteredTabs}
           activeTab={stocksActiveTab}
           setActiveTab={setStocksActiveTab}
           additionalOpenAction={() => {
