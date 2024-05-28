@@ -180,15 +180,9 @@ const Product = () => {
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
-  ) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
+
   const rowKeys = [
     {
       key: "name",
@@ -304,6 +298,27 @@ const Product = () => {
       },
     },
   ];
+  if (
+    user &&
+    ![
+      RoleEnum.MANAGER,
+      RoleEnum.CATERINGMANAGER,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
+  ) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Unit Price"),
+      1
+    );
+    columns.splice(
+      columns.findIndex((column) => column.key === "Actions"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "unitPrice"),
+      1
+    );
+  }
   const addButton = {
     name: t(`Add Product`),
     isModal: true,

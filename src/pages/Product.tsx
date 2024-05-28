@@ -48,7 +48,13 @@ export default function Product() {
       label: t("Product Price Chart"),
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPrice selectedProduct={currentProduct} />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       number: ProductPageTabEnum.MENUITEMSWITHPRODUCT,
