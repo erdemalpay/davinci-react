@@ -103,7 +103,7 @@ const Fixture = () => {
             setCurrentPage(1);
             setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
-            navigate(`/fixture/${row._id}`);
+            navigate(`/fixture/${row?._id}`);
           }}
         >
           {row.name}
@@ -114,8 +114,8 @@ const Fixture = () => {
       key: "expenseType",
       className: "min-w-32",
       node: (row: AccountFixture) => {
-        return row.expenseType.map((expType: string, index) => {
-          const foundExpenseType = expenseTypes.find(
+        return row?.expenseType.map((expType: string, index) => {
+          const foundExpenseType = expenseTypes?.find(
             (expenseType) => expenseType._id === expType
           );
           return (
@@ -124,7 +124,7 @@ const Fixture = () => {
               className={`text-sm  px-2 py-1 mr-1 rounded-md w-fit text-white font-semibold`}
               style={{ backgroundColor: foundExpenseType?.backgroundColor }}
             >
-              {foundExpenseType?.name}
+              {foundExpenseType?.name ?? "-"}
             </span>
           );
         });
@@ -136,15 +136,13 @@ const Fixture = () => {
       node: (row: AccountFixture) => {
         if (row.brand) {
           return row?.brand?.map((brand: string, index) => {
-            const foundBrand = brands.find((br) => br._id === brand);
-            if (!foundBrand)
-              return <div key={row._id + "brand" + index}>-</div>;
+            const foundBrand = brands?.find((br) => br._id === brand);
             return (
               <span
-                key={row._id + "brand" + index}
+                key={row?._id + "brand" + index}
                 className={`text-sm   mr-1  w-fit`}
               >
-                {foundBrand?.name}
+                {foundBrand?.name ?? "-"}
                 {(row?.brand?.length ?? 0) - 1 !== index && ","}
               </span>
             );
@@ -158,15 +156,13 @@ const Fixture = () => {
       node: (row: AccountFixture) => {
         if (row.vendor) {
           return row?.vendor?.map((vendor: string, index) => {
-            const foundVendor = vendors.find((vn) => vn._id === vendor);
-            if (!foundVendor)
-              return <div key={row._id + "vendor" + index}>-</div>;
+            const foundVendor = vendors?.find((vn) => vn._id === vendor);
             return (
               <span
-                key={row._id + "vendor" + index}
+                key={row?._id + "vendor" + index}
                 className={`text-sm mr-1  w-fit`}
               >
-                {foundVendor?.name}
+                {foundVendor?.name ?? "-"}
                 {(row?.vendor?.length ?? 0) - 1 !== index && ","}
               </span>
             );
@@ -179,7 +175,7 @@ const Fixture = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
+            <P1>{row?.unitPrice} ₺</P1>
           </div>
         );
       },
