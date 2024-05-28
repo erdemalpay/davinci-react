@@ -11,12 +11,14 @@ import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
-import { AccountBrand, BrandPageTabEnum } from "../types";
+import { useUserContext } from "../context/User.context";
+import { AccountBrand, BrandPageTabEnum, RoleEnum } from "../types";
 import { useGetAccountBrands } from "../utils/api/account/brand";
 
 export default function Brand() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const { user } = useUserContext();
   const { brandId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
@@ -53,9 +55,23 @@ export default function Brand() {
       label: t("Brand Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <BrandExpenses selectedBrand={currentBrand} />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
+  const filteredTabs = tabs
+    ?.filter((tab) => !tab.isDisabled)
+    .map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -93,7 +109,7 @@ export default function Brand() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={tabs}
+          tabs={filteredTabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />

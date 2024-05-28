@@ -12,13 +12,20 @@ import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
 import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
-import { AccountProduct, AccountUnit, ProductPageTabEnum } from "../types";
+import { useUserContext } from "../context/User.context";
+import {
+  AccountProduct,
+  AccountUnit,
+  ProductPageTabEnum,
+  RoleEnum,
+} from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import i18n from "../utils/i18n";
 
 export default function Product() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const { user } = useUserContext();
   const { productId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
@@ -55,16 +62,36 @@ export default function Product() {
       label: t("Product Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <ProductExpenses selectedProduct={currentProduct} />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       number: ProductPageTabEnum.PRODUCTSTOCKHISTORY,
       label: t("Product Stock History"),
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory selectedProduct={currentProduct} />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
+  const filteredTabs = tabs
+    ?.filter((tab) => !tab.isDisabled)
+    .map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -102,7 +129,7 @@ export default function Product() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={tabs}
+          tabs={filteredTabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />

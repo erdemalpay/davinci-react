@@ -107,8 +107,25 @@ const Fixture = () => {
       className: "min-w-32 pr-1",
       node: (row: AccountFixture) => (
         <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          className={`${
+            user &&
+            [
+              RoleEnum.MANAGER,
+              RoleEnum.CATERINGMANAGER,
+              RoleEnum.GAMEMANAGER,
+            ].includes(user?.role?._id) &&
+            "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          }`}
           onClick={() => {
+            if (
+              user &&
+              ![
+                RoleEnum.MANAGER,
+                RoleEnum.CATERINGMANAGER,
+                RoleEnum.GAMEMANAGER,
+              ].includes(user?.role?._id)
+            )
+              return;
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");

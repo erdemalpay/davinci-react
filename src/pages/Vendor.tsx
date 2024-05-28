@@ -11,13 +11,15 @@ import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorFixtures from "../components/vendor/VendorFixtures";
 import VendorProducts from "../components/vendor/VendorProducts";
 import { useGeneralContext } from "../context/General.context";
-import { AccountVendor, VendorPageTabEnum } from "../types";
+import { useUserContext } from "../context/User.context";
+import { AccountVendor, RoleEnum, VendorPageTabEnum } from "../types";
 import { useGetAccountVendors } from "../utils/api/account/vendor";
 
 export default function Vendor() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { vendorId } = useParams();
+  const { user } = useUserContext();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
@@ -53,9 +55,23 @@ export default function Vendor() {
       label: t("Vendor Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <VendorExpenses selectedVendor={currentVendor} />,
-      isDisabled: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
+  const filteredTabs = tabs
+    ?.filter((tab) => !tab.isDisabled)
+    .map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -93,7 +109,7 @@ export default function Vendor() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={tabs}
+          tabs={filteredTabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />
