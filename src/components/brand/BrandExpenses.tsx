@@ -10,30 +10,30 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
-  BrandInput,
   ProductInput,
   StockLocationInput,
+  VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-type Props = { selectedVendor: AccountVendor };
+type Props = { selectedBrand: AccountBrand };
 type FormElementsState = {
   [key: string]: any;
 };
-const VendorExpenses = ({ selectedVendor }: Props) => {
+const BrandExpenses = ({ selectedBrand }: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
-  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
   const units = useGetAccountUnits();
   const locations = useGetAccountStockLocations();
@@ -44,7 +44,7 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
       after: "",
       location: "",
       product: "",
-      brand: "",
+      vendor: "",
     });
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -53,7 +53,7 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
     invoices
       ?.filter(
         (invoice) =>
-          (invoice?.vendor as AccountVendor)?._id === selectedVendor?._id
+          (invoice?.brand as AccountBrand)?._id === selectedBrand?._id
       )
       ?.map((invoice) => {
         return {
@@ -121,10 +121,10 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
 
   const filterPanelInputs = [
     ProductInput({
-      products: products.filter((i) => i.vendor?.includes(selectedVendor?._id)),
+      products: products.filter((i) => i.brand?.includes(selectedBrand?._id)),
       required: true,
     }),
-    BrandInput({ brands: brands, required: true }),
+    VendorInput({ vendors: vendors, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
@@ -256,7 +256,7 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
     const processedRows = invoices
       ?.filter(
         (invoice) =>
-          (invoice?.vendor as AccountVendor)?._id === selectedVendor?._id
+          (invoice?.brand as AccountBrand)?._id === selectedBrand?._id
       )
       ?.filter((invoice) => {
         return (
@@ -269,8 +269,8 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
             (invoice.product as AccountProduct)?._id
           ) &&
           passesFilter(
-            filterPanelFormElements.brand,
-            (invoice.brand as AccountBrand)?._id
+            filterPanelFormElements.vendor,
+            (invoice.vendor as AccountVendor)?._id
           ) &&
           passesFilter(
             filterPanelFormElements.location,
@@ -373,17 +373,17 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedVendor?._id + tableKey}
+        key={selectedBrand?._id + tableKey}
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
         filterPanel={filterPanel}
         rows={rows}
-        title={t("Vendor Expenses")}
+        title={t("Brand Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
       />
     </div>
   );
 };
-export default VendorExpenses;
+export default BrandExpenses;

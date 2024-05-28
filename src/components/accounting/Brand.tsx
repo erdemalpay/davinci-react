@@ -5,7 +5,10 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
-import { AccountBrand, AccountUnit } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { AccountBrand, AccountUnit, RoleEnum } from "../../types";
 import {
   useAccountBrandMutations,
   useGetAccountBrands,
@@ -26,11 +29,15 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Brand = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  const navigate = useNavigate();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+    useGeneralContext();
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const fixtures = useGetAccountFixtures();
   const { updateAccountProduct } = useAccountProductMutations();
@@ -49,15 +56,52 @@ const Brand = () => {
   ] = useState(false);
   const { createAccountBrand, deleteAccountBrand, updateAccountBrand } =
     useAccountBrandMutations();
+  const allRows = brands?.map((brand) => {
+    return {
+      ...brand,
+      productCount:
+        products?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
+        0,
+      fixtureCount:
+        fixtures?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
+        0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
+
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
+    { key: t("Product Count"), isSortable: true },
+    { key: t("Fixture Count"), isSortable: true },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
       className: "min-w-32 pr-1",
+      node: (row: AccountBrand) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            setCurrentPage(1);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            navigate(`/brand/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
     },
+    { key: "productCount" },
+    { key: "fixtureCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -121,6 +165,13 @@ const Brand = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
   };
   const actions = [
     {
@@ -144,6 +195,13 @@ const Brand = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -167,6 +225,13 @@ const Brand = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Fixture"),
@@ -206,6 +271,13 @@ const Brand = () => {
       isModalOpen: isAddFixureModalOpen,
       setIsModal: setIsAddFixtureModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Product"),
@@ -245,9 +317,19 @@ const Brand = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [brands]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [brands]);
 
   return (
     <>
@@ -257,9 +339,18 @@ const Brand = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={brands}
+          rows={rows}
           title={t("Brands")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

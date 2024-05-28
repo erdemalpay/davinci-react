@@ -357,5 +357,13 @@
   "Product Expense": "Ürün Gideri",
   "Fixture Expense": "Demirbaş Gideri",
   "Service Expense": "Hizmet Gideri",
+  "Product Count": "Ürün Sayısı",
+  "Fixture Count": "Demirbaş Sayısı",
+  "Constants": "Sabitler",
+  "Select a Brand": "Bir Marka Seçin",
+  "Vendor Fixtures": "Satıcı Demirbaşları",
+  "Brand Products": "Marka Ürünleri",
+  "Brand Fixtures": "Marka Demirbaşları",
+  "Brand Expenses": "Marka Giderleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

@@ -4,7 +4,8 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountUnit, RowPerPageEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountProduct, AccountUnit, RoleEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -37,6 +38,7 @@ type FormElementsState = {
 };
 const Product = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
@@ -178,8 +180,15 @@ const Product = () => {
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -189,7 +198,7 @@ const Product = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/product/${row._id}`);
           }}
@@ -332,6 +341,13 @@ const Product = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
@@ -356,6 +372,13 @@ const Product = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -402,6 +425,13 @@ const Product = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => {
@@ -448,6 +478,13 @@ const Product = () => {
     },
     {
       isUpperSide: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
       node: (
         <ButtonFilter
           buttonName={t("Join Products")}
@@ -465,6 +502,7 @@ const Product = () => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -478,6 +516,15 @@ const Product = () => {
           addButton={addButton}
           filters={filters}
           filterPanel={filterPanel}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
         {isJoinProductModalOpen && (
           <GenericAddEditPanel

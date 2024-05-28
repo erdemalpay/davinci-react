@@ -10,7 +10,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import { useGeneralContext } from "../context/General.context";
-import { RoleEnum, RowPerPageEnum, User } from "../types";
+import { RoleEnum, User } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import { useGetUsers, useGetUserWithId } from "../utils/api/user";
 import i18n from "../utils/i18n";
@@ -99,7 +99,7 @@ export default function UserView() {
                   users?.find((user) => user._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
-                setRowsPerPage(RowPerPageEnum.FIRST);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);

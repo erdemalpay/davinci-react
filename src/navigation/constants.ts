@@ -1,5 +1,6 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
+import Brand from "../pages/Brand";
 import Count from "../pages/Count";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
@@ -45,6 +46,7 @@ export enum Routes {
   Count = "/count/:location/:countListId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
+  Brand = "/brand/:brandId",
   Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
@@ -137,20 +139,17 @@ export const allRoutes: {
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
-  ],
-  [RolePermissionEnum.MANAGEMENT]: [
     {
-      name: "Menu",
-      path: Routes.Menu,
-      element: Menu,
+      name: "Stocks",
+      path: Routes.Stocks,
+      element: Stocks,
       isOnSidebar: true,
-      exceptionRoleIds: [RoleEnum.BARISTA],
     },
     {
-      name: "User",
-      path: Routes.User,
-      element: User,
-      isOnSidebar: false,
+      name: "Constants",
+      path: Routes.Accounting,
+      element: Accounting,
+      isOnSidebar: true,
     },
     {
       name: "Product",
@@ -165,31 +164,39 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
+      name: "Brand",
+      path: Routes.Brand,
+      element: Brand,
+      isOnSidebar: false,
+    },
+    {
       name: "Fixture",
       path: Routes.Fixture,
       element: Fixture,
       isOnSidebar: false,
     },
+  ],
+  [RolePermissionEnum.MANAGEMENT]: [
     {
-      name: "Accounting",
-      path: Routes.Accounting,
-      element: Accounting,
+      name: "Menu",
+      path: Routes.Menu,
+      element: Menu,
       isOnSidebar: true,
+      exceptionRoleIds: [RoleEnum.BARISTA],
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
+    {
+      name: "User",
+      path: Routes.User,
+      element: User,
+      isOnSidebar: false,
     },
     {
       name: "Expenses",
       path: Routes.Expenses,
       element: Expenses,
       isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "Stocks",
-      path: Routes.Stocks,
-      element: Stocks,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
     },
     {
       name: "Users",

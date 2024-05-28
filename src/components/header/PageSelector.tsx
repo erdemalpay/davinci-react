@@ -12,7 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
-import { Role, RolePermissionEnum, RowPerPageEnum } from "../../types";
+import { Role, RolePermissionEnum } from "../../types";
 
 export function PageSelector() {
   const navigate = useNavigate();
@@ -102,7 +102,7 @@ export function PageSelector() {
               onClick={() => {
                 if (currentRoute === route.path) return;
                 setCurrentPage(1);
-                setRowsPerPage(RowPerPageEnum.FIRST);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
                 setExpandedRows({});
                 setSearchQuery("");
                 navigate(route.path);

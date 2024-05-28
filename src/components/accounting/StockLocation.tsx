@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountStockLocation } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountStockLocation, RoleEnum } from "../../types";
 import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
@@ -16,6 +17,7 @@ import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 const StockLocations = () => {
   const { t } = useTranslation();
   const stockLocations = useGetAccountStockLocations();
+  const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -29,10 +31,15 @@ const StockLocations = () => {
     deleteAccountStockLocation,
     updateAccountStockLocation,
   } = useAccountStockLocationMutations();
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
-  ];
+  const columns = [{ key: t("Name"), isSortable: true }];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -58,6 +65,13 @@ const StockLocations = () => {
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
@@ -83,6 +97,13 @@ const StockLocations = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -107,6 +128,13 @@ const StockLocations = () => {
       setIsModal: setIsEditModalOpen,
 
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => setTableKey((prev) => prev + 1), [stockLocations]);
@@ -122,6 +150,15 @@ const StockLocations = () => {
           rows={stockLocations}
           title={t("Stock Locations")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

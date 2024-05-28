@@ -7,7 +7,8 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountUnit, AccountVendor, RowPerPageEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountUnit, AccountVendor, RoleEnum } from "../../types";
 import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
@@ -28,6 +29,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Vendor = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useUserContext();
   const vendors = useGetAccountVendors();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -53,10 +55,31 @@ const Vendor = () => {
   const [fixtureForm, setFixtureForm] = useState({
     fixture: [],
   });
+  const allRows = vendors?.map((vendor) => {
+    return {
+      ...vendor,
+      productCount:
+        products?.filter((item) => item?.vendor?.includes(vendor?._id))
+          ?.length ?? 0,
+      fixtureCount:
+        fixtures?.filter((item) => item?.vendor?.includes(vendor?._id))
+          ?.length ?? 0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
+    { key: t("Product Count"), isSortable: true },
+    { key: t("Fixture Count"), isSortable: true },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -66,7 +89,7 @@ const Vendor = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/vendor/${row._id}`);
           }}
@@ -75,6 +98,8 @@ const Vendor = () => {
         </p>
       ),
     },
+    { key: "productCount" },
+    { key: "fixtureCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -138,6 +163,13 @@ const Vendor = () => {
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
@@ -163,6 +195,13 @@ const Vendor = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -186,6 +225,13 @@ const Vendor = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Fixture"),
@@ -225,6 +271,13 @@ const Vendor = () => {
       isModalOpen: isAddFixureModalOpen,
       setIsModal: setIsAddFixtureModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Product"),
@@ -264,9 +317,19 @@ const Vendor = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [vendors]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [vendors]);
 
   return (
     <>
@@ -276,9 +339,18 @@ const Vendor = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={vendors}
+          rows={rows}
           title={t("Vendors")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

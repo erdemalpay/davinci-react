@@ -360,5 +360,13 @@
   "Product Expense": "Product Expense",
   "Fixture Expense": "Fixture Expense",
   "Service Expense": "Service Expense",
+  "Product Count": "Product Count",
+  "Fixture Count": "Fixture Count",
+  "Constants": "Constants",
+  "Select a Brand": "Select a Brand",
+  "Vendor Fixtures": "Vendor Fixtures",
+  "Brand Products": "Brand Products",
+  "Brand Fixtures": "Brand Fixtures",
+  "Brand Expenses": "Brand Expenses",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
