@@ -75,6 +75,7 @@ const AllExpenses = () => {
       location: "",
       before: "",
       after: "",
+      type: "",
     });
   const allProductsOptions = [
     ...products.map((product) => ({ value: product._id, label: product.name })),
@@ -173,6 +174,20 @@ const AllExpenses = () => {
         };
       }),
       placeholder: t("Product"),
+      isMultiple: false,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Expense Type"),
+      options: Object.entries(ExpenseTypes).map((item) => {
+        return {
+          value: item[1],
+          label: t(item[1]),
+        };
+      }),
+      placeholder: t("Expense Type"),
       isMultiple: false,
       required: true,
     },
@@ -409,6 +424,7 @@ const AllExpenses = () => {
           filterPanelFormElements.vendor,
           vendors.find((item) => item.name === invoice.vendor)?._id
         ) &&
+        passesFilter(filterPanelFormElements.type, invoice.type) &&
         passesFilter(
           filterPanelFormElements.brand,
           brands.find((item) => item.name === invoice.brand)?._id
