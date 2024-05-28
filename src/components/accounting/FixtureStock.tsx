@@ -4,10 +4,12 @@ import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountFixture,
   AccountFixtureStock,
   AccountStockLocation,
+  RoleEnum,
 } from "../../types";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import {
@@ -33,6 +35,7 @@ type FormElementsState = {
 const FixtureStock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountFixtureStocks();
+  const { user } = useUserContext();
   const fixtures = useGetAccountFixtures();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
@@ -153,13 +156,35 @@ const FixtureStock = () => {
     },
     {
       key: "totalPrice",
-      node: (row: any) => (
-        <div className={!isEnableEdit ? "text-center" : ""}>
-          {row.totalPrice} ₺
-        </div>
-      ),
+      node: (row: any) => <div>{row.totalPrice} ₺</div>,
     },
   ];
+  if (
+    user &&
+    ![
+      RoleEnum.MANAGER,
+      RoleEnum.CATERINGMANAGER,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
+  ) {
+    const splicedColumns = ["Unit Price", "Total Price"];
+    const splicedRowKeys = ["unitPrice", "totalPrice"];
+    splicedColumns.forEach((item) => {
+      columns.splice(
+        columns.findIndex((column) => column.key === item),
+        1
+      );
+    });
+    splicedRowKeys.forEach((item) => {
+      rowKeys.splice(
+        rowKeys.findIndex((rowKey) => rowKey.key === item),
+        1
+      );
+    });
+  }
+  if (isEnableEdit) {
+    columns.push({ key: t("Action"), isSortable: false });
+  }
   const addButton = {
     name: t("Add Fixture Stock"),
     isModal: true,
@@ -259,6 +284,13 @@ const FixtureStock = () => {
     {
       label: t("Total") + " :",
       isUpperSide: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
       node: (
         <div className="flex flex-row gap-2">
           <p>
@@ -358,17 +390,14 @@ const FixtureStock = () => {
           rowKeys={rowKeys}
           actions={isEnableEdit ? actions : []}
           filters={filters}
-          columns={
-            isEnableEdit
-              ? [...columns, { key: t("Action"), isSortable: false }]
-              : columns
-          }
+          columns={columns}
           rows={rows}
           title={t("Fixture Stocks")}
           addButton={addButton}
           outsideSearch={outsideSearch}
           isSearch={false}
           filterPanel={filterPanel}
+          isActionsActive={isEnableEdit}
         />
       </div>
     </>
