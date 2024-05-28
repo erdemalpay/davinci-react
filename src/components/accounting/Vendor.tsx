@@ -55,7 +55,7 @@ const Vendor = () => {
   });
   const allRows = vendors?.map((vendor) => {
     return {
-      name: vendor.name,
+      ...vendor,
       productCount:
         products?.filter((item) => item?.vendor?.includes(vendor?._id))
           ?.length ?? 0,

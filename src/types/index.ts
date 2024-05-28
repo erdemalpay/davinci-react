@@ -386,10 +386,12 @@ export enum ProductPageTabEnum {
 }
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
+  VENDORFIXTURES,
   VENDOREXPENSES,
 }
 export enum BrandPageTabEnum {
   BRANDPRODUCTS,
+  BRANDFIXTURES,
   BRANDEXPENSES,
 }
 export enum FixturePageTabEnum {

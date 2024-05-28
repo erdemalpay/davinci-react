@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,6 +8,7 @@ import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
+import VendorFixtures from "../components/vendor/VendorFixtures";
 import VendorProducts from "../components/vendor/VendorProducts";
 import { useGeneralContext } from "../context/General.context";
 import { AccountVendor, VendorPageTabEnum } from "../types";
@@ -37,6 +39,13 @@ export default function Vendor() {
       label: t("Vendor Products"),
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <VendorProducts selectedVendor={currentVendor} />,
+      isDisabled: false,
+    },
+    {
+      number: VendorPageTabEnum.VENDORFIXTURES,
+      label: t("Vendor Fixtures"),
+      icon: <FaAnchor className="text-lg font-thin" />,
+      content: <VendorFixtures selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {

@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaAnchor } from "react-icons/fa";
+import { GiTakeMyMoney } from "react-icons/gi";
+import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
+import BrandExpenses from "../components/brand/BrandExpenses";
+import BrandFixtures from "../components/brand/BrandFixtures";
+import BrandProducts from "../components/brand/BrandProducts";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
-// import BrandExpenses from "../components/brand/BrandExpenses";
-// import BrandProducts from "../components/brand/BrandProducts";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
-import { AccountBrand } from "../types";
+import { AccountBrand, BrandPageTabEnum } from "../types";
 import { useGetAccountBrands } from "../utils/api/account/brand";
 
 export default function Brand() {
@@ -29,20 +34,27 @@ export default function Brand() {
 
   if (!currentBrand) return <></>;
   const tabs = [
-    // {
-    //   number: BrandPageTabEnum.BRANDPRODUCTS,
-    //   label: t("Brand Products"),
-    //   icon: <MdOutlineMenuBook className="text-lg font-thin" />,
-    //   content: <BrandProducts selectedBrand={currentBrand} />,
-    //   isDisabled: false,
-    // },
-    // {
-    //   number: BrandPageTabEnum.BRANDEXPENSES,
-    //   label: t("Brand Expenses"),
-    //   icon: <GiTakeMyMoney className="text-lg font-thin" />,
-    //   content: <BrandExpenses selectedBrand={currentBrand} />,
-    //   isDisabled: false,
-    // },
+    {
+      number: BrandPageTabEnum.BRANDPRODUCTS,
+      label: t("Brand Products"),
+      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+      content: <BrandProducts selectedBrand={currentBrand} />,
+      isDisabled: false,
+    },
+    {
+      number: BrandPageTabEnum.BRANDFIXTURES,
+      label: t("Brand Fixtures"),
+      icon: <FaAnchor className="text-lg font-thin" />,
+      content: <BrandFixtures selectedBrand={currentBrand} />,
+      isDisabled: false,
+    },
+    {
+      number: BrandPageTabEnum.BRANDEXPENSES,
+      label: t("Brand Expenses"),
+      icon: <GiTakeMyMoney className="text-lg font-thin" />,
+      content: <BrandExpenses selectedBrand={currentBrand} />,
+      isDisabled: false,
+    },
   ];
   return (
     <>
@@ -79,12 +91,12 @@ export default function Brand() {
           </div>
         </div>
 
-        {/* <TabPanel
+        <TabPanel
           key={tabPanelKey + i18n.language}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-        /> */}
+        />
       </div>
     </>
   );

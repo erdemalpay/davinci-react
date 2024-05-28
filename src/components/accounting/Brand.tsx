@@ -56,8 +56,7 @@ const Brand = () => {
     useAccountBrandMutations();
   const allRows = brands?.map((brand) => {
     return {
-      _id: brand?._id,
-      name: brand.name,
+      ...brand,
       productCount:
         products?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
         0,
