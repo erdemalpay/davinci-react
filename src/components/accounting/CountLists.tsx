@@ -94,11 +94,13 @@ const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => {
-          setCountListActiveTab(countListActiveTab + 1);
           setIsAddModalOpen(false);
         }}
         inputs={inputs}
         formKeys={formKeys}
+        additionalSubmitFunction={() => {
+          setCountListActiveTab(countListActiveTab + 1);
+        }}
         submitItem={createAccountCountList as any}
         topClassName="flex flex-col gap-2 "
       />
