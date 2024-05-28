@@ -4,11 +4,13 @@ import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   AccountPackageType,
   AccountProduct,
   AccountStock,
   AccountStockLocation,
+  RoleEnum,
   StockHistoryStatusEnum,
 } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -30,13 +32,13 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
 const Stock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
+  const { user } = useUserContext();
   const units = useGetAccountUnits();
   const products = useGetAccountProducts();
   const packages = useGetAccountPackageTypes();
@@ -181,6 +183,32 @@ const Stock = () => {
       ),
     },
   ];
+  if (
+    user &&
+    ![
+      RoleEnum.MANAGER,
+      RoleEnum.CATERINGMANAGER,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
+  ) {
+    const splicedColumns = ["Unit Price", "Total Price"];
+    const splicedRowKeys = ["unitPrice", "totalPrice"];
+    splicedColumns.forEach((item) => {
+      columns.splice(
+        columns.findIndex((column) => column.key === item),
+        1
+      );
+    });
+    splicedRowKeys.forEach((item) => {
+      rowKeys.splice(
+        rowKeys.findIndex((rowKey) => rowKey.key === item),
+        1
+      );
+    });
+  }
+  if (isEnableEdit) {
+    columns.push({ key: t("Action"), isSortable: false });
+  }
   const addButton = {
     name: t("Add Stock"),
     isModal: true,
@@ -298,6 +326,13 @@ const Stock = () => {
           </p>
         </div>
       ),
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       label: t("Enable Edit"),
@@ -469,17 +504,14 @@ const Stock = () => {
           rowKeys={rowKeys}
           actions={isEnableEdit ? actions : []}
           filters={filters}
-          columns={
-            isEnableEdit
-              ? [...columns, { key: t("Action"), isSortable: false }]
-              : columns
-          }
+          columns={columns}
           rows={rows}
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}
           outsideSearch={outsideSearch}
+          isActionsActive={isEnableEdit}
         />
       </div>
     </>
