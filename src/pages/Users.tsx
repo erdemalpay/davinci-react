@@ -16,7 +16,8 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { WorkType } from "../types";
+import { useUserContext } from "../context/User.context";
+import { RoleEnum, WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -52,6 +53,7 @@ export default function Users() {
   const { t } = useTranslation();
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { user } = useUserContext();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -188,6 +190,7 @@ export default function Users() {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
     },
     {
       name: t("Edit"),
