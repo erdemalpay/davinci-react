@@ -145,6 +145,7 @@ export const allRoutes: {
       element: Menu,
       isOnSidebar: true,
       exceptionRoleIds: [RoleEnum.BARISTA],
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
     {
       name: "User",
