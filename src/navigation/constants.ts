@@ -189,7 +189,7 @@ export const allRoutes: {
       path: Routes.Expenses,
       element: Expenses,
       isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
     },
     {
       name: "Users",
