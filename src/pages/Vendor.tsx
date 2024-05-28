@@ -9,7 +9,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorProducts from "../components/vendor/VendorProducts";
 import { useGeneralContext } from "../context/General.context";
-import { AccountVendor, RowPerPageEnum, VendorPageTabEnum } from "../types";
+import { AccountVendor, VendorPageTabEnum } from "../types";
 import { useGetAccountVendors } from "../utils/api/account/vendor";
 
 export default function Vendor() {
@@ -71,7 +71,7 @@ export default function Vendor() {
                   vendors?.find((i) => i._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
-                setRowsPerPage(RowPerPageEnum.FIRST);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);

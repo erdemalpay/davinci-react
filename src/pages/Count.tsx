@@ -21,7 +21,6 @@ import {
   AccountPackageType,
   AccountProduct,
   AccountStockLocation,
-  RowPerPageEnum,
   User,
 } from "../types";
 import {
@@ -385,7 +384,7 @@ const Count = () => {
               });
               setCountListActiveTab(countLists.length);
               setCurrentPage(1);
-              setRowsPerPage(RowPerPageEnum.FIRST);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               navigate(Routes.CountListMenu);
             }}

@@ -16,7 +16,7 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { RowPerPageEnum, WorkType } from "../types";
+import { WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
@@ -142,7 +142,7 @@ export default function Users() {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/user/${row._id}`);
           }}

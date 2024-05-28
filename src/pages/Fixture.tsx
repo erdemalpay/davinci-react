@@ -9,7 +9,7 @@ import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
-import { AccountFixture, FixturePageTabEnum, RowPerPageEnum } from "../types";
+import { AccountFixture, FixturePageTabEnum } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 
 export default function Fixture() {
@@ -71,7 +71,7 @@ export default function Fixture() {
                   fixtures?.find((p) => p._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
-                setRowsPerPage(RowPerPageEnum.FIRST);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);

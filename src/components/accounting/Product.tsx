@@ -4,7 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountProduct, AccountUnit, RowPerPageEnum } from "../../types";
+import { AccountProduct, AccountUnit } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -189,7 +189,7 @@ const Product = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/product/${row._id}`);
           }}

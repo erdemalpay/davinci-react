@@ -8,13 +8,7 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import {
-  AccountCountList,
-  AccountUnit,
-  RoleEnum,
-  RowPerPageEnum,
-  User,
-} from "../types";
+import { AccountCountList, AccountUnit, RoleEnum, User } from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -46,7 +40,7 @@ const SingleCountArchive = () => {
       canBeClicked: true,
       additionalSubmitFunction: () => {
         setCurrentPage(1);
-        setRowsPerPage(RowPerPageEnum.FIRST);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
         setSearchQuery("");
         setCountListActiveTab(countLists.length);
       },

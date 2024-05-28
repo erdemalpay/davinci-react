@@ -7,7 +7,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountUnit, AccountVendor, RowPerPageEnum } from "../../types";
+import { AccountUnit, AccountVendor } from "../../types";
 import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
@@ -68,7 +68,7 @@ const Vendor = () => {
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/vendor/${row._id}`);
           }}

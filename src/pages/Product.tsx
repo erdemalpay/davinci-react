@@ -12,12 +12,7 @@ import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
 import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
-import {
-  AccountProduct,
-  AccountUnit,
-  ProductPageTabEnum,
-  RowPerPageEnum,
-} from "../types";
+import { AccountProduct, AccountUnit, ProductPageTabEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import i18n from "../utils/i18n";
 
@@ -94,7 +89,7 @@ export default function Product() {
                   products?.find((p) => p._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
-                setRowsPerPage(RowPerPageEnum.FIRST);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
