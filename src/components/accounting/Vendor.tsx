@@ -55,6 +55,8 @@ const Vendor = () => {
   });
   const columns = [
     { key: t("Name"), isSortable: true },
+    { key: t("Product Count"), isSortable: false },
+    { key: t("Fixture Count"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -72,6 +74,26 @@ const Vendor = () => {
           }}
         >
           {row.name}
+        </p>
+      ),
+    },
+    {
+      key: "productCount",
+      className: "min-w-32 pr-1",
+      node: (row: AccountVendor) => (
+        <p>
+          {products?.filter((item) => item?.vendor?.includes(row?._id))
+            ?.length ?? 0}
+        </p>
+      ),
+    },
+    {
+      key: "fixtureCount",
+      className: "min-w-32 pr-1",
+      node: (row: AccountVendor) => (
+        <p>
+          {fixtures?.filter((item) => item?.vendor?.includes(row?._id))
+            ?.length ?? 0}
         </p>
       ),
     },

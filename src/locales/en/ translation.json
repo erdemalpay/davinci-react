@@ -360,5 +360,7 @@
   "Product Expense": "Product Expense",
   "Fixture Expense": "Fixture Expense",
   "Service Expense": "Service Expense",
+  "Product Count": "Product Count",
+  "Fixture Count": "Fixture Count",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

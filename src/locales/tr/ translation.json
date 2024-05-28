@@ -357,5 +357,7 @@
   "Product Expense": "Ürün Gideri",
   "Fixture Expense": "Demirbaş Gideri",
   "Service Expense": "Hizmet Gideri",
+  "Product Count": "Ürün Sayısı",
+  "Fixture Count": "Demirbaş Sayısı",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
