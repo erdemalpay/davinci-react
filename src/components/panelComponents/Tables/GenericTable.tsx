@@ -598,7 +598,7 @@ const GenericTable = <T,>({
                   )}
               </div>
               {/* add button */}
-              {addButton && (
+              {addButton && !addButton.isDisabled && (
                 <button
                   className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
                     addButton.className

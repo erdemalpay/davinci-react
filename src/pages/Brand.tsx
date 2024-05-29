@@ -4,57 +4,57 @@ import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
+import BrandExpenses from "../components/brand/BrandExpenses";
+import BrandFixtures from "../components/brand/BrandFixtures";
+import BrandProducts from "../components/brand/BrandProducts";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import VendorExpenses from "../components/vendor/VendorExpenses";
-import VendorFixtures from "../components/vendor/VendorFixtures";
-import VendorProducts from "../components/vendor/VendorProducts";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountVendor, RoleEnum, VendorPageTabEnum } from "../types";
-import { useGetAccountVendors } from "../utils/api/account/vendor";
+import { AccountBrand, BrandPageTabEnum, RoleEnum } from "../types";
+import { useGetAccountBrands } from "../utils/api/account/brand";
 
-export default function Vendor() {
+export default function Brand() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { vendorId } = useParams();
   const { user } = useUserContext();
+  const { brandId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
-  const vendors = useGetAccountVendors();
-  const currentVendor = vendors?.find((item) => item._id === vendorId);
+  const [selectedBrand, setSelectedBrand] = useState<AccountBrand>();
+  const brands = useGetAccountBrands();
+  const currentBrand = brands?.find((item) => item._id === brandId);
   const { t, i18n } = useTranslation();
-  const vendorOptions = vendors?.map((i) => {
+  const brandOptions = brands?.map((i) => {
     return {
       value: i._id,
       label: i.name,
     };
   });
 
-  if (!currentVendor) return <></>;
+  if (!currentBrand) return <></>;
   const tabs = [
     {
-      number: VendorPageTabEnum.VENDORPRODUCTS,
-      label: t("Vendor Products"),
+      number: BrandPageTabEnum.BRANDPRODUCTS,
+      label: t("Brand Products"),
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
-      content: <VendorProducts selectedVendor={currentVendor} />,
+      content: <BrandProducts selectedBrand={currentBrand} />,
       isDisabled: false,
     },
     {
-      number: VendorPageTabEnum.VENDORFIXTURES,
-      label: t("Vendor Fixtures"),
+      number: BrandPageTabEnum.BRANDFIXTURES,
+      label: t("Brand Fixtures"),
       icon: <FaAnchor className="text-lg font-thin" />,
-      content: <VendorFixtures selectedVendor={currentVendor} />,
+      content: <BrandFixtures selectedBrand={currentBrand} />,
       isDisabled: false,
     },
     {
-      number: VendorPageTabEnum.VENDOREXPENSES,
-      label: t("Vendor Expenses"),
+      number: BrandPageTabEnum.BRANDEXPENSES,
+      label: t("Brand Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <VendorExpenses selectedVendor={currentVendor} />,
+      content: <BrandExpenses selectedBrand={currentBrand} />,
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
@@ -79,30 +79,30 @@ export default function Vendor() {
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput
-              options={vendorOptions}
+              options={brandOptions}
               value={
-                selectedVendor
+                selectedBrand
                   ? {
-                      value: selectedVendor._id,
-                      label: selectedVendor.name,
+                      value: selectedBrand._id,
+                      label: selectedBrand.name,
                     }
                   : {
-                      value: currentVendor._id,
-                      label: currentVendor.name,
+                      value: currentBrand._id,
+                      label: currentBrand.name,
                     }
               }
               onChange={(selectedOption) => {
-                setSelectedVendor(
-                  vendors?.find((i) => i._id === selectedOption?.value)
+                setSelectedBrand(
+                  brands?.find((i) => i._id === selectedOption?.value)
                 );
                 setCurrentPage(1);
                 // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
-                navigate(`/vendor/${selectedOption?.value}`);
+                navigate(`/brand/${selectedOption?.value}`);
               }}
-              placeholder={t("Select a Vendor")}
+              placeholder={t("Select a Brand")}
             />
           </div>
         </div>

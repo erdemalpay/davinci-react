@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { AccountPackageType, AccountUnit } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountPackageType, AccountUnit, RoleEnum } from "../../types";
 import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
@@ -23,6 +24,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const PackageType = () => {
   const { t } = useTranslation();
   const packageTypes = useGetAccountPackageTypes();
+  const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const units = useGetAccountUnits();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -55,8 +57,15 @@ const PackageType = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "name",
@@ -124,6 +133,13 @@ const PackageType = () => {
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
@@ -149,6 +165,13 @@ const PackageType = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -177,6 +200,13 @@ const PackageType = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Add Into Product"),
@@ -218,6 +248,13 @@ const PackageType = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => {
@@ -243,6 +280,15 @@ const PackageType = () => {
           rows={rows}
           title={t("Package Types")}
           addButton={addButton}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

@@ -4,7 +4,8 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountFixture, RowPerPageEnum } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { AccountFixture, RoleEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -32,6 +33,7 @@ const Fixture = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const fixtures = useGetAccountFixtures();
+  const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -98,10 +100,27 @@ const Fixture = () => {
       className: "min-w-32 pr-1",
       node: (row: AccountFixture) => (
         <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          className={`${
+            user &&
+            [
+              RoleEnum.MANAGER,
+              RoleEnum.CATERINGMANAGER,
+              RoleEnum.GAMEMANAGER,
+            ].includes(user?.role?._id) &&
+            "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          }`}
           onClick={() => {
+            if (
+              user &&
+              ![
+                RoleEnum.MANAGER,
+                RoleEnum.CATERINGMANAGER,
+                RoleEnum.GAMEMANAGER,
+              ].includes(user?.role?._id)
+            )
+              return;
             setCurrentPage(1);
-            setRowsPerPage(RowPerPageEnum.FIRST);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             navigate(`/fixture/${row?._id}`);
           }}
@@ -181,6 +200,27 @@ const Fixture = () => {
       },
     },
   ];
+  if (
+    user &&
+    ![
+      RoleEnum.MANAGER,
+      RoleEnum.CATERINGMANAGER,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
+  ) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Unit Price"),
+      1
+    );
+    columns.splice(
+      columns.findIndex((column) => column.key === "Actions"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "unitPrice"),
+      1
+    );
+  }
   const addButton = {
     name: t(`Add Fixture`),
     isModal: true,
@@ -210,6 +250,13 @@ const Fixture = () => {
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
+    isDisabled: user
+      ? ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id)
+      : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
@@ -235,6 +282,13 @@ const Fixture = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
     {
       name: t("Edit"),
@@ -272,6 +326,13 @@ const Fixture = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
     },
   ];
   useEffect(() => {
@@ -328,6 +389,15 @@ const Fixture = () => {
           addButton={addButton}
           filters={filters}
           filterPanel={filterPanel}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>

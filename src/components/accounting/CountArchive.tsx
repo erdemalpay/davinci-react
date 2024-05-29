@@ -8,7 +8,6 @@ import {
   AccountCountList,
   AccountStockLocation,
   RoleEnum,
-  RowPerPageEnum,
   User,
 } from "../../types";
 import { useGetAccountCounts } from "../../utils/api/account/count";
@@ -77,12 +76,12 @@ const CountArchive = () => {
           onClick={() => {
             if (row.isCompleted) {
               setCurrentPage(1);
-              setRowsPerPage(RowPerPageEnum.FIRST);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               navigate(`/archive/${row._id}`);
             } else {
               setCurrentPage(1);
-              setRowsPerPage(RowPerPageEnum.FIRST);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               navigate(
                 `/count/${(row.location as AccountStockLocation)._id}/${
