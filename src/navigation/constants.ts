@@ -1,6 +1,7 @@
 import Accounting from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
+import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
@@ -50,6 +51,7 @@ export enum Routes {
   Fixture = "/fixture/:fixtureId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
+  Checkout = "/checkout",
 }
 
 export const allRoutes: {
@@ -197,6 +199,12 @@ export const allRoutes: {
       element: Expenses,
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
+    },
+    {
+      name: "Checkout",
+      path: Routes.Checkout,
+      element: Checkout,
+      isOnSidebar: true,
     },
     {
       name: "Users",

@@ -23,6 +23,8 @@ type GeneralContextType = {
   countListActiveTab: number;
   setCountListActiveTab: (tab: number) => void;
   accountingActiveTab: number;
+  checkoutActiveTab: number;
+  setCheckoutActiveTab: (tab: number) => void;
   setAccountingActiveTab: (tab: number) => void;
   expensesActiveTab: number;
   setExpensesActiveTab: (tab: number) => void;
@@ -42,6 +44,8 @@ const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setAccountingActiveTab: () => {},
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
+  checkoutActiveTab: 0,
+  setCheckoutActiveTab: () => {},
   setExpensesActiveTab: () => {},
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
@@ -128,11 +132,14 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     {}
   );
   const [menuActiveTab, setMenuActiveTab] = useState<number>(0);
+  const [checkoutActiveTab, setCheckoutActiveTab] = useState<number>(0);
   const [countListActiveTab, setCountListActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   return (
     <GeneralContext.Provider
       value={{
+        checkoutActiveTab,
+        setCheckoutActiveTab,
         fixtureExpenseForm,
         setFixtureExpenseForm,
         currentPage,
