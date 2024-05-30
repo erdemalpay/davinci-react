@@ -8,7 +8,6 @@ import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Fixture from "../components/accounting/Fixture";
-import FixtureStock from "../components/accounting/FixtureStock";
 import PackageType from "../components/accounting/PackageType";
 import Product from "../components/accounting/Product";
 import Service from "../components/accounting/Service";
@@ -20,7 +19,6 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { AccountingPageTabEnum } from "../types";
 
-FixtureStock;
 export default function Accounting() {
   const { t, i18n } = useTranslation();
   const {

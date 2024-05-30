@@ -368,5 +368,15 @@
   "Brand Products": "Brand Products",
   "Brand Fixtures": "Brand Fixtures",
   "Brand Expenses": "Brand Expenses",
+  "Add Income": "Add Income",
+  "Delete Income": "Delete Income",
+  "Income": "Income",
+  "Incomes": "Incomes",
+  "Amount": "Amount",
+  "Checkout": "Checkout",
+  "Cashout": "Cashout",
+  "Cashouts": "Cashouts",
+  "Delete Cashout": "Delete Cashout",
+  "Add Cashout": "Add Cashout",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
