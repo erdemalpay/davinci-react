@@ -370,5 +370,7 @@
   "Delete Cashout": "Nakit Çıkışı Sil",
   "Add Cashout": "Nakit Çıkışı Ekle",
   "Expense": "Gider",
+  "Add Expense": "Gider Ekle",
+  "Delete Expense": "Gider Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

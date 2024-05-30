@@ -370,5 +370,7 @@
   "Delete Cashout": "Delete Cashout",
   "Add Cashout": "Add Cashout",
   "Expense": "Expense",
+  "Add Expense": "Add Expense",
+  "Delete Expense": "Delete Expense",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

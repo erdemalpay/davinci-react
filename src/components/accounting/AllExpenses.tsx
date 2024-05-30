@@ -180,14 +180,14 @@ const AllExpenses = () => {
     {
       type: InputTypes.SELECT,
       formKey: "type",
-      label: t("Expense Type"),
+      label: t("Expense Category"),
       options: Object.entries(ExpenseTypes).map((item) => {
         return {
           value: item[1],
           label: t(item[1]),
         };
       }),
-      placeholder: t("Expense Type"),
+      placeholder: t("Expense Category"),
       isMultiple: false,
       required: true,
     },
@@ -216,7 +216,11 @@ const AllExpenses = () => {
   const columns = [
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
+    {
+      key: t("Expense Category"),
+      isSortable: true,
+      className: "min-w-40 pr-2",
+    },
     { key: t("Note"), isSortable: true },
     {
       key: t("Brand"),
