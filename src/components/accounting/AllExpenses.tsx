@@ -94,6 +94,8 @@ const AllExpenses = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
+      fixture: "",
+      service: "",
       vendor: "",
       brand: "",
       expenseType: "",
@@ -191,20 +193,6 @@ const AllExpenses = () => {
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: allProductsOptions.map((product) => {
-        return {
-          value: product.value,
-          label: product.label,
-        };
-      }),
-      placeholder: t("Product"),
-      isMultiple: false,
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
       formKey: "type",
       label: t("Expense Category"),
       options: Object.entries(ExpenseTypes).map((item) => {
@@ -213,11 +201,36 @@ const AllExpenses = () => {
           label: t(item[1]),
         };
       }),
+      invalidateKeys: [
+        { key: "product", defaultValue: "" },
+        { key: "fixture", defaultValue: "" },
+        { key: "service", defaultValue: "" },
+        { key: "packages", defaultValue: "" },
+      ],
       placeholder: t("Expense Category"),
       isMultiple: false,
       required: true,
     },
-    PackageTypeInput({ packages: packages, required: true }),
+    ProductInput({
+      products: products,
+      required: true,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
+    }),
+    FixtureInput({
+      fixtures: fixtures,
+      required: true,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.FIXTURE,
+    }),
+    ServiceInput({
+      services: services,
+      required: true,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.SERVICE,
+    }),
+    PackageTypeInput({
+      packages: packages,
+      required: true,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
+    }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
@@ -628,18 +641,18 @@ const AllExpenses = () => {
             (packageType) => packageType.name === invoice.packageType
           )?._id
         ) &&
-        (passesFilter(
+        passesFilter(
           filterPanelFormElements.product,
           products.find((item) => item.name === invoice.product)?._id
-        ) ||
-          passesFilter(
-            filterPanelFormElements.product,
-            fixtures.find((item) => item.name === invoice.product)?._id
-          ) ||
-          passesFilter(
-            filterPanelFormElements.product,
-            services.find((item) => item.name === invoice.product)?._id
-          )) &&
+        ) &&
+        passesFilter(
+          filterPanelFormElements.fixture,
+          fixtures.find((item) => item.name === invoice.product)?._id
+        ) &&
+        passesFilter(
+          filterPanelFormElements.service,
+          services.find((item) => item.name === invoice.product)?._id
+        ) &&
         passesFilter(
           filterPanelFormElements.vendor,
           vendors.find((item) => item.name === invoice.vendor)?._id

@@ -72,7 +72,7 @@ const FilterPanel = <T,>({
               });
             }
           };
-
+        if (input.isDisabled) return null;
         return (
           <div key={input.formKey} className="flex flex-col gap-2">
             {(input.type === InputTypes.TEXT ||
@@ -95,7 +95,7 @@ const FilterPanel = <T,>({
               />
             )}
 
-            {input.type === InputTypes.SELECT && (
+            {input.type === InputTypes.SELECT && !input.isDisabled && (
               <SelectInput
                 key={
                   input.isMultiple
