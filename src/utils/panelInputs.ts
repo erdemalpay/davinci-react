@@ -56,10 +56,12 @@ export function DateInput({ required = true } = {}) {
 export function BrandInput({
   required = false,
   isMultiple = false,
+  isDisabled = false,
   brands,
 }: {
   required?: boolean;
   isMultiple?: boolean;
+  isDisabled?: boolean;
   brands: AccountBrand[];
 }) {
   const { t } = useTranslation();
@@ -72,6 +74,7 @@ export function BrandInput({
       label: brand.name,
     })),
     placeholder: t("Brand"),
+    isDisabled: isDisabled,
     isMultiple: isMultiple,
     required: required,
   };
@@ -191,12 +194,14 @@ export function UnitInput({
 }
 export function ProductInput({
   required = false,
+  isDisabled = false,
   isMultiple = false,
   invalidateKeys = [],
   products,
 }: {
   required?: boolean;
   isMultiple?: boolean;
+  isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   products: AccountProduct[];
 }) {
@@ -211,6 +216,7 @@ export function ProductInput({
         label: product.name + `(${(product.unit as AccountUnit).name})`,
       };
     }),
+    isDisabled: isDisabled,
     invalidateKeys: invalidateKeys,
     placeholder: t("Product"),
     isMultiple: isMultiple,
@@ -274,10 +280,12 @@ export function FixtureInput({
   required = false,
   isMultiple = false,
   invalidateKeys = [],
+  isDisabled = false,
   fixtures,
 }: {
   required?: boolean;
   isMultiple?: boolean;
+  isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   fixtures: AccountFixture[];
 }) {
@@ -292,6 +300,7 @@ export function FixtureInput({
         label: fixture.name,
       };
     }),
+    isDisabled: isDisabled,
     placeholder: t("Fixture"),
     invalidateKeys: invalidateKeys,
     isMultiple: isMultiple,
@@ -302,11 +311,13 @@ export function FixtureInput({
 export function ServiceInput({
   required = false,
   isMultiple = false,
+  isDisabled = false,
   invalidateKeys = [],
   services,
 }: {
   required?: boolean;
   isMultiple?: boolean;
+  isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   services: AccountService[];
 }) {
@@ -321,6 +332,7 @@ export function ServiceInput({
         label: service.name,
       };
     }),
+    isDisabled: isDisabled,
     placeholder: t("Service"),
     invalidateKeys: invalidateKeys,
     isMultiple: isMultiple,

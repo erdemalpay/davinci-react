@@ -1,6 +1,8 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -15,12 +17,21 @@ import {
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
-import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
-import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import {
+  useAccountFixtureInvoiceMutations,
+  useGetAccountFixtureInvoices,
+} from "../../utils/api/account/fixtureInvoice";
+import {
+  useAccountInvoiceMutations,
+  useGetAccountInvoices,
+} from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
-import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
+import {
+  useAccountServiceInvoiceMutations,
+  useGetAccountServiceInvoices,
+} from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -28,13 +39,18 @@ import { formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
   ExpenseTypeInput,
+  FixtureInput,
   PackageTypeInput,
+  ProductInput,
+  QuantityInput,
+  ServiceInput,
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 
@@ -49,9 +65,16 @@ const AllExpenses = () => {
   const serviceInvoices = useGetAccountServiceInvoices();
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
-  const { searchQuery, setCurrentPage, setSearchQuery } = useGeneralContext();
+  const {
+    searchQuery,
+    setCurrentPage,
+    setSearchQuery,
+    allExpenseForm,
+    setAllExpenseForm,
+  } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
@@ -60,6 +83,9 @@ const AllExpenses = () => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
+  const { createAccountInvoice } = useAccountInvoiceMutations();
+  const { createAccountFixtureInvoice } = useAccountFixtureInvoiceMutations();
+  const { createAccountServiceInvoice } = useAccountServiceInvoiceMutations();
   enum ExpenseTypes {
     INVOICE = "Product Expense",
     FIXTURE = "Fixture Expense",
@@ -212,6 +238,196 @@ const AllExpenses = () => {
       required: true,
       isDatePicker: true,
     },
+  ];
+  const expenseTypeInputOptions = () => {
+    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+      return (
+        expenseTypes.filter((exp) =>
+          products
+            .find((prod) => prod._id === allExpenseForm?.product)
+            ?.expenseType.includes(exp._id)
+        ) ?? []
+      );
+    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
+      return (
+        expenseTypes.filter((exp) =>
+          fixtures
+            .find((item) => item._id === allExpenseForm?.fixture)
+            ?.expenseType.includes(exp._id)
+        ) ?? []
+      );
+    } else if (allExpenseForm?.type === ExpenseTypes.SERVICE) {
+      return (
+        expenseTypes.filter((exp) =>
+          services
+            .find((item) => item._id === allExpenseForm?.service)
+            ?.expenseType.includes(exp._id)
+        ) ?? []
+      );
+    } else {
+      return [];
+    }
+  };
+  const brandInputOptions = () => {
+    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+      return (
+        brands?.filter((brnd) =>
+          products
+            .find((prod) => prod._id === allExpenseForm?.product)
+            ?.brand?.includes(brnd._id)
+        ) ?? []
+      );
+    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
+      return (
+        brands?.filter((brnd) =>
+          fixtures
+            .find((item) => item._id === allExpenseForm?.fixture)
+            ?.brand?.includes(brnd._id)
+        ) ?? []
+      );
+    } else {
+      return [];
+    }
+  };
+  const vendorInputOptions = () => {
+    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+      return (
+        vendors?.filter((vndr) =>
+          products
+            .find((prod) => prod._id === allExpenseForm?.product)
+            ?.vendor?.includes(vndr._id)
+        ) ?? []
+      );
+    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
+      return (
+        vendors?.filter((vndr) =>
+          fixtures
+            .find((item) => item._id === allExpenseForm?.fixture)
+            ?.vendor?.includes(vndr._id)
+        ) ?? []
+      );
+    } else if (allExpenseForm?.type === ExpenseTypes.SERVICE) {
+      return (
+        vendors?.filter((vndr) =>
+          services
+            .find((item) => item._id === allExpenseForm?.service)
+            ?.vendor?.includes(vndr._id)
+        ) ?? []
+      );
+    } else {
+      return [];
+    }
+  };
+  const inputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDateInitiallyOpen: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Expense Category"),
+      options: Object.entries(ExpenseTypes).map((item) => {
+        return {
+          value: item[1],
+          label: t(item[1]),
+        };
+      }),
+      placeholder: t("Expense Category"),
+      isMultiple: false,
+      required: true,
+      invalidateKeys: [
+        { key: "product", defaultValue: "" },
+        { key: "fixture", defaultValue: "" },
+        { key: "service", defaultValue: "" },
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+        { key: "packageType", defaultValue: "" },
+      ],
+    },
+    ProductInput({
+      products: products,
+      required: allExpenseForm?.type === ExpenseTypes.INVOICE,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.INVOICE,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+        { key: "packageType", defaultValue: "" },
+      ],
+    }),
+    FixtureInput({
+      fixtures: fixtures,
+      required: allExpenseForm?.type === ExpenseTypes.FIXTURE,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.FIXTURE,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+      ],
+    }),
+    ServiceInput({
+      services: services,
+      required: allExpenseForm?.type === ExpenseTypes.SERVICE,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.SERVICE,
+      invalidateKeys: [
+        { key: "expenseType", defaultValue: "" },
+        { key: "brand", defaultValue: "" },
+        { key: "vendor", defaultValue: "" },
+        { key: "packageType", defaultValue: "" },
+      ],
+    }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "packageType",
+      label: t("Package Type"),
+      options: products
+        .find((prod) => prod._id === allExpenseForm?.product)
+        ?.packages?.map((item) => {
+          const packageType = packages.find((pkg) => pkg._id === item.package);
+          return {
+            value: packageType?._id,
+            label: packageType?.name,
+          };
+        }),
+      placeholder: t("Package Type"),
+      required:
+        (products.find((prod) => prod._id === allExpenseForm?.product)?.packages
+          ?.length ?? 0) > 0 && allExpenseForm?.type === ExpenseTypes.INVOICE,
+      isDisabled:
+        (products?.find((prod) => prod._id === allExpenseForm?.product)
+          ?.packages?.length ?? 0) < 1 ||
+        allExpenseForm?.type !== ExpenseTypes.INVOICE,
+    },
+    ExpenseTypeInput({
+      expenseTypes: expenseTypeInputOptions() ?? [],
+      required: true,
+    }),
+    StockLocationInput({ locations }),
+    BrandInput({
+      isDisabled: allExpenseForm?.type === ExpenseTypes.SERVICE,
+      brands: brandInputOptions() ?? [],
+    }),
+    VendorInput({
+      vendors: vendorInputOptions() ?? [],
+    }),
+    QuantityInput(),
+  ];
+  const formKeys = [
+    { key: "date", type: FormKeyTypeEnum.DATE },
+    { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "packageType", type: FormKeyTypeEnum.STRING },
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
+    { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: "ID", isSortable: true },
@@ -520,6 +736,104 @@ const AllExpenses = () => {
       </div>
     );
   };
+  const addButton = {
+    name: t(`Add Invoice`),
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isCancelConfirmationDialogExist={true}
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        inputs={[
+          ...inputs,
+          {
+            type: InputTypes.NUMBER,
+            formKey: "price",
+            label: t("Price"),
+            placeholder: t("Price"),
+            required: true,
+          },
+          {
+            type: InputTypes.NUMBER,
+            formKey: "kdv",
+            label: t("Vat") + "%",
+            placeholder: t("Vat") + "%",
+            required: true,
+          },
+          {
+            type: InputTypes.TEXTAREA,
+            formKey: "note",
+            label: t("Note"),
+            placeholder: t("Note"),
+            required: false,
+          },
+        ]}
+        formKeys={[
+          ...formKeys,
+          { key: "price", type: FormKeyTypeEnum.NUMBER },
+          { key: "kdv", type: FormKeyTypeEnum.NUMBER },
+        ]}
+        generalClassName="overflow-scroll"
+        submitFunction={() => {
+          if (allExpenseForm.type === ExpenseTypes.INVOICE) {
+            allExpenseForm.price &&
+              allExpenseForm.kdv &&
+              allExpenseForm.quantity &&
+              createAccountInvoice({
+                ...allExpenseForm,
+                quantity: Number(allExpenseForm.quantity),
+                totalExpense:
+                  Number(allExpenseForm.price) +
+                  Number(allExpenseForm.kdv) *
+                    (Number(allExpenseForm.price) / 100),
+              });
+            setAllExpenseForm({});
+          } else if (allExpenseForm.type === ExpenseTypes.FIXTURE) {
+            allExpenseForm.price &&
+              allExpenseForm.kdv &&
+              allExpenseForm.quantity &&
+              createAccountFixtureInvoice({
+                ...allExpenseForm,
+                totalExpense:
+                  Number(allExpenseForm.price) +
+                  Number(allExpenseForm.kdv) *
+                    (Number(allExpenseForm.price) / 100),
+              });
+            setAllExpenseForm({});
+          } else if (allExpenseForm.type === ExpenseTypes.SERVICE) {
+            allExpenseForm.price &&
+              allExpenseForm.kdv &&
+              allExpenseForm.quantity &&
+              createAccountServiceInvoice({
+                ...allExpenseForm,
+                totalExpense:
+                  Number(allExpenseForm.price) +
+                  Number(allExpenseForm.kdv) *
+                    (Number(allExpenseForm.price) / 100),
+              });
+            setAllExpenseForm({});
+          } else {
+            toast.error("Please select a type");
+          }
+        }}
+        additionalCancelFunction={() => {
+          setAllExpenseForm({});
+        }}
+        submitItem={createAccountInvoice as any}
+        topClassName="flex flex-col gap-2 "
+        setForm={setAllExpenseForm}
+        constantValues={{
+          date: format(new Date(), "yyyy-MM-dd"),
+          ...allExpenseForm,
+        }}
+      />
+    ),
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -533,6 +847,7 @@ const AllExpenses = () => {
           filterPanel={filterPanel}
           isSearch={false}
           outsideSearch={outsideSearch}
+          addButton={addButton}
         />
       </div>
     </>
