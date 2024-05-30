@@ -286,6 +286,29 @@ export type MenuItem = {
     price: number;
   }[];
 };
+export type CheckoutIncome = {
+  _id: number;
+  user: User;
+  location: Location;
+  date: string;
+  amount: number;
+};
+export type CheckoutExpense = {
+  _id: number;
+  user: User;
+  location: Location;
+  date: string;
+  amount: number;
+  description: string;
+};
+export type CheckoutCashout = {
+  _id: number;
+  user: User;
+  location: Location;
+  date: string;
+  amount: number;
+  description: string;
+};
 
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
@@ -370,7 +393,11 @@ export enum AccountingPageTabEnum {
   SERVICES,
   STOCKLOCATION,
 }
-
+export enum CheckoutPageTabEnum {
+  INCOME,
+  EXPENSE,
+  CASHOUT,
+}
 export enum StocksPageTabEnum {
   STOCK,
   FIXTURESTOCK,

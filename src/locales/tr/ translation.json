@@ -365,5 +365,15 @@
   "Brand Products": "Marka Ürünleri",
   "Brand Fixtures": "Marka Demirbaşları",
   "Brand Expenses": "Marka Giderleri",
+  "Add Income": "Gelir Ekle",
+  "Delete Income": "Gelir Sil",
+  "Income": "Gelir",
+  "Incomes": "Gelirler",
+  "Amount": "Miktar",
+  "Checkout": "Kasa",
+  "Cashout": "Nakit Çıkışı",
+  "Cashouts": "Nakit Çıkışları",
+  "Delete Cashout": "Nakit Çıkışı Sil",
+  "Add Cashout": "Nakit Çıkışı Ekle",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
