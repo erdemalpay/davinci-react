@@ -374,5 +374,6 @@
   "Delete Expense": "Delete Expense",
   "Service Count": "Service Count",
   "Vendor Services": "Vendor Services",
+  "Cannot remove expense type with products, fixtures or services": "Cannot remove expense type with products, fixtures or services",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

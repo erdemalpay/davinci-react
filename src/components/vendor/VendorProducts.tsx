@@ -8,7 +8,7 @@ const VendorProducts = ({ selectedVendor }: Props) => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
   const vendorProducts = products.filter((o) =>
-    o.vendor?.includes(selectedVendor._id)
+    o?.vendor?.includes(selectedVendor?._id)
   );
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys = [

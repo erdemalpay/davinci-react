@@ -374,5 +374,6 @@
   "Delete Expense": "Gider Sil",
   "Service Count": "Hizmet Sayısı",
   "Vendor Services": "Satıcı Hizmetleri",
+  "Cannot remove expense type with products, fixtures or services": "Ürünler, demirbaşlar veya hizmetlerle ilişkili masraf türü kaldırılamaz",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

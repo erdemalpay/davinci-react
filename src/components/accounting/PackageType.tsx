@@ -45,18 +45,22 @@ const PackageType = () => {
     deleteAccountPackageType,
     updateAccountPackageType,
   } = useAccountPackageTypeMutations();
-  const [rows, setRows] = useState(() => {
-    return packageTypes.map((packageType) => {
-      return {
-        ...packageType,
-        unt: (packageType?.unit as AccountUnit)?.name,
-      };
-    });
+  const allRows = packageTypes.map((packageType) => {
+    return {
+      ...packageType,
+      unt: (packageType?.unit as AccountUnit)?.name,
+      productCount:
+        products?.filter((item) =>
+          item?.packages?.some((p) => p.package === packageType._id)
+        )?.length ?? 0,
+    };
   });
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Unit"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
+    { key: t("Product Count"), isSortable: true },
   ];
   if (
     user &&
@@ -79,6 +83,7 @@ const PackageType = () => {
       key: "quantity",
       className: "min-w-32 pr-1",
     },
+    { key: "productCount" },
   ];
   const inputs = [
     NameInput(),
@@ -258,14 +263,7 @@ const PackageType = () => {
     },
   ];
   useEffect(() => {
-    setRows(() => {
-      return packageTypes.map((packageType) => {
-        return {
-          ...packageType,
-          unt: (packageType?.unit as AccountUnit)?.name,
-        };
-      });
-    });
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [packageTypes]);
 
