@@ -19,7 +19,7 @@ export default function UserView() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { userId } = useParams();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User>();
@@ -103,6 +103,7 @@ export default function UserView() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
+                setSortConfigKey(null);
                 navigate(`/user/${selectedOption?.value}`);
               }}
               placeholder={t("Select a user")}

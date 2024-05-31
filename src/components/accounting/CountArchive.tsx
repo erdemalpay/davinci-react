@@ -17,7 +17,7 @@ const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
@@ -77,12 +77,14 @@ const CountArchive = () => {
             if (row.isCompleted) {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSortConfigKey(null);
               setSearchQuery("");
               navigate(`/archive/${row._id}`);
             } else {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
+              setSortConfigKey(null);
               navigate(
                 `/count/${(row.location as AccountStockLocation)._id}/${
                   (row.countList as AccountCountList)._id

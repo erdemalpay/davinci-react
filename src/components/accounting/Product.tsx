@@ -51,8 +51,13 @@ const Product = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const [showFilters, setShowFilters] = useState(false);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
-    useGeneralContext();
+  const {
+    setCurrentPage,
+    setRowsPerPage,
+    setSearchQuery,
+    sortConfigKey,
+    setSortConfigKey,
+  } = useGeneralContext();
   const { mutate: joinProducts } = useJoinProductsMutation();
   const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -194,6 +199,7 @@ const Product = () => {
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
+            setSortConfigKey(null);
             navigate(`/product/${row._id}`);
           }}
         >

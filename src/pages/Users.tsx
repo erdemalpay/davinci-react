@@ -54,7 +54,7 @@ export default function Users() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { user } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
@@ -146,6 +146,7 @@ export default function Users() {
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
+            setSortConfigKey(null);
             navigate(`/user/${row._id}`);
           }}
         >

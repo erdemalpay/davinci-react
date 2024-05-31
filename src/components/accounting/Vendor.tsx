@@ -42,7 +42,7 @@ const Vendor = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
   const products = useGetAccountProducts();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountVendor>();
   const [
@@ -97,6 +97,7 @@ const Vendor = () => {
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
+            setSortConfigKey(null);
             navigate(`/vendor/${row._id}`);
           }}
         >

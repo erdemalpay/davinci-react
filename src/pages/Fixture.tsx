@@ -16,7 +16,7 @@ export default function Fixture() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { fixtureId } = useParams();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedFixture, setSelectedFixture] = useState<AccountFixture>();
@@ -75,6 +75,7 @@ export default function Fixture() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
+                setSortConfigKey(null);
                 navigate(`/fixture/${selectedOption?.value}`);
               }}
               placeholder={t("Select a fixture")}
