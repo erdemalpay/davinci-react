@@ -17,6 +17,7 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetAccountServices } from "../../utils/api/account/service";
 import {
   useAccountVendorMutations,
   useGetAccountVendors,
@@ -36,6 +37,7 @@ const Vendor = () => {
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const fixtures = useGetAccountFixtures();
+  const services = useGetAccountServices();
   const { updateAccountFixture } = useAccountFixtureMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
@@ -64,6 +66,9 @@ const Vendor = () => {
       fixtureCount:
         fixtures?.filter((item) => item?.vendor?.includes(vendor?._id))
           ?.length ?? 0,
+      serviceCount:
+        services?.filter((item) => item?.vendor?.includes(vendor?._id))
+          ?.length ?? 0,
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -71,6 +76,7 @@ const Vendor = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
     { key: t("Fixture Count"), isSortable: true },
+    { key: t("Service Count"), isSortable: true },
   ];
   if (
     user &&
@@ -100,6 +106,7 @@ const Vendor = () => {
     },
     { key: "productCount" },
     { key: "fixtureCount" },
+    { key: "serviceCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];

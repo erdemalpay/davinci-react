@@ -31,7 +31,7 @@
   "Unit Price": "Unit Price",
   "Total Expense": "Total Expense",
   "Enable Edit": "Enable Edit",
-  "Add Invoice": "Add Invoice",
+  "Add Invoice": "Add Expense",
   "Action": "Action",
   "Delete": "Delete",
   "Edit": "Edit",
@@ -372,5 +372,7 @@
   "Expense": "Expense",
   "Add Expense": "Add Expense",
   "Delete Expense": "Delete Expense",
+  "Service Count": "Service Count",
+  "Vendor Services": "Vendor Services",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

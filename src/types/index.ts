@@ -432,6 +432,7 @@ export enum ProductPageTabEnum {
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORFIXTURES,
+  VENDORSERVICES,
   VENDOREXPENSES,
 }
 export enum BrandPageTabEnum {

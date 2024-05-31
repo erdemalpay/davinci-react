@@ -31,7 +31,7 @@
   "Unit Price": "Birim Fiyatı",
   "Total Expense": "Toplam Gider",
   "Enable Edit": "Düzenlemeyi Etkinleştir",
-  "Add Invoice": "Fatura Ekle",
+  "Add Invoice": "Gider Ekle",
   "Action": "Aksiyon",
   "Delete": "Sil",
   "Edit": "Düzenle",
@@ -372,5 +372,7 @@
   "Expense": "Gider",
   "Add Expense": "Gider Ekle",
   "Delete Expense": "Gider Sil",
+  "Service Count": "Hizmet Sayısı",
+  "Vendor Services": "Satıcı Hizmetleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

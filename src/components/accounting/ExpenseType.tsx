@@ -19,12 +19,12 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetAccountServices } from "../../utils/api/account/service";
 import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 const ExpenseType = () => {
   const { t } = useTranslation();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -34,6 +34,7 @@ const ExpenseType = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const products = useGetAccountProducts();
   const fixtures = useGetAccountFixtures();
+  const services = useGetAccountServices();
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
@@ -54,7 +55,27 @@ const ExpenseType = () => {
   const [fixtureForm, setFixtureForm] = useState({
     fixture: [],
   });
-  const columns = [{ key: t("Name"), isSortable: true }];
+  const allRows = expenseTypes.map((i) => {
+    return {
+      ...i,
+      productCount:
+        products?.filter((item) => item?.expenseType?.includes(i?._id))
+          ?.length ?? 0,
+      fixtureCount:
+        fixtures?.filter((item) => item?.expenseType?.includes(i?._id))
+          ?.length ?? 0,
+      serviceCount:
+        services?.filter((item) => item?.expenseType?.includes(i?._id))
+          ?.length ?? 0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Product Count"), isSortable: true },
+    { key: t("Fixture Count"), isSortable: true },
+    { key: t("Service Count"), isSortable: true },
+  ];
   if (
     user &&
     [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
@@ -76,6 +97,9 @@ const ExpenseType = () => {
         </div>
       ),
     },
+    { key: "productCount" },
+    { key: "fixtureCount" },
+    { key: "serviceCount" },
   ];
   const inputs = [NameInput(), BackgroundColorInput()];
   const formKeys = [
@@ -303,7 +327,10 @@ const ExpenseType = () => {
         : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [expenseTypes]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [expenseTypes]);
 
   return (
     <>
@@ -313,7 +340,7 @@ const ExpenseType = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={expenseTypes}
+          rows={rows}
           title={t("Expense Types")}
           addButton={addButton}
           isActionsActive={
