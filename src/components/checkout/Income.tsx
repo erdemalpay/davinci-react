@@ -4,30 +4,43 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { CheckoutIncome } from "../../types";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutIncomeMutations,
   useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { LocationInput } from "../../utils/panelInputs";
+import { StockLocationInput } from "../../utils/panelInputs";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
+type FormElementsState = {
+  [key: string]: any;
+};
 const Income = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
+  const users = useGetUsers();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutIncome>();
+  const [showFilters, setShowFilters] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      user: "",
+      location: "",
+      date: "",
+    });
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =
@@ -46,7 +59,28 @@ const Income = () => {
     { key: t("Amount"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
-
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "user",
+      label: t("User"),
+      options: users.map((user) => ({
+        value: user._id,
+        label: user.name,
+      })),
+      placeholder: t("User"),
+      required: true,
+    },
+    StockLocationInput({ locations: locations, required: true }),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
   const rowKeys = [
     {
       key: "date",
@@ -71,7 +105,7 @@ const Income = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -156,11 +190,33 @@ const Income = () => {
       isPath: false,
     },
   ];
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [incomes, locations]);
 
+  useEffect(() => {
+    setRows(
+      allRows.filter((row) => {
+        return (
+          passesFilter(filterPanelFormElements.location, row.location?._id) &&
+          passesFilter(filterPanelFormElements.user, row.user?._id) &&
+          passesFilter(filterPanelFormElements.date, row.date)
+        );
+      })
+    );
+    setTableKey((prev) => prev + 1);
+  }, [incomes, locations, filterPanelFormElements]);
+  const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -169,6 +225,8 @@ const Income = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
+          filters={filters}
+          filterPanel={filterPanel}
           rows={rows}
           title={t("Incomes")}
           addButton={addButton}
