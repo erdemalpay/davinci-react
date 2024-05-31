@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
@@ -25,14 +26,13 @@ const TabPanel: React.FC<Props> = ({
   }>({ width: 0, left: 0 });
   const tabsRef = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
+  const { setSortConfigKey } = useGeneralContext();
   useEffect(() => {
-    additionalOpenAction && additionalOpenAction();
+    additionalOpenAction?.();
     if (tabsRef.current[activeTab] && containerRef.current) {
       const activeTabElement = tabsRef.current[activeTab];
       const { offsetLeft, offsetWidth } = activeTabElement!;
       setIndicatorStyle({ width: offsetWidth, left: offsetLeft });
-
       const leftScrollPosition =
         activeTabElement!.offsetLeft +
         activeTabElement!.offsetWidth / 2 -
@@ -46,6 +46,7 @@ const TabPanel: React.FC<Props> = ({
 
   const handleTabChange = (tab: Tab) => {
     additionalClickAction && additionalClickAction();
+    setSortConfigKey(null);
     setActiveTab(tab.number);
   };
 

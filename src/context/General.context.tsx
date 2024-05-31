@@ -11,6 +11,16 @@ import {
 } from "../types";
 
 type GeneralContextType = {
+  sortConfigKey: {
+    key: string;
+    direction: "ascending" | "descending";
+  } | null;
+  setSortConfigKey: (
+    config: {
+      key: string;
+      direction: "ascending" | "descending";
+    } | null
+  ) => void;
   productExpenseForm: Partial<AccountInvoice>;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   fixtureExpenseForm: Partial<AccountFixtureInvoice>;
@@ -45,6 +55,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  sortConfigKey: null,
+  setSortConfigKey: () => {},
   setAccountingActiveTab: () => {},
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   checkoutActiveTab: 0,
@@ -136,6 +148,11 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [fixtureExpenseForm, setFixtureExpenseForm] = useState<
     Partial<AccountFixtureInvoice>
   >({});
+  const [sortConfigKey, setSortConfigKey] = useState<{
+    key: string;
+    direction: "ascending" | "descending";
+  } | null>(null);
+
   const [serviceExpenseForm, setServiceExpenseForm] = useState<
     Partial<AccountServiceInvoice>
   >({});
@@ -162,6 +179,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        sortConfigKey,
+        setSortConfigKey,
         checkoutActiveTab,
         setCheckoutActiveTab,
         fixtureExpenseForm,

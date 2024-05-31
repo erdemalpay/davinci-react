@@ -21,7 +21,7 @@ export default function Vendor() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const { vendorId } = useParams();
   const { user } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
@@ -108,6 +108,7 @@ export default function Vendor() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
+                setSortConfigKey(null);
                 navigate(`/vendor/${selectedOption?.value}`);
               }}
               placeholder={t("Select a Vendor")}

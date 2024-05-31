@@ -50,6 +50,7 @@ const Count = () => {
     setRowsPerPage,
     setSearchQuery,
     setCountListActiveTab,
+    setSortConfigKey,
   } = useGeneralContext();
   const { location, countListId } = useParams();
   const [collapsibleForm, setCollapsibleForm] = useState({
@@ -386,6 +387,7 @@ const Count = () => {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
+              setSortConfigKey(null);
               navigate(Routes.CountListMenu);
             }}
           >

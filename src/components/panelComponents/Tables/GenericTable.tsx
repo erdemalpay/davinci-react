@@ -1,5 +1,5 @@
 import "pdfmake/build/pdfmake";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegFilePdf } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
@@ -20,7 +20,6 @@ import ButtonTooltip from "./ButtonTooltip";
 import FilterPanel from "./FilterPanel";
 import Tooltip from "./Tooltip";
 import "./table.css";
-
 type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
@@ -86,6 +85,8 @@ const GenericTable = <T,>({
     searchQuery,
     setSearchQuery,
     setExpandedRows,
+    setSortConfigKey,
+    sortConfigKey,
   } = useGeneralContext();
   const navigate = useNavigate();
   const [tableRows, setTableRows] = useState(rows);
@@ -99,6 +100,7 @@ const GenericTable = <T,>({
       return tableRows;
     }
   };
+
   const filteredRows = !isSearch
     ? initialRows()
     : initialRows().filter((row) =>
@@ -126,16 +128,13 @@ const GenericTable = <T,>({
     : filteredRows;
 
   const [sortConfig, setSortConfig] = useState<{
-    key: Extract<keyof T, string>;
+    key: string;
     direction: "ascending" | "descending";
   } | null>(null);
 
-  const sortRows = (key: Extract<keyof T, string>) => {
-    let direction: "ascending" | "descending" = "ascending";
-    if (sortConfig?.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
+  const sortRows = (key: string, direction: "ascending" | "descending") => {
     setSortConfig({ key, direction });
+    setSortConfigKey({ key, direction });
 
     const sortedRows = [...tableRows].sort((a, b) => {
       const isNumeric = !isNaN(Number(a[key])) && !isNaN(Number(b[key]));
@@ -154,6 +153,7 @@ const GenericTable = <T,>({
 
     setTableRows(sortedRows);
   };
+
   const handleDragStart = (
     e: React.DragEvent<HTMLTableRowElement>,
     draggedRow: T
@@ -515,6 +515,11 @@ const GenericTable = <T,>({
       </Fragment>
     );
   });
+  useEffect(() => {
+    if (sortConfigKey) {
+      sortRows(sortConfigKey?.key, sortConfigKey?.direction);
+    }
+  }, []);
   return (
     <div
       className={` ${
@@ -663,11 +668,12 @@ const GenericTable = <T,>({
                                         rowKeys[index].key as Extract<
                                           keyof T,
                                           string
-                                        >
+                                        >,
+                                        "descending"
                                       )
                                     }
                                   >
-                                    ↓
+                                    ↑
                                   </button>
                                 ) : (
                                   <button
@@ -676,11 +682,12 @@ const GenericTable = <T,>({
                                         rowKeys[index].key as Extract<
                                           keyof T,
                                           string
-                                        >
+                                        >,
+                                        "ascending"
                                       )
                                     }
                                   >
-                                    ↑
+                                    ↓
                                   </button>
                                 )}
                               </div>
