@@ -372,5 +372,6 @@
   "Expense": "Expense",
   "Add Expense": "Add Expense",
   "Delete Expense": "Delete Expense",
+  "Service Count": "Service Count",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

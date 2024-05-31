@@ -372,5 +372,6 @@
   "Expense": "Gider",
   "Add Expense": "Gider Ekle",
   "Delete Expense": "Gider Sil",
+  "Service Count": "Hizmet Sayısı",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
