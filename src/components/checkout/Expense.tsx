@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { CheckoutExpense } from "../../types";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutExpenseMutations,
   useGetCheckoutExpenses,
 } from "../../utils/api/checkout/expense";
-import { useGetLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
-import { LocationInput } from "../../utils/panelInputs";
+import { StockLocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -19,7 +19,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Expense = () => {
   const { t } = useTranslation();
   const expenses = useGetCheckoutExpenses();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -76,7 +76,7 @@ const Expense = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",

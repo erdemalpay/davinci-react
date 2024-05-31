@@ -307,14 +307,14 @@ export type MenuItem = {
 export type CheckoutIncome = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
 };
 export type CheckoutExpense = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
   description: string;
@@ -322,7 +322,7 @@ export type CheckoutExpense = {
 export type CheckoutCashout = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
   description: string;

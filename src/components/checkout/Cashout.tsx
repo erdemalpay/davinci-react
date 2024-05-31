@@ -4,30 +4,44 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { CheckoutCashout } from "../../types";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutCashoutMutations,
   useGetCheckoutCashouts,
 } from "../../utils/api/checkout/cashout";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { LocationInput } from "../../utils/panelInputs";
+import { StockLocationInput } from "../../utils/panelInputs";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+type FormElementsState = {
+  [key: string]: any;
+};
 const Cashout = () => {
   const { t } = useTranslation();
   const cashouts = useGetCheckoutCashouts();
-  const locations = useGetLocations();
+  const locations = useGetAccountStockLocations();
+  const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutCashout>();
+  const [showFilters, setShowFilters] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      user: "",
+      location: "",
+      date: "",
+    });
   const {
     createCheckoutCashout,
     deleteCheckoutCashout,
@@ -40,7 +54,28 @@ const Cashout = () => {
       lctn: cashout?.location?.name,
       formattedDate: formatAsLocalDate(cashout?.date),
     })) ?? [];
-
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "user",
+      label: t("User"),
+      options: users.map((user) => ({
+        value: user._id,
+        label: user.name,
+      })),
+      placeholder: t("User"),
+      required: true,
+    },
+    StockLocationInput({ locations: locations, required: true }),
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
@@ -76,7 +111,7 @@ const Cashout = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -171,10 +206,31 @@ const Cashout = () => {
     },
   ];
   useEffect(() => {
-    setRows(allRows);
+    setRows(
+      allRows.filter((row) => {
+        return (
+          passesFilter(filterPanelFormElements.location, row.location?._id) &&
+          passesFilter(filterPanelFormElements.user, row.user?._id) &&
+          passesFilter(filterPanelFormElements.date, row.date)
+        );
+      })
+    );
     setTableKey((prev) => prev + 1);
-  }, [cashouts, locations]);
-
+  }, [cashouts, locations, filterPanelFormElements]);
+  const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -183,6 +239,8 @@ const Cashout = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
+          filters={filters}
+          filterPanel={filterPanel}
           rows={rows}
           title={t("Cashouts")}
           addButton={addButton}
