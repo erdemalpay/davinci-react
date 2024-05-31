@@ -533,7 +533,7 @@ const AllExpenses = () => {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32 ">
+          <div>
             <p
               className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold text-white  `}
               style={{
@@ -551,7 +551,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32">{row.product}</p>
+            <p className="min-w-32 pr-2">{row.product}</p>
           </div>
         );
       },

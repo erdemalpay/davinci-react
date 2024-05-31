@@ -4,6 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
 import { AccountUnit, RoleEnum } from "../../types";
+import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountUnitMutations,
   useGetAccountUnits,
@@ -18,6 +19,7 @@ const Unit = () => {
   const { t } = useTranslation();
   const units = useGetAccountUnits();
   const { user } = useUserContext();
+  const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -28,7 +30,20 @@ const Unit = () => {
   ] = useState(false);
   const { createAccountUnit, deleteAccountUnit, updateAccountUnit } =
     useAccountUnitMutations();
-  const columns = [{ key: t("Name"), isSortable: true }];
+  const allRows = units.map((unit) => {
+    return {
+      ...unit,
+      productCount:
+        products?.filter(
+          (product) => (product?.unit as AccountUnit)?._id === unit._id
+        )?.length ?? 0,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Product Count"), isSortable: true },
+  ];
   if (
     user &&
     [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
@@ -40,6 +55,10 @@ const Unit = () => {
   const rowKeys = [
     {
       key: "name",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "productCount",
       className: "min-w-32 pr-1",
     },
   ];
@@ -132,7 +151,10 @@ const Unit = () => {
         : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [units]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [units]);
 
   return (
     <>
@@ -142,7 +164,7 @@ const Unit = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={units}
+          rows={rows}
           title={t("Units")}
           addButton={addButton}
           isActionsActive={
