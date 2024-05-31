@@ -151,6 +151,24 @@ export type AccountStockLocation = {
   _id: string;
   name: string;
 };
+export type AccountOverallExpense = {
+  _id: number;
+  product: AccountProduct | string;
+  expenseType: AccountExpenseType | string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  brand?: AccountBrand | string;
+  vendor?: AccountVendor | string;
+  packageType?: AccountPackageType | string;
+  note?: string;
+  location: string | AccountStockLocation;
+  price?: number;
+  kdv?: number;
+  fixture: AccountFixture | string;
+  service: AccountService | string;
+  type: string;
+};
 
 export type AccountInvoice = {
   _id: number;
