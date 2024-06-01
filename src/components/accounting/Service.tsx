@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountService, RoleEnum } from "../../types";
@@ -28,6 +29,7 @@ type FormElementsState = {
 };
 const Service = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const services = useGetAccountServices();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
@@ -37,7 +39,8 @@ const Service = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountService>();
   const [showFilters, setShowFilters] = useState(false);
-  const { setCurrentPage } = useGeneralContext();
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
+    useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       vendor: "",
@@ -83,7 +86,41 @@ const Service = () => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "name", className: "min-w-32 pr-1" },
+    {
+      key: "name",
+      className: "min-w-32 pr-1",
+      node: (row: AccountService) => (
+        <p
+          className={`${
+            user &&
+            [
+              RoleEnum.MANAGER,
+              RoleEnum.CATERINGMANAGER,
+              RoleEnum.GAMEMANAGER,
+            ].includes(user?.role?._id) &&
+            "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          }`}
+          onClick={() => {
+            if (
+              user &&
+              ![
+                RoleEnum.MANAGER,
+                RoleEnum.CATERINGMANAGER,
+                RoleEnum.GAMEMANAGER,
+              ].includes(user?.role?._id)
+            )
+              return;
+            setCurrentPage(1);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            setSortConfigKey(null);
+            navigate(`/service/${row?._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
+    },
     {
       key: "expenseType",
       className: "min-w-32",

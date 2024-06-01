@@ -59,10 +59,12 @@ const Cashout = () => {
       type: InputTypes.SELECT,
       formKey: "user",
       label: t("User"),
-      options: users.map((user) => ({
-        value: user._id,
-        label: user.name,
-      })),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
       placeholder: t("User"),
       required: true,
     },
