@@ -14,6 +14,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
+import Service from "../pages/Service";
 import SingleCountArchive from "../pages/SingleCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
@@ -49,6 +50,7 @@ export enum Routes {
   Vendor = "/vendor/:vendorId",
   Brand = "/brand/:brandId",
   Fixture = "/fixture/:fixtureId",
+  Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
   Checkout = "/checkout",
@@ -157,6 +159,12 @@ export const allRoutes: {
       name: "Product",
       path: Routes.Product,
       element: Product,
+      isOnSidebar: false,
+    },
+    {
+      name: "Service",
+      path: Routes.Service,
+      element: Service,
       isOnSidebar: false,
     },
     {

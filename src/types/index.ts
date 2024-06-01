@@ -444,6 +444,9 @@ export enum FixturePageTabEnum {
   FIXTUREEXPENSES,
   FIXTURESTOCKHISTORY,
 }
+export enum ServicePageTabEnum {
+  SERVICEEXPENSES,
+}
 
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
