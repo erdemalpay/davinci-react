@@ -548,3 +548,9 @@ export const stockHistoryStatuses = [
     backgroundColor: "bg-rose-500",
   },
 ];
+
+export enum ExpenseTypes {
+  INVOICE = "Product Expense",
+  FIXTURE = "Fixture Expense",
+  SERVICE = "Service Expense",
+}
