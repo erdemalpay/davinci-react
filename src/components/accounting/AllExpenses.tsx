@@ -13,6 +13,7 @@ import {
   AccountService,
   AccountStockLocation,
   AccountVendor,
+  ExpenseTypes,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -86,11 +87,7 @@ const AllExpenses = () => {
   const { createAccountInvoice } = useAccountInvoiceMutations();
   const { createAccountFixtureInvoice } = useAccountFixtureInvoiceMutations();
   const { createAccountServiceInvoice } = useAccountServiceInvoiceMutations();
-  enum ExpenseTypes {
-    INVOICE = "Product Expense",
-    FIXTURE = "Fixture Expense",
-    SERVICE = "Service Expense",
-  }
+
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",

@@ -275,7 +275,7 @@ const Service = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          generalClassName="overflow-scroll"
+          generalClassName="overflow-visible"
           submitItem={updateAccountService as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
