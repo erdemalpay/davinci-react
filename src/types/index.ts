@@ -155,6 +155,17 @@ export type AccountPaymentMethod = {
   _id: string;
   name: string;
 };
+export type AccountPayment = {
+  _id: number;
+  vendor: AccountVendor;
+  invoice?: string;
+  fixtureInvoice?: string;
+  serviceInvoice?: string;
+  paymentMethod: AccountPaymentMethod;
+  user: User;
+  date: string;
+  amount: number;
+};
 export type AccountOverallExpense = {
   _id: number;
   product: AccountProduct | string;
