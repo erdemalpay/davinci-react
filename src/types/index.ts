@@ -151,6 +151,10 @@ export type AccountStockLocation = {
   _id: string;
   name: string;
 };
+export type AccountPaymentMethod = {
+  _id: string;
+  name: string;
+};
 export type AccountOverallExpense = {
   _id: number;
   product: AccountProduct | string;
@@ -409,6 +413,7 @@ export enum AccountingPageTabEnum {
   PRODUCT,
   FIXTURES,
   SERVICES,
+  PAYMENTMETHODS,
   STOCKLOCATION,
 }
 export enum CheckoutPageTabEnum {
