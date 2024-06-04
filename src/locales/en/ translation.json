@@ -376,5 +376,8 @@
   "Vendor Services": "Vendor Services",
   "Cannot remove expense type with products, fixtures or services": "Cannot remove expense type with products, fixtures or services",
   "Select a Service": "Select a Service",
+  "Payment Methods": "Payment Methods",
+  "Add Payment Method": "Add Payment Method",
+  "Delete Payment Method": "Delete Payment Method",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
