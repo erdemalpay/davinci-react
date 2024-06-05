@@ -31,7 +31,7 @@
   "Unit Price": "Unit Price",
   "Total Expense": "Total Expense",
   "Enable Edit": "Enable Edit",
-  "Add Invoice": "Add Invoice",
+  "Add Invoice": "Add Expense",
   "Action": "Action",
   "Delete": "Delete",
   "Edit": "Edit",
@@ -372,5 +372,14 @@
   "Expense": "Expense",
   "Add Expense": "Add Expense",
   "Delete Expense": "Delete Expense",
+  "Service Count": "Service Count",
+  "Vendor Services": "Vendor Services",
+  "Cannot remove expense type with products, fixtures or services": "Cannot remove expense type with products, fixtures or services",
+  "Select a Service": "Select a Service",
+  "Payment Methods": "Payment Methods",
+  "Add Payment Method": "Add Payment Method",
+  "Delete Payment Method": "Delete Payment Method",
+  "Payment Method": "Payment Method",
+  "Not Paid": "Not Paid",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

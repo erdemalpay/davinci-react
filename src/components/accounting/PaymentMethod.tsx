@@ -3,47 +3,35 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { AccountUnit, RoleEnum } from "../../types";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { AccountPaymentMethod, RoleEnum } from "../../types";
 import {
-  useAccountUnitMutations,
-  useGetAccountUnits,
-} from "../../utils/api/account/unit";
+  useAccountPaymentMethodMutations,
+  useGetAccountPaymentMethods,
+} from "../../utils/api/account/paymentMethod";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-const Unit = () => {
+const PaymentMethods = () => {
   const { t } = useTranslation();
-  const units = useGetAccountUnits();
+  const paymentMethods = useGetAccountPaymentMethods();
   const { user } = useUserContext();
-  const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountUnit>();
+  const [rowToAction, setRowToAction] = useState<AccountPaymentMethod>();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const { createAccountUnit, deleteAccountUnit, updateAccountUnit } =
-    useAccountUnitMutations();
-  const allRows = units.map((unit) => {
-    return {
-      ...unit,
-      productCount:
-        products?.filter(
-          (product) => (product?.unit as AccountUnit)?._id === unit._id
-        )?.length ?? 0,
-    };
-  });
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Product Count"), isSortable: true },
-  ];
+  const {
+    createAccountPaymentMethod,
+    deleteAccountPaymentMethod,
+    updateAccountPaymentMethod,
+  } = useAccountPaymentMethodMutations();
+  const columns = [{ key: t("Name"), isSortable: true }];
   if (
     user &&
     [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
@@ -57,16 +45,12 @@ const Unit = () => {
       key: "name",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "productCount",
-      className: "min-w-32 pr-1",
-    },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
-    name: t(`Add Unit`),
+    name: t(`Add Payment Method`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -74,14 +58,13 @@ const Unit = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
-        submitItem={createAccountUnit as any}
+        submitItem={createAccountPaymentMethod as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
-    icon: null,
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
@@ -89,6 +72,7 @@ const Unit = () => {
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
+    icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
@@ -101,10 +85,10 @@ const Unit = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountUnit(rowToAction?._id);
+            deleteAccountPaymentMethod(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Unit")}
+          title={t("Delete Payment Method")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -133,14 +117,16 @@ const Unit = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAccountUnit as any}
+          submitItem={updateAccountPaymentMethod as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
+
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+
       isPath: false,
       isDisabled: user
         ? ![
@@ -151,10 +137,7 @@ const Unit = () => {
         : true,
     },
   ];
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [units]);
+  useEffect(() => setTableKey((prev) => prev + 1), [paymentMethods]);
 
   return (
     <>
@@ -164,8 +147,8 @@ const Unit = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={rows}
-          title={t("Units")}
+          rows={paymentMethods}
+          title={t("Payment Methods")}
           addButton={addButton}
           isActionsActive={
             user
@@ -182,4 +165,4 @@ const Unit = () => {
   );
 };
 
-export default Unit;
+export default PaymentMethods;

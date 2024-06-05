@@ -16,6 +16,7 @@ export default function Checkout() {
     setSearchQuery,
     checkoutActiveTab,
     setCheckoutActiveTab,
+    setSortConfigKey,
   } = useGeneralContext();
 
   const tabs = [
@@ -53,6 +54,7 @@ export default function Checkout() {
         additionalOpenAction={() => {
           setCurrentPage(1);
           setSearchQuery("");
+          setSortConfigKey(null);
         }}
       />
     </>

@@ -5,11 +5,13 @@ import {
   AccountExpenseType,
   AccountFixture,
   AccountPackageType,
+  AccountPaymentMethod,
   AccountProduct,
   AccountStockLocation,
   AccountUnit,
   AccountVendor,
   Location,
+  NOTPAID,
 } from "../types/index";
 import { AccountService } from "./../types/index";
 
@@ -250,6 +252,41 @@ export function StockLocationInput({
   };
 }
 
+export function PaymentMethodInput({
+  required = true,
+  isMultiple = false,
+  isDisabled = false,
+  paymentMethods,
+}: {
+  required?: boolean;
+  isMultiple?: boolean;
+  isDisabled?: boolean;
+  paymentMethods: AccountPaymentMethod[];
+}) {
+  const { t } = useTranslation();
+  return {
+    type: InputTypes.SELECT,
+    formKey: "paymentMethod",
+    label: t("Payment Method"),
+    options: [
+      ...paymentMethods?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      ,
+      {
+        value: NOTPAID,
+        label: t("Not Paid"),
+      },
+    ],
+    isDisabled: isDisabled,
+    placeholder: t("Payment Method"),
+    isMultiple: isMultiple,
+    required: required,
+  };
+}
 export function LocationInput({
   required = true,
   isMultiple = false,

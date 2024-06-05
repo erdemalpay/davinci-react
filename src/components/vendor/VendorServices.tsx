@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { AccountVendor } from "../../types";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountServices } from "../../utils/api/account/service";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 type Props = { selectedVendor: AccountVendor };
 
-const VendorProducts = ({ selectedVendor }: Props) => {
+const VendorServices = ({ selectedVendor }: Props) => {
   const { t } = useTranslation();
-  const products = useGetAccountProducts();
-  const vendorProducts = products.filter((o) =>
+  const services = useGetAccountServices();
+  const vendorServices = services.filter((o) =>
     o?.vendor?.includes(selectedVendor?._id)
   );
   const columns = [{ key: t("Name"), isSortable: true }];
@@ -23,11 +23,11 @@ const VendorProducts = ({ selectedVendor }: Props) => {
         key={selectedVendor._id}
         rowKeys={rowKeys}
         columns={columns}
-        rows={vendorProducts}
-        title={t("Vendor Products")}
+        rows={vendorServices}
+        title={t("Vendor Services")}
       />
     </div>
   );
 };
 
-export default VendorProducts;
+export default VendorServices;

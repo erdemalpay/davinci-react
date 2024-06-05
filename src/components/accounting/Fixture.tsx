@@ -42,7 +42,7 @@ const Fixture = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountFixture>();
   const [showFilters, setShowFilters] = useState(false);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -122,6 +122,7 @@ const Fixture = () => {
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
+            setSortConfigKey(null);
             navigate(`/fixture/${row?._id}`);
           }}
         >
@@ -302,7 +303,7 @@ const Fixture = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          generalClassName="overflow-scroll"
+          generalClassName="overflow-visible"
           submitItem={updateAccountFixture as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "

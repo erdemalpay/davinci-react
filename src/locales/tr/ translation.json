@@ -31,7 +31,7 @@
   "Unit Price": "Birim Fiyatı",
   "Total Expense": "Toplam Gider",
   "Enable Edit": "Düzenlemeyi Etkinleştir",
-  "Add Invoice": "Fatura Ekle",
+  "Add Invoice": "Gider Ekle",
   "Action": "Aksiyon",
   "Delete": "Sil",
   "Edit": "Düzenle",
@@ -372,5 +372,14 @@
   "Expense": "Gider",
   "Add Expense": "Gider Ekle",
   "Delete Expense": "Gider Sil",
+  "Service Count": "Hizmet Sayısı",
+  "Vendor Services": "Satıcı Hizmetleri",
+  "Cannot remove expense type with products, fixtures or services": "Ürünler, demirbaşlar veya hizmetlerle ilişkili masraf türü kaldırılamaz",
+  "Select a Service": "Bir Hizmet Seçin",
+  "Payment Methods": "Ödeme Yöntemleri",
+  "Add Payment Method": "Ödeme Yöntemi Ekle",
+  "Delete Payment Method": "Ödeme Yöntemi Sil",
+  "Payment Method": "Ödeme Yöntemi",
+  "Not Paid": "Ödenmedi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

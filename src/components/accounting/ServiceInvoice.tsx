@@ -12,12 +12,14 @@ import {
   AccountServiceInvoice,
   AccountStockLocation,
   AccountVendor,
+  NOTPAID,
 } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
 import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
@@ -39,6 +41,7 @@ import {
   BackgroundColorInput,
   ExpenseTypeInput,
   NameInput,
+  PaymentMethodInput,
   QuantityInput,
   ServiceInput,
   StockLocationInput,
@@ -70,6 +73,7 @@ const ServiceInvoice = () => {
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
+  const paymentMethods = useGetAccountPaymentMethods();
   const { mutate: transferServiceInvoiceToInvoice } =
     useServiceInvoiceTransferInvoiceMutation();
   const services = useGetAccountServices();
@@ -233,6 +237,11 @@ const ServiceInvoice = () => {
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods,
+      required: !isEnableEdit,
+      isDisabled: isEnableEdit,
+    }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -242,6 +251,7 @@ const ServiceInvoice = () => {
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const nameInput = [NameInput()]; // same for unit,brand and location inputs
@@ -465,11 +475,18 @@ const ServiceInvoice = () => {
             serviceExpenseForm.kdv &&
             createAccountServiceInvoice({
               ...serviceExpenseForm,
+              paymentMethod:
+                serviceExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : serviceExpenseForm.paymentMethod,
+              isPaid:
+                serviceExpenseForm.paymentMethod === NOTPAID ? false : true,
               totalExpense:
                 Number(serviceExpenseForm.price) +
                 Number(serviceExpenseForm.kdv) *
                   (Number(serviceExpenseForm.price) / 100),
             });
+          setServiceExpenseForm({});
         }}
         submitItem={createAccountServiceInvoice as any}
         topClassName="flex flex-col gap-2 "
@@ -579,6 +596,7 @@ const ServiceInvoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
+              ...rowToAction,
               date: rowToAction.date,
               service: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)

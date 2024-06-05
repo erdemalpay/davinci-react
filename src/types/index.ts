@@ -151,6 +151,21 @@ export type AccountStockLocation = {
   _id: string;
   name: string;
 };
+export type AccountPaymentMethod = {
+  _id: string;
+  name: string;
+};
+export type AccountPayment = {
+  _id: number;
+  vendor: AccountVendor;
+  invoice?: number;
+  fixtureInvoice?: number;
+  serviceInvoice?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  user: User;
+  date: string;
+  amount: number;
+};
 export type AccountOverallExpense = {
   _id: number;
   product: AccountProduct | string;
@@ -168,6 +183,7 @@ export type AccountOverallExpense = {
   fixture: AccountFixture | string;
   service: AccountService | string;
   type: string;
+  paymentMethod: AccountPaymentMethod | string;
 };
 
 export type AccountInvoice = {
@@ -184,6 +200,8 @@ export type AccountInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 export type AccountFixtureInvoice = {
   _id: number;
@@ -198,6 +216,8 @@ export type AccountFixtureInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 
 export type AccountServiceInvoice = {
@@ -212,6 +232,8 @@ export type AccountServiceInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 
 export type AccountStock = {
@@ -307,14 +329,14 @@ export type MenuItem = {
 export type CheckoutIncome = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
 };
 export type CheckoutExpense = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
   description: string;
@@ -322,7 +344,7 @@ export type CheckoutExpense = {
 export type CheckoutCashout = {
   _id: number;
   user: User;
-  location: Location;
+  location: AccountStockLocation;
   date: string;
   amount: number;
   description: string;
@@ -409,6 +431,7 @@ export enum AccountingPageTabEnum {
   PRODUCT,
   FIXTURES,
   SERVICES,
+  PAYMENTMETHODS,
   STOCKLOCATION,
 }
 export enum CheckoutPageTabEnum {
@@ -432,6 +455,7 @@ export enum ProductPageTabEnum {
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORFIXTURES,
+  VENDORSERVICES,
   VENDOREXPENSES,
 }
 export enum BrandPageTabEnum {
@@ -442,6 +466,9 @@ export enum BrandPageTabEnum {
 export enum FixturePageTabEnum {
   FIXTUREEXPENSES,
   FIXTURESTOCKHISTORY,
+}
+export enum ServicePageTabEnum {
+  SERVICEEXPENSES,
 }
 
 export enum StockHistoryStatusEnum {
@@ -544,3 +571,11 @@ export const stockHistoryStatuses = [
     backgroundColor: "bg-rose-500",
   },
 ];
+
+export enum ExpenseTypes {
+  INVOICE = "Product Expense",
+  FIXTURE = "Fixture Expense",
+  SERVICE = "Service Expense",
+}
+
+export const NOTPAID = "Not Paid";

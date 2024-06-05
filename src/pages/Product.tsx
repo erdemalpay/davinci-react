@@ -27,7 +27,7 @@ export default function Product() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const { user } = useUserContext();
   const { productId } = useParams();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<AccountProduct>();
@@ -126,6 +126,7 @@ export default function Product() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
+                setSortConfigKey(null);
                 navigate(`/product/${selectedOption?.value}`);
               }}
               placeholder={t("Select a product")}

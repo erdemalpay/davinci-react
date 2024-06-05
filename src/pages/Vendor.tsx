@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
-import { MdOutlineMenuBook } from "react-icons/md";
+import { MdOutlineCleaningServices, MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
@@ -10,6 +10,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorFixtures from "../components/vendor/VendorFixtures";
 import VendorProducts from "../components/vendor/VendorProducts";
+import VendorServices from "../components/vendor/VendorServices";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountVendor, RoleEnum, VendorPageTabEnum } from "../types";
@@ -20,7 +21,7 @@ export default function Vendor() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const { vendorId } = useParams();
   const { user } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
@@ -48,6 +49,13 @@ export default function Vendor() {
       label: t("Vendor Fixtures"),
       icon: <FaAnchor className="text-lg font-thin" />,
       content: <VendorFixtures selectedVendor={currentVendor} />,
+      isDisabled: false,
+    },
+    {
+      number: VendorPageTabEnum.VENDORSERVICES,
+      label: t("Vendor Services"),
+      icon: <MdOutlineCleaningServices className="text-lg font-thin" />,
+      content: <VendorServices selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {
@@ -100,6 +108,7 @@ export default function Vendor() {
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
+                setSortConfigKey(null);
                 navigate(`/vendor/${selectedOption?.value}`);
               }}
               placeholder={t("Select a Vendor")}

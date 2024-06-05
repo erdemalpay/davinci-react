@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   AccountCountList,
@@ -46,6 +47,8 @@ const CountList = ({ countListId }: Props) => {
   const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
   const countLists = useGetAccountCountLists();
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+    useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -393,6 +396,9 @@ const CountList = ({ countListId }: Props) => {
                   );
                 }).length > 0
               ) {
+                setCurrentPage(1);
+                setSearchQuery("");
+                setSortConfigKey(null);
                 navigate(`/count/${countLocationForm.location}/${countListId}`);
               } else {
                 createAccountCount({
@@ -402,6 +408,10 @@ const CountList = ({ countListId }: Props) => {
                   createdAt: new Date(),
                   user: user._id,
                 });
+                setCurrentPage(1);
+                setSearchQuery("");
+                setSortConfigKey(null);
+
                 navigate(`/count/${countLocationForm.location}/${countListId}`);
               }
             }}

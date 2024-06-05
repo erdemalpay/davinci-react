@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { FaAnchor, FaServicestack } from "react-icons/fa";
 import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { LuPackageOpen } from "react-icons/lu";
+import { MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
@@ -9,6 +10,7 @@ import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Fixture from "../components/accounting/Fixture";
 import PackageType from "../components/accounting/PackageType";
+import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import Service from "../components/accounting/Service";
 import StockLocations from "../components/accounting/StockLocation";
@@ -84,6 +86,13 @@ export default function Accounting() {
       label: t("Services"),
       icon: <FaServicestack className="text-lg font-thin" />,
       content: <Service />,
+      isDisabled: false,
+    },
+    {
+      number: AccountingPageTabEnum.PAYMENTMETHODS,
+      label: t("Payment Methods"),
+      icon: <MdOutlinePayment className="text-lg font-thin" />,
+      content: <PaymentMethods />,
       isDisabled: false,
     },
     {

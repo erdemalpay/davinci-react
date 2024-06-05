@@ -13,6 +13,7 @@ import {
   AccountFixtureInvoice,
   AccountStockLocation,
   AccountVendor,
+  NOTPAID,
 } from "../../types";
 import {
   useAccountBrandMutations,
@@ -31,6 +32,7 @@ import {
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
 import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
@@ -46,6 +48,7 @@ import {
   ExpenseTypeInput,
   FixtureInput,
   NameInput,
+  PaymentMethodInput,
   QuantityInput,
   StockLocationInput,
   VendorInput,
@@ -80,6 +83,7 @@ const FixtureInvoice = () => {
   const fixtures = useGetAccountFixtures();
   const { mutate: transferFixtureInvoiceToInvoice } =
     useFixtureInvoiceTransferInvoiceMutation();
+  const paymentMethods = useGetAccountPaymentMethods();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>();
@@ -266,6 +270,11 @@ const FixtureInvoice = () => {
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods,
+      required: !isEnableEdit,
+      isDisabled: isEnableEdit,
+    }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -276,6 +285,7 @@ const FixtureInvoice = () => {
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -525,11 +535,18 @@ const FixtureInvoice = () => {
             fixtureExpenseForm.kdv &&
             createAccountFixtureInvoice({
               ...fixtureExpenseForm,
+              paymentMethod:
+                fixtureExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : fixtureExpenseForm.paymentMethod,
+              isPaid:
+                fixtureExpenseForm.paymentMethod === NOTPAID ? false : true,
               totalExpense:
                 Number(fixtureExpenseForm.price) +
                 Number(fixtureExpenseForm.kdv) *
                   (Number(fixtureExpenseForm.price) / 100),
             });
+          setFixtureExpenseForm({});
         }}
         submitItem={createAccountFixtureInvoice as any}
         topClassName="flex flex-col gap-2 "
@@ -636,6 +653,7 @@ const FixtureInvoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
+              ...rowToAction,
               date: rowToAction.date,
               fixture: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)

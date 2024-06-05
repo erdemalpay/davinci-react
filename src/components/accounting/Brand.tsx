@@ -36,7 +36,7 @@ const Brand = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const fixtures = useGetAccountFixtures();
@@ -93,6 +93,7 @@ const Brand = () => {
             setCurrentPage(1);
             // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
+            setSortConfigKey(null);
             navigate(`/brand/${row._id}`);
           }}
         >

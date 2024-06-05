@@ -13,6 +13,8 @@ import {
   AccountService,
   AccountStockLocation,
   AccountVendor,
+  ExpenseTypes,
+  NOTPAID,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -26,6 +28,7 @@ import {
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
 import {
@@ -41,6 +44,7 @@ import {
   ExpenseTypeInput,
   FixtureInput,
   PackageTypeInput,
+  PaymentMethodInput,
   ProductInput,
   QuantityInput,
   ServiceInput,
@@ -53,7 +57,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -63,6 +66,7 @@ const AllExpenses = () => {
   const invoices = useGetAccountInvoices();
   const fixtureInvoices = useGetAccountFixtureInvoices();
   const serviceInvoices = useGetAccountServiceInvoices();
+  const paymentMethods = useGetAccountPaymentMethods();
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
   const {
@@ -86,11 +90,7 @@ const AllExpenses = () => {
   const { createAccountInvoice } = useAccountInvoiceMutations();
   const { createAccountFixtureInvoice } = useAccountFixtureInvoiceMutations();
   const { createAccountServiceInvoice } = useAccountServiceInvoiceMutations();
-  enum ExpenseTypes {
-    INVOICE = "Product Expense",
-    FIXTURE = "Fixture Expense",
-    SERVICE = "Service Expense",
-  }
+
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -429,6 +429,7 @@ const AllExpenses = () => {
     VendorInput({
       vendors: vendorInputOptions() ?? [],
     }),
+    PaymentMethodInput({ paymentMethods: paymentMethods, required: true }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -440,6 +441,7 @@ const AllExpenses = () => {
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -533,7 +535,7 @@ const AllExpenses = () => {
       key: "expenseType",
       node: (row: any) => {
         return (
-          <div className=" min-w-32 ">
+          <div>
             <p
               className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold text-white  `}
               style={{
@@ -551,7 +553,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32">{row.product}</p>
+            <p className="min-w-32 pr-2">{row.product}</p>
           </div>
         );
       },
@@ -794,6 +796,11 @@ const AllExpenses = () => {
               allExpenseForm.quantity &&
               createAccountInvoice({
                 ...allExpenseForm,
+                paymentMethod:
+                  allExpenseForm.paymentMethod === NOTPAID
+                    ? ""
+                    : allExpenseForm.paymentMethod,
+                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
                 quantity: Number(allExpenseForm.quantity),
                 totalExpense:
                   Number(allExpenseForm.price) +
@@ -807,6 +814,11 @@ const AllExpenses = () => {
               allExpenseForm.quantity &&
               createAccountFixtureInvoice({
                 ...allExpenseForm,
+                paymentMethod:
+                  allExpenseForm.paymentMethod === NOTPAID
+                    ? ""
+                    : allExpenseForm.paymentMethod,
+                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
                 totalExpense:
                   Number(allExpenseForm.price) +
                   Number(allExpenseForm.kdv) *
@@ -819,6 +831,11 @@ const AllExpenses = () => {
               allExpenseForm.quantity &&
               createAccountServiceInvoice({
                 ...allExpenseForm,
+                paymentMethod:
+                  allExpenseForm.paymentMethod === NOTPAID
+                    ? ""
+                    : allExpenseForm.paymentMethod,
+                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
                 totalExpense:
                   Number(allExpenseForm.price) +
                   Number(allExpenseForm.kdv) *
@@ -838,6 +855,11 @@ const AllExpenses = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           ...allExpenseForm,
+          paymentMethod:
+            allExpenseForm.paymentMethod === NOTPAID
+              ? ""
+              : allExpenseForm.paymentMethod,
+          isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
         }}
       />
     ),

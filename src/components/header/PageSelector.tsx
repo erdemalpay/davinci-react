@@ -20,8 +20,13 @@ export function PageSelector() {
   const location = useLocation();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setExpandedRows, setSearchQuery } =
-    useGeneralContext();
+  const {
+    setCurrentPage,
+    setRowsPerPage,
+    setExpandedRows,
+    setSearchQuery,
+    setSortConfigKey,
+  } = useGeneralContext();
   const routes = Object.values(RolePermissionEnum)
     .filter((permission) => user?.role.permissions.includes(permission))
     .map((permission) => {
@@ -105,6 +110,7 @@ export function PageSelector() {
                 // setRowsPerPage(RowPerPageEnum.FIRST);
                 setExpandedRows({});
                 setSearchQuery("");
+                setSortConfigKey(null);
                 navigate(route.path);
               }}
             >
