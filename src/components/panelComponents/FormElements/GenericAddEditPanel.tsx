@@ -401,7 +401,8 @@ const GenericAddEditPanel = <T,>({
                                 )
                               : input.options?.find(
                                   (option) =>
-                                    option.value === formElements[input.formKey]
+                                    option?.value ===
+                                    formElements[input.formKey]
                                 )
                           }
                           label={

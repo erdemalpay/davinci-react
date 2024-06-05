@@ -158,10 +158,10 @@ export type AccountPaymentMethod = {
 export type AccountPayment = {
   _id: number;
   vendor: AccountVendor;
-  invoice?: string;
-  fixtureInvoice?: string;
-  serviceInvoice?: string;
-  paymentMethod: AccountPaymentMethod;
+  invoice?: number;
+  fixtureInvoice?: number;
+  serviceInvoice?: number;
+  paymentMethod: AccountPaymentMethod | string;
   user: User;
   date: string;
   amount: number;
@@ -183,6 +183,7 @@ export type AccountOverallExpense = {
   fixture: AccountFixture | string;
   service: AccountService | string;
   type: string;
+  paymentMethod: AccountPaymentMethod | string;
 };
 
 export type AccountInvoice = {
@@ -199,6 +200,8 @@ export type AccountInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 export type AccountFixtureInvoice = {
   _id: number;
@@ -213,6 +216,8 @@ export type AccountFixtureInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 
 export type AccountServiceInvoice = {
@@ -227,6 +232,8 @@ export type AccountServiceInvoice = {
   location: string | AccountStockLocation;
   price?: number;
   kdv?: number;
+  paymentMethod: AccountPaymentMethod | string;
+  isPaid: boolean;
 };
 
 export type AccountStock = {
@@ -570,3 +577,5 @@ export enum ExpenseTypes {
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
 }
+
+export const NOTPAID = "Not Paid";

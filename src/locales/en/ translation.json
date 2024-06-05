@@ -379,5 +379,7 @@
   "Payment Methods": "Payment Methods",
   "Add Payment Method": "Add Payment Method",
   "Delete Payment Method": "Delete Payment Method",
+  "Payment Method": "Payment Method",
+  "Not Paid": "Not Paid",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

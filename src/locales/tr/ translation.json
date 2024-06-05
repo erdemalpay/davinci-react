@@ -379,5 +379,7 @@
   "Payment Methods": "Ödeme Yöntemleri",
   "Add Payment Method": "Ödeme Yöntemi Ekle",
   "Delete Payment Method": "Ödeme Yöntemi Sil",
+  "Payment Method": "Ödeme Yöntemi",
+  "Not Paid": "Ödenmedi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
