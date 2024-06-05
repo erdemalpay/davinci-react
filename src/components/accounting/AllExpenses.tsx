@@ -105,17 +105,6 @@ const AllExpenses = () => {
       after: "",
       type: "",
     });
-  const allProductsOptions = [
-    ...products.map((product) => ({ value: product._id, label: product.name })),
-    ...fixtures.map((item) => ({
-      value: item._id,
-      label: item.name,
-    })),
-    ...services.map((item) => ({
-      value: item._id,
-      label: item.name,
-    })),
-  ];
 
   const allInvoices = [
     ...invoices.map((invoice) => {

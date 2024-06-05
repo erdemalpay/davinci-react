@@ -333,14 +333,7 @@ export type CheckoutIncome = {
   date: string;
   amount: number;
 };
-export type CheckoutExpense = {
-  _id: number;
-  user: User;
-  location: AccountStockLocation;
-  date: string;
-  amount: number;
-  description: string;
-};
+
 export type CheckoutCashout = {
   _id: number;
   user: User;
@@ -576,6 +569,11 @@ export enum ExpenseTypes {
   INVOICE = "Product Expense",
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
+}
+export enum ConstantPaymentMethods {
+  CASH = "nakit",
+  CREDITCARD = "kredi_karti",
+  BANKTRANSFER = "havale",
 }
 
 export const NOTPAID = "Not Paid";
