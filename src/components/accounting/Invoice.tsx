@@ -14,6 +14,7 @@ import {
   AccountProduct,
   AccountStockLocation,
   AccountVendor,
+  NOTPAID,
 } from "../../types";
 import {
   useAccountBrandMutations,
@@ -33,6 +34,7 @@ import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
 } from "../../utils/api/account/packageType";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -56,6 +58,7 @@ import {
   ExpenseTypeInput,
   NameInput,
   PackageTypeInput,
+  PaymentMethodInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -70,7 +73,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -100,6 +102,7 @@ const Invoice = () => {
     useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
+  const paymentMethods = useGetAccountPaymentMethods();
   const products = useGetAccountProducts();
   const { mutate: transferToFixtureInvoice } =
     useTransferFixtureInvoiceMutation();
@@ -331,6 +334,11 @@ const Invoice = () => {
             ?.vendor?.includes(vndr._id)
         ) ?? [],
     }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods,
+      required: !isEnableEdit,
+      isDisabled: isEnableEdit,
+    }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -342,6 +350,7 @@ const Invoice = () => {
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -654,11 +663,18 @@ const Invoice = () => {
             productExpenseForm.kdv &&
             createAccountInvoice({
               ...productExpenseForm,
+              paymentMethod:
+                productExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : productExpenseForm.paymentMethod,
+              isPaid:
+                productExpenseForm.paymentMethod === NOTPAID ? false : true,
               totalExpense:
                 Number(productExpenseForm.price) +
                 Number(productExpenseForm.kdv) *
                   (Number(productExpenseForm.price) / 100),
             });
+          setProductExpenseForm({});
         }}
         submitItem={createAccountInvoice as any}
         topClassName="flex flex-col gap-2 "
@@ -784,6 +800,7 @@ const Invoice = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
+              ...rowToAction,
               date: rowToAction.date,
               product: (
                 invoices.find((invoice) => invoice._id === rowToAction._id)
