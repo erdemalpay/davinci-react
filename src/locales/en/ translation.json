@@ -386,5 +386,8 @@
   "Add Checkout Control": "Add Checkout Control",
   "Delete Checkout Control": "Delete Checkout Control",
   "Vendor Payments": "Vendor Payments",
+  "Product Expense ID": "Product Expense ID",
+  "Fixture Expense ID": "Fixture Expense ID",
+  "Service Expense ID": "Service Expense ID",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

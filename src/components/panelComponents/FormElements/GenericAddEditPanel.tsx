@@ -361,7 +361,6 @@ const GenericAddEditPanel = <T,>({
                 ) {
                   return null;
                 }
-
                 if (!input?.isDisabled) {
                   return (
                     <div key={input.formKey} className="flex flex-col gap-2">
