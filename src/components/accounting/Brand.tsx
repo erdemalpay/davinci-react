@@ -330,7 +330,7 @@ const Brand = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [brands]);
+  }, [brands, fixtures, products]);
 
   return (
     <>

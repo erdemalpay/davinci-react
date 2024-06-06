@@ -10,6 +10,7 @@ import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
+import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
@@ -21,7 +22,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const { t, i18n } = useTranslation();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
-
+  const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const tabs = [
     {
       number: 0,
@@ -86,6 +87,10 @@ export default function Profile() {
         tabs={tabs}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        additionalOpenAction={() => {
+          setCurrentPage(1);
+          setSearchQuery("");
+        }}
       />
     </>
   );

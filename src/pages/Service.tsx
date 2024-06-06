@@ -88,6 +88,10 @@ export default function Service() {
           tabs={filteredTabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+            setSearchQuery("");
+          }}
         />
       </div>
     </>

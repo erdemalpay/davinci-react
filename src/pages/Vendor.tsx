@@ -139,6 +139,10 @@ export default function Vendor() {
           tabs={filteredTabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+            setSearchQuery("");
+          }}
         />
       </div>
     </>
