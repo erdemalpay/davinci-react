@@ -31,6 +31,7 @@ const Cashout = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutCashout>();
+  const [generalTotal, setGeneralTotal] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -207,16 +208,21 @@ const Cashout = () => {
       isPath: false,
     },
   ];
+
   useEffect(() => {
-    setRows(
-      allRows.filter((row) => {
-        return (
-          passesFilter(filterPanelFormElements.location, row.location?._id) &&
-          passesFilter(filterPanelFormElements.user, row.user?._id) &&
-          passesFilter(filterPanelFormElements.date, row.date)
-        );
-      })
+    const filteredRows = allRows.filter((row) => {
+      return (
+        passesFilter(filterPanelFormElements.location, row.location?._id) &&
+        passesFilter(filterPanelFormElements.user, row.user?._id) &&
+        passesFilter(filterPanelFormElements.date, row.date)
+      );
+    });
+    setRows(filteredRows);
+    const newGeneralTotal = filteredRows.reduce(
+      (acc, invoice) => acc + invoice.amount,
+      0
     );
+    setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
   }, [cashouts, locations, filterPanelFormElements]);
   const filters = [
@@ -224,6 +230,22 @@ const Cashout = () => {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+    {
+      label: t("Total") + " :",
+      isUpperSide: false,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotal)}{" "}
+            ₺
+          </p>
+        </div>
+      ),
     },
   ];
   const filterPanel = {

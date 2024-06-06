@@ -333,6 +333,13 @@ export type CheckoutIncome = {
   date: string;
   amount: number;
 };
+export type CheckoutControl = {
+  _id: number;
+  user: User;
+  location: AccountStockLocation;
+  date: string;
+  amount: number;
+};
 
 export type CheckoutCashout = {
   _id: number;
@@ -431,6 +438,7 @@ export enum CheckoutPageTabEnum {
   INCOME,
   EXPENSE,
   CASHOUT,
+  CHECKOUTCONTROL,
 }
 export enum StocksPageTabEnum {
   STOCK,

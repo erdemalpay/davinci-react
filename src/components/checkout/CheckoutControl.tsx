@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { CheckoutIncome } from "../../types";
+import { CheckoutControl } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
-  useCheckoutIncomeMutations,
-  useGetCheckoutIncomes,
-} from "../../utils/api/checkout/income";
+  useCheckoutControlMutations,
+  useGetCheckoutControls,
+} from "../../utils/api/checkout/checkoutControl";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -21,16 +21,15 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
-const Income = () => {
+const CheckoutControlPage = () => {
   const { t } = useTranslation();
-  const incomes = useGetCheckoutIncomes();
+  const checkoutControls = useGetCheckoutControls();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<CheckoutIncome>();
+  const [rowToAction, setRowToAction] = useState<CheckoutControl>();
   const [showFilters, setShowFilters] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -42,14 +41,17 @@ const Income = () => {
       location: "",
       date: "",
     });
-  const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
-    useCheckoutIncomeMutations();
+  const {
+    createCheckoutControl,
+    deleteCheckoutControl,
+    updateCheckoutControl,
+  } = useCheckoutControlMutations();
   const allRows =
-    incomes?.map((income) => ({
-      ...income,
-      usr: income?.user?.name,
-      lctn: income?.location?.name,
-      formattedDate: formatAsLocalDate(income?.date),
+    checkoutControls?.map((i) => ({
+      ...i,
+      usr: i?.user?.name,
+      lctn: i?.location?.name,
+      formattedDate: formatAsLocalDate(i?.date),
     })) ?? [];
 
   const [rows, setRows] = useState(allRows);
@@ -123,7 +125,7 @@ const Income = () => {
   ];
 
   const addButton = {
-    name: t(`Add Income`),
+    name: t(`Add Checkout Control`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -134,7 +136,7 @@ const Income = () => {
           date: format(new Date(), "yyyy-MM-dd"),
         }}
         formKeys={formKeys}
-        submitItem={createCheckoutIncome as any}
+        submitItem={createCheckoutControl as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
@@ -154,10 +156,10 @@ const Income = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteCheckoutIncome(rowToAction?._id);
+            deleteCheckoutControl(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Income")}
+          title={t("Delete Checkout Control")}
           text={`${rowToAction.amount} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -179,7 +181,7 @@ const Income = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateCheckoutIncome as any}
+          submitItem={updateCheckoutControl as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
@@ -203,34 +205,13 @@ const Income = () => {
       );
     });
     setRows(filteredRows);
-    const newGeneralTotal = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.amount,
-      0
-    );
-    setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [incomes, locations, filterPanelFormElements]);
+  }, [checkoutControls, locations, filterPanelFormElements]);
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-    {
-      label: t("Total") + " :",
-      isUpperSide: false,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(generalTotal)}{" "}
-            ₺
-          </p>
-        </div>
-      ),
     },
   ];
   const filterPanel = {
@@ -251,7 +232,7 @@ const Income = () => {
           filters={filters}
           filterPanel={filterPanel}
           rows={rows}
-          title={t("Incomes")}
+          title={t("Checkout Control")}
           addButton={addButton}
         />
       </div>
@@ -259,4 +240,4 @@ const Income = () => {
   );
 };
 
-export default Income;
+export default CheckoutControlPage;

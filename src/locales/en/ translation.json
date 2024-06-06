@@ -381,5 +381,9 @@
   "Delete Payment Method": "Delete Payment Method",
   "Payment Method": "Payment Method",
   "Not Paid": "Not Paid",
+  "Logged in successfully": "Logged in successfully",
+  "Checkout Control": "Checkout Control",
+  "Add Checkout Control": "Add Checkout Control",
+  "Delete Checkout Control": "Delete Checkout Control",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

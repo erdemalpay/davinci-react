@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { GiPayMoney, GiReceiveMoney } from "react-icons/gi";
+import { GiMoneyStack, GiPayMoney, GiReceiveMoney } from "react-icons/gi";
 import { IoCashOutline } from "react-icons/io5";
 import Cashout from "../components/checkout/Cashout";
+import CheckoutControlPage from "../components/checkout/CheckoutControl";
 import Expense from "../components/checkout/Expense";
 import Income from "../components/checkout/Income";
 import { Header } from "../components/header/Header";
@@ -39,6 +40,13 @@ export default function Checkout() {
       label: t("Cashout"),
       icon: <IoCashOutline className="text-lg font-thin" />,
       content: <Cashout />,
+      isDisabled: false,
+    },
+    {
+      number: CheckoutPageTabEnum.CHECKOUTCONTROL,
+      label: t("Checkout Control"),
+      icon: <GiMoneyStack className="text-lg font-thin" />,
+      content: <CheckoutControlPage />,
       isDisabled: false,
     },
   ];
