@@ -154,7 +154,7 @@ const Unit = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [units]);
+  }, [units, products]);
 
   return (
     <>

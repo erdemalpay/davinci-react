@@ -265,7 +265,7 @@ const PackageType = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [packageTypes]);
+  }, [packageTypes, products]);
 
   return (
     <>

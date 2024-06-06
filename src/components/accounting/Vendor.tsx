@@ -337,7 +337,7 @@ const Vendor = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [vendors]);
+  }, [vendors, products, fixtures, services]);
 
   return (
     <>
