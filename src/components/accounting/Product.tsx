@@ -162,16 +162,20 @@ const Product = () => {
       isMultiple: true,
       required: true,
     }),
+    VendorInput({
+      vendors: vendors,
+      isMultiple: true,
+      required: true,
+    }),
     BrandInput({ brands: brands, isMultiple: true }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "packages", type: FormKeyTypeEnum.STRING },
-    { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
   ];
   const joinProductFormKeys = [
     { key: "stayedProduct", type: FormKeyTypeEnum.STRING },

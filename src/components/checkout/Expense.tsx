@@ -433,6 +433,7 @@ const Expenses = () => {
     }),
     VendorInput({
       vendors: vendorInputOptions() ?? [],
+      required: true,
     }),
     QuantityInput(),
   ];

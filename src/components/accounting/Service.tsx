@@ -71,7 +71,7 @@ const Service = () => {
       required: true,
       isMultiple: true,
     }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true, required: true }),
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
