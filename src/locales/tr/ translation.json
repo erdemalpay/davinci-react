@@ -386,5 +386,8 @@
   "Add Checkout Control": "Kasa Kontrolü Ekle",
   "Delete Checkout Control": "Kasa Kontrolü Sil",
   "Vendor Payments": "Satıcı Ödemeleri",
+  "Product Expense ID": "Ürün Gider ID",
+  "Fixture Expense ID": "Demirbaş Gider ID",
+  "Service Expense ID": "Hizmet Gider ID",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

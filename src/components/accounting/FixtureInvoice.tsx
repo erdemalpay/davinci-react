@@ -217,14 +217,14 @@ const FixtureInvoice = () => {
       required: true,
       isMultiple: true,
     }),
+    VendorInput({ vendors: vendors, isMultiple: true, required: true }),
     BrandInput({ brands: brands, isMultiple: true }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const addFixtureFormKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
   ];
   const inputs = [
     {
@@ -269,6 +269,7 @@ const FixtureInvoice = () => {
             .find((item) => item._id === fixtureExpenseForm?.fixture)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
+      required: true,
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,

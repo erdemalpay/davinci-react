@@ -10,9 +10,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type Props = { selectedVendor: AccountVendor };
-type FormElementsState = {
-  [key: string]: any;
-};
 
 const VendorPayments = ({ selectedVendor }: Props) => {
   const { t } = useTranslation();
@@ -41,6 +38,9 @@ const VendorPayments = ({ selectedVendor }: Props) => {
       isSortable: true,
     },
     { key: t("Amount"), isSortable: true },
+    { key: t("Product Expense ID"), isSortable: true },
+    { key: t("Fixture Expense ID"), isSortable: true },
+    { key: t("Service Expense ID"), isSortable: true },
   ];
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
@@ -52,6 +52,9 @@ const VendorPayments = ({ selectedVendor }: Props) => {
     { key: "lctn" },
     { key: "pymntMthd" },
     { key: "amount" },
+    { key: "invoice" },
+    { key: "fixtureInvoice" },
+    { key: "serviceInvoice" },
   ];
 
   useEffect(() => {

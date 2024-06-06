@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useLocationContext } from "../../context/Location.context";
 import { CheckoutIncome } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
@@ -27,6 +28,7 @@ const Income = () => {
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -108,7 +110,6 @@ const Income = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -117,10 +118,7 @@ const Income = () => {
       required: true,
     },
   ];
-  const formKeys = [
-    { key: "location", type: FormKeyTypeEnum.STRING },
-    { key: "amount", type: FormKeyTypeEnum.NUMBER },
-  ];
+  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
 
   const addButton = {
     name: t(`Add Income`),
@@ -132,6 +130,7 @@ const Income = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          location: selectedLocationId === 1 ? "bahceli" : "neorama",
         }}
         formKeys={formKeys}
         submitItem={createCheckoutIncome as any}
@@ -184,7 +183,7 @@ const Income = () => {
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
-            updates: { ...rowToAction, location: rowToAction?.location?._id },
+            updates: { ...rowToAction },
           }}
         />
       ) : null,

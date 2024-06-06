@@ -195,7 +195,7 @@ const ServiceInvoice = () => {
       required: true,
       isMultiple: true,
     }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true, required: true }),
   ];
   const addServiceFormKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -236,6 +236,7 @@ const ServiceInvoice = () => {
             .find((item) => item._id === serviceExpenseForm?.service)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
+      required: true,
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,
