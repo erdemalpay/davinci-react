@@ -162,6 +162,7 @@ export type AccountPayment = {
   fixtureInvoice?: number;
   serviceInvoice?: number;
   paymentMethod: AccountPaymentMethod | string;
+  location: string | AccountStockLocation;
   user: User;
   date: string;
   amount: number;
@@ -458,6 +459,7 @@ export enum VendorPageTabEnum {
   VENDORFIXTURES,
   VENDORSERVICES,
   VENDOREXPENSES,
+  VENDORPAYMENTS,
 }
 export enum BrandPageTabEnum {
   BRANDPRODUCTS,

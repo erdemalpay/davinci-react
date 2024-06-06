@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
-import { MdOutlineCleaningServices, MdOutlineMenuBook } from "react-icons/md";
+import {
+  MdOutlineCleaningServices,
+  MdOutlineMenuBook,
+  MdPayments,
+} from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorFixtures from "../components/vendor/VendorFixtures";
+import VendorPayments from "../components/vendor/VendorPayments";
 import VendorProducts from "../components/vendor/VendorProducts";
 import VendorServices from "../components/vendor/VendorServices";
 import { useGeneralContext } from "../context/General.context";
@@ -63,6 +68,19 @@ export default function Vendor() {
       label: t("Vendor Expenses"),
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <VendorExpenses selectedVendor={currentVendor} />,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+    {
+      number: VendorPageTabEnum.VENDORPAYMENTS,
+      label: t("Vendor Payments"),
+      icon: <MdPayments className="text-lg font-thin" />,
+      content: <VendorPayments selectedVendor={currentVendor} />,
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
