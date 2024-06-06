@@ -381,5 +381,9 @@
   "Delete Payment Method": "Ödeme Yöntemi Sil",
   "Payment Method": "Ödeme Yöntemi",
   "Not Paid": "Ödenmedi",
+  "Logged in successfully": "Başarıyla giriş yapıldı",
+  "Checkout Control": "Kasa Kontrolü",
+  "Add Checkout Control": "Kasa Kontrolü Ekle",
+  "Delete Checkout Control": "Kasa Kontrolü Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
