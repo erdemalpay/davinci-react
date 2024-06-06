@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
+import { useLocationContext } from "../../context/Location.context";
 import {
   AccountBrand,
   AccountExpenseType,
@@ -68,6 +69,7 @@ const Expenses = () => {
   const serviceInvoices = useGetAccountServiceInvoices();
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
+  const { selectedLocationId } = useLocationContext();
   const {
     searchQuery,
     setCurrentPage,
@@ -426,7 +428,6 @@ const Expenses = () => {
       expenseTypes: expenseTypeInputOptions() ?? [],
       required: true,
     }),
-    StockLocationInput({ locations }),
     BrandInput({
       isDisabled: allExpenseForm?.type === ExpenseTypes.SERVICE,
       brands: brandInputOptions() ?? [],
@@ -442,7 +443,6 @@ const Expenses = () => {
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
@@ -801,6 +801,7 @@ const Expenses = () => {
               allExpenseForm.quantity &&
               createAccountInvoice({
                 ...allExpenseForm,
+                location: selectedLocationId === 1 ? "bahceli" : "neorama",
                 paymentMethod: ConstantPaymentMethods.CASH,
                 isPaid: true,
                 quantity: Number(allExpenseForm.quantity),
@@ -816,6 +817,7 @@ const Expenses = () => {
               allExpenseForm.quantity &&
               createAccountFixtureInvoice({
                 ...allExpenseForm,
+                location: selectedLocationId === 1 ? "bahceli" : "neorama",
                 paymentMethod: ConstantPaymentMethods.CASH,
                 isPaid: true,
                 totalExpense:
@@ -830,6 +832,7 @@ const Expenses = () => {
               allExpenseForm.quantity &&
               createAccountServiceInvoice({
                 ...allExpenseForm,
+                location: selectedLocationId === 1 ? "bahceli" : "neorama",
                 paymentMethod: ConstantPaymentMethods.CASH,
                 isPaid: true,
                 totalExpense:
@@ -851,6 +854,7 @@ const Expenses = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           ...allExpenseForm,
+          location: selectedLocationId === 1 ? "bahceli" : "neorama",
           paymentMethod:
             allExpenseForm.paymentMethod === NOTPAID
               ? ""

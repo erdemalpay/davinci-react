@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useLocationContext } from "../../context/Location.context";
 import { CheckoutControl } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
@@ -18,6 +19,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 type FormElementsState = {
   [key: string]: any;
 };
@@ -27,6 +29,7 @@ const CheckoutControlPage = () => {
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
@@ -110,7 +113,6 @@ const CheckoutControlPage = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -119,10 +121,7 @@ const CheckoutControlPage = () => {
       required: true,
     },
   ];
-  const formKeys = [
-    { key: "location", type: FormKeyTypeEnum.STRING },
-    { key: "amount", type: FormKeyTypeEnum.NUMBER },
-  ];
+  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
 
   const addButton = {
     name: t(`Add Checkout Control`),
@@ -134,6 +133,7 @@ const CheckoutControlPage = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          location: selectedLocationId === 1 ? "bahceli" : "neorama",
         }}
         formKeys={formKeys}
         submitItem={createCheckoutControl as any}
@@ -186,7 +186,7 @@ const CheckoutControlPage = () => {
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
-            updates: { ...rowToAction, location: rowToAction?.location?._id },
+            updates: { ...rowToAction },
           }}
         />
       ) : null,

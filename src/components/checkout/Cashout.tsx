@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useLocationContext } from "../../context/Location.context";
 import { CheckoutCashout } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
@@ -26,6 +27,7 @@ const Cashout = () => {
   const { t } = useTranslation();
   const cashouts = useGetCheckoutCashouts();
   const locations = useGetAccountStockLocations();
+  const { selectedLocationId } = useLocationContext();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -114,7 +116,6 @@ const Cashout = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -132,7 +133,6 @@ const Cashout = () => {
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "description", type: FormKeyTypeEnum.STRING },
   ];
@@ -147,6 +147,7 @@ const Cashout = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          location: selectedLocationId === 1 ? "bahceli" : "neorama",
         }}
         formKeys={formKeys}
         submitItem={createCheckoutCashout as any}
@@ -199,7 +200,7 @@ const Cashout = () => {
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
-            updates: { ...rowToAction, location: rowToAction?.location?._id },
+            updates: { ...rowToAction },
           }}
         />
       ) : null,

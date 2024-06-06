@@ -53,7 +53,7 @@ export default function Checkout() {
 
   return (
     <>
-      <Header showLocationSelector={false} />
+      <Header />
       <TabPanel
         key={i18n.language}
         tabs={tabs}
