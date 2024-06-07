@@ -636,7 +636,7 @@ const GenericTable = <T,>({
                           } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
                         >
                           <H5
-                            className={`w-fit flex gap-2 "text-gray-600" ${
+                            className={`w-max flex gap-2 "text-gray-600" ${
                               columns.length === 2 && index == 1 && "  mx-auto"
                             } ${column?.className} ${
                               index === columns.length - 1 &&
@@ -653,7 +653,7 @@ const GenericTable = <T,>({
                                   className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
                                 />
                               )}
-                              {column.key}{" "}
+                              {column.key}
                             </span>
                             {column.isSortable && (
                               <div
