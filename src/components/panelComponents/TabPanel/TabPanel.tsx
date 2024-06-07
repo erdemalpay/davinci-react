@@ -68,7 +68,7 @@ const TabPanel: React.FC<Props> = ({
               onClick={() => handleTabChange(tab)}
             >
               {tab.icon}
-              <P1>{tab.label}</P1>
+              <P1 className="w-max">{tab.label}</P1>
             </div>
           ))}
         <div
