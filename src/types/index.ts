@@ -422,7 +422,10 @@ export enum ExpensesPageTabEnum {
   SERVICEINVOICE,
   ALLEXPENSES,
 }
-
+export enum CountListPageTabEnum {
+  COUNTARCHIVE,
+  COUNTLISTS,
+}
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
   UNIT,
