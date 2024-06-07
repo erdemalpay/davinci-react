@@ -78,7 +78,7 @@ const CountList = () => {
   };
   const currentCountList = countLists?.find((item) => item._id === countListId);
   if (!currentCountList) {
-    return null;
+    return <></>;
   }
   const [countLocationForm, setCountLocationForm] = useState({
     location: "",
