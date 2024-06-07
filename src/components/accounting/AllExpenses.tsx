@@ -417,6 +417,7 @@ const AllExpenses = () => {
     }),
     VendorInput({
       vendors: vendorInputOptions() ?? [],
+      required: true,
     }),
     PaymentMethodInput({ paymentMethods: paymentMethods, required: true }),
     QuantityInput(),

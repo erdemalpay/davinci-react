@@ -2,48 +2,48 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useGeneralContext } from "../../context/General.context";
-import { useUserContext } from "../../context/User.context";
+import { CheckSwitch } from "../components/common/CheckSwitch";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import SelectInput from "../components/common/SelectInput";
+import { Header } from "../components/header/Header";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../components/panelComponents/shared/types";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
 import {
   AccountCountList,
   AccountStockLocation,
   RoleEnum,
   User,
-} from "../../types";
+} from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
-} from "../../utils/api/account/count";
+} from "../utils/api/account/count";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
-} from "../../utils/api/account/countList";
-import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { StockLocationInput } from "../../utils/panelInputs";
-import { CheckSwitch } from "../common/CheckSwitch";
-import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import {
-  FormKeyTypeEnum,
-  InputTypes,
-  RowKeyType,
-} from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
+} from "../utils/api/account/countList";
+import { useGetAccountProducts } from "../utils/api/account/product";
+import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
+import { StockLocationInput } from "../utils/panelInputs";
 
-type Props = {
-  countListId: string;
-};
 interface LocationEntries {
   [key: string]: boolean;
 }
 
-const CountList = ({ countListId }: Props) => {
+const CountList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { countListId } = useParams();
   const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
   const countLists = useGetAccountCountLists();
@@ -52,6 +52,8 @@ const CountList = ({ countListId }: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [selectedCountList, setSelectedCountList] =
+    useState<AccountCountList>();
   const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
     useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -65,9 +67,19 @@ const CountList = ({ countListId }: Props) => {
   const [form, setForm] = useState({
     product: [],
   });
+  const countListOption = countLists?.map((p) => {
+    return {
+      value: p._id,
+      label: p.name,
+    };
+  });
   type CountListRowType = {
     product: string;
   };
+  const currentCountList = countLists?.find((item) => item._id === countListId);
+  if (!currentCountList) {
+    return <></>;
+  }
   const [countLocationForm, setCountLocationForm] = useState({
     location: "",
   });
@@ -357,70 +369,109 @@ const CountList = ({ countListId }: Props) => {
   if (!user) return <></>;
   return (
     <>
-      <div className="w-[95%] my-5 mx-auto ">
-        <GenericTable
-          key={tableKey}
-          rowKeys={rowKeys}
-          columns={columns}
-          rows={rows()}
-          actions={
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? actions
-              : undefined
-          }
-          addButton={
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? addButton
-              : undefined
-          }
-          filters={filters}
-          title={countLists.find((row) => row._id === countListId)?.name}
-        />
-        {isCountLocationModalOpen && (
-          <GenericAddEditPanel
-            isOpen={isCountLocationModalOpen}
-            close={() => setIsCountLocationModalOpen(false)}
-            inputs={countLocationInputs}
-            formKeys={countLocationFormKeys}
-            submitItem={() => {}}
-            submitFunction={async () => {
-              if (countLocationForm.location === "" || !user) return;
-              if (
-                counts?.filter((item) => {
-                  return (
-                    item.isCompleted === false &&
-                    (item.location as AccountStockLocation)._id ===
-                      countLocationForm.location &&
-                    (item.user as User)._id === user._id &&
-                    (item.countList as AccountCountList)._id === countListId
-                  );
-                }).length > 0
-              ) {
-                setCurrentPage(1);
-                setSearchQuery("");
-                setSortConfigKey(null);
-                navigate(`/count/${countLocationForm.location}/${countListId}`);
-              } else {
-                createAccountCount({
-                  location: countLocationForm.location,
-                  countList: countListId,
-                  isCompleted: false,
-                  createdAt: new Date(),
-                  user: user._id,
-                });
-                setCurrentPage(1);
-                setSearchQuery("");
-                setSortConfigKey(null);
-
-                navigate(`/count/${countLocationForm.location}/${countListId}`);
+      <Header showLocationSelector={false} />
+      <div className="flex flex-col gap-4">
+        <div className="w-[95%] mx-auto">
+          <div className="sm:w-1/4 ">
+            <SelectInput
+              options={countListOption}
+              value={
+                selectedCountList
+                  ? {
+                      value: selectedCountList._id,
+                      label: selectedCountList.name,
+                    }
+                  : {
+                      value: currentCountList._id,
+                      label: currentCountList.name,
+                    }
               }
-            }}
-            setForm={setCountLocationForm}
-            isEditMode={false}
-            topClassName="flex flex-col gap-2 "
-            buttonName={t("Submit")}
+              onChange={(selectedOption) => {
+                setSelectedCountList(
+                  countLists?.find((p) => p._id === selectedOption?.value)
+                );
+                setCurrentPage(1);
+                // setRowsPerPage(RowPerPageEnum.FIRST);
+                setSearchQuery("");
+                setSortConfigKey(null);
+                navigate(`/count-list/${selectedOption?.value}`);
+              }}
+              placeholder={t("Select a count list")}
+            />
+          </div>
+        </div>
+        <div className="w-[95%] my-5 mx-auto ">
+          <GenericTable
+            key={tableKey}
+            rowKeys={rowKeys}
+            columns={columns}
+            rows={rows()}
+            actions={
+              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+                user.role._id
+              )
+                ? actions
+                : undefined
+            }
+            addButton={
+              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+                user.role._id
+              )
+                ? addButton
+                : undefined
+            }
+            filters={filters}
+            title={countLists.find((row) => row._id === countListId)?.name}
           />
-        )}
+          {isCountLocationModalOpen && (
+            <GenericAddEditPanel
+              isOpen={isCountLocationModalOpen}
+              close={() => setIsCountLocationModalOpen(false)}
+              inputs={countLocationInputs}
+              formKeys={countLocationFormKeys}
+              submitItem={() => {}}
+              submitFunction={async () => {
+                if (countLocationForm.location === "" || !user) return;
+                if (
+                  counts?.filter((item) => {
+                    return (
+                      item.isCompleted === false &&
+                      (item.location as AccountStockLocation)._id ===
+                        countLocationForm.location &&
+                      (item.user as User)._id === user._id &&
+                      (item.countList as AccountCountList)._id === countListId
+                    );
+                  }).length > 0
+                ) {
+                  setCurrentPage(1);
+                  setSearchQuery("");
+                  setSortConfigKey(null);
+                  navigate(
+                    `/count/${countLocationForm.location}/${countListId}`
+                  );
+                } else {
+                  createAccountCount({
+                    location: countLocationForm.location,
+                    countList: countListId,
+                    isCompleted: false,
+                    createdAt: new Date(),
+                    user: user._id,
+                  });
+                  setCurrentPage(1);
+                  setSearchQuery("");
+                  setSortConfigKey(null);
+                  navigate(
+                    `/count/${countLocationForm.location}/${countListId}`
+                  );
+                }
+              }}
+              setForm={setCountLocationForm}
+              isEditMode={false}
+              topClassName="flex flex-col gap-2 "
+              buttonName={t("Submit")}
+            />
+          )}
+        </div>
       </div>
     </>
   );
