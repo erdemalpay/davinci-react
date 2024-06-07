@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useLocationContext } from "../../context/Location.context";
 import { CheckoutIncome } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
@@ -27,7 +28,9 @@ const Income = () => {
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutIncome>();
   const [showFilters, setShowFilters] = useState(false);
@@ -107,7 +110,6 @@ const Income = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -116,10 +118,7 @@ const Income = () => {
       required: true,
     },
   ];
-  const formKeys = [
-    { key: "location", type: FormKeyTypeEnum.STRING },
-    { key: "amount", type: FormKeyTypeEnum.NUMBER },
-  ];
+  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
 
   const addButton = {
     name: t(`Add Income`),
@@ -131,6 +130,7 @@ const Income = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
+          location: selectedLocationId === 1 ? "bahceli" : "neorama",
         }}
         formKeys={formKeys}
         submitItem={createCheckoutIncome as any}
@@ -183,7 +183,7 @@ const Income = () => {
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
-            updates: { ...rowToAction, location: rowToAction?.location?._id },
+            updates: { ...rowToAction },
           }}
         />
       ) : null,
@@ -194,15 +194,19 @@ const Income = () => {
   ];
 
   useEffect(() => {
-    setRows(
-      allRows.filter((row) => {
-        return (
-          passesFilter(filterPanelFormElements.location, row.location?._id) &&
-          passesFilter(filterPanelFormElements.user, row.user?._id) &&
-          passesFilter(filterPanelFormElements.date, row.date)
-        );
-      })
+    const filteredRows = allRows.filter((row) => {
+      return (
+        passesFilter(filterPanelFormElements.location, row.location?._id) &&
+        passesFilter(filterPanelFormElements.user, row.user?._id) &&
+        passesFilter(filterPanelFormElements.date, row.date)
+      );
+    });
+    setRows(filteredRows);
+    const newGeneralTotal = filteredRows.reduce(
+      (acc, invoice) => acc + invoice.amount,
+      0
     );
+    setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
   }, [incomes, locations, filterPanelFormElements]);
   const filters = [
@@ -210,6 +214,22 @@ const Income = () => {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+    {
+      label: t("Total") + " :",
+      isUpperSide: false,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(generalTotal)}{" "}
+            ₺
+          </p>
+        </div>
+      ),
     },
   ];
   const filterPanel = {

@@ -4,12 +4,12 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutCashout } from "../../types";
+import { CheckoutControl } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
-  useCheckoutCashoutMutations,
-  useGetCheckoutCashouts,
-} from "../../utils/api/checkout/cashout";
+  useCheckoutControlMutations,
+  useGetCheckoutControls,
+} from "../../utils/api/checkout/checkoutControl";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -23,17 +23,16 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
-const Cashout = () => {
+const CheckoutControlPage = () => {
   const { t } = useTranslation();
-  const cashouts = useGetCheckoutCashouts();
+  const checkoutControls = useGetCheckoutControls();
   const locations = useGetAccountStockLocations();
-  const { selectedLocationId } = useLocationContext();
-  const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
+  const users = useGetUsers();
+  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<CheckoutCashout>();
-  const [generalTotal, setGeneralTotal] = useState(0);
+  const [rowToAction, setRowToAction] = useState<CheckoutControl>();
   const [showFilters, setShowFilters] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
@@ -46,17 +45,26 @@ const Cashout = () => {
       date: "",
     });
   const {
-    createCheckoutCashout,
-    deleteCheckoutCashout,
-    updateCheckoutCashout,
-  } = useCheckoutCashoutMutations();
+    createCheckoutControl,
+    deleteCheckoutControl,
+    updateCheckoutControl,
+  } = useCheckoutControlMutations();
   const allRows =
-    cashouts?.map((cashout) => ({
-      ...cashout,
-      usr: cashout?.user?.name,
-      lctn: cashout?.location?.name,
-      formattedDate: formatAsLocalDate(cashout?.date),
+    checkoutControls?.map((i) => ({
+      ...i,
+      usr: i?.user?.name,
+      lctn: i?.location?.name,
+      formattedDate: formatAsLocalDate(i?.date),
     })) ?? [];
+
+  const [rows, setRows] = useState(allRows);
+  const columns = [
+    { key: t("Date"), isSortable: true },
+    { key: t("User"), isSortable: true },
+    { key: t("Location"), isSortable: true },
+    { key: t("Amount"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
+  ];
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -81,16 +89,6 @@ const Cashout = () => {
       isDatePicker: true,
     },
   ];
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("Date"), isSortable: true },
-    { key: t("User"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Amount"), isSortable: true },
-    { key: t("Description"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
-  ];
-
   const rowKeys = [
     {
       key: "date",
@@ -105,7 +103,6 @@ const Cashout = () => {
     },
     { key: "lctn" },
     { key: "amount" },
-    { key: "description" },
   ];
   const inputs = [
     {
@@ -123,22 +120,11 @@ const Cashout = () => {
       placeholder: t("Amount"),
       required: true,
     },
-    {
-      type: InputTypes.TEXTAREA,
-      formKey: "description",
-      label: t("Description"),
-      placeholder: t("Description"),
-      required: false,
-    },
   ];
-  const formKeys = [
-    { key: "date", type: FormKeyTypeEnum.DATE },
-    { key: "amount", type: FormKeyTypeEnum.NUMBER },
-    { key: "description", type: FormKeyTypeEnum.STRING },
-  ];
+  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
 
   const addButton = {
-    name: t(`Add Cashout`),
+    name: t(`Add Checkout Control`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -150,7 +136,7 @@ const Cashout = () => {
           location: selectedLocationId === 1 ? "bahceli" : "neorama",
         }}
         formKeys={formKeys}
-        submitItem={createCheckoutCashout as any}
+        submitItem={createCheckoutControl as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
@@ -170,10 +156,10 @@ const Cashout = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteCheckoutCashout(rowToAction?._id);
+            deleteCheckoutControl(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Cashout")}
+          title={t("Delete Checkout Control")}
           text={`${rowToAction.amount} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -195,7 +181,7 @@ const Cashout = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateCheckoutCashout as any}
+          submitItem={updateCheckoutControl as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
@@ -219,34 +205,13 @@ const Cashout = () => {
       );
     });
     setRows(filteredRows);
-    const newGeneralTotal = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.amount,
-      0
-    );
-    setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [cashouts, locations, filterPanelFormElements]);
+  }, [checkoutControls, locations, filterPanelFormElements]);
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-    {
-      label: t("Total") + " :",
-      isUpperSide: false,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(generalTotal)}{" "}
-            ₺
-          </p>
-        </div>
-      ),
     },
   ];
   const filterPanel = {
@@ -267,7 +232,7 @@ const Cashout = () => {
           filters={filters}
           filterPanel={filterPanel}
           rows={rows}
-          title={t("Cashouts")}
+          title={t("Checkout Control")}
           addButton={addButton}
         />
       </div>
@@ -275,4 +240,4 @@ const Cashout = () => {
   );
 };
 
-export default Cashout;
+export default CheckoutControlPage;

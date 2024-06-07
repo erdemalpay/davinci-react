@@ -330,7 +330,7 @@ const ExpenseType = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [expenseTypes]);
+  }, [expenseTypes, products, fixtures, services]);
 
   return (
     <>

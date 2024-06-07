@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountCountList } from "../../types";
@@ -18,20 +19,18 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type Props = {
-  actionActiveTab: number;
-  setActionActiveTab: (tab: number) => void;
-};
-const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
+const CountLists = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
+  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
+    useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -57,7 +56,25 @@ const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
     toast.success(`${t("Count List updated successfully")}`);
   }
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<AccountCountList>[] = [{ key: "name" }];
+  const rowKeys: RowKeyType<AccountCountList>[] = [
+    {
+      key: "name",
+      node: (row: AccountCountList) => (
+        <p
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          onClick={() => {
+            setCurrentPage(1);
+            // setRowsPerPage(RowPerPageEnum.FIRST);
+            setSearchQuery("");
+            setSortConfigKey(null);
+            navigate(`/count-list/${row._id}`);
+          }}
+        >
+          {row.name}
+        </p>
+      ),
+    },
+  ];
 
   // Adding location columns and rowkeys
   for (const location of locations) {
@@ -98,9 +115,6 @@ const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
         }}
         inputs={inputs}
         formKeys={formKeys}
-        additionalSubmitFunction={() => {
-          setCountListActiveTab(countListActiveTab + 1);
-        }}
         submitItem={createAccountCountList as any}
         topClassName="flex flex-col gap-2 "
       />
@@ -124,7 +138,6 @@ const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
           }}
           confirm={() => {
             deleteAccountCountList(rowToAction?._id);
-            setCountListActiveTab(countListActiveTab - 1);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count List")}
@@ -148,9 +161,6 @@ const CountLists = ({ actionActiveTab, setActionActiveTab }: Props) => {
           isOpen={isEditModalOpen}
           close={() => {
             setIsEditModalOpen(false);
-            setTimeout(() => {
-              setActionActiveTab(actionActiveTab + 1);
-            }, 500);
           }}
           inputs={inputs}
           formKeys={formKeys}

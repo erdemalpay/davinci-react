@@ -244,16 +244,16 @@ const Invoice = () => {
       required: true,
     }),
     PackageTypeInput({ packages: packages, isMultiple: true, required: true }),
+    VendorInput({ vendors: vendors, isMultiple: true, required: true }),
     BrandInput({ brands: brands, isMultiple: true }),
-    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const productFormKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "unit", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "packages", type: FormKeyTypeEnum.STRING },
-    { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
   ];
 
   const packageTypeInputs = [NameInput(), QuantityInput()];
@@ -333,6 +333,7 @@ const Invoice = () => {
             .find((prod) => prod._id === productExpenseForm?.product)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
+      required: true,
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,
@@ -379,7 +380,6 @@ const Invoice = () => {
     },
     {
       key: t("Expense Type"),
-      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),

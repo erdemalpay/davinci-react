@@ -381,5 +381,14 @@
   "Delete Payment Method": "Delete Payment Method",
   "Payment Method": "Payment Method",
   "Not Paid": "Not Paid",
+  "Logged in successfully": "Logged in successfully",
+  "Checkout Control": "Checkout Control",
+  "Add Checkout Control": "Add Checkout Control",
+  "Delete Checkout Control": "Delete Checkout Control",
+  "Vendor Payments": "Vendor Payments",
+  "Product Expense ID": "Product Expense ID",
+  "Fixture Expense ID": "Fixture Expense ID",
+  "Service Expense ID": "Service Expense ID",
+  "Select a count list": "Select a count list",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -3,6 +3,7 @@ import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
+import CountList from "../pages/CountList";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
 import Fixture from "../pages/Fixture";
@@ -53,6 +54,7 @@ export enum Routes {
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
+  CountList = "/count-list/:countListId",
   Checkout = "/checkout",
 }
 
@@ -128,6 +130,12 @@ export const allRoutes: {
       name: "Count",
       path: Routes.Count,
       element: Count,
+      isOnSidebar: false,
+    },
+    {
+      name: "Count List",
+      path: Routes.CountList,
+      element: CountList,
       isOnSidebar: false,
     },
     {

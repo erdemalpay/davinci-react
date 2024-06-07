@@ -162,6 +162,7 @@ export type AccountPayment = {
   fixtureInvoice?: number;
   serviceInvoice?: number;
   paymentMethod: AccountPaymentMethod | string;
+  location: string | AccountStockLocation;
   user: User;
   date: string;
   amount: number;
@@ -333,14 +334,14 @@ export type CheckoutIncome = {
   date: string;
   amount: number;
 };
-export type CheckoutExpense = {
+export type CheckoutControl = {
   _id: number;
   user: User;
   location: AccountStockLocation;
   date: string;
   amount: number;
-  description: string;
 };
+
 export type CheckoutCashout = {
   _id: number;
   user: User;
@@ -421,7 +422,10 @@ export enum ExpensesPageTabEnum {
   SERVICEINVOICE,
   ALLEXPENSES,
 }
-
+export enum CountListPageTabEnum {
+  COUNTARCHIVE,
+  COUNTLISTS,
+}
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
   UNIT,
@@ -438,6 +442,7 @@ export enum CheckoutPageTabEnum {
   INCOME,
   EXPENSE,
   CASHOUT,
+  CHECKOUTCONTROL,
 }
 export enum StocksPageTabEnum {
   STOCK,
@@ -457,6 +462,7 @@ export enum VendorPageTabEnum {
   VENDORFIXTURES,
   VENDORSERVICES,
   VENDOREXPENSES,
+  VENDORPAYMENTS,
 }
 export enum BrandPageTabEnum {
   BRANDPRODUCTS,
@@ -576,6 +582,11 @@ export enum ExpenseTypes {
   INVOICE = "Product Expense",
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
+}
+export enum ConstantPaymentMethods {
+  CASH = "nakit",
+  CREDITCARD = "kredi_karti",
+  BANKTRANSFER = "havale",
 }
 
 export const NOTPAID = "Not Paid";

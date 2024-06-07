@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Routes } from "../../navigation/constants";
@@ -35,7 +36,7 @@ export function useLogin(
   onError?: (error: unknown) => void
 ) {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const { mutate: login } = useMutation<
     LoginResponse,
     LoginError,
@@ -45,7 +46,7 @@ export function useLogin(
     onSuccess: async (response) => {
       const { token } = response;
       Cookies.set("jwt", token);
-      toast.success("Logged in successfully");
+      toast.success(t("Logged in successfully"));
       localStorage.setItem("jwt", token);
       localStorage.setItem("loggedIn", "true");
       const target = location

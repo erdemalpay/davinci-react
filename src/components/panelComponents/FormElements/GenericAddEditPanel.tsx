@@ -354,7 +354,13 @@ const GenericAddEditPanel = <T,>({
                       });
                     }
                   };
-
+                if (
+                  input.type === InputTypes.SELECT &&
+                  !input?.required &&
+                  input?.options?.length === 0
+                ) {
+                  return null;
+                }
                 if (!input?.isDisabled) {
                   return (
                     <div key={input.formKey} className="flex flex-col gap-2">

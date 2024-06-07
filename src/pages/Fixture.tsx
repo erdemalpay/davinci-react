@@ -88,6 +88,10 @@ export default function Fixture() {
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+            setSearchQuery("");
+          }}
         />
       </div>
     </>
