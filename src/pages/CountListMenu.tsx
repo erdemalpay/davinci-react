@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import CountArchive from "../components/accounting/CountArchive";
-import CountLists from "../components/accounting/CountLists";
+import { FaArchive, FaClipboardList } from "react-icons/fa";
+import { FaSitemap } from "react-icons/fa6";
+import CountArchive from "../components/countList/CountArchive";
+import CountListProducts from "../components/countList/CountListProducts";
+import CountLists from "../components/countList/CountLists";
 import { Header } from "../components/header/Header";
 import { Tab } from "../components/panelComponents/shared/types";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -30,15 +33,26 @@ const CountListMenu = () => {
       {
         number: CountListPageTabEnum.COUNTARCHIVE,
         label: t("Count Archive"),
-        icon: null,
+        icon: <FaArchive />,
         content: <CountArchive />,
         isDisabled: false,
       },
       {
         number: CountListPageTabEnum.COUNTLISTS,
         label: t("Count Lists"),
-        icon: null,
+        icon: <FaClipboardList />,
         content: <CountLists />,
+        isDisabled: user
+          ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              user.role._id
+            )
+          : true,
+      },
+      {
+        number: CountListPageTabEnum.COUNTLISTPRODUCTS,
+        label: t("Count List Products"),
+        icon: <FaSitemap />,
+        content: <CountListProducts />,
         isDisabled: user
           ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
               user.role._id
