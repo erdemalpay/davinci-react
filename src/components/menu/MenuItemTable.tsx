@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
@@ -242,14 +243,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             checked={row.locations?.includes(1)}
             onChange={() => handleLocationUpdate(row, 1)}
           />
+        ) : row?.locations?.includes(1) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {row.locations.includes(1) ? t("Yes") : t("No")}
-          </p>
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     },
     {
@@ -260,14 +257,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             checked={row.locations?.includes(2)}
             onChange={() => handleLocationUpdate(row, 2)}
           />
+        ) : row?.locations?.includes(2) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {row.locations.includes(2) ? t("Yes") : t("No")}
-          </p>
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     },
     {
