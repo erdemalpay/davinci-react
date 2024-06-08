@@ -390,5 +390,9 @@
   "Fixture Expense ID": "Demirbaş Gider ID",
   "Service Expense ID": "Hizmet Gider ID",
   "Select a count list": "Bir sayım listesi seçin",
+  "Count Quantity": "Sayım Miktarı",
+  "Income Quantity": "Gelir Miktarı",
+  "Expense Quantity": "Gider Miktarı",
+  "Expected Quantity": "Beklenen Miktar",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
