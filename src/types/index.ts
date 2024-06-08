@@ -425,6 +425,7 @@ export enum ExpensesPageTabEnum {
 export enum CountListPageTabEnum {
   COUNTARCHIVE,
   COUNTLISTS,
+  COUNTLISTPRODUCTS,
 }
 export enum AccountingPageTabEnum {
   EXPENSETYPE,

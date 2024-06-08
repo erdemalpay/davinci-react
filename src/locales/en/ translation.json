@@ -390,5 +390,10 @@
   "Fixture Expense ID": "Fixture Expense ID",
   "Service Expense ID": "Service Expense ID",
   "Select a count list": "Select a count list",
+  "Count Quantity": "Count Quantity",
+  "Income Quantity": "Income Quantity",
+  "Expense Quantity": "Expense Quantity",
+  "Expected Quantity": "Expected Quantity",
+  "Count List Products": "Count List Products",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -4,12 +4,17 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutControl } from "../../types";
+import { AccountPaymentMethod, CheckoutControl } from "../../types";
+import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
+import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
 import {
   useCheckoutControlMutations,
   useGetCheckoutControls,
 } from "../../utils/api/checkout/checkoutControl";
+import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -26,6 +31,11 @@ type FormElementsState = {
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
   const checkoutControls = useGetCheckoutControls();
+  const incomes = useGetCheckoutIncomes();
+  const invoices = useGetAccountInvoices();
+  const fixtureInvoices = useGetAccountFixtureInvoices();
+  const serviceInvoices = useGetAccountServiceInvoices();
+  const cashouts = useGetCheckoutCashouts();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
@@ -55,14 +65,54 @@ const CheckoutControlPage = () => {
       usr: i?.user?.name,
       lctn: i?.location?.name,
       formattedDate: formatAsLocalDate(i?.date),
+      incomeQuantity: incomes
+        ?.filter((item) => i?.date >= item?.date)
+        ?.reduce((acc, item) => acc + item.amount, 0),
+      expenseQuantity:
+        invoices
+          ?.filter(
+            (item) =>
+              i?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+          )
+          ?.reduce((acc, item) => acc + item.totalExpense, 0) +
+        fixtureInvoices
+          ?.filter(
+            (item) =>
+              i?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+          )
+          ?.reduce((acc, item) => acc + item.totalExpense, 0) +
+        serviceInvoices
+          ?.filter(
+            (item) =>
+              i?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+          )
+          ?.reduce((acc, item) => acc + item.totalExpense, 0),
+      cashout: cashouts
+        ?.filter((item) => i?.date >= item?.date)
+        ?.reduce((acc, item) => acc + item.amount, 0),
     })) ?? [];
 
-  const [rows, setRows] = useState(allRows);
+  const [rows, setRows] = useState(
+    allRows.map((row) => {
+      return {
+        ...row,
+        expectedQuantity:
+          row.incomeQuantity - row.expenseQuantity - row.cashout,
+      };
+    })
+  );
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Location"), isSortable: true },
-    { key: t("Amount"), isSortable: true },
+    { key: t("Count Quantity"), isSortable: true },
+    { key: t("Income Quantity"), isSortable: true },
+    { key: t("Expense Quantity"), isSortable: true },
+    { key: t("Cashout"), isSortable: true },
+    { key: t("Expected Quantity"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -102,7 +152,91 @@ const CheckoutControlPage = () => {
       className: "min-w-32 pr-1",
     },
     { key: "lctn" },
-    { key: "amount" },
+    {
+      key: "amount",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(row.amount)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "incomeQuantity",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(row.incomeQuantity)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "expenseQuantity",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(row.expenseQuantity)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "cashout",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(row.cashout)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "expectedQuantity",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(row.expectedQuantity)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
   ];
   const inputs = [
     {
@@ -197,16 +331,33 @@ const CheckoutControlPage = () => {
   ];
 
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
-      return (
-        passesFilter(filterPanelFormElements.location, row.location?._id) &&
-        passesFilter(filterPanelFormElements.user, row.user?._id) &&
-        passesFilter(filterPanelFormElements.date, row.date)
-      );
-    });
+    const filteredRows = allRows
+      .map((row) => {
+        return {
+          ...row,
+          expectedQuantity:
+            row.incomeQuantity - row.expenseQuantity - row.cashout,
+        };
+      })
+      .filter((row) => {
+        return (
+          passesFilter(filterPanelFormElements.location, row.location?._id) &&
+          passesFilter(filterPanelFormElements.user, row.user?._id) &&
+          passesFilter(filterPanelFormElements.date, row.date)
+        );
+      });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [checkoutControls, locations, filterPanelFormElements]);
+  }, [
+    checkoutControls,
+    locations,
+    filterPanelFormElements,
+    invoices,
+    fixtureInvoices,
+    serviceInvoices,
+    incomes,
+    cashouts,
+  ]);
   const filters = [
     {
       label: t("Show Filters"),

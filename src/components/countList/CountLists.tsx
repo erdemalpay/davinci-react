@@ -195,7 +195,7 @@ const CountLists = () => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [countLists]);
+  useEffect(() => setTableKey((prev) => prev + 1), [countLists, locations]);
 
   return (
     <>
