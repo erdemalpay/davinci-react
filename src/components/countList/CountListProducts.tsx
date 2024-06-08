@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { AccountCountList } from "../../types";
 import {
@@ -74,18 +75,12 @@ const CountListProducts = (props: Props) => {
             }
             onChange={() => handleCountListUpdate(row, countList)}
           />
+        ) : countList?.products?.find(
+            (item) => item.product === row.product
+          ) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              countList?.products?.find((item) => item.product === row.product)
-                ? "bg-green-500"
-                : "bg-red-500"
-            }`}
-          >
-            {countList?.products?.find((item) => item.product === row.product)
-              ? t("Yes")
-              : t("No")}
-          </p>
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     });
   }
