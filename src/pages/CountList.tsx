@@ -2,6 +2,7 @@ import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
@@ -201,14 +202,10 @@ const CountList = () => {
             checked={row[item._id]}
             onChange={() => handleLocationUpdate(row, item._id)}
           />
+        ) : row[item?._id] ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row[item._id] ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {row[item._id] ? t("Yes") : t("No")}
-          </p>
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     });
   });

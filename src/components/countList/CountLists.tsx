@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -78,25 +79,19 @@ const CountLists = () => {
 
   // Adding location columns and rowkeys
   for (const location of locations) {
-    columns.push({ key: location.name, isSortable: true });
+    columns.push({ key: location?.name, isSortable: true });
     rowKeys.push({
       key: location._id,
       node: (row: AccountCountList) =>
         isEnableEdit ? (
           <CheckSwitch
-            checked={row.locations?.includes(location._id)}
-            onChange={() => handleLocationUpdate(row, location._id)}
+            checked={row?.locations?.includes(location._id)}
+            onChange={() => handleLocationUpdate(row, location?._id)}
           />
+        ) : row?.locations?.includes(location?._id) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <p
-            className={`w-fit px-2 py-1 rounded-md text-white ${
-              row.locations?.includes(location._id)
-                ? "bg-green-500"
-                : "bg-red-500"
-            }`}
-          >
-            {row.locations?.includes(location._id) ? t("Yes") : t("No")}
-          </p>
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     });
   }
