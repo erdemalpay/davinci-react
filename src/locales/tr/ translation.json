@@ -395,5 +395,12 @@
   "Expense Quantity": "Gider Miktarı",
   "Expected Quantity": "Beklenen Miktar",
   "Count List Products": "Sayım Listesi Ürünleri",
+  "Delete Fixture Count List": "Demirbaş Sayım Listesi Sil",
+  "Add Fixture Count List": "Demirbaş Sayım Listesi Ekle",
+  "Fixture Count List": "Demirbaş Sayım Listesi",
+  "Fixture Count Lists": "Demirbaş Sayım Listeleri",
+  "Count List Fixtures": "Sayım Listesi Demirbaşları",
+  "Fixture Count Archive": "Demirbaş Sayım Arşivi",
+  "Fixture Count List Menu": "Demirbaş Sayım Listesi Menüsü",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

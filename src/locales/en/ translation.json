@@ -395,5 +395,12 @@
   "Expense Quantity": "Expense Quantity",
   "Expected Quantity": "Expected Quantity",
   "Count List Products": "Count List Products",
+  "Delete Fixture Count List": "Delete Fixture Count List",
+  "Add Fixture Count List": "Add Fixture Count List",
+  "Fixture Count List": "Fixture Count List",
+  "Fixture Count Lists": "Fixture Count Lists",
+  "Count List Fixtures": "Count List Fixtures",
+  "Fixture Count Archive": "Fixture Count Archive",
+  "Fixture Count List Menu": "Fixture Count List Menu",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -111,6 +111,15 @@ export type AccountCountList = {
     locations: string[];
   }[];
 };
+export type AccountFixtureCountList = {
+  _id: string;
+  name: string;
+  locations: string[];
+  fixtures?: {
+    fixture: string;
+    locations: string[];
+  }[];
+};
 export type AccountCount = {
   _id: string;
   isCompleted: boolean;
@@ -125,6 +134,20 @@ export type AccountCount = {
     countQuantity: number;
   }[];
   countList: string | AccountCountList;
+};
+export type AccountFixtureCount = {
+  _id: string;
+  isCompleted: boolean;
+  createdAt: Date;
+  completedAt?: Date;
+  location: string | AccountStockLocation;
+  user: string | User;
+  fixtures?: {
+    fixture: string;
+    stockQuantity: number;
+    countQuantity: number;
+  }[];
+  countList: string | AccountFixtureCountList;
 };
 export type AccountExpenseType = {
   _id: string;
@@ -426,6 +449,11 @@ export enum CountListPageTabEnum {
   COUNTARCHIVE,
   COUNTLISTS,
   COUNTLISTPRODUCTS,
+}
+export enum FixtureCountListPageTabEnum {
+  FIXTURECOUNTARCHIVE,
+  FIXTURECOUNTLISTS,
+  COUNTLISTFIXTURES,
 }
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
