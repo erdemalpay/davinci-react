@@ -373,6 +373,15 @@ export type CheckoutCashout = {
   amount: number;
   description: string;
 };
+export type PanelControlPage = {
+  _id: string;
+  name: string;
+  tabs?: {
+    name: string;
+    permissionRoles: number[];
+  }[];
+  permissionRoles: number[];
+};
 
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
@@ -430,6 +439,18 @@ export enum RoleEnum {
   SERVICE,
   CLEANING,
 }
+
+export enum RoleNameEnum {
+  MANAGER = "Manager",
+  GAMEMASTER = "Game Master",
+  GAMEMANAGER = "Game Manager",
+  CATERINGMANAGER = "Catering Manager",
+  BARISTA = "Barista",
+  KITCHEN = "Kitchen",
+  SERVICE = "Service",
+  CLEANING = "Cleaning",
+}
+
 export enum LocationEnum {
   BAHCELI = 1,
   NEORAMA,
@@ -449,6 +470,9 @@ export enum CountListPageTabEnum {
   COUNTARCHIVE,
   COUNTLISTS,
   COUNTLISTPRODUCTS,
+}
+export enum PanelControlPageTabEnum {
+  PAGEPERMISSIONS,
 }
 export enum FixtureCountListPageTabEnum {
   FIXTURECOUNTARCHIVE,

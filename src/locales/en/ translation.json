@@ -402,5 +402,12 @@
   "Count List Fixtures": "Count List Fixtures",
   "Fixture Count Archive": "Fixture Count Archive",
   "Fixture Count List Menu": "Fixture Count List Menu",
+  "Page Permissions": "Page Permissions",
+  "Add Page": "Add Page",
+  "Delete Page": "Delete Page",
+  "Panel Control": "Panel Control",
+  "Permissions Edit": "Permissions Edit",
+  "Role permissions updated successfully.": "Role permissions updated successfully.",
+  "Page": "Page",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

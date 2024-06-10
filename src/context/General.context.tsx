@@ -37,6 +37,8 @@ type GeneralContextType = {
   setCountListActiveTab: (tab: number) => void;
   fixtureCountListActiveTab: number;
   setFixtureCountListActiveTab: (tab: number) => void;
+  panelControlActiveTab: number;
+  setPanelControlActiveTab: (tab: number) => void;
   accountingActiveTab: number;
   checkoutActiveTab: number;
   setCheckoutActiveTab: (tab: number) => void;
@@ -73,6 +75,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setCountListActiveTab: () => {},
   fixtureCountListActiveTab: 0,
   setFixtureCountListActiveTab: () => {},
+  panelControlActiveTab: 0,
+  setPanelControlActiveTab: () => {},
   setCurrentPage: () => {},
   currentPage: 1,
   searchQuery: "",
@@ -185,6 +189,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [countListActiveTab, setCountListActiveTab] = useState<number>(0);
   const [fixtureCountListActiveTab, setFixtureCountListActiveTab] =
     useState<number>(0);
+  const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   return (
     <GeneralContext.Provider
@@ -201,6 +206,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setCountListActiveTab,
         fixtureCountListActiveTab,
         setFixtureCountListActiveTab,
+        panelControlActiveTab,
+        setPanelControlActiveTab,
         menuActiveTab,
         setMenuActiveTab,
         rowsPerPage,
