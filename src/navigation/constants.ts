@@ -13,6 +13,7 @@ import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import PanelControl from "../pages/PanelControl";
 import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
@@ -60,6 +61,7 @@ export enum Routes {
   CountList = "/count-list/:countListId",
   FixtureCountList = "/fixture-count-list/:fixtureCountListId",
   Checkout = "/checkout",
+  PanelControl = "/panel-control",
 }
 
 export const allRoutes: {
@@ -238,6 +240,13 @@ export const allRoutes: {
       path: Routes.Checkout,
       element: Checkout,
       isOnSidebar: true,
+    },
+    {
+      name: "Panel Control",
+      path: Routes.PanelControl,
+      element: PanelControl,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
     },
     {
       name: "Users",
