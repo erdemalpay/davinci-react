@@ -7,10 +7,13 @@ import CountList from "../pages/CountList";
 import CountListMenu from "../pages/CountListMenu";
 import Expenses from "../pages/Expenses";
 import Fixture from "../pages/Fixture";
+import FixtureCountList from "../pages/FixtureCountList";
+import FixtureCountListMenu from "../pages/FixtureCountListMenu";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import PanelControl from "../pages/PanelControl";
 import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
@@ -54,8 +57,11 @@ export enum Routes {
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
   CountListMenu = "/count-list-menu",
+  FixtureCountListMenu = "/fixture-count-list-menu",
   CountList = "/count-list/:countListId",
+  FixtureCountList = "/fixture-count-list/:fixtureCountListId",
   Checkout = "/checkout",
+  PanelControl = "/panel-control",
 }
 
 export const allRoutes: {
@@ -139,6 +145,12 @@ export const allRoutes: {
       isOnSidebar: false,
     },
     {
+      name: "Fixture Count List",
+      path: Routes.FixtureCountList,
+      element: FixtureCountList,
+      isOnSidebar: false,
+    },
+    {
       name: "Single Count Archive",
       path: Routes.SingleCountArchive,
       element: SingleCountArchive,
@@ -148,6 +160,13 @@ export const allRoutes: {
       name: "Count List Menu",
       path: Routes.CountListMenu,
       element: CountListMenu,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER],
+    },
+    {
+      name: "Fixture Count List Menu",
+      path: Routes.FixtureCountListMenu,
+      element: FixtureCountListMenu,
       isOnSidebar: true,
       disabledRoleIds: [RoleEnum.GAMEMANAGER],
     },
@@ -221,6 +240,13 @@ export const allRoutes: {
       path: Routes.Checkout,
       element: Checkout,
       isOnSidebar: true,
+    },
+    {
+      name: "Panel Control",
+      path: Routes.PanelControl,
+      element: PanelControl,
+      isOnSidebar: true,
+      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
     },
     {
       name: "Users",

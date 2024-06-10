@@ -20,20 +20,20 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import {
-  AccountCountList,
+  AccountFixtureCountList,
   AccountStockLocation,
   RoleEnum,
   User,
 } from "../types";
+import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import {
-  useAccountCountMutations,
-  useGetAccountCounts,
-} from "../utils/api/account/count";
+  useAccountFixtureCountMutations,
+  useGetAccountFixtureCounts,
+} from "../utils/api/account/fixtureCount";
 import {
-  useAccountCountListMutations,
-  useGetAccountCountLists,
-} from "../utils/api/account/countList";
-import { useGetAccountProducts } from "../utils/api/account/product";
+  useAccountFixtureCountListMutations,
+  useGetAccountFixtureCountLists,
+} from "../utils/api/account/fixtureCountList";
 import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
 import { StockLocationInput } from "../utils/panelInputs";
 
@@ -41,20 +41,21 @@ interface LocationEntries {
   [key: string]: boolean;
 }
 
-const CountList = () => {
+const FixtureCountList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { countListId } = useParams();
+  const { fixtureCountListId } = useParams();
   const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
-  const countLists = useGetAccountCountLists();
+  const fixtureCountLists = useGetAccountFixtureCountLists();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
-  const { updateAccountCountList } = useAccountCountListMutations();
+  const { updateAccountFixtureCountList } =
+    useAccountFixtureCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [selectedCountList, setSelectedCountList] =
-    useState<AccountCountList>();
+  const [selectedFixtureCountList, setSelectedFixtureCountList] =
+    useState<AccountFixtureCountList>();
   const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
     useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -62,35 +63,37 @@ const CountList = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rowToAction, setRowToAction] = useState<CountListRowType>();
-  const { createAccountCount } = useAccountCountMutations();
-  const products = useGetAccountProducts();
+  const [rowToAction, setRowToAction] = useState<FixtureCountListRowType>();
+  const { createAccountFixtureCount } = useAccountFixtureCountMutations();
+  const fixtures = useGetAccountFixtures();
   const [form, setForm] = useState({
-    product: [],
+    fixture: [],
   });
-  const countListOption = countLists?.map((p) => {
+  const FixtureCountListOption = fixtureCountLists?.map((p) => {
     return {
       value: p._id,
       label: p.name,
     };
   });
-  type CountListRowType = {
-    product: string;
+  type FixtureCountListRowType = {
+    fixture: string;
   };
-  const currentCountList = countLists?.find((item) => item._id === countListId);
-  if (!currentCountList) {
+  const currentFixtureCountList = fixtureCountLists?.find(
+    (item) => item._id === fixtureCountListId
+  );
+  if (!currentFixtureCountList) {
     return <></>;
   }
   const [countLocationForm, setCountLocationForm] = useState({
     location: "",
   });
-  const counts = useGetAccountCounts();
+  const counts = useGetAccountFixtureCounts();
 
   const countLocationInputs = [
     StockLocationInput({
       locations: locations.filter((l) =>
-        countLists
-          .find((row) => row._id === countListId)
+        fixtureCountLists
+          .find((row) => row._id === fixtureCountListId)
           ?.locations?.includes(l._id)
       ),
     }),
@@ -99,21 +102,21 @@ const CountList = () => {
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
   function handleLocationUpdate(row: any, changedLocationId: string) {
-    const currentCountList = countLists.find(
-      (item) => item._id === countListId
+    const currentFixtureCountList = fixtureCountLists.find(
+      (item) => item._id === fixtureCountListId
     );
-    if (!currentCountList) return;
-    const newProducts = [
-      ...(currentCountList.products?.filter(
+    if (!currentFixtureCountList) return;
+    const newFixtures = [
+      ...(currentFixtureCountList.fixtures?.filter(
         (p) =>
-          p.product !==
-          (products.find((it) => it.name === row.product)?._id ?? "")
+          p.fixture !==
+          (fixtures?.find((it) => it.name === row?.fixture)?._id ?? "")
       ) || []),
 
       {
-        product: products.find((it) => it.name === row.product)?._id ?? "",
+        fixture: fixtures?.find((it) => it.name === row?.fixture)?._id ?? "",
         locations: Object.entries(row).reduce((acc, [key, value]) => {
-          if (key === "product" || typeof key !== "string") return acc;
+          if (key === "fixture" || typeof key !== "string") return acc;
           if (key === changedLocationId) {
             if (!value) {
               acc.push(key);
@@ -126,22 +129,22 @@ const CountList = () => {
       },
     ];
 
-    updateAccountCountList({
-      id: currentCountList._id,
-      updates: { products: newProducts },
+    updateAccountFixtureCountList({
+      id: currentFixtureCountList._id,
+      updates: { fixtures: newFixtures },
     });
 
     toast.success(`${t("Count List updated successfully")}`);
   }
   const rows = () => {
-    let productRows = [];
-    const currentCountList = countLists.find(
-      (item) => item._id === countListId
+    let fixtureRows = [];
+    const currentFixtureCountList = fixtureCountLists.find(
+      (item) => item._id === fixtureCountListId
     );
-    if (currentCountList && currentCountList.products) {
-      for (let item of currentCountList.products) {
-        const product = products.find((it) => it._id === item.product);
-        if (product) {
+    if (currentFixtureCountList && currentFixtureCountList.fixtures) {
+      for (let item of currentFixtureCountList.fixtures) {
+        const fixture = fixtures.find((it) => it._id === item.fixture);
+        if (fixture) {
           const locationEntries = locations?.reduce<LocationEntries>(
             (acc, location) => {
               acc[location._id] =
@@ -150,48 +153,52 @@ const CountList = () => {
             },
             {}
           );
-          productRows.push({
-            product: product.name,
+          fixtureRows.push({
+            fixture: fixture.name,
             ...locationEntries,
           });
         }
       }
     }
-    productRows = productRows.sort((a, b) => {
-      if (a.product < b.product) {
+    fixtureRows = fixtureRows.sort((a, b) => {
+      if (a.fixture < b.fixture) {
         return -1;
       }
-      if (a.product > b.product) {
+      if (a.fixture > b.fixture) {
         return 1;
       }
       return 0;
     });
-    return productRows;
+    return fixtureRows;
   };
-  const addProductInputs = [
+  const addfixtureInputs = [
     {
       type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products
+      formKey: "fixture",
+      label: t("Fixture"),
+      options: fixtures
         .filter((item) => {
-          const countList = countLists.find((item) => item._id === countListId);
-          return !countList?.products?.some((pro) => pro.product === item._id);
+          const fixtureCountList = fixtureCountLists.find(
+            (item) => item._id === fixtureCountListId
+          );
+          return !fixtureCountList?.fixtures?.some(
+            (pro) => pro.fixture === item._id
+          );
         })
-        .map((product) => {
+        .map((fixture) => {
           return {
-            value: product._id,
-            label: product.name,
+            value: fixture._id,
+            label: fixture.name,
           };
         }),
       isMultiple: true,
-      placeholder: t("Product"),
+      placeholder: t("Fixture"),
       required: true,
     },
   ];
-  const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
+  const addFixtureFormKey = [{ key: "fixture", type: FormKeyTypeEnum.STRING }];
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<any>[] = [{ key: "product" }];
+  const rowKeys: RowKeyType<any>[] = [{ key: "fixture" }];
   locations.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
@@ -211,45 +218,46 @@ const CountList = () => {
   });
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
   const addButton = {
-    name: t("Add Product"),
+    name: t("Add Fixture"),
     icon: "",
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     isModal: true,
-    modal: countListId ? (
+    modal: fixtureCountListId ? (
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={addProductInputs}
-        formKeys={addProductFormKeys}
-        submitItem={updateAccountCountList as any}
+        inputs={addfixtureInputs}
+        formKeys={addFixtureFormKey}
+        submitItem={updateAccountFixtureCountList as any}
         isEditMode={true}
         setForm={setForm}
         topClassName="flex flex-col gap-2 "
         handleUpdate={() => {
-          const countListProducts = () => {
-            let productRows = [];
-            const products =
-              countLists.find((item) => item._id === countListId)?.products ||
-              [];
-            const newProducts = form.product?.map((item) => ({
-              product: item,
+          const FixtureCountListfixtures = () => {
+            let fixtureRows = [];
+            const fixtures =
+              fixtureCountLists.find((item) => item._id === fixtureCountListId)
+                ?.fixtures || [];
+            const newFixtures = form.fixture?.map((item) => ({
+              fixture: item,
               locations:
-                countLists.find((item) => item._id === countListId)
-                  ?.locations ?? [],
+                fixtureCountLists.find(
+                  (item) => item._id === fixtureCountListId
+                )?.locations ?? [],
             }));
-            productRows = [...products, ...newProducts];
-            return productRows;
+            fixtureRows = [...fixtures, ...newFixtures];
+            return fixtureRows;
           };
-          updateAccountCountList({
-            id: countListId,
+          updateAccountFixtureCountList({
+            id: fixtureCountListId,
             updates: {
-              products: countListProducts(),
+              fixtures: FixtureCountListfixtures(),
             },
           });
         }}
@@ -271,26 +279,26 @@ const CountList = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            if (countListId && rowToAction) {
-              const currentCountList = countLists.find(
-                (item) => item._id === countListId
+            if (fixtureCountListId && rowToAction) {
+              const currentFixtureCountList = fixtureCountLists.find(
+                (item) => item._id === fixtureCountListId
               );
-              const newProducts = currentCountList?.products?.filter(
+              const newFixtures = currentFixtureCountList?.fixtures?.filter(
                 (item) =>
-                  item.product !==
-                  products?.find((p) => p.name === rowToAction.product)?._id
+                  item.fixture !==
+                  fixtures?.find((p) => p.name === rowToAction.fixture)?._id
               );
-              updateAccountCountList({
-                id: countListId,
+              updateAccountFixtureCountList({
+                id: fixtureCountListId,
                 updates: {
-                  products: newProducts,
+                  fixtures: newFixtures,
                 },
               });
             }
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count List Item")}
-          text={`${rowToAction.product} ${t("GeneralDeleteMessage")}`}
+          text={`${rowToAction?.fixture} ${t("GeneralDeleteMessage")}`}
         />
       ) : (
         ""
@@ -339,13 +347,13 @@ const CountList = () => {
 
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [countLists, products, countListId]);
+  }, [fixtureCountLists, fixtures, fixtureCountListId]);
 
   // adjust columns and rowkeys  according to locations deletes if neccessary
   locations.forEach((location) => {
     if (
-      !countLists
-        .find((item) => item._id === countListId)
+      !fixtureCountLists
+        .find((item) => item._id === fixtureCountListId)
         ?.locations.includes(location._id)
     ) {
       const columnIndex = columns.findIndex(
@@ -371,27 +379,29 @@ const CountList = () => {
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput
-              options={countListOption}
+              options={FixtureCountListOption}
               value={
-                selectedCountList
+                selectedFixtureCountList
                   ? {
-                      value: selectedCountList._id,
-                      label: selectedCountList.name,
+                      value: selectedFixtureCountList._id,
+                      label: selectedFixtureCountList.name,
                     }
                   : {
-                      value: currentCountList._id,
-                      label: currentCountList.name,
+                      value: currentFixtureCountList._id,
+                      label: currentFixtureCountList.name,
                     }
               }
               onChange={(selectedOption) => {
-                setSelectedCountList(
-                  countLists?.find((p) => p._id === selectedOption?.value)
+                setSelectedFixtureCountList(
+                  fixtureCountLists?.find(
+                    (p) => p._id === selectedOption?.value
+                  )
                 );
                 setCurrentPage(1);
                 // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setSortConfigKey(null);
-                navigate(`/count-list/${selectedOption?.value}`);
+                navigate(`/fixture-count-list/${selectedOption?.value}`);
               }}
               placeholder={t("Select a count list")}
             />
@@ -418,7 +428,10 @@ const CountList = () => {
                 : undefined
             }
             filters={filters}
-            title={countLists.find((row) => row._id === countListId)?.name}
+            title={
+              fixtureCountLists.find((row) => row._id === fixtureCountListId)
+                ?.name
+            }
           />
           {isCountLocationModalOpen && (
             <GenericAddEditPanel
@@ -436,7 +449,8 @@ const CountList = () => {
                       (item.location as AccountStockLocation)._id ===
                         countLocationForm.location &&
                       (item.user as User)._id === user._id &&
-                      (item.countList as AccountCountList)._id === countListId
+                      (item.countList as AccountFixtureCountList)._id ===
+                        fixtureCountListId
                     );
                   }).length > 0
                 ) {
@@ -444,12 +458,12 @@ const CountList = () => {
                   setSearchQuery("");
                   setSortConfigKey(null);
                   navigate(
-                    `/count/${countLocationForm.location}/${countListId}`
+                    `/fixture-count/${countLocationForm.location}/${fixtureCountListId}`
                   );
                 } else {
-                  createAccountCount({
+                  createAccountFixtureCount({
                     location: countLocationForm.location,
-                    countList: countListId,
+                    countList: fixtureCountListId,
                     isCompleted: false,
                     createdAt: new Date(),
                     user: user._id,
@@ -458,7 +472,7 @@ const CountList = () => {
                   setSearchQuery("");
                   setSortConfigKey(null);
                   navigate(
-                    `/count/${countLocationForm.location}/${countListId}`
+                    `/fixture-count/${countLocationForm.location}/${fixtureCountListId}`
                   );
                 }
               }}
@@ -474,4 +488,4 @@ const CountList = () => {
   );
 };
 
-export default CountList;
+export default FixtureCountList;

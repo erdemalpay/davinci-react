@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
-import CountArchive from "../components/countList/CountArchive";
-import CountListProducts from "../components/countList/CountListProducts";
-import CountLists from "../components/countList/CountLists";
+import CountListFixtures from "../components/fixtureCountList/CountListFixtures";
+import FixtureCountArchive from "../components/fixtureCountList/FixtureCountArchive";
+import FixtureCountLists from "../components/fixtureCountList/FixtureCountLists";
 import { Header } from "../components/header/Header";
 import { Tab } from "../components/panelComponents/shared/types";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { CountListPageTabEnum, RoleEnum } from "../types";
-import { useGetAccountCountLists } from "../utils/api/account/countList";
+import { FixtureCountListPageTabEnum, RoleEnum } from "../types";
+import { useGetAccountFixtureCountLists } from "../utils/api/account/fixtureCountList";
 
-const CountListMenu = () => {
+const FixtureCountListMenu = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
@@ -22,26 +22,26 @@ const CountListMenu = () => {
     setCurrentPage,
     setExpandedRows,
     setSearchQuery,
-    countListActiveTab,
-    setCountListActiveTab,
+    fixtureCountListActiveTab,
+    setFixtureCountListActiveTab,
   } = useGeneralContext();
-  const countLists = useGetAccountCountLists();
+  const countLists = useGetAccountFixtureCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
 
   useEffect(() => {
     setTabs([
       {
-        number: CountListPageTabEnum.COUNTARCHIVE,
-        label: t("Count Archive"),
+        number: FixtureCountListPageTabEnum.FIXTURECOUNTARCHIVE,
+        label: t("Fixture Count Archive"),
         icon: <FaArchive />,
-        content: <CountArchive />,
+        content: <FixtureCountArchive />,
         isDisabled: false,
       },
       {
-        number: CountListPageTabEnum.COUNTLISTS,
-        label: t("Count Lists"),
+        number: FixtureCountListPageTabEnum.FIXTURECOUNTLISTS,
+        label: t("Fixture Count Lists"),
         icon: <FaClipboardList />,
-        content: <CountLists />,
+        content: <FixtureCountLists />,
         isDisabled: user
           ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
               user.role._id
@@ -49,10 +49,10 @@ const CountListMenu = () => {
           : true,
       },
       {
-        number: CountListPageTabEnum.COUNTLISTPRODUCTS,
-        label: t("Count List Products"),
+        number: FixtureCountListPageTabEnum.COUNTLISTFIXTURES,
+        label: t("Count List Fixtures"),
         icon: <FaSitemap />,
-        content: <CountListProducts />,
+        content: <CountListFixtures />,
         isDisabled: user
           ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
               user.role._id
@@ -69,8 +69,8 @@ const CountListMenu = () => {
       <TabPanel
         key={tabPanelKey}
         tabs={tabs.sort((a, b) => a.number - b.number)}
-        activeTab={countListActiveTab}
-        setActiveTab={setCountListActiveTab}
+        activeTab={fixtureCountListActiveTab}
+        setActiveTab={setFixtureCountListActiveTab}
         additionalOpenAction={() => {
           setCurrentPage(1);
           setExpandedRows({});
@@ -81,4 +81,4 @@ const CountListMenu = () => {
   );
 };
 
-export default CountListMenu;
+export default FixtureCountListMenu;

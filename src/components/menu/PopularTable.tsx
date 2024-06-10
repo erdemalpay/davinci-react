@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, MenuPopular } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
@@ -50,27 +51,21 @@ const PopularTable = ({ popularItems }: Props) => {
     },
     {
       key: "bahceli",
-      node: (row: MenuItem) => (
-        <p
-          className={`w-fit px-2 py-1 rounded-md text-white ${
-            row.locations.includes(1) ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {row.locations.includes(1) ? t("Yes") : t("No")}
-        </p>
-      ),
+      node: (row: MenuItem) =>
+        row?.locations?.includes(1) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        ),
     },
     {
       key: "neorama",
-      node: (row: MenuItem) => (
-        <p
-          className={`w-fit px-2 py-1 rounded-md text-white ${
-            row.locations.includes(2) ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {row.locations.includes(2) ? t("Yes") : t("No")}
-        </p>
-      ),
+      node: (row: MenuItem) =>
+        row?.locations?.includes(2) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        ),
     },
     {
       key: "price",

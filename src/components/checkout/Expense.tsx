@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -53,6 +54,7 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -88,10 +90,18 @@ const Expenses = () => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const { createAccountInvoice } = useAccountInvoiceMutations();
-  const { createAccountFixtureInvoice } = useAccountFixtureInvoiceMutations();
-  const { createAccountServiceInvoice } = useAccountServiceInvoiceMutations();
-
+  const { createAccountInvoice, deleteAccountInvoice } =
+    useAccountInvoiceMutations();
+  const { createAccountFixtureInvoice, deleteAccountFixtureInvoice } =
+    useAccountFixtureInvoiceMutations();
+  const { createAccountServiceInvoice, deleteAccountServiceInvoice } =
+    useAccountServiceInvoiceMutations();
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
@@ -489,6 +499,9 @@ const Expenses = () => {
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
+  if (isEnableEdit) {
+    columns.push({ key: t("Action"), isSortable: false });
+  }
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
     {
@@ -626,6 +639,11 @@ const Expenses = () => {
           </p>
         </div>
       ),
+    },
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
     {
       label: t("Show Filters"),
@@ -869,6 +887,36 @@ const Expenses = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
+  const actions = [
+    {
+      name: t("Delete"),
+      isDisabled: !isEnableEdit,
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            if (rowToAction.type === ExpenseTypes.INVOICE)
+              deleteAccountInvoice(rowToAction._id);
+            else if (rowToAction.type === ExpenseTypes.FIXTURE)
+              deleteAccountFixtureInvoice(rowToAction?._id);
+            else if (rowToAction.type === ExpenseTypes.SERVICE)
+              deleteAccountServiceInvoice(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title="Delete Invoice"
+          text={`${rowToAction.product} invoice will be deleted. Are you sure you want to continue?`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+  ];
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -883,6 +931,8 @@ const Expenses = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
           addButton={addButton}
+          actions={actions}
+          isActionsActive={isEnableEdit}
         />
       </div>
     </>
