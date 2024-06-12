@@ -410,5 +410,6 @@
   "Role permissions updated successfully.": "Rol izinleri başarıyla güncellendi.",
   "Page": "Sayfa",
   "Single Count Archive": "Tekil Sayım Arşivi",
+  "Constant": "Sabit",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

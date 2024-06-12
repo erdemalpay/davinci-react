@@ -410,5 +410,6 @@
   "Role permissions updated successfully.": "Role permissions updated successfully.",
   "Page": "Page",
   "Single Count Archive": "Single Count Archive",
+  "Constant": "Constant",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
