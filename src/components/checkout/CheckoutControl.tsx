@@ -73,21 +73,21 @@ const CheckoutControlPage = () => {
           ?.filter(
             (item) =>
               i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash"
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         fixtureInvoices
           ?.filter(
             (item) =>
               i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash"
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         serviceInvoices
           ?.filter(
             (item) =>
               i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash"
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0),
       cashout: cashouts

@@ -1,32 +1,27 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { matchPath, Navigate, Outlet, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useUserContext } from "../context/User.context";
 import useAuth from "../hooks/useAuth";
-import { RolePermissionEnum } from "../types";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { allRoutes, PublicRoutes } from "./constants";
 
-interface PrivateRoutesProps {
-  requiredPermissions: RolePermissionEnum[];
-}
-
-export function PrivateRoutes({ requiredPermissions }: PrivateRoutesProps) {
+export function PrivateRoutes() {
   useAuth();
+  const pages = useGetPanelControlPages();
   const location = useLocation();
   const { user } = useUserContext();
-
-  if (!user) return <></>;
+  const currentRoute = allRoutes.find((route) =>
+    matchPath({ path: route.path, end: false }, location.pathname)
+  );
+  if (!user || !pages) return <></>;
 
   if (
-    requiredPermissions.every(
-      (permission) =>
-        (user?.role?.permissions?.includes(permission) &&
-          !allRoutes[permission]
-            .find((route) => route.path === location.pathname)
-            ?.disabledRoleIds?.includes(user.role._id)) ||
-        allRoutes[permission]
-          .find((route) => route.path === location.pathname)
-          ?.exceptionRoleIds?.includes(user.role._id)
-    )
+    pages
+      .find((page) => page.name === currentRoute?.name)
+      ?.permissionRoles.includes(user.role._id) ||
+    allRoutes
+      ?.find((route) => route.name === currentRoute?.name)
+      ?.exceptionalRoles?.includes(user.role._id)
   ) {
     return <Outlet />;
   }

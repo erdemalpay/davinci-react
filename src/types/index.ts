@@ -177,6 +177,7 @@ export type AccountStockLocation = {
 export type AccountPaymentMethod = {
   _id: string;
   name: string;
+  isConstant: boolean;
 };
 export type AccountPayment = {
   _id: number;
@@ -636,10 +637,10 @@ export enum ExpenseTypes {
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
 }
-export enum ConstantPaymentMethods {
-  CASH = "nakit",
-  CREDITCARD = "kredi_karti",
-  BANKTRANSFER = "havale",
+export enum ConstantPaymentMethodsIds {
+  CASH = "cash",
+  CREDITCARD = "credit_card",
+  BANKTRANSFER = "bank_transfer",
 }
 
 export const NOTPAID = "Not Paid";

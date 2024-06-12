@@ -31,6 +31,13 @@ const PaymentMethods = () => {
     deleteAccountPaymentMethod,
     updateAccountPaymentMethod,
   } = useAccountPaymentMethodMutations();
+  const allRows = paymentMethods?.map((paymentMethod) => {
+    return {
+      ...paymentMethod,
+      isActionsDisabled: paymentMethod?.isConstant,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   const columns = [{ key: t("Name"), isSortable: true }];
   if (
     user &&
@@ -137,7 +144,10 @@ const PaymentMethods = () => {
         : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [paymentMethods]);
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [paymentMethods]);
 
   return (
     <>
@@ -147,7 +157,7 @@ const PaymentMethods = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={paymentMethods}
+          rows={rows}
           title={t("Payment Methods")}
           addButton={addButton}
           isActionsActive={
