@@ -1,18 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "../pages/Login";
-import { RolePermissionEnum } from "../types";
 import { allRoutes, PublicRoutes } from "./constants";
 import { PrivateRoutes } from "./PrivateRoutes";
 
 const RouterContainer = () => {
   return (
     <Routes>
-      {Object.values(RolePermissionEnum).map((permission) => (
-        <Route
-          key={permission}
-          element={<PrivateRoutes requiredPermissions={[permission]} />}
-        >
-          {allRoutes[permission].map((route) => (
+      {allRoutes.map((route) => (
+        <Route key={route.name} element={<PrivateRoutes />}>
+          {allRoutes.map((route) => (
             <Route
               key={route.name}
               path={route.path}

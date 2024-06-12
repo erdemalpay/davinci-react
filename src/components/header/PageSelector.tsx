@@ -12,12 +12,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { allRoutes } from "../../navigation/constants";
-import { Role, RolePermissionEnum } from "../../types";
+import { Role } from "../../types";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 
 export function PageSelector() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const location = useLocation();
+  const pages = useGetPanelControlPages();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
   const {
@@ -27,57 +29,16 @@ export function PageSelector() {
     setSearchQuery,
     setSortConfigKey,
   } = useGeneralContext();
-  const routes = Object.values(RolePermissionEnum)
-    .filter((permission) => user?.role.permissions.includes(permission))
-    .map((permission) => {
-      const exceptionRoutes = Object.values(RolePermissionEnum).reduce<
-        {
-          name: string;
-          path: string;
-          isOnSidebar: boolean;
-          exceptionRoleIds?: number[];
-          element: () => JSX.Element;
-        }[]
-      >((acc, permission) => {
-        const routesWithExceptions = allRoutes[permission]
-          .filter(
-            (route) =>
-              route.exceptionRoleIds &&
-              route.exceptionRoleIds.includes((user?.role as Role)._id)
-          )
-          .map((route) => ({ ...route, permission }));
 
-        return acc.concat(routesWithExceptions);
-      }, []);
-      const disabledRoutes = Object.values(RolePermissionEnum).reduce<
-        {
-          name: string;
-          path: string;
-          isOnSidebar: boolean;
-          exceptionRoleIds?: number[];
-          element: () => JSX.Element;
-        }[]
-      >((acc, permission) => {
-        const disabledRoutes = allRoutes[permission]
-          .filter(
-            (route) =>
-              route.disabledRoleIds &&
-              route.disabledRoleIds.includes((user?.role as Role)._id)
-          )
-          .map((route) => ({ ...route, permission }));
-
-        return acc.concat(disabledRoutes);
-      }, []);
-      const enabledRoutes = [...allRoutes[permission], ...exceptionRoutes];
-      const routes = enabledRoutes.filter(
-        (route) =>
-          !disabledRoutes.some(
-            (disabledRoute) => disabledRoute.path === route.path
-          )
-      );
-      return routes;
-    })
-    .flat();
+  const routes = allRoutes.filter(
+    (route) =>
+      route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+      pages?.some(
+        (page) =>
+          page.name === route.name &&
+          page.permissionRoles?.includes((user?.role as Role)._id)
+      )
+  );
 
   function logout() {
     localStorage.clear();

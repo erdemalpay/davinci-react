@@ -27,7 +27,7 @@ export function ConfirmationDialog({
         <Dialog.Overlay />
         <div
           id="popup"
-          className="z-50 fixed w-full flex justify-center inset-0"
+          className="z-[99999] fixed w-full flex justify-center inset-0"
         >
           <div
             onClick={close}

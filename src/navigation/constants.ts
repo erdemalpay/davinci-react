@@ -26,7 +26,7 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
-import { RoleEnum, RolePermissionEnum } from "../types";
+import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
   NotFound = "*",
@@ -65,197 +65,185 @@ export enum Routes {
 }
 
 export const allRoutes: {
-  [K in RolePermissionEnum]: {
-    name: string;
-    path: string;
-    isOnSidebar: boolean;
-    exceptionRoleIds?: number[];
-    disabledRoleIds?: number[];
-    element: () => JSX.Element;
-  }[];
-} = {
-  [RolePermissionEnum.OPERATION]: [
-    {
-      name: "Tables",
-      path: Routes.Tables,
-      element: Tables,
-      isOnSidebar: true,
-    },
-    {
-      name: "Reservations",
-      path: Routes.Reservations,
-      element: Reservations,
-      isOnSidebar: true,
-    },
+  name: string;
+  path: string;
+  isOnSidebar: boolean;
+  exceptionalRoles?: number[];
+  element: () => JSX.Element;
+}[] = [
+  {
+    name: "Tables",
+    path: Routes.Tables,
+    element: Tables,
+    isOnSidebar: true,
+  },
+  {
+    name: "Reservations",
+    path: Routes.Reservations,
+    element: Reservations,
+    isOnSidebar: true,
+  },
 
-    {
-      name: "Games",
-      path: Routes.Games,
-      element: Games,
-      isOnSidebar: true,
-    },
+  {
+    name: "Games",
+    path: Routes.Games,
+    element: Games,
+    isOnSidebar: true,
+  },
 
-    {
-      name: "Gameplays",
-      path: Routes.Gameplays,
-      element: Gameplays,
-      isOnSidebar: true,
-    },
-    {
-      name: "Memberships",
-      path: Routes.Memberships,
-      element: Memberships,
-      isOnSidebar: true,
-    },
-    {
-      name: "Rewards",
-      path: Routes.Rewards,
-      element: Rewards,
-      isOnSidebar: true,
-    },
+  {
+    name: "Gameplays",
+    path: Routes.Gameplays,
+    element: Gameplays,
+    isOnSidebar: true,
+  },
+  {
+    name: "Memberships",
+    path: Routes.Memberships,
+    element: Memberships,
+    isOnSidebar: true,
+  },
+  {
+    name: "Rewards",
+    path: Routes.Rewards,
+    element: Rewards,
+    isOnSidebar: true,
+  },
 
-    {
-      name: "Visits",
-      path: Routes.Visits,
-      element: Visits,
-      isOnSidebar: true,
-    },
-    {
-      name: "Profile",
-      path: Routes.Profile,
-      element: Profile,
-      isOnSidebar: true,
-    },
-    {
-      name: "Analytics",
-      path: Routes.Analytics,
-      element: Analytics,
-      isOnSidebar: true,
-    },
-    {
-      name: "Count",
-      path: Routes.Count,
-      element: Count,
-      isOnSidebar: false,
-    },
-    {
-      name: "Count List",
-      path: Routes.CountList,
-      element: CountList,
-      isOnSidebar: false,
-    },
-    {
-      name: "Fixture Count List",
-      path: Routes.FixtureCountList,
-      element: FixtureCountList,
-      isOnSidebar: false,
-    },
-    {
-      name: "Single Count Archive",
-      path: Routes.SingleCountArchive,
-      element: SingleCountArchive,
-      isOnSidebar: false,
-    },
-    {
-      name: "Count List Menu",
-      path: Routes.CountListMenu,
-      element: CountListMenu,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "Fixture Count List Menu",
-      path: Routes.FixtureCountListMenu,
-      element: FixtureCountListMenu,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "Stocks",
-      path: Routes.Stocks,
-      element: Stocks,
-      isOnSidebar: true,
-    },
-    {
-      name: "Constants",
-      path: Routes.Accounting,
-      element: Accounting,
-      isOnSidebar: true,
-    },
-    {
-      name: "Product",
-      path: Routes.Product,
-      element: Product,
-      isOnSidebar: false,
-    },
-    {
-      name: "Service",
-      path: Routes.Service,
-      element: Service,
-      isOnSidebar: false,
-    },
-    {
-      name: "Vendor",
-      path: Routes.Vendor,
-      element: Vendor,
-      isOnSidebar: false,
-    },
-    {
-      name: "Brand",
-      path: Routes.Brand,
-      element: Brand,
-      isOnSidebar: false,
-    },
-    {
-      name: "Fixture",
-      path: Routes.Fixture,
-      element: Fixture,
-      isOnSidebar: false,
-    },
-  ],
-  [RolePermissionEnum.MANAGEMENT]: [
-    {
-      name: "Menu",
-      path: Routes.Menu,
-      element: Menu,
-      isOnSidebar: true,
-      exceptionRoleIds: [RoleEnum.BARISTA],
-      disabledRoleIds: [RoleEnum.GAMEMANAGER],
-    },
-    {
-      name: "User",
-      path: Routes.User,
-      element: User,
-      isOnSidebar: false,
-    },
-    {
-      name: "Expenses",
-      path: Routes.Expenses,
-      element: Expenses,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
-    },
-    {
-      name: "Checkout",
-      path: Routes.Checkout,
-      element: Checkout,
-      isOnSidebar: true,
-    },
-    {
-      name: "Panel Control",
-      path: Routes.PanelControl,
-      element: PanelControl,
-      isOnSidebar: true,
-      disabledRoleIds: [RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER],
-    },
-    {
-      name: "Users",
-      path: Routes.Users,
-      element: Users,
-      isOnSidebar: true,
-    },
-  ],
-};
+  {
+    name: "Visits",
+    path: Routes.Visits,
+    element: Visits,
+    isOnSidebar: true,
+  },
+  {
+    name: "Profile",
+    path: Routes.Profile,
+    element: Profile,
+    isOnSidebar: true,
+  },
+  {
+    name: "Analytics",
+    path: Routes.Analytics,
+    element: Analytics,
+    isOnSidebar: true,
+  },
+  {
+    name: "Count",
+    path: Routes.Count,
+    element: Count,
+    isOnSidebar: false,
+  },
+  {
+    name: "Count List",
+    path: Routes.CountList,
+    element: CountList,
+    isOnSidebar: false,
+  },
+  {
+    name: "Fixture Count List",
+    path: Routes.FixtureCountList,
+    element: FixtureCountList,
+    isOnSidebar: false,
+  },
+  {
+    name: "Single Count Archive",
+    path: Routes.SingleCountArchive,
+    element: SingleCountArchive,
+    isOnSidebar: false,
+  },
+  {
+    name: "Count List Menu",
+    path: Routes.CountListMenu,
+    element: CountListMenu,
+    isOnSidebar: true,
+  },
+  {
+    name: "Fixture Count List Menu",
+    path: Routes.FixtureCountListMenu,
+    element: FixtureCountListMenu,
+    isOnSidebar: true,
+  },
+  {
+    name: "Stocks",
+    path: Routes.Stocks,
+    element: Stocks,
+    isOnSidebar: true,
+  },
+  {
+    name: "Constants",
+    path: Routes.Accounting,
+    element: Accounting,
+    isOnSidebar: true,
+  },
+  {
+    name: "Product",
+    path: Routes.Product,
+    element: Product,
+    isOnSidebar: false,
+  },
+  {
+    name: "Service",
+    path: Routes.Service,
+    element: Service,
+    isOnSidebar: false,
+  },
+  {
+    name: "Vendor",
+    path: Routes.Vendor,
+    element: Vendor,
+    isOnSidebar: false,
+  },
+  {
+    name: "Brand",
+    path: Routes.Brand,
+    element: Brand,
+    isOnSidebar: false,
+  },
+  {
+    name: "Fixture",
+    path: Routes.Fixture,
+    element: Fixture,
+    isOnSidebar: false,
+  },
+  {
+    name: "Menu",
+    path: Routes.Menu,
+    element: Menu,
+    isOnSidebar: true,
+  },
+  {
+    name: "User",
+    path: Routes.User,
+    element: User,
+    isOnSidebar: false,
+  },
+  {
+    name: "Expenses",
+    path: Routes.Expenses,
+    element: Expenses,
+    isOnSidebar: true,
+  },
+  {
+    name: "Checkout",
+    path: Routes.Checkout,
+    element: Checkout,
+    isOnSidebar: true,
+  },
+  {
+    name: "Panel Control",
+    path: Routes.PanelControl,
+    element: PanelControl,
+    isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Users",
+    path: Routes.Users,
+    element: Users,
+    isOnSidebar: true,
+  },
+];
 
 export const NO_IMAGE_URL =
   "https://res.cloudinary.com/dvbg/image/upload/ar_4:4,c_crop/c_fit,h_100/davinci/no-image_pyet1d.jpg";
