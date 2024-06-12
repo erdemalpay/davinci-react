@@ -411,5 +411,8 @@
   "Page": "Sayfa",
   "Single Count Archive": "Tekil Sayım Arşivi",
   "Constant": "Sabit",
+  "Select a count list  type": "Bir sayım listesi türü seçin",
+  "Product Count List": "Ürün Sayım Listesi",
+  "Fixture Count List": "Demirbaş Sayım Listesi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useGeneralContext } from "../../context/General.context";
-import { useUserContext } from "../../context/User.context";
+import { useGeneralContext } from "../../../context/General.context";
+import { useUserContext } from "../../../context/User.context";
 import {
-  AccountFixtureCount,
-  AccountFixtureCountList,
+  AccountCount,
+  AccountCountList,
   AccountStockLocation,
   RoleEnum,
   User,
-} from "../../types";
-import { useGetAccountFixtureCounts } from "../../utils/api/account/fixtureCount";
-import GenericTable from "../panelComponents/Tables/GenericTable";
+} from "../../../types";
+import { useGetAccountCounts } from "../../../utils/api/account/count";
+import GenericTable from "../../panelComponents/Tables/GenericTable";
 
-const FixtureCountArchive = () => {
+const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const counts = useGetAccountFixtureCounts();
+  const counts = useGetAccountCounts();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
@@ -37,7 +37,7 @@ const FixtureCountArchive = () => {
         const endDate = new Date(count?.completedAt ?? 0);
         return {
           ...count,
-          cntLst: (count.countList as AccountFixtureCountList).name,
+          cntLst: (count.countList as AccountCountList).name,
           lctn: (count.location as AccountStockLocation).name,
           usr: (count.user as User)?.name,
           startDate: `${pad(startDate.getDate())}-${pad(
@@ -74,26 +74,26 @@ const FixtureCountArchive = () => {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
-            if (row?.isCompleted) {
+            if (row.isCompleted) {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSortConfigKey(null);
               setSearchQuery("");
-              navigate(`/fixture-archive/${row?._id}`);
+              navigate(`/archive/${row._id}`);
             } else {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               setSortConfigKey(null);
               navigate(
-                `/fixture-count/${
-                  (row?.location as AccountStockLocation)._id
-                }/${(row?.countList as AccountFixtureCountList)._id}`
+                `/count/${(row.location as AccountStockLocation)._id}/${
+                  (row.countList as AccountCountList)._id
+                }`
               );
             }
           }}
         >
-          {row?.startDate}
+          {row.startDate}
         </p>
       ),
       className: "min-w-32",
@@ -118,7 +118,7 @@ const FixtureCountArchive = () => {
     { key: "usr" },
     {
       key: "isCompleted",
-      node: (row: AccountFixtureCount) => {
+      node: (row: AccountCount) => {
         if (row.isCompleted) {
           return (
             <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
@@ -140,7 +140,7 @@ const FixtureCountArchive = () => {
       counts
         .filter((count) => {
           if (
-            (count?.user as User)?._id === user?._id ||
+            (count.user as User)?._id === user?._id ||
             user?.role._id === RoleEnum.MANAGER
           ) {
             return count;
@@ -151,9 +151,9 @@ const FixtureCountArchive = () => {
           const endDate = new Date(count?.completedAt ?? 0);
           return {
             ...count,
-            cntLst: (count?.countList as AccountFixtureCountList)?.name,
-            lctn: (count?.location as AccountStockLocation)?.name,
-            usr: (count?.user as User)?.name,
+            cntLst: (count.countList as AccountCountList).name,
+            lctn: (count.location as AccountStockLocation).name,
+            usr: (count.user as User)?.name,
             startDate: `${pad(startDate.getDate())}-${pad(
               startDate.getMonth() + 1
             )}-${startDate.getFullYear()}`,
@@ -182,11 +182,11 @@ const FixtureCountArchive = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Fixture Count Archive")}
+          title={t("Count Archive")}
         />
       </div>
     </>
   );
 };
 
-export default FixtureCountArchive;
+export default CountArchive;

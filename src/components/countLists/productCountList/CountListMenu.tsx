@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
-import CountArchive from "../components/countList/CountArchive";
-import CountListProducts from "../components/countList/CountListProducts";
-import CountLists from "../components/countList/CountLists";
-import { Header } from "../components/header/Header";
-import { Tab } from "../components/panelComponents/shared/types";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import { useGeneralContext } from "../context/General.context";
-import { useUserContext } from "../context/User.context";
-import { CountListPageTabEnum, RoleEnum } from "../types";
-import { useGetAccountCountLists } from "../utils/api/account/countList";
+import { useGeneralContext } from "../../../context/General.context";
+import { useUserContext } from "../../../context/User.context";
+import { CountListPageTabEnum, RoleEnum } from "../../../types";
+import { useGetAccountCountLists } from "../../../utils/api/account/countList";
+import { Tab } from "../../panelComponents/shared/types";
+import TabPanel from "../../panelComponents/TabPanel/TabPanel";
+import CountArchive from "./CountArchive";
+import CountListProducts from "./CountListProducts";
+import CountLists from "./CountLists";
 
 const CountListMenu = () => {
   const { t } = useTranslation();
@@ -65,7 +64,6 @@ const CountListMenu = () => {
 
   return (
     <>
-      <Header showLocationSelector={false} />
       <TabPanel
         key={tabPanelKey}
         tabs={tabs.sort((a, b) => a.number - b.number)}
