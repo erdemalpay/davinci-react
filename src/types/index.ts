@@ -498,13 +498,12 @@ export enum CheckoutPageTabEnum {
   CHECKOUTCONTROL,
 }
 export enum StocksPageTabEnum {
-  STOCK = "Product Stocks",
-  FIXTURESTOCK = "Fixture Stocks",
-  ENTERCONSUMPTION = "Enter Consumption",
-  PRODUCTSTOCKHISTORY = "Product Stock History",
-  FIXTURESTOCKHISTORY = "Fixture Stock History",
+  STOCK,
+  FIXTURESTOCK,
+  ENTERCONSUMPTION,
+  PRODUCTSTOCKHISTORY,
+  FIXTURESTOCKHISTORY,
 }
-
 export enum ProductPageTabEnum {
   PRODUCTPRICECHART,
   MENUITEMSWITHPRODUCT,

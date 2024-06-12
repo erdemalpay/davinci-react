@@ -30,21 +30,21 @@ export default function Stocks() {
   const tabs = [
     {
       number: StocksPageTabEnum.STOCK,
-      label: t(StocksPageTabEnum.STOCK),
+      label: t("Product Stocks"),
       icon: <GiGreatPyramid className="text-lg font-thin" />,
       content: <Stock />,
       isDisabled: false,
     },
     {
       number: StocksPageTabEnum.FIXTURESTOCK,
-      label: t(StocksPageTabEnum.FIXTURESTOCK),
+      label: t("Fixture Stocks"),
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <FixtureStock />,
       isDisabled: false,
     },
     {
       number: StocksPageTabEnum.ENTERCONSUMPTION,
-      label: t(StocksPageTabEnum.ENTERCONSUMPTION),
+      label: t("Enter Consumption"),
       icon: <GiEatingPelican className="text-xl font-thin" />,
       content: <EnterConsumption />,
       isDisabled: false,

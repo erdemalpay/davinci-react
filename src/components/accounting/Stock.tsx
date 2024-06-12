@@ -322,13 +322,7 @@ const Stock = () => {
           </p>
         </div>
       ),
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
     },
     {
       label: t("Enable Edit"),
