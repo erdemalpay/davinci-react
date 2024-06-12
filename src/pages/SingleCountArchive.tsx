@@ -36,7 +36,7 @@ const SingleCountArchive = () => {
   const pageNavigations = [
     {
       name: t("Count Archive"),
-      path: Routes.CountListMenu,
+      path: Routes.CountLists,
       canBeClicked: true,
       additionalSubmitFunction: () => {
         setCurrentPage(1);

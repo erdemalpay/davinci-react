@@ -4,11 +4,10 @@ import Brand from "../pages/Brand";
 import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
-import CountListMenu from "../pages/CountListMenu";
+import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
 import Fixture from "../pages/Fixture";
 import FixtureCountList from "../pages/FixtureCountList";
-import FixtureCountListMenu from "../pages/FixtureCountListMenu";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
@@ -56,8 +55,7 @@ export enum Routes {
   Fixture = "/fixture/:fixtureId",
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
-  CountListMenu = "/count-list-menu",
-  FixtureCountListMenu = "/fixture-count-list-menu",
+  CountLists = "/count-lists",
   CountList = "/count-list/:countListId",
   FixtureCountList = "/fixture-count-list/:fixtureCountListId",
   Checkout = "/checkout",
@@ -153,15 +151,9 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
-    name: "Count List Menu",
-    path: Routes.CountListMenu,
-    element: CountListMenu,
-    isOnSidebar: true,
-  },
-  {
-    name: "Fixture Count List Menu",
-    path: Routes.FixtureCountListMenu,
-    element: FixtureCountListMenu,
+    name: "Count Lists",
+    path: Routes.CountLists,
+    element: CountLists,
     isOnSidebar: true,
   },
   {
