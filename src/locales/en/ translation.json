@@ -417,5 +417,7 @@
   "Checkout Cash": "Checkout Cash",
   "Delete Checkout Cash": "Delete Checkout Cash",
   "Add Checkout Cash": "Add Checkout Cash",
+  "Beginning Quantity": "Beginning Quantity",
+  "Difference": "Difference",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

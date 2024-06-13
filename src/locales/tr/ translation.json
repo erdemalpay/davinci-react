@@ -417,5 +417,7 @@
   "Checkout Cash": "Kasa Nakit",
   "Delete Checkout Cash": "Kasa Nakit Sil",
   "Add Checkout Cash": "Kasa Nakit Ekle",
+  "Beginning Quantity": "Başlangıç Miktarı",
+  "Difference": "Fark",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
