@@ -9,7 +9,7 @@ import { useGeneralContext } from "../context/General.context";
 import { PanelControlPageTabEnum } from "../types";
 
 const PanelControl = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     setCurrentPage,
     setExpandedRows,
@@ -38,6 +38,7 @@ const PanelControl = () => {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
+        key={i18n.language}
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={panelControlActiveTab}
         setActiveTab={setPanelControlActiveTab}
