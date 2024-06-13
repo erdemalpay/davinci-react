@@ -54,7 +54,7 @@ export default function CountLists() {
                   selectedOption
                     ? {
                         value: selectedOption.id,
-                        label: selectedOption.label,
+                        label: t(selectedOption.label),
                       }
                     : null
                 }

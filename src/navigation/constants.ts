@@ -7,6 +7,7 @@ import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
 import Fixture from "../pages/Fixture";
+import FixtureCount from "../pages/FixtureCount";
 import FixtureCountList from "../pages/FixtureCountList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
@@ -49,6 +50,7 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Count = "/count/:location/:countListId",
+  FixtureCount = "/fixture-count/:location/:countListId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
   Brand = "/brand/:brandId",
@@ -130,6 +132,12 @@ export const allRoutes: {
     name: "Count",
     path: Routes.Count,
     element: Count,
+    isOnSidebar: false,
+  },
+  {
+    name: "Fixture Count",
+    path: Routes.FixtureCount,
+    element: FixtureCount,
     isOnSidebar: false,
   },
   {
