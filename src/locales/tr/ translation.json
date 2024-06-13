@@ -414,5 +414,8 @@
   "Select a count list  type": "Bir sayım listesi türü seçin",
   "Product Count List": "Ürün Sayım Listesi",
   "Fixture Count List": "Demirbaş Sayım Listesi",
+  "Checkout Cash": "Kasa Nakit",
+  "Delete Checkout Cash": "Kasa Nakit Sil",
+  "Add Checkout Cash": "Kasa Nakit Ekle",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

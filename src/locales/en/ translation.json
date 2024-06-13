@@ -414,5 +414,8 @@
   "Select a count list  type": "Select a count list  type",
   "Product Count List": "Product Count List",
   "Fixture Count List": "Fixture Count List",
+  "Checkout Cash": "Checkout Cash",
+  "Delete Checkout Cash": "Delete Checkout Cash",
+  "Add Checkout Cash": "Add Checkout Cash",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
