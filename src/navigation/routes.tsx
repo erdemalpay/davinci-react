@@ -6,9 +6,9 @@ import { PrivateRoutes } from "./PrivateRoutes";
 const RouterContainer = () => {
   return (
     <Routes>
-      {allRoutes.map((route) => (
+      {allRoutes?.map((route) => (
         <Route key={route.name} element={<PrivateRoutes />}>
-          {allRoutes.map((route) => (
+          {allRoutes?.map((route) => (
             <Route
               key={route.name}
               path={route.path}
