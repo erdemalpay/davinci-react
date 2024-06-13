@@ -13,7 +13,7 @@ import CountListProducts from "./CountListProducts";
 import CountLists from "./CountLists";
 
 const CountListMenu = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
 
@@ -60,7 +60,7 @@ const CountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists.length]);
+  }, [countLists.length, i18n.language]);
 
   return (
     <>
