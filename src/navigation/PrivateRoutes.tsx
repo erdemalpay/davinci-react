@@ -13,7 +13,7 @@ export function PrivateRoutes() {
   const currentRoute = allRoutes.find((route) =>
     matchPath({ path: route.path, end: false }, location.pathname)
   );
-  if (!user || !pages || !allRoutes) return null;
+  if (!user || pages.length === 0 || !allRoutes || !currentRoute) return null;
 
   if (
     pages
@@ -24,11 +24,13 @@ export function PrivateRoutes() {
       ?.exceptionalRoles?.includes(user.role._id)
   ) {
     return <Outlet />;
+  } else {
+    toast.error(
+      `You don't have rights to see this page ${location.pathname}. Login with a user that has the required permissions.`
+    );
+
+    return (
+      <Navigate to={PublicRoutes.Login} state={{ from: location }} replace />
+    );
   }
-  toast.error(
-    `You don't have rights to see this page ${location.pathname}. Login with a user that has the required permissions.`
-  );
-  return (
-    <Navigate to={PublicRoutes.Login} state={{ from: location }} replace />
-  );
 }

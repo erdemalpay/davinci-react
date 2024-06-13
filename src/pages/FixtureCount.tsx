@@ -23,6 +23,7 @@ const FixtureCount = () => {
   const fixtures = useGetAccountFixtures();
   const counts = useGetAccountFixtureCounts();
   const stocks = useGetAccountFixtureStocks();
+  const [isAddFixtureOpen, setIsAddFixtureOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateAccountFixtureCount } = useAccountFixtureCountMutations();
   const countLists = useGetAccountFixtureCountLists();

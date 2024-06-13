@@ -12,7 +12,7 @@ type CountListOptions = {
   isDisabled: boolean;
 };
 export default function CountLists() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const countListOptions: CountListOptions[] = [
     {
       id: "0",
