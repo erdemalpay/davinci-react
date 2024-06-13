@@ -13,7 +13,7 @@ import FixtureCountArchive from "./FixtureCountArchive";
 import FixtureCountLists from "./FixtureCountLists";
 
 const FixtureCountListMenu = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
 
@@ -60,7 +60,7 @@ const FixtureCountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists.length]);
+  }, [countLists.length, i18n.language]);
 
   return (
     <>
