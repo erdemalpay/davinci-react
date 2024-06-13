@@ -13,7 +13,7 @@ export function PrivateRoutes() {
   const currentRoute = allRoutes.find((route) =>
     matchPath({ path: route.path, end: false }, location.pathname)
   );
-  if (!user || !pages) return <></>;
+  if (!user || !pages || !allRoutes) return null;
 
   if (
     pages
