@@ -118,7 +118,10 @@ const Income = () => {
       required: true,
     },
   ];
-  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
+  const formKeys = [
+    { key: "date", type: FormKeyTypeEnum.DATE },
+    { key: "amount", type: FormKeyTypeEnum.NUMBER },
+  ];
 
   const addButton = {
     name: t(`Add Income`),

@@ -383,6 +383,14 @@ export type PanelControlPage = {
   }[];
   permissionRoles: number[];
 };
+export type PanelControlCheckoutCash = {
+  _id: number;
+  description?: string;
+  amount: number;
+  date: string;
+  user: User;
+  location: AccountStockLocation;
+};
 
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
@@ -474,6 +482,7 @@ export enum CountListPageTabEnum {
 }
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
+  CHECKOUTCASH,
 }
 export enum FixtureCountListPageTabEnum {
   FIXTURECOUNTARCHIVE,
