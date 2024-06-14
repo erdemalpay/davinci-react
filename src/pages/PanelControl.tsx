@@ -7,7 +7,6 @@ import CheckoutCash from "../components/panelControl/CheckoutCash";
 import PagePermissions from "../components/panelControl/PagePermissions";
 import { useGeneralContext } from "../context/General.context";
 import { PanelControlPageTabEnum } from "../types";
-
 const PanelControl = () => {
   const { t, i18n } = useTranslation();
   const {
