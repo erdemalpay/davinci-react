@@ -4,8 +4,10 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { allRoutes } from "../../navigation/constants";
 import { PanelControlPage, RoleEnum, RoleNameEnum } from "../../types";
 import {
+  useCreateMultiplePageMutation,
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
@@ -16,6 +18,7 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 type Props = {};
 
 const PagePermissions = (props: Props) => {
@@ -26,6 +29,7 @@ const PagePermissions = (props: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<PanelControlPage>();
+  const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -165,13 +169,26 @@ const PagePermissions = (props: Props) => {
       });
     }
   }
-
+  const fillMissingPages = () => {
+    const missedRoutes = [];
+    for (const route of allRoutes) {
+      if (!pages.find((page) => page.name === route.name)) {
+        missedRoutes.push({ name: route.name, permissionRoles: [1] });
+      }
+    }
+    if (missedRoutes.length > 0) {
+      console.log("missed routes", missedRoutes);
+      createMultiplePage(missedRoutes);
+    }
+  };
   useEffect(() => {
+    fillMissingPages();
     setTableKey((prev) => prev + 1);
   }, [pages]);
   if (isEnableEdit) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
