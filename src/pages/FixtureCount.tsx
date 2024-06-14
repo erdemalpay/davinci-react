@@ -1,13 +1,25 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GoPlusCircle } from "react-icons/go";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountFixtureCountList, AccountStockLocation, User } from "../types";
+import {
+  AccountFixture,
+  AccountFixtureCountList,
+  AccountStockLocation,
+  User,
+} from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import {
   useAccountFixtureCountMutations,
@@ -36,7 +48,9 @@ const FixtureCount = () => {
     setSortConfigKey,
   } = useGeneralContext();
   const { location, countListId } = useParams();
-
+  const [addForm, setAddForm] = useState({
+    quantity: 0,
+  });
   const [rows, setRows] = useState(() => {
     const currentCountList = countLists?.find(
       (countList) => countList._id === countListId
@@ -55,18 +69,15 @@ const FixtureCount = () => {
           (fixturesItem) =>
             location && fixturesItem.locations.includes(location)
         )
-        ?.map((fixturesItem) => {
-          const currentFixture = fixtures?.find(
-            (fixture) => fixture._id === fixturesItem.fixture
-          );
-          if (!currentFixture) return;
-
+        ?.map((listFixtures) => {
           return {
-            fixture: currentFixture?.name,
-            quantity: currentCount?.fixtures?.find(
-              (countFixture) =>
-                (countFixture.fixture = currentFixture?._id) ?? 0
-            )?.countQuantity,
+            fixture: fixtures?.find(
+              (fixture) => fixture._id === listFixtures?.fixture
+            )?.name,
+            quantity:
+              currentCount?.fixtures?.find(
+                (countFixture) => countFixture.fixture == listFixtures.fixture
+              )?.countQuantity ?? 0,
           };
         }) ?? []
     );
@@ -83,6 +94,16 @@ const FixtureCount = () => {
       key: "quantity",
     },
   ];
+  const addInputs = [
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
+  ];
+  const addFormKeys = [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }];
   useEffect(() => {
     setRows(() => {
       const currentCountList = countLists?.find(
@@ -96,24 +117,22 @@ const FixtureCount = () => {
           (item.countList as AccountFixtureCountList)._id === countListId
         );
       });
+
       return (
         currentCountList?.fixtures
           ?.filter(
             (fixturesItem) =>
               location && fixturesItem.locations.includes(location)
           )
-          ?.map((fixturesItem) => {
-            const currentFixture = fixtures?.find(
-              (fixture) => fixture._id === fixturesItem.fixture
-            );
-            if (!currentFixture) return;
-
+          ?.map((listFixtures) => {
             return {
-              fixture: currentFixture?.name,
-              quantity: currentCount?.fixtures?.find(
-                (countFixture) =>
-                  (countFixture.fixture = currentFixture?._id) ?? 0
-              )?.countQuantity,
+              fixture: fixtures?.find(
+                (fixture) => fixture._id === listFixtures?.fixture
+              )?.name,
+              quantity:
+                currentCount?.fixtures?.find(
+                  (countFixture) => countFixture.fixture == listFixtures.fixture
+                )?.countQuantity ?? 0,
             };
           }) ?? []
       );
@@ -128,7 +147,66 @@ const FixtureCount = () => {
     counts,
     i18n.language,
   ]);
-
+  const actions = [
+    {
+      name: "Add",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          topClassName="flex flex-col gap-2 "
+          buttonName={t("Add")}
+          isOpen={isAddFixtureOpen}
+          close={() => setIsAddFixtureOpen(false)}
+          inputs={addInputs}
+          formKeys={addFormKeys}
+          submitItem={updateAccountFixtureCount as any}
+          isEditMode={true}
+          setForm={setAddForm}
+          handleUpdate={() => {
+            const rowFixture = fixtures.find(
+              (fixture) => fixture.name === rowToAction?.fixture
+            );
+            const currentCount = counts?.find((item) => {
+              return (
+                item.isCompleted === false &&
+                (item.location as AccountStockLocation)._id === location &&
+                (item.user as User)._id === user?._id &&
+                (item.countList as AccountFixtureCountList)._id === countListId
+              );
+            });
+            if (!currentCount || !rowFixture) {
+              return;
+            }
+            const fixtureStock = stocks?.find(
+              (s) => (s.fixture as AccountFixture)._id === rowFixture?._id
+            );
+            const newFixtures = [
+              ...(currentCount?.fixtures?.filter(
+                (countFixture) => countFixture.fixture !== rowFixture?._id
+              ) || []),
+              {
+                fixture: rowFixture?._id,
+                countQuantity: addForm?.quantity,
+                stockQuantity: fixtureStock?.quantity || 0,
+              },
+            ];
+            updateAccountFixtureCount({
+              id: currentCount?._id,
+              updates: {
+                fixtures: newFixtures,
+              },
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isAddFixtureOpen,
+      setIsModal: setIsAddFixtureOpen,
+      isPath: false,
+      icon: <GoPlusCircle className="w-5 h-5" />,
+      className: " hover:text-blue-500 hover:border-blue-500 cursor-pointer",
+    },
+  ];
   return (
     <>
       <Header />
@@ -139,7 +217,7 @@ const FixtureCount = () => {
           columns={columns}
           rows={rows}
           title={t("Fixture Count")}
-          //   actions={actions}
+          actions={actions}
         />
         <div className="flex justify-end mt-4">
           <button
@@ -157,10 +235,19 @@ const FixtureCount = () => {
               if (!currentCount) {
                 return;
               }
-              //   if (rows?.some((row) => row.packageDetails?.length === 0)) {
-              //     toast.error(t("Please complete all product counts."));
-              //     return;
-              //   }
+
+              if (
+                currentCount?.fixtures?.length !==
+                countLists
+                  ?.find((countList) => countList._id === countListId)
+                  ?.fixtures?.filter(
+                    (fixturesItem) =>
+                      location && fixturesItem.locations.includes(location)
+                  )?.length
+              ) {
+                toast.error(t("Please complete all fixture counts."));
+                return;
+              }
               updateAccountFixtureCount({
                 id: currentCount?._id,
                 updates: {

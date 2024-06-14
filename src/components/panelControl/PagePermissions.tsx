@@ -177,7 +177,6 @@ const PagePermissions = (props: Props) => {
       }
     }
     if (missedRoutes.length > 0) {
-      console.log("missed routes", missedRoutes);
       createMultiplePage(missedRoutes);
     }
   };
