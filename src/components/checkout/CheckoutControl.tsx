@@ -206,8 +206,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.amount)}{" "}
               ₺
             </p>
@@ -223,8 +223,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.beginningQuantity)}{" "}
               ₺
             </p>
@@ -240,8 +240,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.incomeQuantity)}{" "}
               ₺
             </p>
@@ -257,8 +257,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.expenseQuantity)}{" "}
               ₺
             </p>
@@ -274,8 +274,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.cashout)}{" "}
               ₺
             </p>
@@ -291,8 +291,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.expectedQuantity)}{" "}
               ₺
             </p>
@@ -308,8 +308,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.difference)}{" "}
               ₺
             </p>
