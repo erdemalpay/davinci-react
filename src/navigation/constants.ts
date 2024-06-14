@@ -20,6 +20,7 @@ import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import SingleCountArchive from "../pages/SingleCountArchive";
+import SingleFixtureCountArchive from "../pages/SingleFixtureCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -57,6 +58,7 @@ export enum Routes {
   Fixture = "/fixture/:fixtureId",
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
+  SingleFixtureCountArchive = "/fixture-archive/:archiveId",
   CountLists = "/count-lists",
   CountList = "/count-list/:countListId",
   FixtureCountList = "/fixture-count-list/:fixtureCountListId",
@@ -156,6 +158,12 @@ export const allRoutes: {
     name: "Single Count Archive",
     path: Routes.SingleCountArchive,
     element: SingleCountArchive,
+    isOnSidebar: false,
+  },
+  {
+    name: "Single Fixture Count Archive",
+    path: Routes.SingleFixtureCountArchive,
+    element: SingleFixtureCountArchive,
     isOnSidebar: false,
   },
   {
