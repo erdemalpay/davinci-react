@@ -389,8 +389,6 @@
   "Product Expense ID": "Ürün Gider ID",
   "Fixture Expense ID": "Demirbaş Gider ID",
   "Service Expense ID": "Hizmet Gider ID",
-  "Select a count list": "Bir sayım listesi seçin",
-  "Count Quantity": "Sayım Miktarı",
   "Income Quantity": "Gelir Miktarı",
   "Expense Quantity": "Gider Miktarı",
   "Expected Quantity": "Beklenen Miktar",
@@ -413,12 +411,11 @@
   "Constant": "Sabit",
   "Select a count list  type": "Bir sayım listesi türü seçin",
   "Product Count List": "Ürün Sayım Listesi",
-  "Fixture Count List": "Demirbaş Sayım Listesi",
   "Checkout Cash": "Kasa Nakit",
   "Delete Checkout Cash": "Kasa Nakit Sil",
   "Add Checkout Cash": "Kasa Nakit Ekle",
   "Beginning Quantity": "Başlangıç Miktarı",
   "Difference": "Fark",
-  "Fixture Count": "Demirbaş Sayımı",
+  "Please complete all fixture counts.": "Lütfen tüm demirbaş sayımlarını tamamlayın.",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

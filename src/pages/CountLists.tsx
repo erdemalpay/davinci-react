@@ -1,37 +1,34 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SelectInput from "../components/common/SelectInput";
 import FixtureCountListMenu from "../components/countLists/fixtureCountList/FixtureCountListMenu";
 import CountListMenu from "../components/countLists/productCountList/CountListMenu";
 import { Header } from "../components/header/Header";
+import { useGeneralContext } from "../context/General.context";
 
-type CountListOptions = {
+export type CountListOptions = {
   id: string;
   label: string;
   component: JSX.Element;
   isDisabled: boolean;
 };
+export const countListOptions: CountListOptions[] = [
+  {
+    id: "0",
+    label: "Product Count List",
+    component: <CountListMenu />,
+    isDisabled: false,
+  },
+  {
+    id: "1",
+    label: "Fixture Count List",
+    component: <FixtureCountListMenu />,
+    isDisabled: false,
+  },
+];
 export default function CountLists() {
   const { t } = useTranslation();
-  const countListOptions: CountListOptions[] = [
-    {
-      id: "0",
-      label: "Product Count List",
-      component: <CountListMenu />,
-      isDisabled: false,
-    },
-    {
-      id: "1",
-      label: "Fixture Count List",
-      component: <FixtureCountListMenu />,
-      isDisabled: false,
-    },
-  ];
-  const [selectedOption, setSelectedOption] = useState(
-    countListOptions.find(
-      (option) => option.isDisabled === false
-    ) as CountListOptions
-  );
+
+  const { countListOption, setCountListOption } = useGeneralContext();
 
   return (
     <>
@@ -51,17 +48,17 @@ export default function CountLists() {
                     };
                   })}
                 value={
-                  selectedOption
+                  countListOption
                     ? {
-                        value: selectedOption.id,
-                        label: t(selectedOption.label),
+                        value: countListOption.id,
+                        label: t(countListOption.label),
                       }
                     : null
                 }
-                onChange={(selectedOption) => {
-                  setSelectedOption(
+                onChange={(countListOption) => {
+                  setCountListOption(
                     countListOptions.find(
-                      (option) => option.id === selectedOption?.value
+                      (option) => option.id === countListOption?.value
                     ) as CountListOptions
                   );
                 }}
@@ -70,7 +67,7 @@ export default function CountLists() {
             </div>
           </div>
         )}
-      {selectedOption && selectedOption.component}
+      {countListOption && countListOption.component}
     </>
   );
 }
