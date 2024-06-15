@@ -45,7 +45,7 @@ export default function Product() {
   const tabs = [
     {
       number: ProductPageTabEnum.PRODUCTPRICECHART,
-      label: t("Product Price Chart"),
+      label: "Product Price Chart",
       icon: <RiBarChartFill className="text-lg font-thin" />,
       content: <ProductPrice selectedProduct={currentProduct} />,
       isDisabled: user
@@ -58,14 +58,14 @@ export default function Product() {
     },
     {
       number: ProductPageTabEnum.MENUITEMSWITHPRODUCT,
-      label: t("Menu Items with Product"),
+      label: "Menu Items with Product",
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <MenuItemsWithProduct selectedProduct={currentProduct} />,
       isDisabled: false,
     },
     {
       number: ProductPageTabEnum.PRODUCTEXPENSES,
-      label: t("Product Expenses"),
+      label: "Product Expenses",
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <ProductExpenses selectedProduct={currentProduct} />,
       isDisabled: user
@@ -78,7 +78,7 @@ export default function Product() {
     },
     {
       number: ProductPageTabEnum.PRODUCTSTOCKHISTORY,
-      label: t("Product Stock History"),
+      label: "Product Stock History",
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory selectedProduct={currentProduct} />,
       isDisabled: user
@@ -90,14 +90,6 @@ export default function Product() {
         : true,
     },
   ];
-  const filteredTabs = tabs
-    ?.filter((tab) => !tab.isDisabled)
-    .map((tab, index) => {
-      return {
-        ...tab,
-        number: index,
-      };
-    });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -136,7 +128,7 @@ export default function Product() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={filteredTabs}
+          tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {

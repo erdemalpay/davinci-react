@@ -39,33 +39,32 @@ export default function Vendor() {
       label: i.name,
     };
   });
-
   if (!currentVendor) return <></>;
   const tabs = [
     {
       number: VendorPageTabEnum.VENDORPRODUCTS,
-      label: t("Vendor Products"),
+      label: "Vendor Products",
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <VendorProducts selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {
       number: VendorPageTabEnum.VENDORFIXTURES,
-      label: t("Vendor Fixtures"),
+      label: "Vendor Fixtures",
       icon: <FaAnchor className="text-lg font-thin" />,
       content: <VendorFixtures selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {
       number: VendorPageTabEnum.VENDORSERVICES,
-      label: t("Vendor Services"),
+      label: "Vendor Services",
       icon: <MdOutlineCleaningServices className="text-lg font-thin" />,
       content: <VendorServices selectedVendor={currentVendor} />,
       isDisabled: false,
     },
     {
       number: VendorPageTabEnum.VENDOREXPENSES,
-      label: t("Vendor Expenses"),
+      label: "Vendor Expenses",
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <VendorExpenses selectedVendor={currentVendor} />,
       isDisabled: user
@@ -78,7 +77,7 @@ export default function Vendor() {
     },
     {
       number: VendorPageTabEnum.VENDORPAYMENTS,
-      label: t("Vendor Payments"),
+      label: "Vendor Payments",
       icon: <MdPayments className="text-lg font-thin" />,
       content: <VendorPayments selectedVendor={currentVendor} />,
       isDisabled: user
@@ -90,14 +89,6 @@ export default function Vendor() {
         : true,
     },
   ];
-  const filteredTabs = tabs
-    ?.filter((tab) => !tab.isDisabled)
-    .map((tab, index) => {
-      return {
-        ...tab,
-        number: index,
-      };
-    });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -136,7 +127,7 @@ export default function Vendor() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={filteredTabs}
+          tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {

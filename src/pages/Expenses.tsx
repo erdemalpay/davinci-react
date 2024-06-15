@@ -13,7 +13,7 @@ import { useGeneralContext } from "../context/General.context";
 import { ExpensesPageTabEnum } from "../types";
 
 export default function Expenses() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -23,28 +23,28 @@ export default function Expenses() {
   const tabs = [
     {
       number: ExpensesPageTabEnum.INVOICE,
-      label: t("Product Expenses"),
+      label: "Product Expenses",
       icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
       content: <Invoice />,
       isDisabled: false,
     },
     {
       number: ExpensesPageTabEnum.FIXTUREINVOICE,
-      label: t("Fixture Expenses"),
+      label: "Fixture Expenses",
       icon: <GiAnchor className="text-lg font-thin" />,
       content: <FixtureInvoice />,
       isDisabled: false,
     },
     {
       number: ExpensesPageTabEnum.SERVICEINVOICE,
-      label: t("Service Expenses"),
+      label: "Service Expenses",
       icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
       content: <ServiceInvoice />,
       isDisabled: false,
     },
     {
       number: ExpensesPageTabEnum.ALLEXPENSES,
-      label: t("All Expenses"),
+      label: "All Expenses",
       icon: <GrMoney className="text-lg font-thin" />,
       content: <AllExpenses />,
       isDisabled: false,
@@ -56,10 +56,7 @@ export default function Expenses() {
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           key={i18n.language}
-          tabs={tabs?.map((tab) => ({
-            ...tab,
-            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
-          }))}
+          tabs={tabs}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}
           additionalOpenAction={() => {
