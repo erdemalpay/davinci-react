@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { allRoutes } from "../../navigation/constants";
 import { PanelControlPage, RoleEnum, RoleNameEnum } from "../../types";
 import {
@@ -17,12 +19,15 @@ import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const PagePermissions = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const pages = useGetPanelControlPages();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
+  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
+    useGeneralContext();
   const { createPanelControlPage, updatePanelControlPage } =
     usePanelControlPageMutations();
   function handleRolePermission(row: PanelControlPage, roleKey: number) {
@@ -44,10 +49,21 @@ const PagePermissions = () => {
     {
       key: "name",
       node: (row: any) => {
-        return (
-          <div className="flex items-center gap-2">
-            <div>{t(row.name)}</div>
-          </div>
+        return row.tabs.length > 0 ? (
+          <p
+            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/page-details/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
         );
       },
     },
@@ -103,8 +119,30 @@ const PagePermissions = () => {
   const fillMissingPages = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
-      if (!pages.find((page) => page.name === route.name)) {
-        missedRoutes.push({ name: route.name, permissionRoles: [1] });
+      const currentPage = pages.find((page) => page.name === route.name);
+      let isTabsSame = true;
+      if (route.tabs) {
+        for (const tab of route.tabs) {
+          currentPage?.tabs?.find((pageTab) => pageTab.name === tab.label);
+          if (
+            !currentPage?.tabs?.find((pageTab) => pageTab.name === tab.label)
+          ) {
+            isTabsSame = false;
+            break;
+          }
+        }
+      }
+      if (!currentPage || !isTabsSame) {
+        missedRoutes.push({
+          name: route.name,
+          permissionRoles: [1],
+          tabs: route?.tabs?.map((tab) => {
+            return {
+              name: tab.label,
+              permissionRoles: [1],
+            };
+          }),
+        });
       }
     }
     if (missedRoutes.length > 0) {
@@ -130,7 +168,7 @@ const PagePermissions = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
-          rows={pages}
+          rows={pages.sort((a, b) => a.name.localeCompare(b.name))}
           filters={filters}
           title={t("Page Permissions")}
           addButton={addButton}

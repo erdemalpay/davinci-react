@@ -1,4 +1,3 @@
-import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -11,6 +10,7 @@ import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import user1 from "../components/panelComponents/assets/profile/user-1.jpg";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -262,18 +262,10 @@ export default function Users() {
       label: t("Show Inactive Users"),
       isUpperSide: false,
       node: (
-        <Switch
+        <SwitchButton
           checked={showInactiveUsers}
-          onChange={() => setShowInactiveUsers((value) => !value)}
-          className={`${showInactiveUsers ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none  `}
-        >
-          <span
-            aria-hidden="true"
-            className={`${showInactiveUsers ? "translate-x-4" : "translate-x-0"}
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
+          onChange={setShowInactiveUsers}
+        />
       ),
     },
   ];
