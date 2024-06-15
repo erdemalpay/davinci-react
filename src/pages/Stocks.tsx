@@ -16,66 +16,71 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum, StocksPageTabEnum } from "../types";
+import { StocksPageTabEnum } from "../types";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
+export const StockPageTabs = [
+  {
+    number: StocksPageTabEnum.STOCK,
+    label: "Product Stocks",
+    icon: <GiGreatPyramid className="text-lg font-thin" />,
+    content: <Stock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.FIXTURESTOCK,
+    label: "Fixture Stocks",
+    icon: <SlBasketLoaded className="text-lg font-thin" />,
+    content: <FixtureStock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.ENTERCONSUMPTION,
+    label: "Enter Consumption",
+    icon: <GiEatingPelican className="text-xl font-thin" />,
+    content: <EnterConsumption />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.PRODUCTSTOCKHISTORY,
+    label: "Product Stock History",
+    icon: <GiArchiveResearch className="text-lg font-thin" />,
+    content: <ProductStockHistory />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
+    label: "Fixture Stock History",
+    icon: <FaFileArchive className="text-lg font-thin" />,
+    content: <FixtureStockHistory />,
+    isDisabled: false,
+  },
+];
 export default function Stocks() {
   const { i18n } = useTranslation();
-  const { user } = useUserContext();
   const {
     setCurrentPage,
     setSearchQuery,
     stocksActiveTab,
     setStocksActiveTab,
   } = useGeneralContext();
-  const tabs = [
-    {
-      number: StocksPageTabEnum.STOCK,
-      label: "Product Stocks",
-      icon: <GiGreatPyramid className="text-lg font-thin" />,
-      content: <Stock />,
-      isDisabled: false,
-    },
-    {
-      number: StocksPageTabEnum.FIXTURESTOCK,
-      label: "Fixture Stocks",
-      icon: <SlBasketLoaded className="text-lg font-thin" />,
-      content: <FixtureStock />,
-      isDisabled: false,
-    },
-    {
-      number: StocksPageTabEnum.ENTERCONSUMPTION,
-      label: "Enter Consumption",
-      icon: <GiEatingPelican className="text-xl font-thin" />,
-      content: <EnterConsumption />,
-      isDisabled: false,
-    },
-    {
-      number: StocksPageTabEnum.PRODUCTSTOCKHISTORY,
-      label: "Product Stock History",
-      icon: <GiArchiveResearch className="text-lg font-thin" />,
-      content: <ProductStockHistory />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
+  const currentPageId = "stocks";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = StockPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
         : true,
-    },
-    {
-      number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
-      label: "Fixture Stock History",
-      icon: <FaFileArchive className="text-lg font-thin" />,
-      content: <FixtureStockHistory />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-  ];
+    };
+  });
   return (
     <>
       <Header showLocationSelector={false} />

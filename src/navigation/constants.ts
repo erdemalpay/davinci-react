@@ -29,6 +29,9 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
+import { CheckoutPageTabs } from "./../pages/Checkout";
+import { ExpensePageTabs } from "./../pages/Expenses";
+import { StockPageTabs } from "./../pages/Stocks";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -181,13 +184,14 @@ export const allRoutes: {
     path: Routes.Stocks,
     element: Stocks,
     isOnSidebar: true,
+    tabs: StockPageTabs,
   },
   {
     name: "Constants",
     path: Routes.Accounting,
     element: Accounting,
     isOnSidebar: true,
-    tabs: AccountingPageTabs(),
+    tabs: AccountingPageTabs,
   },
   {
     name: "Product",
@@ -236,12 +240,14 @@ export const allRoutes: {
     path: Routes.Expenses,
     element: Expenses,
     isOnSidebar: true,
+    tabs: ExpensePageTabs,
   },
   {
     name: "Checkout",
     path: Routes.Checkout,
     element: Checkout,
     isOnSidebar: true,
+    tabs: CheckoutPageTabs,
   },
   {
     name: "Panel Control",
