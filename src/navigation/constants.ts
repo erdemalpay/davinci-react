@@ -1,4 +1,5 @@
-import Accounting from "../pages/Accounting";
+import { Tab } from "../components/panelComponents/shared/types";
+import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import Checkout from "../pages/Checkout";
@@ -13,6 +14,7 @@ import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
+import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
 import Product from "../pages/Product";
 import Profile from "../pages/Profile";
@@ -64,6 +66,7 @@ export enum Routes {
   FixtureCountList = "/fixture-count-list/:fixtureCountListId",
   Checkout = "/checkout",
   PanelControl = "/panel-control",
+  PageDetails = "/page-details/:pageDetailsId",
 }
 
 export const allRoutes: {
@@ -72,6 +75,7 @@ export const allRoutes: {
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
   element: () => JSX.Element;
+  tabs?: Tab[];
 }[] = [
   {
     name: "Tables",
@@ -183,6 +187,7 @@ export const allRoutes: {
     path: Routes.Accounting,
     element: Accounting,
     isOnSidebar: true,
+    tabs: AccountingPageTabs(),
   },
   {
     name: "Product",
@@ -243,6 +248,13 @@ export const allRoutes: {
     path: Routes.PanelControl,
     element: PanelControl,
     isOnSidebar: true,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Page Details",
+    path: Routes.PageDetails,
+    element: PageDetails,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {

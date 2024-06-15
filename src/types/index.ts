@@ -484,6 +484,9 @@ export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,
 }
+export enum PageDetailsPageTabEnum {
+  PAGETABPERMISSIONS,
+}
 export enum FixtureCountListPageTabEnum {
   FIXTURECOUNTARCHIVE,
   FIXTURECOUNTLISTS,
