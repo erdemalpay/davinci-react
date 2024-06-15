@@ -19,14 +19,14 @@ const PanelControl = () => {
   const tabs = [
     {
       number: PanelControlPageTabEnum.PAGEPERMISSIONS,
-      label: t("Page Permissions"),
+      label: "Page Permissions",
       icon: <MdManageAccounts className="text-lg font-thin" />,
       content: <PagePermissions />,
       isDisabled: false,
     },
     {
       number: PanelControlPageTabEnum.CHECKOUTCASH,
-      label: t("Checkout Cash"),
+      label: "Checkout Cash",
       icon: <FaCashRegister className="text-lg font-thin" />,
       content: <CheckoutCash />,
       isDisabled: false,
@@ -38,7 +38,7 @@ const PanelControl = () => {
       <Header showLocationSelector={false} />
       <TabPanel
         key={i18n.language}
-        tabs={tabs.sort((a, b) => a.number - b.number)}
+        tabs={tabs}
         activeTab={panelControlActiveTab}
         setActiveTab={setPanelControlActiveTab}
         additionalOpenAction={() => {

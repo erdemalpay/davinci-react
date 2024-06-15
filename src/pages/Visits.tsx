@@ -16,18 +16,14 @@ export default function Visits() {
   const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
-
   const { selectedLocationId: location } = useLocationContext();
-
   const { visits } = useGetMonthlyVisits(
     location,
     format(currentMonth, "yyyy-MM")
   );
-
   return (
     <>
       <Header showLocationSelector={true} />
-
       <div className=" __className_a182b8 w-[90%] mx-auto ">
         <div className="flex justıfy-end">
           <div className="my-4 flex justify-between w-full">

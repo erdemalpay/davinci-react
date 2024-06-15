@@ -21,8 +21,81 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { AccountingPageTabEnum } from "../types";
 
+export const AccountingPageTabs = [
+  {
+    number: AccountingPageTabEnum.EXPENSETYPE,
+    label: "Expense Types",
+    icon: <TbZoomMoney className="text-lg font-thin" />,
+    content: <ExpenseType />,
+    isDisabled: false,
+  },
+
+  {
+    number: AccountingPageTabEnum.UNIT,
+    label: "Units",
+    icon: <TbWeight className="text-lg font-thin" />,
+    content: <Unit />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.VENDOR,
+    label: "Vendors",
+    icon: <SiImprovmx className="text-lg font-thin" />,
+    content: <Vendor />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.BRAND,
+    label: "Brands",
+    icon: <TbBrandBlogger className="text-lg font-thin" />,
+    content: <Brand />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.PACKAGETYPE,
+    label: "Package Types",
+    icon: <LuPackageOpen className="text-lg font-thin" />,
+    content: <PackageType />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.PRODUCT,
+    label: "Products",
+    icon: <RiProductHuntLine className="text-lg font-thin" />,
+    content: <Product />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.FIXTURES,
+    label: "Fixtures",
+    icon: <FaAnchor className="text-lg font-thin" />,
+    content: <Fixture />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.SERVICES,
+    label: "Services",
+    icon: <FaServicestack className="text-lg font-thin" />,
+    content: <Service />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.PAYMENTMETHODS,
+    label: "Payment Methods",
+    icon: <MdOutlinePayment className="text-lg font-thin" />,
+    content: <PaymentMethods />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.STOCKLOCATION,
+    label: "Stock Locations",
+    icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
+    content: <StockLocations />,
+    isDisabled: false,
+  },
+];
 export default function Accounting() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -30,89 +103,12 @@ export default function Accounting() {
     setAccountingActiveTab,
   } = useGeneralContext();
 
-  const tabs = [
-    {
-      number: AccountingPageTabEnum.EXPENSETYPE,
-      label: t("Expense Types"),
-      icon: <TbZoomMoney className="text-lg font-thin" />,
-      content: <ExpenseType />,
-      isDisabled: false,
-    },
-
-    {
-      number: AccountingPageTabEnum.UNIT,
-      label: t("Units"),
-      icon: <TbWeight className="text-lg font-thin" />,
-      content: <Unit />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.VENDOR,
-      label: t("Vendors"),
-      icon: <SiImprovmx className="text-lg font-thin" />,
-      content: <Vendor />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.BRAND,
-      label: t("Brands"),
-      icon: <TbBrandBlogger className="text-lg font-thin" />,
-      content: <Brand />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.PACKAGETYPE,
-      label: t("Package Types"),
-      icon: <LuPackageOpen className="text-lg font-thin" />,
-      content: <PackageType />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.PRODUCT,
-      label: t("Products"),
-      icon: <RiProductHuntLine className="text-lg font-thin" />,
-      content: <Product />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.FIXTURES,
-      label: t("Fixtures"),
-      icon: <FaAnchor className="text-lg font-thin" />,
-      content: <Fixture />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.SERVICES,
-      label: t("Services"),
-      icon: <FaServicestack className="text-lg font-thin" />,
-      content: <Service />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.PAYMENTMETHODS,
-      label: t("Payment Methods"),
-      icon: <MdOutlinePayment className="text-lg font-thin" />,
-      content: <PaymentMethods />,
-      isDisabled: false,
-    },
-    {
-      number: AccountingPageTabEnum.STOCKLOCATION,
-      label: t("Stock Locations"),
-      icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
-      content: <StockLocations />,
-      isDisabled: false,
-    },
-  ];
-
   return (
     <>
       <Header showLocationSelector={false} />
       <TabPanel
         key={i18n.language}
-        tabs={tabs?.map((tab) => ({
-          ...tab,
-          number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
-        }))}
+        tabs={AccountingPageTabs}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}
         additionalOpenAction={() => {

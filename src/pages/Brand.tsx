@@ -38,21 +38,21 @@ export default function Brand() {
   const tabs = [
     {
       number: BrandPageTabEnum.BRANDPRODUCTS,
-      label: t("Brand Products"),
+      label: "Brand Products",
       icon: <MdOutlineMenuBook className="text-lg font-thin" />,
       content: <BrandProducts selectedBrand={currentBrand} />,
       isDisabled: false,
     },
     {
       number: BrandPageTabEnum.BRANDFIXTURES,
-      label: t("Brand Fixtures"),
+      label: "Brand Fixtures",
       icon: <FaAnchor className="text-lg font-thin" />,
       content: <BrandFixtures selectedBrand={currentBrand} />,
       isDisabled: false,
     },
     {
       number: BrandPageTabEnum.BRANDEXPENSES,
-      label: t("Brand Expenses"),
+      label: "Brand Expenses",
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <BrandExpenses selectedBrand={currentBrand} />,
       isDisabled: user
@@ -64,14 +64,7 @@ export default function Brand() {
         : true,
     },
   ];
-  const filteredTabs = tabs
-    ?.filter((tab) => !tab.isDisabled)
-    .map((tab, index) => {
-      return {
-        ...tab,
-        number: index,
-      };
-    });
+
   return (
     <>
       <Header showLocationSelector={false} />
@@ -110,7 +103,7 @@ export default function Brand() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={filteredTabs}
+          tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {

@@ -19,7 +19,7 @@ import { useUserContext } from "../context/User.context";
 import { RoleEnum, StocksPageTabEnum } from "../types";
 
 export default function Stocks() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { user } = useUserContext();
   const {
     setCurrentPage,
@@ -30,28 +30,28 @@ export default function Stocks() {
   const tabs = [
     {
       number: StocksPageTabEnum.STOCK,
-      label: t("Product Stocks"),
+      label: "Product Stocks",
       icon: <GiGreatPyramid className="text-lg font-thin" />,
       content: <Stock />,
       isDisabled: false,
     },
     {
       number: StocksPageTabEnum.FIXTURESTOCK,
-      label: t("Fixture Stocks"),
+      label: "Fixture Stocks",
       icon: <SlBasketLoaded className="text-lg font-thin" />,
       content: <FixtureStock />,
       isDisabled: false,
     },
     {
       number: StocksPageTabEnum.ENTERCONSUMPTION,
-      label: t("Enter Consumption"),
+      label: "Enter Consumption",
       icon: <GiEatingPelican className="text-xl font-thin" />,
       content: <EnterConsumption />,
       isDisabled: false,
     },
     {
       number: StocksPageTabEnum.PRODUCTSTOCKHISTORY,
-      label: t("Product Stock History"),
+      label: "Product Stock History",
       icon: <GiArchiveResearch className="text-lg font-thin" />,
       content: <ProductStockHistory />,
       isDisabled: user
@@ -64,7 +64,7 @@ export default function Stocks() {
     },
     {
       number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
-      label: t("Fixture Stock History"),
+      label: "Fixture Stock History",
       icon: <FaFileArchive className="text-lg font-thin" />,
       content: <FixtureStockHistory />,
       isDisabled: user
@@ -76,21 +76,13 @@ export default function Stocks() {
         : true,
     },
   ];
-  const filteredTabs = tabs
-    ?.filter((tab) => !tab.isDisabled)
-    .map((tab, index) => {
-      return {
-        ...tab,
-        number: index,
-      };
-    });
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           key={i18n.language}
-          tabs={filteredTabs}
+          tabs={tabs}
           activeTab={stocksActiveTab}
           setActiveTab={setStocksActiveTab}
           additionalOpenAction={() => {

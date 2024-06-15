@@ -34,14 +34,14 @@ export default function Fixture() {
   const tabs = [
     {
       number: FixturePageTabEnum.FIXTUREEXPENSES,
-      label: t("Fixture Expenses"),
+      label: "Fixture Expenses",
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <FixtureExpenses selectedFixture={currentFixture} />,
       isDisabled: false,
     },
     {
       number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
-      label: t("Fixture Stock History"),
+      label: "Fixture Stock History",
       icon: <FaFileArchive className="text-lg font-thin" />,
       content: <FixtureStockHistory selectedFixture={currentFixture} />,
       isDisabled: false,

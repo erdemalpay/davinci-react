@@ -26,14 +26,14 @@ export default function Profile() {
   const tabs = [
     {
       number: 0,
-      label: t("Photo"),
+      label: "Photo",
       icon: <FaRegUserCircle className="text-lg font-thin" />,
       content: <ProfileCard />,
       isDisabled: false,
     },
     {
       number: 1,
-      label: t("Personal Details"),
+      label: "Personal Details",
       icon: <TbListDetails className="text-lg font-thin" />,
       content: updatedUser && (
         <PersonalDetails isEditable={true} user={updatedUser} />
@@ -42,14 +42,14 @@ export default function Profile() {
     },
     {
       number: 2,
-      label: t("Change Password"),
+      label: "Change Password",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: <ChangePassword />,
       isDisabled: false,
     },
     {
       number: 3,
-      label: t("Mentored Games"),
+      label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: data && (
         <div className="px-4 w-full ">

@@ -23,28 +23,28 @@ export default function Checkout() {
   const tabs = [
     {
       number: CheckoutPageTabEnum.INCOME,
-      label: t("Income"),
+      label: "Income",
       icon: <GiReceiveMoney className="text-lg font-thin" />,
       content: <Income />,
       isDisabled: false,
     },
     {
       number: CheckoutPageTabEnum.EXPENSE,
-      label: t("Expense"),
+      label: "Expense",
       icon: <GiPayMoney className="text-lg font-thin" />,
       content: <Expense />,
       isDisabled: false,
     },
     {
       number: CheckoutPageTabEnum.CASHOUT,
-      label: t("Cashout"),
+      label: "Cashout",
       icon: <IoCashOutline className="text-lg font-thin" />,
       content: <Cashout />,
       isDisabled: false,
     },
     {
       number: CheckoutPageTabEnum.CHECKOUTCONTROL,
-      label: t("Checkout Control"),
+      label: "Checkout Control",
       icon: <GiMoneyStack className="text-lg font-thin" />,
       content: <CheckoutControlPage />,
       isDisabled: false,

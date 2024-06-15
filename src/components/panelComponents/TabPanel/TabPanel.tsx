@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
-
 // active tab is required to be outside so that when the item added into the tab and tabpanel is rerendered, the active tab will not be reset.
 type Props = {
   tabs: Tab[];
@@ -20,6 +20,16 @@ const TabPanel: React.FC<Props> = ({
   setActiveTab,
   additionalOpenAction,
 }) => {
+  const { t } = useTranslation();
+  const adjustedTabs = tabs
+    .filter((item) => !item.isDisabled)
+    .map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
+
   const [indicatorStyle, setIndicatorStyle] = useState<{
     width: number;
     left: number;
@@ -56,7 +66,7 @@ const TabPanel: React.FC<Props> = ({
         ref={containerRef}
         className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
       >
-        {tabs
+        {adjustedTabs
           .filter((tab) => !tab.isDisabled)
           .map((tab, index) => (
             <div
@@ -68,7 +78,7 @@ const TabPanel: React.FC<Props> = ({
               onClick={() => handleTabChange(tab)}
             >
               {tab.icon}
-              <P1 className="w-max">{tab.label}</P1>
+              <P1 className="w-max">{t(tab.label)}</P1>
             </div>
           ))}
         <div
@@ -79,10 +89,10 @@ const TabPanel: React.FC<Props> = ({
           }}
         />
       </div>
-      {tabs.find((tab) => tab.number === activeTab)?.content &&
-        !tabs.find((tab) => tab.number === activeTab)?.isDisabled && (
+      {adjustedTabs.find((tab) => tab.number === activeTab)?.content &&
+        !adjustedTabs.find((tab) => tab.number === activeTab)?.isDisabled && (
           <div className="py-6 ">
-            {tabs.find((tab) => tab.number === activeTab)?.content}
+            {adjustedTabs.find((tab) => tab.number === activeTab)?.content}
           </div>
         )}
     </div>
