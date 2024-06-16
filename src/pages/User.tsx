@@ -38,14 +38,14 @@ export default function UserView() {
   const tabs = [
     {
       number: 0,
-      label: t("Personal Details"),
+      label: "Personal Details",
       icon: <FaRegUserCircle className="text-lg font-thin" />,
       content: user && <PersonalDetails isEditable={false} user={user} />,
       isDisabled: false,
     },
     {
       number: 1,
-      label: t("Mentored Games"),
+      label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: user && data && (
         <div className="px-4 w-full">

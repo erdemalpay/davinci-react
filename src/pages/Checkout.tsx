@@ -8,8 +8,39 @@ import Income from "../components/checkout/Income";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
 import { CheckoutPageTabEnum } from "../types";
-
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+export const CheckoutPageTabs = [
+  {
+    number: CheckoutPageTabEnum.INCOME,
+    label: "Income",
+    icon: <GiReceiveMoney className="text-lg font-thin" />,
+    content: <Income />,
+    isDisabled: false,
+  },
+  {
+    number: CheckoutPageTabEnum.EXPENSE,
+    label: "Expense",
+    icon: <GiPayMoney className="text-lg font-thin" />,
+    content: <Expense />,
+    isDisabled: false,
+  },
+  {
+    number: CheckoutPageTabEnum.CASHOUT,
+    label: "Cashout",
+    icon: <IoCashOutline className="text-lg font-thin" />,
+    content: <Cashout />,
+    isDisabled: false,
+  },
+  {
+    number: CheckoutPageTabEnum.CHECKOUTCONTROL,
+    label: "Checkout Control",
+    icon: <GiMoneyStack className="text-lg font-thin" />,
+    content: <CheckoutControlPage />,
+    isDisabled: false,
+  },
+];
 export default function Checkout() {
   const { t, i18n } = useTranslation();
   const {
@@ -19,37 +50,23 @@ export default function Checkout() {
     setCheckoutActiveTab,
     setSortConfigKey,
   } = useGeneralContext();
-
-  const tabs = [
-    {
-      number: CheckoutPageTabEnum.INCOME,
-      label: t("Income"),
-      icon: <GiReceiveMoney className="text-lg font-thin" />,
-      content: <Income />,
-      isDisabled: false,
-    },
-    {
-      number: CheckoutPageTabEnum.EXPENSE,
-      label: t("Expense"),
-      icon: <GiPayMoney className="text-lg font-thin" />,
-      content: <Expense />,
-      isDisabled: false,
-    },
-    {
-      number: CheckoutPageTabEnum.CASHOUT,
-      label: t("Cashout"),
-      icon: <IoCashOutline className="text-lg font-thin" />,
-      content: <Cashout />,
-      isDisabled: false,
-    },
-    {
-      number: CheckoutPageTabEnum.CHECKOUTCONTROL,
-      label: t("Checkout Control"),
-      icon: <GiMoneyStack className="text-lg font-thin" />,
-      content: <CheckoutControlPage />,
-      isDisabled: false,
-    },
-  ];
+  const currentPageId = "checkout";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = CheckoutPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
 
   return (
     <>

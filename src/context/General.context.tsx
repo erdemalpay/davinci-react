@@ -1,4 +1,5 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
   AccountFixtureInvoice,
   AccountingPageTabEnum,
@@ -23,6 +24,8 @@ type GeneralContextType = {
   ) => void;
   productExpenseForm: Partial<AccountInvoice>;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
+  countListOption: CountListOptions;
+  setCountListOption: (option: CountListOptions) => void;
   fixtureExpenseForm: Partial<AccountFixtureInvoice>;
   setFixtureExpenseForm: (form: Partial<AccountFixtureInvoice>) => void;
   serviceExpenseForm: Partial<AccountServiceInvoice>;
@@ -61,6 +64,8 @@ const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   sortConfigKey: null,
   setSortConfigKey: () => {},
+  countListOption: countListOptions[0],
+  setCountListOption: () => {},
   setAccountingActiveTab: () => {},
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   checkoutActiveTab: 0,
@@ -154,6 +159,9 @@ const GeneralContext = createContext<GeneralContextType>({
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
+  const [countListOption, setCountListOption] = useState<CountListOptions>(
+    countListOptions[0]
+  );
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountInvoice>
   >({});
@@ -196,6 +204,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
       value={{
         sortConfigKey,
         setSortConfigKey,
+        countListOption,
+        setCountListOption,
         checkoutActiveTab,
         setCheckoutActiveTab,
         fixtureExpenseForm,

@@ -388,7 +388,7 @@ const Count = () => {
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               setSortConfigKey(null);
-              navigate(Routes.CountListMenu);
+              navigate(Routes.CountLists);
             }}
           >
             <H5> {t("Complete")}</H5>

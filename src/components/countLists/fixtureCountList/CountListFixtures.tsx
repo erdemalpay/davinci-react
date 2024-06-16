@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { AccountFixtureCountList } from "../../types";
-import { useGetAccountFixtures } from "../../utils/api/account/fixture";
+import { AccountFixtureCountList } from "../../../types";
+import { useGetAccountFixtures } from "../../../utils/api/account/fixture";
 import {
   useAccountFixtureCountListMutations,
   useGetAccountFixtureCountLists,
-} from "../../utils/api/account/fixtureCountList";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { CheckSwitch } from "../common/CheckSwitch";
-import GenericTable from "../panelComponents/Tables/GenericTable";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { RowKeyType } from "../panelComponents/shared/types";
+} from "../../../utils/api/account/fixtureCountList";
+import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { CheckSwitch } from "../../common/CheckSwitch";
+import GenericTable from "../../panelComponents/Tables/GenericTable";
+import SwitchButton from "../../panelComponents/common/SwitchButton";
+import { RowKeyType } from "../../panelComponents/shared/types";
 
 const CountListFixtures = () => {
   const { t } = useTranslation();

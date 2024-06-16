@@ -1,41 +1,35 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiEdit } from "react-icons/fi";
-import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
+import { allRoutes } from "../../navigation/constants";
 import { PanelControlPage, RoleEnum, RoleNameEnum } from "../../types";
 import {
+  useCreateMultiplePageMutation,
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
-import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-type Props = {};
 
-const PagePermissions = (props: Props) => {
+const PagePermissions = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const pages = useGetPanelControlPages();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [rowToAction, setRowToAction] = useState<PanelControlPage>();
-  const [
-    isCloseAllConfirmationDialogOpen,
-    setIsCloseAllConfirmationDialogOpen,
-  ] = useState(false);
-  const {
-    createPanelControlPage,
-    deletePanelControlPage,
-    updatePanelControlPage,
-  } = usePanelControlPageMutations();
-
+  const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
+  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
+    useGeneralContext();
+  const { createPanelControlPage, updatePanelControlPage } =
+    usePanelControlPageMutations();
   function handleRolePermission(row: PanelControlPage, roleKey: number) {
     const newPermissionRoles = row?.permissionRoles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -55,10 +49,21 @@ const PagePermissions = (props: Props) => {
     {
       key: "name",
       node: (row: any) => {
-        return (
-          <div className="flex items-center gap-2">
-            <div>{t(row.name)}</div>
-          </div>
+        return row.tabs.length > 0 ? (
+          <p
+            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/page-details/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
         );
       },
     },
@@ -84,61 +89,7 @@ const PagePermissions = (props: Props) => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
-  const actions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deletePanelControlPage(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Page")}
-          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: !isEnableEdit,
-    },
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          submitItem={updatePanelControlPage as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
-        />
-      ) : null,
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
-      isPath: false,
-      isDisabled: !isEnableEdit,
-    },
-  ];
-  const filters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-    },
-  ];
+
   // Adding roles columns and rowkeys
   for (const roleKey of Object.keys(RoleEnum)) {
     const roleEnumKey = roleKey as keyof typeof RoleEnum;
@@ -165,26 +116,63 @@ const PagePermissions = (props: Props) => {
       });
     }
   }
-
+  const fillMissingPages = () => {
+    const missedRoutes = [];
+    for (const route of allRoutes) {
+      const currentPage = pages.find((page) => page.name === route.name);
+      let isTabsSame = true;
+      if (route.tabs) {
+        for (const tab of route.tabs) {
+          currentPage?.tabs?.find((pageTab) => pageTab.name === tab.label);
+          if (
+            !currentPage?.tabs?.find((pageTab) => pageTab.name === tab.label)
+          ) {
+            isTabsSame = false;
+            break;
+          }
+        }
+      }
+      if (!currentPage || !isTabsSame) {
+        missedRoutes.push({
+          name: route.name,
+          permissionRoles: [1],
+          tabs: route?.tabs?.map((tab) => {
+            return {
+              name: tab.label,
+              permissionRoles: [1],
+            };
+          }),
+        });
+      }
+    }
+    if (missedRoutes.length > 0) {
+      createMultiplePage(missedRoutes);
+    }
+  };
   useEffect(() => {
+    fillMissingPages();
     setTableKey((prev) => prev + 1);
   }, [pages]);
-  if (isEnableEdit) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
+
+  const filters = [
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+  ];
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={actions}
-          filters={filters}
           columns={columns}
-          rows={pages}
+          rows={pages.sort((a, b) => a.name.localeCompare(b.name))}
+          filters={filters}
           title={t("Page Permissions")}
           addButton={addButton}
-          isActionsActive={isEnableEdit}
+          isActionsActive={false}
         />
       </div>
     </>

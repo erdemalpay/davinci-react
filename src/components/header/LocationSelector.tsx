@@ -16,7 +16,7 @@ export function LocationSelector() {
           onClick={() => setSelectedLocationId(location._id)}
           className={`text-sm ${
             selectedLocation?._id === location._id ? "border-2" : "border-0"
-          } rounded p-2 text-white`}
+          }  px-2 py-1 rounded-lg  text-white`}
         >
           {location.name}
         </button>

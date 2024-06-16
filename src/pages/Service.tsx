@@ -33,20 +33,13 @@ export default function Service() {
   const tabs = [
     {
       number: ServicePageTabEnum.SERVICEEXPENSES,
-      label: t("Service Expenses"),
+      label: "Service Expenses",
       icon: <GiTakeMyMoney className="text-lg font-thin" />,
       content: <ServiceExpenses selectedService={currentService} />,
       isDisabled: false,
     },
   ];
-  const filteredTabs = tabs
-    ?.filter((tab) => !tab.isDisabled)
-    .map((tab, index) => {
-      return {
-        ...tab,
-        number: index,
-      };
-    });
+
   return (
     <>
       <Header showLocationSelector={false} />
@@ -85,7 +78,7 @@ export default function Service() {
 
         <TabPanel
           key={tabPanelKey + i18n.language}
-          tabs={filteredTabs}
+          tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {

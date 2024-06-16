@@ -283,6 +283,7 @@ const GenericTable = <T,>({
         if (action.node) {
           return <div key={index}>{action.node(row)}</div>;
         }
+
         return (
           <div
             key={index}
@@ -417,7 +418,18 @@ const GenericTable = <T,>({
               </td>
             );
           })}
-          <td>{actions && renderActionButtons(row, actions)}</td>
+          <td>
+            {actions &&
+              !(row?.isActionsDisabled ?? false) &&
+              renderActionButtons(row, actions)}
+            {actions &&
+              isActionsActive &&
+              (row?.isActionsDisabled ?? false) && (
+                <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
+                  <P1>{t("Constant")}</P1>
+                </div>
+              )}
+          </td>
         </tr>
         {/* Collapsed Content */}
         {isRowExpanded && (

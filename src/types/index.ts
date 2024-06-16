@@ -177,6 +177,7 @@ export type AccountStockLocation = {
 export type AccountPaymentMethod = {
   _id: string;
   name: string;
+  isConstant: boolean;
 };
 export type AccountPayment = {
   _id: number;
@@ -382,6 +383,14 @@ export type PanelControlPage = {
   }[];
   permissionRoles: number[];
 };
+export type PanelControlCheckoutCash = {
+  _id: number;
+  description?: string;
+  amount: number;
+  date: string;
+  user: User;
+  location: AccountStockLocation;
+};
 
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
@@ -473,6 +482,10 @@ export enum CountListPageTabEnum {
 }
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
+  CHECKOUTCASH,
+}
+export enum PageDetailsPageTabEnum {
+  PAGETABPERMISSIONS,
 }
 export enum FixtureCountListPageTabEnum {
   FIXTURECOUNTARCHIVE,
@@ -636,10 +649,10 @@ export enum ExpenseTypes {
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
 }
-export enum ConstantPaymentMethods {
-  CASH = "nakit",
-  CREDITCARD = "kredi_karti",
-  BANKTRANSFER = "havale",
+export enum ConstantPaymentMethodsIds {
+  CASH = "cash",
+  CREDITCARD = "credit_card",
+  BANKTRANSFER = "bank_transfer",
 }
 
 export const NOTPAID = "Not Paid";

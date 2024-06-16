@@ -10,56 +10,71 @@ import ServiceInvoice from "../components/accounting/ServiceInvoice";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
 import { ExpensesPageTabEnum } from "../types";
-
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+export const ExpensePageTabs = [
+  {
+    number: ExpensesPageTabEnum.INVOICE,
+    label: "Product Expenses",
+    icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
+    content: <Invoice />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.FIXTUREINVOICE,
+    label: "Fixture Expenses",
+    icon: <GiAnchor className="text-lg font-thin" />,
+    content: <FixtureInvoice />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.SERVICEINVOICE,
+    label: "Service Expenses",
+    icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
+    content: <ServiceInvoice />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.ALLEXPENSES,
+    label: "All Expenses",
+    icon: <GrMoney className="text-lg font-thin" />,
+    content: <AllExpenses />,
+    isDisabled: false,
+  },
+];
 export default function Expenses() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
     expensesActiveTab,
     setExpensesActiveTab,
   } = useGeneralContext();
-  const tabs = [
-    {
-      number: ExpensesPageTabEnum.INVOICE,
-      label: t("Product Expenses"),
-      icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
-      content: <Invoice />,
-      isDisabled: false,
-    },
-    {
-      number: ExpensesPageTabEnum.FIXTUREINVOICE,
-      label: t("Fixture Expenses"),
-      icon: <GiAnchor className="text-lg font-thin" />,
-      content: <FixtureInvoice />,
-      isDisabled: false,
-    },
-    {
-      number: ExpensesPageTabEnum.SERVICEINVOICE,
-      label: t("Service Expenses"),
-      icon: <MdOutlineLocalLaundryService className="text-lg font-thin" />,
-      content: <ServiceInvoice />,
-      isDisabled: false,
-    },
-    {
-      number: ExpensesPageTabEnum.ALLEXPENSES,
-      label: t("All Expenses"),
-      icon: <GrMoney className="text-lg font-thin" />,
-      content: <AllExpenses />,
-      isDisabled: false,
-    },
-  ];
+  const currentPageId = "expenses";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = ExpensePageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           key={i18n.language}
-          tabs={tabs?.map((tab) => ({
-            ...tab,
-            number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
-          }))}
+          tabs={tabs}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}
           additionalOpenAction={() => {

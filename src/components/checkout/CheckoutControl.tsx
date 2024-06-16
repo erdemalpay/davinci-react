@@ -15,6 +15,7 @@ import {
   useGetCheckoutControls,
 } from "../../utils/api/checkout/checkoutControl";
 import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
+import { useGetPanelControlCheckoutCashs } from "../../utils/api/panelControl/checkoutCash";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -36,6 +37,7 @@ const CheckoutControlPage = () => {
   const fixtureInvoices = useGetAccountFixtureInvoices();
   const serviceInvoices = useGetAccountServiceInvoices();
   const cashouts = useGetCheckoutCashouts();
+  const beginningCashs = useGetPanelControlCheckoutCashs();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
@@ -60,38 +62,70 @@ const CheckoutControlPage = () => {
     updateCheckoutControl,
   } = useCheckoutControlMutations();
   const allRows =
-    checkoutControls?.map((i) => ({
-      ...i,
-      usr: i?.user?.name,
-      lctn: i?.location?.name,
-      formattedDate: formatAsLocalDate(i?.date),
+    checkoutControls?.map((checkoutControl) => ({
+      ...checkoutControl,
+      usr: checkoutControl?.user?.name,
+      lctn: checkoutControl?.location?.name,
+      formattedDate: formatAsLocalDate(checkoutControl?.date),
+      beginningQuantity:
+        beginningCashs?.filter(
+          (cash) =>
+            cash.location._id === checkoutControl?.location?._id &&
+            cash.date <= checkoutControl?.date
+        )?.[0]?.amount ?? 0,
       incomeQuantity: incomes
-        ?.filter((item) => i?.date >= item?.date)
+        ?.filter(
+          (item) =>
+            checkoutControl?.date >= item?.date &&
+            item?.date >=
+              beginningCashs?.filter(
+                (cash) => cash.location._id === checkoutControl?.location?._id
+              )?.[0]?.date
+        )
         ?.reduce((acc, item) => acc + item.amount, 0),
       expenseQuantity:
         invoices
           ?.filter(
             (item) =>
-              i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              checkoutControl?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+              item?.date >=
+                beginningCashs?.filter(
+                  (cash) => cash.location._id === checkoutControl?.location?._id
+                )?.[0]?.date
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         fixtureInvoices
           ?.filter(
             (item) =>
-              i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              checkoutControl?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+              item?.date >=
+                beginningCashs?.filter(
+                  (cash) => cash.location._id === checkoutControl?.location?._id
+                )?.[0]?.date
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         serviceInvoices
           ?.filter(
             (item) =>
-              i?.date >= item?.date &&
-              (item?.paymentMethod as AccountPaymentMethod)?._id === "nakit"
+              checkoutControl?.date >= item?.date &&
+              (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+              item?.date >=
+                beginningCashs?.filter(
+                  (cash) => cash.location._id === checkoutControl?.location?._id
+                )?.[0]?.date
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0),
       cashout: cashouts
-        ?.filter((item) => i?.date >= item?.date)
+        ?.filter(
+          (item) =>
+            checkoutControl?.date >= item?.date &&
+            item?.date >=
+              beginningCashs?.filter(
+                (cash) => cash.location._id === checkoutControl?.location?._id
+              )?.[0]?.date
+        )
         ?.reduce((acc, item) => acc + item.amount, 0),
     })) ?? [];
 
@@ -100,19 +134,31 @@ const CheckoutControlPage = () => {
       return {
         ...row,
         expectedQuantity:
-          row.incomeQuantity - row.expenseQuantity - row.cashout,
+          row.beginningQuantity +
+          row.incomeQuantity -
+          row.expenseQuantity -
+          row.cashout,
+        difference:
+          row.amount -
+          (row.beginningQuantity +
+            row.incomeQuantity -
+            row.expenseQuantity -
+            row.cashout),
       };
     })
   );
+
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Count Quantity"), isSortable: true },
+    { key: t("Beginning Quantity"), isSortable: true },
     { key: t("Income Quantity"), isSortable: true },
     { key: t("Expense Quantity"), isSortable: true },
     { key: t("Cashout"), isSortable: true },
     { key: t("Expected Quantity"), isSortable: true },
+    { key: t("Difference"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -160,9 +206,26 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.amount)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "beginningQuantity",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(row.beginningQuantity)}{" "}
               ₺
             </p>
           </div>
@@ -177,8 +240,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.incomeQuantity)}{" "}
               ₺
             </p>
@@ -194,8 +257,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.expenseQuantity)}{" "}
               ₺
             </p>
@@ -211,8 +274,8 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.cashout)}{" "}
               ₺
             </p>
@@ -228,9 +291,26 @@ const CheckoutControlPage = () => {
             <p>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               }).format(row.expectedQuantity)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "difference",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(row.difference)}{" "}
               ₺
             </p>
           </div>
@@ -336,7 +416,16 @@ const CheckoutControlPage = () => {
         return {
           ...row,
           expectedQuantity:
-            row.incomeQuantity - row.expenseQuantity - row.cashout,
+            row.beginningQuantity +
+            row.incomeQuantity -
+            row.expenseQuantity -
+            row.cashout,
+          difference:
+            row.amount -
+            (row.beginningQuantity +
+              row.incomeQuantity -
+              row.expenseQuantity -
+              row.cashout),
         };
       })
       .filter((row) => {

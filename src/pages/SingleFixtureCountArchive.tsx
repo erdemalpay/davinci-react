@@ -8,21 +8,21 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountCountList, AccountUnit, RoleEnum, User } from "../types";
-import {
-  useAccountCountMutations,
-  useGetAccountCounts,
-} from "../utils/api/account/count";
-import { useGetAccountProducts } from "../utils/api/account/product";
+import { AccountFixtureCountList, RoleEnum, User } from "../types";
+import { useAccountCountMutations } from "../utils/api/account/count";
+import { useGetAccountFixtures } from "../utils/api/account/fixture";
+import { useGetAccountFixtureCounts } from "../utils/api/account/fixtureCount";
+import { useGetAccountFixtureCountLists } from "../utils/api/account/fixtureCountList";
 
-const SingleCountArchive = () => {
+const SingleFixtureCountArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
-  const counts = useGetAccountCounts();
+  const counts = useGetAccountFixtureCounts();
+  const countLists = useGetAccountFixtureCountLists();
   const { updateAccountCount } = useAccountCountMutations();
-  const products = useGetAccountProducts();
+  const fixtures = useGetAccountFixtures();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { setCurrentPage, setRowsPerPage, setSearchQuery } =
     useGeneralContext();
@@ -40,8 +40,10 @@ const SingleCountArchive = () => {
     },
     {
       name:
-        (foundCount?.countList as AccountCountList)?.name + " " + t("Countu"),
-      path: `/archive/${archiveId}`,
+        (foundCount?.countList as AccountFixtureCountList)?.name +
+        " " +
+        t("Countu"),
+      path: `/fixture-archive/${archiveId}`,
       canBeClicked: false,
     },
   ];
@@ -50,16 +52,11 @@ const SingleCountArchive = () => {
     if (!currentCount) return [];
     const date = new Date(currentCount.createdAt);
     return (
-      currentCount?.products?.map((option) => ({
-        product: products?.find((item) => item._id === option.product)?.name,
-        unit: (
-          products?.find((item) => item._id === option.product)
-            ?.unit as AccountUnit
-        )?.name,
+      currentCount?.fixtures?.map((option) => ({
+        fixture: fixtures?.find((item) => item._id === option.fixture)?.name,
         date: `${pad(date.getDate())}-${pad(
           date.getMonth() + 1
         )}-${date.getFullYear()}`,
-        packageType: option.packageType,
         stockQuantity: option.stockQuantity,
         countQuantity: option.countQuantity,
       })) || []
@@ -67,17 +64,13 @@ const SingleCountArchive = () => {
   });
   const columns = [
     { key: t("Date"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
+    { key: t("Fixture"), isSortable: true },
     { key: t("Stock Quantity"), isSortable: true },
     { key: t("Count Quantity"), isSortable: true },
   ];
   const rowKeys = [
     { key: "date", className: "min-w-32" },
-    { key: "product" },
-    { key: "unit" },
-    { key: "packageType" },
+    { key: "fixture" },
     { key: "stockQuantity" },
     { key: "countQuantity" },
   ];
@@ -102,23 +95,18 @@ const SingleCountArchive = () => {
       if (!currentCount) return [];
       const date = new Date(currentCount.createdAt);
       return (
-        currentCount?.products?.map((option) => ({
-          product: products?.find((item) => item._id === option.product)?.name,
-          unit: (
-            products?.find((item) => item._id === option.product)
-              ?.unit as AccountUnit
-          )?.name,
+        currentCount?.fixtures?.map((option) => ({
+          fixture: fixtures?.find((item) => item._id === option.fixture)?.name,
           date: `${pad(date.getDate())}-${pad(
             date.getMonth() + 1
           )}-${date.getFullYear()}`,
-          packageType: option.packageType,
           stockQuantity: option.stockQuantity,
           countQuantity: option.countQuantity,
         })) || []
       );
     });
     setTableKey((prev) => prev + 1);
-  }, [counts, products, archiveId]);
+  }, [counts, fixtures, archiveId]);
   const filters = [
     {
       isUpperSide: false,
@@ -178,4 +166,4 @@ const SingleCountArchive = () => {
   );
 };
 
-export default SingleCountArchive;
+export default SingleFixtureCountArchive;

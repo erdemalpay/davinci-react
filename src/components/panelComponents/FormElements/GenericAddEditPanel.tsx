@@ -246,7 +246,7 @@ const GenericAddEditPanel = <T,>({
         !isOpen && "hidden"
       }`}
       onClick={
-        isBlurFieldClickCloseEnabled
+        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
           ? () => {
               close();
               isEditMode ? additionalCancelFunction?.() : undefined;

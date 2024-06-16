@@ -14,8 +14,8 @@ export function Header({ showLocationSelector = true }: HeaderProps) {
   const user = useGetUser();
   const { i18n } = useTranslation();
   const languageOptions = [
-    { code: "en", label: "EN" },
-    { code: "tr", label: "TR" },
+    { code: "en-EN", label: "EN" },
+    { code: "tr-TR", label: "TR" },
   ];
   return (
     <div className="sticky top-0 z-50">

@@ -2,19 +2,18 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
-import CountListFixtures from "../components/fixtureCountList/CountListFixtures";
-import FixtureCountArchive from "../components/fixtureCountList/FixtureCountArchive";
-import FixtureCountLists from "../components/fixtureCountList/FixtureCountLists";
-import { Header } from "../components/header/Header";
-import { Tab } from "../components/panelComponents/shared/types";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import { useGeneralContext } from "../context/General.context";
-import { useUserContext } from "../context/User.context";
-import { FixtureCountListPageTabEnum, RoleEnum } from "../types";
-import { useGetAccountFixtureCountLists } from "../utils/api/account/fixtureCountList";
+import { useGeneralContext } from "../../../context/General.context";
+import { useUserContext } from "../../../context/User.context";
+import { FixtureCountListPageTabEnum, RoleEnum } from "../../../types";
+import { useGetAccountFixtureCountLists } from "../../../utils/api/account/fixtureCountList";
+import { Tab } from "../../panelComponents/shared/types";
+import TabPanel from "../../panelComponents/TabPanel/TabPanel";
+import CountListFixtures from "./CountListFixtures";
+import FixtureCountArchive from "./FixtureCountArchive";
+import FixtureCountLists from "./FixtureCountLists";
 
 const FixtureCountListMenu = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
 
@@ -61,11 +60,10 @@ const FixtureCountListMenu = () => {
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
-  }, [countLists.length]);
+  }, [countLists.length, i18n.language]);
 
   return (
     <>
-      <Header showLocationSelector={false} />
       <TabPanel
         key={tabPanelKey}
         tabs={tabs.sort((a, b) => a.number - b.number)}

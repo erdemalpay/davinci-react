@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { AccountCountList } from "../../types";
+import { AccountCountList } from "../../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
-} from "../../utils/api/account/countList";
-import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { CheckSwitch } from "../common/CheckSwitch";
-import GenericTable from "../panelComponents/Tables/GenericTable";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { RowKeyType } from "../panelComponents/shared/types";
+} from "../../../utils/api/account/countList";
+import { useGetAccountProducts } from "../../../utils/api/account/product";
+import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { CheckSwitch } from "../../common/CheckSwitch";
+import GenericTable from "../../panelComponents/Tables/GenericTable";
+import SwitchButton from "../../panelComponents/common/SwitchButton";
+import { RowKeyType } from "../../panelComponents/shared/types";
 
 type Props = {};
 

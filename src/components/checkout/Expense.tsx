@@ -16,7 +16,7 @@ import {
   AccountService,
   AccountStockLocation,
   AccountVendor,
-  ConstantPaymentMethods,
+  ConstantPaymentMethodsIds,
   ExpenseTypes,
   NOTPAID,
 } from "../../types";
@@ -121,7 +121,7 @@ const Expenses = () => {
       .filter(
         (i) =>
           (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethods.CASH
+          ConstantPaymentMethodsIds.CASH
       )
       .map((invoice) => {
         return {
@@ -153,7 +153,7 @@ const Expenses = () => {
       .filter(
         (i) =>
           (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethods.CASH
+          ConstantPaymentMethodsIds.CASH
       )
       .map((invoice) => {
         return {
@@ -178,7 +178,7 @@ const Expenses = () => {
       .filter(
         (i) =>
           (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethods.CASH
+          ConstantPaymentMethodsIds.CASH
       )
       .map((invoice) => {
         return {
@@ -820,7 +820,7 @@ const Expenses = () => {
               createAccountInvoice({
                 ...allExpenseForm,
                 location: selectedLocationId === 1 ? "bahceli" : "neorama",
-                paymentMethod: ConstantPaymentMethods.CASH,
+                paymentMethod: ConstantPaymentMethodsIds.CASH,
                 isPaid: true,
                 quantity: Number(allExpenseForm.quantity),
                 totalExpense:
@@ -836,7 +836,7 @@ const Expenses = () => {
               createAccountFixtureInvoice({
                 ...allExpenseForm,
                 location: selectedLocationId === 1 ? "bahceli" : "neorama",
-                paymentMethod: ConstantPaymentMethods.CASH,
+                paymentMethod: ConstantPaymentMethodsIds.CASH,
                 isPaid: true,
                 totalExpense:
                   Number(allExpenseForm.price) +
@@ -851,7 +851,7 @@ const Expenses = () => {
               createAccountServiceInvoice({
                 ...allExpenseForm,
                 location: selectedLocationId === 1 ? "bahceli" : "neorama",
-                paymentMethod: ConstantPaymentMethods.CASH,
+                paymentMethod: ConstantPaymentMethodsIds.CASH,
                 isPaid: true,
                 totalExpense:
                   Number(allExpenseForm.price) +
