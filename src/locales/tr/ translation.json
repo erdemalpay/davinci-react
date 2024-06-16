@@ -421,5 +421,8 @@
   "Page Details": "Sayfa Detayları",
   "Page Tab Permissions": "Sayfa Sekme İzinleri",
   "Tab": "Sekme",
+  "Cash": "Nakit",
+  "Credit Card": "Kredi Kartı",
+  "Bank Transfer": "Banka Transferi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
