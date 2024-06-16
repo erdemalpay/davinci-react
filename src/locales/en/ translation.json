@@ -425,5 +425,8 @@
   "Page Details": "Page Details",
   "Page Tab Permissions": "Page Tab Permissions",
   "Tab": "Tab",
+  "Cash": "Cash",
+  "Credit Card": "Credit Card",
+  "Bank Transfer": "Bank Transfer",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
