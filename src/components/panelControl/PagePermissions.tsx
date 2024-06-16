@@ -60,10 +60,10 @@ const PagePermissions = () => {
               navigate(`/page-details/${row._id}`);
             }}
           >
-            {row.name}
+            {t(row.name)}
           </p>
         ) : (
-          <p>{row.name}</p>
+          <p>{t(row.name)}</p>
         );
       },
     },

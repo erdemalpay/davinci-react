@@ -15,7 +15,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 const PaymentMethods = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const paymentMethods = useGetAccountPaymentMethods();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
@@ -51,6 +51,9 @@ const PaymentMethods = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
+      node: (row: AccountPaymentMethod) => {
+        return <p>{t(row.name)}</p>;
+      },
     },
   ];
   const inputs = [NameInput()];
@@ -147,7 +150,7 @@ const PaymentMethods = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [paymentMethods]);
+  }, [paymentMethods, i18n.language]);
 
   return (
     <>

@@ -52,7 +52,7 @@ const PageTabPermissions = () => {
     {
       key: "name",
       node: (row: any) => {
-        return row.name;
+        return <p>{t(row.name)}</p>;
       },
     },
   ];
