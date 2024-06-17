@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { GiMoneyStack, GiPayMoney, GiReceiveMoney } from "react-icons/gi";
 import { IoCashOutline } from "react-icons/io5";
 import Cashout from "../components/checkout/Cashout";
@@ -42,7 +41,6 @@ export const CheckoutPageTabs = [
   },
 ];
 export default function Checkout() {
-  const { t, i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -72,7 +70,6 @@ export default function Checkout() {
     <>
       <Header />
       <TabPanel
-        key={i18n.language}
         tabs={tabs}
         activeTab={checkoutActiveTab}
         setActiveTab={setCheckoutActiveTab}

@@ -14,7 +14,7 @@ import { MentorAnalyticChart } from "./gameplay/MentorAnalyticChart";
 import WhoKnows from "./gameplay/WhoKnows";
 
 export default function GameplayAnalytics() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
@@ -96,7 +96,6 @@ export default function GameplayAnalytics() {
   return (
     <>
       <TabPanel
-        key={i18n.language}
         tabs={tabs?.map((tab) => ({
           ...tab,
           number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,

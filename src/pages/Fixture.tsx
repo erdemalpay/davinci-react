@@ -22,7 +22,7 @@ export default function Fixture() {
   const [selectedFixture, setSelectedFixture] = useState<AccountFixture>();
   const fixtures = useGetAccountFixtures();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const fixtureOptions = fixtures?.map((f) => {
     return {
       value: f._id,
@@ -84,7 +84,7 @@ export default function Fixture() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

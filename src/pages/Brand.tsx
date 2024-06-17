@@ -26,7 +26,7 @@ export default function Brand() {
   const [selectedBrand, setSelectedBrand] = useState<AccountBrand>();
   const brands = useGetAccountBrands();
   const currentBrand = brands?.find((item) => item._id === brandId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const brandOptions = brands?.map((i) => {
     return {
       value: i._id,
@@ -102,7 +102,7 @@ export default function Brand() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

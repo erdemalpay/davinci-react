@@ -32,7 +32,7 @@ export default function Vendor() {
   const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
   const vendors = useGetAccountVendors();
   const currentVendor = vendors?.find((item) => item._id === vendorId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const vendorOptions = vendors?.map((i) => {
     return {
       value: i._id,
@@ -126,7 +126,7 @@ export default function Vendor() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

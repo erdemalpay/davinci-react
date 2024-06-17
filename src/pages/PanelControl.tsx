@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FaCashRegister } from "react-icons/fa6";
 import { MdManageAccounts } from "react-icons/md";
 import { Header } from "../components/header/Header";
@@ -8,7 +7,6 @@ import PagePermissions from "../components/panelControl/PagePermissions";
 import { useGeneralContext } from "../context/General.context";
 import { PanelControlPageTabEnum } from "../types";
 const PanelControl = () => {
-  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setExpandedRows,
@@ -37,7 +35,6 @@ const PanelControl = () => {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={i18n.language}
         tabs={tabs}
         activeTab={panelControlActiveTab}
         setActiveTab={setPanelControlActiveTab}
