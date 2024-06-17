@@ -419,6 +419,7 @@ const CountList = () => {
             }
             filters={filters}
             title={countLists.find((row) => row._id === countListId)?.name}
+            isActionsActive={isEnableEdit}
           />
           {isCountLocationModalOpen && (
             <GenericAddEditPanel

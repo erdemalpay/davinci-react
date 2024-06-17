@@ -9,44 +9,62 @@ import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
 import { AccountFixture, FixturePageTabEnum } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+export const FixturePageTabs = [
+  {
+    number: FixturePageTabEnum.FIXTUREEXPENSES,
+    label: "Fixture Expenses",
+    icon: <GiTakeMyMoney className="text-lg font-thin" />,
+    content: <FixtureExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
+    label: "Fixture Stock History",
+    icon: <FaFileArchive className="text-lg font-thin" />,
+    content: <FixtureStockHistory />,
+    isDisabled: false,
+  },
+];
 
 export default function Fixture() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { fixtureId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedFixture, setSelectedFixture] = useState<AccountFixture>();
   const fixtures = useGetAccountFixtures();
+  const { fixtureId } = useParams();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const fixtureOptions = fixtures?.map((f) => {
     return {
       value: f._id,
       label: f.name,
     };
   });
-
   if (!currentFixture) return <></>;
-  const tabs = [
-    {
-      number: FixturePageTabEnum.FIXTUREEXPENSES,
-      label: "Fixture Expenses",
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <FixtureExpenses selectedFixture={currentFixture} />,
-      isDisabled: false,
-    },
-    {
-      number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
-      label: "Fixture Stock History",
-      icon: <FaFileArchive className="text-lg font-thin" />,
-      content: <FixtureStockHistory selectedFixture={currentFixture} />,
-      isDisabled: false,
-    },
-  ];
+  const currentPageId = "fixture";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = FixturePageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -84,7 +102,7 @@ export default function Fixture() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

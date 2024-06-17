@@ -77,9 +77,17 @@ const CountListFixtures = () => {
         ) : countList?.fixtures?.find(
             (item) => item.fixture === row.fixture
           ) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark
+            className={`text-blue-500 text-2xl ${
+              countLists?.length > 1 ? "" : "mx-auto"
+            }`}
+          />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline
+            className={`text-red-800 text-2xl ${
+              countLists?.length > 1 ? "" : "mx-auto"
+            }`}
+          />
         ),
     });
   }

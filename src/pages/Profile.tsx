@@ -20,7 +20,7 @@ export default function Profile() {
   const updatedUser = useGetUser();
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
   const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const tabs = [
@@ -83,7 +83,6 @@ export default function Profile() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={i18n.language}
         tabs={tabs}
         activeTab={activeTab}
         setActiveTab={setActiveTab}

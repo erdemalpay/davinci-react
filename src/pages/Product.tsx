@@ -13,24 +13,48 @@ import ProductPrice from "../components/product/ProductPrice";
 import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import {
-  AccountProduct,
-  AccountUnit,
-  ProductPageTabEnum,
-  RoleEnum,
-} from "../types";
+import { AccountProduct, AccountUnit, ProductPageTabEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import i18n from "../utils/i18n";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
+export const ProductPageTabs = [
+  {
+    number: ProductPageTabEnum.PRODUCTPRICECHART,
+    label: "Product Price Chart",
+    icon: <RiBarChartFill className="text-lg font-thin" />,
+    content: <ProductPrice />,
+    isDisabled: false,
+  },
+  {
+    number: ProductPageTabEnum.MENUITEMSWITHPRODUCT,
+    label: "Menu Items with Product",
+    icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+    content: <MenuItemsWithProduct />,
+    isDisabled: false,
+  },
+  {
+    number: ProductPageTabEnum.PRODUCTEXPENSES,
+    label: "Product Expenses",
+    icon: <GiTakeMyMoney className="text-lg font-thin" />,
+    content: <ProductExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: ProductPageTabEnum.PRODUCTSTOCKHISTORY,
+    label: "Product Stock History",
+    icon: <GiArchiveResearch className="text-lg font-thin" />,
+    content: <ProductStockHistory />,
+    isDisabled: false,
+  },
+];
 export default function Product() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { user } = useUserContext();
-  const { productId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<AccountProduct>();
+  const { productId } = useParams();
   const products = useGetAccountProducts();
   const currentProduct = products?.find((product) => product._id === productId);
   const { t } = useTranslation();
@@ -42,54 +66,23 @@ export default function Product() {
   });
 
   if (!currentProduct) return <></>;
-  const tabs = [
-    {
-      number: ProductPageTabEnum.PRODUCTPRICECHART,
-      label: "Product Price Chart",
-      icon: <RiBarChartFill className="text-lg font-thin" />,
-      content: <ProductPrice selectedProduct={currentProduct} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
+  const currentPageId = "product";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = ProductPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
         : true,
-    },
-    {
-      number: ProductPageTabEnum.MENUITEMSWITHPRODUCT,
-      label: "Menu Items with Product",
-      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
-      content: <MenuItemsWithProduct selectedProduct={currentProduct} />,
-      isDisabled: false,
-    },
-    {
-      number: ProductPageTabEnum.PRODUCTEXPENSES,
-      label: "Product Expenses",
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <ProductExpenses selectedProduct={currentProduct} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-    {
-      number: ProductPageTabEnum.PRODUCTSTOCKHISTORY,
-      label: "Product Stock History",
-      icon: <GiArchiveResearch className="text-lg font-thin" />,
-      content: <ProductStockHistory selectedProduct={currentProduct} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-  ];
+    };
+  });
   return (
     <>
       <Header showLocationSelector={false} />
@@ -127,7 +120,7 @@ export default function Product() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

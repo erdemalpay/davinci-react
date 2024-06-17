@@ -169,6 +169,7 @@ const GamesIKnow = ({ userId }: Props) => {
         filters={user?._id === panelUser?._id ? filters : []}
         title={t("Known Games")}
         isRowsPerPage={isEnableEdit ? false : true}
+        isActionsActive={isEnableEdit}
       />
       {learnDateModal && rowToAction && (
         <GenericAddEditPanel

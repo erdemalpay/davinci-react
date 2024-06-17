@@ -95,9 +95,17 @@ const FixtureCountLists = () => {
             onChange={() => handleLocationUpdate(row, location?._id)}
           />
         ) : row?.locations?.includes(location?._id) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark
+            className={`text-blue-500 text-2xl ${
+              row?.locations?.length > 1 ? "" : "mx-auto"
+            }`}
+          />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline
+            className={`text-red-800 text-2xl ${
+              row?.locations?.length > 1 ? "" : "mx-auto"
+            }`}
+          />
         ),
     });
   }
@@ -208,6 +216,7 @@ const FixtureCountLists = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={true}
           columns={columns}
           filters={filters}
           rows={fixtureCountLists}

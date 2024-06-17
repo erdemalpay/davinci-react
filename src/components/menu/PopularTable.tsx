@@ -53,18 +53,18 @@ const PopularTable = ({ popularItems }: Props) => {
       key: "bahceli",
       node: (row: MenuItem) =>
         row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     },
     {
       key: "neorama",
       node: (row: MenuItem) =>
         row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     },
     {
@@ -121,6 +121,7 @@ const PopularTable = ({ popularItems }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
+        isActionsActive={true}
         rows={rows}
         title={t("Popular Items")}
         imageHolder={NO_IMAGE_URL}

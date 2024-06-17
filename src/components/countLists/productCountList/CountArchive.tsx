@@ -180,6 +180,7 @@ const CountArchive = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
+          isActionsActive={false}
           columns={columns}
           rows={rows}
           title={t("Count Archive")}

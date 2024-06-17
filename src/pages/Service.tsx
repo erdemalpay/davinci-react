@@ -9,7 +9,6 @@ import ServiceExpenses from "../components/service/ServiceExpenses";
 import { useGeneralContext } from "../context/General.context";
 import { AccountService, ServicePageTabEnum } from "../types";
 import { useGetAccountServices } from "../utils/api/account/service";
-import i18n from "../utils/i18n";
 
 export default function Service() {
   const navigate = useNavigate();
@@ -77,7 +76,7 @@ export default function Service() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

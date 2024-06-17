@@ -1,15 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { AccountBrand } from "../../types";
+import { useParams } from "react-router-dom";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-type Props = { selectedBrand: AccountBrand };
 
-const BrandFixtures = ({ selectedBrand }: Props) => {
+const BrandFixtures = () => {
   const { t } = useTranslation();
   const fixtures = useGetAccountFixtures();
-  const BrandFixtures = fixtures.filter((o) =>
-    o.brand?.includes(selectedBrand._id)
-  );
+  const { brandId } = useParams();
+  if (!brandId) return <></>;
+  const BrandFixtures = fixtures.filter((o) => o.brand?.includes(brandId));
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys = [
     {
@@ -20,7 +19,8 @@ const BrandFixtures = ({ selectedBrand }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedBrand._id}
+        isActionsActive={false}
+        key={brandId}
         rowKeys={rowKeys}
         columns={columns}
         rows={BrandFixtures}

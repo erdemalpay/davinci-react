@@ -78,6 +78,7 @@ const WhoKnows = ({}: Props) => {
           columns={columns}
           rows={rows}
           filters={filters}
+          isActionsActive={false}
           title={t("Who Knows?")}
           isSearch={false}
         />

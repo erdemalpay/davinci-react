@@ -210,9 +210,9 @@ const FixtureCountList = () => {
             onChange={() => handleLocationUpdate(row, item._id)}
           />
         ) : row[item?._id] ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     });
   });
@@ -413,6 +413,7 @@ const FixtureCountList = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows()}
+            isActionsActive={isEnableEdit}
             actions={
               [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
                 user.role._id
@@ -433,6 +434,7 @@ const FixtureCountList = () => {
                 ?.name
             }
           />
+
           {isCountLocationModalOpen && (
             <GenericAddEditPanel
               isOpen={isCountLocationModalOpen}

@@ -218,6 +218,7 @@ const FixtureCount = () => {
           rows={rows}
           title={t("Fixture Count")}
           actions={actions}
+          isActionsActive={true}
         />
         <div className="flex justify-end mt-4">
           <button

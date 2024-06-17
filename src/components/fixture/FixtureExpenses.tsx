@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -10,9 +11,9 @@ import {
   AccountVendor,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
+import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
@@ -25,18 +26,18 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-type Props = {
-  selectedFixture: AccountFixture;
-};
+
 type FormElementsState = {
   [key: string]: any;
 };
-const FixtureExpenses = ({ selectedFixture }: Props) => {
+const FixtureExpenses = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountFixtureInvoices();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
-  const units = useGetAccountUnits();
+  const fixtures = useGetAccountFixtures();
+  const { fixtureId } = useParams();
+  const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -54,7 +55,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
     invoices
       ?.filter(
         (invoice) =>
-          (invoice.fixture as AccountFixture)._id === selectedFixture?._id
+          (invoice.fixture as AccountFixture)._id === currentFixture?._id
       )
       ?.map((invoice) => {
         return {
@@ -231,7 +232,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
     const processedRows = invoices
       ?.filter(
         (invoice) =>
-          (invoice.fixture as AccountFixture)._id === selectedFixture?._id
+          (invoice.fixture as AccountFixture)._id === currentFixture?._id
       )
       ?.filter((invoice) => {
         return (
@@ -303,7 +304,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [invoices, filterPanelFormElements, searchQuery]);
+  }, [invoices, filterPanelFormElements, searchQuery, currentFixture]);
   const filters = [
     {
       label: t("Total") + " :",
@@ -337,7 +338,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedFixture?._id + tableKey}
+        key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
@@ -346,6 +347,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
         title={t("Fixture Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

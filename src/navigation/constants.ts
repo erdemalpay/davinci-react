@@ -29,9 +29,13 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
+import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
+import { FixturePageTabs } from "./../pages/Fixture";
+import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
+import { VendorPageTabs } from "./../pages/Vendor";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -198,6 +202,7 @@ export const allRoutes: {
     path: Routes.Product,
     element: Product,
     isOnSidebar: false,
+    tabs: ProductPageTabs,
   },
   {
     name: "Service",
@@ -210,18 +215,21 @@ export const allRoutes: {
     path: Routes.Vendor,
     element: Vendor,
     isOnSidebar: false,
+    tabs: VendorPageTabs,
   },
   {
     name: "Brand",
     path: Routes.Brand,
     element: Brand,
     isOnSidebar: false,
+    tabs: BrandPageTabs,
   },
   {
     name: "Fixture",
     path: Routes.Fixture,
     element: Fixture,
     isOnSidebar: false,
+    tabs: FixturePageTabs,
   },
   {
     name: "Menu",

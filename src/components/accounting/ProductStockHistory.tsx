@@ -146,7 +146,7 @@ const ProductStockHistory = () => {
         if (!status) return null;
         return (
           <div
-            className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
+            className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
           >
             {t(status?.label)}
           </div>
@@ -221,6 +221,7 @@ const ProductStockHistory = () => {
           filterPanel={filterPanel}
           filters={filters}
           title={t("Product Stock History")}
+          isActionsActive={false}
         />
       </div>
     </>

@@ -120,6 +120,7 @@ const PagePermissions = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
       const currentPage = pages.find((page) => page.name === route.name);
+      if (!currentPage) return;
       let isTabsSame = true;
       if (route.tabs) {
         for (const tab of route.tabs) {
@@ -132,7 +133,19 @@ const PagePermissions = () => {
           }
         }
       }
-      if (!currentPage || !isTabsSame) {
+      if (!isTabsSame) {
+        missedRoutes.push({
+          name: route.name,
+          permissionRoles: currentPage.permissionRoles ?? [1],
+          tabs: route?.tabs?.map((tab) => {
+            return {
+              name: tab.label,
+              permissionRoles: [1],
+            };
+          }),
+        });
+      }
+      if (!currentPage) {
         missedRoutes.push({
           name: route.name,
           permissionRoles: [1],
@@ -145,6 +158,7 @@ const PagePermissions = () => {
         });
       }
     }
+
     if (missedRoutes.length > 0) {
       createMultiplePage(missedRoutes);
     }

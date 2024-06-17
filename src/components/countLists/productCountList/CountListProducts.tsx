@@ -78,9 +78,9 @@ const CountListProducts = (props: Props) => {
         ) : countList?.products?.find(
             (item) => item.product === row.product
           ) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     });
   }
