@@ -55,7 +55,7 @@ const TabPanel: React.FC<Props> = ({
     }
 
     if (!adjustedTabs.find((tab) => tab.number === activeTab)) {
-      setActiveTab(tabs[0].number);
+      setActiveTab(tabs[0]?.number);
     }
   }, [activeTab, tabs.length, i18n.language]);
 
