@@ -16,6 +16,7 @@ import {
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import {
   BrandInput,
   ExpenseTypeInput,
@@ -50,6 +51,7 @@ const Product = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
+  const pages = useGetPanelControlPages();
   const [showFilters, setShowFilters] = useState(false);
   const {
     setCurrentPage,
@@ -196,20 +198,27 @@ const Product = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
-      node: (row: AccountProduct) => (
-        <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => {
-            setCurrentPage(1);
-            // setRowsPerPage(RowPerPageEnum.FIRST);
-            setSearchQuery("");
-            setSortConfigKey(null);
-            navigate(`/product/${row._id}`);
-          }}
-        >
-          {row.name}
-        </p>
-      ),
+      node: (row: AccountProduct) =>
+        user &&
+        pages &&
+        pages
+          ?.find((page) => page._id === "product")
+          ?.permissionRoles?.includes(user.role._id) ? (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/product/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
+        ),
     },
     { key: "unit", className: "min-w-32" },
     {

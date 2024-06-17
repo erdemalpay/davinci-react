@@ -60,8 +60,9 @@ const PageTabPermissions = () => {
     const roleEnumKey = roleKey as keyof typeof RoleEnum;
     const roleName = RoleNameEnum[roleEnumKey];
     const roleValue = RoleEnum[roleEnumKey];
+    console.log(currentPage?.permissionRoles?.includes(roleValue));
 
-    if (roleName) {
+    if (roleName && currentPage?.permissionRoles?.includes(roleValue)) {
       columns.push({ key: roleName, isSortable: true });
       rowKeys.push({
         key: roleKey,
