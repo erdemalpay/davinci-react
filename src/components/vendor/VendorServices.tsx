@@ -1,11 +1,15 @@
 import { useTranslation } from "react-i18next";
-import { AccountVendor } from "../../types";
+import { useParams } from "react-router-dom";
 import { useGetAccountServices } from "../../utils/api/account/service";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-type Props = { selectedVendor: AccountVendor };
 
-const VendorServices = ({ selectedVendor }: Props) => {
+const VendorServices = () => {
   const { t } = useTranslation();
+  const { vendorId } = useParams();
+  const vendors = useGetAccountVendors();
+  const selectedVendor = vendors?.find((item) => item._id === vendorId);
+  if (!selectedVendor) return <></>;
   const services = useGetAccountServices();
   const vendorServices = services.filter((o) =>
     o?.vendor?.includes(selectedVendor?._id)

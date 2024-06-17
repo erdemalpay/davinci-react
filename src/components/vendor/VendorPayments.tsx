@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountPaymentMethod,
-  AccountStockLocation,
-  AccountVendor,
-} from "../../types";
+import { useParams } from "react-router-dom";
+import { AccountPaymentMethod, AccountStockLocation } from "../../types";
 import { useGetAccountPayments } from "../../utils/api/account/payment";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type Props = { selectedVendor: AccountVendor };
-
-const VendorPayments = ({ selectedVendor }: Props) => {
+const VendorPayments = () => {
   const { t } = useTranslation();
+  const { vendorId } = useParams();
+  const vendors = useGetAccountVendors();
+  const selectedVendor = vendors?.find((item) => item._id === vendorId);
+  if (!selectedVendor) return <></>;
   const payments = useGetAccountPayments();
   const [tableKey, setTableKey] = useState(0);
   const allRows = payments

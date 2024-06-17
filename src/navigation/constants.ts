@@ -35,6 +35,7 @@ import { ExpensePageTabs } from "./../pages/Expenses";
 import { FixturePageTabs } from "./../pages/Fixture";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
+import { VendorPageTabs } from "./../pages/Vendor";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -214,6 +215,7 @@ export const allRoutes: {
     path: Routes.Vendor,
     element: Vendor,
     isOnSidebar: false,
+    tabs: VendorPageTabs,
   },
   {
     name: "Brand",
