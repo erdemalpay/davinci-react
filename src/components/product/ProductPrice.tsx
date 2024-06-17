@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { AccountProduct } from "../../types";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountProducts } from "../../utils/api/account/product";
 import { formatAsLocalDate } from "../../utils/format";
 import PriceChart from "../analytics/accounting/PriceChart";
 
-type Props = { selectedProduct: AccountProduct };
-const ProductPrice = ({ selectedProduct }: Props) => {
+const ProductPrice = () => {
+  const { productId } = useParams();
+  const products = useGetAccountProducts();
+  const selectedProduct = products?.find(
+    (product) => product._id === productId
+  );
+  if (!selectedProduct) return <></>;
   const invoices = useGetAccountInvoices();
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,

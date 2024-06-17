@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountProduct,
-  AccountStockLocation,
-  stockHistoryStatuses,
-} from "../../types";
+import { useParams } from "react-router-dom";
+import { AccountStockLocation, stockHistoryStatuses } from "../../types";
+import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -12,15 +10,18 @@ import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-
 type FormElementsState = {
   [key: string]: any;
 };
-type Props = {
-  selectedProduct: AccountProduct;
-};
-const ProductStockHistory = ({ selectedProduct }: Props) => {
+
+const ProductStockHistory = () => {
   const { t } = useTranslation();
+  const { productId } = useParams();
+  const products = useGetAccountProducts();
+  const selectedProduct = products?.find(
+    (product) => product._id === productId
+  );
+  if (!selectedProduct) return <></>;
   const stockHistories = useGetAccountProductStockHistorys();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();

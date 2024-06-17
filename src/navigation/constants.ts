@@ -33,6 +33,7 @@ import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import { FixturePageTabs } from "./../pages/Fixture";
+import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { RoleEnum } from "./../types/index";
 
@@ -200,6 +201,7 @@ export const allRoutes: {
     path: Routes.Product,
     element: Product,
     isOnSidebar: false,
+    tabs: ProductPageTabs,
   },
   {
     name: "Service",
