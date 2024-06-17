@@ -47,7 +47,6 @@ const useAuth = () => {
     return () => {
       window.removeEventListener("storage", handleStorageEvent);
     };
-    console.log("useAuth");
   }, [user, setUser, navigate, location]);
   return { setUser };
 };
