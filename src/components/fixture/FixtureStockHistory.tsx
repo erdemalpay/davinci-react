@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountFixture,
-  AccountStockLocation,
-  stockHistoryStatuses,
-} from "../../types";
+import { useParams } from "react-router-dom";
+import { AccountStockLocation, stockHistoryStatuses } from "../../types";
+import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -16,14 +14,16 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 type FormElementsState = {
   [key: string]: any;
 };
-type Props = {
-  selectedFixture: AccountFixture;
-};
-const FixtureStockHistory = ({ selectedFixture }: Props) => {
+
+const FixtureStockHistory = () => {
   const { t } = useTranslation();
   const stockHistories = useGetAccountFixtureStockHistorys();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();
+  const fixtures = useGetAccountFixtures();
+  const { fixtureId } = useParams();
+  const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
+  if (!currentFixture) return <></>;
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -36,7 +36,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const [rows, setRows] = useState(() => {
     return stockHistories
-      .filter((item) => item.fixture._id === selectedFixture._id)
+      .filter((item) => item.fixture._id === currentFixture._id)
       .map((stockHistory) => {
         const date = new Date(stockHistory.createdAt);
         return {
@@ -143,7 +143,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
   useEffect(() => {
     setRows(
       stockHistories
-        .filter((item) => item.fixture._id === selectedFixture._id)
+        .filter((item) => item.fixture._id === currentFixture._id)
         .filter((stockHistory) => {
           return (
             (filterPanelFormElements.before === "" ||
@@ -172,7 +172,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
         })
     );
     setTableKey((prev) => prev + 1);
-  }, [stockHistories, filterPanelFormElements, selectedFixture]);
+  }, [stockHistories, filterPanelFormElements, currentFixture]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,
