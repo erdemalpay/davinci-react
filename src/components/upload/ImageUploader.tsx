@@ -57,7 +57,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     {
       onSuccess: (data) => {
         // Assuming the response contains the URL to the uploaded image
-        console.log({ data });
         setImageUrl(data.url);
         onSuccessCallback(data.url);
       },
@@ -77,7 +76,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   //   });
   //   myEditor.show();
   // }
-
 
   const onFileChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {

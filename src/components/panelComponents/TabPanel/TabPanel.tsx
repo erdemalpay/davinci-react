@@ -53,6 +53,10 @@ const TabPanel: React.FC<Props> = ({
         behavior: "smooth",
       });
     }
+
+    if (!adjustedTabs.find((tab) => tab.number === activeTab)) {
+      setActiveTab(tabs[0]?.number);
+    }
   }, [activeTab, tabs.length, i18n.language]);
 
   const handleTabChange = (tab: Tab) => {

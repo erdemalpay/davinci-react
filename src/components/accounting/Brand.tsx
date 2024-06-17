@@ -21,6 +21,7 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -30,6 +31,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const pages = useGetPanelControlPages();
   const navigate = useNavigate();
   const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
@@ -86,20 +88,27 @@ const Brand = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
-      node: (row: AccountBrand) => (
-        <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => {
-            setCurrentPage(1);
-            // setRowsPerPage(RowPerPageEnum.FIRST);
-            setSearchQuery("");
-            setSortConfigKey(null);
-            navigate(`/brand/${row._id}`);
-          }}
-        >
-          {row.name}
-        </p>
-      ),
+      node: (row: AccountBrand) =>
+        user &&
+        pages &&
+        pages
+          ?.find((page) => page._id === "brand")
+          ?.permissionRoles?.includes(user.role._id) ? (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/brand/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
+        ),
     },
     { key: "productCount" },
     { key: "fixtureCount" },
