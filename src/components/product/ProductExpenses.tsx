@@ -380,6 +380,7 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
         title={t("Product Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

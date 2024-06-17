@@ -346,6 +346,7 @@ const FixtureExpenses = ({ selectedFixture }: Props) => {
         title={t("Fixture Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

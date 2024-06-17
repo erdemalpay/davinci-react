@@ -25,6 +25,7 @@ const VendorServices = ({ selectedVendor }: Props) => {
         columns={columns}
         rows={vendorServices}
         title={t("Vendor Services")}
+        isActionsActive={false}
       />
     </div>
   );

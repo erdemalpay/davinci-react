@@ -64,6 +64,7 @@ const KnownGamesCount = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
+          isActionsActive={false}
           rows={rows}
           filters={filters}
           title={t("Known Games Count")}

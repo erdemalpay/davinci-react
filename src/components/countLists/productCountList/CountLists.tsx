@@ -202,6 +202,7 @@ const CountLists = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={true}
           columns={columns}
           filters={filters}
           rows={countLists}

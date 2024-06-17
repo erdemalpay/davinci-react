@@ -382,6 +382,7 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
         title={t("Vendor Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

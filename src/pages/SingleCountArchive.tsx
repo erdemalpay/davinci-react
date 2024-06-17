@@ -166,6 +166,7 @@ const SingleCountArchive = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows}
+            isActionsActive={false}
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }

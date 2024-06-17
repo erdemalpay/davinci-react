@@ -8,10 +8,8 @@ import {
   AccountStockLocation,
   AccountVendor,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
@@ -29,9 +27,7 @@ type FormElementsState = {
 const ServiceExpenses = ({ selectedService }: Props) => {
   const { t } = useTranslation();
   const invoices = useGetAccountServiceInvoices();
-  const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
-  const units = useGetAccountUnits();
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -322,6 +318,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         title={t("Service Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

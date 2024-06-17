@@ -25,6 +25,7 @@ const VendorFixtures = ({ selectedVendor }: Props) => {
         columns={columns}
         rows={vendorFixtures}
         title={t("Vendor Fixtures")}
+        isActionsActive={false}
       />
     </div>
   );

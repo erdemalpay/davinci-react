@@ -94,9 +94,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
             onChange={() => handleLocationUpdate(row, 1)}
           />
         ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     },
     {
@@ -108,9 +108,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
         ),
     },
   ];
@@ -225,6 +225,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
+        isActionsActive={true}
         rows={categories}
         filters={filters}
         title={t("Categories")}

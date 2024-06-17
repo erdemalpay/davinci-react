@@ -12,6 +12,7 @@ import {
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -22,6 +23,7 @@ const CheckoutCash = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<PanelControlCheckoutCash>();
   const cashs = useGetPanelControlCheckoutCashs();
   const {
@@ -48,9 +50,10 @@ const CheckoutCash = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Description"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
   ];
-
+  if (isEnableEdit) {
+    columns.push({ key: t("Action"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "date",
@@ -120,6 +123,7 @@ const CheckoutCash = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: !isEnableEdit,
     },
     {
       name: t("Edit"),
@@ -145,6 +149,7 @@ const CheckoutCash = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: !isEnableEdit,
     },
   ];
   const addButton = {
@@ -169,6 +174,13 @@ const CheckoutCash = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
+  const filters = [
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -184,6 +196,8 @@ const CheckoutCash = () => {
           rows={rows}
           title={t("Checkout Cash")}
           addButton={addButton}
+          filters={filters}
+          isActionsActive={isEnableEdit}
         />
       </div>
     </>

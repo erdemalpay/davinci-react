@@ -309,6 +309,7 @@ export default function Reservations() {
           actions={actions}
           columns={columns}
           filters={filters}
+          isActionsActive={true}
           title={t("Reservations")}
           addButton={addButton}
           rowClassNameFunction={getBgColor}

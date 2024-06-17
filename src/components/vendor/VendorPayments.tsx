@@ -68,12 +68,10 @@ const VendorPayments = ({ selectedVendor }: Props) => {
         key={selectedVendor?._id + tableKey}
         rowKeys={rowKeys}
         columns={columns}
-        // filters={filters}
-        // filterPanel={filterPanel}
+        isActionsActive={false}
         rows={rows}
         title={t("Vendor Payments")}
         isSearch={false}
-        // outsideSearch={outsideSearch}
       />
     </div>
   );

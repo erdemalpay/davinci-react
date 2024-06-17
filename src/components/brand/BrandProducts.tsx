@@ -21,6 +21,7 @@ const BrandProducts = ({ selectedBrand }: Props) => {
     <div className="w-[95%] mx-auto ">
       <GenericTable
         key={selectedBrand._id}
+        isActionsActive={false}
         rowKeys={rowKeys}
         columns={columns}
         rows={BrandProducts}

@@ -183,6 +183,7 @@ const FixtureCountArchive = () => {
           columns={columns}
           rows={rows}
           title={t("Fixture Count Archive")}
+          isActionsActive={false}
         />
       </div>
     </>

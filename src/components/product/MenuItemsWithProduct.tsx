@@ -26,6 +26,7 @@ const MenuItemsWithProduct = ({ selectedProduct }: Props) => {
         columns={columns}
         rows={itemsIncludingProducts}
         title={t("Menu Items with Product")}
+        isActionsActive={false}
       />
     </div>
   );

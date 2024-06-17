@@ -132,7 +132,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
         if (!status) return null;
         return (
           <div
-            className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
+            className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
           >
             {t(status?.label)}
           </div>
@@ -199,6 +199,7 @@ const FixtureStockHistory = ({ selectedFixture }: Props) => {
           filterPanel={filterPanel}
           filters={filters}
           title={t("Fixture Stock History")}
+          isActionsActive={false}
         />
       </div>
     </>

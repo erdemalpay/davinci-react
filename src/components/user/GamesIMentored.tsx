@@ -130,6 +130,7 @@ const GamesIMentored = ({ data }: Props) => {
           rowKeys={rowKeys}
           title={t("Mentored Games")}
           filters={filters}
+          isActionsActive={false}
         />
       )}
     </div>

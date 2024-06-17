@@ -375,6 +375,7 @@ const BrandExpenses = ({ selectedBrand }: Props) => {
       <GenericTable
         key={selectedBrand?._id + tableKey}
         rowKeys={rowKeys}
+        isActionsActive={false}
         columns={columns}
         filters={filters}
         filterPanel={filterPanel}

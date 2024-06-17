@@ -20,6 +20,7 @@ const BrandFixtures = ({ selectedBrand }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
+        isActionsActive={false}
         key={selectedBrand._id}
         rowKeys={rowKeys}
         columns={columns}

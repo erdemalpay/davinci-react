@@ -153,6 +153,7 @@ const SingleFixtureCountArchive = () => {
             key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
+            isActionsActive={false}
             rows={rows}
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined

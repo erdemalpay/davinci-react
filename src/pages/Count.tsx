@@ -356,6 +356,7 @@ const Count = () => {
           actions={actions}
           collapsibleActions={collapsibleActions}
           isCollapsible={products.length > 0}
+          isActionsActive={true}
         />
         <div className="flex justify-end mt-4">
           <button
