@@ -12,20 +12,44 @@ import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountBrand, BrandPageTabEnum, RoleEnum } from "../types";
+import { AccountBrand, BrandPageTabEnum } from "../types";
 import { useGetAccountBrands } from "../utils/api/account/brand";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
+export const BrandPageTabs = [
+  {
+    number: BrandPageTabEnum.BRANDPRODUCTS,
+    label: "Brand Products",
+    icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+    content: <BrandProducts />,
+    isDisabled: false,
+  },
+  {
+    number: BrandPageTabEnum.BRANDFIXTURES,
+    label: "Brand Fixtures",
+    icon: <FaAnchor className="text-lg font-thin" />,
+    content: <BrandFixtures />,
+    isDisabled: false,
+  },
+  {
+    number: BrandPageTabEnum.BRANDEXPENSES,
+    label: "Brand Expenses",
+    icon: <GiTakeMyMoney className="text-lg font-thin" />,
+    content: <BrandExpenses />,
+    isDisabled: false,
+  },
+];
 export default function Brand() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { user } = useUserContext();
-  const { brandId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedBrand, setSelectedBrand] = useState<AccountBrand>();
   const brands = useGetAccountBrands();
+  const { brandId } = useParams();
   const currentBrand = brands?.find((item) => item._id === brandId);
+  if (!currentBrand) return <></>;
   const { t } = useTranslation();
   const brandOptions = brands?.map((i) => {
     return {
@@ -33,37 +57,23 @@ export default function Brand() {
       label: i.name,
     };
   });
-
-  if (!currentBrand) return <></>;
-  const tabs = [
-    {
-      number: BrandPageTabEnum.BRANDPRODUCTS,
-      label: "Brand Products",
-      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
-      content: <BrandProducts selectedBrand={currentBrand} />,
-      isDisabled: false,
-    },
-    {
-      number: BrandPageTabEnum.BRANDFIXTURES,
-      label: "Brand Fixtures",
-      icon: <FaAnchor className="text-lg font-thin" />,
-      content: <BrandFixtures selectedBrand={currentBrand} />,
-      isDisabled: false,
-    },
-    {
-      number: BrandPageTabEnum.BRANDEXPENSES,
-      label: "Brand Expenses",
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <BrandExpenses selectedBrand={currentBrand} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
+  const currentPageId = "brand";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = BrandPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
         : true,
-    },
-  ];
+    };
+  });
 
   return (
     <>

@@ -29,6 +29,7 @@ import User from "../pages/User";
 import Users from "../pages/Users";
 import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
+import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import { StockPageTabs } from "./../pages/Stocks";
@@ -216,6 +217,7 @@ export const allRoutes: {
     path: Routes.Brand,
     element: Brand,
     isOnSidebar: false,
+    tabs: BrandPageTabs,
   },
   {
     name: "Fixture",

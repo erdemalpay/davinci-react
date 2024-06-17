@@ -1,15 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { AccountBrand } from "../../types";
+import { useParams } from "react-router-dom";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-type Props = { selectedBrand: AccountBrand };
 
-const BrandProducts = ({ selectedBrand }: Props) => {
+const BrandProducts = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
-  const BrandProducts = products.filter((o) =>
-    o.brand?.includes(selectedBrand._id)
-  );
+  const { brandId } = useParams();
+  if (!brandId) return <></>;
+  const BrandProducts = products.filter((o) => o.brand?.includes(brandId));
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys = [
     {
@@ -20,7 +19,7 @@ const BrandProducts = ({ selectedBrand }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedBrand._id}
+        key={brandId}
         isActionsActive={false}
         rowKeys={rowKeys}
         columns={columns}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -26,13 +27,15 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-type Props = { selectedBrand: AccountBrand };
+
 type FormElementsState = {
   [key: string]: any;
 };
-const BrandExpenses = ({ selectedBrand }: Props) => {
+const BrandExpenses = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
+  const { brandId } = useParams();
+  if (!brandId) return <></>;
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
   const units = useGetAccountUnits();
@@ -51,10 +54,7 @@ const BrandExpenses = ({ selectedBrand }: Props) => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rows, setRows] = useState(
     invoices
-      ?.filter(
-        (invoice) =>
-          (invoice?.brand as AccountBrand)?._id === selectedBrand?._id
-      )
+      ?.filter((invoice) => (invoice?.brand as AccountBrand)?._id === brandId)
       ?.map((invoice) => {
         return {
           ...invoice,
@@ -121,7 +121,7 @@ const BrandExpenses = ({ selectedBrand }: Props) => {
 
   const filterPanelInputs = [
     ProductInput({
-      products: products.filter((i) => i.brand?.includes(selectedBrand?._id)),
+      products: products.filter((i) => i.brand?.includes(brandId)),
       required: true,
     }),
     VendorInput({ vendors: vendors, required: true }),
@@ -254,10 +254,7 @@ const BrandExpenses = ({ selectedBrand }: Props) => {
   ];
   useEffect(() => {
     const processedRows = invoices
-      ?.filter(
-        (invoice) =>
-          (invoice?.brand as AccountBrand)?._id === selectedBrand?._id
-      )
+      ?.filter((invoice) => (invoice?.brand as AccountBrand)?._id === brandId)
       ?.filter((invoice) => {
         return (
           (filterPanelFormElements.before === "" ||
@@ -373,7 +370,7 @@ const BrandExpenses = ({ selectedBrand }: Props) => {
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedBrand?._id + tableKey}
+        key={brandId + tableKey}
         rowKeys={rowKeys}
         isActionsActive={false}
         columns={columns}
