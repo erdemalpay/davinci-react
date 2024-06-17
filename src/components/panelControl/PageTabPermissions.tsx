@@ -20,11 +20,6 @@ const PageTabPermissions = () => {
   const currentPage = pages?.find((page) => page._id === pageDetailsId);
   const [tableKey, setTableKey] = useState(0);
   const { updatePanelControlPage } = usePanelControlPageMutations();
-  const allRows =
-    currentPage?.tabs?.map((tab) => ({
-      ...tab,
-      _id: tab.name,
-    })) ?? [];
   function handleRolePermission(row: any, roleKey: number) {
     const newPermissionRoles = row?.permissionRoles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -60,8 +55,6 @@ const PageTabPermissions = () => {
     const roleEnumKey = roleKey as keyof typeof RoleEnum;
     const roleName = RoleNameEnum[roleEnumKey];
     const roleValue = RoleEnum[roleEnumKey];
-    console.log(currentPage?.permissionRoles?.includes(roleValue));
-
     if (roleName && currentPage?.permissionRoles?.includes(roleValue)) {
       columns.push({ key: roleName, isSortable: true });
       rowKeys.push({
