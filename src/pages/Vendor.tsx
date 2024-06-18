@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorFixtures from "../components/vendor/VendorFixtures";
@@ -18,6 +19,7 @@ import VendorProducts from "../components/vendor/VendorProducts";
 import VendorServices from "../components/vendor/VendorServices";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountVendor, VendorPageTabEnum } from "../types";
 import { useGetAccountVendors } from "../utils/api/account/vendor";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -81,6 +83,24 @@ export default function Vendor() {
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   if (!user || pages.length === 0) return <></>;
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Vendor"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;
@@ -98,6 +118,7 @@ export default function Vendor() {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
