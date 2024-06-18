@@ -7,9 +7,11 @@ import SelectInput from "../components/common/SelectInput";
 import FixtureExpenses from "../components/fixture/FixtureExpenses";
 import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountFixture, FixturePageTabEnum } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -41,6 +43,24 @@ export default function Fixture() {
   const { fixtureId } = useParams();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
   const { t } = useTranslation();
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Fixture"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   const fixtureOptions = fixtures?.map((f) => {
     return {
       value: f._id,
@@ -68,7 +88,8 @@ export default function Fixture() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="flex flex-col gap-4">
+      <PageNavigator navigations={pageNavigations} />
+      <div className="flex flex-col gap-4 ">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput

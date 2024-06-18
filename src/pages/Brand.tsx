@@ -9,13 +9,14 @@ import BrandFixtures from "../components/brand/BrandFixtures";
 import BrandProducts from "../components/brand/BrandProducts";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountBrand, BrandPageTabEnum } from "../types";
 import { useGetAccountBrands } from "../utils/api/account/brand";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
-
 export const BrandPageTabs = [
   {
     number: BrandPageTabEnum.BRANDPRODUCTS,
@@ -57,6 +58,24 @@ export default function Brand() {
       label: i.name,
     };
   });
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Brand"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   const currentPageId = "brand";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
@@ -78,6 +97,7 @@ export default function Brand() {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">

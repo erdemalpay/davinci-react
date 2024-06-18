@@ -6,6 +6,7 @@ import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import MenuItemsWithProduct from "../components/product/MenuItemsWithProduct";
 import ProductExpenses from "../components/product/ProductExpenses";
@@ -13,6 +14,7 @@ import ProductPrice from "../components/product/ProductPrice";
 import ProductStockHistory from "../components/product/ProductStockHistory";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountProduct, AccountUnit, ProductPageTabEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -58,6 +60,24 @@ export default function Product() {
   const products = useGetAccountProducts();
   const currentProduct = products?.find((product) => product._id === productId);
   const { t } = useTranslation();
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Product"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   const productOption = products?.map((p) => {
     return {
       value: p._id,
@@ -86,6 +106,7 @@ export default function Product() {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
