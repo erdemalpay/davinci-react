@@ -7,50 +7,89 @@ import SelectInput from "../components/common/SelectInput";
 import FixtureExpenses from "../components/fixture/FixtureExpenses";
 import FixtureStockHistory from "../components/fixture/FixtureStockHistory";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountFixture, FixturePageTabEnum } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+export const FixturePageTabs = [
+  {
+    number: FixturePageTabEnum.FIXTUREEXPENSES,
+    label: "Fixture Expenses",
+    icon: <GiTakeMyMoney className="text-lg font-thin" />,
+    content: <FixtureExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
+    label: "Fixture Stock History",
+    icon: <FaFileArchive className="text-lg font-thin" />,
+    content: <FixtureStockHistory />,
+    isDisabled: false,
+  },
+];
 
 export default function Fixture() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { fixtureId } = useParams();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedFixture, setSelectedFixture] = useState<AccountFixture>();
   const fixtures = useGetAccountFixtures();
+  const { fixtureId } = useParams();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Fixture"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   const fixtureOptions = fixtures?.map((f) => {
     return {
       value: f._id,
       label: f.name,
     };
   });
-
   if (!currentFixture) return <></>;
-  const tabs = [
-    {
-      number: FixturePageTabEnum.FIXTUREEXPENSES,
-      label: "Fixture Expenses",
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <FixtureExpenses selectedFixture={currentFixture} />,
-      isDisabled: false,
-    },
-    {
-      number: FixturePageTabEnum.FIXTURESTOCKHISTORY,
-      label: "Fixture Stock History",
-      icon: <FaFileArchive className="text-lg font-thin" />,
-      content: <FixtureStockHistory selectedFixture={currentFixture} />,
-      isDisabled: false,
-    },
-  ];
+  const currentPageId = "fixture";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = FixturePageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="flex flex-col gap-4">
+      <PageNavigator navigations={pageNavigations} />
+      <div className="flex flex-col gap-4 ">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <SelectInput
@@ -84,7 +123,7 @@ export default function Fixture() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

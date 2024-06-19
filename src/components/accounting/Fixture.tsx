@@ -13,6 +13,7 @@ import {
   useGetAccountFixtures,
 } from "../../utils/api/account/fixture";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import {
   BrandInput,
   ExpenseTypeInput,
@@ -33,6 +34,7 @@ const Fixture = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const fixtures = useGetAccountFixtures();
+  const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const expenseTypes = useGetAccountExpenseTypes();
@@ -98,37 +100,27 @@ const Fixture = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
-      node: (row: AccountFixture) => (
-        <p
-          className={`${
-            user &&
-            [
-              RoleEnum.MANAGER,
-              RoleEnum.CATERINGMANAGER,
-              RoleEnum.GAMEMANAGER,
-            ].includes(user?.role?._id) &&
-            "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          }`}
-          onClick={() => {
-            if (
-              user &&
-              ![
-                RoleEnum.MANAGER,
-                RoleEnum.CATERINGMANAGER,
-                RoleEnum.GAMEMANAGER,
-              ].includes(user?.role?._id)
-            )
-              return;
-            setCurrentPage(1);
-            // setRowsPerPage(RowPerPageEnum.FIRST);
-            setSearchQuery("");
-            setSortConfigKey(null);
-            navigate(`/fixture/${row?._id}`);
-          }}
-        >
-          {row.name}
-        </p>
-      ),
+      node: (row: AccountFixture) =>
+        user &&
+        pages &&
+        pages
+          ?.find((page) => page._id === "fixture")
+          ?.permissionRoles?.includes(user.role._id) ? (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              // setRowsPerPage(RowPerPageEnum.FIRST);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/fixture/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
+        ),
     },
     {
       key: "expenseType",

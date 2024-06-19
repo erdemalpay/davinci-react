@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GiAnchor } from "react-icons/gi";
 import { GrMoney } from "react-icons/gr";
@@ -44,7 +43,6 @@ export const ExpensePageTabs = [
   },
 ];
 export default function Expenses() {
-  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -73,7 +71,6 @@ export default function Expenses() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          key={i18n.language}
           tabs={tabs}
           activeTab={expensesActiveTab}
           setActiveTab={setExpensesActiveTab}

@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorFixtures from "../components/vendor/VendorFixtures";
@@ -18,21 +19,59 @@ import VendorProducts from "../components/vendor/VendorProducts";
 import VendorServices from "../components/vendor/VendorServices";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountVendor, RoleEnum, VendorPageTabEnum } from "../types";
+import { Routes } from "../navigation/constants";
+import { AccountVendor, VendorPageTabEnum } from "../types";
 import { useGetAccountVendors } from "../utils/api/account/vendor";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
+export const VendorPageTabs = [
+  {
+    number: VendorPageTabEnum.VENDORPRODUCTS,
+    label: "Vendor Products",
+    icon: <MdOutlineMenuBook className="text-lg font-thin" />,
+    content: <VendorProducts />,
+    isDisabled: false,
+  },
+  {
+    number: VendorPageTabEnum.VENDORFIXTURES,
+    label: "Vendor Fixtures",
+    icon: <FaAnchor className="text-lg font-thin" />,
+    content: <VendorFixtures />,
+    isDisabled: false,
+  },
+  {
+    number: VendorPageTabEnum.VENDORSERVICES,
+    label: "Vendor Services",
+    icon: <MdOutlineCleaningServices className="text-lg font-thin" />,
+    content: <VendorServices />,
+    isDisabled: false,
+  },
+  {
+    number: VendorPageTabEnum.VENDOREXPENSES,
+    label: "Vendor Expenses",
+    icon: <GiTakeMyMoney className="text-lg font-thin" />,
+    content: <VendorExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: VendorPageTabEnum.VENDORPAYMENTS,
+    label: "Vendor Payments",
+    icon: <MdPayments className="text-lg font-thin" />,
+    content: <VendorPayments />,
+    isDisabled: false,
+  },
+];
 export default function Vendor() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { vendorId } = useParams();
-  const { user } = useUserContext();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
+  const { vendorId } = useParams();
   const vendors = useGetAccountVendors();
   const currentVendor = vendors?.find((item) => item._id === vendorId);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const vendorOptions = vendors?.map((i) => {
     return {
       value: i._id,
@@ -40,58 +79,46 @@ export default function Vendor() {
     };
   });
   if (!currentVendor) return <></>;
-  const tabs = [
+  const currentPageId = "vendor";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const pageNavigations = [
     {
-      number: VendorPageTabEnum.VENDORPRODUCTS,
-      label: "Vendor Products",
-      icon: <MdOutlineMenuBook className="text-lg font-thin" />,
-      content: <VendorProducts selectedVendor={currentVendor} />,
-      isDisabled: false,
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
     },
     {
-      number: VendorPageTabEnum.VENDORFIXTURES,
-      label: "Vendor Fixtures",
-      icon: <FaAnchor className="text-lg font-thin" />,
-      content: <VendorFixtures selectedVendor={currentVendor} />,
-      isDisabled: false,
-    },
-    {
-      number: VendorPageTabEnum.VENDORSERVICES,
-      label: "Vendor Services",
-      icon: <MdOutlineCleaningServices className="text-lg font-thin" />,
-      content: <VendorServices selectedVendor={currentVendor} />,
-      isDisabled: false,
-    },
-    {
-      number: VendorPageTabEnum.VENDOREXPENSES,
-      label: "Vendor Expenses",
-      icon: <GiTakeMyMoney className="text-lg font-thin" />,
-      content: <VendorExpenses selectedVendor={currentVendor} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-    {
-      number: VendorPageTabEnum.VENDORPAYMENTS,
-      label: "Vendor Payments",
-      icon: <MdPayments className="text-lg font-thin" />,
-      content: <VendorPayments selectedVendor={currentVendor} />,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      name: t("Vendor"),
+      path: "",
+      canBeClicked: false,
     },
   ];
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = VendorPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
+
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
@@ -126,7 +153,7 @@ export default function Vendor() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

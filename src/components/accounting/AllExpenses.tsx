@@ -873,6 +873,7 @@ const AllExpenses = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
           addButton={addButton}
+          isActionsActive={false}
         />
       </div>
     </>

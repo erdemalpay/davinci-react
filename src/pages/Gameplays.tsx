@@ -268,7 +268,7 @@ export default function NewGameplays() {
           key={tableKey}
           rows={gameplays}
           rowKeys={rowKeys}
-          actions={[]}
+          isActionsActive={false}
           columns={columns}
           title={t("GamePlays")}
           isSearch={false}

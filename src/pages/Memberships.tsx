@@ -207,6 +207,7 @@ export default function Memberships() {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={true}
           columns={columns}
           filters={filters}
           rows={filteredRewards() as Membership[]}

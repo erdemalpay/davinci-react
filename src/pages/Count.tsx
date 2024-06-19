@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -111,6 +112,24 @@ const Count = () => {
       })
       .filter((item) => item.product !== "") || []
   );
+  const pageNavigations = [
+    {
+      name: t("Count Lists"),
+      path: Routes.CountLists,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Count"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   useEffect(() => {
     setRows(
       countLists
@@ -346,6 +365,7 @@ const Count = () => {
   return (
     <>
       <Header />
+      <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] my-10 mx-auto ">
         <GenericTable
           key={tableKey}
@@ -356,6 +376,7 @@ const Count = () => {
           actions={actions}
           collapsibleActions={collapsibleActions}
           isCollapsible={products.length > 0}
+          isActionsActive={true}
         />
         <div className="flex justify-end mt-4">
           <button

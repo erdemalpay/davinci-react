@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -207,9 +208,28 @@ const FixtureCount = () => {
       className: " hover:text-blue-500 hover:border-blue-500 cursor-pointer",
     },
   ];
+  const pageNavigations = [
+    {
+      name: t("Count Lists"),
+      path: Routes.CountLists,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Count"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   return (
     <>
       <Header />
+      <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] my-10 mx-auto ">
         <GenericTable
           key={tableKey}
@@ -218,6 +238,7 @@ const FixtureCount = () => {
           rows={rows}
           title={t("Fixture Count")}
           actions={actions}
+          isActionsActive={true}
         />
         <div className="flex justify-end mt-4">
           <button

@@ -244,7 +244,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             onChange={() => handleLocationUpdate(row, 1)}
           />
         ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
         ),
@@ -258,7 +258,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
         ),
@@ -505,6 +505,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         key={tableKey}
         rowKeys={rowKeys}
         actions={actions}
+        isActionsActive={true}
         columns={columns}
         rows={rows}
         filters={filters}

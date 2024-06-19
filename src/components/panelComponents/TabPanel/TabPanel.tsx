@@ -36,6 +36,7 @@ const TabPanel: React.FC<Props> = ({
   }>({ width: 0, left: 0 });
   const tabsRef = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const { i18n } = useTranslation();
   const { setSortConfigKey } = useGeneralContext();
   useEffect(() => {
     additionalOpenAction?.();
@@ -52,7 +53,14 @@ const TabPanel: React.FC<Props> = ({
         behavior: "smooth",
       });
     }
-  }, [activeTab, tabs.length]);
+
+    if (
+      !adjustedTabs.find((tab) => tab.number === activeTab) &&
+      tabs?.filter((tab) => tab.isDisabled)?.length > 0
+    ) {
+      setActiveTab(tabs[0]?.number);
+    }
+  }, [activeTab, tabs.length, i18n.language]);
 
   const handleTabChange = (tab: Tab) => {
     additionalClickAction && additionalClickAction();

@@ -24,7 +24,7 @@ const SingleCountArchive = () => {
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery } =
+  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const foundCount = counts?.find((count) => count._id === archiveId);
   const pageNavigations = [
@@ -35,6 +35,7 @@ const SingleCountArchive = () => {
       additionalSubmitFunction: () => {
         setCurrentPage(1);
         // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
         setSearchQuery("");
       },
     },
@@ -166,6 +167,7 @@ const SingleCountArchive = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows}
+            isActionsActive={false}
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }

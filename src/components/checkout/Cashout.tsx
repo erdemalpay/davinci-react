@@ -263,6 +263,7 @@ const Cashout = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={true}
           columns={columns}
           filters={filters}
           filterPanel={filterPanel}

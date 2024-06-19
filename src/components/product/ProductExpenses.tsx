@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -12,6 +13,7 @@ import {
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -26,18 +28,22 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-type Props = {
-  selectedProduct: AccountProduct;
-};
+
 type FormElementsState = {
   [key: string]: any;
 };
-const ProductExpenses = ({ selectedProduct }: Props) => {
+const ProductExpenses = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const units = useGetAccountUnits();
+  const { productId } = useParams();
+  const products = useGetAccountProducts();
+  const selectedProduct = products?.find(
+    (product) => product._id === productId
+  );
+  if (!selectedProduct) return <></>;
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -380,6 +386,7 @@ const ProductExpenses = ({ selectedProduct }: Props) => {
         title={t("Product Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

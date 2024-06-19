@@ -1,4 +1,3 @@
-import { Switch } from "@headlessui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -12,9 +11,11 @@ import { useCategoryMutations } from "../../utils/api/menu/category";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 type Props = {
   categories: MenuCategory[];
   handleCategoryChange: () => void;
@@ -22,13 +23,17 @@ type Props = {
 
 const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const { t } = useTranslation();
-  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
+  const {
+    menuActiveTab,
+    setMenuActiveTab,
+    isCategoryTableEditOpen,
+    setIsCategoryTableEditOpen,
+  } = useGeneralContext();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -88,21 +93,21 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     {
       key: "bahceli",
       node: (row: MenuCategory) =>
-        isEnableEdit ? (
+        isCategoryTableEditOpen ? (
           <CheckSwitch
             checked={row.locations?.includes(1)}
             onChange={() => handleLocationUpdate(row, 1)}
           />
         ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
     {
       key: "neorama",
       node: (row: MenuCategory) =>
-        isEnableEdit ? (
+        isCategoryTableEditOpen ? (
           <CheckSwitch
             checked={row.locations?.includes(2)}
             onChange={() => handleLocationUpdate(row, 2)}
@@ -110,7 +115,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         ) : row?.locations?.includes(2) ? (
           <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+          <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
   ];
@@ -203,18 +208,10 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       label: t("Location Edit"),
       isUpperSide: false,
       node: (
-        <Switch
-          checked={isEnableEdit}
-          onChange={() => setIsEnableEdit((value) => !value)}
-          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-        >
-          <span
-            aria-hidden="true"
-            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
+        <SwitchButton
+          checked={isCategoryTableEditOpen}
+          onChange={setIsCategoryTableEditOpen}
+        />
       ),
     },
   ];
@@ -225,6 +222,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
+        isActionsActive={true}
         rows={categories}
         filters={filters}
         title={t("Categories")}

@@ -227,6 +227,7 @@ export default function Rewards() {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
+          isActionsActive={true}
           columns={columns}
           filters={filters}
           rows={filteredRewards() as Reward[]}

@@ -11,11 +11,8 @@ import {
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
-import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const PagePermissions = () => {
@@ -23,13 +20,11 @@ const PagePermissions = () => {
   const { t } = useTranslation();
   const pages = useGetPanelControlPages();
   const [tableKey, setTableKey] = useState(0);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
   const { setCurrentPage, setSortConfigKey, setSearchQuery } =
     useGeneralContext();
-  const { createPanelControlPage, updatePanelControlPage } =
-    usePanelControlPageMutations();
+  const { updatePanelControlPage } = usePanelControlPageMutations();
   function handleRolePermission(row: PanelControlPage, roleKey: number) {
     const newPermissionRoles = row?.permissionRoles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -68,28 +63,6 @@ const PagePermissions = () => {
       },
     },
   ];
-  const inputs = [NameInput()];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-  const addButton = {
-    name: t(`Add Page`),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
-        submitItem={createPanelControlPage as any}
-        topClassName="flex flex-col gap-2 "
-      />
-    ),
-    isModalOpen: isAddModalOpen,
-    setIsModal: setIsAddModalOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-  };
-
   // Adding roles columns and rowkeys
   for (const roleKey of Object.keys(RoleEnum)) {
     const roleEnumKey = roleKey as keyof typeof RoleEnum;
@@ -108,9 +81,9 @@ const PagePermissions = () => {
               onChange={() => handleRolePermission(row, roleValue)}
             />
           ) : hasPermission ? (
-            <IoCheckmark className="text-blue-500 text-2xl" />
+            <IoCheckmark className={`text-blue-500 text-2xl `} />
           ) : (
-            <IoCloseOutline className="text-red-800 text-2xl" />
+            <IoCloseOutline className={`text-red-800 text-2xl `} />
           );
         },
       });
@@ -120,6 +93,7 @@ const PagePermissions = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
       const currentPage = pages.find((page) => page.name === route.name);
+      if (!currentPage) return;
       let isTabsSame = true;
       if (route.tabs) {
         for (const tab of route.tabs) {
@@ -132,7 +106,19 @@ const PagePermissions = () => {
           }
         }
       }
-      if (!currentPage || !isTabsSame) {
+      if (!isTabsSame) {
+        missedRoutes.push({
+          name: route.name,
+          permissionRoles: currentPage.permissionRoles ?? [1],
+          tabs: route?.tabs?.map((tab) => {
+            return {
+              name: tab.label,
+              permissionRoles: [1],
+            };
+          }),
+        });
+      }
+      if (!currentPage) {
         missedRoutes.push({
           name: route.name,
           permissionRoles: [1],
@@ -145,6 +131,7 @@ const PagePermissions = () => {
         });
       }
     }
+
     if (missedRoutes.length > 0) {
       createMultiplePage(missedRoutes);
     }
@@ -171,7 +158,6 @@ const PagePermissions = () => {
           rows={pages.sort((a, b) => a.name.localeCompare(b.name))}
           filters={filters}
           title={t("Page Permissions")}
-          addButton={addButton}
           isActionsActive={false}
         />
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
+import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountBrand,
@@ -15,6 +16,7 @@ import { useGetAccountInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import {
   BrandInput,
@@ -26,12 +28,15 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-type Props = { selectedVendor: AccountVendor };
 type FormElementsState = {
   [key: string]: any;
 };
-const VendorExpenses = ({ selectedVendor }: Props) => {
+const VendorExpenses = () => {
   const { t } = useTranslation();
+  const { vendorId } = useParams();
+  const vendors = useGetAccountVendors();
+  const selectedVendor = vendors?.find((item) => item._id === vendorId);
+  if (!selectedVendor) return <></>;
   const invoices = useGetAccountInvoices();
   const brands = useGetAccountBrands();
   const products = useGetAccountProducts();
@@ -382,6 +387,7 @@ const VendorExpenses = ({ selectedVendor }: Props) => {
         title={t("Vendor Expenses")}
         isSearch={false}
         outsideSearch={outsideSearch}
+        isActionsActive={false}
       />
     </div>
   );

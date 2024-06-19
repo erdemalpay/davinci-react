@@ -4,12 +4,13 @@ import { GiTakeMyMoney } from "react-icons/gi";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import ServiceExpenses from "../components/service/ServiceExpenses";
 import { useGeneralContext } from "../context/General.context";
+import { Routes } from "../navigation/constants";
 import { AccountService, ServicePageTabEnum } from "../types";
 import { useGetAccountServices } from "../utils/api/account/service";
-import i18n from "../utils/i18n";
 
 export default function Service() {
   const navigate = useNavigate();
@@ -28,7 +29,24 @@ export default function Service() {
       label: p.name,
     };
   });
-
+  const pageNavigations = [
+    {
+      name: t("Constants"),
+      path: Routes.Accounting,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        // setRowsPerPage(RowPerPageEnum.FIRST);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Service"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   if (!currentService) return <></>;
   const tabs = [
     {
@@ -43,6 +61,7 @@ export default function Service() {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
@@ -77,7 +96,7 @@ export default function Service() {
         </div>
 
         <TabPanel
-          key={tabPanelKey + i18n.language}
+          key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}

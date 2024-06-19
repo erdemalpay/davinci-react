@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FaAnchor, FaServicestack } from "react-icons/fa";
 import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { LuPackageOpen } from "react-icons/lu";
@@ -96,7 +95,6 @@ export const AccountingPageTabs = [
   },
 ];
 export default function Accounting() {
-  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -124,7 +122,6 @@ export default function Accounting() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        key={i18n.language}
         tabs={tabs}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}

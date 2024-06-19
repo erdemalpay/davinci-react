@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FaFileArchive } from "react-icons/fa";
 import {
   GiArchiveResearch,
@@ -57,7 +56,6 @@ export const StockPageTabs = [
   },
 ];
 export default function Stocks() {
-  const { i18n } = useTranslation();
   const {
     setCurrentPage,
     setSearchQuery,
@@ -86,7 +84,6 @@ export default function Stocks() {
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
-          key={i18n.language}
           tabs={tabs}
           activeTab={stocksActiveTab}
           setActiveTab={setStocksActiveTab}

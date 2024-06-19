@@ -24,7 +24,7 @@ type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
   onDragEnter?: (DraggedRow: T, TargetRow: T) => void;
-  isActionsActive?: boolean;
+  isActionsActive: boolean;
   columns: ColumnType<T>[];
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
@@ -393,7 +393,7 @@ const GenericTable = <T,>({
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
                 } min-w-20 md:min-w-0 ${
-                  columns.length === 2 && keyIndex === 1 && "text-center "
+                  columns.length === 2 && keyIndex === 1 && " text-center "
                 }`}
               >
                 {rowKey.isImage ? (
