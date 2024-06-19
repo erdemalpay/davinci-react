@@ -61,7 +61,10 @@ const CountListFixtures = () => {
 
   // Adding location columns and rowkeys
   for (const countList of countLists) {
-    columns.push({ key: countList.name, isSortable: true });
+    columns.push({
+      key: countList.name,
+      isSortable: true,
+    });
     rowKeys.push({
       key: countList._id,
       node: (row: any) =>
@@ -77,17 +80,9 @@ const CountListFixtures = () => {
         ) : countList?.fixtures?.find(
             (item) => item.fixture === row.fixture
           ) ? (
-          <IoCheckmark
-            className={`text-blue-500 text-2xl ${
-              countLists?.length > 1 ? "" : "mx-auto"
-            }`}
-          />
+          <IoCheckmark className={`text-blue-500 text-2xl `} />
         ) : (
-          <IoCloseOutline
-            className={`text-red-800 text-2xl ${
-              countLists?.length > 1 ? "" : "mx-auto"
-            }`}
-          />
+          <IoCloseOutline className={`text-red-800 text-2xl `} />
         ),
     });
   }
