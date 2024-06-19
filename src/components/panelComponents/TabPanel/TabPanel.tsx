@@ -54,7 +54,10 @@ const TabPanel: React.FC<Props> = ({
       });
     }
 
-    if (!adjustedTabs.find((tab) => tab.number === activeTab)) {
+    if (
+      !adjustedTabs.find((tab) => tab.number === activeTab) &&
+      tabs?.filter((tab) => tab.isDisabled)?.length > 0
+    ) {
       setActiveTab(tabs[0]?.number);
     }
   }, [activeTab, tabs.length, i18n.language]);

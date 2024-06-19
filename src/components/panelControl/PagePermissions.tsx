@@ -81,9 +81,9 @@ const PagePermissions = () => {
               onChange={() => handleRolePermission(row, roleValue)}
             />
           ) : hasPermission ? (
-            <IoCheckmark className="text-blue-500 text-2xl" />
+            <IoCheckmark className={`text-blue-500 text-2xl `} />
           ) : (
-            <IoCloseOutline className="text-red-800 text-2xl" />
+            <IoCloseOutline className={`text-red-800 text-2xl `} />
           );
         },
       });
