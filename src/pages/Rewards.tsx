@@ -1,4 +1,3 @@
-import { Switch } from "@headlessui/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,7 @@ import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -119,7 +119,7 @@ export default function Rewards() {
                 updateReward({ id: row._id, updates: { used: false } });
               }}
             >
-              <IoLockOpenOutline className="text-green-500 w-6 h-6" />
+              <IoLockOpenOutline className="text-green-500 w-6 h-6 mt-2" />
             </button>
           </ButtonTooltip>
         ) : (
@@ -129,7 +129,7 @@ export default function Rewards() {
                 updateReward({ id: row._id, updates: { used: true } });
               }}
             >
-              <FaCheck className="text-green-500 w-6 h-6" />
+              <FaCheck className="text-green-500 w-6 h-6 mt-2" />
             </button>
           </ButtonTooltip>
         ),
@@ -177,32 +177,18 @@ export default function Rewards() {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
-
   const filters = [
     {
       label: t("Show Expired/Used Rewards"),
       isUpperSide: false,
       node: (
-        <Switch
+        <SwitchButton
           checked={showExpiredRewards}
-          onChange={() => {
-            setShowExpiredRewards((value) => !value);
-          }}
-          className={`${showExpiredRewards ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-        >
-          <span
-            aria-hidden="true"
-            className={`${
-              showExpiredRewards ? "translate-x-4" : "translate-x-0"
-            }
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
+          onChange={setShowExpiredRewards}
+        />
       ),
     },
   ];

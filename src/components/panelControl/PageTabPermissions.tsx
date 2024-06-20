@@ -62,14 +62,30 @@ const PageTabPermissions = () => {
         node: (row: any) => {
           const hasPermission = row?.permissionRoles?.includes(roleValue);
           return isEnableEdit ? (
-            <CheckSwitch
-              checked={hasPermission}
-              onChange={() => handleRolePermission(row, roleValue)}
-            />
+            <div
+              className={` ${
+                currentPage?.permissionRoles?.length === 1
+                  ? "flex justify-center"
+                  : ""
+              } `}
+            >
+              <CheckSwitch
+                checked={hasPermission}
+                onChange={() => handleRolePermission(row, roleValue)}
+              />
+            </div>
           ) : hasPermission ? (
-            <IoCheckmark className="text-blue-500 text-2xl" />
+            <IoCheckmark
+              className={`text-blue-500 text-2xl ${
+                currentPage?.permissionRoles?.length === 1 ? "mx-auto" : ""
+              }`}
+            />
           ) : (
-            <IoCloseOutline className="text-red-800 text-2xl" />
+            <IoCloseOutline
+              className={`text-red-800 text-2xl ${
+                currentPage?.permissionRoles?.length === 1 ? "mx-auto" : ""
+              }`}
+            />
           );
         },
       });
