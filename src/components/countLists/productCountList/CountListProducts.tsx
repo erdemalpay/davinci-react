@@ -67,20 +67,36 @@ const CountListProducts = (props: Props) => {
       key: countList._id,
       node: (row: any) =>
         isEnableEdit ? (
-          <CheckSwitch
-            checked={
-              countList?.products?.find((item) => item.product === row.product)
-                ? true
-                : false
-            }
-            onChange={() => handleCountListUpdate(row, countList)}
-          />
+          <div
+            className={`${
+              countLists?.length === 1 ? "flex justify-center" : ""
+            }`}
+          >
+            <CheckSwitch
+              checked={
+                countList?.products?.find(
+                  (item) => item.product === row.product
+                )
+                  ? true
+                  : false
+              }
+              onChange={() => handleCountListUpdate(row, countList)}
+            />
+          </div>
         ) : countList?.products?.find(
             (item) => item.product === row.product
           ) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
+          <IoCheckmark
+            className={`text-blue-500 text-2xl ${
+              countLists?.length === 1 ? "mx-auto" : ""
+            }`}
+          />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl " />
+          <IoCloseOutline
+            className={`text-red-800 text-2xl  ${
+              countLists?.length === 1 ? "mx-auto" : ""
+            }`}
+          />
         ),
     });
   }

@@ -1,4 +1,3 @@
-import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -10,7 +9,9 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { AddGameDialog } from "../components/games/AddGameDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -82,9 +83,9 @@ export default function Games() {
             onChange={() => handleLocationUpdate(row, 1)}
           />
         ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     },
     {
@@ -96,9 +97,9 @@ export default function Games() {
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
+          <IoCloseOutline className="text-red-800 text-2xl" />
         ),
     },
   ];
@@ -158,20 +159,7 @@ export default function Games() {
     {
       label: t("Enable Edit"),
       isUpperSide: false,
-      node: (
-        <Switch
-          checked={isEnableEdit}
-          onChange={() => setIsEnableEdit((value) => !value)}
-          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-        >
-          <span
-            aria-hidden="true"
-            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
-      ),
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
   const addButton = {
