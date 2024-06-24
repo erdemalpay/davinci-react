@@ -60,7 +60,7 @@ const FixtureStock = () => {
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      fixture: "",
+      fixture: [],
       location: "",
       expenseType: "",
     });
@@ -134,7 +134,7 @@ const FixtureStock = () => {
     QuantityInput(),
   ];
   const filterPanelInputs = [
-    FixtureInput({ fixtures: fixtures, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true, isMultiple: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
   ];
@@ -317,10 +317,10 @@ const FixtureStock = () => {
     const processedRows = stocks
       .filter((stock) => {
         return (
-          passesFilter(
-            filterPanelFormElements.fixture,
-            (stock.fixture as AccountFixture)?._id
-          ) &&
+          (!filterPanelFormElements.fixture.length ||
+            filterPanelFormElements.fixture?.some((panelFixture: string) =>
+              passesFilter(panelFixture, (stock.fixture as AccountFixture)?._id)
+            )) &&
           (stock.fixture as AccountFixture)?.expenseType?.some((type) =>
             passesFilter(filterPanelFormElements.expenseType, type)
           ) &&

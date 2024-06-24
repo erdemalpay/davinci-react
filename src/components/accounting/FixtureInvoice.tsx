@@ -121,7 +121,7 @@ const FixtureInvoice = () => {
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      fixture: "",
+      fixture: [],
       vendor: "",
       brand: "",
       expenseType: "",
@@ -187,7 +187,7 @@ const FixtureInvoice = () => {
   ];
 
   const filterPanelInputs = [
-    FixtureInput({ fixtures: fixtures, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true, isMultiple: true }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
@@ -730,10 +730,13 @@ const FixtureInvoice = () => {
             invoice.date <= filterPanelFormElements.before) &&
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.fixture,
-            (invoice.fixture as AccountFixture)?._id
-          ) &&
+          (!filterPanelFormElements.fixture.length ||
+            filterPanelFormElements.fixture?.some((panelFixture: string) =>
+              passesFilter(
+                panelFixture,
+                (invoice.fixture as AccountFixture)?._id
+              )
+            )) &&
           passesFilter(
             filterPanelFormElements.vendor,
             (invoice.vendor as AccountVendor)?._id

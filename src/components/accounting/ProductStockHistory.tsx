@@ -34,7 +34,7 @@ const ProductStockHistory = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
+      product: [],
       packages: "",
       location: "",
       status: "",
@@ -59,7 +59,7 @@ const ProductStockHistory = () => {
     });
   });
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
+    ProductInput({ products: products, required: true, isMultiple: true }),
     PackageTypeInput({ packages: packages, required: true }),
     StockLocationInput({ locations: locations }),
     {
@@ -167,10 +167,13 @@ const ProductStockHistory = () => {
               filterPanelFormElements.packages,
               (stockHistory.packageType as AccountPackageType)?._id
             ) &&
-            passesFilter(
-              filterPanelFormElements.product,
-              (stockHistory.product as AccountProduct)?._id
-            ) &&
+            (!filterPanelFormElements.product.length ||
+              filterPanelFormElements.product?.some((panelProduct: string) =>
+                passesFilter(
+                  panelProduct,
+                  (stockHistory.product as AccountProduct)?._id
+                )
+              )) &&
             passesFilter(
               filterPanelFormElements.location,
               (stockHistory.location as AccountStockLocation)?._id
