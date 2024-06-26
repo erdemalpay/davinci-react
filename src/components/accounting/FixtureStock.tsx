@@ -11,6 +11,7 @@ import {
   AccountStockLocation,
   RoleEnum,
 } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import {
   useAccountFixtureStockMutations,
@@ -18,6 +19,7 @@ import {
 } from "../../utils/api/account/fixtureStock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
+  ExpenseTypeInput,
   FixtureInput,
   QuantityInput,
   StockLocationInput,
@@ -40,6 +42,7 @@ const FixtureStock = () => {
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -57,8 +60,9 @@ const FixtureStock = () => {
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      fixture: "",
+      fixture: [],
       location: "",
+      expenseType: "",
     });
   const [form, setForm] = useState({
     fixture: "",
@@ -130,7 +134,8 @@ const FixtureStock = () => {
     QuantityInput(),
   ];
   const filterPanelInputs = [
-    FixtureInput({ fixtures: fixtures, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true, isMultiple: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
   ];
   const formKeys = [
@@ -312,9 +317,12 @@ const FixtureStock = () => {
     const processedRows = stocks
       .filter((stock) => {
         return (
-          passesFilter(
-            filterPanelFormElements.fixture,
-            (stock.fixture as AccountFixture)?._id
+          (!filterPanelFormElements.fixture.length ||
+            filterPanelFormElements.fixture?.some((panelFixture: string) =>
+              passesFilter(panelFixture, (stock.fixture as AccountFixture)?._id)
+            )) &&
+          (stock.fixture as AccountFixture)?.expenseType?.some((type) =>
+            passesFilter(filterPanelFormElements.expenseType, type)
           ) &&
           passesFilter(
             filterPanelFormElements.location,

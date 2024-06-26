@@ -13,6 +13,7 @@ import {
   RoleEnum,
   StockHistoryStatusEnum,
 } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -22,6 +23,7 @@ import {
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import {
+  ExpenseTypeInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -41,6 +43,7 @@ const Stock = () => {
   const { user } = useUserContext();
   const units = useGetAccountUnits();
   const products = useGetAccountProducts();
+  const expenseTypes = useGetAccountExpenseTypes();
   const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
@@ -72,9 +75,10 @@ const Stock = () => {
   const { setCurrentPage, setSearchQuery, searchQuery } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
+      product: [],
       location: "",
       packageType: "",
+      expenseType: "",
     });
   const [form, setForm] = useState({
     product: "",
@@ -343,10 +347,13 @@ const Stock = () => {
             filterPanelFormElements.location,
             (stock.location as AccountStockLocation)?._id
           ) &&
-          passesFilter(
-            filterPanelFormElements.product,
-            (stock.product as AccountProduct)?._id
+          (stock.product as AccountProduct)?.expenseType?.some((type) =>
+            passesFilter(filterPanelFormElements.expenseType, type)
           ) &&
+          (!filterPanelFormElements.product.length ||
+            filterPanelFormElements.product?.some((panelProduct: string) =>
+              passesFilter(panelProduct, (stock.product as AccountProduct)?._id)
+            )) &&
           passesFilter(
             filterPanelFormElements.packageType,
             (stock.packageType as AccountPackageType)?._id
@@ -431,7 +438,8 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements, searchQuery]);
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
+    ProductInput({ products: products, required: true, isMultiple: true }),
+    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,

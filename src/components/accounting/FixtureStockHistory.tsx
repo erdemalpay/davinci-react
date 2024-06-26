@@ -27,7 +27,7 @@ const FixtureStockHistory = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      fixture: "",
+      fixture: [],
       location: "",
       status: "",
       before: "",
@@ -50,7 +50,7 @@ const FixtureStockHistory = () => {
     });
   });
   const filterPanelInputs = [
-    FixtureInput({ fixtures: fixtures, required: true }),
+    FixtureInput({ fixtures: fixtures, required: true, isMultiple: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -148,10 +148,13 @@ const FixtureStockHistory = () => {
               stockHistory.createdAt <= filterPanelFormElements.before) &&
             (filterPanelFormElements.after === "" ||
               stockHistory.createdAt >= filterPanelFormElements.after) &&
-            passesFilter(
-              filterPanelFormElements.fixture,
-              (stockHistory.fixture as AccountFixture)?._id
-            ) &&
+            (!filterPanelFormElements.fixture.length ||
+              filterPanelFormElements.fixture?.some((panelFixture: string) =>
+                passesFilter(
+                  panelFixture,
+                  (stockHistory.fixture as AccountFixture)?._id
+                )
+              )) &&
             passesFilter(
               filterPanelFormElements.location,
               (stockHistory.location as AccountStockLocation)?._id

@@ -146,7 +146,7 @@ const Invoice = () => {
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: "",
+      product: [],
       vendor: "",
       brand: "",
       expenseType: "",
@@ -212,7 +212,7 @@ const Invoice = () => {
   }, []);
 
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true }),
+    ProductInput({ products: products, required: true, isMultiple: true }),
     PackageTypeInput({ packages: packages, required: true }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
@@ -885,10 +885,13 @@ const Invoice = () => {
             filterPanelFormElements.packages,
             (invoice.packageType as AccountPackageType)?._id
           ) &&
-          passesFilter(
-            filterPanelFormElements.product,
-            (invoice.product as AccountProduct)?._id
-          ) &&
+          (!filterPanelFormElements.product.length ||
+            filterPanelFormElements.product?.some((panelProduct: string) =>
+              passesFilter(
+                panelProduct,
+                (invoice.product as AccountProduct)?._id
+              )
+            )) &&
           passesFilter(
             filterPanelFormElements.vendor,
             (invoice.vendor as AccountVendor)?._id

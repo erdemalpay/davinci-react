@@ -108,7 +108,7 @@ const ServiceInvoice = () => {
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      service: "",
+      service: [],
       vendor: "",
       expenseType: "",
       location: "",
@@ -166,7 +166,7 @@ const ServiceInvoice = () => {
   }, []);
 
   const filterPanelInputs = [
-    ServiceInput({ services: services, required: true }),
+    ServiceInput({ services: services, required: true, isMultiple: true }),
     VendorInput({ vendors: vendors, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
@@ -670,10 +670,13 @@ const ServiceInvoice = () => {
             invoice.date <= filterPanelFormElements.before) &&
           (filterPanelFormElements.after === "" ||
             invoice.date >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.service,
-            (invoice.service as AccountService)?._id
-          ) &&
+          (!filterPanelFormElements.service.length ||
+            filterPanelFormElements.service?.some((panelService: string) =>
+              passesFilter(
+                panelService,
+                (invoice.service as AccountService)?._id
+              )
+            )) &&
           passesFilter(
             filterPanelFormElements.vendor,
             (invoice.vendor as AccountVendor)?._id
