@@ -27,7 +27,12 @@ const CountArchive = () => {
       .filter((count) => {
         if (
           (count.user as User)?._id === user?._id ||
-          user?.role._id === RoleEnum.MANAGER
+          (user &&
+            [
+              RoleEnum.MANAGER,
+              RoleEnum.GAMEMANAGER,
+              RoleEnum.CATERINGMANAGER,
+            ].includes(user?.role._id))
         ) {
           return count;
         }
@@ -141,7 +146,12 @@ const CountArchive = () => {
         .filter((count) => {
           if (
             (count.user as User)?._id === user?._id ||
-            user?.role._id === RoleEnum.MANAGER
+            (user &&
+              [
+                RoleEnum.MANAGER,
+                RoleEnum.GAMEMANAGER,
+                RoleEnum.CATERINGMANAGER,
+              ].includes(user?.role._id))
           ) {
             return count;
           }
