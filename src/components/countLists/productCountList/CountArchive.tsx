@@ -22,46 +22,45 @@ const CountArchive = () => {
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
-  const [rows, setRows] = useState(
-    counts
-      .filter((count) => {
-        if (
-          (count.user as User)?._id === user?._id ||
-          (user &&
-            [
-              RoleEnum.MANAGER,
-              RoleEnum.GAMEMANAGER,
-              RoleEnum.CATERINGMANAGER,
-            ].includes(user?.role._id))
-        ) {
-          return count;
-        }
-      })
-      .map((count) => {
-        const startDate = new Date(count.createdAt);
-        const endDate = new Date(count?.completedAt ?? 0);
-        return {
-          ...count,
-          cntLst: (count.countList as AccountCountList).name,
-          lctn: (count.location as AccountStockLocation).name,
-          usr: (count.user as User)?.name,
-          startDate: `${pad(startDate.getDate())}-${pad(
-            startDate.getMonth() + 1
-          )}-${startDate.getFullYear()}`,
-          startHour: `${pad(startDate.getHours())}:${pad(
-            startDate.getMinutes()
-          )}`,
-          endDate: count?.completedAt
-            ? `${pad(endDate.getDate())}-${pad(
-                endDate.getMonth() + 1
-              )}-${endDate.getFullYear()}`
-            : "-",
-          endHour: count?.completedAt
-            ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-            : "-",
-        };
-      })
-  );
+  const allRows = counts
+    .filter((count) => {
+      if (
+        (count.user as User)?._id === user?._id ||
+        (user &&
+          [
+            RoleEnum.MANAGER,
+            RoleEnum.GAMEMANAGER,
+            RoleEnum.CATERINGMANAGER,
+          ].includes(user.role._id))
+      ) {
+        return count;
+      }
+    })
+    .map((count) => {
+      const startDate = new Date(count.createdAt);
+      const endDate = new Date(count?.completedAt ?? 0);
+      return {
+        ...count,
+        cntLst: (count.countList as AccountCountList).name,
+        lctn: (count.location as AccountStockLocation).name,
+        usr: (count.user as User)?.name,
+        startDate: `${pad(startDate.getDate())}-${pad(
+          startDate.getMonth() + 1
+        )}-${startDate.getFullYear()}`,
+        startHour: `${pad(startDate.getHours())}:${pad(
+          startDate.getMinutes()
+        )}`,
+        endDate: count?.completedAt
+          ? `${pad(endDate.getDate())}-${pad(
+              endDate.getMonth() + 1
+            )}-${endDate.getFullYear()}`
+          : "-",
+        endHour: count?.completedAt
+          ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+          : "-",
+      };
+    });
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Start Date"), isSortable: true },
     { key: t("Start Hour"), isSortable: true },
@@ -141,46 +140,7 @@ const CountArchive = () => {
     },
   ];
   useEffect(() => {
-    setRows(
-      counts
-        .filter((count) => {
-          if (
-            (count.user as User)?._id === user?._id ||
-            (user &&
-              [
-                RoleEnum.MANAGER,
-                RoleEnum.GAMEMANAGER,
-                RoleEnum.CATERINGMANAGER,
-              ].includes(user?.role._id))
-          ) {
-            return count;
-          }
-        })
-        .map((count) => {
-          const startDate = new Date(count.createdAt);
-          const endDate = new Date(count?.completedAt ?? 0);
-          return {
-            ...count,
-            cntLst: (count.countList as AccountCountList).name,
-            lctn: (count.location as AccountStockLocation).name,
-            usr: (count.user as User)?.name,
-            startDate: `${pad(startDate.getDate())}-${pad(
-              startDate.getMonth() + 1
-            )}-${startDate.getFullYear()}`,
-            startHour: `${pad(startDate.getHours())}:${pad(
-              startDate.getMinutes()
-            )}`,
-            endDate: count?.completedAt
-              ? `${pad(endDate.getDate())}-${pad(
-                  endDate.getMonth() + 1
-                )}-${endDate.getFullYear()}`
-              : "-",
-            endHour: count?.completedAt
-              ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-              : "-",
-          };
-        })
-    );
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [counts]);
 
