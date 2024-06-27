@@ -62,12 +62,15 @@ export function ActiveVisitList({
           label={label}
         />
       </div>
-      <div className="flex flex-wrap gap-4 mt-2">
+      <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
         {visits.map((visit) => (
           <Tooltip key={visit.user?._id} content={visit.user?.role?.name}>
             <Chip
               value={visit.user?.name}
-              style={{ backgroundColor: visit.user?.role?.color }}
+              style={{
+                backgroundColor: visit.user?.role?.color,
+                height: "fit-content",
+              }}
               color="gray"
               onClose={() => handleChipClose(visit)}
             />
