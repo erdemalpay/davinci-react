@@ -168,30 +168,29 @@ const TablesPage = () => {
               />
             </div>
             {/* buttons */}
-
-            <div className="flex justify-between gap-4 mr-40 ">
+            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
               <button
                 onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
-                className="min-w-fit my-3 h-12 bg-white transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-6 text-sm"
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
               >
                 {t("Close all tables")}
               </button>
               <button
                 onClick={() => navigate(Routes.Reservations)}
-                className="min-w-fit my-3 h-12 bg-white transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-6 text-sm"
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
               >
                 {t("Open Reservations")}
               </button>
               <button
                 onClick={() => setIsCreateTableDialogOpen(true)}
-                className="min-w-fit my-3 h-12 bg-white transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-6 text-sm"
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
               >
                 {t("Add table")}
               </button>
             </div>
           </div>
 
-          <div className="flex flex-row mt-2">
+          <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
             {(activeTableCount > 0 ||
               totalTableCount > 0 ||
@@ -228,7 +227,7 @@ const TablesPage = () => {
                 </div>
               </div>
             )}
-            <div className="flex flex-col ml-8 justify-between w-full">
+            <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
                 <ActiveVisitList
@@ -242,7 +241,7 @@ const TablesPage = () => {
               )}
 
               {/* filters */}
-              <div className="flex flex-row gap-4 justify-end  ">
+              <div className="flex flex-row gap-4 justify-end mt-2 md:mt-0 ">
                 <div className="flex  gap-4 items-center">
                   <H5>{t("Show All Gameplays")}</H5>
                   <SwitchButton
