@@ -30,6 +30,7 @@ export const Paths = {
   Visits: "/visits",
   Accounting: "/accounting",
   PanelControl: "/panel-control",
+  Order: "/order",
 };
 
 interface Props<T> {

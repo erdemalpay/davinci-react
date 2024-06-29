@@ -391,6 +391,24 @@ export type PanelControlCheckoutCash = {
   user: User;
   location: AccountStockLocation;
 };
+export type Order = {
+  _id: number;
+  location: Location;
+  item: MenuItem;
+  table: Table;
+  quantity: number;
+  status: string;
+  note?: string;
+  unitPrice: number;
+  totalPrice: number;
+  discount?: number;
+  createdAt: Date;
+  createdBy: User;
+  preparedAt?: Date;
+  preparedBy?: User;
+  deliveredAt?: Date;
+  deliveredBy?: User;
+};
 
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
