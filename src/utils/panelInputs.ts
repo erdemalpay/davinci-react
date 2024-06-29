@@ -272,7 +272,7 @@ export function PaymentMethodInput({
       ...paymentMethods?.map((input) => {
         return {
           value: input._id,
-          label: input.name,
+          label: t(input.name),
         };
       }),
       ,
