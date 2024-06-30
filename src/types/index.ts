@@ -22,6 +22,7 @@ export type Table = {
   location?: number;
   startHour: string;
   finishHour?: string;
+  orders: number[];
   gameplays: Gameplay[];
 };
 
@@ -393,9 +394,9 @@ export type PanelControlCheckoutCash = {
 };
 export type Order = {
   _id: number;
-  location: Location;
-  item: MenuItem;
-  table: Table;
+  location: Location | number;
+  item: MenuItem | number;
+  table: Table | number;
   quantity: number;
   status: string;
   note?: string;

@@ -12,8 +12,8 @@ import InfoBox from "../components/panelComponents/FormElements/InfoBox";
 import { H5 } from "../components/panelComponents/Typography";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
+import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
-import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
@@ -23,7 +23,6 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
-
 const NewTables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -41,10 +40,7 @@ const NewTables = () => {
   const tables = useGetTables();
   const users = useGetUsers();
 
-  // Sort tables first active tables, then closed ones.
-  // if both active then sort by name
   tables.sort(sortTable);
-
   // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
@@ -55,7 +51,6 @@ const NewTables = () => {
       return 0;
     }
   });
-
   visits.sort((a, b) => {
     if (a.user.role.name > b.user.role.name) {
       return 1;
@@ -75,17 +70,13 @@ const NewTables = () => {
     closeAllTables({ ids, finishHour });
     setIsCloseAllConfirmationDialogOpen(false);
   };
-
   const defaultUser: User = users.find((user) => user._id === "dv") as User;
-
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
-
   const activeTables = tables.filter((table) => !table.finishHour);
   const activeTableCount = activeTables.length;
   const totalTableCount = tables.length;
-
   const activeCustomerCount = activeTables.reduce(
     (prev: number, curr: Table) => {
       return Number(prev) + Number(curr.playerCount);
@@ -99,16 +90,13 @@ const NewTables = () => {
   (showAllTables ? tables : activeTables).forEach((table, index) => {
     tableColumns[index % 4].push(table);
   });
-
   useEffect(() => {
     const newMentors = defaultUser ? [defaultUser] : [];
-
     if (visits) {
       visits.forEach(
         (visit) => !visit.finishHour && newMentors.push(visit.user)
       );
     }
-
     setMentors((mentors) => {
       if (isEqual(mentors, newMentors)) {
         return mentors;
@@ -300,6 +288,7 @@ const NewTables = () => {
           close={() => setIsCreateTableDialogOpen(false)}
         />
       )}
+
       <ConfirmationDialog
         isOpen={isCloseAllConfirmationDialogOpen}
         close={() => setIsCloseAllConfirmationDialogOpen(false)}
