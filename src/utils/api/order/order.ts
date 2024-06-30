@@ -1,6 +1,6 @@
 import { Order } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
-
+import { patch } from "../index";
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
   const {
@@ -13,6 +13,13 @@ export function useOrderMutations() {
   });
 
   return { deleteOrder, updateOrder, createOrder };
+}
+
+export function deleteTableOrders({ ids }: { ids: number[] }) {
+  return patch({
+    path: `/order/multiple`,
+    payload: { ids },
+  });
 }
 
 export function useGetOrders() {
