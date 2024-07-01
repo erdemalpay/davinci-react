@@ -18,6 +18,7 @@ import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
+import { useGetTodayOrders } from "../utils/api/order/order";
 import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -33,14 +34,16 @@ const NewTables = () => {
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
+  const [showAllOrders, setShowAllOrders] = useState(true);
   const navigate = useNavigate();
   const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
   const visits = useGetVisits();
   const tables = useGetTables();
   const users = useGetUsers();
-
+  const orders = useGetTodayOrders();
   tables.sort(sortTable);
+  const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
@@ -105,6 +108,9 @@ const NewTables = () => {
       }
     });
   }, [defaultUser, visits]);
+  useEffect(() => {
+    setTableCardKey((prev) => prev + 1);
+  }, [orders, showAllGameplays, showAllOrders]);
 
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
@@ -231,6 +237,13 @@ const NewTables = () => {
               {/* filters */}
               <div className="flex flex-row gap-4 justify-end mt-2 md:mt-0 ">
                 <div className="flex  gap-4 items-center">
+                  <H5>{t("Show All Orders")}</H5>
+                  <SwitchButton
+                    checked={showAllOrders}
+                    onChange={setShowAllOrders}
+                  />
+                </div>
+                <div className="flex  gap-4 items-center">
                   <H5>{t("Show All Gameplays")}</H5>
                   <SwitchButton
                     checked={showAllGameplays}
@@ -254,14 +267,12 @@ const NewTables = () => {
             <div key={idx}>
               {tables.map((table) => (
                 <TableCard
-                  key={
-                    table._id + String(showAllGameplays) ||
-                    table.startHour + String(showAllGameplays)
-                  }
+                  key={table._id || table.startHour + tableCardKey}
                   table={table}
                   mentors={mentors}
                   games={games}
                   showAllGameplays={showAllGameplays}
+                  showAllOrders={showAllOrders}
                 />
               ))}
             </div>
@@ -270,14 +281,12 @@ const NewTables = () => {
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
           {tables.map((table) => (
             <TableCard
-              key={
-                table._id + String(showAllGameplays) ||
-                table.startHour + String(showAllGameplays)
-              }
+              key={table._id || table.startHour + tableCardKey}
               table={table}
               mentors={mentors}
               games={games as Game[]}
               showAllGameplays={showAllGameplays}
+              showAllOrders={showAllOrders}
             />
           ))}
         </div>

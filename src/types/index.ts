@@ -404,11 +404,11 @@ export type Order = {
   totalPrice: number;
   discount?: number;
   createdAt: Date;
-  createdBy: User;
+  createdBy: User | string;
   preparedAt?: Date;
-  preparedBy?: User;
+  preparedBy?: User | string;
   deliveredAt?: Date;
-  deliveredBy?: User;
+  deliveredBy?: User | string;
 };
 
 export enum ReservationStatusEnum {
@@ -667,6 +667,11 @@ export enum ExpenseTypes {
   INVOICE = "Product Expense",
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
+}
+export enum OrderStatus {
+  PENDING = "pending",
+  READYTOSERVE = "ready_to_serve",
+  SERVED = "served",
 }
 export enum ConstantPaymentMethodsIds {
   CASH = "cash",

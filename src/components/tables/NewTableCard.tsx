@@ -10,10 +10,11 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useLocationContext } from "../../context/Location.context";
-import { Game, Gameplay, Table, User } from "../../types";
+import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   deleteTableOrders,
+  useGetTodayOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
 import {
@@ -31,6 +32,8 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import GameplayCard from "./GameplayCard";
+import OrderCard from "./OrderCard";
 
 export interface TableCardProps {
   table: Table;
@@ -60,8 +63,9 @@ export function TableCard({
   const { mutate: closeTable } = useCloseTableMutation();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
-  const { createOrder } = useOrderMutations();
+  const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const orders = useGetTodayOrders();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -106,7 +110,15 @@ export function TableCard({
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
-  const bgColor = table.finishHour ? "bg-gray-500" : "bg-gray-200";
+  const bgColor = table.finishHour
+    ? "bg-gray-500"
+    : table.orders?.some(
+        (tableOrder) =>
+          orders.find((order) => order._id === tableOrder)?.status ===
+          OrderStatus.READYTOSERVE
+      )
+    ? "bg-yellow-200"
+    : "bg-gray-200";
 
   function createGameplay() {
     setSelectedGameplay(undefined);
@@ -163,11 +175,14 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table.orders.length > 0) {
-      deleteTableOrders({ ids: table.orders });
+    if (table?.orders?.length > 0) {
+      deleteTableOrders({ ids: table?.orders });
     }
     setIsDeleteConfirmationDialogOpen(false);
     toast.success(`Table ${table.name} deleted`);
+  }
+  function getOrder(orderId: number) {
+    return orders.find((order) => order._id === orderId);
   }
 
   return (
@@ -185,7 +200,7 @@ export function TableCard({
             onUpdate={updateTableHandler}
           />
         </p>
-        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex">
+        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
             <Tooltip content="Add gameplay">
               <span className="text-{8px}">
@@ -236,7 +251,7 @@ export function TableCard({
           </Tooltip>
         </div>
       </div>
-      <div className={`px-4 lg:px-6 md:pb-4 pb-8 gap-2`}>
+      <div className={`px-4 lg:px-3 md:pb-4 pb-8 gap-2`}>
         {/* start finish player count */}
         <div>
           <div className="flex gap-4 flex-row">
@@ -266,50 +281,46 @@ export function TableCard({
           </div>
         </div>
         {/* table gameplays */}
-        {showAllGameplays && table.gameplays.length > 0 && (
+        {showAllGameplays && table?.gameplays?.length > 0 && (
           <div
             className={`${
-              table.orders.length > 0 &&
-              "pb-3 border-b border-b-[1px] border-b-gray-300"
+              table?.orders?.length > 0 &&
+              "pb-3 border-b-[1px] border-b-gray-300"
             }`}
           >
             <div className="flex flex-col space-y-2 mt-2">
               {table.gameplays.map((gameplay) => {
                 return (
-                  <div
-                    key={gameplay._id || gameplay.startHour}
-                    className="flex justify-between text-xs cursor-pointer"
-                    onClick={() => editGameplay(gameplay)}
-                  >
-                    <div className="flex w-4/5">
-                      <div className="overflow-hidden whitespace-nowrap text-ellipsis text-xs mr-1">
-                        {getGameName(gameplay.game as number)}
-                      </div>
-                      <h1 className="text-xs">({gameplay.playerCount})</h1>
-                    </div>
-                    <div className="flex">
-                      {gameplay.mentor?._id !== "dv" ? (
-                        <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
-                          {gameplay.mentor?.name}
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                      <h5 className="text-xs whitespace-nowrap">
-                        {getDuration(
-                          gameplay.date,
-                          gameplay.startHour,
-                          gameplay.finishHour
-                        )}
-                      </h5>
-                    </div>
-                  </div>
+                  <GameplayCard
+                    key={gameplay._id}
+                    gameplay={gameplay}
+                    editGameplay={editGameplay}
+                    getGameName={getGameName}
+                    getDuration={getDuration}
+                  />
                 );
               })}
             </div>
           </div>
         )}
         {/* table orders */}
+        {table?.orders?.length > 0 && showAllOrders && (
+          <div className="flex flex-col gap-4 mt-2">
+            {table?.orders.map((orderId) => {
+              const order = getOrder(orderId);
+              if (!order) return null;
+              return (
+                <OrderCard
+                  key={order._id}
+                  order={order}
+                  table={table}
+                  //   updateOrder={updateOrder}
+                  //   deleteOrder={deleteOrder}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
       {isGameplayDialogOpen && (
         <CreateGameplayDialog

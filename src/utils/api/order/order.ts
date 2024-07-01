@@ -9,7 +9,7 @@ export function useOrderMutations() {
     createItem: createOrder,
   } = useMutationApi<Order>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Tables}`]],
+    additionalInvalidates: [[`${Paths.Tables}`], [`${Paths.Order}/today`]],
   });
 
   return { deleteOrder, updateOrder, createOrder };
@@ -24,4 +24,8 @@ export function deleteTableOrders({ ids }: { ids: number[] }) {
 
 export function useGetOrders() {
   return useGetList<Order>(baseUrl);
+}
+
+export function useGetTodayOrders() {
+  return useGetList<Order>(`${baseUrl}/today`, [`${baseUrl}/today`]);
 }
