@@ -32,6 +32,7 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 
 export interface TableCardProps {
@@ -39,6 +40,7 @@ export interface TableCardProps {
   mentors: User[];
   games: Game[];
   showAllGameplays?: boolean;
+  showAllOrders?: boolean;
 }
 
 export function TableCard({
@@ -46,6 +48,7 @@ export function TableCard({
   mentors,
   games,
   showAllGameplays = false,
+  showAllOrders = false,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -270,51 +273,30 @@ export function TableCard({
           </div>
         </div>
         {/* table gameplays */}
-        {showAllGameplays && table.gameplays.length > 0 && (
+        {showAllGameplays && table?.gameplays?.length > 0 && (
           <div
             className={`${
               table?.orders?.length > 0 &&
-              "pb-3 border-b border-b-[1px] border-b-gray-300"
+              "pb-3 border-b-[1px] border-b-gray-300"
             }`}
           >
             <div className="flex flex-col space-y-2 mt-2">
               {table.gameplays.map((gameplay) => {
                 return (
-                  <div
-                    key={gameplay._id || gameplay.startHour}
-                    className="flex justify-between text-xs cursor-pointer"
-                    onClick={() => editGameplay(gameplay)}
-                  >
-                    <div className="flex w-4/5">
-                      <div className="overflow-hidden whitespace-nowrap text-ellipsis text-xs mr-1">
-                        {getGameName(gameplay.game as number)}
-                      </div>
-                      <h1 className="text-xs">({gameplay.playerCount})</h1>
-                    </div>
-                    <div className="flex">
-                      {gameplay.mentor?._id !== "dv" ? (
-                        <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
-                          {gameplay.mentor?.name}
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                      <h5 className="text-xs whitespace-nowrap">
-                        {getDuration(
-                          gameplay.date,
-                          gameplay.startHour,
-                          gameplay.finishHour
-                        )}
-                      </h5>
-                    </div>
-                  </div>
+                  <GameplayCard
+                    key={gameplay._id}
+                    gameplay={gameplay}
+                    editGameplay={editGameplay}
+                    getGameName={getGameName}
+                    getDuration={getDuration}
+                  />
                 );
               })}
             </div>
           </div>
         )}
         {/* table orders */}
-        {table?.orders?.length > 0 && (
+        {table?.orders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-4">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
