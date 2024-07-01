@@ -14,6 +14,7 @@ import { Game, Gameplay, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   deleteTableOrders,
+  useGetTodayOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
 import {
@@ -31,13 +32,13 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
+import OrderCard from "./OrderCard";
 
 export interface TableCardProps {
   table: Table;
   mentors: User[];
   games: Game[];
   showAllGameplays?: boolean;
-  showAllOrders?: boolean;
 }
 
 export function TableCard({
@@ -45,7 +46,6 @@ export function TableCard({
   mentors,
   games,
   showAllGameplays = false,
-  showAllOrders = false,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -60,8 +60,9 @@ export function TableCard({
   const { mutate: closeTable } = useCloseTableMutation();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
-  const { createOrder } = useOrderMutations();
+  const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const orders = useGetTodayOrders();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -163,11 +164,14 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table.orders.length > 0) {
-      deleteTableOrders({ ids: table.orders });
+    if (table?.orders?.length > 0) {
+      deleteTableOrders({ ids: table?.orders });
     }
     setIsDeleteConfirmationDialogOpen(false);
     toast.success(`Table ${table.name} deleted`);
+  }
+  function getOrder(orderId: number) {
+    return orders.find((order) => order._id === orderId);
   }
 
   return (
@@ -269,7 +273,7 @@ export function TableCard({
         {showAllGameplays && table.gameplays.length > 0 && (
           <div
             className={`${
-              table.orders.length > 0 &&
+              table?.orders?.length > 0 &&
               "pb-3 border-b border-b-[1px] border-b-gray-300"
             }`}
           >
@@ -310,6 +314,23 @@ export function TableCard({
           </div>
         )}
         {/* table orders */}
+        {table?.orders?.length > 0 && (
+          <div className="flex flex-col gap-4">
+            {table?.orders.map((orderId) => {
+              const order = getOrder(orderId);
+              if (!order) return null;
+              return (
+                <OrderCard
+                  key={order._id}
+                  order={order}
+                  table={table}
+                  //   updateOrder={updateOrder}
+                  //   deleteOrder={deleteOrder}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
       {isGameplayDialogOpen && (
         <CreateGameplayDialog

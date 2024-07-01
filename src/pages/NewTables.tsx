@@ -18,6 +18,7 @@ import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
+import { useGetTodayOrders } from "../utils/api/order/order";
 import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -39,7 +40,7 @@ const NewTables = () => {
   const visits = useGetVisits();
   const tables = useGetTables();
   const users = useGetUsers();
-
+  const orders = useGetTodayOrders();
   tables.sort(sortTable);
   // Sort users by name
   users.sort((a: User, b: User) => {
@@ -256,7 +257,7 @@ const NewTables = () => {
                 <TableCard
                   key={
                     table._id + String(showAllGameplays) ||
-                    table.startHour + String(showAllGameplays)
+                    table.startHour + String(showAllGameplays) + orders?.length
                   }
                   table={table}
                   mentors={mentors}
@@ -272,7 +273,7 @@ const NewTables = () => {
             <TableCard
               key={
                 table._id + String(showAllGameplays) ||
-                table.startHour + String(showAllGameplays)
+                table.startHour + String(showAllGameplays) + orders?.length
               }
               table={table}
               mentors={mentors}

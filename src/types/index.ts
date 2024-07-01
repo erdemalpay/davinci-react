@@ -668,6 +668,11 @@ export enum ExpenseTypes {
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
 }
+export enum OrderStatus {
+  PENDING = "pending",
+  READYTOSERVE = "ready_to_serve",
+  SERVED = "served",
+}
 export enum ConstantPaymentMethodsIds {
   CASH = "cash",
   CREDITCARD = "credit_card",
