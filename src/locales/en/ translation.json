@@ -432,5 +432,7 @@
   "Who was at cafe": "Who was at cafe",
   "Confirm": "Confirm",
   "Show All Orders": "Show All Orders",
+  "Served": "Served",
+  "Not Served": "Not Served",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
