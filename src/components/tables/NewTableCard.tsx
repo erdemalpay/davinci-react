@@ -117,7 +117,7 @@ export function TableCard({
           orders.find((order) => order._id === tableOrder)?.status ===
           OrderStatus.READYTOSERVE
       )
-    ? "bg-yellow-200"
+    ? "bg-orange-200"
     : "bg-gray-200";
 
   function createGameplay() {
@@ -309,15 +309,7 @@ export function TableCard({
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
               if (!order) return null;
-              return (
-                <OrderCard
-                  key={order._id}
-                  order={order}
-                  table={table}
-                  //   updateOrder={updateOrder}
-                  //   deleteOrder={deleteOrder}
-                />
-              );
+              return <OrderCard key={order._id} order={order} table={table} />;
             })}
           </div>
         )}

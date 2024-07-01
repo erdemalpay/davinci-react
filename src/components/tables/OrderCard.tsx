@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { PiBellRinging, PiBellSimpleRingingFill } from "react-icons/pi";
+import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table, User } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
@@ -21,7 +21,7 @@ const OrderCard = ({ order, table }: Props) => {
       case OrderStatus.PENDING:
         return "bg-blue-200";
       case OrderStatus.READYTOSERVE:
-        return "bg-yellow-200";
+        return "bg-orange-200";
       case OrderStatus.SERVED:
         return "bg-green-200";
       default:
@@ -73,8 +73,8 @@ const OrderCard = ({ order, table }: Props) => {
           ) : (
             user._id === (order.deliveredBy as User)._id && (
               <ButtonTooltip content={t("Not Served")}>
-                <PiBellRinging
-                  className="text-yellow-500 cursor-pointer text-lg px-[0.5px]"
+                <PiBellSimpleRingingFill
+                  className="text-orange-500 cursor-pointer text-lg px-[0.5px]"
                   onClick={orderServeUpdate}
                 />
               </ButtonTooltip>
