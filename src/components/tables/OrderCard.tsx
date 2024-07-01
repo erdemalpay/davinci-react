@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { PiBellRinging, PiBellSimpleRingingFill } from "react-icons/pi";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table, User } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 
 type Props = {
   order: Order;
@@ -10,6 +12,7 @@ type Props = {
 };
 
 const OrderCard = ({ order, table }: Props) => {
+  const { t } = useTranslation();
   const { deleteOrder, updateOrder } = useOrderMutations();
   const { user } = useUserContext();
   if (!user) return <></>;
@@ -61,16 +64,20 @@ const OrderCard = ({ order, table }: Props) => {
       <div className="flex flex-row ">
         {order.status !== OrderStatus.PENDING &&
           (order.status === OrderStatus.READYTOSERVE ? (
-            <PiBellSimpleRingingFill
-              className="text-green-500 cursor-pointer text-lg px-[0.5px]"
-              onClick={orderServeUpdate}
-            />
-          ) : (
-            user._id === (order.deliveredBy as User)._id && (
-              <PiBellRinging
-                className="text-yellow-500 cursor-pointer text-lg px-[0.5px]"
+            <ButtonTooltip content={t("Served")}>
+              <PiBellSimpleRingingFill
+                className="text-green-500 cursor-pointer text-lg px-[0.5px]"
                 onClick={orderServeUpdate}
               />
+            </ButtonTooltip>
+          ) : (
+            user._id === (order.deliveredBy as User)._id && (
+              <ButtonTooltip content={t("Not Served")}>
+                <PiBellRinging
+                  className="text-yellow-500 cursor-pointer text-lg px-[0.5px]"
+                  onClick={orderServeUpdate}
+                />
+              </ButtonTooltip>
             )
           ))}
         {order.status === OrderStatus.PENDING && (
@@ -78,11 +85,12 @@ const OrderCard = ({ order, table }: Props) => {
             <h5 className="text-xs whitespace-nowrap min-w-8">
               {orderWaitTime()} m
             </h5>
-
-            <HiOutlineTrash
-              className="text-red-500 cursor-pointer text-lg px-[0.5px]"
-              onClick={() => deleteOrder(order._id)}
-            />
+            <ButtonTooltip content={t("Delete")}>
+              <HiOutlineTrash
+                className="text-red-500 cursor-pointer text-lg px-[0.5px]"
+                onClick={() => deleteOrder(order._id)}
+              />
+            </ButtonTooltip>
           </div>
         )}
       </div>
