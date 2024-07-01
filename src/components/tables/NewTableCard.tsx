@@ -10,7 +10,7 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useLocationContext } from "../../context/Location.context";
-import { Game, Gameplay, Table, User } from "../../types";
+import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   deleteTableOrders,
@@ -110,7 +110,15 @@ export function TableCard({
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
-  const bgColor = table.finishHour ? "bg-gray-500" : "bg-gray-200";
+  const bgColor = table.finishHour
+    ? "bg-gray-500"
+    : table.orders?.some(
+        (tableOrder) =>
+          orders.find((order) => order._id === tableOrder)?.status ===
+          OrderStatus.READYTOSERVE
+      )
+    ? "bg-yellow-200"
+    : "bg-gray-200";
 
   function createGameplay() {
     setSelectedGameplay(undefined);
@@ -192,7 +200,7 @@ export function TableCard({
             onUpdate={updateTableHandler}
           />
         </p>
-        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex">
+        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
             <Tooltip content="Add gameplay">
               <span className="text-{8px}">
@@ -243,7 +251,7 @@ export function TableCard({
           </Tooltip>
         </div>
       </div>
-      <div className={`px-4 lg:px-6 md:pb-4 pb-8 gap-2`}>
+      <div className={`px-4 lg:px-3 md:pb-4 pb-8 gap-2`}>
         {/* start finish player count */}
         <div>
           <div className="flex gap-4 flex-row">
@@ -297,7 +305,7 @@ export function TableCard({
         )}
         {/* table orders */}
         {table?.orders?.length > 0 && showAllOrders && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
               if (!order) return null;
