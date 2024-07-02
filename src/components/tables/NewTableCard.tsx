@@ -305,7 +305,7 @@ export function TableCard({
         )}
         {/* table orders */}
         {table?.orders?.length > 0 && showAllOrders && (
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
               if (!order) return null;
