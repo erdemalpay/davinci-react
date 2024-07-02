@@ -1,11 +1,13 @@
 import { FaRegClock } from "react-icons/fa6";
 import { Header } from "../components/header/Header";
 import OrderStatusContainer from "../components/orders/OrderStatusContainer";
-import { OrderStatus } from "../types";
+import { useLocationContext } from "../context/Location.context";
+import { Location, OrderStatus } from "../types";
 import { useGetTodayOrders } from "../utils/api/order/order";
 
 export default function Orders() {
   const todayOrders = useGetTodayOrders();
+  const { selectedLocationId } = useLocationContext();
   if (!todayOrders) return <></>;
   const orderStatusArray = [
     {
@@ -45,7 +47,10 @@ export default function Orders() {
           >
             <OrderStatusContainer
               status={orderStatus.status}
-              orders={orderStatus.orders}
+              orders={orderStatus.orders.filter(
+                (order) =>
+                  (order.location as Location)._id === selectedLocationId
+              )}
               icon={orderStatus.icon}
               iconBackgroundColor={orderStatus.iconBackgroundColor}
             />
