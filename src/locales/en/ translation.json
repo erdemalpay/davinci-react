@@ -438,5 +438,7 @@
   "Pending": "Pending",
   "Ready to Serve": "Ready to Serve",
   "Served": "Served",
+  "Table": "Table",
+  "All Ready": "All Ready",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
