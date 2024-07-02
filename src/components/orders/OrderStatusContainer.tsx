@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Order } from "../../types";
+import SingleOrderCard from "./SingleOrderCard";
 
 type Props = {
   status: string;
@@ -35,6 +36,9 @@ const OrderStatusContainer = ({
           </div>
         </div>
         {/* orders */}
+        {orders.map((order) => {
+          return <SingleOrderCard order={order} />;
+        })}
       </div>
     </div>
   );
