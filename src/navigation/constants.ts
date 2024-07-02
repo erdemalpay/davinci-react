@@ -15,6 +15,7 @@ import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import NewTables from "../pages/NewTables";
+import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
 import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
@@ -78,6 +79,7 @@ export enum Routes {
   Checkout = "/checkout",
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
+  OrderDatas = "/order-datas",
 }
 
 export const allRoutes: {
@@ -104,6 +106,12 @@ export const allRoutes: {
     name: "Orders",
     path: Routes.Orders,
     element: Orders,
+    isOnSidebar: true,
+  },
+  {
+    name: "Order Datas",
+    path: Routes.OrderDatas,
+    element: OrderDatas,
     isOnSidebar: true,
   },
   {
