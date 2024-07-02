@@ -1,6 +1,10 @@
-type Props = {};
+import { Order } from "../../types";
 
-const SingleOrderCard = (props: Props) => {
+type Props = {
+  order: Order;
+};
+
+const SingleOrderCard = ({ order }: Props) => {
   return <div>SingleOrderCard</div>;
 };
 
