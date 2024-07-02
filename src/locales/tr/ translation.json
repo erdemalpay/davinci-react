@@ -437,5 +437,7 @@
   "Table": "Masa",
   "All Ready": "Tümü Hazır",
   "Ready": "Hazır",
+  "Preparing": "Hazırlanıyor",
+  "All Served": "Tümü Servis Edildi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

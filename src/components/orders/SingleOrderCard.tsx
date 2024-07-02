@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
+import { TbArrowBack } from "react-icons/tb";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, Order, OrderStatus, User } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
@@ -72,6 +73,62 @@ const SingleOrderCard = ({ order, user }: Props) => {
               <PiBellSimpleRingingFill className="text-xl" />
             </ButtonTooltip>
           </button>
+        )}
+        {/* ready to serve back to pending  button */}
+        {order.status === OrderStatus.READYTOSERVE && (
+          <div className="flex flex-row ">
+            <button
+              onClick={() => {
+                updateOrder({
+                  id: order._id,
+                  updates: {
+                    status: OrderStatus.PENDING,
+                  },
+                });
+              }}
+              className=" px-2 py-1 rounded-lg"
+            >
+              <ButtonTooltip content={t("Preparing")}>
+                <TbArrowBack className="text-xl" />
+              </ButtonTooltip>
+            </button>
+            <button
+              onClick={() => {
+                updateOrder({
+                  id: order._id,
+                  updates: {
+                    status: OrderStatus.SERVED,
+                    deliveredAt: new Date(),
+                    deliveredBy: user._id,
+                  },
+                });
+              }}
+              className=" px-2 py-1 rounded-lg"
+            >
+              <ButtonTooltip content={t("Served")}>
+                <PiBellSimpleRingingFill className="text-xl" />
+              </ButtonTooltip>
+            </button>
+          </div>
+        )}
+        {order.status === OrderStatus.SERVED && (
+          <div className="flex flex-row ">
+            <button
+              onClick={() => {
+                updateOrder({
+                  id: order._id,
+                  updates: {
+                    status: OrderStatus.READYTOSERVE,
+                  },
+                });
+              }}
+              className=" px-2 py-1 rounded-lg"
+            >
+              <ButtonTooltip content={t("Not Served")}>
+                <TbArrowBack className="text-xl" />
+              </ButtonTooltip>
+            </button>
+          </div>
         )}
       </div>
     </div>

@@ -73,6 +73,19 @@ const OrderStatusContainer = ({
                     {t("All Ready")}
                   </button>
                 )}
+                {status === "Ready to Serve" && (
+                  <button
+                    onClick={() => {
+                      updateMultipleOrdersStatus({
+                        ids: tableOrders.map((order) => order._id),
+                        status: OrderStatus.SERVED,
+                      });
+                    }}
+                    className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                  >
+                    {t("All Served")}
+                  </button>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 {tableOrders?.map((order) => (
