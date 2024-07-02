@@ -6,7 +6,7 @@ import { useGetTodayOrders } from "../utils/api/order/order";
 
 export default function Orders() {
   const todayOrders = useGetTodayOrders();
-  if (!todayOrders) return null;
+  if (!todayOrders) return <></>;
   const orderStatusArray = [
     {
       status: "Pending",
