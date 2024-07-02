@@ -1,12 +1,19 @@
+import { useTranslation } from "react-i18next";
+import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuItem, Order, OrderStatus } from "../../types";
+import { MenuItem, Order, OrderStatus, User } from "../../types";
+import { useOrderMutations } from "../../utils/api/order/order";
 import Timer from "../common/Timer";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 
 type Props = {
   order: Order;
+  user: User;
 };
 
-const SingleOrderCard = ({ order }: Props) => {
+const SingleOrderCard = ({ order, user }: Props) => {
+  const { updateOrder } = useOrderMutations();
+  const { t } = useTranslation();
   const timerSetter = () => {
     switch (order.status) {
       case OrderStatus.PENDING:
@@ -45,7 +52,28 @@ const SingleOrderCard = ({ order }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className="mt-1"></div>
+      <div className="mt-1  ml-auto">
+        {/* pending ready button */}
+        {order.status === OrderStatus.PENDING && (
+          <button
+            onClick={() => {
+              updateOrder({
+                id: order._id,
+                updates: {
+                  status: OrderStatus.READYTOSERVE,
+                  preparedAt: new Date(),
+                  preparedBy: user._id,
+                },
+              });
+            }}
+            className=" px-2 py-1 rounded-lg"
+          >
+            <ButtonTooltip content={t("Ready")}>
+              <PiBellSimpleRingingFill className="text-xl" />
+            </ButtonTooltip>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

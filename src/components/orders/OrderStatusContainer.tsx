@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../context/User.context";
 import { Order, OrderStatus, Table } from "../../types";
-import { updateMultipleOrdersStatus } from "../../utils/api/order/order";
+import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
 import SingleOrderCard from "./SingleOrderCard";
-
 type Props = {
   status: string;
   orders: Order[];
@@ -17,6 +17,8 @@ const OrderStatusContainer = ({
   iconBackgroundColor,
 }: Props) => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
+  if (!user) return <></>;
   const groupedOrders = orders.reduce<{ [key: string]: Order[] }>(
     (acc, order) => {
       const tableId = (order.table as Table)._id;
@@ -28,6 +30,8 @@ const OrderStatusContainer = ({
     },
     {}
   );
+  const { mutate: updateMultipleOrdersStatus } =
+    useUpdateMultipleOrderMutation();
 
   return (
     <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-sm __className_a182b8 mx-auto h-full pb-4 mb-4">
@@ -39,8 +43,8 @@ const OrderStatusContainer = ({
       <div className="flex flex-col gap-12 mt-2">
         {/* status */}
         <div className=" w-5/6 flex ml-auto">
-          <div className="flex gap-0.5">
-            <h1 className="font-medium">{t(status)}</h1>
+          <div className="flex gap-0.5 ml-2 sm:ml-0">
+            <h1 className="font-medium ">{t(status)}</h1>
             <h1 className="font-medium">
               {"("}
               {orders.length}
@@ -72,7 +76,7 @@ const OrderStatusContainer = ({
               </div>
               <div className="flex flex-col gap-2">
                 {tableOrders?.map((order) => (
-                  <SingleOrderCard key={order._id} order={order} />
+                  <SingleOrderCard key={order._id} order={order} user={user} />
                 ))}
               </div>
             </div>

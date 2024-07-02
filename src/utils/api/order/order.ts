@@ -1,6 +1,9 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { Order } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch } from "../index";
+
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
   const {
@@ -31,6 +34,23 @@ export function updateMultipleOrdersStatus({
   return patch({
     path: `/order/update_multiple`,
     payload: { ids: ids, status: status },
+  });
+}
+export function useUpdateMultipleOrderMutation() {
+  const queryKey = [`${Paths.Order}/today`];
+  const queryClient = useQueryClient();
+  return useMutation(updateMultipleOrdersStatus, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }
 
