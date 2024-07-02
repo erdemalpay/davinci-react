@@ -36,12 +36,11 @@ export default function Orders() {
   return (
     <>
       <Header />
-      <div className="mt-16 flex flex-row gap-2 w-[95%] mx-auto">
+      <div className="mt-16 flex flex-col  sm:flex-row gap-8 sm:gap-2 w-[95%] mx-auto">
         {orderStatusArray.map((orderStatus, index) => (
           <div
             key={orderStatus.status + index}
-            className="flex flex-col items-center"
-            style={{ width: `${100 / orderStatusArray.length}%` }}
+            className="flex flex-col items-center w-full sm:w-1/3"
           >
             <OrderStatusContainer
               status={orderStatus.status}
