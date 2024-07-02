@@ -17,8 +17,20 @@ export function useOrderMutations() {
 
 export function deleteTableOrders({ ids }: { ids: number[] }) {
   return patch({
-    path: `/order/multiple`,
+    path: `/order/delete_multiple`,
     payload: { ids },
+  });
+}
+export function updateMultipleOrdersStatus({
+  ids,
+  status,
+}: {
+  ids: number[];
+  status: string;
+}) {
+  return patch({
+    path: `/order/update_multiple`,
+    payload: { ids: ids, status: status },
   });
 }
 
