@@ -71,7 +71,7 @@ const OrderCard = ({ order, table }: Props) => {
               />
             </ButtonTooltip>
           ) : (
-            user._id === (order.deliveredBy as User)._id && (
+            user._id === (order.deliveredBy as User)?._id && (
               <ButtonTooltip content={t("Not Served")}>
                 <PiBellSimpleRingingFill
                   className="text-orange-500 cursor-pointer text-lg px-[0.5px]"
