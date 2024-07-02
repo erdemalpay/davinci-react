@@ -34,7 +34,8 @@ const OrderStatusContainer = ({
     useUpdateMultipleOrderMutation();
 
   return (
-    <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-sm __className_a182b8 mx-auto h-full pb-4 mb-4">
+    <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
+      {/* icon */}
       <div
         className={`absolute left-3 top-[-1.5rem] px-4 py-4 border ${iconBackgroundColor}`}
       >
@@ -54,12 +55,14 @@ const OrderStatusContainer = ({
         </div>
         {/* orders */}
         <div className="flex flex-col gap-4 px-2">
+          {/* grouped tables  */}
           {Object.entries(groupedOrders)?.map(([tableId, tableOrders]) => (
             <div key={tableId} className=" flex flex-col gap-2 px-1 ">
               <div className="flex justify-between">
                 <h2 className="font-semibold text-blue-800 ">
                   {t("Table")} {(tableOrders[0]?.table as Table)?.name}
                 </h2>
+                {/* pending case all ready button */}
                 {status === "Pending" && (
                   <button
                     onClick={() => {
@@ -68,11 +71,12 @@ const OrderStatusContainer = ({
                         status: OrderStatus.READYTOSERVE,
                       });
                     }}
-                    className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                    className="bg-green-500 text-white px-2 py-0.5 rounded-lg"
                   >
                     {t("All Ready")}
                   </button>
                 )}
+                {/* ready to serve case all served button */}
                 {status === "Ready to Serve" && (
                   <button
                     onClick={() => {
@@ -81,12 +85,13 @@ const OrderStatusContainer = ({
                         status: OrderStatus.SERVED,
                       });
                     }}
-                    className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                    className="bg-green-500 text-white px-2 py-0.5 rounded-lg"
                   >
                     {t("All Served")}
                   </button>
                 )}
               </div>
+              {/* single order card in a table  */}
               <div className="flex flex-col gap-2">
                 {tableOrders?.map((order) => (
                   <SingleOrderCard key={order._id} order={order} user={user} />
