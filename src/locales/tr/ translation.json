@@ -431,5 +431,8 @@
   "Served": "Servis Edildi",
   "Not Served": "Servis Edilmedi",
   "Orders": "Siparişler",
+  "Pending": "Hazırlanıyor",
+  "Ready to Serve": "Servise Hazır",
+  "Served": "Servis Edildi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
