@@ -3,12 +3,12 @@ import { Header } from "../components/header/Header";
 import OrderStatusContainer from "../components/orders/OrderStatusContainer";
 import { useLocationContext } from "../context/Location.context";
 import { Location, OrderStatus } from "../types";
-import { useGetTodayOrders } from "../utils/api/order/order";
+import { useGetGivenDateOrders } from "../utils/api/order/order";
 
 export default function Orders() {
-  const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
-  if (!todayOrders) return <></>;
+  const todayOrders = useGetGivenDateOrders(new Date());
+
   const orderStatusArray = [
     {
       status: "Pending",
@@ -39,23 +39,25 @@ export default function Orders() {
   return (
     <>
       <Header />
-      <div className="mt-16 flex flex-col  sm:flex-row gap-8 sm:gap-2 w-[95%] mx-auto">
-        {orderStatusArray.map((orderStatus, index) => (
-          <div
-            key={orderStatus.status + index}
-            className="flex flex-col items-center w-full sm:w-1/3"
-          >
-            <OrderStatusContainer
-              status={orderStatus.status}
-              orders={orderStatus.orders.filter(
-                (order) =>
-                  (order.location as Location)._id === selectedLocationId
-              )}
-              icon={orderStatus.icon}
-              iconBackgroundColor={orderStatus.iconBackgroundColor}
-            />
-          </div>
-        ))}
+      <div className="flex flex-col gap-6 mt-8">
+        <div className="flex flex-col sm:flex-row gap-8 sm:gap-2 w-[95%] mx-auto">
+          {orderStatusArray.map((orderStatus, index) => (
+            <div
+              key={orderStatus.status + index}
+              className="flex flex-col items-center w-full sm:w-1/3"
+            >
+              <OrderStatusContainer
+                status={orderStatus.status}
+                orders={orderStatus.orders.filter(
+                  (order) =>
+                    (order.location as Location)._id === selectedLocationId
+                )}
+                icon={orderStatus.icon}
+                iconBackgroundColor={orderStatus.iconBackgroundColor}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
