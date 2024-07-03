@@ -18,7 +18,7 @@ import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
-import { useGetTodayOrders } from "../utils/api/order/order";
+import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -41,7 +41,9 @@ const NewTables = () => {
   const visits = useGetVisits();
   const tables = useGetTables();
   const users = useGetUsers();
-  const orders = useGetTodayOrders();
+  const orders = useGetGivenDateOrders(
+    selectedDate ? new Date(selectedDate) : new Date()
+  );
   tables.sort(sortTable);
   const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name
@@ -235,22 +237,22 @@ const NewTables = () => {
               )}
 
               {/* filters */}
-              <div className="flex flex-row gap-4 justify-end mt-2 md:mt-0 ">
-                <div className="flex  gap-4 items-center">
+              <div className="flex  gap-4 justify-end mt-4  ">
+                <div className="flex  gap-2 items-center">
                   <H5>{t("Show All Orders")}</H5>
                   <SwitchButton
                     checked={showAllOrders}
                     onChange={setShowAllOrders}
                   />
                 </div>
-                <div className="flex  gap-4 items-center">
+                <div className="flex  gap-2 items-center">
                   <H5>{t("Show All Gameplays")}</H5>
                   <SwitchButton
                     checked={showAllGameplays}
                     onChange={setShowAllGameplays}
                   />
                 </div>
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-2 items-center">
                   <H5> {t("Show Closed Tables")}</H5>
                   <SwitchButton
                     checked={showAllTables}

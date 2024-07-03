@@ -9,12 +9,13 @@ import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   deleteTableOrders,
-  useGetTodayOrders,
+  useGetGivenDateOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
 import {
@@ -64,8 +65,11 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
+  const { selectedDate } = useDateContext();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
-  const orders = useGetTodayOrders();
+  const orders = useGetGivenDateOrders(
+    selectedDate ? new Date(selectedDate) : new Date()
+  );
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
