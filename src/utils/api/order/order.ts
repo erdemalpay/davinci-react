@@ -20,6 +20,7 @@ export function useOrderMutations() {
     baseQuery: baseUrl,
     additionalInvalidates: [
       [`${Paths.Tables}`],
+      [`${Paths.Order}/today`],
       [`${Paths.Order}/${formatDate(new Date())}`],
     ],
   });
@@ -46,7 +47,7 @@ export function updateMultipleOrdersStatus({
   });
 }
 export function useUpdateMultipleOrderMutation() {
-  const queryKey = [`${Paths.Order}/${formatDate(new Date())}`];
+  const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
   return useMutation(updateMultipleOrdersStatus, {
     onMutate: async () => {
@@ -72,4 +73,8 @@ export function useGetGivenDateOrders(date: Date) {
   return useGetList<Order>(`${baseUrl}/${formattedDate}`, [
     `${baseUrl}/${formattedDate}`,
   ]);
+}
+
+export function useGetTodayOrders() {
+  return useGetList<Order>(`${baseUrl}/today`, [`${baseUrl}/today`]);
 }
