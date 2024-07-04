@@ -5,6 +5,12 @@ import { formatAsLocalDate } from "../../format";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch } from "../index";
 
+function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
   const {
@@ -65,7 +71,8 @@ export function useGetOrders() {
 }
 
 export function useGetGivenDateOrders(date: Date) {
-  return useGetList<Order>(`${baseUrl}/${date.toISOString().split("T")[0]}`, [
-    `${baseUrl}/${formatAsLocalDate(date.toISOString())}`,
+  const formattedDate = formatDate(date);
+  return useGetList<Order>(`${baseUrl}/${formattedDate}`, [
+    `${baseUrl}/${formattedDate}`,
   ]);
 }
