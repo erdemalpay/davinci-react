@@ -8,7 +8,6 @@ import { useGetGivenDateOrders } from "../utils/api/order/order";
 export default function Orders() {
   const { selectedLocationId } = useLocationContext();
   const todayOrders = useGetGivenDateOrders(new Date());
-
   const orderStatusArray = [
     {
       status: "Pending",

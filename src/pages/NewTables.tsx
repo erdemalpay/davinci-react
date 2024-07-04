@@ -1,4 +1,4 @@
-import { format, subDays } from "date-fns";
+import { format, parseISO, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -42,8 +42,9 @@ const NewTables = () => {
   const tables = useGetTables();
   const users = useGetUsers();
   const orders = useGetGivenDateOrders(
-    selectedDate ? new Date(selectedDate) : new Date()
+    selectedDate ? parseISO(selectedDate) : new Date()
   );
+
   tables.sort(sortTable);
   const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name

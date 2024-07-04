@@ -402,7 +402,6 @@ export type Order = {
   note?: string;
   unitPrice: number;
   totalPrice: number;
-  discount?: number;
   createdAt: Date;
   createdBy: User | string;
   preparedAt?: Date;
@@ -411,6 +410,25 @@ export type Order = {
   deliveredBy?: User | string;
 };
 
+export type OrderCollection = {
+  _id: number;
+  location: Location | number;
+  createdAt: Date;
+  createdBy: User | string;
+  amount: number;
+  isCancelled: boolean;
+  paymentMethod: AccountPaymentMethod | string;
+};
+export type OrderPayment = {
+  _id: number;
+  location: Location | number;
+  table: Table | number;
+  collections?: number[];
+  unpaidOrders?: number[];
+  paidOrders?: number[];
+  discount?: number;
+  totalAmount: number;
+};
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
   COMING = "Coming",
