@@ -3,11 +3,11 @@ import { Header } from "../components/header/Header";
 import OrderStatusContainer from "../components/orders/OrderStatusContainer";
 import { useLocationContext } from "../context/Location.context";
 import { Location, OrderStatus } from "../types";
-import { useGetGivenDateOrders } from "../utils/api/order/order";
+import { useGetTodayOrders } from "../utils/api/order/order";
 
 export default function Orders() {
   const { selectedLocationId } = useLocationContext();
-  const todayOrders = useGetGivenDateOrders(new Date());
+  const todayOrders = useGetTodayOrders();
   const orderStatusArray = [
     {
       status: "Pending",
