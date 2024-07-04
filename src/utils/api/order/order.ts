@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Order } from "../../../types";
-import { formatAsLocalDate } from "../../format";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch } from "../index";
 
@@ -21,7 +20,7 @@ export function useOrderMutations() {
     baseQuery: baseUrl,
     additionalInvalidates: [
       [`${Paths.Tables}`],
-      [`${Paths.Order}/${formatAsLocalDate(new Date().toISOString())}`],
+      [`${Paths.Order}/${formatDate(new Date())}`],
     ],
   });
 
@@ -47,9 +46,7 @@ export function updateMultipleOrdersStatus({
   });
 }
 export function useUpdateMultipleOrderMutation() {
-  const queryKey = [
-    `${Paths.Order}/${formatAsLocalDate(new Date().toISOString())}`,
-  ];
+  const queryKey = [`${Paths.Order}/${formatDate(new Date())}`];
   const queryClient = useQueryClient();
   return useMutation(updateMultipleOrdersStatus, {
     onMutate: async () => {
