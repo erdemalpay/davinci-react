@@ -76,6 +76,7 @@ const OrderStatusContainer = ({
                     {t("All Ready")}
                   </button>
                 )}
+                {/* TODO:Fix here  */}
                 {/* ready to serve case all served button */}
                 {status === "Ready to Serve" && (
                   <button

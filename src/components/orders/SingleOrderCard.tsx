@@ -77,21 +77,23 @@ const SingleOrderCard = ({ order, user }: Props) => {
         {/* ready to serve back to pending  button */}
         {order.status === OrderStatus.READYTOSERVE && (
           <div className="flex flex-row ">
-            <button
-              onClick={() => {
-                updateOrder({
-                  id: order._id,
-                  updates: {
-                    status: OrderStatus.PENDING,
-                  },
-                });
-              }}
-              className=" px-2 py-1 rounded-lg"
-            >
-              <ButtonTooltip content={t("Preparing")}>
-                <TbArrowBack className="text-xl" />
-              </ButtonTooltip>
-            </button>
+            {user._id === (order.preparedBy as User)._id && (
+              <button
+                onClick={() => {
+                  updateOrder({
+                    id: order._id,
+                    updates: {
+                      status: OrderStatus.PENDING,
+                    },
+                  });
+                }}
+                className=" px-2 py-1 rounded-lg"
+              >
+                <ButtonTooltip content={t("Preparing")}>
+                  <TbArrowBack className="text-xl" />
+                </ButtonTooltip>
+              </button>
+            )}
             <button
               onClick={() => {
                 updateOrder({
@@ -111,25 +113,26 @@ const SingleOrderCard = ({ order, user }: Props) => {
             </button>
           </div>
         )}
-        {order.status === OrderStatus.SERVED && (
-          <div className="flex flex-row ">
-            <button
-              onClick={() => {
-                updateOrder({
-                  id: order._id,
-                  updates: {
-                    status: OrderStatus.READYTOSERVE,
-                  },
-                });
-              }}
-              className=" px-2 py-1 rounded-lg"
-            >
-              <ButtonTooltip content={t("Not Served")}>
-                <TbArrowBack className="text-xl" />
-              </ButtonTooltip>
-            </button>
-          </div>
-        )}
+        {order.status === OrderStatus.SERVED &&
+          user._id === (order.deliveredBy as User)?._id && (
+            <div className="flex flex-row ">
+              <button
+                onClick={() => {
+                  updateOrder({
+                    id: order._id,
+                    updates: {
+                      status: OrderStatus.READYTOSERVE,
+                    },
+                  });
+                }}
+                className=" px-2 py-1 rounded-lg"
+              >
+                <ButtonTooltip content={t("Not Served")}>
+                  <TbArrowBack className="text-xl" />
+                </ButtonTooltip>
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );
