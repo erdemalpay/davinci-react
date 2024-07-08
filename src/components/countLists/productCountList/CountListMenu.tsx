@@ -41,11 +41,7 @@ const CountListMenu = () => {
         label: t("Count Lists"),
         icon: <FaClipboardList />,
         content: <CountLists />,
-        isDisabled: user
-          ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-              user.role._id
-            )
-          : true,
+        isDisabled: false,
       },
       {
         number: CountListPageTabEnum.COUNTLISTPRODUCTS,

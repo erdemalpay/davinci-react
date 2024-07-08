@@ -1,4 +1,3 @@
-import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -10,6 +9,7 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
@@ -210,9 +210,9 @@ const FixtureCountList = () => {
             onChange={() => handleLocationUpdate(row, item._id)}
           />
         ) : row[item?._id] ? (
-          <IoCheckmark className="text-blue-500 text-2xl mx-auto" />
+          <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
-          <IoCloseOutline className="text-red-800 text-2xl mx-auto" />
+          <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     });
   });
@@ -328,20 +328,7 @@ const FixtureCountList = () => {
       isDisabled: user
         ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
         : true,
-      node: (
-        <Switch
-          checked={isEnableEdit}
-          onChange={() => setIsEnableEdit((value) => !value)}
-          className={`${isEnableEdit ? "bg-green-500" : "bg-red-500"}
-          relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
-        >
-          <span
-            aria-hidden="true"
-            className={`${isEnableEdit ? "translate-x-4" : "translate-x-0"}
-            pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-white transition duration-200 ease-in-out`}
-          />
-        </Switch>
-      ),
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
 
@@ -413,7 +400,7 @@ const FixtureCountList = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows()}
-            isActionsActive={isEnableEdit}
+            isActionsActive={true}
             actions={
               [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
                 user.role._id
