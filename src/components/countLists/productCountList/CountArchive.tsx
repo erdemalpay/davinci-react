@@ -142,7 +142,7 @@ const CountArchive = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [counts]);
+  }, [counts, user]);
 
   return (
     <>

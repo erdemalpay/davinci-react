@@ -24,7 +24,7 @@ export default function ButtonTooltip({ children, content }: Props) {
             bottom: "100%",
             right: "1%",
             width: "max-content",
-            padding: "0px 10px",
+            padding: "4px 10px",
             overflow: "auto",
             backgroundColor: "black",
             color: "#fff",

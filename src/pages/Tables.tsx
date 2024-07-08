@@ -241,7 +241,7 @@ const TablesPage = () => {
               )}
 
               {/* filters */}
-              <div className="flex flex-row gap-4 justify-end mt-2 md:mt-0 ">
+              <div className="flex flex-row gap-4 justify-end mt-4  ">
                 <div className="flex  gap-4 items-center">
                   <H5>{t("Show All Gameplays")}</H5>
                   <SwitchButton

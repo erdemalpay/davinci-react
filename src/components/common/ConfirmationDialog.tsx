@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { useTranslation } from "react-i18next";
 
 export function ConfirmationDialog({
   isOpen,
@@ -13,6 +14,7 @@ export function ConfirmationDialog({
   title: string;
   text: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Transition
       show={isOpen}
@@ -46,13 +48,13 @@ export function ConfirmationDialog({
                       onClick={close}
                       className="px-6 py-3 bg-red-500 hover:bg-gray-500 shadow rounded text-sm text-white"
                     >
-                      Cancel
+                      {t("Cancel")}
                     </button>
                     <button
                       className="px-6 py-3 bg-blue-500 hover:bg-opacity-80 shadow rounded text-sm text-white"
                       onClick={confirm}
                     >
-                      Confirm
+                      {t("Confirm")}
                     </button>
                   </div>
                 </div>

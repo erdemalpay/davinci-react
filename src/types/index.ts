@@ -22,6 +22,7 @@ export type Table = {
   location?: number;
   startHour: string;
   finishHour?: string;
+  orders: number[];
   gameplays: Gameplay[];
 };
 
@@ -391,7 +392,43 @@ export type PanelControlCheckoutCash = {
   user: User;
   location: AccountStockLocation;
 };
+export type Order = {
+  _id: number;
+  location: Location | number;
+  item: MenuItem | number;
+  table: Table | number;
+  quantity: number;
+  status: string;
+  note?: string;
+  unitPrice: number;
+  totalPrice: number;
+  createdAt: Date;
+  createdBy: User | string;
+  preparedAt?: Date;
+  preparedBy?: User | string;
+  deliveredAt?: Date;
+  deliveredBy?: User | string;
+};
 
+export type OrderCollection = {
+  _id: number;
+  location: Location | number;
+  createdAt: Date;
+  createdBy: User | string;
+  amount: number;
+  isCancelled: boolean;
+  paymentMethod: AccountPaymentMethod | string;
+};
+export type OrderPayment = {
+  _id: number;
+  location: Location | number;
+  table: Table | number;
+  collections?: number[];
+  unpaidOrders?: number[];
+  paidOrders?: number[];
+  discount?: number;
+  totalAmount: number;
+};
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
   COMING = "Coming",
@@ -648,6 +685,11 @@ export enum ExpenseTypes {
   INVOICE = "Product Expense",
   FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
+}
+export enum OrderStatus {
+  PENDING = "pending",
+  READYTOSERVE = "ready_to_serve",
+  SERVED = "served",
 }
 export enum ConstantPaymentMethodsIds {
   CASH = "cash",
