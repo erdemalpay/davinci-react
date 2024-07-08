@@ -41,11 +41,7 @@ const FixtureCountListMenu = () => {
         label: t("Fixture Count Lists"),
         icon: <FaClipboardList />,
         content: <FixtureCountLists />,
-        isDisabled: user
-          ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-              user.role._id
-            )
-          : true,
+        isDisabled: false,
       },
       {
         number: FixtureCountListPageTabEnum.COUNTLISTFIXTURES,

@@ -6,7 +6,8 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
-import { AccountCountList } from "../../../types";
+import { useUserContext } from "../../../context/User.context";
+import { AccountCountList, RoleEnum } from "../../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -25,6 +26,7 @@ import GenericTable from "../../panelComponents/Tables/GenericTable";
 
 const CountLists = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
@@ -98,7 +100,12 @@ const CountLists = () => {
         ),
     });
   }
-  columns.push({ key: t("Actions"), isSortable: false });
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
@@ -147,6 +154,9 @@ const CountLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled:
+        user &&
+        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
     },
     {
       name: t("Edit"),
@@ -184,6 +194,9 @@ const CountLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled:
+        user &&
+        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
     },
   ];
   const filters = [
@@ -202,12 +215,28 @@ const CountLists = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          isActionsActive={true}
+          isActionsActive={
+            user
+              ? [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+                  user.role._id
+                )
+              : false
+          }
           columns={columns}
-          filters={filters}
+          filters={
+            user &&
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? filters
+              : []
+          }
           rows={countLists}
           title={t("Count Lists")}
-          addButton={addButton}
+          addButton={
+            user &&
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? addButton
+              : undefined
+          }
         />
       </div>
     </>

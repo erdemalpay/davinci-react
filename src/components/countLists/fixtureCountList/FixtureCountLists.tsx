@@ -6,7 +6,8 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
-import { AccountFixtureCountList } from "../../../types";
+import { useUserContext } from "../../../context/User.context";
+import { AccountFixtureCountList, RoleEnum } from "../../../types";
 import {
   useAccountFixtureCountListMutations,
   useGetAccountFixtureCountLists,
@@ -24,6 +25,7 @@ import {
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 
 const FixtureCountLists = () => {
+  const { user } = useUserContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const fixtureCountLists = useGetAccountFixtureCountLists();
@@ -109,7 +111,12 @@ const FixtureCountLists = () => {
         ),
     });
   }
-  columns.push({ key: t("Actions"), isSortable: false });
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
@@ -158,6 +165,9 @@ const FixtureCountLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled:
+        user &&
+        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
     },
     {
       name: t("Edit"),
@@ -195,6 +205,9 @@ const FixtureCountLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled:
+        user &&
+        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
     },
   ];
   const filters = [
@@ -216,12 +229,28 @@ const FixtureCountLists = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          isActionsActive={true}
+          isActionsActive={
+            user
+              ? [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+                  user.role._id
+                )
+              : false
+          }
           columns={columns}
-          filters={filters}
+          filters={
+            user &&
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? filters
+              : []
+          }
           rows={fixtureCountLists}
           title={t("Fixture Count Lists")}
-          addButton={addButton}
+          addButton={
+            user &&
+            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+              ? addButton
+              : undefined
+          }
         />
       </div>
     </>
