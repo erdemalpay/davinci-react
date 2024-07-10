@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Routes } from "../../navigation/constants";
+import { User } from "../../types";
 import { post } from "./index";
 
 interface LoginError {
@@ -22,6 +23,7 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   token: string;
+  user: User;
 }
 
 async function loginMethod(payload: LoginCredentials) {
