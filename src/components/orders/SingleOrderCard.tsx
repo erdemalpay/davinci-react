@@ -27,7 +27,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-40">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-40 __className_a182b8">
       <div className="flex flex-row gap-4 mt-4 px-2">
         {/* img & time */}
         <div className="flex flex-col gap-2 h-full  items-center">

@@ -423,7 +423,7 @@
   "Tab": "Sekme",
   "Cash": "Nakit",
   "Credit Card": "Kredi Kartı",
-  "Bank Transfer": "Banka Transferi",
+  "Bank Transfer": "Havale",
   "New Tables": "Yeni Masalar",
   "Who was at cafe": "Kafede kimler vardı",
   "Confirm": "Onayla",
@@ -440,5 +440,13 @@
   "Preparing": "Hazırlanıyor",
   "All Served": "Tümü Servis Edildi",
   "Order Datas": "Sipariş Verileri",
+  "Pay in Parts": "Parçalı Öde",
+  "Unpaid Orders": "Ödenmemiş Siparişler",
+  "Paid Orders": "Ödenen Siparişler",
+  "Paid": "Ödenen",
+  "Unpaid": "Kalan",
+  "Total": "Toplam",
+  "Collection History": "Tahsilat Geçmişi",
+  "Payment Types": "Ödeme Türleri",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
