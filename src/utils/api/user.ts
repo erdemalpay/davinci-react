@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import { Role, User } from "../../types";
 import { get, patch, post } from "../api";
 import { UserGameUpdateType } from "./../../types/index";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
-
 export function getUserWithToken(): Promise<User> {
   return get<User>({ path: "/users/me" });
 }
@@ -31,7 +32,15 @@ function updateUserPasswordRequest({
 }
 
 export function useUpdatePasswordMutation() {
-  const { mutate: updatePassword } = useMutation(updateUserPasswordRequest);
+  const { t } = useTranslation();
+  const { mutate: updatePassword } = useMutation(updateUserPasswordRequest, {
+    onError: (_err: any, _newTable) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(t(errorMessage)), 200);
+    },
+  });
+
   return { updatePassword };
 }
 function resetUserPasswordRequest({ id }: { id: string }) {

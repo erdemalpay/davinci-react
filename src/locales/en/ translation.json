@@ -444,5 +444,13 @@
   "Preparing": "Preparing",
   "All Served": "All Served",
   "Order Datas": "Order Datas",
+  "Pay in Parts": "Pay in Parts",
+  "Unpaid Orders": "Unpaid Orders",
+  "Paid Orders": "Paid Orders",
+  "Paid": "Paid",
+  "Unpaid": "Unpaid",
+  "Total": "Total",
+  "Collection History": "Collection History",
+  "Payment Types": "Payment Types",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
