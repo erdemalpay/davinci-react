@@ -65,7 +65,7 @@ const OrderTotal = (props: Props) => {
                 ?.name ?? ""
             )}
           </p>
-          <p>{paymentAmount > 0 ? paymentAmount + "₺" : "0.00" + "₺"}</p>
+          <p>{paymentAmount !== "" ? paymentAmount + "₺" : "0.00" + "₺"}</p>
         </div>
 
         <Keypad />
