@@ -29,6 +29,7 @@ import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { EditableText } from "../common/EditableText";
 import { InputWithLabel } from "../common/InputWithLabel";
+import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
@@ -57,6 +58,7 @@ export function TableCard({
     useState(false);
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
+  const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
@@ -66,6 +68,7 @@ export function TableCard({
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
   const { selectedDate } = useDateContext();
+
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders(
     selectedDate ? parseISO(selectedDate) : new Date()
@@ -149,7 +152,9 @@ export function TableCard({
     });
     toast.success(`Table ${table.name} reopened`);
   }
-
+  function newClose() {
+    setIsOrderPaymentModalOpen(true);
+  }
   const date = table.date;
   const startHour = format(new Date(), "HH:mm");
 
@@ -229,7 +234,8 @@ export function TableCard({
             <Tooltip content="Close">
               <span className="text-{8px}">
                 <CardAction
-                  onClick={() => setIsCloseConfirmationDialogOpen(true)}
+                  // onClick={() => setIsCloseConfirmationDialogOpen(true)}
+                  onClick={() => newClose()}
                   IconComponent={FlagIcon}
                 />
               </span>
@@ -378,6 +384,14 @@ export function TableCard({
           }}
           generalClassName="overflow-scroll"
           topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {isOrderPaymentModalOpen && (
+        <OrderPaymentModal
+          table={table}
+          close={() => {
+            setIsOrderPaymentModalOpen(false);
+          }}
         />
       )}
     </div>

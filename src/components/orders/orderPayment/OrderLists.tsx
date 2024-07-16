@@ -96,7 +96,7 @@ const OrderLists = (props: Props) => {
       </div>
       {/* buttons */}
       <div className="mt-4 ml-auto">
-        <button className="w-fit bg-gray-200 text-red-300 py-2 px-4 rounded-md font-semibold">
+        <button className="w-fit bg-gray-100 p-3 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold">
           {t("Pay All")}
         </button>
       </div>

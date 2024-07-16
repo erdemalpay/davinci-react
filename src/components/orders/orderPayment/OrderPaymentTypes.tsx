@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import bankTransfer from "../../../assets/order/bank_transfer.png";
 import cash from "../../../assets/order/cash.png";
 import creditCard from "../../../assets/order/credit_card.png";
+import { useOrderContext } from "../../../context/Order.context";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 
 type Props = {};
@@ -9,6 +10,7 @@ type Props = {};
 const OrderPaymentTypes = (props: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
+  const { setPaymentMethod } = useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
     switch (paymentType) {
       case "cash":
@@ -32,6 +34,7 @@ const OrderPaymentTypes = (props: Props) => {
         {paymentTypes?.map((paymentType) => (
           <div
             key={paymentType._id}
+            onClick={() => setPaymentMethod(paymentType._id)}
             className="flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >
             <img
@@ -39,7 +42,7 @@ const OrderPaymentTypes = (props: Props) => {
               src={paymentTypeImage(paymentType._id)}
               alt={paymentType.name}
             />
-            <p className="font-medium">{t(paymentType.name)}</p>
+            <p className="font-medium text-center">{t(paymentType.name)}</p>
           </div>
         ))}
       </div>

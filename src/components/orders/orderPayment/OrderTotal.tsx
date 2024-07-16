@@ -2,12 +2,16 @@ import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { PiArrowsDownUpBold } from "react-icons/pi";
+import { useOrderContext } from "../../../context/Order.context";
+import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import Keypad from "./KeyPad";
 
 type Props = {};
 
 const OrderTotal = (props: Props) => {
   const { t } = useTranslation();
+  const paymentMethods = useGetAccountPaymentMethods();
+  const { paymentMethod, paymentAmount } = useOrderContext();
   const collections = [
     {
       _id: "1",
@@ -52,7 +56,20 @@ const OrderTotal = (props: Props) => {
         ))}
       </div>
       {/* keyPad */}
-      <Keypad />
+      <div className="flex flex-col gap-2">
+        {/* payment method&payment amount */}
+        <div className="flex flex-row gap-2 justify-between items-center  px-4  font-medium">
+          <p>
+            {t(
+              paymentMethods?.find((item) => item._id === paymentMethod)
+                ?.name ?? ""
+            )}
+          </p>
+          <p>{paymentAmount > 0 ? paymentAmount + "₺" : "0.00" + "₺"}</p>
+        </div>
+
+        <Keypad />
+      </div>
     </div>
   );
 };

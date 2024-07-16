@@ -416,7 +416,7 @@ export type OrderCollection = {
   createdAt: Date;
   createdBy: User | string;
   amount: number;
-  isCancelled: boolean;
+  status: string;
   paymentMethod: AccountPaymentMethod | string;
 };
 export type OrderPayment = {
@@ -428,6 +428,7 @@ export type OrderPayment = {
   paidOrders?: number[];
   discount?: number;
   totalAmount: number;
+  status: string;
 };
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
