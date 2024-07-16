@@ -1,14 +1,29 @@
-import React from "react";
+import React, { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
 
 const Keypad: React.FC = () => {
   const { setPaymentAmount, paymentAmount } = useOrderContext();
+  const { t } = useTranslation();
+  const handleKeyPress = useCallback(
+    (key: string) => {
+      if (key === ".") {
+        if (!paymentAmount.includes(".")) {
+          setPaymentAmount(paymentAmount + key);
+        }
+      } else {
+        setPaymentAmount(paymentAmount + key);
+      }
+    },
+    [paymentAmount, setPaymentAmount]
+  );
+
   const keys = [
     [
       { key: "7" },
       { key: "8" },
       { key: "9" },
-      { key: "Tüm", onClick: () => console.log("Tüm") },
+      { key: t("All"), onClick: () => console.log("Tüm") },
     ],
     [
       { key: "4" },
@@ -20,7 +35,7 @@ const Keypad: React.FC = () => {
       { key: "1" },
       { key: "2" },
       { key: "3" },
-      { key: "indirim", onClick: () => console.log("indirim") },
+      { key: t("Discount"), onClick: () => console.log("indirim") },
     ],
     [
       { key: "." },
@@ -29,19 +44,17 @@ const Keypad: React.FC = () => {
       { key: "C", onClick: () => setPaymentAmount("") },
     ],
   ];
+
   return (
-    <div className="p-4 grid grid-cols-4 gap-2">
+    <div className="p-4 grid grid-cols-4 gap-2 ">
       {keys.flat().map((keyItem, index) => (
         <button
           key={index}
-          className="bg-gray-100 p-3 rounded-lg focus:outline-none  hover:bg-gray-200"
-          onClick={() => {
-            if (keyItem.onClick) {
-              keyItem.onClick();
-            } else {
-              setPaymentAmount(paymentAmount + keyItem.key);
-            }
-          }}
+          className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
+          onClick={() =>
+            keyItem.onClick ? keyItem.onClick() : handleKeyPress(keyItem.key)
+          }
+          aria-label={`Key ${keyItem.key}`}
         >
           {keyItem.key}
         </button>

@@ -408,6 +408,8 @@ export type Order = {
   preparedBy?: User | string;
   deliveredAt?: Date;
   deliveredBy?: User | string;
+  cancelledAt?: Date;
+  cancelledBy?: User | string;
 };
 
 export type OrderCollection = {
@@ -424,8 +426,14 @@ export type OrderPayment = {
   location: Location | number;
   table: Table | number;
   collections?: number[];
-  unpaidOrders?: number[];
-  paidOrders?: number[];
+  unpaidOrders?: {
+    order: number;
+    paidQuantity: number;
+  }[];
+  paidOrders?: {
+    order: number;
+    paidQuantity: number;
+  }[];
   discount?: number;
   totalAmount: number;
   status: string;

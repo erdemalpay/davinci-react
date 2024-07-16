@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { MdOutlineTouchApp } from "react-icons/md";
 import { PiArrowArcLeftBold } from "react-icons/pi";
+import { useOrderContext } from "../../../context/Order.context";
 import { MenuItem } from "../../../types";
 import { useGetTodayOrders } from "../../../utils/api/order/order";
 
@@ -9,6 +10,7 @@ type Props = {};
 const OrderLists = (props: Props) => {
   const { t } = useTranslation();
   const orders = useGetTodayOrders();
+  const { setPaymentAmount, paymentAmount } = useOrderContext();
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
@@ -50,7 +52,16 @@ const OrderLists = (props: Props) => {
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
               <p>{order.totalPrice}₺</p>
-              <MdOutlineTouchApp className="cursor-pointer hover:text-red-600 text-lg" />
+              <MdOutlineTouchApp
+                className="cursor-pointer hover:text-red-600 text-lg"
+                onClick={() => {
+                  setPaymentAmount(
+                    String(
+                      Number(paymentAmount) + (order.item as MenuItem).price
+                    )
+                  );
+                }}
+              />
             </div>
           </div>
         ))}

@@ -23,6 +23,31 @@ const OrderTotal = (props: Props) => {
       paymentMethod: "Credit Card",
       amount: 80.0,
     },
+    {
+      _id: "3",
+      paymentMethod: "Credit Card",
+      amount: 80.0,
+    },
+    {
+      _id: "4",
+      paymentMethod: "Credit Card",
+      amount: 80.0,
+    },
+    {
+      _id: "5",
+      paymentMethod: "Credit Card",
+      amount: 80.0,
+    },
+    {
+      _id: "6",
+      paymentMethod: "Credit Card",
+      amount: 80.0,
+    },
+    {
+      _id: "7",
+      paymentMethod: "Credit Card",
+      amount: 80.0,
+    },
   ];
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
@@ -38,7 +63,7 @@ const OrderTotal = (props: Props) => {
         </div>
       </div>
       {/* collections */}
-      <div className="flex flex-col h-52 overflow-scroll no-scrollbar ">
+      <div className="flex flex-col h-48 overflow-scroll no-scrollbar ">
         {collections.map((collection) => (
           <div
             key={collection._id}
@@ -56,7 +81,7 @@ const OrderTotal = (props: Props) => {
         ))}
       </div>
       {/* keyPad */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mt-2">
         {/* payment method&payment amount */}
         <div className="flex flex-row gap-2 justify-between items-center  px-4  font-medium">
           <p>
@@ -65,7 +90,7 @@ const OrderTotal = (props: Props) => {
                 ?.name ?? ""
             )}
           </p>
-          <p>{paymentAmount !== "" ? paymentAmount + "₺" : "0.00" + "₺"}</p>
+          <p>{paymentAmount !== "" ? paymentAmount + " ₺" : "0.00" + " ₺"}</p>
         </div>
 
         <Keypad />
