@@ -455,5 +455,9 @@
   "Please enter the amount or select order to pay": "Lütfen bir miktar girin veya ödenecek siparişi seçin",
   "Cashier": "Kasiyer",
   "Back": "Geri",
+  "Discounts": "İndirimler",
+  "Add Discount": "İndirim Ekle",
+  "Delete Discount": "İndirim Sil",
+  "Percentage": "Yüzde",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

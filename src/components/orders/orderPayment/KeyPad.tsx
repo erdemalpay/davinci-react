@@ -61,12 +61,14 @@ const Keypad = ({ orderPayment }: Props) => {
             updatedOrders
               .reduce(
                 (acc, orderItem) =>
-                  acc + orderItem.quantity * orderItem.order.unitPrice,
+                  acc +
+                  (orderItem?.quantity ?? 0) *
+                    (orderItem?.order?.unitPrice ?? 0),
                 0
               )
               .toString()
           );
-          setTemporaryOrders(updatedOrders);
+          setTemporaryOrders(updatedOrders ?? []);
         },
       },
     ],
@@ -74,14 +76,15 @@ const Keypad = ({ orderPayment }: Props) => {
       { key: "4" },
       { key: "5" },
       { key: "6" },
-      { key: "1/n", onClick: () => console.log("1/n") },
+      {
+        key: "C",
+        onClick: () => {
+          setTemporaryOrders([]);
+          setPaymentAmount("");
+        },
+      },
     ],
-    [
-      { key: "1" },
-      { key: "2" },
-      { key: "3" },
-      { key: t("Discount"), onClick: () => console.log("indirim") },
-    ],
+    [{ key: "1" }, { key: "2" }, { key: "3" }, { key: "" }],
     [
       { key: "." },
       { key: "0" },
@@ -92,30 +95,29 @@ const Keypad = ({ orderPayment }: Props) => {
           setPaymentAmount(paymentAmount.slice(0, -1));
         },
       },
-      {
-        key: "C",
-        onClick: () => {
-          setTemporaryOrders([]);
-          setPaymentAmount("");
-        },
-      },
+      { key: "" },
     ],
   ];
 
   return (
     <div className="p-4 grid grid-cols-4 gap-2 ">
-      {keys.flat().map((keyItem, index) => (
-        <button
-          key={index}
-          className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
-          onClick={() =>
-            keyItem.onClick ? keyItem.onClick() : handleKeyPress(keyItem.key)
-          }
-          aria-label={`Key ${keyItem.key}`}
-        >
-          {keyItem.key}
-        </button>
-      ))}
+      {keys.flat().map((keyItem, index) => {
+        if (keyItem.key === "") {
+          return <div key={index} className="p-3 rounded-lg min-w-fit"></div>;
+        }
+        return (
+          <button
+            key={index}
+            className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
+            onClick={() =>
+              keyItem.onClick ? keyItem.onClick() : handleKeyPress(keyItem.key)
+            }
+            aria-label={`Key ${keyItem.key}`}
+          >
+            {keyItem.key}
+          </button>
+        );
+      })}
     </div>
   );
 };

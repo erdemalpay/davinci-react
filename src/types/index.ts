@@ -432,6 +432,7 @@ type OrderPaymentItem = {
   paidQuantity: number;
   totalQuantity: number;
 };
+
 export type OrderPayment = {
   _id: number;
   location: Location | number;
@@ -441,6 +442,13 @@ export type OrderPayment = {
   discount?: number;
   totalAmount: number;
 };
+
+export type OrderDiscount = {
+  _id: number;
+  name: string;
+  percentage: number;
+};
+
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
   COMING = "Coming",
@@ -550,6 +558,7 @@ export enum AccountingPageTabEnum {
   PRODUCT,
   FIXTURES,
   SERVICES,
+  DISCOUNTS,
   PAYMENTMETHODS,
   STOCKLOCATION,
 }

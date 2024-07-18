@@ -459,5 +459,9 @@
   "Please enter the amount or select order to pay": "Please enter the amount or select order to pay",
   "Cashier": "Cashier",
   "Back": "Back",
+  "Discounts": "Discounts",
+  "Add Discount": "Add Discount",
+  "Delete Discount": "Delete Discount",
+  "Percentage": "Percentage",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
