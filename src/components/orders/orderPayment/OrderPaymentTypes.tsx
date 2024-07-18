@@ -49,14 +49,13 @@ const OrderPaymentTypes = ({ orderPayment }: Props) => {
         const currentCollection = collections.find(
           (item) => item._id === collection
         );
-        if (!currentCollection) {
+        if (
+          !currentCollection ||
+          currentCollection.status === OrderCollectionStatus.CANCELLED
+        ) {
           return acc;
         }
-        return (
-          acc +
-          (currentCollection?.amount ?? 0) -
-          (currentCollection?.refund ?? 0)
-        );
+        return acc + (currentCollection?.amount ?? 0);
       }, 0)
     ) + Number(paymentAmount);
 
@@ -135,9 +134,26 @@ const OrderPaymentTypes = ({ orderPayment }: Props) => {
                 orderPayment: orderPayment._id,
                 location: selectedLocationId,
                 paymentMethod: paymentType._id,
-                amount: Number(paymentAmount),
-                refund: refundAmount > 0 ? refundAmount : 0,
+                amount:
+                  Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0),
                 status: OrderCollectionStatus.PAID,
+                orders:
+                  totalMoneySpend >= orderPayment.totalAmount
+                    ? orderPayment?.orders
+                        ?.filter(
+                          (order) => order.paidQuantity !== order.totalQuantity
+                        )
+                        ?.map((order) => {
+                          return {
+                            order: order.order,
+                            paidQuantity:
+                              order.totalQuantity - order.paidQuantity,
+                          };
+                        })
+                    : temporaryOrders?.map((order) => ({
+                        order: order.order._id,
+                        paidQuantity: order.quantity,
+                      })),
               });
               setPaymentAmount("");
               setTemporaryOrders([]);

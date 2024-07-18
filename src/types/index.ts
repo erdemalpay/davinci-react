@@ -420,17 +420,24 @@ export type OrderCollection = {
   createdBy: User | string;
   cancelledAt?: Date;
   cancelledBy?: User | string;
+  cancelNote?: string;
   amount: number;
   status: string;
   paymentMethod: AccountPaymentMethod | string;
   orderPayment: OrderPayment | number;
-  refund?: number;
+  orders?: OrderCollectionItem[];
 };
 
 type OrderPaymentItem = {
   order: number;
   paidQuantity: number;
   totalQuantity: number;
+  discount?: number;
+};
+
+type OrderCollectionItem = {
+  order: number;
+  paidQuantity: number;
 };
 
 export type OrderPayment = {
@@ -439,7 +446,6 @@ export type OrderPayment = {
   table: Table | number;
   collections?: number[];
   orders?: OrderPaymentItem[];
-  discount?: number;
   totalAmount: number;
 };
 

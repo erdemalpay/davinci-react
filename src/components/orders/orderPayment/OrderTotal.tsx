@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, OrderPayment } from "../../../types";
+import { MenuItem, OrderCollectionStatus, OrderPayment } from "../../../types";
 import { useGetTodayOrders } from "../../../utils/api/order/order";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import CollectionModal from "./CollectionModal";
@@ -32,14 +32,13 @@ const OrderTotal = ({ orderPayment }: Props) => {
       const currentCollection = collections.find(
         (item) => item._id === collection
       );
-      if (!currentCollection) {
+      if (
+        !currentCollection ||
+        currentCollection.status === OrderCollectionStatus.CANCELLED
+      ) {
         return acc;
       }
-      return (
-        acc +
-        (currentCollection?.amount ?? 0) -
-        (currentCollection?.refund ?? 0)
-      );
+      return acc + (currentCollection?.amount ?? 0);
     }, 0)
   );
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
@@ -140,7 +139,7 @@ const OrderTotal = ({ orderPayment }: Props) => {
           {refundAmount > 0 && (
             <div className="flex flex-row gap-2 justify-center items-center text-white bg-red-600 px-2 py-0.5 rounded-md font-medium text-sm">
               <p>{t("Refund")}</p>
-              <p>{refundAmount}₺</p>
+              <p>{parseFloat(String(refundAmount)).toFixed(2)}₺</p>
             </div>
           )}
           <p className="ml-auto">
