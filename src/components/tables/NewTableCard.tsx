@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
@@ -18,6 +19,10 @@ import {
   useGetGivenDateOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
+import {
+  useGetOrderPayments,
+  useOrderPaymentMutations,
+} from "../../utils/api/order/orderPayment";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
@@ -68,11 +73,13 @@ export function TableCard({
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
   const { selectedDate } = useDateContext();
-
+  const orderPayments = useGetOrderPayments();
+  const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders(
     selectedDate ? parseISO(selectedDate) : new Date()
   );
+  const { setPaymentAmount, setTemporaryOrders } = useOrderContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -153,7 +160,71 @@ export function TableCard({
     toast.success(`Table ${table.name} reopened`);
   }
   function newClose() {
-    setIsOrderPaymentModalOpen(true);
+    const tableOpenPayment = orderPayments?.find(
+      (orderPayment) => (orderPayment.table as Table)._id === table._id
+    );
+
+    // there is an open order payment so first check that the items inside are matched directly open it
+    if (tableOpenPayment) {
+      // check if all orders are included in the open order payment
+      const isAllOrdersIncluded =
+        table?.orders?.every((orderId) =>
+          tableOpenPayment?.orders?.some(
+            (paymentOrder) => paymentOrder.order === orderId
+          )
+        ) ?? false;
+      //we are updating the open order payment to include all orders
+      if (!isAllOrdersIncluded) {
+        const missingOrders = table?.orders?.filter(
+          (orderId) =>
+            !tableOpenPayment?.orders?.some(
+              (paymentOrder) => paymentOrder.order === orderId
+            )
+        );
+        const newOrders = [
+          ...(tableOpenPayment?.orders ?? []),
+          ...(missingOrders?.map((orderId) => ({
+            order: orderId,
+            paidQuantity: 0,
+            totalQuantity:
+              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
+          })) ?? []),
+        ];
+
+        const newTotalAmount =
+          tableOpenPayment.totalAmount +
+          (missingOrders?.reduce((acc, order) => {
+            const orderItem = orders?.find((o) => o._id === order);
+            return acc + (orderItem?.totalPrice || 0);
+          }, 0) ?? 0);
+
+        updateOrderPayment({
+          id: tableOpenPayment._id,
+          updates: { orders: newOrders, totalAmount: newTotalAmount },
+        });
+      }
+      setIsOrderPaymentModalOpen(true);
+    }
+    // there is no open order payment so create a new one
+    else {
+      const totalAmount = table?.orders?.reduce((acc, order) => {
+        const orderItem = orders?.find((o) => o._id === order);
+        return acc + (orderItem?.totalPrice || 0);
+      }, 0);
+      createOrderPayment({
+        table: table._id,
+        orders: table?.orders?.map((orderId) => ({
+          order: orderId,
+          paidQuantity: 0,
+          totalQuantity: orders?.find((o) => o._id === orderId)?.quantity ?? 0,
+        })),
+        location: selectedLocationId,
+        totalAmount: totalAmount,
+      });
+      setTimeout(() => {
+        setIsOrderPaymentModalOpen(true);
+      }, 200);
+    }
   }
   const date = table.date;
   const startHour = format(new Date(), "HH:mm");
@@ -184,7 +255,7 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table?.orders?.length > 0) {
+    if (table.orders && table?.orders?.length > 0) {
       deleteTableOrders({ ids: table?.orders });
     }
     setIsDeleteConfirmationDialogOpen(false);
@@ -294,6 +365,7 @@ export function TableCard({
         {showAllGameplays && table?.gameplays?.length > 0 && (
           <div
             className={`${
+              table.orders &&
               table?.orders?.length > 0 &&
               "pb-3 border-b-[1px] border-b-gray-300"
             }`}
@@ -314,7 +386,7 @@ export function TableCard({
           </div>
         )}
         {/* table orders */}
-        {table?.orders?.length > 0 && showAllOrders && (
+        {table.orders && table?.orders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
@@ -391,6 +463,9 @@ export function TableCard({
           table={table}
           close={() => {
             setIsOrderPaymentModalOpen(false);
+            setPaymentAmount("");
+            setTemporaryOrders([]);
+            // setIsCollectionModalOpen(false);
           }}
         />
       )}

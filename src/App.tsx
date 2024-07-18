@@ -59,6 +59,7 @@ function App() {
                   transition={Slide}
                   closeButton={false}
                   position="bottom-right"
+                  style={{ zIndex: 999999 }}
                 />
               </OrderContextProvider>
             </GeneralContextProvider>

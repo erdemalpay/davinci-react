@@ -1,16 +1,34 @@
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import bankTransfer from "../../../assets/order/bank_transfer.png";
 import cash from "../../../assets/order/cash.png";
 import creditCard from "../../../assets/order/credit_card.png";
+import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
+import { OrderCollectionStatus, OrderPayment } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-
-type Props = {};
-
-const OrderPaymentTypes = (props: Props) => {
+import {
+  useGetOrderCollections,
+  useOrderCollectionMutations,
+} from "../../../utils/api/order/orderCollection";
+import { useOrderPaymentMutations } from "../../../utils/api/order/orderPayment";
+type Props = {
+  orderPayment: OrderPayment;
+};
+const OrderPaymentTypes = ({ orderPayment }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
-  const { setPaymentMethod } = useOrderContext();
+  const { selectedLocationId } = useLocationContext();
+  const collections = useGetOrderCollections();
+  if (!selectedLocationId || !collections || !paymentTypes) {
+    return null;
+  }
+  const {
+    paymentAmount,
+    setPaymentAmount,
+    temporaryOrders,
+    setTemporaryOrders,
+  } = useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
     switch (paymentType) {
       case "cash":
@@ -23,6 +41,29 @@ const OrderPaymentTypes = (props: Props) => {
         return cash;
     }
   };
+  const { updateOrderPayment } = useOrderPaymentMutations();
+  const { createOrderCollection } = useOrderCollectionMutations();
+  const totalMoneySpend =
+    Number(
+      orderPayment?.collections?.reduce((acc, collection) => {
+        const currentCollection = collections.find(
+          (item) => item._id === collection
+        );
+        if (!currentCollection) {
+          return acc;
+        }
+        return (
+          acc +
+          (currentCollection?.amount ?? 0) -
+          (currentCollection?.refund ?? 0)
+        );
+      }, 0)
+    ) + Number(paymentAmount);
+
+  const isAllItemsPaid = orderPayment?.orders?.every(
+    (order) => order.paidQuantity === order.totalQuantity
+  );
+  const refundAmount = totalMoneySpend - orderPayment?.totalAmount;
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8 ">
       {/*main header part */}
@@ -34,7 +75,73 @@ const OrderPaymentTypes = (props: Props) => {
         {paymentTypes?.map((paymentType) => (
           <div
             key={paymentType._id}
-            onClick={() => setPaymentMethod(paymentType._id)}
+            onClick={() => {
+              // all items are paid
+              if (isAllItemsPaid) {
+                toast.error(t("There is no order to pay"));
+                return;
+              }
+              // if payment amount is empty
+              if (paymentAmount === "" || paymentAmount === "0") {
+                toast.error(
+                  t("Please enter the amount or select order to pay")
+                );
+                return;
+              }
+              // if payment amount is greater than total amount or there are items in the temporary orders
+              if (
+                temporaryOrders.length !== 0 ||
+                totalMoneySpend >= orderPayment.totalAmount
+              ) {
+                if (totalMoneySpend >= orderPayment.totalAmount) {
+                  const newOrders = orderPayment?.orders?.map((order) => {
+                    return {
+                      order: order.order,
+                      paidQuantity: order.totalQuantity,
+                      totalQuantity: order.totalQuantity,
+                    };
+                  });
+                  updateOrderPayment({
+                    id: orderPayment._id,
+                    updates: {
+                      orders: newOrders,
+                    },
+                  });
+                } else {
+                  const newOrders = orderPayment?.orders?.map((order) => {
+                    const temporaryOrder = temporaryOrders.find(
+                      (temporaryOrder) =>
+                        temporaryOrder.order._id === order.order
+                    );
+                    if (!temporaryOrder) {
+                      return order;
+                    }
+                    return {
+                      order: order.order,
+                      paidQuantity:
+                        order.paidQuantity + temporaryOrder.quantity,
+                      totalQuantity: order.totalQuantity,
+                    };
+                  });
+                  updateOrderPayment({
+                    id: orderPayment._id,
+                    updates: {
+                      orders: newOrders,
+                    },
+                  });
+                }
+              }
+              createOrderCollection({
+                orderPayment: orderPayment._id,
+                location: selectedLocationId,
+                paymentMethod: paymentType._id,
+                amount: Number(paymentAmount),
+                refund: refundAmount > 0 ? refundAmount : 0,
+                status: OrderCollectionStatus.PAID,
+              });
+              setPaymentAmount("");
+              setTemporaryOrders([]);
+            }}
             className="flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >
             <img

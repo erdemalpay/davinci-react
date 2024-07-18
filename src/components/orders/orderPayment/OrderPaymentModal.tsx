@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../../context/User.context";
 import { Table } from "../../../types";
+import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
+import { useGetOrderPayments } from "../../../utils/api/order/orderPayment";
 import OrderLists from "./OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
@@ -13,11 +16,22 @@ type Props = {
 const OrderPaymentModal = ({ close, table }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  if (!user) return null;
+  const orderPayments = useGetOrderPayments();
+  const [componentKey, setComponentKey] = useState(0);
+  const currentOrderPayment = orderPayments?.find(
+    (orderPayment) => (orderPayment.table as Table)._id === table._id
+  );
+  const collections = useGetOrderCollections();
+  if (!user || !currentOrderPayment || !collections || !orderPayments)
+    return null;
+  useEffect(() => {
+    setComponentKey((prev) => prev + 1);
+  }, [collections, orderPayments]);
   return (
     <div
       id="popup"
       className="z-[99999] fixed w-full flex justify-center inset-0"
+      key={componentKey}
     >
       <div
         onClick={close}
@@ -40,9 +54,9 @@ const OrderPaymentModal = ({ close, table }: Props) => {
               </div>
               {/* payment part */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 overflow-scroll no-scroll ">
-                <OrderLists />
-                <OrderTotal />
-                <OrderPaymentTypes />
+                <OrderLists orderPayment={currentOrderPayment} />
+                <OrderTotal orderPayment={currentOrderPayment} />
+                <OrderPaymentTypes orderPayment={currentOrderPayment} />
               </div>
             </div>
           </div>

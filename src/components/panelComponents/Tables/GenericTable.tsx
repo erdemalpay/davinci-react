@@ -542,7 +542,7 @@ const GenericTable = <T,>({
       <div
         className={`mx-auto w-full overflow-scroll no-scrollbar flex flex-col gap-4 __className_a182b8 `}
       >
-        <div className=" flex flex-row gap-4 justify-between items-center">
+        <div className=" flex flex-row gap-4 justify-between items-center ">
           {/* search button */}
           {isSearch && (
             <input
@@ -583,7 +583,7 @@ const GenericTable = <T,>({
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
           {/* header part */}
 
-          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
+          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             {title && <H4 className="mr-auto">{title}</H4>}
 
             <div className="ml-auto flex flex-row gap-4">

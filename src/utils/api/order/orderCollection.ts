@@ -9,6 +9,7 @@ export function useOrderCollectionMutations() {
     createItem: createOrderCollection,
   } = useMutationApi<OrderCollection>({
     baseQuery: baseUrl,
+    additionalInvalidates: [[`${Paths.Order}/payment`]],
   });
   return {
     deleteOrderCollection,

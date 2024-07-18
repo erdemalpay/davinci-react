@@ -70,7 +70,7 @@ export function useGetOrders() {
 
 export function useGetGivenDateOrders(date: Date) {
   const formattedDate = formatDate(date);
-  return useGetList<Order>(`${baseUrl}/${formattedDate}`, [
+  return useGetList<Order>(`${baseUrl}/date/${formattedDate}`, [
     `${baseUrl}/${formattedDate}`,
   ]);
 }

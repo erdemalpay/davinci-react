@@ -1,9 +1,19 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
+import { OrderPayment } from "../../../types";
+import { useGetTodayOrders } from "../../../utils/api/order/order";
 
-const Keypad: React.FC = () => {
-  const { setPaymentAmount, paymentAmount } = useOrderContext();
+type Props = {
+  orderPayment: OrderPayment;
+};
+const Keypad = ({ orderPayment }: Props) => {
+  const { setPaymentAmount, paymentAmount, setTemporaryOrders } =
+    useOrderContext();
+  const orders = useGetTodayOrders();
+  if (!orders) {
+    return null;
+  }
   const { t } = useTranslation();
   const handleKeyPress = useCallback(
     (key: string) => {
@@ -14,6 +24,7 @@ const Keypad: React.FC = () => {
       } else {
         setPaymentAmount(paymentAmount + key);
       }
+      setTemporaryOrders([]);
     },
     [paymentAmount, setPaymentAmount]
   );
@@ -23,7 +34,41 @@ const Keypad: React.FC = () => {
       { key: "7" },
       { key: "8" },
       { key: "9" },
-      { key: t("All"), onClick: () => console.log("Tüm") },
+      {
+        key: t("All"),
+        onClick: () => {
+          if (!orderPayment?.orders || !orders) {
+            setTemporaryOrders([]);
+            return;
+          }
+          const updatedOrders = orderPayment.orders
+            .map((orderPaymentItem) => {
+              const order = orders.find(
+                (orderItem) => orderItem._id === orderPaymentItem.order
+              );
+              if (!order) {
+                return null;
+              }
+              return {
+                order: order,
+                quantity:
+                  orderPaymentItem.totalQuantity -
+                  orderPaymentItem.paidQuantity,
+              };
+            })
+            .filter((order) => order !== null);
+          setPaymentAmount(
+            updatedOrders
+              .reduce(
+                (acc, orderItem) =>
+                  acc + orderItem.quantity * orderItem.order.unitPrice,
+                0
+              )
+              .toString()
+          );
+          setTemporaryOrders(updatedOrders);
+        },
+      },
     ],
     [
       { key: "4" },
@@ -40,8 +85,20 @@ const Keypad: React.FC = () => {
     [
       { key: "." },
       { key: "0" },
-      { key: "←", onClick: () => setPaymentAmount(paymentAmount.slice(0, -1)) },
-      { key: "C", onClick: () => setPaymentAmount("") },
+      {
+        key: "←",
+        onClick: () => {
+          setTemporaryOrders([]);
+          setPaymentAmount(paymentAmount.slice(0, -1));
+        },
+      },
+      {
+        key: "C",
+        onClick: () => {
+          setTemporaryOrders([]);
+          setPaymentAmount("");
+        },
+      },
     ],
   ];
 
