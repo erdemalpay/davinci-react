@@ -452,5 +452,16 @@
   "Total": "Total",
   "Collection History": "Collection History",
   "Payment Types": "Payment Types",
+  "Pay All": "Pay All",
+  "Discount": "Discount",
+  "Refund": "Refund",
+  "There is no order to pay": "There is no order to pay",
+  "Please enter the amount or select order to pay": "Please enter the amount or select order to pay",
+  "Cashier": "Cashier",
+  "Back": "Back",
+  "Discounts": "Discounts",
+  "Add Discount": "Add Discount",
+  "Delete Discount": "Delete Discount",
+  "Percentage": "Percentage",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

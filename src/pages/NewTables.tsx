@@ -19,11 +19,13 @@ import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
+import { useGetOrderPayments } from "../utils/api/order/orderPayment";
 import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
+
 const NewTables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -41,6 +43,7 @@ const NewTables = () => {
   const visits = useGetVisits();
   const tables = useGetTables();
   const users = useGetUsers();
+  const orderPayments = useGetOrderPayments();
   const orders = useGetGivenDateOrders(
     selectedDate ? parseISO(selectedDate) : new Date()
   );

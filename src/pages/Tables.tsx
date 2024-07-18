@@ -293,7 +293,6 @@ const TablesPage = () => {
             />
           ))}
         </div>
-        {/* <OrderPayment /> */}
       </div>
       {isCreateTableDialogOpen && (
         <CreateTableDialog
