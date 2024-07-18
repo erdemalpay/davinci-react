@@ -463,5 +463,10 @@
   "Add Discount": "Add Discount",
   "Delete Discount": "Delete Discount",
   "Percentage": "Percentage",
+  "Cancel": "Cancel",
+  "Cancel Note": "Cancel Note",
+  "Create Hour": "Create Hour",
+  "Cancelled By": "Cancelled By",
+  "Cancelled At": "Cancelled At",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
