@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
-import { OrderPayment } from "../../../types";
+import { Order, OrderPayment } from "../../../types";
 import { useGetTodayOrders } from "../../../utils/api/order/order";
 
 type Props = {
@@ -46,7 +46,7 @@ const Keypad = ({ orderPayment }: Props) => {
               const order = orders.find(
                 (orderItem) => orderItem._id === orderPaymentItem.order
               );
-              if (!order) {
+              if (order === undefined) {
                 return null;
               }
               return {
@@ -68,7 +68,9 @@ const Keypad = ({ orderPayment }: Props) => {
               )
               ?.toString()
           );
-          setTemporaryOrders(updatedOrders ?? []);
+          setTemporaryOrders(
+            updatedOrders as { order: Order; quantity: number }[]
+          );
         },
       },
     ],
