@@ -41,8 +41,8 @@ const Keypad = ({ orderPayment }: Props) => {
             setTemporaryOrders([]);
             return;
           }
-          const updatedOrders = orderPayment.orders
-            .map((orderPaymentItem) => {
+          const updatedOrders = orderPayment?.orders
+            ?.map((orderPaymentItem) => {
               const order = orders.find(
                 (orderItem) => orderItem._id === orderPaymentItem.order
               );
@@ -56,17 +56,17 @@ const Keypad = ({ orderPayment }: Props) => {
                   orderPaymentItem.paidQuantity,
               };
             })
-            .filter((order) => order !== null);
+            ?.filter((order) => order !== null);
           setPaymentAmount(
             updatedOrders
-              .reduce(
+              ?.reduce(
                 (acc, orderItem) =>
                   acc +
                   (orderItem?.quantity ?? 0) *
                     (orderItem?.order?.unitPrice ?? 0),
                 0
               )
-              .toString()
+              ?.toString()
           );
           setTemporaryOrders(updatedOrders ?? []);
         },
