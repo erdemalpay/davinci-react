@@ -103,12 +103,21 @@ export default function Reservations() {
       placeholder: t("Reservation Time"),
       required: true,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "reservedTable",
+      label: t("Reserved Table"),
+      placeholder: t("Reserved Table"),
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "phone", type: FormKeyTypeEnum.STRING },
     { key: "reservationHour", type: FormKeyTypeEnum.STRING },
+    { key: "reservedTable", type: FormKeyTypeEnum.STRING },
   ];
+
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Phone"), isSortable: true },

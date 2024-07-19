@@ -11,7 +11,10 @@ export function useOrderCollectionMutations() {
     createItem: createOrderCollection,
   } = useMutationApi<OrderCollection>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Order}/payment`]],
+    additionalInvalidates: [
+      [`${Paths.Order}/payment`],
+      [`${Paths.Order}/collection/date`],
+    ],
   });
   return {
     deleteOrderCollection,
@@ -25,7 +28,7 @@ export function useGetOrderCollections() {
   const { selectedDate } = useDateContext();
   return useGetList<OrderCollection>(
     `${baseUrl}/date/?location=${selectedLocationId}&date=${selectedDate}`,
-    [`${Paths.Order}/collection`, selectedLocationId, selectedDate]
+    [`${Paths.Order}/collection/date`, selectedLocationId, selectedDate]
   );
 }
 export function useGetAllOrderCollections() {
