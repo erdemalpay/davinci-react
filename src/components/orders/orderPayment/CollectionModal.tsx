@@ -136,116 +136,104 @@ const CollectionModal = ({
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [collections, orders]);
-  return (
-    <div className="flex flex-col gap-2">
-      {orderCollections.map((collectionId) => {
-        const collection = collections.find(
-          (item) => item._id === collectionId
-        );
-        if (!collection) {
-          return null;
-        }
 
-        const filters = [
-          {
-            isUpperSide: false,
-            node: (
-              <button
-                onClick={() => {
-                  setIsCollectionModalOpen(false);
-                }}
-                className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold "
-              >
-                {t("Back")}
-              </button>
-            ),
-          },
-        ];
-        const actions = [
-          {
-            name: t("Edit"),
-            icon: <HiOutlineTrash />,
-            className: "text-red-600 cursor-pointer text-xl",
-            isModal: true,
-            setRow: setRowToAction,
-            modal: rowToAction ? (
-              <GenericAddEditPanel
-                isOpen={isEditModalOpen}
-                generalClassName="overflow-visible"
-                topClassName="flex flex-col gap-2 "
-                setForm={setInputForm}
-                close={() => setIsEditModalOpen(false)}
-                inputs={inputs}
-                formKeys={formKeys}
-                submitItem={updateOrderCollection as any}
-                isEditMode={false}
-                submitFunction={() => {
-                  if (!rowToAction) {
-                    return;
+  const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <button
+          onClick={() => {
+            setIsCollectionModalOpen(false);
+          }}
+          className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold "
+        >
+          {t("Back")}
+        </button>
+      ),
+    },
+  ];
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <HiOutlineTrash />,
+      className: "text-red-600 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          generalClassName="overflow-visible"
+          topClassName="flex flex-col gap-2 "
+          setForm={setInputForm}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateOrderCollection as any}
+          isEditMode={false}
+          submitFunction={() => {
+            if (!rowToAction) {
+              return;
+            }
+            if (rowToAction?.orders?.length > 0) {
+              const newOrderPaymentOrders =
+                rowToAction?.orderPayment?.orders?.map(
+                  (orderPaymentItem: any) => {
+                    const orderCollectionItem = rowToAction.orders.find(
+                      (orderCollectionItem: any) =>
+                        orderCollectionItem.order === orderPaymentItem.order
+                    );
+                    if (orderCollectionItem) {
+                      return {
+                        ...orderPaymentItem,
+                        paidQuantity:
+                          orderPaymentItem.paidQuantity -
+                          orderCollectionItem.paidQuantity,
+                      };
+                    }
+                    return orderPaymentItem;
                   }
-                  if (rowToAction?.orders?.length > 0) {
-                    const newOrderPaymentOrders =
-                      rowToAction?.orderPayment?.orders?.map(
-                        (orderPaymentItem: any) => {
-                          const orderCollectionItem = rowToAction.orders.find(
-                            (orderCollectionItem: any) =>
-                              orderCollectionItem.order ===
-                              orderPaymentItem.order
-                          );
-                          if (orderCollectionItem) {
-                            return {
-                              ...orderPaymentItem,
-                              paidQuantity:
-                                orderPaymentItem.paidQuantity -
-                                orderCollectionItem.paidQuantity,
-                            };
-                          }
-                          return orderPaymentItem;
-                        }
-                      );
-                    updateOrderPayment({
-                      id: rowToAction?.orderPayment?._id,
-                      updates: {
-                        orders: newOrderPaymentOrders,
-                      },
-                    });
-                  }
-                  updateOrderCollection({
-                    id: rowToAction._id,
-                    updates: {
-                      cancelNote: inputForm.note,
-                      cancelledAt: new Date(),
-                      cancelledBy: user._id,
-                      status: OrderCollectionStatus.CANCELLED,
-                    },
-                  });
-                }}
-              />
-            ) : null,
-            isModalOpen: isEditModalOpen,
-            setIsModal: setIsEditModalOpen,
-            isPath: false,
-          },
-        ];
-        return (
-          <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar">
-            <div className="w-[95%] mx-auto mb-auto ">
-              <GenericTable
-                key={tableKey}
-                title={t("Collection History")}
-                columns={columns}
-                rowKeys={rowKeys}
-                rows={rows}
-                isActionsActive={true}
-                isSearch={false}
-                filters={filters}
-                isCollapsible={true}
-                actions={actions}
-              />
-            </div>
-          </div>
-        );
-      })}
+                );
+              updateOrderPayment({
+                id: rowToAction?.orderPayment?._id,
+                updates: {
+                  orders: newOrderPaymentOrders,
+                },
+              });
+            }
+            updateOrderCollection({
+              id: rowToAction._id,
+              updates: {
+                cancelNote: inputForm.note,
+                cancelledAt: new Date(),
+                cancelledBy: user._id,
+                status: OrderCollectionStatus.CANCELLED,
+              },
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+  ];
+
+  return (
+    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar">
+      <div className="w-[95%] mx-auto mb-auto ">
+        <GenericTable
+          key={tableKey}
+          title={t("Collection History")}
+          columns={columns}
+          rowKeys={rowKeys}
+          rows={rows}
+          isActionsActive={true}
+          isSearch={false}
+          filters={filters}
+          isCollapsible={true}
+          actions={actions}
+        />
+      </div>
     </div>
   );
 };
