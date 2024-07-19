@@ -5,7 +5,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -76,9 +76,7 @@ export function TableCard({
   const orderPayments = useGetOrderPayments();
   const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
-  const orders = useGetGivenDateOrders(
-    selectedDate ? parseISO(selectedDate) : new Date()
-  );
+  const orders = useGetGivenDateOrders();
   const { setPaymentAmount, setTemporaryOrders } = useOrderContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,

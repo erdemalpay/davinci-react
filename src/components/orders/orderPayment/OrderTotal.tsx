@@ -4,7 +4,7 @@ import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
 import { MenuItem, OrderCollectionStatus, OrderPayment } from "../../../types";
-import { useGetTodayOrders } from "../../../utils/api/order/order";
+import { useGetGivenDateOrders } from "../../../utils/api/order/order";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
@@ -15,7 +15,7 @@ type Props = {
 
 const OrderTotal = ({ orderPayment }: Props) => {
   const { t } = useTranslation();
-  const orders = useGetTodayOrders();
+  const orders = useGetGivenDateOrders();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const collections = useGetOrderCollections();
   if (!orders || !collections || !orderPayment) {
@@ -120,8 +120,10 @@ const OrderTotal = ({ orderPayment }: Props) => {
                           })
                         );
                       }
+                      const newPaymentAmount =
+                        Number(paymentAmount) - order.unitPrice;
                       setPaymentAmount(
-                        String(Number(paymentAmount) - order.unitPrice)
+                        String(newPaymentAmount > 0 ? newPaymentAmount : "")
                       );
                     }}
                   />

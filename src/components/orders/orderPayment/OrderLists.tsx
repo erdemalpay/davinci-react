@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../context/Order.context";
 import { MenuItem, OrderPayment } from "../../../types";
-import { useGetTodayOrders } from "../../../utils/api/order/order";
+import { useGetGivenDateOrders } from "../../../utils/api/order/order";
 
 type Props = {
   orderPayment: OrderPayment;
@@ -10,7 +10,7 @@ type Props = {
 
 const OrderLists = ({ orderPayment }: Props) => {
   const { t } = useTranslation();
-  const orders = useGetTodayOrders();
+  const orders = useGetGivenDateOrders();
   const {
     setPaymentAmount,
     paymentAmount,
