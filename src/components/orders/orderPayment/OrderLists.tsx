@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, OrderPayment } from "../../../types";
+import { MenuItem, OrderCollectionStatus, OrderPayment } from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 
 type Props = {
   orderPayment: OrderPayment;
@@ -11,13 +12,27 @@ type Props = {
 const OrderLists = ({ orderPayment }: Props) => {
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
+  const collections = useGetOrderCollections();
   const {
     setPaymentAmount,
     paymentAmount,
     temporaryOrders,
     setTemporaryOrders,
   } = useOrderContext();
-
+  const collectionsTotalAmount = Number(
+    orderPayment?.collections?.reduce((acc, collection) => {
+      const currentCollection = collections?.find(
+        (item) => item._id === collection
+      );
+      if (
+        !currentCollection ||
+        currentCollection.status === OrderCollectionStatus.CANCELLED
+      ) {
+        return acc;
+      }
+      return acc + (currentCollection?.amount ?? 0);
+    }, 0)
+  );
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
@@ -78,10 +93,24 @@ const OrderLists = ({ orderPayment }: Props) => {
                   className="cursor-pointer hover:text-red-600 text-lg"
                   onClick={() => {
                     if (temporaryOrders.length === 0) {
-                      setPaymentAmount(String(order.unitPrice));
+                      setPaymentAmount(
+                        String(
+                          order.unitPrice + collectionsTotalAmount >
+                            orderPayment.totalAmount
+                            ? orderPayment.totalAmount - collectionsTotalAmount
+                            : order.unitPrice
+                        )
+                      );
                     } else {
                       setPaymentAmount(
-                        String(Number(paymentAmount) + order.unitPrice)
+                        String(
+                          Number(paymentAmount) +
+                            order.unitPrice +
+                            collectionsTotalAmount >
+                            orderPayment.totalAmount
+                            ? orderPayment.totalAmount - collectionsTotalAmount
+                            : Number(paymentAmount) + order.unitPrice
+                        )
                       );
                     }
                     if (tempOrder) {
