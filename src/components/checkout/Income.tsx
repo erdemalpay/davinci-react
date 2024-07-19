@@ -10,7 +10,7 @@ import {
   useCheckoutIncomeMutations,
   useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
-import { useGetOrderCollections } from "../../utils/api/order/orderCollection";
+import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -30,7 +30,7 @@ const Income = () => {
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const { selectedLocationId } = useLocationContext();
-  const collections = useGetOrderCollections();
+  const collections = useGetAllOrderCollections();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderPayment } from "../../../types";
-import { useGetTodayOrders } from "../../../utils/api/order/order";
+import { Order, OrderCollectionStatus, OrderPayment } from "../../../types";
+import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 
 type Props = {
   orderPayment: OrderPayment;
@@ -10,10 +11,26 @@ type Props = {
 const Keypad = ({ orderPayment }: Props) => {
   const { setPaymentAmount, paymentAmount, setTemporaryOrders } =
     useOrderContext();
-  const orders = useGetTodayOrders();
-  if (!orders) {
+  const orders = useGetGivenDateOrders();
+  const collections = useGetOrderCollections();
+  if (!orders || !collections) {
     return null;
   }
+  const collectionsTotalAmount = Number(
+    orderPayment?.collections?.reduce((acc, collection) => {
+      const currentCollection = collections.find(
+        (item) => item._id === collection
+      );
+      if (
+        !currentCollection ||
+        currentCollection.status === OrderCollectionStatus.CANCELLED
+      ) {
+        return acc;
+      }
+      return acc + (currentCollection?.amount ?? 0);
+    }, 0)
+  );
+
   const { t } = useTranslation();
   const handleKeyPress = useCallback(
     (key: string) => {
@@ -58,15 +75,9 @@ const Keypad = ({ orderPayment }: Props) => {
             })
             ?.filter((order) => order !== null);
           setPaymentAmount(
-            updatedOrders
-              ?.reduce(
-                (acc, orderItem) =>
-                  acc +
-                  (orderItem?.quantity ?? 0) *
-                    (orderItem?.order?.unitPrice ?? 0),
-                0
-              )
-              ?.toString()
+            (
+              (orderPayment?.totalAmount ?? 0) - collectionsTotalAmount
+            )?.toString()
           );
           setTemporaryOrders(
             updatedOrders as { order: Order; quantity: number }[]

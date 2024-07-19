@@ -1,15 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { Order } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch } from "../index";
+import { useDateContext } from "./../../../context/Date.context";
+import { useLocationContext } from "./../../../context/Location.context";
+import { Order } from "./../../../types/index";
 
-function formatDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
   const {
@@ -18,11 +14,7 @@ export function useOrderMutations() {
     createItem: createOrder,
   } = useMutationApi<Order>({
     baseQuery: baseUrl,
-    additionalInvalidates: [
-      [`${Paths.Tables}`],
-      [`${Paths.Order}/today`],
-      [`${Paths.Order}/${formatDate(new Date())}`],
-    ],
+    additionalInvalidates: [[`${Paths.Tables}`], [`${Paths.Order}/today`]],
   });
 
   return { deleteOrder, updateOrder, createOrder };
@@ -68,11 +60,13 @@ export function useGetOrders() {
   return useGetList<Order>(baseUrl);
 }
 
-export function useGetGivenDateOrders(date: Date) {
-  const formattedDate = formatDate(date);
-  return useGetList<Order>(`${baseUrl}/date/${formattedDate}`, [
-    `${baseUrl}/${formattedDate}`,
-  ]);
+export function useGetGivenDateOrders() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  return useGetList<Order>(
+    `${baseUrl}/date/?location=${selectedLocationId}&date=${selectedDate}`,
+    [Paths.Order, selectedLocationId, selectedDate]
+  );
 }
 
 export function useGetTodayOrders() {

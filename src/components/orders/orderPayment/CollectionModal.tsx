@@ -183,9 +183,9 @@ const CollectionModal = ({
                   if (!rowToAction) {
                     return;
                   }
-                  if (rowToAction.orders.length > 0) {
+                  if (rowToAction?.orders?.length > 0) {
                     const newOrderPaymentOrders =
-                      rowToAction.orderPayment.orders.map(
+                      rowToAction?.orderPayment?.orders?.map(
                         (orderPaymentItem: any) => {
                           const orderCollectionItem = rowToAction.orders.find(
                             (orderCollectionItem: any) =>
@@ -204,7 +204,7 @@ const CollectionModal = ({
                         }
                       );
                     updateOrderPayment({
-                      id: rowToAction.orderPayment._id,
+                      id: rowToAction?.orderPayment?._id,
                       updates: {
                         orders: newOrderPaymentOrders,
                       },

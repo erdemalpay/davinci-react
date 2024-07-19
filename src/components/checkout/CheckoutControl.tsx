@@ -61,27 +61,28 @@ const CheckoutControlPage = () => {
     deleteCheckoutControl,
     updateCheckoutControl,
   } = useCheckoutControlMutations();
+
+  const getPreviousDate = (date: string) => {
+    const currentDate = new Date(date);
+    currentDate.setDate(currentDate.getDate() - 1);
+    return currentDate.toISOString().split("T")[0]; // Convert to "YYYY-MM-DD" format
+  };
   const allRows =
-    checkoutControls?.map((checkoutControl) => ({
+    checkoutControls?.map((checkoutControl, index) => ({
       ...checkoutControl,
       usr: checkoutControl?.user?.name,
       lctn: checkoutControl?.location?.name,
       formattedDate: formatAsLocalDate(checkoutControl?.date),
       beginningQuantity:
-        beginningCashs?.filter(
-          (cash) =>
-            cash.location._id === checkoutControl?.location?._id &&
-            cash.date <= checkoutControl?.date
-        )?.[0]?.amount ?? 0,
+        index !== 0
+          ? checkoutControls[index - 1].amount
+          : beginningCashs?.filter(
+              (cash) =>
+                cash.location._id === checkoutControl?.location?._id &&
+                cash.date <= checkoutControl?.date
+            )?.[0]?.amount ?? 0,
       incomeQuantity: incomes
-        ?.filter(
-          (item) =>
-            checkoutControl?.date >= item?.date &&
-            item?.date >=
-              beginningCashs?.filter(
-                (cash) => cash.location._id === checkoutControl?.location?._id
-              )?.[0]?.date
-        )
+        ?.filter((item) => item.date === getPreviousDate(checkoutControl?.date))
         ?.reduce((acc, item) => acc + item.amount, 0),
       expenseQuantity:
         invoices
@@ -89,10 +90,7 @@ const CheckoutControlPage = () => {
             (item) =>
               checkoutControl?.date >= item?.date &&
               (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
-              item?.date >=
-                beginningCashs?.filter(
-                  (cash) => cash.location._id === checkoutControl?.location?._id
-                )?.[0]?.date
+              item.date === getPreviousDate(checkoutControl?.date)
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         fixtureInvoices
@@ -100,10 +98,7 @@ const CheckoutControlPage = () => {
             (item) =>
               checkoutControl?.date >= item?.date &&
               (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
-              item?.date >=
-                beginningCashs?.filter(
-                  (cash) => cash.location._id === checkoutControl?.location?._id
-                )?.[0]?.date
+              item.date === getPreviousDate(checkoutControl?.date)
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0) +
         serviceInvoices
@@ -111,20 +106,14 @@ const CheckoutControlPage = () => {
             (item) =>
               checkoutControl?.date >= item?.date &&
               (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
-              item?.date >=
-                beginningCashs?.filter(
-                  (cash) => cash.location._id === checkoutControl?.location?._id
-                )?.[0]?.date
+              item.date === getPreviousDate(checkoutControl?.date)
           )
           ?.reduce((acc, item) => acc + item.totalExpense, 0),
       cashout: cashouts
         ?.filter(
           (item) =>
             checkoutControl?.date >= item?.date &&
-            item?.date >=
-              beginningCashs?.filter(
-                (cash) => cash.location._id === checkoutControl?.location?._id
-              )?.[0]?.date
+            item.date === getPreviousDate(checkoutControl?.date)
         )
         ?.reduce((acc, item) => acc + item.amount, 0),
     })) ?? [];
