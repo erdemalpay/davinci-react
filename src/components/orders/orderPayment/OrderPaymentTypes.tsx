@@ -43,25 +43,26 @@ const OrderPaymentTypes = ({ orderPayment }: Props) => {
   };
   const { updateOrderPayment } = useOrderPaymentMutations();
   const { createOrderCollection } = useOrderCollectionMutations();
-  const totalMoneySpend =
-    Number(
-      orderPayment?.collections?.reduce((acc, collection) => {
-        const currentCollection = collections.find(
-          (item) => item._id === collection
-        );
-        if (
-          !currentCollection ||
-          currentCollection.status === OrderCollectionStatus.CANCELLED
-        ) {
-          return acc;
-        }
-        return acc + (currentCollection?.amount ?? 0);
-      }, 0)
-    ) + Number(paymentAmount);
-
-  const isAllItemsPaid = orderPayment?.orders?.every(
-    (order) => order.paidQuantity === order.totalQuantity
+  const collectionsTotalAmount = Number(
+    orderPayment?.collections?.reduce((acc, collection) => {
+      const currentCollection = collections.find(
+        (item) => item._id === collection
+      );
+      if (
+        !currentCollection ||
+        currentCollection.status === OrderCollectionStatus.CANCELLED
+      ) {
+        return acc;
+      }
+      return acc + (currentCollection?.amount ?? 0);
+    }, 0)
   );
+  const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
+
+  const isAllItemsPaid =
+    orderPayment?.orders?.every(
+      (order) => order.paidQuantity === order.totalQuantity
+    ) && collectionsTotalAmount >= orderPayment?.totalAmount;
   const refundAmount = totalMoneySpend - orderPayment?.totalAmount;
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8 ">
