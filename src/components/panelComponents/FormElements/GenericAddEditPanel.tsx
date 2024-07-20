@@ -19,7 +19,7 @@ import TextInput from "./TextInput";
 
 type Props<T> = {
   isOpen: boolean;
-  close: () => void;
+  close?: () => void;
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
@@ -33,6 +33,7 @@ type Props<T> = {
   isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isCancelConfirmationDialogExist?: boolean;
+  isCreateCloseActive?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
@@ -65,12 +66,14 @@ const GenericAddEditPanel = <T,>({
   additionalSubmitFunction,
   additionalCancelFunction,
   isCancelConfirmationDialogExist = false,
+  isCreateCloseActive = true,
   setForm,
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const [resetTextInput, setResetTextInput] = useState(false);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -88,7 +91,7 @@ const GenericAddEditPanel = <T,>({
           defaultValue = "#ffffff";
           break;
         case FormKeyTypeEnum.NUMBER:
-          defaultValue = "";
+          defaultValue = null;
           break;
         case FormKeyTypeEnum.BOOLEAN:
           defaultValue = false;
@@ -104,11 +107,11 @@ const GenericAddEditPanel = <T,>({
     },
     {}
   );
+  const mergedInitialState = { ...initialState, ...constantValues };
   const [formElements, setFormElements] = useState(() => {
     if (isEditMode && itemToEdit) {
       return itemToEdit.updates as unknown as FormElementsState;
     }
-    const mergedInitialState = { ...initialState, ...constantValues };
     return mergedInitialState;
   });
 
@@ -148,7 +151,7 @@ const GenericAddEditPanel = <T,>({
       if (event.key === "Escape") {
         event.preventDefault();
         isEditMode ? additionalCancelFunction?.() : undefined;
-        close();
+        close?.();
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -186,8 +189,9 @@ const GenericAddEditPanel = <T,>({
         }
       }
       additionalSubmitFunction?.();
-      setFormElements({});
-      close();
+      setFormElements(mergedInitialState);
+      setResetTextInput(!resetTextInput);
+      isCreateCloseActive && close?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
     }
@@ -217,7 +221,7 @@ const GenericAddEditPanel = <T,>({
   };
   const handleCancelButtonClick = () => {
     additionalCancelFunction?.();
-    close();
+    close?.();
   };
   const handleCreateButtonClick = () => {
     if (!allRequiredFilled) {
@@ -248,7 +252,7 @@ const GenericAddEditPanel = <T,>({
       onClick={
         isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
           ? () => {
-              close();
+              close?.();
               isEditMode ? additionalCancelFunction?.() : undefined;
             }
           : undefined
@@ -371,7 +375,7 @@ const GenericAddEditPanel = <T,>({
                         input.type === InputTypes.COLOR ||
                         input.type === InputTypes.PASSWORD) && (
                         <TextInput
-                          key={input.formKey}
+                          key={input.formKey + resetTextInput}
                           type={input.type}
                           value={value}
                           label={

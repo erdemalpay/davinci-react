@@ -8,6 +8,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdBorderColor } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -294,7 +295,7 @@ export function TableCard({
                     setSelectedTable(table._id);
                     setIsCreateOrderDialogOpen(true);
                   }}
-                  IconComponent={PlusIcon}
+                  IconComponent={MdBorderColor}
                 />
               </span>
             </Tooltip>
@@ -438,6 +439,7 @@ export function TableCard({
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
           setForm={setOrderForm}
+          isCreateCloseActive={false}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
@@ -451,6 +453,11 @@ export function TableCard({
                 totalPrice: selectedMenuItem.price * orderForm.quantity,
               });
             }
+            setOrderForm({
+              item: 0,
+              quantity: 0,
+              note: "",
+            });
           }}
           generalClassName="overflow-scroll"
           topClassName="flex flex-col gap-2 "
