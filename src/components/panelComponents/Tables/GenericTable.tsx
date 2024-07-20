@@ -315,14 +315,19 @@ const GenericTable = <T,>({
           } ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
-          {isCollapsible && (
+          {isCollapsible && row.collapsible?.collapsibleRows?.length > 0 && (
             <td onClick={() => toggleRowExpansion(rowId)}>
-              {isRowExpanded ? (
+              {row.collapsible?.collapsibleRows?.length === 0 ? (
+                <td className="w-6 h-6 mx-auto p-1 "></td>
+              ) : isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
               ) : (
                 <FaChevronDown className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full  " />
               )}
             </td>
+          )}
+          {row.collapsible?.collapsibleRows?.length === 0 && (
+            <td className="w-6 h-6 mx-auto p-1 "></td>
           )}
           {rowKeys.map((rowKey, keyIndex) => {
             if (rowKey.node) {
