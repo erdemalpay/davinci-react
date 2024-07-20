@@ -69,6 +69,7 @@ const TextInput = ({
       document.activeElement.blur();
     }
   };
+
   if (type === "color") {
     return (
       <div

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { useUserContext } from "../../context/User.context";
-import { MenuItem, Order, OrderStatus, Table, User } from "../../types";
+import { MenuItem, Order, OrderStatus, Table } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 
@@ -71,14 +71,15 @@ const OrderCard = ({ order, table }: Props) => {
               />
             </ButtonTooltip>
           ) : (
-            user._id === (order.deliveredBy as User)?._id && (
-              <ButtonTooltip content={t("Not Served")}>
-                <PiBellSimpleRingingFill
-                  className="text-orange-500 cursor-pointer text-lg px-[0.5px]"
-                  onClick={orderServeUpdate}
-                />
-              </ButtonTooltip>
-            )
+            // user._id === (order.deliveredBy as User)?._id && (
+            //   <ButtonTooltip content={t("Not Served")}>
+            //     <PiBellSimpleRingingFill
+            //       className="text-orange-500 cursor-pointer text-lg px-[0.5px]"
+            //       onClick={orderServeUpdate}
+            //     />
+            //   </ButtonTooltip>
+            // )
+            <></> // not served button may be added later
           ))}
         {order.status === OrderStatus.PENDING && (
           <div className="flex flex-row gap-[1px]">

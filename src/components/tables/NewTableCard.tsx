@@ -8,6 +8,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdBorderColor } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -41,6 +42,7 @@ import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
+import OrderListForPanel from "./OrderListForPanel";
 
 export interface TableCardProps {
   table: Table;
@@ -84,7 +86,7 @@ export function TableCard({
     note: "",
     // discount: null,
   });
-  const [selectedTable, setSelectedTable] = useState<number>();
+  const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
 
   const menuItemOptions = menuItems?.map((menuItem) => {
@@ -291,10 +293,10 @@ export function TableCard({
               <span className="text-{8px}">
                 <CardAction
                   onClick={() => {
-                    setSelectedTable(table._id);
+                    setSelectedTable(table);
                     setIsCreateOrderDialogOpen(true);
                   }}
-                  IconComponent={PlusIcon}
+                  IconComponent={MdBorderColor}
                 />
               </span>
             </Tooltip>
@@ -430,30 +432,40 @@ export function TableCard({
         title={t("Close Table")}
         text="Table is being closed. Are you sure?"
       />
-      {isCreateOrderDialogOpen && (
+      {isCreateOrderDialogOpen && selectedTable && (
         <GenericAddEditPanel
           isOpen={isCreateOrderDialogOpen}
           close={() => setIsCreateOrderDialogOpen(false)}
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
+          isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
+          isCreateCloseActive={false}
+          cancelButtonLabel="Close"
+          anotherPanelTopClassName="flex flex-row mx-auto flex-1 justify-center  "
+          anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
             );
-            if (selectedMenuItem) {
+            if (selectedMenuItem && selectedTable) {
               createOrder({
                 ...orderForm,
                 location: selectedLocationId,
-                table: selectedTable,
+                table: selectedTable._id,
                 unitPrice: selectedMenuItem.price,
                 totalPrice: selectedMenuItem.price * orderForm.quantity,
               });
             }
+            setOrderForm({
+              item: 0,
+              quantity: 0,
+              note: "",
+            });
           }}
-          generalClassName="overflow-scroll"
-          topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-scroll rounded-l-none shadow-none"
+          topClassName="flex flex-col gap-2  "
         />
       )}
       {isOrderPaymentModalOpen && (

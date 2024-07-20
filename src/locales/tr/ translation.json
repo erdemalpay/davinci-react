@@ -433,7 +433,6 @@
   "Orders": "Siparişler",
   "Pending": "Hazırlanıyor",
   "Ready to Serve": "Servise Hazır",
-  "Served": "Servis Edildi",
   "Table": "Masa",
   "All Ready": "Tümü Hazır",
   "Ready": "Hazır",
@@ -459,11 +458,11 @@
   "Add Discount": "İndirim Ekle",
   "Delete Discount": "İndirim Sil",
   "Percentage": "Yüzde",
-  "Cancel": "İptal",
   "Cancel Note": "İptal Notu",
   "Create Hour": "Oluşturma Saati",
   "Cancelled By": "İptal Eden",
   "Cancelled At": "İptal Saati",
   "Collections Income": "Tahsilat Geliri",
+  "Close": "Kapat",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

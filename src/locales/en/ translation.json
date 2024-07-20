@@ -437,7 +437,6 @@
   "Orders": "Orders",
   "Pending": "Pending",
   "Ready to Serve": "Ready to Serve",
-  "Served": "Served",
   "Table": "Table",
   "All Ready": "All Ready",
   "Ready": "Ready",
@@ -449,7 +448,6 @@
   "Paid Orders": "Paid Orders",
   "Paid": "Paid",
   "Unpaid": "Unpaid",
-  "Total": "Total",
   "Collection History": "Collection History",
   "Payment Types": "Payment Types",
   "Pay All": "Pay All",
@@ -463,11 +461,11 @@
   "Add Discount": "Add Discount",
   "Delete Discount": "Delete Discount",
   "Percentage": "Percentage",
-  "Cancel": "Cancel",
   "Cancel Note": "Cancel Note",
   "Create Hour": "Create Hour",
   "Cancelled By": "Cancelled By",
   "Cancelled At": "Cancelled At",
   "Collections Income": "Collections Income",
+  "Close": "Close",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
