@@ -6,7 +6,6 @@ import {
   useOrderMutations,
 } from "../../utils/api/order/order";
 import { useGetTables } from "../../utils/api/table";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 
 type Props = { tableId: number };
 
@@ -48,12 +47,11 @@ const OrderListForPanel = ({ tableId }: Props) => {
                       <h5 className="text-xs whitespace-nowrap min-w-8">
                         {orderWaitTime(order)} m
                       </h5>
-                      <ButtonTooltip content={t("Delete")}>
-                        <HiOutlineTrash
-                          className="text-red-500 cursor-pointer text-lg px-[0.5px]"
-                          onClick={() => deleteOrder(order._id)}
-                        />
-                      </ButtonTooltip>
+
+                      <HiOutlineTrash
+                        className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
+                        onClick={() => deleteOrder(order._id)}
+                      />
                     </div>
                   )}
                 </div>
