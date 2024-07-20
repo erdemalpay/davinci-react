@@ -92,7 +92,7 @@ const OrderLists = ({ orderPayment }: Props) => {
                 }
                 if (tempOrder) {
                   setTemporaryOrders(
-                    temporaryOrders.map((tempOrder) => {
+                    temporaryOrders?.map((tempOrder) => {
                       if (tempOrder.order._id === order._id) {
                         return {
                           ...tempOrder,

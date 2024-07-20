@@ -47,42 +47,45 @@ const CollectionModal = ({
   if (!collections || !orders || !user) {
     return null;
   }
-  const allRows = orderCollections.map((collectionId) => {
-    const collection = collections.find((item) => item._id === collectionId);
-    if (!collection) {
-      return null;
-    }
-    return {
-      _id: collection._id,
-      orderPayment: collection.orderPayment,
-      cashier: (collection.createdBy as User)?.name,
-      orders: collection.orders,
-      cancelledBy: (collection?.cancelledBy as User)?.name,
-      cancelledAt: collection?.cancelledAt
-        ? format(collection.cancelledAt, "HH:mm")
-        : "",
-      hour: format(collection.createdAt, "HH:mm"),
-      paymentMethod: (collection.paymentMethod as AccountPaymentMethod)?.name,
-      amount: collection.amount,
-      cancelNote: collection.cancelNote ?? "",
-      status: collection.status,
-      collapsible: {
-        collapsibleHeader: t("Orders"),
-        collapsibleColumns: [
-          { key: t("Product"), isSortable: true },
-          { key: t("Quantity"), isSortable: true },
-        ],
-        collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
-          product: (
-            orders?.find((order) => order._id === orderCollectionItem.order)
-              ?.item as MenuItem
-          )?.name,
-          quantity: orderCollectionItem.paidQuantity,
-        })),
-        collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-      },
-    };
-  });
+  const allRows = orderCollections
+    .map((collectionId) => {
+      const collection = collections.find((item) => item._id === collectionId);
+      if (!collection) {
+        return null;
+      }
+      return {
+        _id: collection._id,
+        orderPayment: collection.orderPayment,
+        cashier: (collection.createdBy as User)?.name,
+        orders: collection.orders,
+        cancelledBy: (collection?.cancelledBy as User)?.name,
+        cancelledAt: collection?.cancelledAt
+          ? format(collection.cancelledAt, "HH:mm")
+          : "",
+        hour: format(collection.createdAt, "HH:mm"),
+        paymentMethod: (collection.paymentMethod as AccountPaymentMethod)?.name,
+        amount: collection.amount,
+        cancelNote: collection.cancelNote ?? "",
+        status: collection.status,
+        collapsible: {
+          collapsibleHeader: t("Orders"),
+          collapsibleColumns: [
+            { key: t("Product"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+          ],
+          collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
+            product: (
+              orders?.find((order) => order._id === orderCollectionItem.order)
+                ?.item as MenuItem
+            )?.name,
+            quantity: orderCollectionItem.paidQuantity,
+          })),
+          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+        },
+      };
+    })
+    .filter((item) => item !== null);
+
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Cashier"), isSortable: true },
