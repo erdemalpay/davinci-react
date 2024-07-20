@@ -7,13 +7,13 @@ import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
-import { H6 } from "../Typography";
 import {
   FormKeyType,
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import { H6 } from "../Typography";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
 
@@ -37,6 +37,9 @@ type Props<T> = {
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
+  cancelButtonLabel?: string;
+  anotherPanel?: React.ReactNode;
+  anotherPanelTopClassName?: string;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -61,12 +64,15 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   folderName,
   handleUpdate,
+  anotherPanel,
   isBlurFieldClickCloseEnabled = true,
+  cancelButtonLabel = "Cancel",
   submitFunction,
   additionalSubmitFunction,
   additionalCancelFunction,
   isCancelConfirmationDialogExist = false,
   isCreateCloseActive = true,
+  anotherPanelTopClassName,
   setForm,
   submitItem,
 }: Props<T>) => {
@@ -244,25 +250,13 @@ const GenericAddEditPanel = <T,>({
     }
   };
 
-  return (
-    <div
-      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
-        !isOpen && "hidden"
-      }`}
-      onClick={
-        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
-          ? () => {
-              close?.();
-              isEditMode ? additionalCancelFunction?.() : undefined;
-            }
-          : undefined
-      }
-    >
+  const renderGenericAddEditModal = () => {
+    return (
       <div
         onClick={(e) => e.stopPropagation()}
         className={`bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full  max-h-[90vh] z-[100]   ${generalClassName}`}
       >
-        <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
+        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
           <div
             className={`${
               topClassName
@@ -472,7 +466,7 @@ const GenericAddEditPanel = <T,>({
               }}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
-              {t("Cancel")}
+              {t(cancelButtonLabel)}
             </button>
             <button
               onClick={handleCreateButtonClick}
@@ -487,6 +481,30 @@ const GenericAddEditPanel = <T,>({
           </div>
         </div>
       </div>
+    );
+  };
+  return (
+    <div
+      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
+        !isOpen && "hidden"
+      }`}
+      onClick={
+        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
+          ? () => {
+              close?.();
+              isEditMode ? additionalCancelFunction?.() : undefined;
+            }
+          : undefined
+      }
+    >
+      {anotherPanel ? (
+        <div className={`${anotherPanelTopClassName}`}>
+          {anotherPanel}
+          {renderGenericAddEditModal()}
+        </div>
+      ) : (
+        renderGenericAddEditModal()
+      )}
       {isConfirmationDialogOpen && (
         <ConfirmationDialog
           isOpen={isConfirmationDialogOpen}
