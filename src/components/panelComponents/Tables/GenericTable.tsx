@@ -326,7 +326,7 @@ const GenericTable = <T,>({
               )}
             </td>
           )}
-          {row.collapsible?.collapsibleRows?.length === 0 && (
+          {row?.collapsible?.collapsibleRows?.length === 0 && (
             <td className="w-6 h-6 mx-auto p-1 "></td>
           )}
           {rowKeys.map((rowKey, keyIndex) => {
