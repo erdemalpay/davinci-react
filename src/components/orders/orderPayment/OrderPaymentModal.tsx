@@ -19,7 +19,7 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   const orderPayments = useGetOrderPayments();
   const [componentKey, setComponentKey] = useState(0);
   const currentOrderPayment = orderPayments?.find(
-    (orderPayment) => (orderPayment.table as Table)._id === table._id
+    (orderPayment) => (orderPayment.table as Table)?._id === table?._id
   );
   const collections = useGetOrderCollections();
   if (!user || !currentOrderPayment || !collections || !orderPayments)

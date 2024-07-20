@@ -315,9 +315,9 @@ const GenericTable = <T,>({
           } ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
-          {isCollapsible && row.collapsible?.collapsibleRows?.length > 0 && (
+          {isCollapsible && row?.collapsible?.collapsibleRows?.length > 0 && (
             <td onClick={() => toggleRowExpansion(rowId)}>
-              {row.collapsible?.collapsibleRows?.length === 0 ? (
+              {row?.collapsible?.collapsibleRows?.length === 0 ? (
                 <td className="w-6 h-6 mx-auto p-1 "></td>
               ) : isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
@@ -326,7 +326,7 @@ const GenericTable = <T,>({
               )}
             </td>
           )}
-          {row.collapsible?.collapsibleRows?.length === 0 && (
+          {row?.collapsible?.collapsibleRows?.length === 0 && (
             <td className="w-6 h-6 mx-auto p-1 "></td>
           )}
           {rowKeys.map((rowKey, keyIndex) => {
