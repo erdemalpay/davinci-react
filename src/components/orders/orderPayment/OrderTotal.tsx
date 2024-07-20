@@ -82,7 +82,34 @@ const OrderTotal = ({ orderPayment }: Props) => {
           return (
             <div
               key={order._id}
-              className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200"
+              className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                if (!tempOrder) return;
+                if (tempOrder.quantity === 1) {
+                  setTemporaryOrders(
+                    temporaryOrders.filter(
+                      (tempOrder) => tempOrder.order._id !== order._id
+                    )
+                  );
+                } else {
+                  setTemporaryOrders(
+                    temporaryOrders.map((tempOrder) => {
+                      if (tempOrder.order._id === order._id) {
+                        return {
+                          ...tempOrder,
+                          quantity: tempOrder.quantity - 1,
+                        };
+                      }
+                      return tempOrder;
+                    })
+                  );
+                }
+                const newPaymentAmount =
+                  Number(paymentAmount) - order.unitPrice;
+                setPaymentAmount(
+                  String(newPaymentAmount > 0 ? newPaymentAmount : "")
+                );
+              }}
             >
               {/* item name,quantity part */}
               <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
@@ -98,35 +125,7 @@ const OrderTotal = ({ orderPayment }: Props) => {
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 <p>{order.unitPrice * (tempOrder?.quantity ?? 0)}₺</p>
                 {tempOrder && (
-                  <PiArrowArcLeftBold
-                    className="cursor-pointer text-red-600 text-lg"
-                    onClick={() => {
-                      if (tempOrder.quantity === 1) {
-                        setTemporaryOrders(
-                          temporaryOrders.filter(
-                            (tempOrder) => tempOrder.order._id !== order._id
-                          )
-                        );
-                      } else {
-                        setTemporaryOrders(
-                          temporaryOrders.map((tempOrder) => {
-                            if (tempOrder.order._id === order._id) {
-                              return {
-                                ...tempOrder,
-                                quantity: tempOrder.quantity - 1,
-                              };
-                            }
-                            return tempOrder;
-                          })
-                        );
-                      }
-                      const newPaymentAmount =
-                        Number(paymentAmount) - order.unitPrice;
-                      setPaymentAmount(
-                        String(newPaymentAmount > 0 ? newPaymentAmount : "")
-                      );
-                    }}
-                  />
+                  <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
                 )}
               </div>
             </div>

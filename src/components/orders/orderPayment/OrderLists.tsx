@@ -67,7 +67,51 @@ const OrderLists = ({ orderPayment }: Props) => {
           return (
             <div
               key={order._id}
-              className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200"
+              className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                if (temporaryOrders.length === 0) {
+                  setPaymentAmount(
+                    String(
+                      order.unitPrice + collectionsTotalAmount >
+                        orderPayment.totalAmount
+                        ? orderPayment.totalAmount - collectionsTotalAmount
+                        : order.unitPrice
+                    )
+                  );
+                } else {
+                  setPaymentAmount(
+                    String(
+                      Number(paymentAmount) +
+                        order.unitPrice +
+                        collectionsTotalAmount >
+                        orderPayment.totalAmount
+                        ? orderPayment.totalAmount - collectionsTotalAmount
+                        : Number(paymentAmount) + order.unitPrice
+                    )
+                  );
+                }
+                if (tempOrder) {
+                  setTemporaryOrders(
+                    temporaryOrders.map((tempOrder) => {
+                      if (tempOrder.order._id === order._id) {
+                        return {
+                          ...tempOrder,
+                          quantity: tempOrder.quantity + 1,
+                        };
+                      }
+                      return tempOrder;
+                    })
+                  );
+                } else {
+                  setTemporaryOrders([
+                    ...temporaryOrders,
+                    {
+                      order,
+                      quantity: 1,
+                    },
+                  ]);
+                }
+              }}
             >
               {/* item name,quantity part */}
               <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
@@ -89,53 +133,7 @@ const OrderLists = ({ orderPayment }: Props) => {
                         (tempOrder?.quantity ?? 0)))}
                   ₺
                 </p>
-                <MdOutlineTouchApp
-                  className="cursor-pointer hover:text-red-600 text-lg"
-                  onClick={() => {
-                    if (temporaryOrders.length === 0) {
-                      setPaymentAmount(
-                        String(
-                          order.unitPrice + collectionsTotalAmount >
-                            orderPayment.totalAmount
-                            ? orderPayment.totalAmount - collectionsTotalAmount
-                            : order.unitPrice
-                        )
-                      );
-                    } else {
-                      setPaymentAmount(
-                        String(
-                          Number(paymentAmount) +
-                            order.unitPrice +
-                            collectionsTotalAmount >
-                            orderPayment.totalAmount
-                            ? orderPayment.totalAmount - collectionsTotalAmount
-                            : Number(paymentAmount) + order.unitPrice
-                        )
-                      );
-                    }
-                    if (tempOrder) {
-                      setTemporaryOrders(
-                        temporaryOrders.map((tempOrder) => {
-                          if (tempOrder.order._id === order._id) {
-                            return {
-                              ...tempOrder,
-                              quantity: tempOrder.quantity + 1,
-                            };
-                          }
-                          return tempOrder;
-                        })
-                      );
-                    } else {
-                      setTemporaryOrders([
-                        ...temporaryOrders,
-                        {
-                          order,
-                          quantity: 1,
-                        },
-                      ]);
-                    }
-                  }}
-                />
+                <MdOutlineTouchApp className="cursor-pointer hover:text-red-600 text-lg" />
               </div>
             </div>
           );
