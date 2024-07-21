@@ -161,7 +161,7 @@ export function TableCard({
   }
   function newClose() {
     const tableOpenPayment = orderPayments?.find(
-      (orderPayment) => (orderPayment.table as Table)._id === table._id
+      (orderPayment) => (orderPayment.table as Table)?._id === table?._id
     );
 
     // there is an open order payment so first check that the items inside are matched directly open it
@@ -203,7 +203,6 @@ export function TableCard({
           updates: { orders: newOrders, totalAmount: newTotalAmount },
         });
       }
-      setIsOrderPaymentModalOpen(true);
     }
     // there is no open order payment so create a new one
     else {
@@ -221,10 +220,8 @@ export function TableCard({
         location: selectedLocationId,
         totalAmount: totalAmount,
       });
-      setTimeout(() => {
-        setIsOrderPaymentModalOpen(true);
-      }, 200);
     }
+    setIsOrderPaymentModalOpen(true);
   }
   const date = table.date;
   const startHour = format(new Date(), "HH:mm");

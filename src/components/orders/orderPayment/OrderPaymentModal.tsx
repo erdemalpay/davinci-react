@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../../context/User.context";
 import { Table } from "../../../types";
@@ -24,14 +24,11 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   const collections = useGetOrderCollections();
   if (!user || !currentOrderPayment || !collections || !orderPayments)
     return null;
-  useEffect(() => {
-    setComponentKey((prev) => prev + 1);
-  }, [collections, orderPayments]);
+
   return (
     <div
       id="popup"
       className="z-[99999] fixed w-full flex justify-center inset-0"
-      key={componentKey}
     >
       <div
         onClick={close}
