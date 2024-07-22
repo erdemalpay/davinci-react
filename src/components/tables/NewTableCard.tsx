@@ -10,7 +10,7 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdBorderColor } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useDateContext } from "../../context/Date.context";
+import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
@@ -74,12 +74,12 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
-  const { selectedDate } = useDateContext();
   const orderPayments = useGetOrderPayments();
   const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { setPaymentAmount, setTemporaryOrders } = useOrderContext();
+  const { setExpandedRows } = useGeneralContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -472,6 +472,7 @@ export function TableCard({
             setIsOrderPaymentModalOpen(false);
             setPaymentAmount("");
             setTemporaryOrders([]);
+            setExpandedRows({});
             // setIsCollectionModalOpen(false);
           }}
         />

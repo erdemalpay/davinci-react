@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../../context/User.context";
 import { Table } from "../../../types";
@@ -17,7 +16,6 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const orderPayments = useGetOrderPayments();
-  const [componentKey, setComponentKey] = useState(0);
   const currentOrderPayment = orderPayments?.find(
     (orderPayment) => (orderPayment.table as Table)?._id === table?._id
   );
