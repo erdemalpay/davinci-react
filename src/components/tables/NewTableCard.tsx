@@ -219,6 +219,7 @@ export function TableCard({
         })),
         location: selectedLocationId,
         totalAmount: totalAmount,
+        discountedTotalAmount: totalAmount,
       });
     }
     setIsOrderPaymentModalOpen(true);

@@ -444,6 +444,7 @@ export type OrderPayment = {
   _id: number;
   location: Location | number;
   table: Table | number;
+  discountedTotalAmount: number;
   collections?: number[];
   orders?: OrderPaymentItem[];
   totalAmount: number;

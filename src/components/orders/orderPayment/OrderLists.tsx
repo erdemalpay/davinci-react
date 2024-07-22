@@ -179,6 +179,15 @@ const OrderLists = ({ orderPayment }: Props) => {
           );
         })}
       </div>
+      {/* buttons */}
+      <button
+        onClick={() => {
+          console.log("paymentAmount", paymentAmount);
+        }}
+        className=" w-fit ml-auto bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold "
+      >
+        {t("Product Based Discount")}
+      </button>
     </div>
   );
 };
