@@ -23,6 +23,7 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
     setIsDiscountScreenOpen,
     isDiscountScreenOpen,
     setTemporaryOrders,
+    setSelectedOrders,
   } = useOrderContext();
 
   const buttons: OrderListButton[] = [
@@ -31,6 +32,7 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
       onClick: () => {
         setIsProductSelectionOpen(false);
         setIsDiscountScreenOpen(false);
+        setSelectedOrders([]);
       },
       isActive: isProductSelectionOpen,
     },

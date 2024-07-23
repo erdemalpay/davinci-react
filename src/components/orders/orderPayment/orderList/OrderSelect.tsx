@@ -1,4 +1,4 @@
-import { GrCheckbox } from "react-icons/gr";
+import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useOrderContext } from "../../../../context/Order.context";
 import { MenuItem, OrderPayment } from "../../../../types";
 import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
@@ -10,7 +10,8 @@ type Props = {
 
 const OrderSelect = ({ orderPayment }: Props) => {
   const orders = useGetGivenDateOrders();
-  const { temporaryOrders, isDiscountScreenOpen } = useOrderContext();
+  const { temporaryOrders, selectedOrders, setSelectedOrders } =
+    useOrderContext();
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Unpaid Orders" />
@@ -33,11 +34,23 @@ const OrderSelect = ({ orderPayment }: Props) => {
           <div
             key={order._id}
             className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
-            onClick={() => {}}
+            onClick={() => {
+              if (selectedOrders.includes(order._id)) {
+                setSelectedOrders(
+                  selectedOrders.filter((id) => id !== order._id)
+                );
+              } else {
+                setSelectedOrders([...selectedOrders, order._id]);
+              }
+            }}
           >
             {/* item name,quantity part */}
             <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5">
-              <GrCheckbox className="w-4 h-4 mr-2 " />
+              {selectedOrders.includes(order._id) ? (
+                <GrCheckboxSelected className="w-4 h-4 mr-2 " />
+              ) : (
+                <GrCheckbox className="w-4 h-4 mr-2 " />
+              )}
               <p>
                 {"("}
                 {orderPaymentItem.totalQuantity -
