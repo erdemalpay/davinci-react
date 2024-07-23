@@ -78,7 +78,12 @@ export function TableCard({
   const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
-  const { setPaymentAmount, setTemporaryOrders } = useOrderContext();
+  const {
+    setPaymentAmount,
+    setTemporaryOrders,
+    setIsDiscountScreenOpen,
+    setIsProductSelectionOpen,
+  } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
@@ -474,6 +479,8 @@ export function TableCard({
             setPaymentAmount("");
             setTemporaryOrders([]);
             setExpandedRows({});
+            setIsDiscountScreenOpen(false);
+            setIsProductSelectionOpen(false);
             // setIsCollectionModalOpen(false);
           }}
         />

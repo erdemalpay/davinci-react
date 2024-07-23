@@ -35,6 +35,13 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
       isActive: isProductSelectionOpen,
     },
     {
+      label: t("Back"),
+      onClick: () => {
+        setIsDiscountScreenOpen(false);
+      },
+      isActive: isDiscountScreenOpen,
+    },
+    {
       label: t("Discounts"),
       onClick: () => {
         setIsDiscountScreenOpen(true);
