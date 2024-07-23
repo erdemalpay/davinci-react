@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../../context/Order.context";
 import { OrderPayment } from "../../../../types";
+import OrderSelect from "./OrderSelect";
 import PaidOrders from "./PaidOrders";
 import UnpaidOrders from "./UnpaidOrders";
 
@@ -18,6 +19,7 @@ const OrderLists = ({ orderPayment }: Props) => {
     isProductSelectionOpen,
     setIsProductSelectionOpen,
     setIsDiscountScreenOpen,
+    isDiscountScreenOpen,
   } = useOrderContext();
 
   const buttons: OrderListButton[] = [
@@ -25,6 +27,7 @@ const OrderLists = ({ orderPayment }: Props) => {
       label: t("Cancel"),
       onClick: () => {
         setIsProductSelectionOpen(false);
+        setIsDiscountScreenOpen(false);
       },
       isActive: isProductSelectionOpen,
     },
@@ -51,7 +54,11 @@ const OrderLists = ({ orderPayment }: Props) => {
         <p>{parseFloat(String(orderPayment.totalAmount)).toFixed(2)}₺</p>
       </div>
       {/* orders */}
-      <UnpaidOrders orderPayment={orderPayment} />
+      {isProductSelectionOpen ? (
+        <OrderSelect orderPayment={orderPayment} />
+      ) : (
+        <UnpaidOrders orderPayment={orderPayment} />
+      )}
       <PaidOrders orderPayment={orderPayment} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">
