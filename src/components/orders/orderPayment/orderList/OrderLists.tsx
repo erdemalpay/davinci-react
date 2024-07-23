@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../../context/Order.context";
 import { OrderPayment } from "../../../../types";
+import DiscountScreen from "./DiscountScreen";
 import OrderSelect from "./OrderSelect";
 import PaidOrders from "./PaidOrders";
 import UnpaidOrders from "./UnpaidOrders";
@@ -55,14 +56,16 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
         <p>{parseFloat(String(orderPayment.totalAmount)).toFixed(2)}₺</p>
       </div>
       {/* orders */}
-      {isProductSelectionOpen ? (
-        <OrderSelect orderPayment={orderPayment} />
-      ) : (
-        <UnpaidOrders
-          orderPayment={orderPayment}
-          collectionsTotalAmount={collectionsTotalAmount}
-        />
-      )}
+      {!isDiscountScreenOpen &&
+        (isProductSelectionOpen ? (
+          <OrderSelect orderPayment={orderPayment} />
+        ) : (
+          <UnpaidOrders
+            orderPayment={orderPayment}
+            collectionsTotalAmount={collectionsTotalAmount}
+          />
+        ))}
+      {isDiscountScreenOpen && <DiscountScreen />}
       <PaidOrders orderPayment={orderPayment} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">
