@@ -14,8 +14,9 @@ import {
 import { useOrderPaymentMutations } from "../../../utils/api/order/orderPayment";
 type Props = {
   orderPayment: OrderPayment;
+  collectionsTotalAmount: number;
 };
-const OrderPaymentTypes = ({ orderPayment }: Props) => {
+const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
@@ -43,20 +44,7 @@ const OrderPaymentTypes = ({ orderPayment }: Props) => {
   };
   const { updateOrderPayment } = useOrderPaymentMutations();
   const { createOrderCollection } = useOrderCollectionMutations();
-  const collectionsTotalAmount = Number(
-    orderPayment?.collections?.reduce((acc, collection) => {
-      const currentCollection = collections.find(
-        (item) => item._id === collection
-      );
-      if (
-        !currentCollection ||
-        currentCollection.status === OrderCollectionStatus.CANCELLED
-      ) {
-        return acc;
-      }
-      return acc + (currentCollection?.amount ?? 0);
-    }, 0)
-  );
+
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
 
   const isAllItemsPaid =

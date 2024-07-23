@@ -7,13 +7,14 @@ import UnpaidOrders from "./UnpaidOrders";
 
 type Props = {
   orderPayment: OrderPayment;
+  collectionsTotalAmount: number;
 };
 type OrderListButton = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderLists = ({ orderPayment }: Props) => {
+const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const {
     isProductSelectionOpen,
@@ -57,7 +58,10 @@ const OrderLists = ({ orderPayment }: Props) => {
       {isProductSelectionOpen ? (
         <OrderSelect orderPayment={orderPayment} />
       ) : (
-        <UnpaidOrders orderPayment={orderPayment} />
+        <UnpaidOrders
+          orderPayment={orderPayment}
+          collectionsTotalAmount={collectionsTotalAmount}
+        />
       )}
       <PaidOrders orderPayment={orderPayment} />
       {/* buttons */}

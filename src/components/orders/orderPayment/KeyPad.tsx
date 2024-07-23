@@ -1,35 +1,20 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderCollectionStatus, OrderPayment } from "../../../types";
+import { Order, OrderPayment } from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
-import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 
 type Props = {
   orderPayment: OrderPayment;
+  collectionsTotalAmount: number;
 };
-const Keypad = ({ orderPayment }: Props) => {
+const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { setPaymentAmount, paymentAmount, setTemporaryOrders } =
     useOrderContext();
   const orders = useGetGivenDateOrders();
-  const collections = useGetOrderCollections();
-  if (!orders || !collections) {
+  if (!orders) {
     return null;
   }
-  const collectionsTotalAmount = Number(
-    orderPayment?.collections?.reduce((acc, collection) => {
-      const currentCollection = collections.find(
-        (item) => item._id === collection
-      );
-      if (
-        !currentCollection ||
-        currentCollection.status === OrderCollectionStatus.CANCELLED
-      ) {
-        return acc;
-      }
-      return acc + (currentCollection?.amount ?? 0);
-    }, 0)
-  );
 
   const { t } = useTranslation();
   const handleKeyPress = useCallback(

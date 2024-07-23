@@ -1,36 +1,17 @@
 import { useTranslation } from "react-i18next";
 import { MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
-import {
-  MenuItem,
-  OrderCollectionStatus,
-  OrderPayment,
-} from "../../../../types";
+import { MenuItem, OrderPayment } from "../../../../types";
 import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
-import { useGetOrderCollections } from "../../../../utils/api/order/orderCollection";
 
 type Props = {
   orderPayment: OrderPayment;
+  collectionsTotalAmount: number;
 };
 
-const UnpaidOrders = ({ orderPayment }: Props) => {
+const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
-  const collections = useGetOrderCollections();
-  const collectionsTotalAmount = Number(
-    orderPayment?.collections?.reduce((acc, collection) => {
-      const currentCollection = collections?.find(
-        (item) => item._id === collection
-      );
-      if (
-        !currentCollection ||
-        currentCollection.status === OrderCollectionStatus.CANCELLED
-      ) {
-        return acc;
-      }
-      return acc + (currentCollection?.amount ?? 0);
-    }, 0)
-  );
   const {
     temporaryOrders,
     setPaymentAmount,
