@@ -3,7 +3,7 @@ import { useUserContext } from "../../../context/User.context";
 import { Table } from "../../../types";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useGetOrderPayments } from "../../../utils/api/order/orderPayment";
-import OrderLists from "./OrderLists";
+import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
 

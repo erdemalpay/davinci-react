@@ -433,6 +433,7 @@ type OrderPaymentItem = {
   paidQuantity: number;
   totalQuantity: number;
   discount?: number;
+  discountQuantity?: number;
 };
 
 type OrderCollectionItem = {
