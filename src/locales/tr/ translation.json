@@ -465,5 +465,7 @@
   "Collections Income": "Tahsilat Geliri",
   "Close": "Kapat",
   "Product Based Discount": "Ürün Bazlı İndirim",
+  "Select Order": "Sipariş Seç",
+  "Please select orders first": "Lütfen önce siparişleri seçin",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

@@ -14,7 +14,7 @@ const OrderSelect = ({ orderPayment }: Props) => {
     useOrderContext();
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
-      <OrderScreenHeader header="Unpaid Orders" />
+      <OrderScreenHeader header="Select Order" />
       {/* orders */}
       {orderPayment?.orders?.map((orderPaymentItem) => {
         const order = orders.find(

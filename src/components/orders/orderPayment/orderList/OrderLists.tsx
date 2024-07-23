@@ -76,7 +76,7 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
             collectionsTotalAmount={collectionsTotalAmount}
           />
         ))}
-      {isDiscountScreenOpen && <DiscountScreen />}
+      {isDiscountScreenOpen && <DiscountScreen orderPayment={orderPayment} />}
       <PaidOrders orderPayment={orderPayment} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">

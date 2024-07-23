@@ -468,5 +468,7 @@
   "Collections Income": "Collections Income",
   "Close": "Close",
   "Product Based Discount": "Product Based Discount",
+  "Select Order": "Select Order",
+  "Please select orders first": "Please select orders first",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
