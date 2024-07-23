@@ -3,22 +3,21 @@ import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, OrderCollectionStatus, OrderPayment } from "../../../types";
+import { MenuItem, OrderPayment } from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
-import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
 
 type Props = {
   orderPayment: OrderPayment;
+  collectionsTotalAmount: number;
 };
 
-const OrderTotal = ({ orderPayment }: Props) => {
+const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  const collections = useGetOrderCollections();
-  if (!orders || !collections || !orderPayment) {
+  if (!orders || !orderPayment) {
     return null;
   }
   const {
@@ -27,20 +26,7 @@ const OrderTotal = ({ orderPayment }: Props) => {
     temporaryOrders,
     paymentAmount,
   } = useOrderContext();
-  const collectionsTotalAmount = Number(
-    orderPayment?.collections?.reduce((acc, collection) => {
-      const currentCollection = collections.find(
-        (item) => item._id === collection
-      );
-      if (
-        !currentCollection ||
-        currentCollection.status === OrderCollectionStatus.CANCELLED
-      ) {
-        return acc;
-      }
-      return acc + (currentCollection?.amount ?? 0);
-    }, 0)
-  );
+
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
   const refundAmount = totalMoneySpend - orderPayment?.totalAmount;
 
@@ -148,7 +134,10 @@ const OrderTotal = ({ orderPayment }: Props) => {
           </p>
         </div>
 
-        <Keypad orderPayment={orderPayment} />
+        <Keypad
+          orderPayment={orderPayment}
+          collectionsTotalAmount={collectionsTotalAmount}
+        />
       </div>
     </div>
   );

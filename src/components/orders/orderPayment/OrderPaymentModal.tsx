@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../../context/User.context";
-import { Table } from "../../../types";
+import { OrderCollectionStatus, Table } from "../../../types";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useGetOrderPayments } from "../../../utils/api/order/orderPayment";
-import OrderLists from "./OrderLists";
+import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
 
@@ -17,13 +16,26 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const orderPayments = useGetOrderPayments();
-  const [componentKey, setComponentKey] = useState(0);
   const currentOrderPayment = orderPayments?.find(
     (orderPayment) => (orderPayment.table as Table)?._id === table?._id
   );
   const collections = useGetOrderCollections();
-  if (!user || !currentOrderPayment || !collections || !orderPayments)
-    return null;
+
+  if (!user || !currentOrderPayment || !orderPayments) return null;
+  const collectionsTotalAmount = Number(
+    currentOrderPayment?.collections?.reduce((acc, collection) => {
+      const currentCollection = collections.find(
+        (item) => item._id === collection
+      );
+      if (
+        !currentCollection ||
+        currentCollection.status === OrderCollectionStatus.CANCELLED
+      ) {
+        return acc;
+      }
+      return acc + (currentCollection?.amount ?? 0);
+    }, 0)
+  );
 
   return (
     <div
@@ -51,9 +63,18 @@ const OrderPaymentModal = ({ close, table }: Props) => {
               </div>
               {/* payment part */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 overflow-scroll no-scroll ">
-                <OrderLists orderPayment={currentOrderPayment} />
-                <OrderTotal orderPayment={currentOrderPayment} />
-                <OrderPaymentTypes orderPayment={currentOrderPayment} />
+                <OrderLists
+                  orderPayment={currentOrderPayment}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
+                <OrderTotal
+                  orderPayment={currentOrderPayment}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
+                <OrderPaymentTypes
+                  orderPayment={currentOrderPayment}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
               </div>
             </div>
           </div>

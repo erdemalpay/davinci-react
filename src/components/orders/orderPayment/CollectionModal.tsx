@@ -157,7 +157,7 @@ const CollectionModal = ({
   ];
   const actions = [
     {
-      name: t("Edit"),
+      name: t("Cancel"),
       icon: <HiOutlineTrash />,
       className: "text-red-600 cursor-pointer text-xl",
       isModal: true,

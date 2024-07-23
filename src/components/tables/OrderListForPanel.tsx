@@ -27,7 +27,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
         {/* header */}
         <h1 className="font-medium">{t("Orders")}</h1>
         {/* orders */}
-        <div className="overflow-scroll no-scrollbar h-60 ">
+        <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
           {table.orders?.map((tableOrder) => {
             const order = orders.find((order) => order._id === tableOrder);
             if (!order || order.status !== OrderStatus.PENDING) return null;
