@@ -17,7 +17,6 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-
   if (!orders || !orderPayment) {
     return null;
   }
@@ -135,7 +134,10 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
           </p>
         </div>
 
-        <Keypad orderPayment={orderPayment} />
+        <Keypad
+          orderPayment={orderPayment}
+          collectionsTotalAmount={collectionsTotalAmount}
+        />
       </div>
     </div>
   );
