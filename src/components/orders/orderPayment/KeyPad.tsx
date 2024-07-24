@@ -9,8 +9,12 @@ type Props = {
   collectionsTotalAmount: number;
 };
 const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
-  const { setPaymentAmount, paymentAmount, setTemporaryOrders } =
-    useOrderContext();
+  const {
+    setPaymentAmount,
+    paymentAmount,
+    setTemporaryOrders,
+    setIsProductSelectionOpen,
+  } = useOrderContext();
   const orders = useGetGivenDateOrders();
   if (!orders) {
     return null;
@@ -66,6 +70,7 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
               collectionsTotalAmount
             )?.toString()
           );
+
           setTemporaryOrders(
             updatedOrders as { order: Order; quantity: number }[]
           );
@@ -77,6 +82,17 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
       { key: "5" },
       { key: "6" },
       {
+        key: t("Discount"),
+        onClick: () => {
+          setIsProductSelectionOpen(true);
+        },
+      },
+    ],
+    [
+      { key: "1" },
+      { key: "2" },
+      { key: "3" },
+      {
         key: "C",
         onClick: () => {
           setTemporaryOrders([]);
@@ -84,7 +100,6 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
         },
       },
     ],
-    [{ key: "1" }, { key: "2" }, { key: "3" }, { key: "" }],
     [
       { key: "." },
       { key: "0" },
