@@ -21,10 +21,7 @@ const PaidOrders = ({ orderPayment }: Props) => {
       return (
         <p>
           {order.unitPrice *
-            (100 -
-              (discounts?.find(
-                (discount) => discount._id === orderPaymentItem.discount
-              )?.percentage ?? 0)) *
+            (100 - (orderPaymentItem.discountPercentage ?? 0)) *
             (1 / 100) *
             orderPaymentItem.paidQuantity}
           ₺
@@ -40,10 +37,7 @@ const PaidOrders = ({ orderPayment }: Props) => {
         <p>
           {order.unitPrice * notDiscountedQuantity +
             order.unitPrice *
-              (100 -
-                (discounts?.find(
-                  (discount) => discount._id === orderPaymentItem.discount
-                )?.percentage ?? 0)) *
+              (100 - (orderPaymentItem.discountPercentage ?? 0)) *
               (1 / 100) *
               (orderPaymentItem.paidQuantity - notDiscountedQuantity)}
           ₺
