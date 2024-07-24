@@ -21,6 +21,7 @@ const DiscountScreen = ({ orderPayment }: Props) => {
     setSelectedOrders,
     setIsDiscountScreenOpen,
     setIsProductSelectionOpen,
+    setIsSelectAll,
   } = useOrderContext();
   if (!discounts || !orderPayment) return null;
   const handleDiscountClick = (discount: OrderDiscount) => {
@@ -69,6 +70,7 @@ const DiscountScreen = ({ orderPayment }: Props) => {
     setSelectedOrders([]);
     setIsDiscountScreenOpen(false);
     setIsProductSelectionOpen(false);
+    setIsSelectAll(false);
   };
 
   return (

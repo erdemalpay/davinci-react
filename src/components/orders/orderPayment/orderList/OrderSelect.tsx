@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useOrderContext } from "../../../../context/Order.context";
 import { MenuItem, OrderPayment } from "../../../../types";
@@ -10,11 +11,39 @@ type Props = {
 
 const OrderSelect = ({ orderPayment }: Props) => {
   const orders = useGetGivenDateOrders();
-  const { temporaryOrders, selectedOrders, setSelectedOrders } =
-    useOrderContext();
+  const { t } = useTranslation();
+  const {
+    temporaryOrders,
+    selectedOrders,
+    setSelectedOrders,
+    isSelectAll,
+    setIsSelectAll,
+  } = useOrderContext();
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Select Order" />
+      {/* select all */}
+
+      <div
+        className="ml-2 mr-auto flex flex-row gap-2 justify-start items-center  w-full pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer "
+        onClick={() => {
+          if (isSelectAll) {
+            setIsSelectAll(false);
+            setSelectedOrders([]);
+          } else {
+            setIsSelectAll(true);
+            setSelectedOrders(orders.map((order) => order._id));
+          }
+        }}
+      >
+        {isSelectAll ? (
+          <GrCheckboxSelected className="w-4 h-4  " />
+        ) : (
+          <GrCheckbox className="w-4 h-4   " />
+        )}
+        <p>{t("All")}</p>
+      </div>
+
       {/* orders */}
       {orderPayment?.orders?.map((orderPaymentItem) => {
         const order = orders.find(
