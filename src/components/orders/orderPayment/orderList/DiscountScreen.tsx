@@ -1,11 +1,76 @@
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import { useOrderContext } from "../../../../context/Order.context";
+import { OrderDiscount, OrderPayment } from "../../../../types";
+import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
+import { useOrderPaymentMutations } from "../../../../utils/api/order/orderPayment";
 import OrderScreenHeader from "./OrderScreenHeader";
 
-type Props = {};
+type Props = {
+  orderPayment: OrderPayment;
+};
 
-const DiscountScreen = (props: Props) => {
+const DiscountScreen = ({ orderPayment }: Props) => {
+  const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
-  if (!discounts) return null;
+  const { updateOrderPayment } = useOrderPaymentMutations();
+  const orders = useGetGivenDateOrders();
+  const {
+    selectedOrders,
+    setSelectedOrders,
+    setIsDiscountScreenOpen,
+    setIsProductSelectionOpen,
+  } = useOrderContext();
+  if (!discounts || !orderPayment) return null;
+  const handleDiscountClick = (discount: OrderDiscount) => {
+    if (selectedOrders.length === 0) {
+      toast.error(t("Please select orders first"));
+      setIsDiscountScreenOpen(false);
+      return;
+    }
+    const newOrders = orderPayment?.orders?.map((orderPaymentItem) => {
+      if (selectedOrders.includes(orderPaymentItem.order)) {
+        return {
+          ...orderPaymentItem,
+          discount: discount._id,
+          discountQuantity:
+            orderPaymentItem.totalQuantity - orderPaymentItem.paidQuantity,
+        };
+      }
+      return orderPaymentItem;
+    });
+    const totalDiscount = newOrders?.reduce((acc, orderPaymentItem) => {
+      const order = orders.find(
+        (order) => order._id === orderPaymentItem.order
+      );
+      if (!order) return acc;
+      if (orderPaymentItem?.discountQuantity) {
+        const appliedDiscount = discounts.find(
+          (discount) => discount._id === orderPaymentItem.discount
+        );
+        return (
+          acc +
+          (order?.unitPrice *
+            (appliedDiscount?.percentage ?? 0) *
+            orderPaymentItem.discountQuantity) /
+            100
+        );
+      }
+      return acc;
+    }, 0);
+    updateOrderPayment({
+      id: orderPayment._id,
+      updates: {
+        orders: newOrders,
+        discountAmount: totalDiscount,
+      },
+    });
+    setSelectedOrders([]);
+    setIsDiscountScreenOpen(false);
+    setIsProductSelectionOpen(false);
+  };
+
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Discounts" />
@@ -16,6 +81,9 @@ const DiscountScreen = (props: Props) => {
             <div
               key={discount._id}
               className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24"
+              onClick={() => {
+                handleDiscountClick(discount);
+              }}
             >
               <p className="text-red-600 p-2 items-center justify-center  font-medium">
                 {discount.percentage}%

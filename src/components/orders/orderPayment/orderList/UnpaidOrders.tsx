@@ -1,8 +1,13 @@
-import { useTranslation } from "react-i18next";
 import { MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, OrderPayment } from "../../../../types";
+import {
+  MenuItem,
+  Order,
+  OrderPayment,
+  OrderPaymentItem,
+} from "../../../../types";
 import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 type Props = {
   orderPayment: OrderPayment;
@@ -10,8 +15,11 @@ type Props = {
 };
 
 const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
-  const { t } = useTranslation();
+  const discounts = useGetOrderDiscounts();
   const orders = useGetGivenDateOrders();
+  if (!discounts || !orders) {
+    return null;
+  }
   const {
     temporaryOrders,
     setPaymentAmount,
@@ -36,29 +44,52 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
           orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0) ===
           orderPaymentItem.totalQuantity;
         if (isAllPaidWithTempOrder) return null;
+
+        const handlePaymentAmount = (
+          orderPaymentItem: OrderPaymentItem,
+          order: Order
+        ) => {
+          if (orderPaymentItem?.discountQuantity) {
+            return (
+              order.unitPrice *
+              (100 -
+                (discounts?.find(
+                  (discount) => discount._id === orderPaymentItem.discount
+                )?.percentage ?? 0)) *
+              (1 / 100)
+            );
+          } else {
+            return order.unitPrice;
+          }
+        };
         return (
           <div
             key={order._id}
             className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
             onClick={() => {
+              const orderPrice = handlePaymentAmount(orderPaymentItem, order);
               if (temporaryOrders.length === 0) {
                 setPaymentAmount(
                   String(
-                    order.unitPrice + collectionsTotalAmount >
-                      orderPayment.totalAmount
-                      ? orderPayment.totalAmount - collectionsTotalAmount
-                      : order.unitPrice
+                    orderPrice + collectionsTotalAmount >
+                      orderPayment.totalAmount - orderPayment.discountAmount
+                      ? orderPayment.totalAmount -
+                          orderPayment.discountAmount -
+                          collectionsTotalAmount
+                      : orderPrice
                   )
                 );
               } else {
                 setPaymentAmount(
                   String(
                     Number(paymentAmount) +
-                      order.unitPrice +
+                      orderPrice +
                       collectionsTotalAmount >
-                      orderPayment.totalAmount
-                      ? orderPayment.totalAmount - collectionsTotalAmount
-                      : Number(paymentAmount) + order.unitPrice
+                      orderPayment.totalAmount - orderPayment.discountAmount
+                      ? orderPayment.totalAmount -
+                          orderPayment.discountAmount -
+                          collectionsTotalAmount
+                      : Number(paymentAmount) + orderPrice
                   )
                 );
               }
@@ -97,13 +128,29 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
             </div>
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              <p>
-                {order.unitPrice *
-                  (orderPaymentItem.totalQuantity -
-                    (orderPaymentItem.paidQuantity +
-                      (tempOrder?.quantity ?? 0)))}
-                ₺
-              </p>
+              {orderPaymentItem?.discountQuantity && (
+                <p>
+                  {order.unitPrice *
+                    (100 -
+                      (discounts?.find(
+                        (discount) => discount._id === orderPaymentItem.discount
+                      )?.percentage ?? 0)) *
+                    (1 / 100) *
+                    (orderPaymentItem.totalQuantity -
+                      (orderPaymentItem.paidQuantity +
+                        (tempOrder?.quantity ?? 0)))}
+                  ₺
+                </p>
+              )}
+              {!orderPaymentItem?.discountQuantity && (
+                <p>
+                  {order.unitPrice *
+                    (orderPaymentItem.totalQuantity -
+                      (orderPaymentItem.paidQuantity +
+                        (tempOrder?.quantity ?? 0)))}
+                  ₺
+                </p>
+              )}
               <MdOutlineTouchApp className="cursor-pointer hover:text-red-600 text-lg" />
             </div>
           </div>

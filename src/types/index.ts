@@ -428,7 +428,7 @@ export type OrderCollection = {
   orders?: OrderCollectionItem[];
 };
 
-type OrderPaymentItem = {
+export type OrderPaymentItem = {
   order: number;
   paidQuantity: number;
   totalQuantity: number;
@@ -445,7 +445,7 @@ export type OrderPayment = {
   _id: number;
   location: Location | number;
   table: Table | number;
-  discountedTotalAmount: number;
+  discountAmount: number;
   collections?: number[];
   orders?: OrderPaymentItem[];
   totalAmount: number;

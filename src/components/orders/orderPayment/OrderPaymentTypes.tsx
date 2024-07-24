@@ -50,8 +50,12 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const isAllItemsPaid =
     orderPayment?.orders?.every(
       (order) => order.paidQuantity === order.totalQuantity
-    ) && collectionsTotalAmount >= orderPayment?.totalAmount;
-  const refundAmount = totalMoneySpend - orderPayment?.totalAmount;
+    ) &&
+    collectionsTotalAmount >=
+      orderPayment?.totalAmount - orderPayment?.discountAmount;
+  const refundAmount =
+    totalMoneySpend -
+    (orderPayment?.totalAmount - orderPayment?.discountAmount);
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8 ">
       {/*main header part */}
@@ -79,14 +83,17 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
               // if payment amount is greater than total amount or there are items in the temporary orders
               if (
                 temporaryOrders.length !== 0 ||
-                totalMoneySpend >= orderPayment.totalAmount
+                totalMoneySpend >=
+                  orderPayment.totalAmount - orderPayment.discountAmount
               ) {
-                if (totalMoneySpend >= orderPayment.totalAmount) {
+                if (
+                  totalMoneySpend >=
+                  orderPayment.totalAmount - orderPayment.discountAmount
+                ) {
                   const newOrders = orderPayment?.orders?.map((order) => {
                     return {
-                      order: order.order,
+                      ...order,
                       paidQuantity: order.totalQuantity,
-                      totalQuantity: order.totalQuantity,
                     };
                   });
                   updateOrderPayment({
@@ -105,10 +112,9 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
                       return order;
                     }
                     return {
-                      order: order.order,
+                      ...order,
                       paidQuantity:
                         order.paidQuantity + temporaryOrder.quantity,
-                      totalQuantity: order.totalQuantity,
                     };
                   });
                   updateOrderPayment({
@@ -127,7 +133,8 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
                   Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0),
                 status: OrderCollectionStatus.PAID,
                 orders:
-                  totalMoneySpend >= orderPayment.totalAmount
+                  totalMoneySpend >=
+                  orderPayment.totalAmount - orderPayment.discountAmount
                     ? orderPayment?.orders
                         ?.filter(
                           (order) => order.paidQuantity !== order.totalQuantity
