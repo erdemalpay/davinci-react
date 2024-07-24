@@ -64,7 +64,12 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Total")}</h1>
-        <p>{parseFloat(String(orderPayment.totalAmount)).toFixed(2)}₺</p>
+        <p>
+          {parseFloat(
+            String(orderPayment.totalAmount - orderPayment.discountAmount)
+          ).toFixed(2)}
+          ₺
+        </p>
       </div>
       {/* orders */}
       {!isDiscountScreenOpen &&

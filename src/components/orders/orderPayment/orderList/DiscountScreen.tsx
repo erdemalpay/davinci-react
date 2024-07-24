@@ -40,23 +40,25 @@ const DiscountScreen = ({ orderPayment }: Props) => {
       }
       return orderPaymentItem;
     });
-    const totalDiscount = orderPayment?.orders?.reduce(
-      (acc, orderPaymentItem) => {
-        const order = orders.find(
-          (order) => order._id === orderPaymentItem.order
+    const totalDiscount = newOrders?.reduce((acc, orderPaymentItem) => {
+      const order = orders.find(
+        (order) => order._id === orderPaymentItem.order
+      );
+      if (!order) return acc;
+      if (orderPaymentItem?.discountQuantity) {
+        const appliedDiscount = discounts.find(
+          (discount) => discount._id === orderPaymentItem.discount
         );
-        const discountQuantity =
-          orderPaymentItem.totalQuantity - orderPaymentItem.paidQuantity;
-        if (!order) return acc;
-        if (selectedOrders.includes(orderPaymentItem.order)) {
-          const discountAmount =
-            (order.unitPrice * discountQuantity * discount.percentage) / 100;
-          return acc + discountAmount;
-        }
-        return acc;
-      },
-      0
-    );
+        return (
+          acc +
+          (order?.unitPrice *
+            (appliedDiscount?.percentage ?? 0) *
+            orderPaymentItem.discountQuantity) /
+            100
+        );
+      }
+      return acc;
+    }, 0);
     updateOrderPayment({
       id: orderPayment._id,
       updates: {
@@ -66,7 +68,7 @@ const DiscountScreen = ({ orderPayment }: Props) => {
     });
     setSelectedOrders([]);
     setIsDiscountScreenOpen(false);
-    setIsProductSelectionOpen(true);
+    setIsProductSelectionOpen(false);
   };
 
   return (

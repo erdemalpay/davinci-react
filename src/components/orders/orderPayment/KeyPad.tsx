@@ -61,7 +61,9 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
             ?.filter((order) => order !== null);
           setPaymentAmount(
             (
-              (orderPayment?.totalAmount ?? 0) - collectionsTotalAmount
+              (orderPayment?.totalAmount ?? 0) -
+              (orderPayment?.discountAmount ?? 0) -
+              collectionsTotalAmount
             )?.toString()
           );
           setTemporaryOrders(

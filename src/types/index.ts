@@ -428,7 +428,7 @@ export type OrderCollection = {
   orders?: OrderCollectionItem[];
 };
 
-type OrderPaymentItem = {
+export type OrderPaymentItem = {
   order: number;
   paidQuantity: number;
   totalQuantity: number;
