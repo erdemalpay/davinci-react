@@ -13,7 +13,7 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
     setPaymentAmount,
     paymentAmount,
     setTemporaryOrders,
-    setIsProductSelectionOpen,
+    setIsDiscountScreenOpen,
   } = useOrderContext();
   const orders = useGetGivenDateOrders();
   if (!orders) {
@@ -84,7 +84,7 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
       {
         key: t("Discount"),
         onClick: () => {
-          setIsProductSelectionOpen(true);
+          setIsDiscountScreenOpen(true);
         },
       },
     ],
