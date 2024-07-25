@@ -47,12 +47,12 @@ const DiscountScreen = ({ orderPayment }: Props) => {
         (order) => order._id === orderPaymentItem.order
       );
       if (!order) return acc;
-      if (orderPaymentItem?.discountQuantity) {
+      if (orderPaymentItem?.discount) {
         return (
           acc +
           (order?.unitPrice *
             (orderPaymentItem.discountPercentage ?? 0) *
-            orderPaymentItem.discountQuantity) /
+            orderPaymentItem.totalQuantity) /
             100
         );
       }

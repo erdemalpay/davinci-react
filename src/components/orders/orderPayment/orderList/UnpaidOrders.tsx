@@ -1,11 +1,6 @@
 import { MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
-import {
-  MenuItem,
-  Order,
-  OrderPayment,
-  OrderPaymentItem,
-} from "../../../../types";
+import { MenuItem, OrderPayment } from "../../../../types";
 import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
@@ -45,48 +40,33 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
           orderPaymentItem.totalQuantity;
         if (isAllPaidWithTempOrder) return null;
 
-        const handlePaymentAmount = (
-          orderPaymentItem: OrderPaymentItem,
-          order: Order
-        ) => {
-          if (orderPaymentItem?.discountQuantity) {
-            return (
-              order.unitPrice *
-              (100 - (orderPaymentItem.discountPercentage ?? 0)) *
-              (1 / 100)
-            );
-          } else {
-            return order.unitPrice;
-          }
-        };
         return (
           <div
             key={order._id}
             className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
             onClick={() => {
-              const orderPrice = handlePaymentAmount(orderPaymentItem, order);
               if (temporaryOrders.length === 0) {
                 setPaymentAmount(
                   String(
-                    orderPrice + collectionsTotalAmount >
+                    order.unitPrice + collectionsTotalAmount >
                       orderPayment.totalAmount - orderPayment.discountAmount
                       ? orderPayment.totalAmount -
                           orderPayment.discountAmount -
                           collectionsTotalAmount
-                      : orderPrice
+                      : order.unitPrice
                   )
                 );
               } else {
                 setPaymentAmount(
                   String(
                     Number(paymentAmount) +
-                      orderPrice +
+                      order.unitPrice +
                       collectionsTotalAmount >
                       orderPayment.totalAmount - orderPayment.discountAmount
                       ? orderPayment.totalAmount -
                           orderPayment.discountAmount -
                           collectionsTotalAmount
-                      : Number(paymentAmount) + orderPrice
+                      : Number(paymentAmount) + order.unitPrice
                   )
                 );
               }
@@ -125,26 +105,13 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
             </div>
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {orderPaymentItem?.discountQuantity && (
-                <p>
-                  {order.unitPrice *
-                    (100 - (orderPaymentItem.discountPercentage ?? 0)) *
-                    (1 / 100) *
-                    (orderPaymentItem.totalQuantity -
-                      (orderPaymentItem.paidQuantity +
-                        (tempOrder?.quantity ?? 0)))}
-                  ₺
-                </p>
-              )}
-              {!orderPaymentItem?.discountQuantity && (
-                <p>
-                  {order.unitPrice *
-                    (orderPaymentItem.totalQuantity -
-                      (orderPaymentItem.paidQuantity +
-                        (tempOrder?.quantity ?? 0)))}
-                  ₺
-                </p>
-              )}
+              <p>
+                {order.unitPrice *
+                  (orderPaymentItem.totalQuantity -
+                    (orderPaymentItem.paidQuantity +
+                      (tempOrder?.quantity ?? 0)))}
+                ₺
+              </p>
               <MdOutlineTouchApp className="cursor-pointer hover:text-red-600 text-lg" />
             </div>
           </div>

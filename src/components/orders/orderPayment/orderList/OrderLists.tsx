@@ -36,29 +36,36 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
         setSelectedOrders([]);
         setIsSelectAll(false);
       },
-      isActive: isProductSelectionOpen,
+      isActive: isDiscountScreenOpen || isProductSelectionOpen,
     },
     {
       label: t("Back"),
       onClick: () => {
-        setIsDiscountScreenOpen(false);
-      },
-      isActive: isDiscountScreenOpen,
-    },
-    {
-      label: t("Discounts"),
-      onClick: () => {
-        setIsDiscountScreenOpen(true);
+        setIsProductSelectionOpen(false);
       },
       isActive: isProductSelectionOpen,
+    },
+    {
+      label: t("Orders"),
+      onClick: () => {
+        setIsProductSelectionOpen(true);
+      },
+      isActive: isDiscountScreenOpen && !isProductSelectionOpen,
     },
     {
       label: t("Product Based Discount"),
       onClick: () => {
         setTemporaryOrders([]);
+        setIsDiscountScreenOpen(true);
+      },
+      isActive: !(isProductSelectionOpen || isDiscountScreenOpen),
+    },
+    {
+      label: t("Apply"),
+      onClick: () => {
         setIsProductSelectionOpen(true);
       },
-      isActive: !isProductSelectionOpen,
+      isActive: isProductSelectionOpen,
     },
   ];
   return (
@@ -74,16 +81,16 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
         </p>
       </div>
       {/* orders */}
-      {!isDiscountScreenOpen &&
-        (isProductSelectionOpen ? (
-          <OrderSelect orderPayment={orderPayment} />
+      {!isProductSelectionOpen &&
+        (isDiscountScreenOpen ? (
+          <DiscountScreen orderPayment={orderPayment} />
         ) : (
           <UnpaidOrders
             orderPayment={orderPayment}
             collectionsTotalAmount={collectionsTotalAmount}
           />
         ))}
-      {isDiscountScreenOpen && <DiscountScreen orderPayment={orderPayment} />}
+      {isProductSelectionOpen && <OrderSelect orderPayment={orderPayment} />}
       <PaidOrders orderPayment={orderPayment} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">
