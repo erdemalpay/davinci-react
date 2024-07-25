@@ -84,6 +84,7 @@ export function TableCard({
     setIsDiscountScreenOpen,
     setIsProductSelectionOpen,
     setSelectedOrders,
+    setIsSelectAll,
   } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [orderForm, setOrderForm] = useState({
@@ -483,6 +484,7 @@ export function TableCard({
             setIsDiscountScreenOpen(false);
             setIsProductSelectionOpen(false);
             setSelectedOrders([]);
+            setIsSelectAll(false);
             // setIsCollectionModalOpen(false);
           }}
         />

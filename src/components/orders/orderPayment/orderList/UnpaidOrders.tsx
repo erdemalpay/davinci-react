@@ -1,4 +1,5 @@
-import { MdOutlineTouchApp } from "react-icons/md";
+import { useTranslation } from "react-i18next";
+import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
 import {
   MenuItem,
@@ -6,16 +7,23 @@ import {
   OrderPayment,
   OrderPaymentItem,
 } from "../../../../types";
-import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
+import {
+  useCancelOrderForDiscountMutation,
+  useGetGivenDateOrders,
+} from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
+
 type Props = {
   orderPayment: OrderPayment;
   collectionsTotalAmount: number;
 };
 
 const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
+  const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
+  const { mutate: cancelOrderForDiscount } =
+    useCancelOrderForDiscountMutation();
   const orders = useGetGivenDateOrders();
   if (!discounts || !orders) {
     return null;
@@ -49,13 +57,10 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
           orderPaymentItem: OrderPaymentItem,
           order: Order
         ) => {
-          if (orderPaymentItem?.discountQuantity) {
+          if (orderPaymentItem?.discount) {
             return (
               order.unitPrice *
-              (100 -
-                (discounts?.find(
-                  (discount) => discount._id === orderPaymentItem.discount
-                )?.percentage ?? 0)) *
+              (100 - (orderPaymentItem.discountPercentage ?? 0)) *
               (1 / 100)
             );
           } else {
@@ -118,31 +123,65 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
           >
             {/* item name,quantity part */}
             <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
-              <p>
+              <p className="mr-auto">
                 {"("}
                 {orderPaymentItem.totalQuantity -
                   (orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0))}
                 {")"}-
               </p>
-              <p>{(order.item as MenuItem).name}</p>
+
+              <div className="flex flex-col gap-1 justify-start mr-auto">
+                <p>{(order.item as MenuItem).name}</p>
+                {orderPaymentItem.discount && (
+                  <div
+                    className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelOrderForDiscount({
+                        orderPaymentId: orderPayment._id,
+                        orderId: order._id,
+                        cancelQuantity:
+                          orderPaymentItem.totalQuantity -
+                          orderPaymentItem.paidQuantity,
+                      });
+                    }}
+                  >
+                    <p>
+                      {
+                        discounts.find(
+                          (discount) =>
+                            discount._id === orderPaymentItem.discount
+                        )?.name
+                      }
+                    </p>
+                    <MdOutlineCancel className="w-4 h-4" />
+                  </div>
+                )}
+              </div>
             </div>
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {orderPaymentItem?.discountQuantity && (
-                <p>
-                  {order.unitPrice *
-                    (100 -
-                      (discounts?.find(
-                        (discount) => discount._id === orderPaymentItem.discount
-                      )?.percentage ?? 0)) *
-                    (1 / 100) *
-                    (orderPaymentItem.totalQuantity -
-                      (orderPaymentItem.paidQuantity +
-                        (tempOrder?.quantity ?? 0)))}
-                  ₺
-                </p>
+              {orderPaymentItem?.discount && (
+                <div className="flex flex-col ml-auto justify-center items-center">
+                  <p className="text-xs line-through">
+                    {order.unitPrice *
+                      (orderPaymentItem.totalQuantity -
+                        (orderPaymentItem.paidQuantity +
+                          (tempOrder?.quantity ?? 0)))}
+                    ₺
+                  </p>
+                  <p>
+                    {order.unitPrice *
+                      (100 - (orderPaymentItem.discountPercentage ?? 0)) *
+                      (1 / 100) *
+                      (orderPaymentItem.totalQuantity -
+                        (orderPaymentItem.paidQuantity +
+                          (tempOrder?.quantity ?? 0)))}
+                    ₺
+                  </p>
+                </div>
               )}
-              {!orderPaymentItem?.discountQuantity && (
+              {!orderPaymentItem?.discount && (
                 <p>
                   {order.unitPrice *
                     (orderPaymentItem.totalQuantity -

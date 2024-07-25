@@ -17,35 +17,13 @@ const PaidOrders = ({ orderPayment }: Props) => {
   if (!orderPayment || !orders || !discounts) return null;
 
   const renderPayment = (orderPaymentItem: OrderPaymentItem, order: Order) => {
-    if (orderPaymentItem?.discountQuantity === orderPaymentItem.totalQuantity) {
+    if (orderPaymentItem?.discount) {
       return (
         <p>
           {order.unitPrice *
-            (100 -
-              (discounts?.find(
-                (discount) => discount._id === orderPaymentItem.discount
-              )?.percentage ?? 0)) *
+            (100 - (orderPaymentItem.discountPercentage ?? 0)) *
             (1 / 100) *
             orderPaymentItem.paidQuantity}
-          ₺
-        </p>
-      );
-    } else if (
-      orderPaymentItem?.discountQuantity &&
-      orderPaymentItem.totalQuantity > orderPaymentItem.discountQuantity
-    ) {
-      const notDiscountedQuantity =
-        orderPaymentItem.totalQuantity - orderPaymentItem.discountQuantity;
-      return (
-        <p>
-          {order.unitPrice * notDiscountedQuantity +
-            order.unitPrice *
-              (100 -
-                (discounts?.find(
-                  (discount) => discount._id === orderPaymentItem.discount
-                )?.percentage ?? 0)) *
-              (1 / 100) *
-              (orderPaymentItem.paidQuantity - notDiscountedQuantity)}
           ₺
         </p>
       );

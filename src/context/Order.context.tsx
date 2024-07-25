@@ -1,13 +1,25 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
-import { Order } from "../types";
+import { Order, OrderDiscount } from "../types";
 
 type OrderContextType = {
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
+  selectedDiscount: OrderDiscount | null;
+  setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
-  selectedOrders: number[];
-  setSelectedOrders: (selectedOrders: number[]) => void;
+  selectedOrders: {
+    order: Order;
+    totalQuantity: number;
+    selectedQuantity: number;
+  }[];
+  setSelectedOrders: (
+    selectedOrders: {
+      order: Order;
+      totalQuantity: number;
+      selectedQuantity: number;
+    }[]
+  ) => void;
   isProductSelectionOpen: boolean;
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
   isDiscountScreenOpen: boolean;
@@ -38,6 +50,8 @@ const OrderContext = createContext<OrderContextType>({
   setSelectedOrders: () => {},
   isSelectAll: false,
   setIsSelectAll: () => {},
+  selectedDiscount: null,
+  setSelectedDiscount: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -47,8 +61,16 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
-  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<
+    {
+      order: Order;
+      totalQuantity: number;
+      selectedQuantity: number;
+    }[]
+  >([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] =
+    useState<OrderDiscount | null>(null);
   return (
     <OrderContext.Provider
       value={{
@@ -64,6 +86,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setSelectedOrders,
         isSelectAll,
         setIsSelectAll,
+        selectedDiscount,
+        setSelectedDiscount,
       }}
     >
       {children}

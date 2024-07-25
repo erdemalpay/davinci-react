@@ -433,7 +433,7 @@ export type OrderPaymentItem = {
   paidQuantity: number;
   totalQuantity: number;
   discount?: number;
-  discountQuantity?: number;
+  discountPercentage?: number;
 };
 
 type OrderCollectionItem = {

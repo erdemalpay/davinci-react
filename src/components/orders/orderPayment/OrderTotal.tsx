@@ -42,13 +42,10 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
     orderPaymentItem: OrderPaymentItem,
     order: Order
   ) => {
-    if (orderPaymentItem?.discountQuantity) {
+    if (orderPaymentItem?.discount) {
       return (
         order.unitPrice *
-        (100 -
-          (discounts?.find(
-            (discount) => discount._id === orderPaymentItem.discount
-          )?.percentage ?? 0)) *
+        (100 - (orderPaymentItem.discountPercentage ?? 0)) *
         (1 / 100)
       );
     } else {
