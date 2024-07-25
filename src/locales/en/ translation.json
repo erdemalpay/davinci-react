@@ -471,5 +471,6 @@
   "Select Order": "Select Order",
   "Please select orders first": "Please select orders first",
   "Apply": "Apply",
+  "Please select an order to apply discount": "Please select an order to apply discount",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

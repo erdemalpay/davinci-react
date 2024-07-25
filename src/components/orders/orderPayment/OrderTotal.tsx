@@ -3,7 +3,12 @@ import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, OrderPayment } from "../../../types";
+import {
+  MenuItem,
+  Order,
+  OrderPayment,
+  OrderPaymentItem,
+} from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import CollectionModal from "./CollectionModal";
@@ -33,6 +38,20 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
   const refundAmount =
     totalMoneySpend -
     (orderPayment?.totalAmount - orderPayment?.discountAmount);
+  const handlePaymentAmount = (
+    orderPaymentItem: OrderPaymentItem,
+    order: Order
+  ) => {
+    if (orderPaymentItem?.discount) {
+      return (
+        order.unitPrice *
+        (100 - (orderPaymentItem.discountPercentage ?? 0)) *
+        (1 / 100)
+      );
+    } else {
+      return order.unitPrice;
+    }
+  };
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
@@ -94,7 +113,8 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
                   );
                 }
                 const newPaymentAmount =
-                  Number(paymentAmount) - order.unitPrice;
+                  Number(paymentAmount) -
+                  handlePaymentAmount(orderPaymentItem, order);
                 setPaymentAmount(
                   String(newPaymentAmount > 0 ? newPaymentAmount : "")
                 );
@@ -112,7 +132,11 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
 
               {/* buttons */}
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-                <p>{order.unitPrice * (tempOrder?.quantity ?? 0)}₺</p>
+                <p>
+                  {handlePaymentAmount(orderPaymentItem, order) *
+                    (tempOrder?.quantity ?? 0)}
+                  ₺
+                </p>
                 {tempOrder && (
                   <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
                 )}

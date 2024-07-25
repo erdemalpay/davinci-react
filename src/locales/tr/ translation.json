@@ -468,5 +468,6 @@
   "Select Order": "Sipariş Seç",
   "Please select orders first": "Lütfen önce siparişleri seçin",
   "Apply": "Uygula",
+  "Please select an order to apply discount": "İndirim uygulamak için bir sipariş seçin",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

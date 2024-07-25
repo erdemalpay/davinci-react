@@ -8,8 +8,18 @@ type OrderContextType = {
   selectedDiscount: OrderDiscount | null;
   setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
-  selectedOrders: number[];
-  setSelectedOrders: (selectedOrders: number[]) => void;
+  selectedOrders: {
+    order: Order;
+    totalQuantity: number;
+    selectedQuantity: number;
+  }[];
+  setSelectedOrders: (
+    selectedOrders: {
+      order: Order;
+      totalQuantity: number;
+      selectedQuantity: number;
+    }[]
+  ) => void;
   isProductSelectionOpen: boolean;
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
   isDiscountScreenOpen: boolean;
@@ -51,7 +61,13 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
-  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<
+    {
+      order: Order;
+      totalQuantity: number;
+      selectedQuantity: number;
+    }[]
+  >([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);

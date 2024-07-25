@@ -4,14 +4,22 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
-import { Order, OrderPaymentItem } from "./../../../types/index";
+import { Order, OrderPayment } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
-  createOrderDto: Order;
+  orders: {
+    totalQuantity: number;
+    selectedQuantity: number;
+    orderId: number;
+  }[];
   orderPaymentId: number;
-  newOrderPaymentItems: OrderPaymentItem[];
   discount: number;
   discountPercentage: number;
+}
+interface CancelOrderForDiscount {
+  orderPaymentId: number;
+  orderId: number;
+  cancelQuantity: number;
 }
 
 const baseUrl = `${Paths.Order}`;
@@ -86,6 +94,30 @@ export function useCreateOrderForDiscountMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   return useMutation(createOrderForDiscount, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Order}/payment`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
+  return post<CancelOrderForDiscount, OrderPayment>({
+    path: `${Paths.Order}/cancel_discount`,
+    payload,
+  });
+}
+export function useCancelOrderForDiscountMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(cancelOrderForDiscount, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },

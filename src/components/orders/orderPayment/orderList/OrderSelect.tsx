@@ -32,7 +32,20 @@ const OrderSelect = ({ orderPayment }: Props) => {
             setSelectedOrders([]);
           } else {
             setIsSelectAll(true);
-            setSelectedOrders(orders.map((order) => order._id));
+            setSelectedOrders(
+              orders.map((order) => {
+                const foundOrderPayment = orderPayment?.orders?.find(
+                  (paymentItem) => paymentItem.order === order._id
+                );
+                return {
+                  order: order,
+                  totalQuantity: foundOrderPayment?.totalQuantity ?? 0,
+                  selectedQuantity:
+                    (foundOrderPayment?.totalQuantity ?? 0) -
+                    (foundOrderPayment?.paidQuantity ?? 0),
+                };
+              })
+            );
           }
         }}
       >
@@ -45,62 +58,89 @@ const OrderSelect = ({ orderPayment }: Props) => {
       </div>
 
       {/* orders */}
-      {orderPayment?.orders?.map((orderPaymentItem) => {
-        const order = orders.find(
-          (order) => order._id === orderPaymentItem.order
-        );
-        const isAllPaid =
-          orderPaymentItem.paidQuantity === orderPaymentItem.totalQuantity;
-        if (!order || isAllPaid) return null;
-        const tempOrder = temporaryOrders.find(
-          (tempOrder) => tempOrder.order._id === order._id
-        );
-        const isAllPaidWithTempOrder =
-          orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0) ===
-          orderPaymentItem.totalQuantity;
-        if (isAllPaidWithTempOrder) return null;
-        return (
-          <div
-            key={order._id}
-            className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
-            onClick={() => {
-              if (selectedOrders.includes(order._id)) {
-                setSelectedOrders(
-                  selectedOrders.filter((id) => id !== order._id)
+      {orderPayment?.orders
+        ?.filter((orderPaymentItem) => !orderPaymentItem.discount)
+        ?.map((orderPaymentItem) => {
+          const order = orders.find(
+            (order) => order._id === orderPaymentItem.order
+          );
+          const isAllPaid =
+            orderPaymentItem.paidQuantity === orderPaymentItem.totalQuantity;
+          if (!order || isAllPaid) return null;
+          const tempOrder = temporaryOrders.find(
+            (tempOrder) => tempOrder.order._id === order._id
+          );
+          const isAllPaidWithTempOrder =
+            orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0) ===
+            orderPaymentItem.totalQuantity;
+          if (isAllPaidWithTempOrder) return null;
+          return (
+            <div
+              key={order._id}
+              className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                const foundOrder = selectedOrders.find(
+                  (item) => item.order._id === order._id
                 );
-              } else {
-                setSelectedOrders([...selectedOrders, order._id]);
-              }
-            }}
-          >
-            {/* item name,quantity part */}
-            <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5">
-              {selectedOrders.includes(order._id) ? (
-                <GrCheckboxSelected className="w-4 h-4 mr-2 " />
-              ) : (
-                <GrCheckbox className="w-4 h-4 mr-2 " />
-              )}
-              <p>
-                {"("}
-                {orderPaymentItem.totalQuantity -
-                  (orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0))}
-                {")"}-
-              </p>
-              <p>{(order.item as MenuItem).name}</p>
-            </div>
-            {/* buttons */}
-            <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              <p>
-                {order.unitPrice *
-                  (orderPaymentItem.totalQuantity -
+                if (foundOrder) {
+                  if (foundOrder.totalQuantity > foundOrder.selectedQuantity) {
+                    setSelectedOrders([
+                      ...selectedOrders.filter(
+                        (item) => item.order._id !== order._id
+                      ),
+                      {
+                        order: order,
+                        totalQuantity: order.quantity,
+                        selectedQuantity: foundOrder.selectedQuantity + 1,
+                      },
+                    ]);
+                  } else {
+                    setSelectedOrders([
+                      ...selectedOrders.filter(
+                        (item) => item.order._id !== order._id
+                      ),
+                    ]);
+                  }
+                } else {
+                  setSelectedOrders([
+                    ...selectedOrders,
+                    {
+                      order: order,
+                      totalQuantity: order.quantity,
+                      selectedQuantity: 1,
+                    },
+                  ]);
+                }
+              }}
+            >
+              {/* item name,quantity part */}
+              <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5">
+                <p className="p-1 border border-black  w-5 h-5 items-center justify-center flex text-sm text-red-600 font-medium">
+                  {selectedOrders.find((item) => item.order._id === order._id)
+                    ?.selectedQuantity ?? ""}
+                </p>
+                <p>
+                  {"("}
+                  {orderPaymentItem.totalQuantity -
                     (orderPaymentItem.paidQuantity +
-                      (tempOrder?.quantity ?? 0)))}
-                ₺
-              </p>
+                      (tempOrder?.quantity ?? 0))}
+                  {")"}-
+                </p>
+                <p>{(order.item as MenuItem).name}</p>
+              </div>
+              {/* buttons */}
+              <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
+                <p>
+                  {order.unitPrice *
+                    (orderPaymentItem.totalQuantity -
+                      (orderPaymentItem.paidQuantity +
+                        (tempOrder?.quantity ?? 0)))}
+                  ₺
+                </p>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };
