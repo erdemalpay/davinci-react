@@ -46,13 +46,6 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
       isActive: isProductSelectionOpen,
     },
     {
-      label: t("Orders"),
-      onClick: () => {
-        setIsProductSelectionOpen(true);
-      },
-      isActive: isDiscountScreenOpen && !isProductSelectionOpen,
-    },
-    {
       label: t("Product Based Discount"),
       onClick: () => {
         setTemporaryOrders([]);

@@ -1,10 +1,12 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
-import { Order } from "../types";
+import { Order, OrderDiscount } from "../types";
 
 type OrderContextType = {
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
+  selectedDiscount: OrderDiscount | null;
+  setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
   selectedOrders: number[];
   setSelectedOrders: (selectedOrders: number[]) => void;
@@ -38,6 +40,8 @@ const OrderContext = createContext<OrderContextType>({
   setSelectedOrders: () => {},
   isSelectAll: false,
   setIsSelectAll: () => {},
+  selectedDiscount: null,
+  setSelectedDiscount: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -49,6 +53,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] =
+    useState<OrderDiscount | null>(null);
   return (
     <OrderContext.Provider
       value={{
@@ -64,6 +70,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setSelectedOrders,
         isSelectAll,
         setIsSelectAll,
+        selectedDiscount,
+        setSelectedDiscount,
       }}
     >
       {children}
