@@ -23,7 +23,7 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
-  payments?: number[];
+  payment?: number;
   gameplays: Gameplay[];
 };
 

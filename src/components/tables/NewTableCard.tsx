@@ -215,8 +215,10 @@ export function TableCard({
     else {
       const totalAmount = table?.orders?.reduce((acc, order) => {
         const orderItem = orders?.find((o) => o._id === order);
-        return acc + (orderItem?.totalPrice || 0);
+        if (!orderItem) return acc;
+        return acc + orderItem?.unitPrice * orderItem?.quantity;
       }, 0);
+
       createOrderPayment({
         table: table._id,
         orders: table?.orders?.map((orderId) => ({
