@@ -202,7 +202,8 @@ export function TableCard({
           tableOpenPayment.totalAmount +
           (missingOrders?.reduce((acc, order) => {
             const orderItem = orders?.find((o) => o._id === order);
-            return acc + (orderItem?.totalPrice || 0);
+            if (!orderItem) return acc;
+            return acc + (orderItem.unitPrice * orderItem.quantity || 0);
           }, 0) ?? 0);
 
         updateOrderPayment({
@@ -462,7 +463,6 @@ export function TableCard({
                 location: selectedLocationId,
                 table: selectedTable._id,
                 unitPrice: selectedMenuItem.price,
-                totalPrice: selectedMenuItem.price * orderForm.quantity,
               });
             }
             setOrderForm({
