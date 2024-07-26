@@ -140,15 +140,6 @@ export function TableCard({
     return game?.name || "";
   }
 
-  function finishTable() {
-    closeTable({
-      id: table._id,
-      updates: { finishHour: format(new Date(), "HH:mm") },
-    });
-    setIsCloseConfirmationDialogOpen(false);
-    toast.success(`Table ${table.name} closed`);
-  }
-
   function reopenTableBack() {
     reopenTable({
       id: table._id,
@@ -421,13 +412,6 @@ export function TableCard({
         confirm={handleTableDelete}
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
-      />
-      <ConfirmationDialog
-        isOpen={isCloseConfirmationDialogOpen}
-        close={() => setIsCloseConfirmationDialogOpen(false)}
-        confirm={finishTable}
-        title={t("Close Table")}
-        text="Table is being closed. Are you sure?"
       />
       {isCreateOrderDialogOpen && selectedTable && (
         <GenericAddEditPanel

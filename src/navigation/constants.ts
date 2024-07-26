@@ -36,6 +36,7 @@ import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import { FixturePageTabs } from "./../pages/Fixture";
+import { OrderDataTabs } from "./../pages/OrderDatas";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
@@ -113,6 +114,7 @@ export const allRoutes: {
     path: Routes.OrderDatas,
     element: OrderDatas,
     isOnSidebar: true,
+    tabs: OrderDataTabs,
   },
   {
     name: "Reservations",
