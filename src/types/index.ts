@@ -23,7 +23,7 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
-  payments?: number[];
+  payment?: number;
   gameplays: Gameplay[];
 };
 
@@ -402,7 +402,6 @@ export type Order = {
   status: string;
   note?: string;
   unitPrice: number;
-  totalPrice: number;
   createdAt: Date;
   createdBy: User | string;
   preparedAt?: Date;
