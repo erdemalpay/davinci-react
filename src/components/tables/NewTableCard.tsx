@@ -1,13 +1,9 @@
-import {
-  FlagIcon,
-  LockOpenIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@heroicons/react/24/solid";
+import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoReceipt } from "react-icons/io5";
 import { MdBorderColor } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -78,14 +74,7 @@ export function TableCard({
   const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
-  const {
-    setPaymentAmount,
-    setTemporaryOrders,
-    setIsDiscountScreenOpen,
-    setIsProductSelectionOpen,
-    setSelectedOrders,
-    setIsSelectAll,
-  } = useOrderContext();
+  const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
@@ -290,14 +279,14 @@ export function TableCard({
         </p>
         <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
-            <Tooltip content="Add gameplay">
+            <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />
               </span>
             </Tooltip>
           )}
           {!table.finishHour && (
-            <Tooltip content="Add Order">
+            <Tooltip content={t("Add Order")}>
               <span className="text-{8px}">
                 <CardAction
                   onClick={() => {
@@ -310,12 +299,12 @@ export function TableCard({
             </Tooltip>
           )}
           {!table.finishHour && (
-            <Tooltip content="Close">
+            <Tooltip content={t("Check")}>
               <span className="text-{8px}">
                 <CardAction
                   // onClick={() => setIsCloseConfirmationDialogOpen(true)}
                   onClick={() => newClose()}
-                  IconComponent={FlagIcon}
+                  IconComponent={IoReceipt}
                 />
               </span>
             </Tooltip>
@@ -479,15 +468,9 @@ export function TableCard({
         <OrderPaymentModal
           table={table}
           close={() => {
-            setIsOrderPaymentModalOpen(false);
-            setPaymentAmount("");
-            setTemporaryOrders([]);
             setExpandedRows({});
-            setIsDiscountScreenOpen(false);
-            setIsProductSelectionOpen(false);
-            setSelectedOrders([]);
-            setIsSelectAll(false);
-            // setIsCollectionModalOpen(false);
+            resetOrderContext();
+            setIsOrderPaymentModalOpen(false);
           }}
         />
       )}

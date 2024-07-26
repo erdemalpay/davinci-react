@@ -34,6 +34,7 @@ type OrderContextType = {
       quantity: number;
     }[]
   ) => void;
+  resetOrderContext: () => void;
 };
 
 const OrderContext = createContext<OrderContextType>({
@@ -52,6 +53,7 @@ const OrderContext = createContext<OrderContextType>({
   setIsSelectAll: () => {},
   selectedDiscount: null,
   setSelectedDiscount: () => {},
+  resetOrderContext: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -71,6 +73,16 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);
+
+  const resetOrderContext = () => {
+    setPaymentAmount("");
+    setTemporaryOrders([]);
+    setIsProductSelectionOpen(false);
+    setIsDiscountScreenOpen(false);
+    setSelectedOrders([]);
+    setIsSelectAll(false);
+    setSelectedDiscount(null);
+  };
   return (
     <OrderContext.Provider
       value={{
@@ -88,6 +100,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setIsSelectAll,
         selectedDiscount,
         setSelectedDiscount,
+        resetOrderContext,
       }}
     >
       {children}

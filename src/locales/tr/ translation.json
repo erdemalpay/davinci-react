@@ -469,5 +469,10 @@
   "Please select orders first": "Lütfen önce siparişleri seçin",
   "Apply": "Uygula",
   "Please select an order to apply discount": "İndirim uygulamak için bir sipariş seçin",
+  "Check": "Hesap",
+  "Add Order": "Sipariş Ekle",
+  "Add Gameplay": "Oyun Ekle",
+  "Table {{tableName}} closed": "{{tableName}} masası kapatıldı",
+  "Table is being closed. Are you sure?": "Masa kapatılmak üzeredir. Emin misiniz?",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
