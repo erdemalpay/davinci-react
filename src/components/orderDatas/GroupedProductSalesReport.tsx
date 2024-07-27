@@ -265,7 +265,7 @@ const GroupedProductSalesReport = (props: Props) => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"discount" + row.item}>
-            {row.discount + " " + TURKISHLIRA}
+            {row.discount > 0 && row.discount + " " + TURKISHLIRA}
           </p>
         );
       },

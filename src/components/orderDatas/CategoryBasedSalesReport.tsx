@@ -195,7 +195,7 @@ const CategoryBasedSalesReport = (props: Props) => {
   orderWithInfo.length > 0 &&
     orderWithInfo.push({
       item: 0,
-      itemName: "Toplam",
+      itemName: "",
       paidQuantity: orderWithInfo.reduce(
         (acc, item) => acc + item.paidQuantity,
         0
@@ -209,7 +209,7 @@ const CategoryBasedSalesReport = (props: Props) => {
       ),
       location: 4,
       date: "",
-      category: " ",
+      category: "Total",
       categoryId: 0,
       itemQuantity: [],
       collapsible: {
@@ -231,7 +231,13 @@ const CategoryBasedSalesReport = (props: Props) => {
     { key: t("General Amount"), isSortable: true },
   ];
   const rowKeys = [
-    { key: "category", className: "min-w-32 pr-2" },
+    {
+      key: "category",
+      className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return <p className={`${row?.className}`}>{row.category}</p>;
+      },
+    },
 
     {
       key: "paidQuantity",
