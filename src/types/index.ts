@@ -22,7 +22,8 @@ export type Table = {
   location?: number;
   startHour: string;
   finishHour?: string;
-  orders: number[];
+  orders?: number[];
+  payment?: number;
   gameplays: Gameplay[];
 };
 
@@ -401,13 +402,14 @@ export type Order = {
   status: string;
   note?: string;
   unitPrice: number;
-  totalPrice: number;
   createdAt: Date;
   createdBy: User | string;
   preparedAt?: Date;
   preparedBy?: User | string;
   deliveredAt?: Date;
   deliveredBy?: User | string;
+  cancelledAt?: Date;
+  cancelledBy?: User | string;
 };
 
 export type OrderCollection = {
@@ -415,20 +417,45 @@ export type OrderCollection = {
   location: Location | number;
   createdAt: Date;
   createdBy: User | string;
+  cancelledAt?: Date;
+  cancelledBy?: User | string;
+  cancelNote?: string;
   amount: number;
-  isCancelled: boolean;
+  status: string;
   paymentMethod: AccountPaymentMethod | string;
+  orderPayment: OrderPayment | number;
+  orders?: OrderCollectionItem[];
 };
+
+export type OrderPaymentItem = {
+  order: number;
+  paidQuantity: number;
+  totalQuantity: number;
+  discount?: number;
+  discountPercentage?: number;
+};
+
+type OrderCollectionItem = {
+  order: number;
+  paidQuantity: number;
+};
+
 export type OrderPayment = {
   _id: number;
   location: Location | number;
   table: Table | number;
+  discountAmount: number;
   collections?: number[];
-  unpaidOrders?: number[];
-  paidOrders?: number[];
-  discount?: number;
+  orders?: OrderPaymentItem[];
   totalAmount: number;
 };
+
+export type OrderDiscount = {
+  _id: number;
+  name: string;
+  percentage: number;
+};
+
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
   COMING = "Coming",
@@ -538,6 +565,7 @@ export enum AccountingPageTabEnum {
   PRODUCT,
   FIXTURES,
   SERVICES,
+  DISCOUNTS,
   PAYMENTMETHODS,
   STOCKLOCATION,
 }
@@ -560,6 +588,7 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
+
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORFIXTURES,
@@ -597,6 +626,11 @@ export enum StockHistoryStatusEnum {
   TRANSFERFIXTURETOINVOICE = "TRANSFERFIXTURETOINVOICE",
   TRANSFERINVOICETOFIXTURE = "TRANSFERINVOICETOFIXTURE",
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
+}
+export enum OrderDataTabEnum {
+  GROUPEDPRODUCTSALESREPORT,
+  SINGLEPRODUCTSALESREPORT,
+  CATEGORYBASEDSALESREPORT,
 }
 export const stockHistoryStatuses = [
   {
@@ -690,6 +724,12 @@ export enum OrderStatus {
   PENDING = "pending",
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",
+  CANCELLED = "cancelled",
+}
+
+export enum OrderCollectionStatus {
+  PAID = "paid",
+  CANCELLED = "cancelled",
 }
 export enum ConstantPaymentMethodsIds {
   CASH = "cash",
@@ -698,3 +738,5 @@ export enum ConstantPaymentMethodsIds {
 }
 
 export const NOTPAID = "Not Paid";
+
+export const TURKISHLIRA = "₺";

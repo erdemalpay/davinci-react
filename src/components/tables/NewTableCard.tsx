@@ -1,16 +1,14 @@
-import {
-  FlagIcon,
-  LockOpenIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@heroicons/react/24/solid";
+import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoReceipt } from "react-icons/io5";
+import { MdBorderColor } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useDateContext } from "../../context/Date.context";
+import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
@@ -18,6 +16,10 @@ import {
   useGetGivenDateOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
+import {
+  useGetOrderPayments,
+  useOrderPaymentMutations,
+} from "../../utils/api/order/orderPayment";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
@@ -29,12 +31,14 @@ import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { EditableText } from "../common/EditableText";
 import { InputWithLabel } from "../common/InputWithLabel";
+import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
+import OrderListForPanel from "./OrderListForPanel";
 
 export interface TableCardProps {
   table: Table;
@@ -57,6 +61,7 @@ export function TableCard({
     useState(false);
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
+  const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
@@ -65,18 +70,19 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
-  const { selectedDate } = useDateContext();
+  const orderPayments = useGetOrderPayments();
+  const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
-  const orders = useGetGivenDateOrders(
-    selectedDate ? parseISO(selectedDate) : new Date()
-  );
+  const orders = useGetGivenDateOrders();
+  const { resetOrderContext } = useOrderContext();
+  const { setExpandedRows } = useGeneralContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
     note: "",
     // discount: null,
   });
-  const [selectedTable, setSelectedTable] = useState<number>();
+  const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
 
   const menuItemOptions = menuItems?.map((menuItem) => {
@@ -134,22 +140,86 @@ export function TableCard({
     return game?.name || "";
   }
 
-  function finishTable() {
-    closeTable({
-      id: table._id,
-      updates: { finishHour: format(new Date(), "HH:mm") },
-    });
-    setIsCloseConfirmationDialogOpen(false);
-    toast.success(`Table ${table.name} closed`);
-  }
-
   function reopenTableBack() {
     reopenTable({
       id: table._id,
     });
     toast.success(`Table ${table.name} reopened`);
   }
+  function newClose() {
+    const tableOpenPayment = orderPayments?.find(
+      (orderPayment) => (orderPayment.table as Table)?._id === table?._id
+    );
 
+    // there is an open order payment so first check that the items inside are matched directly open it
+    if (tableOpenPayment) {
+      // check if all orders are included in the open order payment
+      const isAllOrdersIncluded =
+        table?.orders?.every((orderId) =>
+          tableOpenPayment?.orders?.some(
+            (paymentOrder) => paymentOrder.order === orderId
+          )
+        ) ?? false;
+      //we are updating the open order payment to include all orders
+      if (!isAllOrdersIncluded) {
+        const missingOrders = table?.orders?.filter(
+          (orderId) =>
+            !tableOpenPayment?.orders?.some(
+              (paymentOrder) => paymentOrder.order === orderId
+            )
+        );
+        const newOrders = [
+          ...(tableOpenPayment?.orders ?? []),
+          ...(missingOrders?.map((orderId) => ({
+            order: orderId,
+            paidQuantity: 0,
+            totalQuantity:
+              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
+          })) ?? []),
+        ];
+
+        const newTotalAmount =
+          tableOpenPayment.totalAmount +
+          (missingOrders?.reduce((acc, order) => {
+            const orderItem = orders?.find((o) => o._id === order);
+            if (!orderItem) return acc;
+            return acc + (orderItem.unitPrice * orderItem.quantity || 0);
+          }, 0) ?? 0);
+
+        updateOrderPayment({
+          id: tableOpenPayment._id,
+          updates: { orders: newOrders, totalAmount: newTotalAmount },
+        });
+      }
+    }
+    // there is no open order payment so create a new one
+    else {
+      const totalAmount = table?.orders?.reduce((acc, order) => {
+        const orderItem = orders?.find((o) => o._id === order);
+        if (!orderItem) return acc;
+        return acc + orderItem?.unitPrice * orderItem?.quantity;
+      }, 0);
+
+      createOrderPayment({
+        table: table._id,
+        orders: table?.orders
+          ?.filter((orderId) => {
+            const order = orders?.find((o) => o._id === orderId);
+            return order?.status !== OrderStatus.CANCELLED;
+          })
+          .map((orderId) => ({
+            order: orderId,
+            paidQuantity: 0,
+            totalQuantity:
+              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
+          })),
+        location: selectedLocationId,
+        totalAmount: totalAmount,
+        discountAmount: 0,
+      });
+    }
+    setIsOrderPaymentModalOpen(true);
+  }
   const date = table.date;
   const startHour = format(new Date(), "HH:mm");
 
@@ -179,7 +249,7 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table?.orders?.length > 0) {
+    if (table.orders && table?.orders?.length > 0) {
       deleteTableOrders({ ids: table?.orders });
     }
     setIsDeleteConfirmationDialogOpen(false);
@@ -206,31 +276,32 @@ export function TableCard({
         </p>
         <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
-            <Tooltip content="Add gameplay">
+            <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />
               </span>
             </Tooltip>
           )}
           {!table.finishHour && (
-            <Tooltip content="Add Order">
+            <Tooltip content={t("Add Order")}>
               <span className="text-{8px}">
                 <CardAction
                   onClick={() => {
-                    setSelectedTable(table._id);
+                    setSelectedTable(table);
                     setIsCreateOrderDialogOpen(true);
                   }}
-                  IconComponent={PlusIcon}
+                  IconComponent={MdBorderColor}
                 />
               </span>
             </Tooltip>
           )}
           {!table.finishHour && (
-            <Tooltip content="Close">
+            <Tooltip content={t("Check")}>
               <span className="text-{8px}">
                 <CardAction
-                  onClick={() => setIsCloseConfirmationDialogOpen(true)}
-                  IconComponent={FlagIcon}
+                  // onClick={() => setIsCloseConfirmationDialogOpen(true)}
+                  onClick={() => newClose()}
+                  IconComponent={IoReceipt}
                 />
               </span>
             </Tooltip>
@@ -288,6 +359,7 @@ export function TableCard({
         {showAllGameplays && table?.gameplays?.length > 0 && (
           <div
             className={`${
+              table.orders &&
               table?.orders?.length > 0 &&
               "pb-3 border-b-[1px] border-b-gray-300"
             }`}
@@ -308,7 +380,7 @@ export function TableCard({
           </div>
         )}
         {/* table orders */}
-        {table?.orders?.length > 0 && showAllOrders && (
+        {table.orders && table?.orders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
@@ -347,37 +419,49 @@ export function TableCard({
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
-      <ConfirmationDialog
-        isOpen={isCloseConfirmationDialogOpen}
-        close={() => setIsCloseConfirmationDialogOpen(false)}
-        confirm={finishTable}
-        title={t("Close Table")}
-        text="Table is being closed. Are you sure?"
-      />
-      {isCreateOrderDialogOpen && (
+      {isCreateOrderDialogOpen && selectedTable && (
         <GenericAddEditPanel
           isOpen={isCreateOrderDialogOpen}
           close={() => setIsCreateOrderDialogOpen(false)}
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
+          isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
+          isCreateCloseActive={false}
+          cancelButtonLabel="Close"
+          anotherPanelTopClassName="flex flex-row mx-auto flex-1 justify-center  "
+          anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
             );
-            if (selectedMenuItem) {
+            if (selectedMenuItem && selectedTable) {
               createOrder({
                 ...orderForm,
                 location: selectedLocationId,
-                table: selectedTable,
+                table: selectedTable._id,
                 unitPrice: selectedMenuItem.price,
-                totalPrice: selectedMenuItem.price * orderForm.quantity,
               });
             }
+            setOrderForm({
+              item: 0,
+              quantity: 0,
+              note: "",
+            });
           }}
-          generalClassName="overflow-scroll"
-          topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-scroll rounded-l-none shadow-none"
+          topClassName="flex flex-col gap-2  "
+        />
+      )}
+      {isOrderPaymentModalOpen && (
+        <OrderPaymentModal
+          table={table}
+          close={() => {
+            setExpandedRows({});
+            resetOrderContext();
+            setIsOrderPaymentModalOpen(false);
+          }}
         />
       )}
     </div>

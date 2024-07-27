@@ -7,19 +7,19 @@ import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
-import { H6 } from "../Typography";
 import {
   FormKeyType,
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import { H6 } from "../Typography";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
 
 type Props<T> = {
   isOpen: boolean;
-  close: () => void;
+  close?: () => void;
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
@@ -33,9 +33,13 @@ type Props<T> = {
   isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isCancelConfirmationDialogExist?: boolean;
+  isCreateCloseActive?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
+  cancelButtonLabel?: string;
+  anotherPanel?: React.ReactNode;
+  anotherPanelTopClassName?: string;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -60,17 +64,22 @@ const GenericAddEditPanel = <T,>({
   itemToEdit,
   folderName,
   handleUpdate,
+  anotherPanel,
   isBlurFieldClickCloseEnabled = true,
+  cancelButtonLabel = "Cancel",
   submitFunction,
   additionalSubmitFunction,
   additionalCancelFunction,
   isCancelConfirmationDialogExist = false,
+  isCreateCloseActive = true,
+  anotherPanelTopClassName,
   setForm,
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const [resetTextInput, setResetTextInput] = useState(false);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
@@ -88,7 +97,7 @@ const GenericAddEditPanel = <T,>({
           defaultValue = "#ffffff";
           break;
         case FormKeyTypeEnum.NUMBER:
-          defaultValue = "";
+          defaultValue = null;
           break;
         case FormKeyTypeEnum.BOOLEAN:
           defaultValue = false;
@@ -104,11 +113,11 @@ const GenericAddEditPanel = <T,>({
     },
     {}
   );
+  const mergedInitialState = { ...initialState, ...constantValues };
   const [formElements, setFormElements] = useState(() => {
     if (isEditMode && itemToEdit) {
       return itemToEdit.updates as unknown as FormElementsState;
     }
-    const mergedInitialState = { ...initialState, ...constantValues };
     return mergedInitialState;
   });
 
@@ -148,7 +157,7 @@ const GenericAddEditPanel = <T,>({
       if (event.key === "Escape") {
         event.preventDefault();
         isEditMode ? additionalCancelFunction?.() : undefined;
-        close();
+        close?.();
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -186,8 +195,9 @@ const GenericAddEditPanel = <T,>({
         }
       }
       additionalSubmitFunction?.();
-      setFormElements({});
-      close();
+      setFormElements(mergedInitialState);
+      setResetTextInput(!resetTextInput);
+      isCreateCloseActive && close?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
     }
@@ -217,7 +227,7 @@ const GenericAddEditPanel = <T,>({
   };
   const handleCancelButtonClick = () => {
     additionalCancelFunction?.();
-    close();
+    close?.();
   };
   const handleCreateButtonClick = () => {
     if (!allRequiredFilled) {
@@ -240,25 +250,13 @@ const GenericAddEditPanel = <T,>({
     }
   };
 
-  return (
-    <div
-      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
-        !isOpen && "hidden"
-      }`}
-      onClick={
-        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
-          ? () => {
-              close();
-              isEditMode ? additionalCancelFunction?.() : undefined;
-            }
-          : undefined
-      }
-    >
+  const renderGenericAddEditModal = () => {
+    return (
       <div
         onClick={(e) => e.stopPropagation()}
         className={`bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full  max-h-[90vh] z-[100]   ${generalClassName}`}
       >
-        <div className="rounded-tl-md rounded-tr-md px-4 py-6 flex flex-col gap-4 justify-between">
+        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
           <div
             className={`${
               topClassName
@@ -371,7 +369,7 @@ const GenericAddEditPanel = <T,>({
                         input.type === InputTypes.COLOR ||
                         input.type === InputTypes.PASSWORD) && (
                         <TextInput
-                          key={input.formKey}
+                          key={input.formKey + resetTextInput}
                           type={input.type}
                           value={value}
                           label={
@@ -468,7 +466,7 @@ const GenericAddEditPanel = <T,>({
               }}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
-              {t("Cancel")}
+              {t(cancelButtonLabel)}
             </button>
             <button
               onClick={handleCreateButtonClick}
@@ -483,6 +481,30 @@ const GenericAddEditPanel = <T,>({
           </div>
         </div>
       </div>
+    );
+  };
+  return (
+    <div
+      className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
+        !isOpen && "hidden"
+      }`}
+      onClick={
+        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
+          ? () => {
+              close?.();
+              isEditMode ? additionalCancelFunction?.() : undefined;
+            }
+          : undefined
+      }
+    >
+      {anotherPanel ? (
+        <div className={`${anotherPanelTopClassName}`}>
+          {anotherPanel}
+          {renderGenericAddEditModal()}
+        </div>
+      ) : (
+        renderGenericAddEditModal()
+      )}
       {isConfirmationDialogOpen && (
         <ConfirmationDialog
           isOpen={isConfirmationDialogOpen}

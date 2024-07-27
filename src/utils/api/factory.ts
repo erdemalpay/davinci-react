@@ -115,10 +115,10 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async () => {
+        queryClient.invalidateQueries(queryKey);
         additionalInvalidates?.forEach((key) => {
           queryClient.invalidateQueries(key);
         });
-        queryClient.invalidateQueries(queryKey);
       },
     });
   }

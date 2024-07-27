@@ -4,12 +4,20 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutIncome } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  AccountPaymentMethod,
+  CheckoutIncome,
+  Location,
+  OrderCollectionStatus,
+  RoleEnum,
+} from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutIncomeMutations,
   useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
+import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -19,16 +27,19 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 type FormElementsState = {
   [key: string]: any;
 };
 const Income = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
+  const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const { selectedLocationId } = useLocationContext();
+  const collections = useGetAllOrderCollections();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,6 +55,16 @@ const Income = () => {
       location: "",
       date: "",
     });
+  const getCollectionLocationIdAsString = (collection: number) => {
+    switch (collection) {
+      case 1:
+        return "bahceli";
+      case 2:
+        return "neorama";
+      default:
+        return "bahceli";
+    }
+  };
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =
@@ -52,14 +73,29 @@ const Income = () => {
       usr: income?.user?.name,
       lctn: income?.location?.name,
       formattedDate: formatAsLocalDate(income?.date),
+      collectionIncome: collections
+        ?.filter(
+          (collection) =>
+            (collection.createdAt
+              ? format(collection?.createdAt, "yyyy-MM-dd") === income?.date
+              : false) &&
+            (collection?.paymentMethod as AccountPaymentMethod)?._id ===
+              "cash" &&
+            collection.status === OrderCollectionStatus.PAID &&
+            getCollectionLocationIdAsString(
+              (collection.location as Location)._id
+            ) === income.location._id
+        )
+        ?.map((collection) => collection.amount)
+        ?.reduce((a, b) => a + b, 0),
     })) ?? [];
-
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
+    { key: t("Collections Income"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -100,7 +136,18 @@ const Income = () => {
     },
     { key: "lctn" },
     { key: "amount" },
+    { key: "collectionIncome" },
   ];
+  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Collections Income"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "collectionIncome"),
+      1
+    );
+  }
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -211,7 +258,8 @@ const Income = () => {
     );
     setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [incomes, locations, filterPanelFormElements]);
+  }, [incomes, locations, filterPanelFormElements, collections]);
+
   const filters = [
     {
       label: t("Show Filters"),

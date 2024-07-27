@@ -1,3 +1,4 @@
+import { AiOutlinePercentage } from "react-icons/ai";
 import { FaAnchor, FaServicestack } from "react-icons/fa";
 import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { LuPackageOpen } from "react-icons/lu";
@@ -8,6 +9,7 @@ import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Fixture from "../components/accounting/Fixture";
+import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PackageType from "../components/accounting/PackageType";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
@@ -77,6 +79,13 @@ export const AccountingPageTabs = [
     label: "Services",
     icon: <FaServicestack className="text-lg font-thin" />,
     content: <Service />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.DISCOUNTS,
+    label: "Discounts",
+    icon: <AiOutlinePercentage className="text-lg font-thin" />,
+    content: <OrderDiscountPage />,
     isDisabled: false,
   },
   {

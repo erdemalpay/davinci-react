@@ -315,14 +315,19 @@ const GenericTable = <T,>({
           } ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
-          {isCollapsible && (
+          {isCollapsible && row?.collapsible?.collapsibleRows?.length > 0 && (
             <td onClick={() => toggleRowExpansion(rowId)}>
-              {isRowExpanded ? (
+              {row?.collapsible?.collapsibleRows?.length === 0 ? (
+                <td className="w-6 h-6 mx-auto p-1 "></td>
+              ) : isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
               ) : (
                 <FaChevronDown className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full  " />
               )}
             </td>
+          )}
+          {row?.collapsible?.collapsibleRows?.length === 0 && (
+            <td className="w-6 h-6 mx-auto p-1 "></td>
           )}
           {rowKeys.map((rowKey, keyIndex) => {
             if (rowKey.node) {
@@ -441,22 +446,24 @@ const GenericTable = <T,>({
                 maxHeight: isRowExpanded ? "1000px" : "0",
               }}
             >
-              <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
-                <H5>{row?.collapsible?.collapsibleHeader}</H5>
+              {row?.collapsible?.collapsibleHeader && (
+                <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
+                  <H5>{row?.collapsible?.collapsibleHeader}</H5>
 
-                {addCollapsible && (
-                  <button
-                    className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
-                      addCollapsible.className
-                        ? `${addCollapsible.className}`
-                        : "bg-black border-black hover:text-black"
-                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
-                    onClick={() => actionOnClick(addCollapsible, row)}
-                  >
-                    <H5>{addCollapsible.name}</H5>
-                  </button>
-                )}
-              </div>
+                  {addCollapsible && (
+                    <button
+                      className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
+                        addCollapsible.className
+                          ? `${addCollapsible.className}`
+                          : "bg-black border-black hover:text-black"
+                      } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
+                      onClick={() => actionOnClick(addCollapsible, row)}
+                    >
+                      <H5>{addCollapsible.name}</H5>
+                    </button>
+                  )}
+                </div>
+              )}
 
               <table className="w-[96%] mx-auto">
                 {/* Collapsible Column Headers */}
@@ -542,7 +549,7 @@ const GenericTable = <T,>({
       <div
         className={`mx-auto w-full overflow-scroll no-scrollbar flex flex-col gap-4 __className_a182b8 `}
       >
-        <div className=" flex flex-row gap-4 justify-between items-center">
+        <div className=" flex flex-row gap-4 justify-between items-center ">
           {/* search button */}
           {isSearch && (
             <input
@@ -583,7 +590,7 @@ const GenericTable = <T,>({
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
           {/* header part */}
 
-          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4  ">
+          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             {title && <H4 className="mr-auto">{title}</H4>}
 
             <div className="ml-auto flex flex-row gap-4">
@@ -630,7 +637,7 @@ const GenericTable = <T,>({
             </div>
           </div>
           {/* table part */}
-          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar">
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full">
             <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar  ">
               <table className="bg-white w-full ">
                 <thead className="border-b  ">

@@ -1,10 +1,9 @@
-import { format, parseISO, subDays } from "date-fns";
+import { subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -24,6 +23,7 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
+
 const NewTables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -41,9 +41,7 @@ const NewTables = () => {
   const visits = useGetVisits();
   const tables = useGetTables();
   const users = useGetUsers();
-  const orders = useGetGivenDateOrders(
-    selectedDate ? parseISO(selectedDate) : new Date()
-  );
+  const orders = useGetGivenDateOrders();
 
   tables.sort(sortTable);
   const [tableCardKey, setTableCardKey] = useState(0);
@@ -70,12 +68,7 @@ const NewTables = () => {
       return 0;
     }
   });
-  const handleCloseAllTables = () => {
-    const finishHour = format(new Date(), "HH:mm");
-    const ids = tables.filter((t) => !t.finishHour).map((t) => t._id);
-    closeAllTables({ ids, finishHour });
-    setIsCloseAllConfirmationDialogOpen(false);
-  };
+
   const defaultUser: User = users.find((user) => user._id === "dv") as User;
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
@@ -140,6 +133,41 @@ const NewTables = () => {
 
     return false;
   });
+  const buttons: { label: string; onClick: () => void }[] = [
+    {
+      label: t("Open Reservations"),
+      onClick: () => {
+        navigate(Routes.Reservations);
+      },
+    },
+    {
+      label: t("Add table"),
+      onClick: () => {
+        setIsCreateTableDialogOpen(true);
+      },
+    },
+  ];
+  const switchFilters: {
+    label: string;
+    checked: boolean;
+    onChange: (value: boolean) => void;
+  }[] = [
+    {
+      label: t("Show All Orders"),
+      checked: showAllOrders,
+      onChange: setShowAllOrders,
+    },
+    {
+      label: t("Show All Gameplays"),
+      checked: showAllGameplays,
+      onChange: setShowAllGameplays,
+    },
+    {
+      label: t("Show Closed Tables"),
+      checked: showAllTables,
+      onChange: setShowAllTables,
+    },
+  ];
   return (
     <>
       <Header />
@@ -166,24 +194,15 @@ const NewTables = () => {
             </div>
             {/* buttons */}
             <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
-              <button
-                onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
-                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
-              >
-                {t("Close all tables")}
-              </button>
-              <button
-                onClick={() => navigate(Routes.Reservations)}
-                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
-              >
-                {t("Open Reservations")}
-              </button>
-              <button
-                onClick={() => setIsCreateTableDialogOpen(true)}
-                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
-              >
-                {t("Add table")}
-              </button>
+              {buttons.map((button, index) => (
+                <button
+                  key={index}
+                  onClick={button.onClick}
+                  className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
+                >
+                  {button.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -239,27 +258,15 @@ const NewTables = () => {
 
               {/* filters */}
               <div className="flex  gap-4 justify-end mt-4  ">
-                <div className="flex  gap-2 items-center">
-                  <H5>{t("Show All Orders")}</H5>
-                  <SwitchButton
-                    checked={showAllOrders}
-                    onChange={setShowAllOrders}
-                  />
-                </div>
-                <div className="flex  gap-2 items-center">
-                  <H5>{t("Show All Gameplays")}</H5>
-                  <SwitchButton
-                    checked={showAllGameplays}
-                    onChange={setShowAllGameplays}
-                  />
-                </div>
-                <div className="flex gap-2 items-center">
-                  <H5> {t("Show Closed Tables")}</H5>
-                  <SwitchButton
-                    checked={showAllTables}
-                    onChange={setShowAllTables}
-                  />
-                </div>
+                {switchFilters.map((filter, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <H5>{filter.label}</H5>
+                    <SwitchButton
+                      checked={filter.checked}
+                      onChange={filter.onChange as any}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -300,14 +307,6 @@ const NewTables = () => {
           close={() => setIsCreateTableDialogOpen(false)}
         />
       )}
-
-      <ConfirmationDialog
-        isOpen={isCloseAllConfirmationDialogOpen}
-        close={() => setIsCloseAllConfirmationDialogOpen(false)}
-        confirm={handleCloseAllTables}
-        title={t("Close All Table")}
-        text={t("CloseTableMessage")}
-      />
     </>
   );
 };

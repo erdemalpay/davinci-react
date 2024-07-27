@@ -44,6 +44,8 @@ type GeneralContextType = {
   setFixtureCountListActiveTab: (tab: number) => void;
   panelControlActiveTab: number;
   setPanelControlActiveTab: (tab: number) => void;
+  orderDataActiveTab: number;
+  setOrderDataActiveTab: (tab: number) => void;
   accountingActiveTab: number;
   checkoutActiveTab: number;
   setCheckoutActiveTab: (tab: number) => void;
@@ -158,11 +160,13 @@ const GeneralContext = createContext<GeneralContextType>({
   },
   setAllExpenseForm: () => {},
   setServiceExpenseForm: () => {},
+  orderDataActiveTab: 0,
+  setOrderDataActiveTab: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.FIRST);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.ALL);
   const [isCategoryTableEditOpen, setIsCategoryTableEditOpen] =
     useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
@@ -205,6 +209,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     useState<number>(0);
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
   return (
     <GeneralContext.Provider
       value={{
@@ -246,6 +251,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setServiceExpenseForm,
         allExpenseForm,
         setAllExpenseForm,
+        orderDataActiveTab,
+        setOrderDataActiveTab,
       }}
     >
       {children}
