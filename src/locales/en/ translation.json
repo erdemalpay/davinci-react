@@ -480,5 +480,7 @@
   "Product Sales Report": "Product Based Sales Report(Grouped)",
   "Product Based Sales Report": "Product Based Sales Report",
   "Category Based Sales Report": "Category Based Sales Report",
+  "Total Amount": "Total Amount",
+  "General Amount": "General Amount",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

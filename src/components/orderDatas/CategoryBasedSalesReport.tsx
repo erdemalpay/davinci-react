@@ -209,7 +209,7 @@ const CategoryBasedSalesReport = (props: Props) => {
       ),
       location: 4,
       date: "",
-      category: "Total",
+      category: t("Total"),
       categoryId: 0,
       itemQuantity: [],
       collapsible: {

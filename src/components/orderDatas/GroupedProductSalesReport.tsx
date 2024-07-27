@@ -188,7 +188,7 @@ const GroupedProductSalesReport = (props: Props) => {
   orderWithInfo.length > 0 &&
     orderWithInfo.push({
       item: 0,
-      itemName: "Toplam",
+      itemName: t("Total"),
       unitPrice: 0,
       paidQuantity: orderWithInfo.reduce(
         (acc, item) => acc + item.paidQuantity,
@@ -217,7 +217,7 @@ const GroupedProductSalesReport = (props: Props) => {
     });
   const [rows, setRows] = useState(orderWithInfo);
   const columns = [
-    { key: t("Product Name"), isSortable: true },
+    { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Category"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
