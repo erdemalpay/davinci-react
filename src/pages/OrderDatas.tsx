@@ -1,6 +1,8 @@
+import { BiCategory } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { TbReportSearch } from "react-icons/tb";
 import { Header } from "../components/header/Header";
+import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -22,6 +24,13 @@ export const OrderDataTabs = [
     label: "Product Based Sales Report",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
+    label: "Category Based Sales Report",
+    icon: <BiCategory className="text-lg font-thin" />,
+    content: <CategoryBasedSalesReport />,
     isDisabled: false,
   },
 ];
