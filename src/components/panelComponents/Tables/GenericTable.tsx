@@ -446,22 +446,24 @@ const GenericTable = <T,>({
                 maxHeight: isRowExpanded ? "1000px" : "0",
               }}
             >
-              <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
-                <H5>{row?.collapsible?.collapsibleHeader}</H5>
+              {row?.collapsible?.collapsibleHeader && (
+                <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
+                  <H5>{row?.collapsible?.collapsibleHeader}</H5>
 
-                {addCollapsible && (
-                  <button
-                    className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
-                      addCollapsible.className
-                        ? `${addCollapsible.className}`
-                        : "bg-black border-black hover:text-black"
-                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
-                    onClick={() => actionOnClick(addCollapsible, row)}
-                  >
-                    <H5>{addCollapsible.name}</H5>
-                  </button>
-                )}
-              </div>
+                  {addCollapsible && (
+                    <button
+                      className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
+                        addCollapsible.className
+                          ? `${addCollapsible.className}`
+                          : "bg-black border-black hover:text-black"
+                      } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
+                      onClick={() => actionOnClick(addCollapsible, row)}
+                    >
+                      <H5>{addCollapsible.name}</H5>
+                    </button>
+                  )}
+                </div>
+              )}
 
               <table className="w-[96%] mx-auto">
                 {/* Collapsible Column Headers */}
