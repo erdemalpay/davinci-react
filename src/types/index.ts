@@ -736,3 +736,5 @@ export enum ConstantPaymentMethodsIds {
 }
 
 export const NOTPAID = "Not Paid";
+
+export const TURKISHLIRA = "₺";

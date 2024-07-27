@@ -42,7 +42,7 @@ const OrderDatas = () => {
   });
   return (
     <>
-      <Header />
+      <Header showLocationSelector={false} />
       <TabPanel
         tabs={tabs}
         activeTab={orderDataActiveTab}
