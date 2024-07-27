@@ -5,6 +5,7 @@ import {
   CardHeader,
   Typography,
 } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,10 @@ import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../../../utils/format";
 import SelectInput from "../../common/SelectInput";
 
+type PriceHistory = {
+  date: string;
+  price: number;
+};
 type Props = {};
 export default function MenuItemPriceChart({}: Props) {
   const { t } = useTranslation();
@@ -24,7 +29,9 @@ export default function MenuItemPriceChart({}: Props) {
       label: item.name,
     };
   });
-  const [selectedItem, setSelectedItem] = useState<MenuItem>();
+  const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>(
+    items ? items[0] : undefined
+  );
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -103,15 +110,26 @@ export default function MenuItemPriceChart({}: Props) {
   });
 
   useEffect(() => {
-    const prices =
-      selectedItem?.priceHistory
-        ?.map((priceHistory) => priceHistory.price)
-        ?.reverse() ?? [];
-    const dates =
-      selectedItem?.priceHistory
-        ?.map((priceHistory) => priceHistory.date)
-        ?.reverse() ?? [];
-
+    if (!selectedItem?.priceHistory) return;
+    const uniquePriceHistory: PriceHistory[] = selectedItem.priceHistory.reduce(
+      (
+        acc: { set: Set<string>; list: PriceHistory[] },
+        priceHistory: PriceHistory
+      ) => {
+        const uniqueKey = `${priceHistory.price}-${format(
+          priceHistory.date,
+          "yyyy-MM-dd"
+        )}`;
+        if (!acc.set.has(uniqueKey)) {
+          acc.set.add(uniqueKey);
+          acc.list.push(priceHistory);
+        }
+        return acc;
+      },
+      { set: new Set<string>(), list: [] }
+    ).list;
+    const prices = uniquePriceHistory.map((priceHistory) => priceHistory.price);
+    const dates = uniquePriceHistory.map((priceHistory) => priceHistory.date);
     setChartConfig({
       ...chartConfig,
       type: prices?.length > 1 ? "line" : "bar",
