@@ -150,6 +150,7 @@ const SingleProductSalesReport = (props: Props) => {
   const rowKeys = [
     {
       key: "itemName",
+      className: "min-w-fit pr-2",
       node: (row: any) => {
         return <p className={`${row?.className}`}>{row.itemName}</p>;
       },
@@ -160,9 +161,10 @@ const SingleProductSalesReport = (props: Props) => {
         return <p className={`${row?.className}`}>{row.paidQuantity}</p>;
       },
     },
-    { key: "category" },
+    { key: "category", className: "min-w-32 pr-2" },
     {
       key: "date",
+      className: "min-w-32 pr-2",
       node: (row: any) => {
         return row.formattedDate;
       },

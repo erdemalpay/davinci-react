@@ -13,14 +13,14 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
 type Props = {};
-type UnitPriceQuantity = {
-  unitPrice: number;
+type ItemQuantity = {
+  itemId: number;
+  itemName: string;
   quantity: number;
 };
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
-  unitPrice: number;
   paidQuantity: number;
   discount: number;
   amount: number;
@@ -29,14 +29,14 @@ type OrderWithPaymentInfo = {
   category: string;
   categoryId: number;
   totalAmountWithDiscount: number;
-  unitPriceQuantity: UnitPriceQuantity[];
+  itemQuantity: ItemQuantity[];
   collapsible: any;
   className?: string;
 };
 type FormElementsState = {
   [key: string]: any;
 };
-const GroupedProductSalesReport = (props: Props) => {
+const CategoryBasedSalesReport = (props: Props) => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
   const orders = useGetOrders();
@@ -84,7 +84,7 @@ const GroupedProductSalesReport = (props: Props) => {
         return;
       }
       const existingEntry = acc.find(
-        (item) => item.item === (foundOrder.item as MenuItem)._id
+        (item) => item.categoryId === (foundOrder.item as MenuItem).category
       );
 
       if (existingEntry) {
@@ -103,47 +103,47 @@ const GroupedProductSalesReport = (props: Props) => {
             orderPaymentItem.paidQuantity *
             foundOrder.unitPrice *
             (1 / 100);
-        const existingUnitPrice = existingEntry.unitPriceQuantity.find(
-          (item) => item.unitPrice === foundOrder.unitPrice
+        const existingItem = existingEntry.itemQuantity.find(
+          (itemQuantityIteration) =>
+            itemQuantityIteration.itemId === (foundOrder.item as MenuItem)._id
         );
-        if (existingUnitPrice) {
-          existingEntry.unitPriceQuantity = [
-            ...existingEntry.unitPriceQuantity.filter(
-              (item) => item.unitPrice !== foundOrder.unitPrice
+        if (existingItem) {
+          existingEntry.itemQuantity = [
+            ...existingEntry.itemQuantity.filter(
+              (itemQuantityIteration) =>
+                itemQuantityIteration.itemId !== existingItem.itemId
             ),
             {
-              unitPrice: foundOrder.unitPrice,
-              quantity:
-                orderPaymentItem.paidQuantity + existingUnitPrice.quantity,
+              itemId: existingItem.itemId,
+              itemName: existingItem.itemName,
+              quantity: existingItem.quantity + orderPaymentItem.paidQuantity,
             },
           ];
         } else {
-          existingEntry.unitPriceQuantity.push({
-            unitPrice: foundOrder.unitPrice,
+          existingEntry.itemQuantity.push({
+            itemId: (foundOrder.item as MenuItem)._id,
+            itemName: (foundOrder.item as MenuItem).name,
             quantity: orderPaymentItem.paidQuantity,
           });
-          existingEntry.collapsible = {
-            collapsibleColumns: [
-              { key: t("Unit Price"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-            ],
-            collapsibleRows: existingEntry.unitPriceQuantity?.map(
-              (unitPriceQuantityItem) => ({
-                unitPrice:
-                  unitPriceQuantityItem.unitPrice.toString() +
-                  " " +
-                  TURKISHLIRA,
-                quantity: unitPriceQuantityItem.quantity,
-              })
-            ),
-            collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
-          };
         }
+        existingEntry.collapsible = {
+          collapsibleHeader: t("Products"),
+          collapsibleColumns: [
+            { key: t("Product"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+          ],
+          collapsibleRows: existingEntry.itemQuantity?.map(
+            (itemQuantityIteration) => ({
+              product: itemQuantityIteration.itemName,
+              quantity: itemQuantityIteration.quantity,
+            })
+          ),
+          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+        };
       } else {
         acc.push({
           item: (foundOrder.item as MenuItem)._id,
           itemName: (foundOrder.item as MenuItem).name,
-          unitPrice: foundOrder.unitPrice,
           paidQuantity: orderPaymentItem.paidQuantity,
           discount:
             (orderPaymentItem?.discountPercentage ?? 0) *
@@ -159,19 +159,26 @@ const GroupedProductSalesReport = (props: Props) => {
                 category._id === (foundOrder.item as MenuItem).category
             )?.name ?? "",
           categoryId: (foundOrder.item as MenuItem).category as number,
-          unitPriceQuantity: [
+          itemQuantity: [
             {
-              unitPrice: foundOrder.unitPrice,
+              itemId: (foundOrder.item as MenuItem)._id,
+              itemName: (foundOrder.item as MenuItem).name,
               quantity: orderPaymentItem.paidQuantity,
             },
           ],
           collapsible: {
+            collapsibleHeader: t("Products"),
             collapsibleColumns: [
               { key: t("Unit Price"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
             ],
-            collapsibleRows: [],
-            collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
+            collapsibleRows: [
+              {
+                product: (foundOrder.item as MenuItem).name,
+                quantity: orderPaymentItem.paidQuantity,
+              },
+            ],
+            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
           },
           totalAmountWithDiscount:
             orderPaymentItem.paidQuantity * foundOrder.unitPrice -
@@ -189,7 +196,6 @@ const GroupedProductSalesReport = (props: Props) => {
     orderWithInfo.push({
       item: 0,
       itemName: "Toplam",
-      unitPrice: 0,
       paidQuantity: orderWithInfo.reduce(
         (acc, item) => acc + item.paidQuantity,
         0
@@ -205,57 +211,34 @@ const GroupedProductSalesReport = (props: Props) => {
       date: "",
       category: " ",
       categoryId: 0,
-      unitPriceQuantity: [],
+      itemQuantity: [],
       collapsible: {
+        collapsibleHeader: t("Products"),
         collapsibleColumns: [
-          { key: t("Unit Price"), isSortable: true },
+          { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
         ],
         collapsibleRows: [],
-        collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
+        collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
       },
     });
   const [rows, setRows] = useState(orderWithInfo);
   const columns = [
-    { key: t("Product Name"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
     { key: t("Category"), isSortable: true },
-    { key: t("Unit Price"), isSortable: true },
+    { key: t("Quantity"), isSortable: true },
     { key: t("Discount"), isSortable: true },
     { key: t("Total Amount"), isSortable: true },
     { key: t("General Amount"), isSortable: true },
   ];
   const rowKeys = [
-    {
-      key: "itemName",
-      className: "min-w-fit pr-2",
-      node: (row: any) => {
-        return (
-          <p key={"itemName" + row.item} className={`${row?.className}`}>
-            {row.itemName}
-          </p>
-        );
-      },
-    },
+    { key: "category", className: "min-w-32 pr-2" },
+
     {
       key: "paidQuantity",
       node: (row: any) => {
         return (
           <p key={"paidQuantity" + row.item} className={`${row?.className}`}>
             {row.paidQuantity}
-          </p>
-        );
-      },
-    },
-    { key: "category", className: "min-w-32 pr-2" },
-    {
-      key: "unitPrice",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`} key={"unitPrice" + row.item}>
-            {row.unitPriceQuantity.length > 1 || row.unitPrice === 0
-              ? ""
-              : row.unitPrice + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -356,7 +339,7 @@ const GroupedProductSalesReport = (props: Props) => {
           rows={rows}
           filters={filters}
           filterPanel={filterPanel}
-          title={t("Product Sales Report")}
+          title={t("Category Based Sales Report")}
           isActionsActive={false}
           isCollapsible={true}
         />
@@ -365,4 +348,4 @@ const GroupedProductSalesReport = (props: Props) => {
   );
 };
 
-export default GroupedProductSalesReport;
+export default CategoryBasedSalesReport;
