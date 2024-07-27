@@ -1,6 +1,8 @@
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import { TbReportSearch } from "react-icons/tb";
 import { Header } from "../components/header/Header";
-import ProductSalesReport from "../components/orderDatas/ProductSalesReport";
+import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
+import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -9,10 +11,17 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const OrderDataTabs = [
   {
-    number: OrderDataTabEnum.PRODUCTSALESREPORT,
+    number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
     label: "Product Sales Report",
     icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
-    content: <ProductSalesReport />,
+    content: <GroupedProductSalesReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
+    label: "Product Based Sales Report",
+    icon: <TbReportSearch className="text-lg font-thin" />,
+    content: <SingleProductSalesReport />,
     isDisabled: false,
   },
 ];

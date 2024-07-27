@@ -36,7 +36,7 @@ type OrderWithPaymentInfo = {
 type FormElementsState = {
   [key: string]: any;
 };
-const ProductSalesReport = (props: Props) => {
+const GroupedProductSalesReport = (props: Props) => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
   const orders = useGetOrders();
@@ -364,4 +364,4 @@ const ProductSalesReport = (props: Props) => {
   );
 };
 
-export default ProductSalesReport;
+export default GroupedProductSalesReport;
