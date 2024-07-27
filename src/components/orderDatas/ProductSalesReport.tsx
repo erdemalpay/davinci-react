@@ -37,6 +37,13 @@ const ProductSalesReport = (props: Props) => {
   if (!orderPayments || !orders || !categories || !locations) {
     return null;
   }
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      location: "",
+      category: "",
+      before: "",
+      after: "",
+    });
   const [tableKey, setTableKey] = useState(0);
   const orderWithInfo: OrderWithPaymentInfo[] = orderPayments.reduce(
     (acc, orderPayment) => {
@@ -46,12 +53,17 @@ const ProductSalesReport = (props: Props) => {
           (orderItem) => orderItem._id === orderPaymentItem.order
         );
         if (!foundOrder || orderPaymentItem.paidQuantity === 0) return;
+        if (
+          filterPanelFormElements.location !== "" &&
+          filterPanelFormElements.location !==
+            (foundOrder.location as Location)._id
+        ) {
+          return;
+        }
         const existingEntry = acc.find(
           (item) =>
             item.item === (foundOrder.item as MenuItem)._id &&
-            item.unitPrice === foundOrder.unitPrice &&
-            item.location === (foundOrder.location as Location)._id &&
-            item.date === (foundOrder.table as Table).date
+            item.unitPrice === foundOrder.unitPrice
         );
         if (existingEntry) {
           existingEntry.paidQuantity += orderPaymentItem.paidQuantity;
@@ -62,6 +74,13 @@ const ProductSalesReport = (props: Props) => {
             (1 / 100);
           existingEntry.amount +=
             orderPaymentItem.paidQuantity * foundOrder.unitPrice;
+          existingEntry.totalAmountWithDiscount =
+            existingEntry.totalAmountWithDiscount +
+            orderPaymentItem.paidQuantity * foundOrder.unitPrice -
+            (orderPaymentItem?.discountPercentage ?? 0) *
+              orderPaymentItem.paidQuantity *
+              foundOrder.unitPrice *
+              (1 / 100);
         } else {
           acc.push({
             item: (foundOrder.item as MenuItem)._id,
@@ -97,13 +116,7 @@ const ProductSalesReport = (props: Props) => {
     [] as OrderWithPaymentInfo[]
   );
   const [rows, setRows] = useState(orderWithInfo);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      category: "",
-      before: "",
-      after: "",
-    });
+
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -132,6 +145,22 @@ const ProductSalesReport = (props: Props) => {
       placeholder: t("Category"),
       required: true,
     },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+    },
   ];
   const columns = [
     { key: t("Product Name"), isSortable: true },
@@ -155,7 +184,10 @@ const ProductSalesReport = (props: Props) => {
   useEffect(() => {
     const filteredRows = orderWithInfo.filter((row) => {
       return (
-        passesFilter(filterPanelFormElements.location, row.location) &&
+        (filterPanelFormElements.before === "" ||
+          row.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          row.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.category, row.categoryId)
       );
     });
