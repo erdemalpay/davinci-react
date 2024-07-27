@@ -472,5 +472,11 @@
   "Please select orders first": "Please select orders first",
   "Apply": "Apply",
   "Please select an order to apply discount": "Please select an order to apply discount",
+  "Check": "Check",
+  "Add Order": "Add Order",
+  "Add Gameplay": "Add Gameplay",
+  "Table {{tableName}} closed": "Table {{tableName}} closed",
+  "Table is being closed. Are you sure?": "Table is being closed. Are you sure?",
+  "Product Sales Report": "Product Sales Report",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

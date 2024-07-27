@@ -588,6 +588,7 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
+
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORFIXTURES,
@@ -625,6 +626,9 @@ export enum StockHistoryStatusEnum {
   TRANSFERFIXTURETOINVOICE = "TRANSFERFIXTURETOINVOICE",
   TRANSFERINVOICETOFIXTURE = "TRANSFERINVOICETOFIXTURE",
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
+}
+export enum OrderDataTabEnum {
+  PRODUCTSALESREPORT,
 }
 export const stockHistoryStatuses = [
   {
@@ -718,6 +722,7 @@ export enum OrderStatus {
   PENDING = "pending",
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",
+  CANCELLED = "cancelled",
 }
 
 export enum OrderCollectionStatus {

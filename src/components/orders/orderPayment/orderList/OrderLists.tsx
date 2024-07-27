@@ -28,21 +28,16 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
     setIsDiscountScreenOpen,
     isDiscountScreenOpen,
     setTemporaryOrders,
-    setSelectedOrders,
-    setIsSelectAll,
     selectedDiscount,
     selectedOrders,
-    setSelectedDiscount,
+    resetOrderContext,
   } = useOrderContext();
 
   const buttons: OrderListButton[] = [
     {
       label: t("Cancel"),
       onClick: () => {
-        setIsProductSelectionOpen(false);
-        setIsDiscountScreenOpen(false);
-        setSelectedOrders([]);
-        setIsSelectAll(false);
+        resetOrderContext();
       },
       isActive: isDiscountScreenOpen || isProductSelectionOpen,
     },
@@ -84,14 +79,11 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
           discount: selectedDiscount._id,
           discountPercentage: selectedDiscount.percentage,
         });
-        setIsProductSelectionOpen(false);
-        setIsDiscountScreenOpen(false);
-        setSelectedOrders([]);
+        resetOrderContext();
       },
       isActive: isProductSelectionOpen,
     },
   ];
-
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}

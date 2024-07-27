@@ -84,6 +84,7 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
       {
         key: t("Discount"),
         onClick: () => {
+          setTemporaryOrders([]);
           setIsDiscountScreenOpen(true);
         },
       },
