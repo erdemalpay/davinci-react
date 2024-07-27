@@ -202,11 +202,17 @@ export function TableCard({
 
       createOrderPayment({
         table: table._id,
-        orders: table?.orders?.map((orderId) => ({
-          order: orderId,
-          paidQuantity: 0,
-          totalQuantity: orders?.find((o) => o._id === orderId)?.quantity ?? 0,
-        })),
+        orders: table?.orders
+          ?.filter((orderId) => {
+            const order = orders?.find((o) => o._id === orderId);
+            return order?.status !== OrderStatus.CANCELLED;
+          })
+          .map((orderId) => ({
+            order: orderId,
+            paidQuantity: 0,
+            totalQuantity:
+              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
+          })),
         location: selectedLocationId,
         totalAmount: totalAmount,
         discountAmount: 0,

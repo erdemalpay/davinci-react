@@ -722,6 +722,7 @@ export enum OrderStatus {
   PENDING = "pending",
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",
+  CANCELLED = "cancelled",
 }
 
 export enum OrderCollectionStatus {
