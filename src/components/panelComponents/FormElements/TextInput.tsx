@@ -140,7 +140,14 @@ const TextInput = ({
             <PopoverContent>
               <DayPicker
                 mode="single"
-                selected={value ? new Date(value) : undefined}
+                selected={
+                  value
+                    ? new Date(
+                        new Date(value).getTime() +
+                          new Date(value).getTimezoneOffset() * 60000
+                      )
+                    : undefined
+                }
                 onSelect={(day) => {
                   const formattedDate = day ? format(day, "yyyy-MM-dd") : "";
                   onChange(formattedDate);
