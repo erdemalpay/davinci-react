@@ -628,7 +628,8 @@ export enum StockHistoryStatusEnum {
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
 }
 export enum OrderDataTabEnum {
-  PRODUCTSALESREPORT,
+  GROUPEDPRODUCTSALESREPORT,
+  SINGLEPRODUCTSALESREPORT,
 }
 export const stockHistoryStatuses = [
   {
