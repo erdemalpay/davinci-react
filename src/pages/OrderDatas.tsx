@@ -1,8 +1,9 @@
 import { BiCategory } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import { TbReportSearch } from "react-icons/tb";
+import { TbReportMoney, TbReportSearch } from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
+import DailyIncome from "../components/orderDatas/DailyIncome";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -13,22 +14,29 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const OrderDataTabs = [
   {
+    number: OrderDataTabEnum.DAILYINCOME,
+    label: "Daily Income",
+    icon: <TbReportMoney className="text-lg font-thin" />,
+    content: <DailyIncome />,
+    isDisabled: false,
+  },
+  {
     number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
-    label: "Product Sales Report",
+    label: "Product Sales",
     icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
     content: <GroupedProductSalesReport />,
     isDisabled: false,
   },
   {
     number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
-    label: "Product Based Sales Report",
+    label: "Product Based Sales",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
     isDisabled: false,
   },
   {
     number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
-    label: "Category Based Sales Report",
+    label: "Category Based Sales",
     icon: <BiCategory className="text-lg font-thin" />,
     content: <CategoryBasedSalesReport />,
     isDisabled: false,

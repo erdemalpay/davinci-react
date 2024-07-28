@@ -474,10 +474,11 @@
   "Add Gameplay": "Oyun Ekle",
   "Table {{tableName}} closed": "{{tableName}} masası kapatıldı",
   "Table is being closed. Are you sure?": "Masa kapatılmak üzeredir. Emin misiniz?",
-  "Product Sales Report": "Ürün Bazlı Satış Raporu(Toplu)",
-  "Product Based Sales Report": "Ürün Bazlı Satış Raporu",
-  "Category Based Sales Report": "Kategori Bazlı Satış Raporu",
+  "Product Sales": "Ürün Bazlı Satış(Toplu)",
+  "Product Based Sales": "Ürün Bazlı Satış",
+  "Category Based Sales": "Kategori Bazlı Satış",
   "Total Amount": "Toplam Tutar",
   "General Amount": "Genel Tutar",
+  "Daily Income": "Günlük Gelir",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
