@@ -127,7 +127,7 @@ const TextInput = ({
           )}
         </H6>
         <div className="flex flex-row gap-2">
-          <Popover placement="right">
+          <Popover placement="bottom">
             <PopoverHandler>
               <Input
                 label={label}
@@ -155,7 +155,7 @@ const TextInput = ({
                 showOutsideDays
                 className="border-0"
                 classNames={{
-                  caption: "flex justify-center mb-4  relative items-center",
+                  caption: "flex justify-center mb-2  relative items-center",
                   caption_label: "text-lg font-medium text-gray-900",
                   nav: "absolute inset-0 flex justify-between items-center px-2",
                   nav_button:
