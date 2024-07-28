@@ -12,7 +12,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type Props = {};
 type ItemQuantity = {
   itemId: number;
   itemName: string;
@@ -36,7 +35,7 @@ type OrderWithPaymentInfo = {
 type FormElementsState = {
   [key: string]: any;
 };
-const CategoryBasedSalesReport = (props: Props) => {
+const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
   const orders = useGetOrders();
@@ -345,7 +344,7 @@ const CategoryBasedSalesReport = (props: Props) => {
           rows={rows}
           filters={filters}
           filterPanel={filterPanel}
-          title={t("Category Based Sales Report")}
+          title={t("Category Based Sales")}
           isActionsActive={false}
           isCollapsible={true}
         />

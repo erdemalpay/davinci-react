@@ -127,7 +127,7 @@ const TextInput = ({
           )}
         </H6>
         <div className="flex flex-row gap-2">
-          <Popover placement="bottom">
+          <Popover placement="right">
             <PopoverHandler>
               <Input
                 label={label}
