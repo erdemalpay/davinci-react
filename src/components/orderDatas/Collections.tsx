@@ -10,6 +10,7 @@ import {
   OrderCollectionStatus,
   User,
 } from "../../types";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
@@ -26,12 +27,13 @@ const Collections = () => {
   const collections = useGetAllOrderCollections();
   const orders = useGetOrders();
   const locations = useGetLocations();
+  const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  if (!collections || !orders || !locations || !users) {
+  if (!collections || !orders || !locations || !users || !paymentMethods) {
     return null;
   }
 
@@ -55,6 +57,8 @@ const Collections = () => {
         paymentMethod: t(
           (collection.paymentMethod as AccountPaymentMethod)?.name
         ),
+        paymentMethodId: (collection.paymentMethod as AccountPaymentMethod)
+          ?._id,
         amount: collection.amount,
         cancelNote: collection.cancelNote ?? "",
         location: (collection.location as Location)._id,
@@ -137,6 +141,17 @@ const Collections = () => {
     LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
+      formKey: "paymentMethod",
+      label: t("Payment Method"),
+      options: paymentMethods.map((paymentMethod) => ({
+        value: paymentMethod._id,
+        label: t(paymentMethod.name),
+      })),
+      placeholder: t("Payment Method"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "status",
       label: t("Status"),
       options: [
@@ -186,12 +201,20 @@ const Collections = () => {
           row.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.location) &&
         passesFilter(filterPanelFormElements.user, row.createdBy) &&
-        passesFilter(filterPanelFormElements.status, row.status)
+        passesFilter(filterPanelFormElements.status, row.status) &&
+        passesFilter(filterPanelFormElements.paymentMethod, row.paymentMethodId)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [collections, orders, locations, users, filterPanelFormElements]);
+  }, [
+    collections,
+    orders,
+    locations,
+    users,
+    filterPanelFormElements,
+    paymentMethods,
+  ]);
 
   return (
     <>
