@@ -1,13 +1,19 @@
 import { BiCategory } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { SiFampay } from "react-icons/si";
-import { TbDiscount, TbReportMoney, TbReportSearch } from "react-icons/tb";
+import {
+  TbDiscount,
+  TbReportAnalytics,
+  TbReportMoney,
+  TbReportSearch,
+} from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
 import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
+import OrdersReport from "../components/orderDatas/OrdersReport";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -56,6 +62,13 @@ export const OrderDataTabs = [
     label: "Collections",
     icon: <SiFampay className="text-lg font-thin" />,
     content: <Collections />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.ORDERS,
+    label: "Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <OrdersReport />,
     isDisabled: false,
   },
 ];
