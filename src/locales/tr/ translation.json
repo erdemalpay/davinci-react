@@ -481,5 +481,8 @@
   "General Amount": "Genel Tutar",
   "Daily Income": "Günlük Gelir",
   "Discount Based Sales": "İndirim Bazlı Satış",
+  "Collections": "Tahsilatlar",
+  "Created By": "Oluşturan",
+  "Cancelled": "İptal Edilen",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

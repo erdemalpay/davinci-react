@@ -146,10 +146,12 @@ const TextInput = ({
                         new Date(value).getTime() +
                           new Date(value).getTimezoneOffset() * 60000
                       )
-                    : undefined
+                    : new Date()
                 }
                 onSelect={(day) => {
-                  const formattedDate = day ? format(day, "yyyy-MM-dd") : "";
+                  const formattedDate = day
+                    ? format(day, "yyyy-MM-dd")
+                    : format(new Date(), "yyyy-MM-dd");
                   onChange(formattedDate);
                 }}
                 showOutsideDays
@@ -171,7 +173,7 @@ const TextInput = ({
                   day_range_end: "day-range-end",
                   day_selected:
                     "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white ",
-                  day_today: "rounded-md bg-gray-200 text-gray-900",
+                  day_today: "rounded-md bg-gray-200 text-gray-900 ",
                   day_outside:
                     "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
                   day_disabled: "text-gray-500 opacity-50",

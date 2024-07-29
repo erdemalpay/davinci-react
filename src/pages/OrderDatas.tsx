@@ -1,8 +1,10 @@
 import { BiCategory } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import { SiFampay } from "react-icons/si";
 import { TbDiscount, TbReportMoney, TbReportSearch } from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
+import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
@@ -47,6 +49,13 @@ export const OrderDataTabs = [
     label: "Discount Based Sales",
     icon: <TbDiscount className="text-lg font-thin" />,
     content: <DiscountBasedSales />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.COLLECTIONS,
+    label: "Collections",
+    icon: <SiFampay className="text-lg font-thin" />,
+    content: <Collections />,
     isDisabled: false,
   },
 ];

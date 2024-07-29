@@ -89,7 +89,6 @@ const DiscountBasedSales = () => {
       const existingEntry = acc.find(
         (item) => item.discountId === orderPaymentItem.discount
       );
-
       if (existingEntry) {
         existingEntry.paidQuantity += orderPaymentItem.paidQuantity;
         existingEntry.amount +=
@@ -181,7 +180,6 @@ const DiscountBasedSales = () => {
         });
       }
     });
-
     return acc;
   }, [] as OrderWithPaymentInfo[]);
   orderWithInfo.length > 0 &&
@@ -234,7 +232,6 @@ const DiscountBasedSales = () => {
       },
     },
   ];
-
   const filterPanelInputs = [
     LocationInput({ locations: locations, required: true }),
     {
