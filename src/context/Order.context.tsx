@@ -68,6 +68,9 @@ const OrderContext = createContext<OrderContextType>({
     after: "",
     category: "",
     discount: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
   },
   setFilterPanelFormElements: () => {},
 });
@@ -98,6 +101,9 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
       after: "",
       category: "",
       discount: "",
+      paymentMethod: "",
+      createdBy: "",
+      cancelledBy: "",
     });
   const resetOrderContext = () => {
     setPaymentAmount("");
