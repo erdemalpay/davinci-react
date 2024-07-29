@@ -484,5 +484,8 @@
   "General Amount": "General Amount",
   "Daily Income": "Daily Income",
   "Discount Based Sales": "Discount Based Sales",
+  "Collections": "Collections",
+  "Created By": "Created By",
+  "Cancelled": "Cancelled",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
