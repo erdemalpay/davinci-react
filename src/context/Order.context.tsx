@@ -1,6 +1,10 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Order, OrderDiscount } from "../types";
 
+type FormElementsState = {
+  [key: string]: any;
+};
+
 type OrderContextType = {
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
@@ -34,6 +38,8 @@ type OrderContextType = {
       quantity: number;
     }[]
   ) => void;
+  filterPanelFormElements: FormElementsState;
+  setFilterPanelFormElements: (state: FormElementsState) => void;
   resetOrderContext: () => void;
 };
 
@@ -54,6 +60,16 @@ const OrderContext = createContext<OrderContextType>({
   selectedDiscount: null,
   setSelectedDiscount: () => {},
   resetOrderContext: () => {},
+  filterPanelFormElements: {
+    location: "",
+    user: "",
+    status: "",
+    before: "",
+    after: "",
+    category: "",
+    discount: "",
+  },
+  setFilterPanelFormElements: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -73,7 +89,16 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);
-
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      location: "",
+      user: "",
+      status: "",
+      before: "",
+      after: "",
+      category: "",
+      discount: "",
+    });
   const resetOrderContext = () => {
     setPaymentAmount("");
     setTemporaryOrders([]);
@@ -101,6 +126,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         selectedDiscount,
         setSelectedDiscount,
         resetOrderContext,
+        filterPanelFormElements,
+        setFilterPanelFormElements,
       }}
     >
       {children}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Location, MenuItem, Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -31,9 +32,6 @@ type OrderWithPaymentInfo = {
   collapsible: any;
   className?: string;
 };
-type FormElementsState = {
-  [key: string]: any;
-};
 const DiscountBasedSales = () => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
@@ -44,13 +42,8 @@ const DiscountBasedSales = () => {
   if (!orderPayments || !orders || !locations || !discounts) {
     return null;
   }
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      discount: "",
-      location: "",
-      before: "",
-      after: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const orderWithInfo = orderPayments.reduce((acc, orderPayment) => {
