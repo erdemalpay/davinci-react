@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useOrderContext } from "../../context/Order.context";
 import {
   AccountPaymentMethod,
   ConstantPaymentMethodsIds,
@@ -16,9 +17,6 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 type AllRows = {
   date: string;
   formattedDate: string;
@@ -39,12 +37,8 @@ const DailyIncome = () => {
     return null;
   }
   const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      before: "",
-      after: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   const allRows = collections
     ?.filter(
       (collection) => collection.status !== OrderCollectionStatus.CANCELLED

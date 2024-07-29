@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
@@ -11,7 +12,6 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type ItemQuantity = {
   itemId: number;
   itemName: string;
@@ -32,9 +32,6 @@ type OrderWithPaymentInfo = {
   collapsible: any;
   className?: string;
 };
-type FormElementsState = {
-  [key: string]: any;
-};
 const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
@@ -45,13 +42,8 @@ const CategoryBasedSalesReport = () => {
   if (!orderPayments || !orders || !categories || !locations) {
     return null;
   }
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      category: "",
-      before: "",
-      after: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const orderWithInfo = orderPayments.reduce((acc, orderPayment) => {

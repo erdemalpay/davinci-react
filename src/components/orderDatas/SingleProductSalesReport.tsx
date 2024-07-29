@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
@@ -28,9 +29,7 @@ type OrderWithPaymentInfo = {
   className?: string;
   formattedDate: string;
 };
-type FormElementsState = {
-  [key: string]: any;
-};
+
 const SingleProductSalesReport = () => {
   const { t } = useTranslation();
   const orderPayments = useGetAllOrderPayments();
@@ -41,13 +40,8 @@ const SingleProductSalesReport = () => {
   if (!orderPayments || !orders || !categories || !locations) {
     return null;
   }
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      category: "",
-      before: "",
-      after: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const orderWithInfo = orderPayments.reduce((acc, orderPayment) => {

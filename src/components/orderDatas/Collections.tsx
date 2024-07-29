@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useOrderContext } from "../../context/Order.context";
 import {
   AccountPaymentMethod,
   Location,
@@ -20,9 +21,6 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Collections = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
@@ -31,14 +29,8 @@ const Collections = () => {
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      user: "",
-      status: "",
-      before: "",
-      after: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   if (!collections || !orders || !locations || !users) {
     return null;
   }
