@@ -128,6 +128,32 @@ const OrdersReport = () => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "preparedBy",
+      label: t("Prepared By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Prepared By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "deliveredBy",
+      label: t("Delivered By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Delivered By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "cancelledBy",
       label: t("Cancelled By"),
       options: users
@@ -188,6 +214,14 @@ const OrdersReport = () => {
           row.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.locationId) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
+        passesFilter(
+          filterPanelFormElements.preparedBy,
+          row.preparedByUserId
+        ) &&
+        passesFilter(
+          filterPanelFormElements.deliveredBy,
+          row.deliveredByUserId
+        ) &&
         passesFilter(
           filterPanelFormElements.cancelledBy,
           row.cancelledByUserId
