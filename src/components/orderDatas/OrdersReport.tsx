@@ -59,6 +59,8 @@ const OrdersReport = () => {
       amount: order.unitPrice * order.quantity,
       note: order.note,
       status: t(order.status),
+      statusLabel: statusOptions.find((status) => status.value === order.status)
+        ?.label,
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -90,7 +92,7 @@ const OrdersReport = () => {
         );
       },
     },
-    { key: "item", className: "min-w-32 pr-2" },
+    { key: "item", className: "min-w-40 pr-2" },
     { key: "quantity" },
     {
       key: "amount",
@@ -110,7 +112,7 @@ const OrdersReport = () => {
     { key: "cancelledAt" },
     { key: "cancelledBy" },
     { key: "location" },
-    { key: "status" },
+    { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
   const filterPanelInputs = [
     {
