@@ -484,5 +484,10 @@
   "Collections": "Tahsilatlar",
   "Created By": "Oluşturan",
   "Cancelled": "İptal Edilen",
+  "Created At": "Oluşturma Saati",
+  "Prepared In": "Hazırlanma Süresi",
+  "Prepared By": "Hazırlayan",
+  "Delivered In": "Teslim Süresi",
+  "Delivered By": "Teslim Eden",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
