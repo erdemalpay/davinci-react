@@ -487,5 +487,10 @@
   "Collections": "Collections",
   "Created By": "Created By",
   "Cancelled": "Cancelled",
+  "Created At": "Created At",
+  "Prepared In": "Prepared In",
+  "Prepared By": "Prepared By",
+  "Delivered In": "Delivered In",
+  "Delivered By": "Delivered By",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

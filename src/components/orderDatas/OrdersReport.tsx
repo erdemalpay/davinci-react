@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -12,6 +12,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 const OrdersReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -24,6 +25,12 @@ const OrdersReport = () => {
   if (!orders || !locations || !users) {
     return null;
   }
+  const statusOptions = [
+    { value: "pending", label: t("Pending") },
+    { value: "ready_to_server", label: t("Ready to Serve") },
+    { value: "served", label: t("Served") },
+    { value: "cancelled", label: t("Cancelled") },
+  ];
   const allRows = orders.map((order) => {
     return {
       _id: order._id,
@@ -34,13 +41,17 @@ const OrdersReport = () => {
       createdAt: format(order.createdAt, "HH:mm"),
       preparedBy: (order?.preparedBy as User)?.name ?? "",
       preparedByUserId: (order?.preparedBy as User)?._id ?? "",
-      prepareAt: order.preparedAt ? format(order?.preparedAt, "HH:mm") : "",
+      preparationTime: order.preparedAt
+        ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
+        : null,
       cancelledBy: (order.cancelledBy as User)?.name,
       cancelledByUserId: (order.cancelledBy as User)?._id,
       cancelledAt: order.cancelledAt ? format(order.cancelledAt, "HH:mm") : "",
       deliveredBy: (order.deliveredBy as User)?.name,
       deliveredByUserId: (order.deliveredBy as User)?._id,
-      deliveredAt: order.deliveredAt ? format(order.deliveredAt, "HH:mm") : "",
+      deliveryTime: order.deliveredAt
+        ? differenceInMinutes(order.deliveredAt, order.createdAt) + " dk"
+        : null,
       item: (order.item as MenuItem)?.name,
       location: (order.location as Location)?.name,
       locationId: (order.location as Location)?._id,
@@ -59,9 +70,9 @@ const OrdersReport = () => {
     { key: t("Note"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Created By"), isSortable: true },
-    { key: t("Prepared At"), isSortable: true },
+    { key: t("Prepared In"), isSortable: true },
     { key: t("Prepared By"), isSortable: true },
-    { key: t("Delivered At"), isSortable: true },
+    { key: t("Delivered In"), isSortable: true },
     { key: t("Delivered By"), isSortable: true },
     { key: t("Cancelled At"), isSortable: true },
     { key: t("Cancelled By"), isSortable: true },
@@ -92,9 +103,9 @@ const OrdersReport = () => {
     { key: "note", className: "min-w-32 pr-2" },
     { key: "createdAt" },
     { key: "createdBy" },
-    { key: "preparedAt" },
+    { key: "preparationTime" },
     { key: "preparedBy" },
-    { key: "deliveredAt" },
+    { key: "deliveryTime" },
     { key: "deliveredBy" },
     { key: "cancelledAt" },
     { key: "cancelledBy" },
@@ -126,6 +137,14 @@ const OrdersReport = () => {
           label: user.name,
         })),
       placeholder: t("Cancelled By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: statusOptions,
+      placeholder: t("Status"),
       required: true,
     },
     LocationInput({ locations: locations, required: true }),
@@ -169,7 +188,11 @@ const OrdersReport = () => {
           row.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.locationId) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
-        passesFilter(filterPanelFormElements.cancelledBy, row.cancelledByUserId)
+        passesFilter(
+          filterPanelFormElements.cancelledBy,
+          row.cancelledByUserId
+        ) &&
+        passesFilter(filterPanelFormElements.status, row.status)
       );
     });
     setRows(filteredRows);
