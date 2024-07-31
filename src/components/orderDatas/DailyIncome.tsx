@@ -44,6 +44,7 @@ const DailyIncome = () => {
       (collection) => collection.status !== OrderCollectionStatus.CANCELLED
     )
     ?.reduce((acc, collection) => {
+      if (!collection || !collection.createdAt) return acc;
       // location filter
       if (
         filterPanelFormElements.location !== "" &&
@@ -55,16 +56,16 @@ const DailyIncome = () => {
       // other filters
       if (
         (filterPanelFormElements.before !== "" &&
-          format(collection.createdAt, "yyyy-MM-dd") >
+          format(collection?.createdAt, "yyyy-MM-dd") >
             filterPanelFormElements.before) ||
         (filterPanelFormElements.after !== "" &&
-          format(collection.createdAt, "yyyy-MM-dd") <
+          format(collection?.createdAt, "yyyy-MM-dd") <
             filterPanelFormElements.after)
       ) {
         return acc;
       }
       const existingEntry = acc.find(
-        (item) => item.date === format(collection.createdAt, "yyyy-MM-dd")
+        (item) => item.date === format(collection?.createdAt, "yyyy-MM-dd")
       );
       if (existingEntry) {
         if (
@@ -86,9 +87,9 @@ const DailyIncome = () => {
         existingEntry.total += collection.amount;
       } else {
         acc.push({
-          date: format(collection.createdAt, "yyyy-MM-dd"),
+          date: format(collection?.createdAt, "yyyy-MM-dd"),
           formattedDate: formatAsLocalDate(
-            format(collection.createdAt, "yyyy-MM-dd")
+            format(collection?.createdAt, "yyyy-MM-dd")
           ),
           location: (collection.location as Location)._id,
           paymentMethod: (collection.paymentMethod as AccountPaymentMethod)._id,

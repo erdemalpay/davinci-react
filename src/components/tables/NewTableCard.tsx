@@ -17,10 +17,6 @@ import {
   useOrderMutations,
 } from "../../utils/api/order/order";
 import {
-  useGetOrderPayments,
-  useOrderPaymentMutations,
-} from "../../utils/api/order/orderPayment";
-import {
   useCloseTableMutation,
   useReopenTableMutation,
   useTableMutations,
@@ -70,8 +66,6 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
-  const orderPayments = useGetOrderPayments();
-  const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
@@ -147,77 +141,6 @@ export function TableCard({
     toast.success(`Table ${table.name} reopened`);
   }
   function newClose() {
-    const tableOpenPayment = orderPayments?.find(
-      (orderPayment) => (orderPayment.table as Table)?._id === table?._id
-    );
-
-    // there is an open order payment so first check that the items inside are matched directly open it
-    if (tableOpenPayment) {
-      // check if all orders are included in the open order payment
-      const isAllOrdersIncluded =
-        table?.orders?.every((orderId) =>
-          tableOpenPayment?.orders?.some(
-            (paymentOrder) => paymentOrder.order === orderId
-          )
-        ) ?? false;
-      //we are updating the open order payment to include all orders
-      if (!isAllOrdersIncluded) {
-        const missingOrders = table?.orders?.filter(
-          (orderId) =>
-            !tableOpenPayment?.orders?.some(
-              (paymentOrder) => paymentOrder.order === orderId
-            )
-        );
-        const newOrders = [
-          ...(tableOpenPayment?.orders ?? []),
-          ...(missingOrders?.map((orderId) => ({
-            order: orderId,
-            paidQuantity: 0,
-            totalQuantity:
-              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
-          })) ?? []),
-        ];
-
-        const newTotalAmount =
-          tableOpenPayment.totalAmount +
-          (missingOrders?.reduce((acc, order) => {
-            const orderItem = orders?.find((o) => o._id === order);
-            if (!orderItem) return acc;
-            return acc + (orderItem.unitPrice * orderItem.quantity || 0);
-          }, 0) ?? 0);
-
-        updateOrderPayment({
-          id: tableOpenPayment._id,
-          updates: { orders: newOrders, totalAmount: newTotalAmount },
-        });
-      }
-    }
-    // there is no open order payment so create a new one
-    else {
-      const totalAmount = table?.orders?.reduce((acc, order) => {
-        const orderItem = orders?.find((o) => o._id === order);
-        if (!orderItem) return acc;
-        return acc + orderItem?.unitPrice * orderItem?.quantity;
-      }, 0);
-
-      createOrderPayment({
-        table: table._id,
-        orders: table?.orders
-          ?.filter((orderId) => {
-            const order = orders?.find((o) => o._id === orderId);
-            return order?.status !== OrderStatus.CANCELLED;
-          })
-          .map((orderId) => ({
-            order: orderId,
-            paidQuantity: 0,
-            totalQuantity:
-              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
-          })),
-        location: selectedLocationId,
-        totalAmount: totalAmount,
-        discountAmount: 0,
-      });
-    }
     setIsOrderPaymentModalOpen(true);
   }
   const date = table.date;
@@ -442,6 +365,7 @@ export function TableCard({
                 location: selectedLocationId,
                 table: selectedTable._id,
                 unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
               });
             }
             setOrderForm({
@@ -454,7 +378,7 @@ export function TableCard({
           topClassName="flex flex-col gap-2  "
         />
       )}
-      {isOrderPaymentModalOpen && (
+      {isOrderPaymentModalOpen && orders && (
         <OrderPaymentModal
           table={table}
           close={() => {

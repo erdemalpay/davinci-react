@@ -1,16 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, OrderPayment } from "../../../../types";
-import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
+import { MenuItem, Order } from "../../../../types";
 import OrderScreenHeader from "./OrderScreenHeader";
-
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
 };
-
-const OrderSelect = ({ orderPayment }: Props) => {
-  const orders = useGetGivenDateOrders();
+const OrderSelect = ({ tableOrders }: Props) => {
   const { t } = useTranslation();
   const {
     temporaryOrders,
@@ -23,7 +19,6 @@ const OrderSelect = ({ orderPayment }: Props) => {
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Select Order" />
       {/* select all */}
-
       <div
         className="ml-2 mr-auto flex flex-row gap-2 justify-start items-center  w-full pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer "
         onClick={() => {
@@ -33,16 +28,12 @@ const OrderSelect = ({ orderPayment }: Props) => {
           } else {
             setIsSelectAll(true);
             setSelectedOrders(
-              orders.map((order) => {
-                const foundOrderPayment = orderPayment?.orders?.find(
-                  (paymentItem) => paymentItem.order === order._id
-                );
+              tableOrders.map((order) => {
                 return {
                   order: order,
-                  totalQuantity: foundOrderPayment?.totalQuantity ?? 0,
+                  totalQuantity: order?.quantity ?? 0,
                   selectedQuantity:
-                    (foundOrderPayment?.totalQuantity ?? 0) -
-                    (foundOrderPayment?.paidQuantity ?? 0),
+                    (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
                 };
               })
             );
@@ -56,23 +47,17 @@ const OrderSelect = ({ orderPayment }: Props) => {
         )}
         <p>{t("All")}</p>
       </div>
-
       {/* orders */}
-      {orderPayment?.orders
-        ?.filter((orderPaymentItem) => !orderPaymentItem.discount)
-        ?.map((orderPaymentItem) => {
-          const order = orders.find(
-            (order) => order._id === orderPaymentItem.order
-          );
-          const isAllPaid =
-            orderPaymentItem.paidQuantity === orderPaymentItem.totalQuantity;
-          if (!order || isAllPaid) return null;
+      {tableOrders
+        ?.filter((order) => !order.discount)
+        ?.map((order) => {
+          const isAllPaid = order.paidQuantity === order.quantity;
+          if (isAllPaid) return null;
           const tempOrder = temporaryOrders.find(
             (tempOrder) => tempOrder.order._id === order._id
           );
           const isAllPaidWithTempOrder =
-            orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0) ===
-            orderPaymentItem.totalQuantity;
+            order.paidQuantity + (tempOrder?.quantity ?? 0) === order.quantity;
           if (isAllPaidWithTempOrder) return null;
           return (
             <div
@@ -121,9 +106,8 @@ const OrderSelect = ({ orderPayment }: Props) => {
                 </p>
                 <p>
                   {"("}
-                  {orderPaymentItem.totalQuantity -
-                    (orderPaymentItem.paidQuantity +
-                      (tempOrder?.quantity ?? 0))}
+                  {order.quantity -
+                    (order.paidQuantity + (tempOrder?.quantity ?? 0))}
                   {")"}-
                 </p>
                 <p>{(order.item as MenuItem).name}</p>
@@ -132,9 +116,8 @@ const OrderSelect = ({ orderPayment }: Props) => {
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 <p>
                   {order.unitPrice *
-                    (orderPaymentItem.totalQuantity -
-                      (orderPaymentItem.paidQuantity +
-                        (tempOrder?.quantity ?? 0)))}
+                    (order.quantity -
+                      (order.paidQuantity + (tempOrder?.quantity ?? 0)))}
                   ₺
                 </p>
               </div>

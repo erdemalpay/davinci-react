@@ -23,7 +23,6 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
-  payment?: number;
   gameplays: Gameplay[];
 };
 
@@ -410,6 +409,9 @@ export type Order = {
   deliveredBy?: User | string;
   cancelledAt?: Date;
   cancelledBy?: User | string;
+  paidQuantity: number;
+  discount?: OrderDiscount | number;
+  discountPercentage?: number;
 };
 
 export type OrderCollection = {
@@ -423,31 +425,13 @@ export type OrderCollection = {
   amount: number;
   status: string;
   paymentMethod: AccountPaymentMethod | string;
-  orderPayment: OrderPayment | number;
   orders?: OrderCollectionItem[];
-};
-
-export type OrderPaymentItem = {
-  order: number;
-  paidQuantity: number;
-  totalQuantity: number;
-  discount?: number;
-  discountPercentage?: number;
-};
-
-type OrderCollectionItem = {
-  order: number;
-  paidQuantity: number;
-};
-
-export type OrderPayment = {
-  _id: number;
-  location: Location | number;
   table: Table | number;
-  discountAmount: number;
-  collections?: number[];
-  orders?: OrderPaymentItem[];
-  totalAmount: number;
+};
+
+export type OrderCollectionItem = {
+  order: number;
+  paidQuantity: number;
 };
 
 export type OrderDiscount = {

@@ -12,8 +12,9 @@ export function useOrderCollectionMutations() {
   } = useMutationApi<OrderCollection>({
     baseQuery: baseUrl,
     additionalInvalidates: [
-      [`${Paths.Order}/payment`],
       [`${Paths.Order}/collection/date`],
+      [`${Paths.Order}`],
+      [`${Paths.Order}/collection`],
     ],
   });
   return {

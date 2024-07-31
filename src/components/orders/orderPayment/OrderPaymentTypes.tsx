@@ -5,18 +5,24 @@ import cash from "../../../assets/order/cash.png";
 import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
-import { OrderCollectionStatus, OrderPayment } from "../../../types";
+import { Order, OrderCollectionStatus, Table } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
+import { useUpdateOrdersMutation } from "../../../utils/api/order/order";
 import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
-import { useOrderPaymentMutations } from "../../../utils/api/order/orderPayment";
+
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
   collectionsTotalAmount: number;
+  table: Table;
 };
-const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
+const OrderPaymentTypes = ({
+  tableOrders,
+  collectionsTotalAmount,
+  table,
+}: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
@@ -24,6 +30,7 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
   if (!selectedLocationId || !collections || !paymentTypes) {
     return null;
   }
+  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const {
     paymentAmount,
     setPaymentAmount,
@@ -42,20 +49,25 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
         return cash;
     }
   };
-  const { updateOrderPayment } = useOrderPaymentMutations();
   const { createOrderCollection } = useOrderCollectionMutations();
 
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
-
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
   const isAllItemsPaid =
-    orderPayment?.orders?.every(
-      (order) => order.paidQuantity === order.totalQuantity
-    ) &&
-    collectionsTotalAmount >=
-      orderPayment?.totalAmount - orderPayment?.discountAmount;
-  const refundAmount =
-    totalMoneySpend -
-    (orderPayment?.totalAmount - orderPayment?.discountAmount);
+    tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+    collectionsTotalAmount >= totalAmount - discountAmount;
+  const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8 ">
       {/*main header part */}
@@ -83,30 +95,20 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
               // if payment amount is greater than total amount or there are items in the temporary orders
               if (
                 temporaryOrders.length !== 0 ||
-                totalMoneySpend >=
-                  orderPayment.totalAmount - orderPayment.discountAmount
+                totalMoneySpend >= totalAmount - discountAmount
               ) {
-                if (
-                  totalMoneySpend >=
-                  orderPayment.totalAmount - orderPayment.discountAmount
-                ) {
-                  const newOrders = orderPayment?.orders?.map((order) => {
+                if (totalMoneySpend >= totalAmount - discountAmount) {
+                  const newOrders = tableOrders?.map((order) => {
                     return {
                       ...order,
-                      paidQuantity: order.totalQuantity,
+                      paidQuantity: order.quantity,
                     };
                   });
-                  updateOrderPayment({
-                    id: orderPayment._id,
-                    updates: {
-                      orders: newOrders,
-                    },
-                  });
+                  updateOrders(newOrders);
                 } else {
-                  const newOrders = orderPayment?.orders?.map((order) => {
+                  const newOrders = tableOrders?.map((order) => {
                     const temporaryOrder = temporaryOrders.find(
-                      (temporaryOrder) =>
-                        temporaryOrder.order._id === order.order
+                      (temporaryOrder) => temporaryOrder.order._id === order._id
                     );
                     if (!temporaryOrder) {
                       return order;
@@ -117,33 +119,26 @@ const OrderPaymentTypes = ({ orderPayment, collectionsTotalAmount }: Props) => {
                         order.paidQuantity + temporaryOrder.quantity,
                     };
                   });
-                  updateOrderPayment({
-                    id: orderPayment._id,
-                    updates: {
-                      orders: newOrders,
-                    },
-                  });
+                  updateOrders(newOrders);
                 }
               }
               createOrderCollection({
-                orderPayment: orderPayment._id,
+                table: table._id,
                 location: selectedLocationId,
                 paymentMethod: paymentType._id,
                 amount:
                   Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0),
                 status: OrderCollectionStatus.PAID,
                 orders:
-                  totalMoneySpend >=
-                  orderPayment.totalAmount - orderPayment.discountAmount
-                    ? orderPayment?.orders
+                  totalMoneySpend >= totalAmount - discountAmount
+                    ? tableOrders
                         ?.filter(
-                          (order) => order.paidQuantity !== order.totalQuantity
+                          (order) => order.paidQuantity !== order.quantity
                         )
                         ?.map((order) => {
                           return {
-                            order: order.order,
-                            paidQuantity:
-                              order.totalQuantity - order.paidQuantity,
+                            order: order._id,
+                            paidQuantity: order.quantity - order.paidQuantity,
                           };
                         })
                     : temporaryOrders?.map((order) => ({

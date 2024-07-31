@@ -1,26 +1,34 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderPayment } from "../../../types";
-import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import { Order } from "../../../types";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
   collectionsTotalAmount: number;
 };
-const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
+const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
+  const { t } = useTranslation();
   const {
     setPaymentAmount,
     paymentAmount,
     setTemporaryOrders,
     setIsDiscountScreenOpen,
   } = useOrderContext();
-  const orders = useGetGivenDateOrders();
-  if (!orders) {
-    return null;
-  }
 
-  const { t } = useTranslation();
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
+
   const handleKeyPress = useCallback(
     (key: string) => {
       if (key === ".") {
@@ -43,30 +51,22 @@ const Keypad = ({ orderPayment, collectionsTotalAmount }: Props) => {
       {
         key: t("All"),
         onClick: () => {
-          if (!orderPayment?.orders || !orders) {
+          if (!tableOrders) {
             setTemporaryOrders([]);
             return;
           }
-          const updatedOrders = orderPayment?.orders
-            ?.map((orderPaymentItem) => {
-              const order = orders.find(
-                (orderItem) => orderItem._id === orderPaymentItem.order
-              );
-              if (order === undefined) {
-                return null;
-              }
+          const updatedOrders = tableOrders
+            ?.map((order) => {
               return {
                 order: order,
-                quantity:
-                  orderPaymentItem.totalQuantity -
-                  orderPaymentItem.paidQuantity,
+                quantity: order.quantity - order.paidQuantity,
               };
             })
             ?.filter((order) => order !== null);
           setPaymentAmount(
             (
-              (orderPayment?.totalAmount ?? 0) -
-              (orderPayment?.discountAmount ?? 0) -
+              (totalAmount ?? 0) -
+              (discountAmount ?? 0) -
               collectionsTotalAmount
             )?.toString()
           );

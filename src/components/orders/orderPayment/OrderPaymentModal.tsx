@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import { OrderCollectionStatus, Table } from "../../../types";
+import { useGetGivenDateOrders } from "../../../utils/api/order/order";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
-import { useGetOrderPayments } from "../../../utils/api/order/orderPayment";
 import { useCloseTableMutation } from "../../../utils/api/table";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import OrderLists from "./orderList/OrderLists";
@@ -24,36 +24,40 @@ type ButtonType = {
 const OrderPaymentModal = ({ close, table }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const orderPayments = useGetOrderPayments();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
-  const currentOrderPayment = orderPayments?.find(
-    (orderPayment) => (orderPayment.table as Table)?._id === table?._id
-  );
+  const orders = useGetGivenDateOrders();
   const collections = useGetOrderCollections();
   const { mutate: closeTable } = useCloseTableMutation();
-
-  if (!user || !currentOrderPayment || !orderPayments) return null;
-  const collectionsTotalAmount = Number(
-    currentOrderPayment?.collections?.reduce((acc, collection) => {
-      const currentCollection = collections.find(
-        (item) => item._id === collection
-      );
-      if (
-        !currentCollection ||
-        currentCollection.status === OrderCollectionStatus.CANCELLED
-      ) {
-        return acc;
-      }
-      return acc + (currentCollection?.amount ?? 0);
-    }, 0)
+  if (!user || !orders) return null;
+  const tableOrders = orders.filter(
+    (order) => (order.table as Table)._id === table._id
   );
+  const collectionsTotalAmount = Number(
+    collections
+      .filter((collection) => (collection.table as Table)._id === table._id)
+      ?.reduce((acc, collection) => {
+        if (collection.status === OrderCollectionStatus.CANCELLED) {
+          return acc;
+        }
+        return acc + (collection?.amount ?? 0);
+      }, 0)
+  );
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
   const isAllItemsPaid =
-    currentOrderPayment?.orders?.every(
-      (order) => order.paidQuantity === order.totalQuantity
-    ) &&
-    collectionsTotalAmount >=
-      currentOrderPayment?.totalAmount - currentOrderPayment?.discountAmount;
+    tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+    collectionsTotalAmount >= totalAmount - discountAmount;
   const buttons: ButtonType[] = [
     {
       label: t("Close Table"),
@@ -72,7 +76,6 @@ const OrderPaymentModal = ({ close, table }: Props) => {
     setIsCloseConfirmationDialogOpen(false);
     toast.success(t("Table {{tableName}} closed", { tableName: table.name }));
   }
-
   return (
     <div
       id="popup"
@@ -114,15 +117,17 @@ const OrderPaymentModal = ({ close, table }: Props) => {
               {/* payment part */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 overflow-scroll no-scroll ">
                 <OrderLists
-                  orderPayment={currentOrderPayment}
+                  tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                 />
                 <OrderTotal
-                  orderPayment={currentOrderPayment}
+                  tableOrders={tableOrders}
+                  table={table}
                   collectionsTotalAmount={collectionsTotalAmount}
                 />
                 <OrderPaymentTypes
-                  orderPayment={currentOrderPayment}
+                  table={table}
+                  tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                 />
               </div>

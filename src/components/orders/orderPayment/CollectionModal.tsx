@@ -7,15 +7,19 @@ import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   MenuItem,
+  OrderCollectionItem,
   OrderCollectionStatus,
+  Table,
   User,
 } from "../../../types";
-import { useGetOrders } from "../../../utils/api/order/order";
+import {
+  useGetOrders,
+  useUpdateOrdersMutation,
+} from "../../../utils/api/order/order";
 import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
-import { useOrderPaymentMutations } from "../../../utils/api/order/orderPayment";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -24,38 +28,32 @@ import {
 } from "../../panelComponents/shared/types";
 
 type Props = {
-  orderCollections: number[];
+  table: number;
   setIsCollectionModalOpen: (isOpen: boolean) => void;
 };
 
-const CollectionModal = ({
-  orderCollections,
-  setIsCollectionModalOpen,
-}: Props) => {
+const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   const collections = useGetOrderCollections();
   const orders = useGetOrders();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { t } = useTranslation();
   const { updateOrderCollection } = useOrderCollectionMutations();
-  const { updateOrderPayment } = useOrderPaymentMutations();
   const [inputForm, setInputForm] = useState({
     note: "",
   });
   if (!collections || !orders || !user) {
     return null;
   }
-  const allRows = orderCollections
-    .map((collectionId) => {
-      const collection = collections.find((item) => item._id === collectionId);
-      if (!collection) {
-        return null;
-      }
+  const allRows = collections
+    .filter((collection) => (collection.table as Table)._id === table)
+    .map((collection) => {
       return {
         _id: collection._id,
-        orderPayment: collection.orderPayment,
+        table: (collection.table as Table)._id,
         cashier: (collection.createdBy as User)?.name,
         orders: collection.orders,
         cancelledBy: (collection?.cancelledBy as User)?.name,
@@ -84,7 +82,7 @@ const CollectionModal = ({
         },
       };
     })
-    .filter((item) => item !== null);
+    ?.filter((item) => item !== null);
 
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -178,30 +176,22 @@ const CollectionModal = ({
               return;
             }
             if (rowToAction?.orders?.length > 0) {
-              const newOrderPaymentOrders =
-                rowToAction?.orderPayment?.orders?.map(
-                  (orderPaymentItem: any) => {
-                    const orderCollectionItem = rowToAction.orders.find(
-                      (orderCollectionItem: any) =>
-                        orderCollectionItem.order === orderPaymentItem.order
-                    );
-                    if (orderCollectionItem) {
-                      return {
-                        ...orderPaymentItem,
-                        paidQuantity:
-                          orderPaymentItem.paidQuantity -
-                          orderCollectionItem.paidQuantity,
-                      };
-                    }
-                    return orderPaymentItem;
+              const newOrders = rowToAction?.orders
+                ?.map((orderCollectionItem: OrderCollectionItem) => {
+                  const order = orders?.find(
+                    (orderItem) => orderItem._id === orderCollectionItem.order
+                  );
+                  if (order) {
+                    return {
+                      ...order,
+                      paidQuantity:
+                        order.paidQuantity - orderCollectionItem.paidQuantity,
+                    };
                   }
-                );
-              updateOrderPayment({
-                id: rowToAction?.orderPayment?._id,
-                updates: {
-                  orders: newOrderPaymentOrders,
-                },
-              });
+                  return null;
+                })
+                ?.filter((item: any) => item !== null);
+              updateOrders(newOrders);
             }
             updateOrderCollection({
               id: rowToAction._id,

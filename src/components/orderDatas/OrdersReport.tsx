@@ -49,9 +49,10 @@ const OrdersReport = () => {
       cancelledAt: order.cancelledAt ? format(order.cancelledAt, "HH:mm") : "",
       deliveredBy: (order.deliveredBy as User)?.name,
       deliveredByUserId: (order.deliveredBy as User)?._id,
-      deliveryTime: order.deliveredAt
-        ? differenceInMinutes(order.deliveredAt, order.createdAt) + " dk"
-        : null,
+      deliveryTime:
+        order.deliveredAt && order.preparedAt
+          ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
+          : null,
       item: (order.item as MenuItem)?.name,
       location: (order.location as Location)?.name,
       locationId: (order.location as Location)?._id,

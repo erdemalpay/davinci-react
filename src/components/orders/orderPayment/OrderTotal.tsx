@@ -3,28 +3,26 @@ import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import {
-  MenuItem,
-  Order,
-  OrderPayment,
-  OrderPaymentItem,
-} from "../../../types";
+import { MenuItem, Order, Table } from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
+  table: Table;
   collectionsTotalAmount: number;
 };
 
-const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
+const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
+  const collections = useGetOrderCollections();
   const discounts = useGetOrderDiscounts();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  if (!orders || !orderPayment || !discounts) {
+  if (!orders || !tableOrders || !discounts) {
     return null;
   }
   const {
@@ -33,20 +31,24 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
     temporaryOrders,
     paymentAmount,
   } = useOrderContext();
-
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
-  const refundAmount =
-    totalMoneySpend -
-    (orderPayment?.totalAmount - orderPayment?.discountAmount);
-  const handlePaymentAmount = (
-    orderPaymentItem: OrderPaymentItem,
-    order: Order
-  ) => {
-    if (orderPaymentItem?.discount) {
+  const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
+  const handlePaymentAmount = (order: Order) => {
+    if (order?.discount) {
       return (
-        order.unitPrice *
-        (100 - (orderPaymentItem.discountPercentage ?? 0)) *
-        (1 / 100)
+        order.unitPrice * (100 - (order.discountPercentage ?? 0)) * (1 / 100)
       );
     } else {
       return order.unitPrice;
@@ -67,7 +69,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
           {isCollectionModalOpen && (
             <CollectionModal
               setIsCollectionModalOpen={setIsCollectionModalOpen}
-              orderCollections={orderPayment?.collections ?? []}
+              table={table._id}
             />
           )}
         </div>
@@ -77,11 +79,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
       </div>
       {/* temp orders */}
       <div className="flex flex-col h-48 overflow-scroll no-scrollbar ">
-        {orderPayment?.orders?.map((orderPaymentItem) => {
-          const order = orders.find(
-            (order) => order._id === orderPaymentItem.order
-          );
-          if (!order) return null;
+        {tableOrders?.map((order) => {
           const tempOrder = temporaryOrders.find(
             (tempOrder) => tempOrder.order._id === order._id
           );
@@ -113,8 +111,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
                   );
                 }
                 const newPaymentAmount =
-                  Number(paymentAmount) -
-                  handlePaymentAmount(orderPaymentItem, order);
+                  Number(paymentAmount) - handlePaymentAmount(order);
                 setPaymentAmount(
                   String(newPaymentAmount > 0 ? newPaymentAmount : "")
                 );
@@ -133,9 +130,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
               {/* buttons */}
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 <p>
-                  {handlePaymentAmount(orderPaymentItem, order) *
-                    (tempOrder?.quantity ?? 0)}
-                  ₺
+                  {handlePaymentAmount(order) * (tempOrder?.quantity ?? 0)}₺
                 </p>
                 {tempOrder && (
                   <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
@@ -162,7 +157,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
         </div>
 
         <Keypad
-          orderPayment={orderPayment}
+          tableOrders={tableOrders}
           collectionsTotalAmount={collectionsTotalAmount}
         />
       </div>

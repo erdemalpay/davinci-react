@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { OrderPayment } from "../../../../types";
+import { Order } from "../../../../types";
 import { useCreateOrderForDiscountMutation } from "../../../../utils/api/order/order";
 import DiscountScreen from "./DiscountScreen";
 import OrderSelect from "./OrderSelect";
@@ -9,7 +9,7 @@ import PaidOrders from "./PaidOrders";
 import UnpaidOrders from "./UnpaidOrders";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
   collectionsTotalAmount: number;
 };
 type OrderListButton = {
@@ -17,7 +17,7 @@ type OrderListButton = {
   onClick: () => void;
   isActive: boolean;
 };
-const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
+const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const { mutate: createOrderForDiscount } =
     useCreateOrderForDiscountMutation();
@@ -33,6 +33,18 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
     resetOrderContext,
   } = useOrderContext();
 
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
   const buttons: OrderListButton[] = [
     {
       label: t("Cancel"),
@@ -67,6 +79,7 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
           toast.error("Please select an order to apply discount");
           return;
         }
+        console.log(selectedOrders);
         createOrderForDiscount({
           orders: selectedOrders.map((selectedOrder) => {
             return {
@@ -75,7 +88,6 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
               orderId: selectedOrder.order._id,
             };
           }),
-          orderPaymentId: orderPayment._id,
           discount: selectedDiscount._id,
           discountPercentage: selectedDiscount.percentage,
         });
@@ -89,25 +101,20 @@ const OrderLists = ({ orderPayment, collectionsTotalAmount }: Props) => {
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Total")}</h1>
-        <p>
-          {parseFloat(
-            String(orderPayment.totalAmount - orderPayment.discountAmount)
-          ).toFixed(2)}
-          ₺
-        </p>
+        <p>{parseFloat(String(totalAmount - discountAmount)).toFixed(2)}₺</p>
       </div>
       {/* orders */}
       {!isProductSelectionOpen &&
         (isDiscountScreenOpen ? (
-          <DiscountScreen orderPayment={orderPayment} />
+          <DiscountScreen tableOrders={tableOrders} />
         ) : (
           <UnpaidOrders
-            orderPayment={orderPayment}
+            tableOrders={tableOrders}
             collectionsTotalAmount={collectionsTotalAmount}
           />
         ))}
-      {isProductSelectionOpen && <OrderSelect orderPayment={orderPayment} />}
-      <PaidOrders orderPayment={orderPayment} />
+      {isProductSelectionOpen && <OrderSelect tableOrders={tableOrders} />}
+      <PaidOrders tableOrders={tableOrders} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">
         {buttons.map((button) => {

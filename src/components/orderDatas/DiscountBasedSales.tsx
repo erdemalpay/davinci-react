@@ -1,12 +1,12 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table } from "../../types";
+import { Location, MenuItem, OrderDiscount, Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
-import { useGetAllOrderPayments } from "../../utils/api/order/orderPayment";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -34,160 +34,156 @@ type OrderWithPaymentInfo = {
 };
 const DiscountBasedSales = () => {
   const { t } = useTranslation();
-  const orderPayments = useGetAllOrderPayments();
   const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
   const locations = useGetLocations();
   const [showFilters, setShowFilters] = useState(false);
-  if (!orderPayments || !orders || !locations || !discounts) {
+  if (!orders || !locations || !discounts) {
     return null;
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
-  const orderWithInfo = orderPayments.reduce((acc, orderPayment) => {
-    if (!orderPayment.orders) return acc;
-    orderPayment.orders.forEach((orderPaymentItem) => {
-      const foundOrder = orders.find(
-        (orderItem) => orderItem._id === orderPaymentItem.order
-      );
-      if (
-        !foundOrder ||
-        !orderPaymentItem.discount ||
-        orderPaymentItem.paidQuantity === 0
+  const allRows = orders.reduce((acc, order) => {
+    if (!order.discount || order.paidQuantity === 0) {
+      return acc;
+    }
+
+    // Location filter
+    if (
+      filterPanelFormElements.location !== "" &&
+      filterPanelFormElements.location !== (order.location as Location)._id
+    ) {
+      return acc;
+    }
+
+    // Date filters
+    const orderDate = new Date((order.table as Table).date);
+    const beforeDate = filterPanelFormElements.before
+      ? new Date(filterPanelFormElements.before)
+      : null;
+    const afterDate = filterPanelFormElements.after
+      ? new Date(filterPanelFormElements.after)
+      : null;
+
+    if (
+      (beforeDate && orderDate > beforeDate) ||
+      (afterDate && orderDate < afterDate) ||
+      !passesFilter(
+        filterPanelFormElements.discount,
+        (order.discount as OrderDiscount)._id
       )
-        return;
-      // location filter
-      if (
-        filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !==
-          (foundOrder.location as Location)._id
-      ) {
-        return;
-      }
-      // other filters
-      if (
-        (filterPanelFormElements.before !== "" &&
-          (foundOrder.table as Table).date > filterPanelFormElements.before) ||
-        (filterPanelFormElements.after !== "" &&
-          (foundOrder.table as Table).date < filterPanelFormElements.after) ||
-        !passesFilter(
-          filterPanelFormElements.discount,
-          orderPaymentItem.discount
-        )
-      ) {
-        return;
-      }
-      const existingEntry = acc.find(
-        (item) => item.discountId === orderPaymentItem.discount
+    ) {
+      return acc;
+    }
+
+    const existingEntry = acc.find(
+      (item) => item.discountId === (order.discount as OrderDiscount)._id
+    );
+
+    if (existingEntry) {
+      existingEntry.paidQuantity += order.paidQuantity;
+      existingEntry.amount += order.paidQuantity * order.unitPrice;
+      existingEntry.totalAmountWithDiscount =
+        existingEntry.totalAmountWithDiscount +
+        order.paidQuantity * order.unitPrice -
+        (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
+          (1 / 100);
+
+      const existingItem = existingEntry.itemQuantity.find(
+        (itemQuantityIteration) =>
+          itemQuantityIteration.itemId === (order.item as MenuItem)._id
       );
-      if (existingEntry) {
-        existingEntry.paidQuantity += orderPaymentItem.paidQuantity;
-        existingEntry.amount +=
-          orderPaymentItem.paidQuantity * foundOrder.unitPrice;
-        existingEntry.totalAmountWithDiscount =
-          existingEntry.totalAmountWithDiscount +
-          orderPaymentItem.paidQuantity * foundOrder.unitPrice -
-          (orderPaymentItem?.discountPercentage ?? 0) *
-            orderPaymentItem.paidQuantity *
-            foundOrder.unitPrice *
-            (1 / 100);
-        const existingItem = existingEntry.itemQuantity.find(
+      if (existingItem) {
+        existingEntry.itemQuantity = existingEntry.itemQuantity.map(
           (itemQuantityIteration) =>
-            itemQuantityIteration.itemId === (foundOrder.item as MenuItem)._id
+            itemQuantityIteration.itemId === existingItem.itemId
+              ? {
+                  ...itemQuantityIteration,
+                  quantity: itemQuantityIteration.quantity + order.paidQuantity,
+                }
+              : itemQuantityIteration
         );
-        if (existingItem) {
-          existingEntry.itemQuantity = [
-            ...existingEntry.itemQuantity.filter(
-              (itemQuantityIteration) =>
-                itemQuantityIteration.itemId !== existingItem.itemId
-            ),
-            {
-              itemId: existingItem.itemId,
-              itemName: existingItem.itemName,
-              quantity: existingItem.quantity + orderPaymentItem.paidQuantity,
-            },
-          ];
-        } else {
-          existingEntry.itemQuantity.push({
-            itemId: (foundOrder.item as MenuItem)._id,
-            itemName: (foundOrder.item as MenuItem).name,
-            quantity: orderPaymentItem.paidQuantity,
-          });
-        }
-        existingEntry.collapsible = {
-          collapsibleHeader: t("Products"),
-          collapsibleColumns: [
-            { key: t("Product"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
-          ],
-          collapsibleRows: existingEntry.itemQuantity?.map(
-            (itemQuantityIteration) => ({
-              product: itemQuantityIteration.itemName,
-              quantity: itemQuantityIteration.quantity,
-            })
-          ),
-          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-        };
       } else {
-        acc.push({
-          item: (foundOrder.item as MenuItem)._id,
-          itemName: (foundOrder.item as MenuItem).name,
-          paidQuantity: orderPaymentItem.paidQuantity,
-          discountId: orderPaymentItem.discount,
-          discountName:
-            discounts.find(
-              (discount) => discount._id === orderPaymentItem.discount
-            )?.name ?? "",
-          amount: orderPaymentItem.paidQuantity * foundOrder.unitPrice,
-          location: (foundOrder.location as Location)._id,
-          date: (foundOrder.table as Table).date,
-          itemQuantity: [
-            {
-              itemId: (foundOrder.item as MenuItem)._id,
-              itemName: (foundOrder.item as MenuItem).name,
-              quantity: orderPaymentItem.paidQuantity,
-            },
-          ],
-          collapsible: {
-            collapsibleHeader: t("Products"),
-            collapsibleColumns: [
-              { key: t("Unit Price"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-            ],
-            collapsibleRows: [
-              {
-                product: (foundOrder.item as MenuItem).name,
-                quantity: orderPaymentItem.paidQuantity,
-              },
-            ],
-            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-          },
-          totalAmountWithDiscount:
-            orderPaymentItem.paidQuantity * foundOrder.unitPrice -
-            (orderPaymentItem?.discountPercentage ?? 0) *
-              orderPaymentItem.paidQuantity *
-              foundOrder.unitPrice *
-              (1 / 100),
+        existingEntry.itemQuantity.push({
+          itemId: (order.item as MenuItem)._id,
+          itemName: (order.item as MenuItem).name,
+          quantity: order.paidQuantity,
         });
       }
-    });
+
+      existingEntry.collapsible = {
+        collapsibleHeader: t("Products"),
+        collapsibleColumns: [
+          { key: t("Product"), isSortable: true },
+          { key: t("Quantity"), isSortable: true },
+        ],
+        collapsibleRows: existingEntry.itemQuantity.map(
+          (itemQuantityIteration) => ({
+            product: itemQuantityIteration.itemName,
+            quantity: itemQuantityIteration.quantity,
+          })
+        ),
+        collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+      };
+    } else {
+      acc.push({
+        item: (order.item as MenuItem)._id,
+        itemName: (order.item as MenuItem).name,
+        paidQuantity: order.paidQuantity,
+        discountId: (order.discount as OrderDiscount)._id,
+        discountName:
+          discounts.find(
+            (discount) => discount._id === (order.discount as OrderDiscount)._id
+          )?.name ?? "",
+        amount: order.paidQuantity * order.unitPrice,
+        location: (order.location as Location)._id,
+        date: format(orderDate, "yyyy-MM-dd"),
+        itemQuantity: [
+          {
+            itemId: (order.item as MenuItem)._id,
+            itemName: (order.item as MenuItem).name,
+            quantity: order.paidQuantity,
+          },
+        ],
+        collapsible: {
+          collapsibleHeader: t("Products"),
+          collapsibleColumns: [
+            { key: t("Unit Price"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+          ],
+          collapsibleRows: [
+            {
+              product: (order.item as MenuItem).name,
+              quantity: order.paidQuantity,
+            },
+          ],
+          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+        },
+        totalAmountWithDiscount:
+          order.paidQuantity * order.unitPrice -
+          (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100),
+      });
+    }
+
     return acc;
   }, [] as OrderWithPaymentInfo[]);
-  orderWithInfo.length > 0 &&
-    orderWithInfo.push({
+  allRows.length > 0 &&
+    allRows.push({
       item: 0,
       itemName: "",
-      paidQuantity: orderWithInfo.reduce(
-        (acc, item) => acc + item.paidQuantity,
-        0
-      ),
+      paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",
       discountId: 0,
       discountName: "Toplam",
-      amount: orderWithInfo.reduce((acc, item) => acc + item.amount, 0),
-      totalAmountWithDiscount: orderWithInfo.reduce(
+      amount: allRows.reduce((acc, item) => acc + item.amount, 0),
+      totalAmountWithDiscount: allRows.reduce(
         (acc, item) => acc + item.totalAmountWithDiscount,
         0
       ),
@@ -204,7 +200,7 @@ const DiscountBasedSales = () => {
         collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
       },
     });
-  const [rows, setRows] = useState(orderWithInfo);
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Discount"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
@@ -272,10 +268,10 @@ const DiscountBasedSales = () => {
     },
   ];
   useEffect(() => {
-    setRows(orderWithInfo);
+    setRows(allRows);
     setExpandedRows({});
     setTableKey((prev) => prev + 1);
-  }, [orders, orderPayments, filterPanelFormElements]);
+  }, [orders, orders, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
