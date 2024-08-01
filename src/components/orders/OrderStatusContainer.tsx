@@ -56,7 +56,7 @@ const OrderStatusContainer = ({
         <div className="flex flex-col gap-4 px-2">
           {/* grouped tables  */}
           {Object.entries(groupedOrders)?.map(([tableId, tableOrders]) => (
-            <div key={tableId} className=" flex flex-col gap-2 px-1 ">
+            <div key={tableId} className=" flex flex-col gap-1 px-1 ">
               <div className="flex justify-between">
                 <h2 className="font-semibold text-blue-800 ">
                   {t("Table")} {(tableOrders[0]?.table as Table)?.name}
@@ -93,7 +93,7 @@ const OrderStatusContainer = ({
                         },
                       });
                     }}
-                    className="bg-green-500 text-white px-2 py-0.5 rounded-lg"
+                    className="bg-green-500 text-white px-2  rounded-lg"
                   >
                     {t("All Served")}
                   </button>

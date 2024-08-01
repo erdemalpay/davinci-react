@@ -27,8 +27,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-40 __className_a182b8">
-      <div className="flex flex-row gap-4 mt-4 px-2">
+    <div className="flex flex-col  justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-32 __className_a182b8">
+      <div className="flex flex-row gap-4 mt-2 px-2">
         {/* img & time */}
         <div className="flex flex-col gap-2 h-full  items-center">
           {order.status !== OrderStatus.SERVED && (
@@ -37,7 +37,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
           <img
             src={(order.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
             alt="item"
-            className="w-16 h-16 object-cover rounded-lg"
+            className="w-12 h-12 object-cover rounded-lg"
           />
         </div>
         {/* itemName,quantity & orderNote */}
@@ -53,7 +53,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className="mt-1  ml-auto">
+      <div className=" ml-auto">
         {/* pending ready button */}
         {order.status === OrderStatus.PENDING && (
           <button
@@ -67,7 +67,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 },
               });
             }}
-            className=" px-2 py-1 rounded-lg"
+            className=" px-2 rounded-lg"
           >
             <ButtonTooltip content={t("Ready")}>
               <PiBellSimpleRingingFill className="text-xl" />
@@ -87,7 +87,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-2 py-1 rounded-lg"
+                className=" px-1 rounded-lg"
               >
                 <ButtonTooltip content={t("Preparing")}>
                   <TbArrowBack className="text-xl" />
@@ -105,7 +105,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" px-2 py-1 rounded-lg"
+              className=" px-1 rounded-lg"
             >
               <ButtonTooltip content={t("Served")}>
                 <PiBellSimpleRingingFill className="text-xl" />
@@ -125,7 +125,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-2 py-1 rounded-lg"
+                className=" px-1 rounded-lg"
               >
                 <ButtonTooltip content={t("Not Served")}>
                   <TbArrowBack className="text-xl" />
