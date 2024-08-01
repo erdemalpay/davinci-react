@@ -137,6 +137,12 @@ const GenericTable = <T,>({
     setSortConfigKey({ key, direction });
 
     const sortedRows = [...tableRows].sort((a, b) => {
+      const isSortable =
+        (a["isSortable"] !== undefined ? a["isSortable"] : true) &&
+        (b["isSortable"] !== undefined ? b["isSortable"] : true);
+      if (!isSortable) {
+        return 0;
+      }
       const isNumeric = !isNaN(Number(a[key])) && !isNaN(Number(b[key]));
 
       let valA = isNumeric ? Number(a[key]) : String(a[key]).toLowerCase();

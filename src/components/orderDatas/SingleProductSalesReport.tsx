@@ -26,6 +26,7 @@ type OrderWithPaymentInfo = {
   totalAmountWithDiscount: number;
   className?: string;
   formattedDate: string;
+  isSortable?: boolean;
 };
 const SingleProductSalesReport = () => {
   const { t } = useTranslation();
@@ -94,6 +95,7 @@ const SingleProductSalesReport = () => {
     allRows.push({
       item: 0,
       itemName: t("Total"),
+      isSortable: false,
       unitPrice: 0,
       paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",

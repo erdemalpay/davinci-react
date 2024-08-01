@@ -31,6 +31,7 @@ type OrderWithPaymentInfo = {
   unitPriceQuantity: UnitPriceQuantity[];
   collapsible: any;
   className?: string;
+  isSortable?: boolean;
 };
 const GroupedProductSalesReport = () => {
   const { t } = useTranslation();
@@ -167,6 +168,7 @@ const GroupedProductSalesReport = () => {
     allRows.push({
       item: 0,
       itemName: t("Total"),
+      isSortable: false,
       unitPrice: 0,
       paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",

@@ -1,13 +1,13 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useOrderContext } from "../../context/Order.context";
 import {
   AccountPaymentMethod,
   Location,
   MenuItem,
   OrderCollectionStatus,
+  Table,
   User,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -58,6 +58,8 @@ const Collections = () => {
         ),
         paymentMethodId: (collection.paymentMethod as AccountPaymentMethod)
           ?._id,
+        tableId: (collection.table as Table)._id,
+        tableName: (collection.table as Table).name,
         amount: collection.amount,
         cancelNote: collection.cancelNote ?? "",
         location: (collection.location as Location)._id,
@@ -84,6 +86,8 @@ const Collections = () => {
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
+    { key: t("Table Id"), isSortable: true },
+    { key: t("Table Name"), isSortable: true },
     { key: t("Create Hour"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Created By"), isSortable: true },
@@ -102,6 +106,8 @@ const Collections = () => {
         return <p className={`${row?.className}`}>{row.formattedDate}</p>;
       },
     },
+    { key: "tableId" },
+    { key: "tableName", className: "min-w-40 pr-2" },
     { key: "hour" },
     { key: "locationName", className: "min-w-32 pr-2 " },
     { key: "cashier" },
@@ -117,9 +123,13 @@ const Collections = () => {
       key: "status",
       node: (row: any) =>
         row.status === OrderCollectionStatus.PAID ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
+          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-semibold">
+            {t("Paid Status")}
+          </p>
         ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
+          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-semibold">
+            {t("Cancelled Status")}
+          </p>
         ),
     },
   ];

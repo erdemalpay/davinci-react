@@ -27,6 +27,7 @@ type AllRows = {
   bankTransfer: number;
   total: number;
   className?: string;
+  isSortable?: boolean;
 };
 const DailyIncome = () => {
   const { t } = useTranslation();
@@ -123,6 +124,7 @@ const DailyIncome = () => {
     bankTransfer: allRows.reduce((acc, row) => acc + row.bankTransfer, 0),
     total: allRows.reduce((acc, row) => acc + row.total, 0),
     className: "font-semibold",
+    isSortable: false,
   });
 
   const [rows, setRows] = useState(allRows);

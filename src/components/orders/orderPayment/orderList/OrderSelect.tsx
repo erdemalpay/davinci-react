@@ -100,7 +100,37 @@ const OrderSelect = ({ tableOrders }: Props) => {
             >
               {/* item name,quantity part */}
               <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5">
-                <p className="p-1 border border-black  w-5 h-5 items-center justify-center flex text-sm text-red-600 font-medium">
+                <p
+                  className="p-1 border border-black  w-5 h-5 items-center justify-center flex text-sm text-red-600 font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const foundSelectedOrder = selectedOrders.find(
+                      (item) => item.order._id === order._id
+                    );
+                    if (
+                      foundSelectedOrder?.selectedQuantity ===
+                      (order?.quantity ?? 0) - (order?.paidQuantity ?? 0)
+                    ) {
+                      setSelectedOrders([
+                        ...selectedOrders.filter(
+                          (item) => item.order._id !== order._id
+                        ),
+                      ]);
+                    } else {
+                      setSelectedOrders([
+                        ...selectedOrders.filter(
+                          (item) => item.order._id !== order._id
+                        ),
+                        {
+                          order: order,
+                          totalQuantity: order.quantity,
+                          selectedQuantity:
+                            (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
+                        },
+                      ]);
+                    }
+                  }}
+                >
                   {selectedOrders.find((item) => item.order._id === order._id)
                     ?.selectedQuantity ?? ""}
                 </p>

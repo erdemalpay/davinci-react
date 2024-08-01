@@ -31,6 +31,7 @@ type OrderWithPaymentInfo = {
   itemQuantity: ItemQuantity[];
   collapsible: any;
   className?: string;
+  isSortable?: boolean;
 };
 const DiscountBasedSales = () => {
   const { t } = useTranslation();
@@ -181,7 +182,8 @@ const DiscountBasedSales = () => {
       paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",
       discountId: 0,
-      discountName: "Toplam",
+      discountName: t("Total"),
+      isSortable: false,
       amount: allRows.reduce((acc, item) => acc + item.amount, 0),
       totalAmountWithDiscount: allRows.reduce(
         (acc, item) => acc + item.totalAmountWithDiscount,

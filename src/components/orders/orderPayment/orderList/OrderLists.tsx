@@ -79,7 +79,6 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
           toast.error("Please select an order to apply discount");
           return;
         }
-        console.log(selectedOrders);
         createOrderForDiscount({
           orders: selectedOrders.map((selectedOrder) => {
             return {
