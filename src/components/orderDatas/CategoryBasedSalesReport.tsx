@@ -32,6 +32,7 @@ type OrderWithPaymentInfo = {
   itemQuantity: ItemQuantity[];
   collapsible: any;
   className?: string;
+  isSortable?: boolean;
 };
 const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
@@ -198,6 +199,7 @@ const CategoryBasedSalesReport = () => {
       location: 4,
       date: "",
       category: t("Total"),
+      isSortable: false,
       categoryId: 0,
       itemQuantity: [],
       collapsible: {
