@@ -2,7 +2,7 @@ import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, User } from "../../types";
+import { Location, MenuItem, Table, User } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetUsers } from "../../utils/api/user";
@@ -57,6 +57,8 @@ const OrdersReport = () => {
       location: (order.location as Location)?.name,
       locationId: (order.location as Location)?._id,
       quantity: order.quantity,
+      tableId: (order.table as Table)._id,
+      tableName: (order.table as Table).name,
       amount: order.unitPrice * order.quantity,
       note: order.note,
       status: t(order.status),
@@ -67,6 +69,8 @@ const OrdersReport = () => {
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
+    { key: t("Table Id"), isSortable: true },
+    { key: t("Table Name"), isSortable: true },
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Amount"), isSortable: true },
@@ -93,6 +97,8 @@ const OrdersReport = () => {
         );
       },
     },
+    { key: "tableId" },
+    { key: "tableName", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
     { key: "quantity" },
     {

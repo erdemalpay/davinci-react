@@ -8,6 +8,7 @@ import {
   Location,
   MenuItem,
   OrderCollectionStatus,
+  Table,
   User,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -58,6 +59,8 @@ const Collections = () => {
         ),
         paymentMethodId: (collection.paymentMethod as AccountPaymentMethod)
           ?._id,
+        tableId: (collection.table as Table)._id,
+        tableName: (collection.table as Table).name,
         amount: collection.amount,
         cancelNote: collection.cancelNote ?? "",
         location: (collection.location as Location)._id,
@@ -84,6 +87,8 @@ const Collections = () => {
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
+    { key: t("Table Id"), isSortable: true },
+    { key: t("Table Name"), isSortable: true },
     { key: t("Create Hour"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Created By"), isSortable: true },
@@ -102,6 +107,8 @@ const Collections = () => {
         return <p className={`${row?.className}`}>{row.formattedDate}</p>;
       },
     },
+    { key: "tableId" },
+    { key: "tableName", className: "min-w-40 pr-2" },
     { key: "hour" },
     { key: "locationName", className: "min-w-32 pr-2 " },
     { key: "cashier" },
