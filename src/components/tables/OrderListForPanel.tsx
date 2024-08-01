@@ -48,10 +48,12 @@ const OrderListForPanel = ({ tableId }: Props) => {
                         {orderWaitTime(order)} m
                       </h5>
 
-                      <HiOutlineTrash
-                        className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                        onClick={() => deleteOrder(order._id)}
-                      />
+                      {order.paidQuantity === 0 && (
+                        <HiOutlineTrash
+                          className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
+                          onClick={() => deleteOrder(order._id)}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

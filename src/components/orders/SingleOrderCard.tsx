@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { GiCancel } from "react-icons/gi";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { TbArrowBack } from "react-icons/tb";
 import { NO_IMAGE_URL } from "../../navigation/constants";
@@ -53,7 +54,27 @@ const SingleOrderCard = ({ order, user }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className=" ml-auto">
+      <div className=" ml-auto flex flex-row gap-2 px-2">
+        {/* cancel button */}
+        {order.paidQuantity === 0 && (
+          <button
+            onClick={() => {
+              updateOrder({
+                id: order._id,
+                updates: {
+                  status: OrderStatus.CANCELLED,
+                  cancelledAt: new Date(),
+                  cancelledBy: user._id,
+                },
+              });
+            }}
+            className=" rounded-lg"
+          >
+            <ButtonTooltip content={t("Cancel")}>
+              <GiCancel className="text-xl" />
+            </ButtonTooltip>
+          </button>
+        )}
         {/* pending ready button */}
         {order.status === OrderStatus.PENDING && (
           <button
@@ -67,7 +88,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 },
               });
             }}
-            className=" px-2 rounded-lg"
+            className="mr-auto rounded-lg"
           >
             <ButtonTooltip content={t("Ready")}>
               <PiBellSimpleRingingFill className="text-xl" />
@@ -76,7 +97,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         )}
         {/* ready to serve back to pending  button */}
         {order.status === OrderStatus.READYTOSERVE && (
-          <div className="flex flex-row ">
+          <div className="flex flex-row gap-2  ">
             {user._id === (order.preparedBy as User)._id && (
               <button
                 onClick={() => {
@@ -87,7 +108,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-1 rounded-lg"
+                className=" rounded-lg"
               >
                 <ButtonTooltip content={t("Preparing")}>
                   <TbArrowBack className="text-xl" />
@@ -105,7 +126,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" px-1 rounded-lg"
+              className="  rounded-lg"
             >
               <ButtonTooltip content={t("Served")}>
                 <PiBellSimpleRingingFill className="text-xl" />
@@ -125,7 +146,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-1 rounded-lg"
+                className="  rounded-lg"
               >
                 <ButtonTooltip content={t("Not Served")}>
                   <TbArrowBack className="text-xl" />

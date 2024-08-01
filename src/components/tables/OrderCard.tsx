@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { HiOutlineTrash } from "react-icons/hi2";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table } from "../../types";
@@ -86,12 +85,6 @@ const OrderCard = ({ order, table }: Props) => {
             <h5 className="text-xs whitespace-nowrap min-w-8">
               {orderWaitTime()} m
             </h5>
-            <ButtonTooltip content={t("Delete")}>
-              <HiOutlineTrash
-                className="text-red-500 cursor-pointer text-lg px-[0.5px]"
-                onClick={() => deleteOrder(order._id)}
-              />
-            </ButtonTooltip>
           </div>
         )}
       </div>

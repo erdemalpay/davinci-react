@@ -123,11 +123,11 @@ const Collections = () => {
       key: "status",
       node: (row: any) =>
         row.status === OrderCollectionStatus.PAID ? (
-          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-medium">
+          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-semibold">
             {t("Paid Status")}
           </p>
         ) : (
-          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-medium">
+          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-semibold">
             {t("Cancelled Status")}
           </p>
         ),

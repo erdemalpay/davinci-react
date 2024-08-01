@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
-import { OrderCollectionStatus, Table } from "../../../types";
+import { OrderCollectionStatus, OrderStatus, Table } from "../../../types";
 import { useGetGivenDateOrders } from "../../../utils/api/order/order";
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useCloseTableMutation } from "../../../utils/api/table";
@@ -31,7 +31,9 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders) return null;
   const tableOrders = orders.filter(
-    (order) => (order.table as Table)._id === table._id
+    (order) =>
+      (order.table as Table)._id === table._id &&
+      order.status !== OrderStatus.CANCELLED
   );
   const collectionsTotalAmount = Number(
     collections

@@ -307,7 +307,7 @@ export function TableCard({
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
-              if (!order) return null;
+              if (!order || order.status === OrderStatus.CANCELLED) return null;
               return <OrderCard key={order._id} order={order} table={table} />;
             })}
           </div>
