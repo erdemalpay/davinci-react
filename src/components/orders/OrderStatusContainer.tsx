@@ -30,8 +30,7 @@ const OrderStatusContainer = ({
     },
     {}
   );
-  const { mutate: updateMultipleOrdersStatus } =
-    useUpdateMultipleOrderMutation();
+  const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
 
   return (
     <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
@@ -66,9 +65,13 @@ const OrderStatusContainer = ({
                 {status === "Pending" && (
                   <button
                     onClick={() => {
-                      updateMultipleOrdersStatus({
+                      updateMultipleOrders({
                         ids: tableOrders.map((order) => order._id),
-                        status: OrderStatus.READYTOSERVE,
+                        updates: {
+                          status: OrderStatus.READYTOSERVE,
+                          preparedAt: new Date(),
+                          preparedBy: user._id,
+                        },
                       });
                     }}
                     className="bg-green-500 text-white px-2 py-0.5 rounded-lg"
@@ -81,9 +84,13 @@ const OrderStatusContainer = ({
                 {status === "Ready to Serve" && (
                   <button
                     onClick={() => {
-                      updateMultipleOrdersStatus({
+                      updateMultipleOrders({
                         ids: tableOrders.map((order) => order._id),
-                        status: OrderStatus.SERVED,
+                        updates: {
+                          status: OrderStatus.SERVED,
+                          deliveredAt: new Date(),
+                          deliveredBy: user._id,
+                        },
                       });
                     }}
                     className="bg-green-500 text-white px-2 py-0.5 rounded-lg"

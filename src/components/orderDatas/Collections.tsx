@@ -40,7 +40,6 @@ const Collections = () => {
     .map((collection) => {
       return {
         _id: collection._id,
-        orderPayment: collection.orderPayment,
         cashier: (collection.createdBy as User)?.name,
         createdBy: (collection.createdBy as User)?._id,
         orders: collection.orders,

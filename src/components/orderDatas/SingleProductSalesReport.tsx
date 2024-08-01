@@ -6,14 +6,12 @@ import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetOrders } from "../../utils/api/order/order";
-import { useGetAllOrderPayments } from "../../utils/api/order/orderPayment";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
@@ -29,93 +27,79 @@ type OrderWithPaymentInfo = {
   className?: string;
   formattedDate: string;
 };
-
 const SingleProductSalesReport = () => {
   const { t } = useTranslation();
-  const orderPayments = useGetAllOrderPayments();
   const orders = useGetOrders();
   const categories = useGetCategories();
   const locations = useGetLocations();
   const [showFilters, setShowFilters] = useState(false);
-  if (!orderPayments || !orders || !categories || !locations) {
+  if (!orders || !categories || !locations) {
     return null;
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
-  const orderWithInfo = orderPayments.reduce((acc, orderPayment) => {
-    if (!orderPayment.orders) return acc;
-    orderPayment.orders.forEach((orderPaymentItem) => {
-      const foundOrder = orders.find(
-        (orderItem) => orderItem._id === orderPaymentItem.order
-      );
-      if (!foundOrder || orderPaymentItem.paidQuantity === 0) return;
-      // location filter
-      if (
-        filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !==
-          (foundOrder.location as Location)._id
-      ) {
-        return acc;
-      }
-      // other filters
-      if (
-        (filterPanelFormElements.before !== "" &&
-          (foundOrder.table as Table).date > filterPanelFormElements.before) ||
-        (filterPanelFormElements.after !== "" &&
-          (foundOrder.table as Table).date < filterPanelFormElements.after) ||
-        !passesFilter(
-          filterPanelFormElements.category,
-          (foundOrder.item as MenuItem).category as number
-        )
-      ) {
-        return acc;
-      }
-
-      acc.push({
-        item: (foundOrder.item as MenuItem)._id,
-        itemName: (foundOrder.item as MenuItem).name,
-        unitPrice: foundOrder.unitPrice,
-        paidQuantity: orderPaymentItem.paidQuantity,
-        discount:
-          (orderPaymentItem?.discountPercentage ?? 0) *
-          orderPaymentItem.paidQuantity *
-          foundOrder.unitPrice *
+  const allRows = orders.reduce((acc, order) => {
+    if (!order || order.paidQuantity === 0) return acc;
+    // location filter
+    if (
+      filterPanelFormElements.location !== "" &&
+      filterPanelFormElements.location !== (order.location as Location)._id
+    ) {
+      return acc;
+    }
+    // other filters
+    if (
+      (filterPanelFormElements.before !== "" &&
+        (order.table as Table).date > filterPanelFormElements.before) ||
+      (filterPanelFormElements.after !== "" &&
+        (order.table as Table).date < filterPanelFormElements.after) ||
+      !passesFilter(
+        filterPanelFormElements.category,
+        (order.item as MenuItem).category as number
+      )
+    ) {
+      return acc;
+    }
+    acc.push({
+      item: (order.item as MenuItem)._id,
+      itemName: (order.item as MenuItem).name,
+      unitPrice: order.unitPrice,
+      paidQuantity: order.paidQuantity,
+      discount:
+        (order?.discountPercentage ?? 0) *
+        order.paidQuantity *
+        order.unitPrice *
+        (1 / 100),
+      amount: order.paidQuantity * order.unitPrice,
+      location: (order.location as Location)._id,
+      date: (order.table as Table).date,
+      formattedDate: formatAsLocalDate((order.table as Table).date),
+      category:
+        categories.find(
+          (category) => category._id === (order.item as MenuItem).category
+        )?.name ?? "",
+      categoryId: (order.item as MenuItem).category as number,
+      totalAmountWithDiscount:
+        order.paidQuantity * order.unitPrice -
+        (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
           (1 / 100),
-        amount: orderPaymentItem.paidQuantity * foundOrder.unitPrice,
-        location: (foundOrder.location as Location)._id,
-        date: (foundOrder.table as Table).date,
-        formattedDate: formatAsLocalDate((foundOrder.table as Table).date),
-        category:
-          categories.find(
-            (category) =>
-              category._id === (foundOrder.item as MenuItem).category
-          )?.name ?? "",
-        categoryId: (foundOrder.item as MenuItem).category as number,
-        totalAmountWithDiscount:
-          orderPaymentItem.paidQuantity * foundOrder.unitPrice -
-          (orderPaymentItem?.discountPercentage ?? 0) *
-            orderPaymentItem.paidQuantity *
-            foundOrder.unitPrice *
-            (1 / 100),
-      });
     });
     return acc;
   }, [] as OrderWithPaymentInfo[]);
-  orderWithInfo.length > 0 &&
-    orderWithInfo.push({
+  allRows.length > 0 &&
+    allRows.push({
       item: 0,
       itemName: t("Total"),
       unitPrice: 0,
-      paidQuantity: orderWithInfo.reduce(
-        (acc, item) => acc + item.paidQuantity,
-        0
-      ),
+      paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",
-      discount: orderWithInfo.reduce((acc, item) => acc + item.discount, 0),
-      amount: orderWithInfo.reduce((acc, item) => acc + item.amount, 0),
-      totalAmountWithDiscount: orderWithInfo.reduce(
+      discount: allRows.reduce((acc, item) => acc + item.discount, 0),
+      amount: allRows.reduce((acc, item) => acc + item.amount, 0),
+      totalAmountWithDiscount: allRows.reduce(
         (acc, item) => acc + item.totalAmountWithDiscount,
         0
       ),
@@ -125,7 +109,7 @@ const SingleProductSalesReport = () => {
       category: " ",
       categoryId: 0,
     });
-  const [rows, setRows] = useState(orderWithInfo);
+  const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
@@ -247,10 +231,10 @@ const SingleProductSalesReport = () => {
     },
   ];
   useEffect(() => {
-    setRows(orderWithInfo);
+    setRows(allRows);
     setExpandedRows({});
     setTableKey((prev) => prev + 1);
-  }, [orders, orderPayments, categories, filterPanelFormElements]);
+  }, [orders, orders, categories, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

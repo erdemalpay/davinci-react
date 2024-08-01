@@ -1,33 +1,37 @@
-import { useTranslation } from "react-i18next";
 import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
-import {
-  MenuItem,
-  Order,
-  OrderPayment,
-  OrderPaymentItem,
-} from "../../../../types";
+import { MenuItem, Order, OrderDiscount } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useGetGivenDateOrders,
 } from "../../../../utils/api/order/order";
-import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
   collectionsTotalAmount: number;
 };
 
-const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
-  const { t } = useTranslation();
-  const discounts = useGetOrderDiscounts();
+const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const orders = useGetGivenDateOrders();
-  if (!discounts || !orders) {
+  if (!orders) {
     return null;
   }
+  const discountAmount = orders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+      100;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = orders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
+
   const {
     temporaryOrders,
     setPaymentAmount,
@@ -38,29 +42,21 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Unpaid Orders" />
       {/* orders */}
-      {orderPayment?.orders?.map((orderPaymentItem) => {
-        const order = orders.find(
-          (order) => order._id === orderPaymentItem.order
-        );
-        const isAllPaid =
-          orderPaymentItem.paidQuantity === orderPaymentItem.totalQuantity;
+      {tableOrders?.map((order) => {
+        const isAllPaid = order.paidQuantity === order.quantity;
         if (!order || isAllPaid) return null;
         const tempOrder = temporaryOrders.find(
           (tempOrder) => tempOrder.order._id === order._id
         );
         const isAllPaidWithTempOrder =
-          orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0) ===
-          orderPaymentItem.totalQuantity;
+          order.paidQuantity + (tempOrder?.quantity ?? 0) === order.quantity;
         if (isAllPaidWithTempOrder) return null;
 
-        const handlePaymentAmount = (
-          orderPaymentItem: OrderPaymentItem,
-          order: Order
-        ) => {
-          if (orderPaymentItem?.discount) {
+        const handlePaymentAmount = (order: Order) => {
+          if (order?.discount) {
             return (
               order.unitPrice *
-              (100 - (orderPaymentItem.discountPercentage ?? 0)) *
+              (100 - (order.discountPercentage ?? 0)) *
               (1 / 100)
             );
           } else {
@@ -72,15 +68,13 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
             key={order._id}
             className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
             onClick={() => {
-              const orderPrice = handlePaymentAmount(orderPaymentItem, order);
+              const orderPrice = handlePaymentAmount(order);
               if (temporaryOrders.length === 0) {
                 setPaymentAmount(
                   String(
                     orderPrice + collectionsTotalAmount >
-                      orderPayment.totalAmount - orderPayment.discountAmount
-                      ? orderPayment.totalAmount -
-                          orderPayment.discountAmount -
-                          collectionsTotalAmount
+                      totalAmount - discountAmount
+                      ? totalAmount - discountAmount - collectionsTotalAmount
                       : orderPrice
                   )
                 );
@@ -90,10 +84,8 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
                     Number(paymentAmount) +
                       orderPrice +
                       collectionsTotalAmount >
-                      orderPayment.totalAmount - orderPayment.discountAmount
-                      ? orderPayment.totalAmount -
-                          orderPayment.discountAmount -
-                          collectionsTotalAmount
+                      totalAmount - discountAmount
+                      ? totalAmount - discountAmount - collectionsTotalAmount
                       : Number(paymentAmount) + orderPrice
                   )
                 );
@@ -125,35 +117,25 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
             <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
               <p className="mr-auto">
                 {"("}
-                {orderPaymentItem.totalQuantity -
-                  (orderPaymentItem.paidQuantity + (tempOrder?.quantity ?? 0))}
+                {order.quantity -
+                  (order.paidQuantity + (tempOrder?.quantity ?? 0))}
                 {")"}-
               </p>
 
               <div className="flex flex-col gap-1 justify-start mr-auto">
                 <p>{(order.item as MenuItem).name}</p>
-                {orderPaymentItem.discount && (
+                {order.discount && (
                   <div
                     className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
                     onClick={(e) => {
                       e.stopPropagation();
                       cancelOrderForDiscount({
-                        orderPaymentId: orderPayment._id,
                         orderId: order._id,
-                        cancelQuantity:
-                          orderPaymentItem.totalQuantity -
-                          orderPaymentItem.paidQuantity,
+                        cancelQuantity: order.quantity - order.paidQuantity,
                       });
                     }}
                   >
-                    <p>
-                      {
-                        discounts.find(
-                          (discount) =>
-                            discount._id === orderPaymentItem.discount
-                        )?.name
-                      }
-                    </p>
+                    <p>{(order.discount as OrderDiscount).name}</p>
                     <MdOutlineCancel className="w-4 h-4" />
                   </div>
                 )}
@@ -161,32 +143,29 @@ const UnpaidOrders = ({ orderPayment, collectionsTotalAmount }: Props) => {
             </div>
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {orderPaymentItem?.discount && (
+              {order?.discount && (
                 <div className="flex flex-col ml-auto justify-center items-center">
                   <p className="text-xs line-through">
                     {order.unitPrice *
-                      (orderPaymentItem.totalQuantity -
-                        (orderPaymentItem.paidQuantity +
-                          (tempOrder?.quantity ?? 0)))}
+                      (order.quantity -
+                        (order.paidQuantity + (tempOrder?.quantity ?? 0)))}
                     ₺
                   </p>
                   <p>
                     {order.unitPrice *
-                      (100 - (orderPaymentItem.discountPercentage ?? 0)) *
+                      (100 - (order.discountPercentage ?? 0)) *
                       (1 / 100) *
-                      (orderPaymentItem.totalQuantity -
-                        (orderPaymentItem.paidQuantity +
-                          (tempOrder?.quantity ?? 0)))}
+                      (order.quantity -
+                        (order?.paidQuantity + (tempOrder?.quantity ?? 0)))}
                     ₺
                   </p>
                 </div>
               )}
-              {!orderPaymentItem?.discount && (
+              {!order?.discount && (
                 <p>
                   {order.unitPrice *
-                    (orderPaymentItem.totalQuantity -
-                      (orderPaymentItem.paidQuantity +
-                        (tempOrder?.quantity ?? 0)))}
+                    (order.quantity -
+                      (order?.paidQuantity + (tempOrder?.quantity ?? 0)))}
                   ₺
                 </p>
               )}

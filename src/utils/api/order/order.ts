@@ -4,7 +4,7 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
-import { Order, OrderPayment } from "./../../../types/index";
+import { Order } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
   orders: {
@@ -12,14 +12,16 @@ interface CreateOrderForDiscount {
     selectedQuantity: number;
     orderId: number;
   }[];
-  orderPaymentId: number;
   discount: number;
   discountPercentage: number;
 }
 interface CancelOrderForDiscount {
-  orderPaymentId: number;
   orderId: number;
   cancelQuantity: number;
+}
+interface UpdateMultipleOrder {
+  ids: number[];
+  updates: Partial<Order>;
 }
 
 const baseUrl = `${Paths.Order}`;
@@ -42,22 +44,41 @@ export function deleteTableOrders({ ids }: { ids: number[] }) {
     payload: { ids },
   });
 }
-export function updateMultipleOrdersStatus({
-  ids,
-  status,
-}: {
-  ids: number[];
-  status: string;
-}) {
+export function updateOrders(orders: Order[]) {
+  return patch({
+    path: `/order/update_bulk`,
+    payload: { orders },
+  });
+}
+export function useUpdateOrdersMutation() {
+  const queryKey = [`${Paths.Order}/today`];
+  const queryClient = useQueryClient();
+  return useMutation(updateOrders, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function updateMultipleOrders(payload: UpdateMultipleOrder) {
   return patch({
     path: `/order/update_multiple`,
-    payload: { ids: ids, status: status },
+    payload,
   });
 }
 export function useUpdateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
-  return useMutation(updateMultipleOrdersStatus, {
+  return useMutation(updateMultipleOrders, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },
@@ -99,7 +120,8 @@ export function useCreateOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Order}/payment`]);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -109,7 +131,7 @@ export function useCreateOrderForDiscountMutation() {
   });
 }
 export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
-  return post<CancelOrderForDiscount, OrderPayment>({
+  return post<CancelOrderForDiscount, Order>({
     path: `${Paths.Order}/cancel_discount`,
     payload,
   });
@@ -123,7 +145,8 @@ export function useCancelOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Order}/payment`]);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =

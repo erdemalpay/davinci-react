@@ -1,16 +1,16 @@
 import { useOrderContext } from "../../../../context/Order.context";
-import { OrderDiscount, OrderPayment } from "../../../../types";
+import { Order, OrderDiscount } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
 };
 
-const DiscountScreen = ({ orderPayment }: Props) => {
+const DiscountScreen = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts();
   const { setIsProductSelectionOpen, setSelectedDiscount } = useOrderContext();
-  if (!discounts || !orderPayment) return null;
+  if (!discounts || !tableOrders) return null;
   const handleDiscountClick = (discount: OrderDiscount) => {
     setSelectedDiscount(discount);
     setIsProductSelectionOpen(true);
