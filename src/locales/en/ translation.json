@@ -494,5 +494,7 @@
   "Delivered By": "Delivered By",
   "Table Id": "Table Id",
   "Table Name": "Table Name",
+  "Paid Status": "Paid",
+  "Cancelled Status": "Cancelled",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

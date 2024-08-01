@@ -491,5 +491,7 @@
   "Delivered By": "Teslim Eden",
   "Table Id": "Masa Id",
   "Table Name": "Masa Adı",
+  "Paid Status": "Ödendi",
+  "Cancelled Status": "İptal Edildi",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

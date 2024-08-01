@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useOrderContext } from "../../context/Order.context";
 import {
   AccountPaymentMethod,
@@ -124,9 +123,13 @@ const Collections = () => {
       key: "status",
       node: (row: any) =>
         row.status === OrderCollectionStatus.PAID ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
+          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-medium">
+            {t("Paid Status")}
+          </p>
         ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
+          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-medium">
+            {t("Cancelled Status")}
+          </p>
         ),
     },
   ];
