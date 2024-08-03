@@ -63,7 +63,7 @@ export function PageSelector() {
             <MenuItem
               className={`${
                 route.path === currentRoute ? "bg-gray-100  text-black" : ""
-              }  `}
+              } overflow-scroll no-scrollbar `}
               key={route.name}
               onClick={() => {
                 if (currentRoute === route.path) return;
