@@ -18,8 +18,8 @@ type TextInputProps = {
   label: string;
   placeholder?: string;
   type: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: any;
+  onChange: (value: any) => void;
   className?: string;
   disabled?: boolean;
   onClear?: () => void;
@@ -201,6 +201,41 @@ const TextInput = ({
               <IoIosClose />
             </button>
           )}
+        </div>
+      </div>
+    );
+  }
+  if (type === "checkbox") {
+    return (
+      <div className={`flex  "flex-row gap-4 w-full`}>
+        <H6 className={`min-w-fit my-auto`}>
+          {label}
+          {requiredField && (
+            <>
+              <span className="text-red-400">* </span>
+              <span className="text-xs text-gray-400">
+                {"("} {t("required")} {")"}
+              </span>
+            </>
+          )}
+        </H6>
+        <div
+          className={`flex flex-row gap-2 items-center ${
+            inputWidth ? inputWidth : "w-full"
+          }`}
+        >
+          <input
+            ref={inputRef}
+            type="checkbox"
+            checked={localValue ? localValue : value}
+            onChange={(e) => {
+              const newValue = e.target.checked;
+              setLocalValue(newValue);
+              onChange(newValue);
+            }}
+            className={inputClassName}
+            disabled={disabled}
+          />
         </div>
       </div>
     );

@@ -327,6 +327,8 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
   locations: number[];
+  kitchen: Kitchen | number;
+  isAutoServed: boolean;
 };
 export type MenuPopular = {
   _id: number;

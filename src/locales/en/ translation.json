@@ -499,5 +499,7 @@
   "Kitchens": "Kitchens",
   "Add Kitchen": "Add Kitchen",
   "Delete Kitchen": "Delete Kitchen",
+  "Kitchen": "Kitchen",
+  "Auto served": "Auto served",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
