@@ -1,6 +1,6 @@
 import { AiOutlinePercentage } from "react-icons/ai";
 import { FaAnchor, FaServicestack } from "react-icons/fa";
-import { FaMagnifyingGlassLocation } from "react-icons/fa6";
+import { FaKitchenSet, FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { LuPackageOpen } from "react-icons/lu";
 import { MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
@@ -9,6 +9,7 @@ import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import Fixture from "../components/accounting/Fixture";
+import KitchenPage from "../components/accounting/Kitchen";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PackageType from "../components/accounting/PackageType";
 import PaymentMethods from "../components/accounting/PaymentMethod";
@@ -100,6 +101,13 @@ export const AccountingPageTabs = [
     label: "Stock Locations",
     icon: <FaMagnifyingGlassLocation className="text-lg font-thin" />,
     content: <StockLocations />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.KITCHENS,
+    label: "Kitchens",
+    icon: <FaKitchenSet className="text-lg font-thin" />,
+    content: <KitchenPage />,
     isDisabled: false,
   },
 ];

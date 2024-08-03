@@ -493,5 +493,8 @@
   "Table Name": "Masa Adı",
   "Paid Status": "Ödendi",
   "Cancelled Status": "İptal Edildi",
+  "Kitchens": "Mutfaklar",
+  "Add Kitchen": "Mutfak Ekle",
+  "Delete Kitchen": "Mutfak Sil",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

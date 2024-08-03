@@ -333,6 +333,10 @@ export type MenuPopular = {
   order: number;
   item: MenuItem | number;
 };
+export type Kitchen = {
+  _id: number;
+  name: string;
+};
 
 export type MenuItem = {
   _id: number;
@@ -552,6 +556,7 @@ export enum AccountingPageTabEnum {
   DISCOUNTS,
   PAYMENTMETHODS,
   STOCKLOCATION,
+  KITCHENS,
 }
 export enum CheckoutPageTabEnum {
   INCOME,

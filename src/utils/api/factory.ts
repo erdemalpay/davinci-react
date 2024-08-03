@@ -20,6 +20,7 @@ export const Paths = {
   MenuItems: "/menu/items",
   Menu: "/menu",
   Categories: "/categories",
+  Kitchen: "/menu/kitchens",
   Items: "/items",
   AllUsers: "/users?all=true",
   Location: "/location",

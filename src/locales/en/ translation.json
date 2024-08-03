@@ -496,5 +496,8 @@
   "Table Name": "Table Name",
   "Paid Status": "Paid",
   "Cancelled Status": "Cancelled",
+  "Kitchens": "Kitchens",
+  "Add Kitchen": "Add Kitchen",
+  "Delete Kitchen": "Delete Kitchen",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
