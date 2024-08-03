@@ -109,6 +109,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: t("Kitchen"), isSortable: true },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
+    { key: t("Auto served"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -149,6 +150,15 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
+    {
+      key: "isAutoServed",
+      node: (row: MenuCategory) =>
+        row.isAutoServed ? (
           <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl " />
