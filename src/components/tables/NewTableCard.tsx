@@ -9,7 +9,15 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
-import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  Game,
+  Gameplay,
+  MenuCategory,
+  OrderStatus,
+  Table,
+  User,
+} from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   deleteTableOrders,
@@ -17,7 +25,6 @@ import {
   useOrderMutations,
 } from "../../utils/api/order/order";
 import {
-  useCloseTableMutation,
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
@@ -58,18 +65,16 @@ export function TableCard({
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
-  const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
-    useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { updateTable, deleteTable } = useTableMutations();
-  const { mutate: closeTable } = useCloseTableMutation();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
-  const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
+  const { createOrder } = useOrderMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
+  const { user } = useUserContext();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -359,7 +364,32 @@ export function TableCard({
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
             );
-            if (selectedMenuItem && selectedTable) {
+            if (
+              (
+                user &&
+                selectedMenuItem &&
+                selectedTable &&
+                (selectedMenuItem?.category as MenuCategory)
+              )?.isAutoServed
+            ) {
+              createOrder({
+                ...orderForm,
+                location: selectedLocationId,
+                table: selectedTable._id,
+                unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
+                deliveredAt: new Date(),
+                deliveredBy: user?._id,
+                preparedAt: new Date(),
+                preparedBy: user?._id,
+                status: OrderStatus.AUTOSERVED,
+              });
+            }
+            if (
+              selectedMenuItem &&
+              selectedTable &&
+              !(selectedMenuItem?.category as MenuCategory)?.isAutoServed
+            ) {
               createOrder({
                 ...orderForm,
                 location: selectedLocationId,

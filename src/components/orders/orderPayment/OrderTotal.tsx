@@ -4,8 +4,6 @@ import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
 import { MenuItem, Order, Table } from "../../../types";
-import { useGetGivenDateOrders } from "../../../utils/api/order/order";
-import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
@@ -18,11 +16,9 @@ type Props = {
 
 const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const { t } = useTranslation();
-  const orders = useGetGivenDateOrders();
-  const collections = useGetOrderCollections();
   const discounts = useGetOrderDiscounts();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  if (!orders || !tableOrders || !discounts) {
+  if (!tableOrders || !discounts) {
     return null;
   }
   const {

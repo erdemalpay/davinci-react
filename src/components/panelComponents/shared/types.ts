@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 export interface Tab {
   number: number;
   content: React.ReactNode;
-  icon: React.ReactNode | null;
+  icon?: React.ReactNode | null;
   label: string;
   isDisabled: boolean;
 }

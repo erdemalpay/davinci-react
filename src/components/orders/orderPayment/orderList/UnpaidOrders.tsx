@@ -1,10 +1,7 @@
 import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { useOrderContext } from "../../../../context/Order.context";
 import { MenuItem, Order, OrderDiscount } from "../../../../types";
-import {
-  useCancelOrderForDiscountMutation,
-  useGetGivenDateOrders,
-} from "../../../../utils/api/order/order";
+import { useCancelOrderForDiscountMutation } from "../../../../utils/api/order/order";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
@@ -15,11 +12,7 @@ type Props = {
 const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
-  const orders = useGetGivenDateOrders();
-  if (!orders) {
-    return null;
-  }
-  const discountAmount = orders.reduce((acc, order) => {
+  const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -28,10 +21,9 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
       100;
     return acc + discountValue;
   }, 0);
-  const totalAmount = orders.reduce((acc, order) => {
+  const totalAmount = tableOrders.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
-
   const {
     temporaryOrders,
     setPaymentAmount,
@@ -121,7 +113,6 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   (order.paidQuantity + (tempOrder?.quantity ?? 0))}
                 {")"}-
               </p>
-
               <div className="flex flex-col gap-1 justify-start mr-auto">
                 <p>{(order.item as MenuItem).name}</p>
                 {order.discount && (
