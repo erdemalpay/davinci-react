@@ -327,6 +327,8 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
   locations: number[];
+  kitchen: Kitchen | string;
+  isAutoServed: boolean;
 };
 export type MenuPopular = {
   _id: number;
@@ -334,7 +336,7 @@ export type MenuPopular = {
   item: MenuItem | number;
 };
 export type Kitchen = {
-  _id: number;
+  _id: string;
   name: string;
 };
 
@@ -718,6 +720,7 @@ export enum OrderStatus {
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",
   CANCELLED = "cancelled",
+  AUTOSERVED = "autoserved",
 }
 
 export enum OrderCollectionStatus {

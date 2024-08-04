@@ -254,7 +254,11 @@ const GenericAddEditPanel = <T,>({
     return (
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`bg-white rounded-md shadow-lg  w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full  max-h-[90vh] z-[100]   ${generalClassName}`}
+        className={`bg-white rounded-md shadow-lg ${
+          anotherPanelTopClassName
+            ? ""
+            : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
+        }   max-h-[90vh] z-[100]   ${generalClassName}`}
       >
         <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
           <div
@@ -367,6 +371,7 @@ const GenericAddEditPanel = <T,>({
                         input.type === InputTypes.DATE ||
                         input.type === InputTypes.TIME ||
                         input.type === InputTypes.COLOR ||
+                        input.type === InputTypes.CHECKBOX ||
                         input.type === InputTypes.PASSWORD) && (
                         <TextInput
                           key={input.formKey + resetTextInput}
@@ -383,6 +388,7 @@ const GenericAddEditPanel = <T,>({
                           isDateInitiallyOpen={
                             input.isDateInitiallyOpen ?? false
                           }
+                          isTopFlexRow={input.isTopFlexRow ?? false}
                           onClear={() => {
                             handleInputClear(input);
                           }}

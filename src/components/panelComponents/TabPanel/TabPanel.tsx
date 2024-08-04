@@ -69,10 +69,10 @@ const TabPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="my-10 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[95%] mx-auto __className_a182b8">
+    <div className="my-6 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8">
       <div
         ref={containerRef}
-        className="flex flex-row py-8 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
+        className="flex flex-row py-6 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
       >
         {adjustedTabs
           .filter((tab) => !tab.isDisabled)

@@ -7,7 +7,6 @@ type Props = {
 const PaidOrders = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts();
   if (!discounts) return null;
-
   const renderPayment = (order: Order) => {
     if (order?.discount) {
       return (

@@ -30,42 +30,51 @@ const OrdersReport = () => {
     { value: "ready_to_server", label: t("Ready to Serve") },
     { value: "served", label: t("Served") },
     { value: "cancelled", label: t("Cancelled") },
+    { value: "autoserved", label: t("Auto served") },
   ];
-  const allRows = orders.map((order) => {
-    return {
-      _id: order._id,
-      date: format(order.createdAt, "yyyy-MM-dd"),
-      formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
-      createdBy: (order.createdBy as User)?.name,
-      createdByUserId: (order.createdBy as User)?._id,
-      createdAt: format(order.createdAt, "HH:mm"),
-      preparedBy: (order?.preparedBy as User)?.name ?? "",
-      preparedByUserId: (order?.preparedBy as User)?._id ?? "",
-      preparationTime: order.preparedAt
-        ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
-        : null,
-      cancelledBy: (order.cancelledBy as User)?.name,
-      cancelledByUserId: (order.cancelledBy as User)?._id,
-      cancelledAt: order.cancelledAt ? format(order.cancelledAt, "HH:mm") : "",
-      deliveredBy: (order.deliveredBy as User)?.name,
-      deliveredByUserId: (order.deliveredBy as User)?._id,
-      deliveryTime:
-        order.deliveredAt && order.preparedAt
-          ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
+  const allRows = orders
+    .map((order) => {
+      if (!order || !order.createdAt) {
+        return null;
+      }
+      return {
+        _id: order._id,
+        date: format(order.createdAt, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
+        createdBy: (order.createdBy as User)?.name,
+        createdByUserId: (order.createdBy as User)?._id,
+        createdAt: format(order.createdAt, "HH:mm"),
+        preparedBy: (order?.preparedBy as User)?.name ?? "",
+        preparedByUserId: (order?.preparedBy as User)?._id ?? "",
+        preparationTime: order.preparedAt
+          ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
           : null,
-      item: (order.item as MenuItem)?.name,
-      location: (order.location as Location)?.name,
-      locationId: (order.location as Location)?._id,
-      quantity: order.quantity,
-      tableId: (order.table as Table)._id,
-      tableName: (order.table as Table).name,
-      amount: order.unitPrice * order.quantity,
-      note: order.note,
-      status: t(order.status),
-      statusLabel: statusOptions.find((status) => status.value === order.status)
-        ?.label,
-    };
-  });
+        cancelledBy: (order.cancelledBy as User)?.name,
+        cancelledByUserId: (order.cancelledBy as User)?._id,
+        cancelledAt: order.cancelledAt
+          ? format(order.cancelledAt, "HH:mm")
+          : "",
+        deliveredBy: (order.deliveredBy as User)?.name,
+        deliveredByUserId: (order.deliveredBy as User)?._id,
+        deliveryTime:
+          order.deliveredAt && order.preparedAt
+            ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
+            : null,
+        item: (order.item as MenuItem)?.name,
+        location: (order.location as Location)?.name,
+        locationId: (order.location as Location)?._id,
+        quantity: order.quantity,
+        tableId: (order.table as Table)._id,
+        tableName: (order.table as Table).name,
+        amount: order.unitPrice * order.quantity,
+        note: order.note,
+        status: t(order.status),
+        statusLabel: statusOptions.find(
+          (status) => status.value === order.status
+        )?.label,
+      };
+    })
+    ?.filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
@@ -215,12 +224,12 @@ const OrdersReport = () => {
     },
   ];
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
+    const filteredRows = allRows.filter((row: any) => {
       return (
         (filterPanelFormElements.before === "" ||
-          row.date <= filterPanelFormElements.before) &&
+          row?.date <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
-          row.date >= filterPanelFormElements.after) &&
+          row?.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.locationId) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
         passesFilter(

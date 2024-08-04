@@ -496,5 +496,7 @@
   "Kitchens": "Mutfaklar",
   "Add Kitchen": "Mutfak Ekle",
   "Delete Kitchen": "Mutfak Sil",
+  "Kitchen": "Mutfak",
+  "Auto served": "Otomatik servis",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
