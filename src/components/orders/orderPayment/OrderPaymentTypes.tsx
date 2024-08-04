@@ -115,7 +115,10 @@ const OrderPaymentTypes = ({
                 return;
               }
               // if payment amount is empty
-              if (paymentAmount === "" || paymentAmount === "0") {
+              if (
+                temporaryOrders.length === 0 &&
+                (paymentAmount === "" || paymentAmount === "0")
+              ) {
                 toast.error(
                   t("Please enter the amount or select order to pay")
                 );

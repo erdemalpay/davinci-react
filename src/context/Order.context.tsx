@@ -28,6 +28,8 @@ type OrderContextType = {
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
   isDiscountScreenOpen: boolean;
   setIsDiscountScreenOpen: (isDiscountScreenOpen: boolean) => void;
+  isProductDivideOpen: boolean;
+  setIsProductDivideOpen: (isProductDivideOpen: boolean) => void;
   temporaryOrders: {
     order: Order;
     quantity: number;
@@ -57,6 +59,8 @@ const OrderContext = createContext<OrderContextType>({
   setSelectedOrders: () => {},
   isSelectAll: false,
   setIsSelectAll: () => {},
+  isProductDivideOpen: false,
+  setIsProductDivideOpen: () => {},
   selectedDiscount: null,
   setSelectedDiscount: () => {},
   resetOrderContext: () => {},
@@ -92,6 +96,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     }[]
   >([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [isProductDivideOpen, setIsProductDivideOpen] = useState(false);
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -114,6 +119,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setTemporaryOrders([]);
     setIsProductSelectionOpen(false);
     setIsDiscountScreenOpen(false);
+    setIsProductDivideOpen(false);
     setSelectedOrders([]);
     setIsSelectAll(false);
     setSelectedDiscount(null);
@@ -138,6 +144,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         resetOrderContext,
         filterPanelFormElements,
         setFilterPanelFormElements,
+        isProductDivideOpen,
+        setIsProductDivideOpen,
       }}
     >
       {children}

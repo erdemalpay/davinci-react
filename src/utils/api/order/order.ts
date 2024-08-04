@@ -15,6 +15,13 @@ interface CreateOrderForDiscount {
   discount: number;
   discountPercentage: number;
 }
+interface CreateOrderForDivide {
+  orders: {
+    totalQuantity: number;
+    selectedQuantity: number;
+    orderId: number;
+  }[];
+}
 interface CancelOrderForDiscount {
   orderId: number;
   cancelQuantity: number;
@@ -158,4 +165,30 @@ export function useCancelOrderForDiscountMutation() {
 
 export function useGetTodayOrders() {
   return useGetList<Order>(`${baseUrl}/today`, [`${baseUrl}/today`]);
+}
+
+export function createOrderForDivide(payload: CreateOrderForDivide) {
+  return post<CreateOrderForDivide, Order>({
+    path: `${Paths.Order}/divide`,
+    payload,
+  });
+}
+export function useCreateOrderForDivideMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(createOrderForDivide, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }
