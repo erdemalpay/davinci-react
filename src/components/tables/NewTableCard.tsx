@@ -358,7 +358,7 @@ export function TableCard({
           setForm={setOrderForm}
           isCreateCloseActive={false}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="flex flex-row mx-auto flex-1 justify-center  "
+          anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
           anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
@@ -404,8 +404,8 @@ export function TableCard({
               note: "",
             });
           }}
-          generalClassName="overflow-scroll rounded-l-none shadow-none"
-          topClassName="flex flex-col gap-2  "
+          generalClassName="overflow-scroll rounded-l-none shadow-none mt-[-1rem] md:mt-0"
+          topClassName="flex flex-col gap-2   "
         />
       )}
       {isOrderPaymentModalOpen && orders && (
