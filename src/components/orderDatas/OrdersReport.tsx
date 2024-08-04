@@ -224,12 +224,12 @@ const OrdersReport = () => {
     },
   ];
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
+    const filteredRows = allRows.filter((row: any) => {
       return (
         (filterPanelFormElements.before === "" ||
-          row.date <= filterPanelFormElements.before) &&
+          row?.date <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
-          row.date >= filterPanelFormElements.after) &&
+          row?.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.locationId) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
         passesFilter(
