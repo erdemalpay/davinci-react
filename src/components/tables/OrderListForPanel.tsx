@@ -24,7 +24,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
     return Math.floor((currentTime - orderTime) / 60000);
   };
   return (
-    <div className="bg-white rounded-md rounded-r-none  max-w-full  max-h-[90vh] z-[100]  ">
+    <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[90vh] z-[100]  ">
       <div className="flex flex-col gap-2 px-4 py-6">
         {/* header */}
         <h1 className="font-medium">{t("Orders")}</h1>
