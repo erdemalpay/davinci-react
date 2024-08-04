@@ -87,7 +87,7 @@ const OrderPaymentModal = ({ close, table }: Props) => {
         onClick={close}
         className="w-full h-full bg-gray-900 bg-opacity-50 absolute inset-0"
       />
-      <div className="relative w-5/6 lg:w-4/5 max-h-full overflow-y-auto">
+      <div className="relative w-6/7 lg:w-4/5 max-h-full overflow-y-auto">
         <div className="bg-white rounded-md shadow overflow-y-auto max-h-full">
           <div className="flex flex-col gap-4 border border-gray-200 rounded-lg pb-3 __className_a182b8">
             {/* header & buttons */}

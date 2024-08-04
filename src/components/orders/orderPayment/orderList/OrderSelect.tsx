@@ -14,39 +14,43 @@ const OrderSelect = ({ tableOrders }: Props) => {
     setSelectedOrders,
     isSelectAll,
     setIsSelectAll,
+    isProductDivideOpen,
+    setIsProductDivideOpen,
   } = useOrderContext();
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Select Order" />
       {/* select all */}
-      <div
-        className="ml-2 mr-auto flex flex-row gap-2 justify-start items-center  w-full pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer "
-        onClick={() => {
-          if (isSelectAll) {
-            setIsSelectAll(false);
-            setSelectedOrders([]);
-          } else {
-            setIsSelectAll(true);
-            setSelectedOrders(
-              tableOrders.map((order) => {
-                return {
-                  order: order,
-                  totalQuantity: order?.quantity ?? 0,
-                  selectedQuantity:
-                    (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
-                };
-              })
-            );
-          }
-        }}
-      >
-        {isSelectAll ? (
-          <GrCheckboxSelected className="w-4 h-4  " />
-        ) : (
-          <GrCheckbox className="w-4 h-4   " />
-        )}
-        <p>{t("All")}</p>
-      </div>
+      {!isProductDivideOpen && (
+        <div
+          className="ml-2 mr-auto flex flex-row gap-2 justify-start items-center  w-full pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer "
+          onClick={() => {
+            if (isSelectAll) {
+              setIsSelectAll(false);
+              setSelectedOrders([]);
+            } else {
+              setIsSelectAll(true);
+              setSelectedOrders(
+                tableOrders.map((order) => {
+                  return {
+                    order: order,
+                    totalQuantity: order?.quantity ?? 0,
+                    selectedQuantity:
+                      (order?.quantity ?? 0) - (order?.paidQuantity ?? 0),
+                  };
+                })
+              );
+            }
+          }}
+        >
+          {isSelectAll ? (
+            <GrCheckboxSelected className="w-4 h-4  " />
+          ) : (
+            <GrCheckbox className="w-4 h-4   " />
+          )}
+          <p>{t("All")}</p>
+        </div>
+      )}
       {/* orders */}
       {tableOrders
         ?.filter((order) => !order.discount)
@@ -68,7 +72,36 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   (item) => item.order._id === order._id
                 );
                 if (foundOrder) {
-                  if (foundOrder.totalQuantity > foundOrder.selectedQuantity) {
+                  if (isProductDivideOpen) {
+                    if (
+                      foundOrder.totalQuantity > 1 &&
+                      foundOrder.totalQuantity - 1 > foundOrder.selectedQuantity
+                    ) {
+                      setSelectedOrders([
+                        ...selectedOrders.filter(
+                          (item) => item.order._id !== order._id
+                        ),
+                        {
+                          order: order,
+                          totalQuantity: order.quantity,
+                          selectedQuantity: foundOrder.selectedQuantity + 1,
+                        },
+                      ]);
+                    }
+                    if (
+                      foundOrder.totalQuantity - 1 ===
+                      foundOrder.selectedQuantity
+                    ) {
+                      setSelectedOrders([
+                        ...selectedOrders.filter(
+                          (item) => item.order._id !== order._id
+                        ),
+                      ]);
+                    }
+                  } else if (
+                    !isProductDivideOpen &&
+                    foundOrder.totalQuantity > foundOrder.selectedQuantity
+                  ) {
                     setSelectedOrders([
                       ...selectedOrders.filter(
                         (item) => item.order._id !== order._id
@@ -87,6 +120,9 @@ const OrderSelect = ({ tableOrders }: Props) => {
                     ]);
                   }
                 } else {
+                  if (isProductDivideOpen && order.quantity == 1) {
+                    return;
+                  }
                   setSelectedOrders([
                     ...selectedOrders,
                     {
@@ -104,6 +140,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   className="p-1 border border-black  w-5 h-5 items-center justify-center flex text-sm text-red-600 font-medium"
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (isProductDivideOpen) return;
                     const foundSelectedOrder = selectedOrders.find(
                       (item) => item.order._id === order._id
                     );
