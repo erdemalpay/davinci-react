@@ -112,10 +112,10 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       { key: "5" },
       { key: "6" },
       {
-        key: "1/n",
+        key: t("Discount"),
         onClick: () => {
           setTemporaryOrders([]);
-          setIsNumberSelection(true);
+          setIsDiscountScreenOpen(true);
         },
       },
     ],
@@ -124,10 +124,10 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       { key: "2" },
       { key: "3" },
       {
-        key: t("Discount"),
+        key: "1/n",
         onClick: () => {
           setTemporaryOrders([]);
-          setIsDiscountScreenOpen(true);
+          setIsNumberSelection(true);
         },
       },
     ],
