@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
 import { MenuItem, Order, Table } from "../../../types";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
-import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
 
 type Props = {
@@ -17,7 +14,6 @@ type Props = {
 const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   if (!tableOrders || !discounts) {
     return null;
   }
@@ -52,27 +48,6 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   };
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
-      {/*main header part */}
-      <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-1">
-        <div className="flex flex-row gap-1 justify-center items-center">
-          <FaHistory
-            className="text-red-600 font-semibold cursor-pointer relative"
-            onClick={() => {
-              setIsCollectionModalOpen(true);
-            }}
-          />
-          <p className="font-semibold">{t("Collection History")}</p>
-          {isCollectionModalOpen && (
-            <CollectionModal
-              setIsCollectionModalOpen={setIsCollectionModalOpen}
-              table={table._id}
-            />
-          )}
-        </div>
-        <p className="text-sm font-semibold">
-          {parseFloat(String(collectionsTotalAmount)).toFixed(2) ?? "0.00"} ₺
-        </p>
-      </div>
       {/* temp orders */}
       <div className="flex flex-col h-48 overflow-scroll no-scrollbar ">
         {tableOrders?.map((order) => {

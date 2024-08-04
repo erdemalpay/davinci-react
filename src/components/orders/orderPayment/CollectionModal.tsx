@@ -12,7 +12,7 @@ import {
   User,
 } from "../../../types";
 import {
-  useGetOrders,
+  useGetGivenDateOrders,
   useUpdateOrdersMutation,
 } from "../../../utils/api/order/order";
 import {
@@ -33,7 +33,7 @@ type Props = {
 
 const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   const collections = useGetOrderCollections();
-  const orders = useGetOrders();
+  const orders = useGetGivenDateOrders();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();

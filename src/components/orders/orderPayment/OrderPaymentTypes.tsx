@@ -1,17 +1,31 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaHistory } from "react-icons/fa";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import bankTransfer from "../../../assets/order/bank_transfer.png";
 import cash from "../../../assets/order/cash.png";
 import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderCollectionStatus, Table } from "../../../types";
+import { useUserContext } from "../../../context/User.context";
+import {
+  AccountPaymentMethod,
+  Order,
+  OrderCollectionItem,
+  OrderCollectionStatus,
+  Table,
+} from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import { useUpdateOrdersMutation } from "../../../utils/api/order/order";
+import {
+  useGetGivenDateOrders,
+  useUpdateOrdersMutation,
+} from "../../../utils/api/order/order";
 import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
+import CollectionModal from "./CollectionModal";
 
 type Props = {
   tableOrders: Order[];
@@ -25,11 +39,25 @@ const OrderPaymentTypes = ({
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
+  const orders = useGetGivenDateOrders();
   const { selectedLocationId } = useLocationContext();
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const collections = useGetOrderCollections();
-  if (!selectedLocationId || !collections || !paymentTypes) {
+  const { user } = useUserContext();
+  if (
+    !selectedLocationId ||
+    !collections ||
+    !paymentTypes ||
+    !orders ||
+    !user
+  ) {
     return null;
   }
+  const tableNotCancelledCollections = collections.filter(
+    (collection) =>
+      (collection.table as Table)._id === table._id &&
+      collection.status !== OrderCollectionStatus.CANCELLED
+  );
   const { mutate: updateOrders } = useUpdateOrdersMutation();
   const {
     paymentAmount,
@@ -49,7 +77,8 @@ const OrderPaymentTypes = ({
         return cash;
     }
   };
-  const { createOrderCollection } = useOrderCollectionMutations();
+  const { createOrderCollection, updateOrderCollection } =
+    useOrderCollectionMutations();
 
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
   const discountAmount = tableOrders.reduce((acc, order) => {
@@ -69,7 +98,7 @@ const OrderPaymentTypes = ({
     collectionsTotalAmount >= totalAmount - discountAmount;
   const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8 ">
+    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Payment Types")}</h1>
@@ -157,6 +186,82 @@ const OrderPaymentTypes = ({
               alt={paymentType.name}
             />
             <p className="font-medium text-center">{t(paymentType.name)}</p>
+          </div>
+        ))}
+      </div>
+      {/*collection history */}
+      <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-2 mt-4">
+        <div className="flex flex-row gap-1 justify-center items-center">
+          <FaHistory
+            className="text-red-600 font-semibold cursor-pointer relative"
+            onClick={() => {
+              setIsCollectionModalOpen(true);
+            }}
+          />
+          <p className="font-semibold">{t("Collection History")}</p>
+          {isCollectionModalOpen && (
+            <CollectionModal
+              setIsCollectionModalOpen={setIsCollectionModalOpen}
+              table={table._id}
+            />
+          )}
+        </div>
+        <p className="text-sm font-semibold">
+          {parseFloat(String(collectionsTotalAmount)).toFixed(2) ?? "0.00"} ₺
+        </p>
+      </div>
+      {/* collection summary */}
+      <div className="flex flex-col h-64 gap-1 overflow-scroll no-scrollbar ">
+        {tableNotCancelledCollections.map((collection) => (
+          <div
+            key={collection._id}
+            className="flex flex-row justify-between px-4 border-b text-sm pb-1"
+          >
+            {/* left part */}
+            <div className="flex flex-row gap-3 ">
+              <p>{collection.amount} ₺</p>
+              <p>
+                {t((collection.paymentMethod as AccountPaymentMethod).name)}
+              </p>
+            </div>
+            {/* right part */}
+            <HiOutlineTrash
+              className="text-red-600 cursor-pointer text-lg"
+              onClick={() => {
+                if (
+                  collection?.orders?.length &&
+                  collection?.orders?.length > 0
+                ) {
+                  const newOrders = collection?.orders
+                    ?.map((orderCollectionItem: OrderCollectionItem) => {
+                      const order = orders?.find(
+                        (orderItem) =>
+                          orderItem._id === orderCollectionItem.order
+                      );
+                      if (order !== undefined) {
+                        return {
+                          ...order,
+                          paidQuantity:
+                            order.paidQuantity -
+                            orderCollectionItem.paidQuantity,
+                        };
+                      }
+                      return null;
+                    })
+                    ?.filter((item: any) => item !== null);
+                  updateOrders(newOrders as Order[]);
+                }
+                updateOrderCollection({
+                  id: collection._id,
+                  updates: {
+                    cancelNote: "Cancelled by " + user._id,
+                    cancelledAt: new Date(),
+                    cancelledBy: user._id,
+                    status: OrderCollectionStatus.CANCELLED,
+                  },
+                });
+              }}
+            />
           </div>
         ))}
       </div>
