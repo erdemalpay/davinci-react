@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus } from "../../types";
 import {
   useGetGivenDateOrders,
@@ -12,10 +13,11 @@ type Props = { tableId: number };
 const OrderListForPanel = ({ tableId }: Props) => {
   const tables = useGetTables();
   const table = tables.find((table) => table._id === tableId);
-  if (!table) return null;
+  const { user } = useUserContext();
+  if (!table || !user) return null;
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
-  const { deleteOrder } = useOrderMutations();
+  const { updateOrder } = useOrderMutations();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
@@ -51,7 +53,16 @@ const OrderListForPanel = ({ tableId }: Props) => {
                       {order.paidQuantity === 0 && (
                         <HiOutlineTrash
                           className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                          onClick={() => deleteOrder(order._id)}
+                          onClick={() =>
+                            updateOrder({
+                              id: order._id,
+                              updates: {
+                                status: OrderStatus.CANCELLED,
+                                cancelledAt: new Date(),
+                                cancelledBy: user._id,
+                              },
+                            })
+                          }
                         />
                       )}
                     </div>
