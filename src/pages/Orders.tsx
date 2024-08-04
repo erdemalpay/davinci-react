@@ -1,10 +1,8 @@
 import { Header } from "../components/header/Header";
+import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-
-import { useEffect, useState } from "react";
-import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
@@ -29,33 +27,17 @@ function Orders() {
     content: <SingleOrdersPage kitchen={kitchen._id} />,
     isDisabled: false,
   }));
-  const [tabs, setTabs] = useState(
-    orderTabs?.map((tab) => {
-      return {
-        ...tab,
-        isDisabled: currentPageTabs
-          ?.find((item) => item.name === tab.label)
-          ?.permissionRoles?.includes(user.role._id)
-          ? false
-          : true,
-      };
-    })
-  );
-  useEffect(() => {
-    setTabs(
-      orderTabs?.map((tab) => {
-        return {
-          ...tab,
-          isDisabled: currentPageTabs
-            ?.find((item) => item.name === tab.label)
-            ?.permissionRoles?.includes(user.role._id)
-            ? false
-            : true,
-        };
-      })
-    );
-    setOrdersActiveTab(0);
-  }, [kitchens]);
+  const tabs = orderTabs?.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
+
   return (
     <>
       <Header showLocationSelector={false} />

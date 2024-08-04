@@ -32,7 +32,14 @@ const OrderListForPanel = ({ tableId }: Props) => {
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
           {table.orders?.map((tableOrder) => {
             const order = orders.find((order) => order._id === tableOrder);
-            if (!order || order.status !== OrderStatus.PENDING) return null;
+            if (
+              !order ||
+              !(
+                order.status === OrderStatus.PENDING ||
+                order.status === OrderStatus.AUTOSERVED
+              )
+            )
+              return null;
             return (
               <div
                 key={order._id}
@@ -44,7 +51,8 @@ const OrderListForPanel = ({ tableId }: Props) => {
                 </div>
 
                 <div className="flex flex-row ">
-                  {order.status === OrderStatus.PENDING && (
+                  {(order.status === OrderStatus.PENDING ||
+                    order.status === OrderStatus.AUTOSERVED) && (
                     <div className="flex flex-row gap-[1px]">
                       <h5 className="text-xs whitespace-nowrap min-w-8">
                         {orderWaitTime(order)} m

@@ -215,11 +215,11 @@ const OrderPaymentTypes = ({
         {tableNotCancelledCollections.map((collection) => (
           <div
             key={collection._id}
-            className="flex flex-row justify-between px-4 border-b text-sm pb-1"
+            className="flex flex-row justify-between px-4 border-b text-sm font-medium pb-1"
           >
             {/* left part */}
-            <div className="flex flex-row gap-3 ">
-              <p>{collection.amount} ₺</p>
+            <div className="flex flex-row gap-2 ">
+              <p className="min-w-9">{collection.amount} ₺</p>
               <p>
                 {t((collection.paymentMethod as AccountPaymentMethod).name)}
               </p>
