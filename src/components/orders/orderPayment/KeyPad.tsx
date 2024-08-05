@@ -173,9 +173,9 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
             key={index}
             className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
             onClick={() =>
-              isNumberSelection
-                ? handleKeyPress(keyItem.key)
-                : keyItem.onClick?.()
+              keyItem?.onClick
+                ? keyItem.onClick?.()
+                : handleKeyPress(keyItem.key)
             }
             aria-label={`Key ${keyItem.key}`}
           >
