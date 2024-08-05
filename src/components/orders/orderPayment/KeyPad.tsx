@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order } from "../../../types";
@@ -6,6 +6,10 @@ import { Order } from "../../../types";
 type Props = {
   tableOrders: Order[];
   collectionsTotalAmount: number;
+};
+type KeyItem = {
+  key: string;
+  onClick?: () => void;
 };
 const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
@@ -15,7 +19,7 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
     setTemporaryOrders,
     setIsDiscountScreenOpen,
   } = useOrderContext();
-
+  const [isNumberSelection, setIsNumberSelection] = useState(false);
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
@@ -31,19 +35,45 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
 
   const handleKeyPress = useCallback(
     (key: string) => {
-      if (key === ".") {
-        if (!paymentAmount.includes(".")) {
+      if (isNumberSelection) {
+        const number = parseInt(key, 10);
+        if (!isNaN(number) && number > 0) {
+          const resultAmount = (totalAmount - discountAmount) / number;
+          setPaymentAmount(resultAmount.toFixed(2));
+          if (
+            totalAmount -
+              discountAmount -
+              collectionsTotalAmount -
+              resultAmount <
+            1
+          ) {
+            setPaymentAmount(
+              (totalAmount - discountAmount - collectionsTotalAmount).toFixed(2)
+            );
+          }
+        }
+        setIsNumberSelection(false);
+        setTemporaryOrders([]);
+      } else {
+        if (key === ".") {
+          if (!paymentAmount.includes(".")) {
+            setPaymentAmount(paymentAmount + key);
+          }
+        } else {
           setPaymentAmount(paymentAmount + key);
         }
-      } else {
-        setPaymentAmount(paymentAmount + key);
       }
-      setTemporaryOrders([]);
     },
-    [paymentAmount, setPaymentAmount]
+    [
+      isNumberSelection,
+      paymentAmount,
+      setPaymentAmount,
+      totalAmount,
+      discountAmount,
+    ]
   );
 
-  const keys = [
+  const keys: KeyItem[][] = [
     [
       { key: "7" },
       { key: "8" },
@@ -94,10 +124,10 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       { key: "2" },
       { key: "3" },
       {
-        key: "C",
+        key: "1/n",
         onClick: () => {
           setTemporaryOrders([]);
-          setPaymentAmount("");
+          setIsNumberSelection(true);
         },
       },
     ],
@@ -111,22 +141,41 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
           setPaymentAmount(paymentAmount.slice(0, -1));
         },
       },
-      { key: "" },
+      {
+        key: "C",
+        onClick: () => {
+          setTemporaryOrders([]);
+          setPaymentAmount("");
+        },
+      },
     ],
   ];
-
+  const numberKeys: KeyItem[] = [
+    { key: "1" },
+    { key: "2" },
+    { key: "3" },
+    { key: "4" },
+    { key: "5" },
+    { key: "6" },
+    { key: "7" },
+    { key: "8" },
+    { key: "9" },
+  ];
   return (
-    <div className="p-4 grid grid-cols-4 gap-2 ">
-      {keys.flat().map((keyItem, index) => {
-        if (keyItem.key === "") {
-          return <div key={index} className="p-3 rounded-lg min-w-fit"></div>;
-        }
+    <div
+      className={`p-4 grid ${
+        isNumberSelection ? "grid-cols-3" : "grid-cols-4"
+      } gap-2`}
+    >
+      {(isNumberSelection ? numberKeys : keys.flat()).map((keyItem, index) => {
         return (
           <button
             key={index}
             className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
             onClick={() =>
-              keyItem.onClick ? keyItem.onClick() : handleKeyPress(keyItem.key)
+              keyItem?.onClick
+                ? keyItem.onClick?.()
+                : handleKeyPress(keyItem.key)
             }
             aria-label={`Key ${keyItem.key}`}
           >
