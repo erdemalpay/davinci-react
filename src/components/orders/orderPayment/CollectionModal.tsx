@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
@@ -40,6 +41,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { t } = useTranslation();
+  const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
   const [inputForm, setInputForm] = useState({
     note: "",
@@ -205,6 +207,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                 status: OrderCollectionStatus.CANCELLED,
               },
             });
+            resetOrderContext();
           }}
         />
       ) : null,

@@ -64,6 +64,7 @@ const OrderPaymentTypes = ({
     setPaymentAmount,
     temporaryOrders,
     setTemporaryOrders,
+    resetOrderContext,
   } = useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
     switch (paymentType) {
@@ -263,6 +264,7 @@ const OrderPaymentTypes = ({
                     status: OrderCollectionStatus.CANCELLED,
                   },
                 });
+                resetOrderContext();
               }}
             />
           </div>
