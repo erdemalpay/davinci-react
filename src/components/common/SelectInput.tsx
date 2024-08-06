@@ -77,6 +77,7 @@ const SelectInput = ({
       fontSize: "14px",
       fontWeight: 400,
     }),
+    menuPortal: (base: CSSObjectWithLabel) => ({ ...base, zIndex: 9999 }),
   };
 
   return (
@@ -93,6 +94,7 @@ const SelectInput = ({
         components={{ Option: CustomOption }}
         placeholder={placeholder ?? ""}
         styles={customStyles}
+        menuPosition="fixed"
       />
     </div>
   );
