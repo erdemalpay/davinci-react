@@ -1,7 +1,7 @@
-import { MdOutlineTouchApp } from "react-icons/md";
+import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, Order } from "../../../../types";
+import { MenuItem, Order, OrderDiscount } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
@@ -237,6 +237,21 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                     </div>
                   )}
                 </div>
+                {order.discount && (
+                  <div
+                    className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelOrderForDiscount({
+                        orderId: order._id,
+                        cancelQuantity: order.quantity - order.paidQuantity,
+                      });
+                    }}
+                  >
+                    <p>{(order.discount as OrderDiscount).name}</p>
+                    <MdOutlineCancel className="w-4 h-4" />
+                  </div>
+                )}
               </div>
             </div>
             {/* buttons */}
