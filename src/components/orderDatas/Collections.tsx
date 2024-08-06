@@ -76,7 +76,7 @@ const Collections = () => {
               orders?.find((order) => order._id === orderCollectionItem.order)
                 ?.item as MenuItem
             )?.name,
-            quantity: orderCollectionItem.paidQuantity,
+            quantity: orderCollectionItem.paidQuantity.toFixed(2),
           })),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
