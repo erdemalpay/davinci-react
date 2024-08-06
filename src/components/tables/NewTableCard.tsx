@@ -95,14 +95,14 @@ export function TableCard({
     {
       type: InputTypes.SELECT,
       formKey: "item",
-      label: t("Item"),
+      label: t("Product"),
       options: menuItemOptions.map((option) => {
         return {
           value: option.value,
           label: option.label,
         };
       }),
-      placeholder: t("Item"),
+      placeholder: t("Product"),
       required: true,
     },
     QuantityInput(),

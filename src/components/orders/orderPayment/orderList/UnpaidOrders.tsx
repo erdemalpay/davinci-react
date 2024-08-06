@@ -1,7 +1,7 @@
-import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
+import { MdOutlineTouchApp } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, Order, OrderDiscount } from "../../../../types";
+import { MenuItem, Order } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
@@ -182,15 +182,15 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 })()}
                 {")"}-
               </p>
-              <div className="flex flex-col gap-1 justify-start mr-auto ">
-                <div className="flex flex-row  justify-center items-center gap-2">
+              <div className="flex flex-col gap-1 justify-start mr-auto">
+                <div className="flex flex-row justify-center items-center gap-2">
                   <p className={`${order?.division ? "max-w-28" : ""}`}>
                     {(order.item as MenuItem).name}
                   </p>
                   {/* order division */}
                   {(isOrderDivisionActive || order.division) && (
                     <div
-                      className="flex "
+                      className="flex"
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
@@ -200,7 +200,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                           value: (index + 1).toString(),
                           label: `${index + 1}`,
                         }))}
-                        className=" text-sm"
+                        className="text-sm"
                         placeholder="1/n"
                         value={
                           order?.division
@@ -221,7 +221,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             order.division !== 1 &&
                             order.paidQuantity !== 0
                           ) {
-                            toast.error("Order division can not be changed.");
+                            toast.error("Order division cannot be changed.");
                             return;
                           }
                           updateOrder({
@@ -237,21 +237,6 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                     </div>
                   )}
                 </div>
-                {order.discount && (
-                  <div
-                    className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      cancelOrderForDiscount({
-                        orderId: order._id,
-                        cancelQuantity: order.quantity - order.paidQuantity,
-                      });
-                    }}
-                  >
-                    <p>{(order.discount as OrderDiscount).name}</p>
-                    <MdOutlineCancel className="w-4 h-4" />
-                  </div>
-                )}
               </div>
             </div>
             {/* buttons */}
