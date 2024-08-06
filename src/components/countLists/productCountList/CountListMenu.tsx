@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
 import { useGeneralContext } from "../../../context/General.context";
@@ -13,10 +12,8 @@ import CountListProducts from "./CountListProducts";
 import CountLists from "./CountLists";
 
 const CountListMenu = () => {
-  const { t } = useTranslation();
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-
   const {
     setCurrentPage,
     setExpandedRows,
@@ -26,26 +23,25 @@ const CountListMenu = () => {
   } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
-
   useEffect(() => {
     setTabs([
       {
         number: CountListPageTabEnum.COUNTARCHIVE,
-        label: t("Count Archive"),
+        label: "Count Archive",
         icon: <FaArchive />,
         content: <CountArchive />,
         isDisabled: false,
       },
       {
         number: CountListPageTabEnum.COUNTLISTS,
-        label: t("Count Lists"),
+        label: "Count Lists",
         icon: <FaClipboardList />,
         content: <CountLists />,
         isDisabled: false,
       },
       {
         number: CountListPageTabEnum.COUNTLISTPRODUCTS,
-        label: t("Count List Products"),
+        label: "Count List Products",
         icon: <FaSitemap />,
         content: <CountListProducts />,
         isDisabled: user
@@ -57,7 +53,6 @@ const CountListMenu = () => {
     ]);
     setTabPanelKey((prev) => prev + 1);
   }, [countLists.length]);
-
   return (
     <>
       <TabPanel

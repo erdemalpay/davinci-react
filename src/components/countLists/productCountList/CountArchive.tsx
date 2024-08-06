@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -11,13 +12,14 @@ import {
   User,
 } from "../../../types";
 import { useGetAccountCounts } from "../../../utils/api/account/count";
+import { formatAsLocalDate } from "../../../utils/format";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 
 const CountArchive = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
@@ -44,16 +46,18 @@ const CountArchive = () => {
         cntLst: (count.countList as AccountCountList).name,
         lctn: (count.location as AccountStockLocation).name,
         usr: (count.user as User)?.name,
-        startDate: `${pad(startDate.getDate())}-${pad(
-          startDate.getMonth() + 1
-        )}-${startDate.getFullYear()}`,
+        startDate: format(count.createdAt, "yyyy-MM-dd"),
+        formattedStartDate: formatAsLocalDate(
+          format(count.createdAt, "yyyy-MM-dd")
+        ),
         startHour: `${pad(startDate.getHours())}:${pad(
           startDate.getMinutes()
         )}`,
-        endDate: count?.completedAt
-          ? `${pad(endDate.getDate())}-${pad(
-              endDate.getMonth() + 1
-            )}-${endDate.getFullYear()}`
+        endDate: count.completedAt
+          ? format(count.completedAt, "yyyy-MM-dd")
+          : "",
+        formattedEndDate: count.completedAt
+          ? formatAsLocalDate(format(count.completedAt, "yyyy-MM-dd"))
           : "-",
         endHour: count?.completedAt
           ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
@@ -97,7 +101,7 @@ const CountArchive = () => {
             }
           }}
         >
-          {row.startDate}
+          {row.formattedStartDate}
         </p>
       ),
       className: "min-w-32",
@@ -109,6 +113,9 @@ const CountArchive = () => {
     {
       key: "endDate",
       className: "min-w-32 pr-1",
+      node: (row: any) => {
+        return <p>{row.formattedEndDate}</p>;
+      },
     },
     {
       key: "endHour",

@@ -170,7 +170,7 @@ const GeneralContext = createContext<GeneralContextType>({
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.ALL);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.THIRD);
   const [isCategoryTableEditOpen, setIsCategoryTableEditOpen] =
     useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
