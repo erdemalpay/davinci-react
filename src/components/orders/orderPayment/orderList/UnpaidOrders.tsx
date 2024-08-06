@@ -5,6 +5,7 @@ import { MenuItem, Order, OrderDiscount } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
+  useUpdateOrdersMutation,
 } from "../../../../utils/api/order/order";
 import SelectInput from "../../../common/SelectInput";
 import OrderScreenHeader from "./OrderScreenHeader";
@@ -18,6 +19,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
+  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
@@ -184,11 +186,15 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               </p>
               <div className="flex flex-col gap-1 justify-start mr-auto">
                 <div className="flex flex-row justify-center items-center gap-2">
-                  <p className={`${order?.division ? "max-w-28" : ""}`}>
+                  <p
+                    className={`${
+                      order.division && order.division > 0 ? "max-w-28" : ""
+                    }`}
+                  >
                     {(order.item as MenuItem).name}
                   </p>
                   {/* order division */}
-                  {(isOrderDivisionActive || order.division) && (
+                  {isOrderDivisionActive && (
                     <div
                       className="flex"
                       onClick={(e) => {
@@ -222,6 +228,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             order.paidQuantity !== 0
                           ) {
                             toast.error("Order division cannot be changed.");
+                            return;
+                          }
+                          if (
+                            selectedOption.value === "1" &&
+                            order.paidQuantity === 0
+                          ) {
+                            updateOrder({
+                              id: order._id,
+                              updates: {
+                                division: 0,
+                              },
+                            });
                             return;
                           }
                           updateOrder({
