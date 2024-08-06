@@ -36,6 +36,8 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
     resetOrderContext,
     isProductDivideOpen,
     setIsProductDivideOpen,
+    setIsOrderDivisionActive,
+    isOrderDivisionActive,
   } = useOrderContext();
 
   const discountAmount = tableOrders.reduce((acc, order) => {
@@ -52,12 +54,15 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
   }, 0);
   const buttons: OrderListButton[] = [
     {
-      label: t("Cancel"),
+      label: isOrderDivisionActive ? t("Close") : t("Cancel"),
       onClick: () => {
         resetOrderContext();
       },
       isActive:
-        isDiscountScreenOpen || isProductSelectionOpen || isProductDivideOpen,
+        isDiscountScreenOpen ||
+        isProductSelectionOpen ||
+        isProductDivideOpen ||
+        isOrderDivisionActive,
     },
     {
       label: t("Back"),
@@ -73,8 +78,24 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
         setIsProductDivideOpen(true);
       },
       isActive:
-        !(isProductSelectionOpen || isDiscountScreenOpen) &&
-        !isProductDivideOpen,
+        !(
+          isProductSelectionOpen ||
+          isDiscountScreenOpen ||
+          isOrderDivisionActive
+        ) && !isProductDivideOpen,
+    },
+    {
+      label: t("Product Based 1/n"),
+      onClick: () => {
+        setTemporaryOrders([]);
+        setIsOrderDivisionActive(true);
+      },
+      isActive:
+        !(
+          isProductSelectionOpen ||
+          isDiscountScreenOpen ||
+          isProductDivideOpen
+        ) && !isOrderDivisionActive,
     },
     {
       label: t("Apply"),

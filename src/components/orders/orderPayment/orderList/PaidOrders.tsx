@@ -11,22 +11,24 @@ const PaidOrders = ({ tableOrders }: Props) => {
     if (order?.discount) {
       return (
         <p>
-          {order.unitPrice *
+          {(
+            order.unitPrice *
             (100 - (order.discountPercentage ?? 0)) *
             (1 / 100) *
-            order.paidQuantity}
+            order.paidQuantity
+          ).toFixed(2)}
           ₺
         </p>
       );
     } else {
-      return <p>{order.unitPrice * order.paidQuantity}₺</p>;
+      return <p>{(order.unitPrice * order.paidQuantity).toFixed(2)}₺</p>;
     }
   };
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar ">
       <OrderScreenHeader header="Paid Orders" />
       {tableOrders?.map((order) => {
-        const isOrderPaid = order.paidQuantity !== 0;
+        const isOrderPaid = order.paidQuantity > 1e-6;
         if (!order || !isOrderPaid) return null;
         return (
           <div
@@ -38,7 +40,11 @@ const PaidOrders = ({ tableOrders }: Props) => {
             <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
               <p>
                 {"("}
-                {order.paidQuantity}
+                {(() => {
+                  return Number.isInteger(order.paidQuantity)
+                    ? order.paidQuantity
+                    : order.paidQuantity.toFixed(2);
+                })()}
                 {")"}-
               </p>
               <p>{(order.item as MenuItem).name}</p>

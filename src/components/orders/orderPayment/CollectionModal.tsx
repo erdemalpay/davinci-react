@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
@@ -40,6 +41,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { t } = useTranslation();
+  const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
   const [inputForm, setInputForm] = useState({
     note: "",
@@ -205,6 +207,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                 status: OrderCollectionStatus.CANCELLED,
               },
             });
+            resetOrderContext();
           }}
         />
       ) : null,
@@ -215,7 +218,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   ];
 
   return (
-    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar">
+    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar z-40">
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}
