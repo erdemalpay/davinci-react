@@ -418,6 +418,7 @@ export type Order = {
   paidQuantity: number;
   discount?: OrderDiscount | number;
   discountPercentage?: number;
+  division?: number;
 };
 
 export type OrderCollection = {

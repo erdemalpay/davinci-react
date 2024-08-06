@@ -60,6 +60,7 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
             setPaymentAmount(paymentAmount + key);
           }
         } else {
+          setTemporaryOrders([]);
           setPaymentAmount(paymentAmount + key);
         }
       }

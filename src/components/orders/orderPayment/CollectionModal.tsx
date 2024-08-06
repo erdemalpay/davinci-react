@@ -218,7 +218,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   ];
 
   return (
-    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar">
+    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar z-40">
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}

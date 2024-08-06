@@ -59,13 +59,8 @@ const OrderPaymentTypes = ({
       collection.status !== OrderCollectionStatus.CANCELLED
   );
   const { mutate: updateOrders } = useUpdateOrdersMutation();
-  const {
-    paymentAmount,
-    setPaymentAmount,
-    temporaryOrders,
-    setTemporaryOrders,
-    resetOrderContext,
-  } = useOrderContext();
+  const { paymentAmount, temporaryOrders, resetOrderContext } =
+    useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
     switch (paymentType) {
       case "cash":
@@ -179,8 +174,7 @@ const OrderPaymentTypes = ({
                         paidQuantity: order.quantity,
                       })),
               });
-              setPaymentAmount("");
-              setTemporaryOrders([]);
+              resetOrderContext();
             }}
             className="flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >

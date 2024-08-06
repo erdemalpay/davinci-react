@@ -40,10 +40,16 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const handlePaymentAmount = (order: Order) => {
     if (order?.discount) {
       return (
-        order.unitPrice * (100 - (order.discountPercentage ?? 0)) * (1 / 100)
+        order.unitPrice *
+        (100 - (order.discountPercentage ?? 0)) *
+        (1 / 100) *
+        (order?.division ? order.quantity / order.division : 1)
       );
     } else {
-      return order.unitPrice;
+      return (
+        order.unitPrice *
+        (order?.division ? order.quantity / order.division : 1)
+      );
     }
   };
   return (
@@ -62,7 +68,7 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
               className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  hover:bg-gray-100 cursor-pointer"
               onClick={() => {
                 if (!tempOrder) return;
-                if (tempOrder.quantity === 1) {
+                if (tempOrder.quantity === 1 && !order?.division) {
                   setTemporaryOrders(
                     temporaryOrders.filter(
                       (tempOrder) => tempOrder.order._id !== order._id
@@ -72,17 +78,28 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
                   setTemporaryOrders(
                     temporaryOrders.map((tempOrder) => {
                       if (tempOrder.order._id === order._id) {
+                        const newQuantity = order?.division
+                          ? tempOrder.quantity - order.quantity / order.division
+                          : tempOrder.quantity - 1;
+                        const roundedQuantity =
+                          Math.abs(newQuantity) < 1e-6 ? 0 : newQuantity;
+
                         return {
                           ...tempOrder,
-                          quantity: tempOrder.quantity - 1,
+                          quantity: roundedQuantity,
                         };
                       }
                       return tempOrder;
                     })
                   );
                 }
+
                 const newPaymentAmount =
                   Number(paymentAmount) - handlePaymentAmount(order);
+                if (newPaymentAmount < 1e-6) {
+                  setPaymentAmount("");
+                  return;
+                }
                 setPaymentAmount(
                   String(newPaymentAmount > 0 ? newPaymentAmount : "")
                 );
@@ -92,7 +109,11 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
               <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
                 <p>
                   {"("}
-                  {tempOrder?.quantity ?? 0}
+                  {(() => {
+                    return Number.isInteger(tempOrder?.quantity)
+                      ? tempOrder?.quantity
+                      : tempOrder?.quantity.toFixed(2);
+                  })()}
                   {")"}-
                 </p>
                 <p>{(order.item as MenuItem).name}</p>
@@ -101,7 +122,14 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
               {/* buttons */}
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 <p>
-                  {handlePaymentAmount(order) * (tempOrder?.quantity ?? 0)}₺
+                  {(
+                    (order.discount
+                      ? order.unitPrice *
+                        (100 - (order.discountPercentage ?? 0)) *
+                        (1 / 100)
+                      : order.unitPrice) * (tempOrder?.quantity ?? 0)
+                  ).toFixed(2)}
+                  ₺
                 </p>
                 {tempOrder && (
                   <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
@@ -123,7 +151,9 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
             </div>
           )}
           <p className="ml-auto">
-            {paymentAmount !== "" ? paymentAmount + " ₺" : "0.00" + " ₺"}
+            {paymentAmount !== ""
+              ? parseFloat(String(paymentAmount)).toFixed(2) + " ₺"
+              : "0.00" + " ₺"}
           </p>
         </div>
 

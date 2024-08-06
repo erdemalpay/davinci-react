@@ -11,6 +11,8 @@ type OrderContextType = {
   isSelectAll: boolean;
   selectedDiscount: OrderDiscount | null;
   setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
+  isOrderDivisionActive: boolean;
+  setIsOrderDivisionActive: (isOrderDivisionActive: boolean) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
   selectedOrders: {
     order: Order;
@@ -47,6 +49,8 @@ type OrderContextType = {
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isOrderDivisionActive: false,
+  setIsOrderDivisionActive: () => {},
   paymentAmount: "",
   setPaymentAmount: () => {},
   temporaryOrders: [],
@@ -88,6 +92,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
+  const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<
     {
       order: Order;
@@ -123,6 +128,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setSelectedOrders([]);
     setIsSelectAll(false);
     setSelectedDiscount(null);
+    setIsOrderDivisionActive(false);
   };
   return (
     <OrderContext.Provider
@@ -146,6 +152,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setFilterPanelFormElements,
         isProductDivideOpen,
         setIsProductDivideOpen,
+        isOrderDivisionActive,
+        setIsOrderDivisionActive,
       }}
     >
       {children}
