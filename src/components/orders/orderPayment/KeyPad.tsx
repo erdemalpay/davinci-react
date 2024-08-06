@@ -38,7 +38,8 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       if (isNumberSelection) {
         const number = parseInt(key, 10);
         if (!isNaN(number) && number > 0) {
-          const resultAmount = (totalAmount - discountAmount) / number;
+          const resultAmount =
+            (totalAmount - discountAmount - collectionsTotalAmount) / number;
           setPaymentAmount(resultAmount.toFixed(2));
           if (
             totalAmount -
