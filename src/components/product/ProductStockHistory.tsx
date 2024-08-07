@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -5,11 +6,13 @@ import { AccountStockLocation, stockHistoryStatuses } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { formatAsLocalDate } from "../../utils/format";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 type FormElementsState = {
   [key: string]: any;
 };
@@ -34,24 +37,28 @@ const ProductStockHistory = () => {
       after: "",
     });
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const [rows, setRows] = useState(() => {
-    return stockHistories
-      .filter((item) => item.product?._id === selectedProduct?._id)
-      .map((stockHistory) => {
-        const date = new Date(stockHistory.createdAt);
-        return {
-          ...stockHistory,
-          prdct: stockHistory.product?.name,
-          pckgTyp: stockHistory?.packageType?.name,
-          lctn: stockHistory?.location?.name,
-          usr: stockHistory?.user?.name,
-          date: `${pad(date.getDate())}-${pad(
-            date.getMonth() + 1
-          )}-${date.getFullYear()}`,
-          hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-        };
-      });
-  });
+  const allRows = stockHistories
+    .filter((item) => item.product?._id === selectedProduct?._id)
+    .map((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return null;
+      }
+      const date = new Date(stockHistory.createdAt);
+      return {
+        ...stockHistory,
+        prdct: stockHistory.product?.name,
+        pckgTyp: stockHistory?.packageType?.name,
+        lctn: stockHistory?.location?.name,
+        usr: stockHistory?.user?.name,
+        date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(
+          format(stockHistory?.createdAt, "yyyy-MM-dd")
+        ),
+        hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+      };
+    })
+    .filter((item) => item !== null);
+  const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     StockLocationInput({ locations: locations }),
     {
@@ -99,6 +106,9 @@ const ProductStockHistory = () => {
     {
       key: "date",
       className: "min-w-32 pr-1",
+      node: (row: any) => {
+        return <p>{row.formattedDate}</p>;
+      },
     },
     {
       key: "hour",
@@ -147,37 +157,20 @@ const ProductStockHistory = () => {
     },
   ];
   useEffect(() => {
-    setRows(
-      stockHistories
-        .filter((item) => item.product?._id === selectedProduct?._id)
-        .filter((stockHistory) => {
-          return (
-            (filterPanelFormElements.before === "" ||
-              stockHistory.createdAt <= filterPanelFormElements.before) &&
-            (filterPanelFormElements.after === "" ||
-              stockHistory.createdAt >= filterPanelFormElements.after) &&
-            passesFilter(
-              filterPanelFormElements.location,
-              (stockHistory.location as AccountStockLocation)?._id
-            ) &&
-            passesFilter(filterPanelFormElements.status, stockHistory.status)
-          );
-        })
-        .map((stockHistory) => {
-          const date = new Date(stockHistory.createdAt);
-          return {
-            ...stockHistory,
-            prdct: stockHistory.product?.name,
-            pckgTyp: stockHistory?.packageType?.name,
-            lctn: stockHistory?.location?.name,
-            usr: stockHistory?.user?.name,
-            date: `${pad(date.getDate())}-${pad(
-              date.getMonth() + 1
-            )}-${date.getFullYear()}`,
-            hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-          };
-        })
-    );
+    const filteredRows = allRows.filter((stockHistory) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          stockHistory.createdAt <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          stockHistory.createdAt >= filterPanelFormElements.after) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (stockHistory.location as AccountStockLocation)?._id
+        ) &&
+        passesFilter(filterPanelFormElements.status, stockHistory.status)
+      );
+    });
+    setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [stockHistories, filterPanelFormElements, selectedProduct]);
 

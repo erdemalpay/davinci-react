@@ -57,42 +57,43 @@ const ProductExpenses = () => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const [rows, setRows] = useState(
-    invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.product as AccountProduct)._id === selectedProduct?._id
-      )
-      ?.map((invoice) => {
-        return {
-          ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-            ).toFixed(4)
-          ),
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          pckgTyp: invoice.packageType as AccountPackageType,
-          prdct: invoice.product as AccountProduct,
-        };
-      })
-  );
+  const allRows = invoices
+    ?.filter(
+      (invoice) =>
+        (invoice.product as AccountProduct)._id === selectedProduct?._id
+    )
+    ?.map((invoice) => {
+      return {
+        ...invoice,
+        product: (invoice.product as AccountProduct)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        packageType: (invoice.packageType as AccountPackageType)?.name,
+        brand: (invoice.brand as AccountBrand)?.name,
+        brandId: (invoice.brand as AccountBrand)?._id,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        vendorId: (invoice.vendor as AccountVendor)?._id,
+        formattedDate: formatAsLocalDate(invoice.date),
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
+        unitPrice: parseFloat(
+          (
+            invoice.totalExpense /
+            (invoice.quantity *
+              ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
+          ).toFixed(4)
+        ),
+        unit: units?.find(
+          (unit) =>
+            unit._id === ((invoice.product as AccountProduct).unit as string)
+        )?.name,
+        expType: invoice.expenseType as AccountExpenseType,
+        brnd: invoice.brand as AccountBrand,
+        vndr: invoice.vendor as AccountVendor,
+        pckgTyp: invoice.packageType as AccountPackageType,
+        prdct: invoice.product as AccountProduct,
+      };
+    });
+  const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
@@ -186,8 +187,11 @@ const ProductExpenses = () => {
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
     {
-      key: "formattedDate",
+      key: "date",
       className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return <p>{row.formattedDate}</p>;
+      },
     },
     { key: "note", className: "min-w-40 pr-2" },
     {
@@ -258,60 +262,20 @@ const ProductExpenses = () => {
     },
   ];
   useEffect(() => {
-    const processedRows = invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.product as AccountProduct)._id === selectedProduct?._id
-      )
-      ?.filter((invoice) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            invoice.date <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.vendor,
-            (invoice.vendor as AccountVendor)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.brand,
-            (invoice.brand as AccountBrand)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (invoice.location as AccountStockLocation)?._id
-          )
-        );
-      })
-      .map((invoice) => {
-        return {
-          ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
-            ).toFixed(4)
-          ),
-          unit: units?.find(
-            (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
-          )?.name,
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          pckgTyp: invoice.packageType as AccountPackageType,
-          prdct: invoice.product as AccountProduct,
-        };
-      });
+    const processedRows = allRows?.filter((invoice) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          invoice.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          invoice.date >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.vendor, invoice.vendorId) &&
+        passesFilter(filterPanelFormElements.brand, invoice.brandId) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (invoice.location as AccountStockLocation)?._id
+        )
+      );
+    });
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
