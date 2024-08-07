@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
 import { MdBorderColor } from "react-icons/md";
+import { PiCallBellFill } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -23,6 +24,7 @@ import {
   deleteTableOrders,
   useGetGivenDateOrders,
   useOrderMutations,
+  useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import {
   useReopenTableMutation,
@@ -75,6 +77,7 @@ export function TableCard({
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
+  const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -202,7 +205,7 @@ export function TableCard({
             onUpdate={updateTableHandler}
           />
         </p>
-        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
+        <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
             <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
@@ -230,6 +233,37 @@ export function TableCard({
                   // onClick={() => setIsCloseConfirmationDialogOpen(true)}
                   onClick={() => newClose()}
                   IconComponent={IoReceipt}
+                />
+              </span>
+            </Tooltip>
+          )}
+          {!table.finishHour && (
+            <Tooltip content={t("Served")}>
+              <span className="text-{8px}">
+                <CardAction
+                  onClick={() => {
+                    if (!table.orders || !orders || !user) return;
+                    const tableReadyToServeOrders = table.orders?.filter(
+                      (tableOrder) =>
+                        orders?.find((order) => order._id === tableOrder)
+                          ?.status === OrderStatus.READYTOSERVE
+                    );
+                    if (
+                      tableReadyToServeOrders?.length === 0 ||
+                      !tableReadyToServeOrders
+                    )
+                      return;
+
+                    updateMultipleOrders({
+                      ids: tableReadyToServeOrders,
+                      updates: {
+                        status: OrderStatus.SERVED,
+                        deliveredAt: new Date(),
+                        deliveredBy: user._id,
+                      },
+                    });
+                  }}
+                  IconComponent={PiCallBellFill}
                 />
               </span>
             </Tooltip>
