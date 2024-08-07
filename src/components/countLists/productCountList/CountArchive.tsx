@@ -39,6 +39,9 @@ const CountArchive = () => {
       }
     })
     .map((count) => {
+      if (!count.createdAt) {
+        return null;
+      }
       const startDate = new Date(count?.createdAt);
       const endDate = new Date(count?.completedAt ?? 0);
       return {
@@ -63,7 +66,8 @@ const CountArchive = () => {
           ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
           : "-",
       };
-    });
+    })
+    .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Start Date"), isSortable: true },
