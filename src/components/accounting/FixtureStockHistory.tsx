@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,6 +9,7 @@ import {
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { formatAsLocalDate } from "../../utils/format";
 import { FixtureInput, StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -34,21 +36,27 @@ const FixtureStockHistory = () => {
       after: "",
     });
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const [rows, setRows] = useState(() => {
-    return stockHistories.map((stockHistory) => {
+  const allRows = stockHistories
+    .map((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return null;
+      }
       const date = new Date(stockHistory.createdAt);
       return {
         ...stockHistory,
         fxtr: stockHistory.fixture?.name,
         lctn: stockHistory?.location?.name,
         usr: stockHistory?.user?.name,
-        date: `${pad(date.getDate())}-${pad(
-          date.getMonth() + 1
-        )}-${date.getFullYear()}`,
+        date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(
+          format(stockHistory?.createdAt, "yyyy-MM-dd")
+        ),
         hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
       };
-    });
-  });
+    })
+    .filter((item) => item !== null);
+
+  const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     FixtureInput({ fixtures: fixtures, required: true, isMultiple: true }),
     StockLocationInput({ locations: locations }),
@@ -96,6 +104,9 @@ const FixtureStockHistory = () => {
     {
       key: "date",
       className: "min-w-32 pr-1",
+      node: (row: any) => {
+        return <p>{row.formattedDate}</p>;
+      },
     },
     {
       key: "hour",
@@ -140,42 +151,30 @@ const FixtureStockHistory = () => {
     },
   ];
   useEffect(() => {
-    setRows(
-      stockHistories
-        .filter((stockHistory) => {
-          return (
-            (filterPanelFormElements.before === "" ||
-              stockHistory.createdAt <= filterPanelFormElements.before) &&
-            (filterPanelFormElements.after === "" ||
-              stockHistory.createdAt >= filterPanelFormElements.after) &&
-            (!filterPanelFormElements.fixture.length ||
-              filterPanelFormElements.fixture?.some((panelFixture: string) =>
-                passesFilter(
-                  panelFixture,
-                  (stockHistory.fixture as AccountFixture)?._id
-                )
-              )) &&
+    const filteredRows = allRows.filter((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return false;
+      }
+      return (
+        (filterPanelFormElements.before === "" ||
+          stockHistory.createdAt <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          stockHistory.createdAt >= filterPanelFormElements.after) &&
+        (!filterPanelFormElements.fixture.length ||
+          filterPanelFormElements.fixture?.some((panelFixture: string) =>
             passesFilter(
-              filterPanelFormElements.location,
-              (stockHistory.location as AccountStockLocation)?._id
-            ) &&
-            passesFilter(filterPanelFormElements.status, stockHistory.status)
-          );
-        })
-        .map((stockHistory) => {
-          const date = new Date(stockHistory.createdAt);
-          return {
-            ...stockHistory,
-            fxtr: stockHistory.fixture?.name,
-            lctn: stockHistory?.location?.name,
-            usr: stockHistory?.user?.name,
-            date: `${pad(date.getDate())}-${pad(
-              date.getMonth() + 1
-            )}-${date.getFullYear()}`,
-            hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-          };
-        })
-    );
+              panelFixture,
+              (stockHistory.fixture as AccountFixture)?._id
+            )
+          )) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (stockHistory.location as AccountStockLocation)?._id
+        ) &&
+        passesFilter(filterPanelFormElements.status, stockHistory.status)
+      );
+    });
+    setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [stockHistories, filterPanelFormElements]);
 

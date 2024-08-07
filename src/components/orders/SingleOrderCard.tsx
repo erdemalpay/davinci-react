@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { GiCancel } from "react-icons/gi";
 import { PiBellSimpleRingingFill } from "react-icons/pi";
 import { TbArrowBack } from "react-icons/tb";
 import { NO_IMAGE_URL } from "../../navigation/constants";
@@ -28,22 +27,22 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
 
   return (
-    <div className="flex flex-col  justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-32 __className_a182b8">
-      <div className="flex flex-row gap-4 mt-2 px-2">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-24 __className_a182b8  overflow-scroll no-scrollbar">
+      <div className="flex flex-row gap-4  px-2 mt-1  ">
         {/* img & time */}
-        <div className="flex flex-col gap-2 h-full  items-center">
+        <div className="flex flex-col gap-1 h-16  items-center ">
           {order.status !== OrderStatus.SERVED && (
             <Timer createdAt={timerSetter() ?? new Date()} />
           )}
           <img
             src={(order.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
             alt="item"
-            className="w-12 h-12 object-cover rounded-lg"
+            className="w-10 h-10 object-cover rounded-lg"
           />
         </div>
         {/* itemName,quantity & orderNote */}
-        <div className="flex flex-col gap-2 justify-center  items-center w-full ">
-          <div className="flex flex-row justify-between w-full pr-2">
+        <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
+          <div className="flex flex-row justify-between w-full pr-2 items-center ">
             <p>{(order.item as MenuItem)?.name}</p>
             <p>
               {order.quantity > 1 && "x"}
@@ -54,27 +53,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className=" ml-auto flex flex-row gap-2 px-2">
-        {/* cancel button */}
-        {order.paidQuantity === 0 && (
-          <button
-            onClick={() => {
-              updateOrder({
-                id: order._id,
-                updates: {
-                  status: OrderStatus.CANCELLED,
-                  cancelledAt: new Date(),
-                  cancelledBy: user._id,
-                },
-              });
-            }}
-            className=" rounded-lg"
-          >
-            <ButtonTooltip content={t("Cancel")}>
-              <GiCancel className="text-xl" />
-            </ButtonTooltip>
-          </button>
-        )}
+      <div className="  flex flex-row justify-between  px-2 ml-auto  ">
         {/* pending ready button */}
         {order.status === OrderStatus.PENDING && (
           <button
@@ -88,7 +67,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 },
               });
             }}
-            className="mr-auto rounded-lg"
+            className="  rounded-lg"
           >
             <ButtonTooltip content={t("Ready")}>
               <PiBellSimpleRingingFill className="text-xl" />

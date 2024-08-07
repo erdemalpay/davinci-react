@@ -51,32 +51,33 @@ const FixtureExpenses = () => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const [rows, setRows] = useState(
-    invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.fixture as AccountFixture)._id === currentFixture?._id
-      )
-      ?.map((invoice) => {
-        return {
-          ...invoice,
-          fixture: (invoice.fixture as AccountFixture)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ),
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          fxtr: invoice.fixture as AccountFixture,
-        };
-      })
-  );
+  const allRows = invoices
+    ?.filter(
+      (invoice) =>
+        (invoice.fixture as AccountFixture)._id === currentFixture?._id
+    )
+    ?.map((invoice) => {
+      return {
+        ...invoice,
+        fixture: (invoice.fixture as AccountFixture)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        brand: (invoice.brand as AccountBrand)?.name,
+        brandId: (invoice.brand as AccountBrand)?._id,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        vendorId: (invoice.vendor as AccountVendor)?._id,
+        formattedDate: formatAsLocalDate(invoice.date),
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
+        unitPrice: parseFloat(
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
+        ),
+        expType: invoice.expenseType as AccountExpenseType,
+        brnd: invoice.brand as AccountBrand,
+        vndr: invoice.vendor as AccountVendor,
+        fxtr: invoice.fixture as AccountFixture,
+      };
+    });
+  const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
@@ -164,8 +165,11 @@ const FixtureExpenses = () => {
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
     {
-      key: "formattedDate",
-      className: "min-w-32 pr-2",
+      key: "date",
+      className: "min-w-32 pr-1",
+      node: (row: any) => {
+        return <p>{row.formattedDate}</p>;
+      },
     },
     { key: "note", className: "min-w-40 pr-2" },
     {
@@ -229,50 +233,21 @@ const FixtureExpenses = () => {
     },
   ];
   useEffect(() => {
-    const processedRows = invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.fixture as AccountFixture)._id === currentFixture?._id
-      )
-      ?.filter((invoice) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            invoice.date <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.vendor,
-            (invoice.vendor as AccountVendor)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.brand,
-            (invoice.brand as AccountBrand)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (invoice.location as AccountStockLocation)?._id
-          )
-        );
-      })
-      .map((invoice) => {
-        return {
-          ...invoice,
-          fixture: (invoice.fixture as AccountFixture)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ),
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          fxtr: invoice.fixture as AccountFixture,
-        };
-      });
+    const processedRows = allRows.filter((invoice) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          invoice.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          invoice.date >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.vendor, invoice.vendorId) &&
+        passesFilter(filterPanelFormElements.brand, invoice.brandId) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (invoice.location as AccountStockLocation)?._id
+        )
+      );
+    });
+
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
