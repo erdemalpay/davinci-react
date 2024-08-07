@@ -182,8 +182,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 })()}
                 {")"}-
               </p>
-              <div className="flex flex-col gap-1 justify-start mr-auto">
-                <div className="flex flex-row justify-center items-center gap-2">
+              <div className="flex flex-col gap-1 justify-start mr-auto ">
+                <div className="flex flex-row justify-center items-center gap-2 mr-auto">
                   <p className={`${order.division ? "max-w-28" : ""}`}>
                     {(order.item as MenuItem).name}
                   </p>
