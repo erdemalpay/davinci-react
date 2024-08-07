@@ -39,7 +39,7 @@ const CountArchive = () => {
       }
     })
     .map((count) => {
-      const startDate = new Date(count.createdAt);
+      const startDate = new Date(count?.createdAt);
       const endDate = new Date(count?.completedAt ?? 0);
       return {
         ...count,
@@ -53,10 +53,10 @@ const CountArchive = () => {
         startHour: `${pad(startDate.getHours())}:${pad(
           startDate.getMinutes()
         )}`,
-        endDate: count.completedAt
+        endDate: count?.completedAt
           ? format(count.completedAt, "yyyy-MM-dd")
           : "",
-        formattedEndDate: count.completedAt
+        formattedEndDate: count?.completedAt
           ? formatAsLocalDate(format(count.completedAt, "yyyy-MM-dd"))
           : "-",
         endHour: count?.completedAt

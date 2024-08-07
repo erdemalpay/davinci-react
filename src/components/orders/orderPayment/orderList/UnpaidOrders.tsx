@@ -5,7 +5,6 @@ import { MenuItem, Order, OrderDiscount } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
-  useUpdateOrdersMutation,
 } from "../../../../utils/api/order/order";
 import SelectInput from "../../../common/SelectInput";
 import OrderScreenHeader from "./OrderScreenHeader";
@@ -19,7 +18,6 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
-  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
