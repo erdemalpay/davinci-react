@@ -152,6 +152,9 @@ const FixtureStockHistory = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return false;
+      }
       return (
         (filterPanelFormElements.before === "" ||
           stockHistory.createdAt <= filterPanelFormElements.before) &&

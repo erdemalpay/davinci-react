@@ -150,21 +150,22 @@ const FixtureStockHistory = () => {
     },
   ];
   useEffect(() => {
-    const filteredRows = allRows
-      .filter((item) => item.fixture._id === currentFixture._id)
-      .filter((stockHistory) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            stockHistory.createdAt <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            stockHistory.createdAt >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (stockHistory.location as AccountStockLocation)?._id
-          ) &&
-          passesFilter(filterPanelFormElements.status, stockHistory.status)
-        );
-      });
+    const filteredRows = allRows.filter((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return false;
+      }
+      return (
+        (filterPanelFormElements.before === "" ||
+          stockHistory.createdAt <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          stockHistory.createdAt >= filterPanelFormElements.after) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (stockHistory.location as AccountStockLocation)?._id
+        ) &&
+        passesFilter(filterPanelFormElements.status, stockHistory.status)
+      );
+    });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [stockHistories, filterPanelFormElements, currentFixture]);

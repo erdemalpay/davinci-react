@@ -158,11 +158,14 @@ const ProductStockHistory = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return false;
+      }
       return (
         (filterPanelFormElements.before === "" ||
-          stockHistory.createdAt <= filterPanelFormElements.before) &&
+          stockHistory?.createdAt <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
-          stockHistory.createdAt >= filterPanelFormElements.after) &&
+          stockHistory?.createdAt >= filterPanelFormElements.after) &&
         passesFilter(
           filterPanelFormElements.location,
           (stockHistory.location as AccountStockLocation)?._id
