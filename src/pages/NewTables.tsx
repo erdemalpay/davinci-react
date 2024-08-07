@@ -18,7 +18,7 @@ import { Routes } from "../navigation/constants";
 import { Game, Table, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
-import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
+import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
@@ -27,16 +27,12 @@ import { sortTable } from "../utils/sort";
 const NewTables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
-  const [
-    isCloseAllConfirmationDialogOpen,
-    setIsCloseAllConfirmationDialogOpen,
-  ] = useState(false);
+
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const navigate = useNavigate();
-  const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
   const visits = useGetVisits();
   const tables = useGetTables();

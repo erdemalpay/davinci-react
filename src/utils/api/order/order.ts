@@ -91,6 +91,8 @@ export function useUpdateMultipleOrderMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}`]);
     },
     onError: (_err: any) => {
       const errorMessage =
