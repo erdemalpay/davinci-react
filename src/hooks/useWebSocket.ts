@@ -23,6 +23,7 @@ export function useWebSocket() {
 
     socket.on("orderCreated", (order: Order) => {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
       toast.success("New order created");
@@ -30,6 +31,7 @@ export function useWebSocket() {
 
     socket.on("orderUpdated", (order: Order) => {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
       toast.info("Order updated");
