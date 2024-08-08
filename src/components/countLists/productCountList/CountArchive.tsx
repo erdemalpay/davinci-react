@@ -234,6 +234,7 @@ const CountArchive = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
+      if (!row?.startDate) return false;
       return (
         (filterPanelFormElements.before === "" ||
           row.startDate <= filterPanelFormElements.before) &&
