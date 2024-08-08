@@ -10,11 +10,12 @@ import { GeneralContextProvider } from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { UserContextProvider } from "./context/User.context";
+import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
 function App() {
   const isMutating = useIsMutating();
-
+  useWebSocket();
   return (
     <div className="App">
       <DateContextProvider>
