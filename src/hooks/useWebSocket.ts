@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
 import { Order } from "../types";
 import { Paths } from "../utils/api/factory";
@@ -11,6 +10,10 @@ export function useWebSocket() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    // Load the audio files
+    const orderCreatedSound = new Audio("/sounds/mixitSoftware.wav");
+    const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
+
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["websocket"],
@@ -26,7 +29,11 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
-      toast.success("New order created");
+
+      // Play order created sound
+      orderCreatedSound
+        .play()
+        .catch((error) => console.error("Error playing sound:", error));
     });
 
     socket.on("orderUpdated", (order: Order) => {
@@ -34,7 +41,11 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
-      toast.info("Order updated");
+
+      // Play order updated sound
+      orderUpdatedSound
+        .play()
+        .catch((error) => console.error("Error playing sound:", error));
     });
 
     socket.on("disconnect", () => {
