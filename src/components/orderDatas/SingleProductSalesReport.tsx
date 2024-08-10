@@ -68,11 +68,12 @@ const SingleProductSalesReport = () => {
       itemName: (order.item as MenuItem).name,
       unitPrice: order.unitPrice,
       paidQuantity: order.paidQuantity,
-      discount:
-        (order?.discountPercentage ?? 0) *
-        order.paidQuantity *
-        order.unitPrice *
-        (1 / 100),
+      discount: order?.discountPercentage
+        ? (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
+          (1 / 100)
+        : (order?.discountAmount ?? 0) * order.paidQuantity,
       amount: order.paidQuantity * order.unitPrice,
       location: (order.location as Location)._id,
       date: (order.table as Table).date,
@@ -84,10 +85,12 @@ const SingleProductSalesReport = () => {
       categoryId: (order.item as MenuItem).category as number,
       totalAmountWithDiscount:
         order.paidQuantity * order.unitPrice -
-        (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100),
+        (order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity),
     });
     return acc;
   }, [] as OrderWithPaymentInfo[]);

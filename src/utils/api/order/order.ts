@@ -13,7 +13,8 @@ interface CreateOrderForDiscount {
     orderId: number;
   }[];
   discount: number;
-  discountPercentage: number;
+  discountPercentage?: number;
+  discountAmout?: number;
 }
 interface CreateOrderForDivide {
   orders: {
@@ -116,7 +117,7 @@ export function useGetGivenDateOrders() {
 }
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {
   return post<CreateOrderForDiscount, Order>({
-    path: `${Paths.Order}/discount`,
+    path: `${Paths.Order}/create_order_for_discount`,
     payload,
   });
 }

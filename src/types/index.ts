@@ -418,6 +418,7 @@ export type Order = {
   paidQuantity: number;
   discount?: OrderDiscount | number;
   discountPercentage?: number;
+  discountAmount?: number;
   division?: number;
 };
 
@@ -444,7 +445,8 @@ export type OrderCollectionItem = {
 export type OrderDiscount = {
   _id: number;
   name: string;
-  percentage: number;
+  percentage?: number;
+  amount?: number;
 };
 
 export enum ReservationStatusEnum {

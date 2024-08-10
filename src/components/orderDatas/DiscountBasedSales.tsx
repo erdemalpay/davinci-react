@@ -89,10 +89,12 @@ const DiscountBasedSales = () => {
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
         order.paidQuantity * order.unitPrice -
-        (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100);
+        (order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity);
 
       const existingItem = existingEntry.itemQuantity.find(
         (itemQuantityIteration) =>
@@ -166,10 +168,12 @@ const DiscountBasedSales = () => {
         },
         totalAmountWithDiscount:
           order.paidQuantity * order.unitPrice -
-          (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
-            (1 / 100),
+          (order?.discountPercentage
+            ? (order?.discountPercentage ?? 0) *
+              order.paidQuantity *
+              order.unitPrice *
+              (1 / 100)
+            : (order?.discountAmount ?? 0) * order.paidQuantity),
       });
     }
 

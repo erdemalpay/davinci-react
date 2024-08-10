@@ -1,5 +1,5 @@
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderDiscount } from "../../../../types";
+import { Order, OrderDiscount, TURKISHLIRA } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
@@ -30,7 +30,9 @@ const DiscountScreen = ({ tableOrders }: Props) => {
               }}
             >
               <p className="text-red-600 p-2 items-center justify-center  font-medium">
-                {discount.percentage}%
+                {discount?.percentage
+                  ? discount.percentage + "%"
+                  : discount.amount + " " + TURKISHLIRA}
               </p>
               <p className="flex flex-row gap-1 text-sm font-medium py-0.5 text-center">
                 {discount.name}

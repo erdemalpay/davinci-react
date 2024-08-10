@@ -45,8 +45,9 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
       return acc;
     }
     const discountValue =
-      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
-      100;
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+        100 +
+      (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
   const totalAmount = tableOrders.reduce((acc, order) => {
@@ -127,7 +128,12 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
               };
             }),
             discount: selectedDiscount._id,
-            discountPercentage: selectedDiscount.percentage,
+            ...(selectedDiscount.percentage && {
+              discountPercentage: selectedDiscount.percentage,
+            }),
+            ...(selectedDiscount.amount && {
+              discountAmount: selectedDiscount.amount,
+            }),
           });
         }
         resetOrderContext();
