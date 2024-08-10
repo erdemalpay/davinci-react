@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
+  const { t } = useTranslation();
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
@@ -198,7 +200,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       <SelectInput
                         options={[...Array(10)].map((_, index) => ({
                           value: (index + 1).toString(),
-                          label: `${index + 1}`,
+                          label: index === 0 ? t("Cancel") : `${index + 1}`,
                         }))}
                         className="text-sm"
                         placeholder="1/n"
