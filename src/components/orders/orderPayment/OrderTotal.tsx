@@ -28,8 +28,9 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       return acc;
     }
     const discountValue =
-      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
-      100;
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+        100 +
+      (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
   const totalAmount = tableOrders.reduce((acc, order) => {
@@ -40,9 +41,11 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const handlePaymentAmount = (order: Order) => {
     if (order?.discount) {
       return (
-        order.unitPrice *
-        (100 - (order.discountPercentage ?? 0)) *
-        (1 / 100) *
+        (order?.discountPercentage
+          ? order.unitPrice *
+            (100 - (order?.discountPercentage ?? 0)) *
+            (1 / 100)
+          : order.unitPrice - (order?.discountAmount ?? 0)) *
         (order?.division ? order.quantity / order.division : 1)
       );
     } else {
@@ -124,9 +127,11 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
                 <p>
                   {(
                     (order.discount
-                      ? order.unitPrice *
-                        (100 - (order.discountPercentage ?? 0)) *
-                        (1 / 100)
+                      ? order?.discountPercentage
+                        ? order.unitPrice *
+                          (100 - (order?.discountPercentage ?? 0)) *
+                          (1 / 100)
+                        : order.unitPrice - (order?.discountAmount ?? 0)
                       : order.unitPrice) * (tempOrder?.quantity ?? 0)
                   ).toFixed(2)}
                   ₺

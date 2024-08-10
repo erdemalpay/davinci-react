@@ -13,7 +13,13 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
+type FormElementsState = {
+  [key: string]: any;
+};
+enum DiscountTypeEnum {
+  PERCENTAGE = "PERCENTAGE",
+  AMOUNT = "AMOUNT",
+}
 const OrderDiscountPage = () => {
   const { t } = useTranslation();
   const orderDiscounts = useGetOrderDiscounts();
@@ -22,6 +28,12 @@ const OrderDiscountPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<OrderDiscount>();
+  const [form, setForm] = useState<FormElementsState>({
+    name: "",
+    type: "",
+    percentage: "",
+    amount: "",
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -32,6 +44,7 @@ const OrderDiscountPage = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Percentage"), isSortable: true },
+    { key: t("Amount"), isSortable: true },
   ];
   if (
     user &&
@@ -50,20 +63,69 @@ const OrderDiscountPage = () => {
       key: "percentage",
       className: "min-w-32 pr-1",
     },
+    {
+      key: "amount",
+      className: "min-w-32 pr-1",
+    },
   ];
   const inputs = [
     NameInput(),
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      placeholder: t("Type"),
+      options: [
+        {
+          value: DiscountTypeEnum.PERCENTAGE,
+          label: t("Percentage"),
+        },
+        {
+          value: DiscountTypeEnum.AMOUNT,
+          label: t("Amount"),
+        },
+      ],
+      required: !isEditModalOpen,
+      isDisabled: isEditModalOpen ? true : !(form.type === ""),
+    },
     {
       type: InputTypes.NUMBER,
       formKey: "percentage",
       label: t("Percentage"),
       placeholder: t("Percentage"),
-      required: true,
+      required: isEditModalOpen
+        ? rowToAction?.percentage
+          ? true
+          : false
+        : form.type === DiscountTypeEnum.PERCENTAGE,
+      isDisabled: isEditModalOpen
+        ? rowToAction?.percentage
+          ? false
+          : true
+        : form.type !== DiscountTypeEnum.PERCENTAGE,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "amount",
+      label: t("Amount"),
+      placeholder: t("Amount"),
+      required: isEditModalOpen
+        ? rowToAction?.amount
+          ? true
+          : false
+        : form.type === DiscountTypeEnum.AMOUNT,
+      isDisabled: isEditModalOpen
+        ? rowToAction?.amount
+          ? false
+          : true
+        : form.type !== DiscountTypeEnum.AMOUNT,
     },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "type", type: FormKeyTypeEnum.STRING },
     { key: "percentage", type: FormKeyTypeEnum.NUMBER },
+    { key: "amount", type: FormKeyTypeEnum.NUMBER },
   ];
 
   const addButton = {
@@ -75,6 +137,7 @@ const OrderDiscountPage = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
+        setForm={setForm}
         submitItem={createOrderDiscount as any}
         topClassName="flex flex-col gap-2 "
       />
@@ -134,6 +197,7 @@ const OrderDiscountPage = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateOrderDiscount as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "

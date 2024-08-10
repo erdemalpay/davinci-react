@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
+  const { t } = useTranslation();
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
@@ -23,8 +25,9 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
       return acc;
     }
     const discountValue =
-      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
-      100;
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+        100 +
+      (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
   const totalAmount = tableOrders.reduce((acc, order) => {
@@ -54,11 +57,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
 
         const handlePaymentAmount = (order: Order) => {
           if (order?.discount) {
-            return (
-              order.unitPrice *
-              (100 - (order.discountPercentage ?? 0)) *
-              (1 / 100)
-            );
+            return order?.discountPercentage
+              ? order.unitPrice *
+                  (100 - (order?.discountPercentage ?? 0)) *
+                  (1 / 100)
+              : order.unitPrice - (order?.discountAmount ?? 0);
           } else {
             return order.unitPrice;
           }
@@ -198,7 +201,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       <SelectInput
                         options={[...Array(10)].map((_, index) => ({
                           value: (index + 1).toString(),
-                          label: `${index + 1}`,
+                          label: index === 0 ? t("Cancel") : `${index + 1}`,
                         }))}
                         className="text-sm"
                         placeholder="1/n"
@@ -273,16 +276,20 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               {order?.discount && (
                 <div className="flex flex-col ml-auto justify-center items-center">
                   <p className="text-xs line-through">
-                    {order.unitPrice *
+                    {(
+                      order.unitPrice *
                       (order.quantity -
-                        (order.paidQuantity + (tempOrder?.quantity ?? 0)))}
+                        (order.paidQuantity + (tempOrder?.quantity ?? 0)))
+                    ).toFixed(2)}
                     ₺
                   </p>
                   <p>
                     {(
-                      order.unitPrice *
-                      (100 - (order.discountPercentage ?? 0)) *
-                      (1 / 100) *
+                      (order?.discountPercentage
+                        ? order.unitPrice *
+                          (100 - (order?.discountPercentage ?? 0)) *
+                          (1 / 100)
+                        : order.unitPrice - (order?.discountAmount ?? 0)) *
                       (order.quantity -
                         (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
                     ).toFixed(2)}
@@ -300,7 +307,21 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   ₺
                 </p>
               )}
-              <MdOutlineTouchApp className="cursor-pointer hover:text-red-600 text-lg" />
+              <MdOutlineTouchApp
+                className="cursor-pointer hover:text-red-600 text-lg"
+                // onClick={(e) => {
+                //   e.stopPropagation();
+                //   setTemporaryOrders([
+                //     ...temporaryOrders?.filter(
+                //       (tempOrder) => tempOrder.order._id !== order._id
+                //     ),
+                //     {
+                //       order: order,
+                //       quantity: order.quantity - order.paidQuantity,
+                //     },
+                //   ]);
+                // }}
+              />
             </div>
           </div>
         );

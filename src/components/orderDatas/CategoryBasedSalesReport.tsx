@@ -84,20 +84,22 @@ const CategoryBasedSalesReport = () => {
 
     if (existingEntry) {
       existingEntry.paidQuantity += order.paidQuantity;
-      existingEntry.discount +=
-        (order?.discountPercentage ?? 0) *
-        order.paidQuantity *
-        order.unitPrice *
-        (1 / 100);
+      existingEntry.discount += order?.discountPercentage
+        ? (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
+          (1 / 100)
+        : (order?.discountAmount ?? 0) * order.paidQuantity;
       existingEntry.amount += order.paidQuantity * order.unitPrice;
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
         order.paidQuantity * order.unitPrice -
-        (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100);
-
+        (order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity);
       const existingItem = existingEntry.itemQuantity.find(
         (itemQuantityIteration) =>
           itemQuantityIteration.itemId === (order.item as MenuItem)._id
@@ -139,11 +141,12 @@ const CategoryBasedSalesReport = () => {
         item: (order.item as MenuItem)._id,
         itemName: (order.item as MenuItem).name,
         paidQuantity: order.paidQuantity,
-        discount:
-          (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100),
+        discount: order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity,
         amount: order.paidQuantity * order.unitPrice,
         location: (order.location as Location)._id,
         date: format(orderDate, "yyyy-MM-dd"),
@@ -175,10 +178,12 @@ const CategoryBasedSalesReport = () => {
         },
         totalAmountWithDiscount:
           order.paidQuantity * order.unitPrice -
-          (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
-            (1 / 100),
+          (order?.discountPercentage
+            ? (order?.discountPercentage ?? 0) *
+              order.paidQuantity *
+              order.unitPrice *
+              (1 / 100)
+            : (order?.discountAmount ?? 0) * order.paidQuantity),
       });
     }
 

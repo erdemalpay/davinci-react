@@ -74,19 +74,22 @@ const GroupedProductSalesReport = () => {
 
     if (existingEntry) {
       existingEntry.paidQuantity += order.paidQuantity;
-      existingEntry.discount +=
-        (order?.discountPercentage ?? 0) *
-        order.paidQuantity *
-        order.unitPrice *
-        (1 / 100);
+      existingEntry.discount += order?.discountPercentage
+        ? (order?.discountPercentage ?? 0) *
+          order.paidQuantity *
+          order.unitPrice *
+          (1 / 100)
+        : (order?.discountAmount ?? 0) * order.paidQuantity;
       existingEntry.amount += order.paidQuantity * order.unitPrice;
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
         order.paidQuantity * order.unitPrice -
-        (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100);
+        (order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity);
       const existingUnitPrice = existingEntry.unitPriceQuantity.find(
         (item) => item.unitPrice === order.unitPrice
       );
@@ -126,11 +129,12 @@ const GroupedProductSalesReport = () => {
         itemName: (order.item as MenuItem).name,
         unitPrice: order.unitPrice,
         paidQuantity: order.paidQuantity,
-        discount:
-          (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100),
+        discount: order?.discountPercentage
+          ? (order?.discountPercentage ?? 0) *
+            order.paidQuantity *
+            order.unitPrice *
+            (1 / 100)
+          : (order?.discountAmount ?? 0) * order.paidQuantity,
         amount: order.paidQuantity * order.unitPrice,
         location: (order.location as Location)._id,
         date: (order.table as Table).date,
@@ -155,10 +159,12 @@ const GroupedProductSalesReport = () => {
         },
         totalAmountWithDiscount:
           order.paidQuantity * order.unitPrice -
-          (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
-            (1 / 100),
+          (order?.discountPercentage
+            ? (order?.discountPercentage ?? 0) *
+              order.paidQuantity *
+              order.unitPrice *
+              (1 / 100)
+            : (order?.discountAmount ?? 0) * order.paidQuantity),
       });
     }
 

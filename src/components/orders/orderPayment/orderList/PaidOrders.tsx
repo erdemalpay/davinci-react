@@ -11,12 +11,12 @@ const PaidOrders = ({ tableOrders }: Props) => {
     if (order?.discount) {
       return (
         <p>
-          {(
-            order.unitPrice *
-            (100 - (order.discountPercentage ?? 0)) *
-            (1 / 100) *
-            order.paidQuantity
-          ).toFixed(2)}
+          {order?.discountPercentage
+            ? order.unitPrice *
+              (100 - (order?.discountPercentage ?? 0)) *
+              (1 / 100) *
+              order.paidQuantity
+            : (order.unitPrice - (order?.discountAmount ?? 0)).toFixed(2)}
           ₺
         </p>
       );

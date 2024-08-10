@@ -25,8 +25,9 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       return acc;
     }
     const discountValue =
-      (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
-      100;
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+        100 +
+      (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
   const totalAmount = tableOrders.reduce((acc, order) => {
