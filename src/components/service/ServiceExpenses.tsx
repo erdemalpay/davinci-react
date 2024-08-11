@@ -40,30 +40,30 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const [rows, setRows] = useState(
-    invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.service as AccountService)._id === selectedService?._id
-      )
-      ?.map((invoice) => {
-        return {
-          ...invoice,
-          service: (invoice.service as AccountService)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ),
-          expType: invoice.expenseType as AccountExpenseType,
-          vndr: invoice.vendor as AccountVendor,
-          srvc: invoice.service as AccountService,
-        };
-      })
-  );
+  const allRows = invoices
+    ?.filter(
+      (invoice) =>
+        (invoice.service as AccountService)._id === selectedService?._id
+    )
+    ?.map((invoice) => {
+      return {
+        ...invoice,
+        service: (invoice.service as AccountService)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        vendorId: (invoice.vendor as AccountVendor)?._id,
+        formattedDate: formatAsLocalDate(invoice.date),
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
+        unitPrice: parseFloat(
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
+        ),
+        expType: invoice.expenseType as AccountExpenseType,
+        vndr: invoice.vendor as AccountVendor,
+        srvc: invoice.service as AccountService,
+      };
+    });
+  const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
@@ -145,8 +145,11 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
     {
-      key: "formattedDate",
-      className: "min-w-32 pr-2",
+      key: "date",
+      className: "min-w-32 pr-1",
+      node: (row: any) => {
+        return <p>{row.formattedDate}</p>;
+      },
     },
     { key: "note", className: "min-w-40 pr-2" },
     {
@@ -206,44 +209,19 @@ const ServiceExpenses = ({ selectedService }: Props) => {
     },
   ];
   useEffect(() => {
-    const processedRows = invoices
-      ?.filter(
-        (invoice) =>
-          (invoice.service as AccountService)._id === selectedService?._id
-      )
-      ?.filter((invoice) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            invoice.date <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after) &&
-          passesFilter(
-            filterPanelFormElements.vendor,
-            (invoice.vendor as AccountVendor)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (invoice.location as AccountStockLocation)?._id
-          )
-        );
-      })
-      .map((invoice) => {
-        return {
-          ...invoice,
-          service: (invoice.service as AccountService)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ),
-          expType: invoice.expenseType as AccountExpenseType,
-          vndr: invoice.vendor as AccountVendor,
-          srvc: invoice.service as AccountService,
-        };
-      });
+    const processedRows = allRows.filter((invoice) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          invoice.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          invoice.date >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.vendor, invoice.vendorId) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (invoice.location as AccountStockLocation)?._id
+        )
+      );
+    });
     const filteredRows = processedRows.filter((row) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];

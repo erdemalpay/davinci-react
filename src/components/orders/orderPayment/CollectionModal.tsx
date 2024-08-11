@@ -2,20 +2,24 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   MenuItem,
+  OrderCollectionItem,
   OrderCollectionStatus,
+  Table,
   User,
 } from "../../../types";
-import { useGetOrders } from "../../../utils/api/order/order";
+import {
+  useGetGivenDateOrders,
+  useUpdateOrdersMutation,
+} from "../../../utils/api/order/order";
 import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
-import { useOrderPaymentMutations } from "../../../utils/api/order/orderPayment";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -24,38 +28,33 @@ import {
 } from "../../panelComponents/shared/types";
 
 type Props = {
-  orderCollections: number[];
+  table: number;
   setIsCollectionModalOpen: (isOpen: boolean) => void;
 };
 
-const CollectionModal = ({
-  orderCollections,
-  setIsCollectionModalOpen,
-}: Props) => {
+const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
   const collections = useGetOrderCollections();
-  const orders = useGetOrders();
+  const orders = useGetGivenDateOrders();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { t } = useTranslation();
+  const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
-  const { updateOrderPayment } = useOrderPaymentMutations();
   const [inputForm, setInputForm] = useState({
     note: "",
   });
   if (!collections || !orders || !user) {
     return null;
   }
-  const allRows = orderCollections
-    .map((collectionId) => {
-      const collection = collections.find((item) => item._id === collectionId);
-      if (!collection) {
-        return null;
-      }
+  const allRows = collections
+    .filter((collection) => (collection.table as Table)._id === table)
+    .map((collection) => {
       return {
         _id: collection._id,
-        orderPayment: collection.orderPayment,
+        table: (collection.table as Table)._id,
         cashier: (collection.createdBy as User)?.name,
         orders: collection.orders,
         cancelledBy: (collection?.cancelledBy as User)?.name,
@@ -78,13 +77,13 @@ const CollectionModal = ({
               orders?.find((order) => order._id === orderCollectionItem.order)
                 ?.item as MenuItem
             )?.name,
-            quantity: orderCollectionItem.paidQuantity,
+            quantity: orderCollectionItem.paidQuantity.toFixed(2),
           })),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
       };
     })
-    .filter((item) => item !== null);
+    ?.filter((item) => item !== null);
 
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -118,9 +117,13 @@ const CollectionModal = ({
       key: "status",
       node: (row: any) =>
         row.status === OrderCollectionStatus.PAID ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
+          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-semibold">
+            {t("Paid Status")}
+          </p>
         ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
+          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-semibold">
+            {t("Cancelled Status")}
+          </p>
         ),
     },
   ];
@@ -178,30 +181,22 @@ const CollectionModal = ({
               return;
             }
             if (rowToAction?.orders?.length > 0) {
-              const newOrderPaymentOrders =
-                rowToAction?.orderPayment?.orders?.map(
-                  (orderPaymentItem: any) => {
-                    const orderCollectionItem = rowToAction.orders.find(
-                      (orderCollectionItem: any) =>
-                        orderCollectionItem.order === orderPaymentItem.order
-                    );
-                    if (orderCollectionItem) {
-                      return {
-                        ...orderPaymentItem,
-                        paidQuantity:
-                          orderPaymentItem.paidQuantity -
-                          orderCollectionItem.paidQuantity,
-                      };
-                    }
-                    return orderPaymentItem;
+              const newOrders = rowToAction?.orders
+                ?.map((orderCollectionItem: OrderCollectionItem) => {
+                  const order = orders?.find(
+                    (orderItem) => orderItem._id === orderCollectionItem.order
+                  );
+                  if (order) {
+                    return {
+                      ...order,
+                      paidQuantity:
+                        order.paidQuantity - orderCollectionItem.paidQuantity,
+                    };
                   }
-                );
-              updateOrderPayment({
-                id: rowToAction?.orderPayment?._id,
-                updates: {
-                  orders: newOrderPaymentOrders,
-                },
-              });
+                  return null;
+                })
+                ?.filter((item: any) => item !== null);
+              updateOrders(newOrders);
             }
             updateOrderCollection({
               id: rowToAction._id,
@@ -212,6 +207,7 @@ const CollectionModal = ({
                 status: OrderCollectionStatus.CANCELLED,
               },
             });
+            resetOrderContext();
           }}
         />
       ) : null,
@@ -222,7 +218,7 @@ const CollectionModal = ({
   ];
 
   return (
-    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar">
+    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar z-40">
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}

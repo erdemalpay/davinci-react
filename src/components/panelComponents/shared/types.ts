@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 export interface Tab {
   number: number;
   content: React.ReactNode;
-  icon: React.ReactNode | null;
+  icon?: React.ReactNode | null;
   label: string;
   isDisabled: boolean;
 }
@@ -80,6 +80,7 @@ export interface GenericInputType {
   isMultiple?: boolean;
   isDatePicker?: boolean;
   isDateInitiallyOpen?: boolean;
+  isTopFlexRow?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: {
     key: string;
@@ -102,6 +103,7 @@ export enum InputTypes {
   PASSWORD = "password",
   TIME = "time",
   COLOR = "color",
+  CHECKBOX = "checkbox",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",
@@ -109,6 +111,7 @@ export enum FormKeyTypeEnum {
   COLOR = "color",
   DATE = "date",
   BOOLEAN = "boolean",
+  CHECKBOX = "checkbox",
 }
 
 export interface NavigationType {

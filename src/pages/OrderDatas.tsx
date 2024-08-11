@@ -1,9 +1,19 @@
 import { BiCategory } from "react-icons/bi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import { TbReportSearch } from "react-icons/tb";
+import { SiFampay } from "react-icons/si";
+import {
+  TbDiscount,
+  TbReportAnalytics,
+  TbReportMoney,
+  TbReportSearch,
+} from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSalesReport";
+import Collections from "../components/orderDatas/Collections";
+import DailyIncome from "../components/orderDatas/DailyIncome";
+import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
+import OrdersReport from "../components/orderDatas/OrdersReport";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -13,24 +23,52 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const OrderDataTabs = [
   {
+    number: OrderDataTabEnum.DAILYINCOME,
+    label: "Daily Income",
+    icon: <TbReportMoney className="text-lg font-thin" />,
+    content: <DailyIncome />,
+    isDisabled: false,
+  },
+  {
     number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
-    label: "Product Sales Report",
+    label: "Product Sales",
     icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
     content: <GroupedProductSalesReport />,
     isDisabled: false,
   },
   {
     number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
-    label: "Product Based Sales Report",
+    label: "Product Based Sales",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
     isDisabled: false,
   },
   {
     number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
-    label: "Category Based Sales Report",
+    label: "Category Based Sales",
     icon: <BiCategory className="text-lg font-thin" />,
     content: <CategoryBasedSalesReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.DISCOUNTBASEDSALES,
+    label: "Discount Based Sales",
+    icon: <TbDiscount className="text-lg font-thin" />,
+    content: <DiscountBasedSales />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.COLLECTIONS,
+    label: "Collections",
+    icon: <SiFampay className="text-lg font-thin" />,
+    content: <Collections />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.ORDERS,
+    label: "Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <OrdersReport />,
     isDisabled: false,
   },
 ];

@@ -10,7 +10,6 @@ import PriceChart from "./PriceChart";
 type Props = {};
 export default function ProductPriceChart({}: Props) {
   const { t } = useTranslation();
-
   const products = useGetAccountProducts();
   const invoices = useGetAccountInvoices();
   const [chartKey, setChartKey] = useState(0);
@@ -20,7 +19,9 @@ export default function ProductPriceChart({}: Props) {
       label: product.name + `(${(product.unit as AccountUnit).name})`,
     };
   });
-  const [selectedProduct, setSelectedProduct] = useState<AccountProduct>();
+  const [selectedProduct, setSelectedProduct] = useState<
+    AccountProduct | undefined
+  >(products ? products[0] : undefined);
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [

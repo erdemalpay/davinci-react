@@ -33,7 +33,8 @@ type Props = {
     value: SingleValue<{ value: string; label: string }>,
     actionMeta: ActionMeta<{ value: string; label: string }>
   ) => void;
-  placeholder: string;
+  placeholder?: string;
+  className?: string;
 };
 
 const SelectInput = ({
@@ -42,6 +43,7 @@ const SelectInput = ({
   value,
   onChange,
   placeholder,
+  className,
 }: Props) => {
   const customStyles = {
     control: (base: CSSObjectWithLabel) => ({
@@ -75,18 +77,24 @@ const SelectInput = ({
       fontSize: "14px",
       fontWeight: 400,
     }),
+    menuPortal: (base: CSSObjectWithLabel) => ({ ...base, zIndex: 9999 }),
   };
 
   return (
-    <div className="flex flex-col gap-2 mt-4 __className_a182b8">
+    <div
+      className={`flex flex-col gap-2  __className_a182b8 ${
+        className ? className : "mt-4"
+      }`}
+    >
       {label && <label className="font-medium text-gray-900">{label}</label>}
       <Select
         options={options}
         onChange={onChange}
         value={value}
         components={{ Option: CustomOption }}
-        placeholder={placeholder}
+        placeholder={placeholder ?? ""}
         styles={customStyles}
+        menuPosition="fixed"
       />
     </div>
   );

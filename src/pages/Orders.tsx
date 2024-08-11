@@ -1,63 +1,57 @@
-import { FaRegClock } from "react-icons/fa6";
 import { Header } from "../components/header/Header";
-import OrderStatusContainer from "../components/orders/OrderStatusContainer";
-import { useLocationContext } from "../context/Location.context";
-import { Location, OrderStatus } from "../types";
-import { useGetTodayOrders } from "../utils/api/order/order";
+import SingleOrdersPage from "../components/orders/SingleOrdersPage";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { useGetKitchens } from "../utils/api/menu/kitchen";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
-export default function Orders() {
-  const { selectedLocationId } = useLocationContext();
-  const todayOrders = useGetTodayOrders();
-  const orderStatusArray = [
-    {
-      status: "Pending",
-      orders: todayOrders.filter(
-        (order) => order.status === OrderStatus.PENDING
-      ),
-      icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
-    },
-    {
-      status: "Ready to Serve",
-      orders: todayOrders.filter(
-        (order) => order.status === OrderStatus.READYTOSERVE
-      ),
-      icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
-    },
-    {
-      status: "Served",
-      orders: todayOrders.filter(
-        (order) => order.status === OrderStatus.SERVED
-      ),
-      icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-purple-900 to-purple-500",
-    },
-  ];
+function Orders() {
+  const {
+    setCurrentPage,
+    setSearchQuery,
+    ordersActiveTab,
+    setOrdersActiveTab,
+  } = useGeneralContext();
+  const currentPageId = "orders";
+  const kitchens = useGetKitchens();
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0 || !kitchens) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const orderTabs = kitchens.map((kitchen, index) => ({
+    number: index,
+    label: kitchen.name,
+    content: <SingleOrdersPage kitchen={kitchen._id} />,
+    isDisabled: false,
+  }));
+  const tabs = orderTabs?.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
 
   return (
     <>
-      <Header />
-      <div className="flex flex-col gap-6 mt-8">
-        <div className="flex flex-col sm:flex-row gap-8 sm:gap-2 w-[95%] mx-auto">
-          {orderStatusArray.map((orderStatus, index) => (
-            <div
-              key={orderStatus.status + index}
-              className="flex flex-col items-center w-full sm:w-1/3"
-            >
-              <OrderStatusContainer
-                status={orderStatus.status}
-                orders={orderStatus.orders.filter(
-                  (order) =>
-                    (order.location as Location)._id === selectedLocationId
-                )}
-                icon={orderStatus.icon}
-                iconBackgroundColor={orderStatus.iconBackgroundColor}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      <Header showLocationSelector={false} />
+      <TabPanel
+        tabs={tabs ?? []}
+        activeTab={ordersActiveTab}
+        setActiveTab={setOrdersActiveTab}
+        additionalOpenAction={() => {
+          setCurrentPage(1);
+          setSearchQuery("");
+        }}
+      />
     </>
   );
 }
+
+export default Orders;

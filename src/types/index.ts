@@ -23,7 +23,6 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
-  payment?: number;
   gameplays: Gameplay[];
 };
 
@@ -328,11 +327,17 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
   locations: number[];
+  kitchen: Kitchen | string;
+  isAutoServed: boolean;
 };
 export type MenuPopular = {
   _id: number;
   order: number;
   item: MenuItem | number;
+};
+export type Kitchen = {
+  _id: string;
+  name: string;
 };
 
 export type MenuItem = {
@@ -410,6 +415,11 @@ export type Order = {
   deliveredBy?: User | string;
   cancelledAt?: Date;
   cancelledBy?: User | string;
+  paidQuantity: number;
+  discount?: OrderDiscount | number;
+  discountPercentage?: number;
+  discountAmount?: number;
+  division?: number;
 };
 
 export type OrderCollection = {
@@ -423,37 +433,20 @@ export type OrderCollection = {
   amount: number;
   status: string;
   paymentMethod: AccountPaymentMethod | string;
-  orderPayment: OrderPayment | number;
   orders?: OrderCollectionItem[];
-};
-
-export type OrderPaymentItem = {
-  order: number;
-  paidQuantity: number;
-  totalQuantity: number;
-  discount?: number;
-  discountPercentage?: number;
-};
-
-type OrderCollectionItem = {
-  order: number;
-  paidQuantity: number;
-};
-
-export type OrderPayment = {
-  _id: number;
-  location: Location | number;
   table: Table | number;
-  discountAmount: number;
-  collections?: number[];
-  orders?: OrderPaymentItem[];
-  totalAmount: number;
+};
+
+export type OrderCollectionItem = {
+  order: number;
+  paidQuantity: number;
 };
 
 export type OrderDiscount = {
   _id: number;
   name: string;
-  percentage: number;
+  percentage?: number;
+  amount?: number;
 };
 
 export enum ReservationStatusEnum {
@@ -568,6 +561,7 @@ export enum AccountingPageTabEnum {
   DISCOUNTS,
   PAYMENTMETHODS,
   STOCKLOCATION,
+  KITCHENS,
 }
 export enum CheckoutPageTabEnum {
   INCOME,
@@ -628,9 +622,13 @@ export enum StockHistoryStatusEnum {
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
 }
 export enum OrderDataTabEnum {
+  DAILYINCOME,
   GROUPEDPRODUCTSALESREPORT,
   SINGLEPRODUCTSALESREPORT,
   CATEGORYBASEDSALESREPORT,
+  DISCOUNTBASEDSALES,
+  COLLECTIONS,
+  ORDERS,
 }
 export const stockHistoryStatuses = [
   {
@@ -725,6 +723,7 @@ export enum OrderStatus {
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",
   CANCELLED = "cancelled",
+  AUTOSERVED = "autoserved",
 }
 
 export enum OrderCollectionStatus {

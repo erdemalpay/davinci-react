@@ -27,22 +27,22 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  h-40 __className_a182b8">
-      <div className="flex flex-row gap-4 mt-4 px-2">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-24 __className_a182b8  overflow-scroll no-scrollbar">
+      <div className="flex flex-row gap-4  px-2 mt-1  ">
         {/* img & time */}
-        <div className="flex flex-col gap-2 h-full  items-center">
+        <div className="flex flex-col gap-1 h-16  items-center ">
           {order.status !== OrderStatus.SERVED && (
             <Timer createdAt={timerSetter() ?? new Date()} />
           )}
           <img
             src={(order.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
             alt="item"
-            className="w-16 h-16 object-cover rounded-lg"
+            className="w-10 h-10 object-cover rounded-lg"
           />
         </div>
         {/* itemName,quantity & orderNote */}
-        <div className="flex flex-col gap-2 justify-center  items-center w-full ">
-          <div className="flex flex-row justify-between w-full pr-2">
+        <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
+          <div className="flex flex-row justify-between w-full pr-2 items-center ">
             <p>{(order.item as MenuItem)?.name}</p>
             <p>
               {order.quantity > 1 && "x"}
@@ -53,7 +53,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className="mt-1  ml-auto">
+      <div className="  flex flex-row justify-between  px-2 ml-auto  ">
         {/* pending ready button */}
         {order.status === OrderStatus.PENDING && (
           <button
@@ -67,7 +67,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 },
               });
             }}
-            className=" px-2 py-1 rounded-lg"
+            className="  rounded-lg"
           >
             <ButtonTooltip content={t("Ready")}>
               <PiBellSimpleRingingFill className="text-xl" />
@@ -76,7 +76,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         )}
         {/* ready to serve back to pending  button */}
         {order.status === OrderStatus.READYTOSERVE && (
-          <div className="flex flex-row ">
+          <div className="flex flex-row gap-2  ">
             {user._id === (order.preparedBy as User)._id && (
               <button
                 onClick={() => {
@@ -87,7 +87,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-2 py-1 rounded-lg"
+                className=" rounded-lg"
               >
                 <ButtonTooltip content={t("Preparing")}>
                   <TbArrowBack className="text-xl" />
@@ -105,7 +105,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" px-2 py-1 rounded-lg"
+              className="  rounded-lg"
             >
               <ButtonTooltip content={t("Served")}>
                 <PiBellSimpleRingingFill className="text-xl" />
@@ -125,7 +125,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" px-2 py-1 rounded-lg"
+                className="  rounded-lg"
               >
                 <ButtonTooltip content={t("Not Served")}>
                   <TbArrowBack className="text-xl" />

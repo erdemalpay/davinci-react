@@ -5,23 +5,27 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
 import { MdBorderColor } from "react-icons/md";
+import { PiCallBellFill } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
-import { Game, Gameplay, OrderStatus, Table, User } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  Game,
+  Gameplay,
+  MenuCategory,
+  OrderStatus,
+  Table,
+  User,
+} from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
-  deleteTableOrders,
   useGetGivenDateOrders,
   useOrderMutations,
+  useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import {
-  useGetOrderPayments,
-  useOrderPaymentMutations,
-} from "../../utils/api/order/orderPayment";
-import {
-  useCloseTableMutation,
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
@@ -62,20 +66,17 @@ export function TableCard({
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
-  const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
-    useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { updateTable, deleteTable } = useTableMutations();
-  const { mutate: closeTable } = useCloseTableMutation();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
-  const { createOrder, deleteOrder, updateOrder } = useOrderMutations();
-  const orderPayments = useGetOrderPayments();
-  const { updateOrderPayment, createOrderPayment } = useOrderPaymentMutations();
+  const { createOrder } = useOrderMutations();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
+  const { user } = useUserContext();
+  const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState({
     item: 0,
     quantity: 0,
@@ -96,14 +97,14 @@ export function TableCard({
     {
       type: InputTypes.SELECT,
       formKey: "item",
-      label: t("Item"),
+      label: t("Product"),
       options: menuItemOptions.map((option) => {
         return {
           value: option.value,
           label: option.label,
         };
       }),
-      placeholder: t("Item"),
+      placeholder: t("Product"),
       required: true,
     },
     QuantityInput(),
@@ -147,77 +148,6 @@ export function TableCard({
     toast.success(`Table ${table.name} reopened`);
   }
   function newClose() {
-    const tableOpenPayment = orderPayments?.find(
-      (orderPayment) => (orderPayment.table as Table)?._id === table?._id
-    );
-
-    // there is an open order payment so first check that the items inside are matched directly open it
-    if (tableOpenPayment) {
-      // check if all orders are included in the open order payment
-      const isAllOrdersIncluded =
-        table?.orders?.every((orderId) =>
-          tableOpenPayment?.orders?.some(
-            (paymentOrder) => paymentOrder.order === orderId
-          )
-        ) ?? false;
-      //we are updating the open order payment to include all orders
-      if (!isAllOrdersIncluded) {
-        const missingOrders = table?.orders?.filter(
-          (orderId) =>
-            !tableOpenPayment?.orders?.some(
-              (paymentOrder) => paymentOrder.order === orderId
-            )
-        );
-        const newOrders = [
-          ...(tableOpenPayment?.orders ?? []),
-          ...(missingOrders?.map((orderId) => ({
-            order: orderId,
-            paidQuantity: 0,
-            totalQuantity:
-              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
-          })) ?? []),
-        ];
-
-        const newTotalAmount =
-          tableOpenPayment.totalAmount +
-          (missingOrders?.reduce((acc, order) => {
-            const orderItem = orders?.find((o) => o._id === order);
-            if (!orderItem) return acc;
-            return acc + (orderItem.unitPrice * orderItem.quantity || 0);
-          }, 0) ?? 0);
-
-        updateOrderPayment({
-          id: tableOpenPayment._id,
-          updates: { orders: newOrders, totalAmount: newTotalAmount },
-        });
-      }
-    }
-    // there is no open order payment so create a new one
-    else {
-      const totalAmount = table?.orders?.reduce((acc, order) => {
-        const orderItem = orders?.find((o) => o._id === order);
-        if (!orderItem) return acc;
-        return acc + orderItem?.unitPrice * orderItem?.quantity;
-      }, 0);
-
-      createOrderPayment({
-        table: table._id,
-        orders: table?.orders
-          ?.filter((orderId) => {
-            const order = orders?.find((o) => o._id === orderId);
-            return order?.status !== OrderStatus.CANCELLED;
-          })
-          .map((orderId) => ({
-            order: orderId,
-            paidQuantity: 0,
-            totalQuantity:
-              orders?.find((o) => o._id === orderId)?.quantity ?? 0,
-          })),
-        location: selectedLocationId,
-        totalAmount: totalAmount,
-        discountAmount: 0,
-      });
-    }
     setIsOrderPaymentModalOpen(true);
   }
   const date = table.date;
@@ -249,11 +179,7 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table.orders && table?.orders?.length > 0) {
-      deleteTableOrders({ ids: table?.orders });
-    }
     setIsDeleteConfirmationDialogOpen(false);
-    toast.success(`Table ${table.name} deleted`);
   }
   function getOrder(orderId: number) {
     return orders.find((order) => order._id === orderId);
@@ -274,7 +200,7 @@ export function TableCard({
             onUpdate={updateTableHandler}
           />
         </p>
-        <div className="justify-end w-2/3 gap-4 flex lg:hidden lg:group-hover:flex ">
+        <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && (
             <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
@@ -302,6 +228,37 @@ export function TableCard({
                   // onClick={() => setIsCloseConfirmationDialogOpen(true)}
                   onClick={() => newClose()}
                   IconComponent={IoReceipt}
+                />
+              </span>
+            </Tooltip>
+          )}
+          {!table.finishHour && (
+            <Tooltip content={t("Served")}>
+              <span className="text-{8px}">
+                <CardAction
+                  onClick={() => {
+                    if (!table.orders || !orders || !user) return;
+                    const tableReadyToServeOrders = table.orders?.filter(
+                      (tableOrder) =>
+                        orders?.find((order) => order._id === tableOrder)
+                          ?.status === OrderStatus.READYTOSERVE
+                    );
+                    if (
+                      tableReadyToServeOrders?.length === 0 ||
+                      !tableReadyToServeOrders
+                    )
+                      return;
+
+                    updateMultipleOrders({
+                      ids: tableReadyToServeOrders,
+                      updates: {
+                        status: OrderStatus.SERVED,
+                        deliveredAt: new Date(),
+                        deliveredBy: user._id,
+                      },
+                    });
+                  }}
+                  IconComponent={PiCallBellFill}
                 />
               </span>
             </Tooltip>
@@ -384,7 +341,7 @@ export function TableCard({
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
-              if (!order) return null;
+              if (!order || order.status === OrderStatus.CANCELLED) return null;
               return <OrderCard key={order._id} order={order} table={table} />;
             })}
           </div>
@@ -430,18 +387,44 @@ export function TableCard({
           setForm={setOrderForm}
           isCreateCloseActive={false}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="flex flex-row mx-auto flex-1 justify-center  "
+          anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
           anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
             );
-            if (selectedMenuItem && selectedTable) {
+            if (
+              (
+                user &&
+                selectedMenuItem &&
+                selectedTable &&
+                (selectedMenuItem?.category as MenuCategory)
+              )?.isAutoServed
+            ) {
               createOrder({
                 ...orderForm,
                 location: selectedLocationId,
                 table: selectedTable._id,
                 unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
+                deliveredAt: new Date(),
+                deliveredBy: user?._id,
+                preparedAt: new Date(),
+                preparedBy: user?._id,
+                status: OrderStatus.AUTOSERVED,
+              });
+            }
+            if (
+              selectedMenuItem &&
+              selectedTable &&
+              !(selectedMenuItem?.category as MenuCategory)?.isAutoServed
+            ) {
+              createOrder({
+                ...orderForm,
+                location: selectedLocationId,
+                table: selectedTable._id,
+                unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
               });
             }
             setOrderForm({
@@ -450,11 +433,11 @@ export function TableCard({
               note: "",
             });
           }}
-          generalClassName="overflow-scroll rounded-l-none shadow-none"
-          topClassName="flex flex-col gap-2  "
+          generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-1rem] md:mt-0"
+          topClassName="flex flex-col gap-2   "
         />
       )}
-      {isOrderPaymentModalOpen && (
+      {isOrderPaymentModalOpen && orders && (
         <OrderPaymentModal
           table={table}
           close={() => {

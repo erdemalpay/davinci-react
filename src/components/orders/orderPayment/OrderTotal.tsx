@@ -1,30 +1,20 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaHistory } from "react-icons/fa";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import {
-  MenuItem,
-  Order,
-  OrderPayment,
-  OrderPaymentItem,
-} from "../../../types";
-import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import { MenuItem, Order, Table } from "../../../types";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
-import CollectionModal from "./CollectionModal";
 import Keypad from "./KeyPad";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
+  table: Table;
   collectionsTotalAmount: number;
 };
 
-const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
+const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const { t } = useTranslation();
-  const orders = useGetGivenDateOrders();
   const discounts = useGetOrderDiscounts();
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  if (!orders || !orderPayment || !discounts) {
+  if (!tableOrders || !discounts) {
     return null;
   }
   const {
@@ -33,55 +23,43 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
     temporaryOrders,
     paymentAmount,
   } = useOrderContext();
-
+  const discountAmount = tableOrders.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+        100 +
+      (order?.discountAmount ?? 0) * order.quantity;
+    return acc + discountValue;
+  }, 0);
+  const totalAmount = tableOrders.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
-  const refundAmount =
-    totalMoneySpend -
-    (orderPayment?.totalAmount - orderPayment?.discountAmount);
-  const handlePaymentAmount = (
-    orderPaymentItem: OrderPaymentItem,
-    order: Order
-  ) => {
-    if (orderPaymentItem?.discount) {
+  const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
+  const handlePaymentAmount = (order: Order) => {
+    if (order?.discount) {
       return (
-        order.unitPrice *
-        (100 - (orderPaymentItem.discountPercentage ?? 0)) *
-        (1 / 100)
+        (order?.discountPercentage
+          ? order.unitPrice *
+            (100 - (order?.discountPercentage ?? 0)) *
+            (1 / 100)
+          : order.unitPrice - (order?.discountAmount ?? 0)) *
+        (order?.division ? order.quantity / order.division : 1)
       );
     } else {
-      return order.unitPrice;
+      return (
+        order.unitPrice *
+        (order?.division ? order.quantity / order.division : 1)
+      );
     }
   };
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
-      {/*main header part */}
-      <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-1">
-        <div className="flex flex-row gap-1 justify-center items-center">
-          <FaHistory
-            className="text-red-600 font-semibold cursor-pointer relative"
-            onClick={() => {
-              setIsCollectionModalOpen(true);
-            }}
-          />
-          <p className="font-semibold">{t("Collection History")}</p>
-          {isCollectionModalOpen && (
-            <CollectionModal
-              setIsCollectionModalOpen={setIsCollectionModalOpen}
-              orderCollections={orderPayment?.collections ?? []}
-            />
-          )}
-        </div>
-        <p className="text-sm font-semibold">
-          {parseFloat(String(collectionsTotalAmount)).toFixed(2) ?? "0.00"} ₺
-        </p>
-      </div>
       {/* temp orders */}
       <div className="flex flex-col h-48 overflow-scroll no-scrollbar ">
-        {orderPayment?.orders?.map((orderPaymentItem) => {
-          const order = orders.find(
-            (order) => order._id === orderPaymentItem.order
-          );
-          if (!order) return null;
+        {tableOrders?.map((order) => {
           const tempOrder = temporaryOrders.find(
             (tempOrder) => tempOrder.order._id === order._id
           );
@@ -93,7 +71,7 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
               className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  hover:bg-gray-100 cursor-pointer"
               onClick={() => {
                 if (!tempOrder) return;
-                if (tempOrder.quantity === 1) {
+                if (tempOrder.quantity === 1 && !order?.division) {
                   setTemporaryOrders(
                     temporaryOrders.filter(
                       (tempOrder) => tempOrder.order._id !== order._id
@@ -103,18 +81,29 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
                   setTemporaryOrders(
                     temporaryOrders.map((tempOrder) => {
                       if (tempOrder.order._id === order._id) {
+                        const newQuantity = order?.division
+                          ? tempOrder.quantity - order.quantity / order.division
+                          : tempOrder.quantity -
+                            Math.min(tempOrder.quantity, 1);
+                        const roundedQuantity =
+                          Math.abs(newQuantity) < 1e-6 ? 0 : newQuantity;
+
                         return {
                           ...tempOrder,
-                          quantity: tempOrder.quantity - 1,
+                          quantity: roundedQuantity,
                         };
                       }
                       return tempOrder;
                     })
                   );
                 }
+
                 const newPaymentAmount =
-                  Number(paymentAmount) -
-                  handlePaymentAmount(orderPaymentItem, order);
+                  Number(paymentAmount) - handlePaymentAmount(order);
+                if (newPaymentAmount < 1e-6) {
+                  setPaymentAmount("");
+                  return;
+                }
                 setPaymentAmount(
                   String(newPaymentAmount > 0 ? newPaymentAmount : "")
                 );
@@ -124,7 +113,11 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
               <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
                 <p>
                   {"("}
-                  {tempOrder?.quantity ?? 0}
+                  {(() => {
+                    return Number.isInteger(tempOrder?.quantity)
+                      ? tempOrder?.quantity
+                      : tempOrder?.quantity.toFixed(2);
+                  })()}
                   {")"}-
                 </p>
                 <p>{(order.item as MenuItem).name}</p>
@@ -133,12 +126,46 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
               {/* buttons */}
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 <p>
-                  {handlePaymentAmount(orderPaymentItem, order) *
-                    (tempOrder?.quantity ?? 0)}
+                  {(
+                    (order.discount
+                      ? order?.discountPercentage
+                        ? order.unitPrice *
+                          (100 - (order?.discountPercentage ?? 0)) *
+                          (1 / 100)
+                        : order.unitPrice - (order?.discountAmount ?? 0)
+                      : order.unitPrice) * (tempOrder?.quantity ?? 0)
+                  ).toFixed(2)}
                   ₺
                 </p>
                 {tempOrder && (
-                  <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
+                  <PiArrowArcLeftBold
+                    className="cursor-pointer text-red-600 text-lg hover:text-red-900"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const tempOrder = temporaryOrders.find(
+                        (tOrder) => tOrder.order._id === order._id
+                      );
+                      setTemporaryOrders(
+                        temporaryOrders.filter(
+                          (tOrder) => tOrder.order._id !== order._id
+                        )
+                      );
+                      const newPaymentAmount =
+                        Number(paymentAmount) -
+                        handlePaymentAmount(order) *
+                          ((tempOrder?.quantity ?? 1) *
+                            (order?.division
+                              ? order.division / order.quantity
+                              : 1));
+                      if (newPaymentAmount < 1e-6) {
+                        setPaymentAmount("");
+                        return;
+                      }
+                      setPaymentAmount(
+                        String(newPaymentAmount > 0 ? newPaymentAmount : "")
+                      );
+                    }}
+                  />
                 )}
               </div>
             </div>
@@ -157,12 +184,14 @@ const OrderTotal = ({ orderPayment, collectionsTotalAmount }: Props) => {
             </div>
           )}
           <p className="ml-auto">
-            {paymentAmount !== "" ? paymentAmount + " ₺" : "0.00" + " ₺"}
+            {paymentAmount !== ""
+              ? parseFloat(String(paymentAmount)).toFixed(2) + " ₺"
+              : "0.00" + " ₺"}
           </p>
         </div>
 
         <Keypad
-          orderPayment={orderPayment}
+          tableOrders={tableOrders}
           collectionsTotalAmount={collectionsTotalAmount}
         />
       </div>

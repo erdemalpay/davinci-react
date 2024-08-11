@@ -4,7 +4,7 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
-import { Order, OrderPayment } from "./../../../types/index";
+import { Order } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
   orders: {
@@ -12,14 +12,24 @@ interface CreateOrderForDiscount {
     selectedQuantity: number;
     orderId: number;
   }[];
-  orderPaymentId: number;
   discount: number;
-  discountPercentage: number;
+  discountPercentage?: number;
+  discountAmout?: number;
+}
+interface CreateOrderForDivide {
+  orders: {
+    totalQuantity: number;
+    selectedQuantity: number;
+    orderId: number;
+  }[];
 }
 interface CancelOrderForDiscount {
-  orderPaymentId: number;
   orderId: number;
   cancelQuantity: number;
+}
+interface UpdateMultipleOrder {
+  ids: number[];
+  updates: Partial<Order>;
 }
 
 const baseUrl = `${Paths.Order}`;
@@ -42,27 +52,48 @@ export function deleteTableOrders({ ids }: { ids: number[] }) {
     payload: { ids },
   });
 }
-export function updateMultipleOrdersStatus({
-  ids,
-  status,
-}: {
-  ids: number[];
-  status: string;
-}) {
+export function updateOrders(orders: Order[]) {
   return patch({
-    path: `/order/update_multiple`,
-    payload: { ids: ids, status: status },
+    path: `/order/update_bulk`,
+    payload: { orders },
   });
 }
-export function useUpdateMultipleOrderMutation() {
+export function useUpdateOrdersMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
-  return useMutation(updateMultipleOrdersStatus, {
+  return useMutation(updateOrders, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function updateMultipleOrders(payload: UpdateMultipleOrder) {
+  return patch({
+    path: `/order/update_multiple`,
+    payload,
+  });
+}
+export function useUpdateMultipleOrderMutation() {
+  const queryKey = [`${Paths.Order}/today`];
+  const queryClient = useQueryClient();
+  return useMutation(updateMultipleOrders, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -86,7 +117,7 @@ export function useGetGivenDateOrders() {
 }
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {
   return post<CreateOrderForDiscount, Order>({
-    path: `${Paths.Order}/discount`,
+    path: `${Paths.Order}/create_order_for_discount`,
     payload,
   });
 }
@@ -99,7 +130,8 @@ export function useCreateOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Order}/payment`]);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -109,7 +141,7 @@ export function useCreateOrderForDiscountMutation() {
   });
 }
 export function cancelOrderForDiscount(payload: CancelOrderForDiscount) {
-  return post<CancelOrderForDiscount, OrderPayment>({
+  return post<CancelOrderForDiscount, Order>({
     path: `${Paths.Order}/cancel_discount`,
     payload,
   });
@@ -123,7 +155,8 @@ export function useCancelOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Order}/payment`]);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -135,4 +168,30 @@ export function useCancelOrderForDiscountMutation() {
 
 export function useGetTodayOrders() {
   return useGetList<Order>(`${baseUrl}/today`, [`${baseUrl}/today`]);
+}
+
+export function createOrderForDivide(payload: CreateOrderForDivide) {
+  return post<CreateOrderForDivide, Order>({
+    path: `${Paths.Order}/divide`,
+    payload,
+  });
+}
+export function useCreateOrderForDivideMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(createOrderForDivide, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }

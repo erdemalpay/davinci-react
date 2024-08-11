@@ -1,16 +1,16 @@
 import { useOrderContext } from "../../../../context/Order.context";
-import { OrderDiscount, OrderPayment } from "../../../../types";
+import { Order, OrderDiscount, TURKISHLIRA } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
 };
 
-const DiscountScreen = ({ orderPayment }: Props) => {
+const DiscountScreen = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts();
   const { setIsProductSelectionOpen, setSelectedDiscount } = useOrderContext();
-  if (!discounts || !orderPayment) return null;
+  if (!discounts || !tableOrders) return null;
   const handleDiscountClick = (discount: OrderDiscount) => {
     setSelectedDiscount(discount);
     setIsProductSelectionOpen(true);
@@ -30,7 +30,9 @@ const DiscountScreen = ({ orderPayment }: Props) => {
               }}
             >
               <p className="text-red-600 p-2 items-center justify-center  font-medium">
-                {discount.percentage}%
+                {discount?.percentage
+                  ? discount.percentage + "%"
+                  : discount.amount + " " + TURKISHLIRA}
               </p>
               <p className="flex flex-row gap-1 text-sm font-medium py-0.5 text-center">
                 {discount.name}

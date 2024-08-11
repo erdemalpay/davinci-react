@@ -3,49 +3,31 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { OrderDiscount, RoleEnum } from "../../types";
+import { Kitchen, RoleEnum } from "../../types";
 import {
-  useGetOrderDiscounts,
-  useOrderDiscountMutations,
-} from "../../utils/api/order/orderDiscount";
+  useGetKitchens,
+  useKitchenMutations,
+} from "../../utils/api/menu/kitchen";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-type FormElementsState = {
-  [key: string]: any;
-};
-enum DiscountTypeEnum {
-  PERCENTAGE = "PERCENTAGE",
-  AMOUNT = "AMOUNT",
-}
-const OrderDiscountPage = () => {
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+
+const KitchenPage = () => {
   const { t } = useTranslation();
-  const orderDiscounts = useGetOrderDiscounts();
+  const kitchens = useGetKitchens();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<OrderDiscount>();
-  const [form, setForm] = useState<FormElementsState>({
-    name: "",
-    type: "",
-    percentage: "",
-    amount: "",
-  });
+  const [rowToAction, setRowToAction] = useState<Kitchen>();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const { createOrderDiscount, deleteOrderDiscount, updateOrderDiscount } =
-    useOrderDiscountMutations();
-
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Percentage"), isSortable: true },
-    { key: t("Amount"), isSortable: true },
-  ];
+  const { createKitchen, deleteKitchen, updateKitchen } = useKitchenMutations();
+  const columns = [{ key: t("Name"), isSortable: true }];
   if (
     user &&
     [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
@@ -59,77 +41,12 @@ const OrderDiscountPage = () => {
       key: "name",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "percentage",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "amount",
-      className: "min-w-32 pr-1",
-    },
   ];
-  const inputs = [
-    NameInput(),
-    {
-      type: InputTypes.SELECT,
-      formKey: "type",
-      label: t("Type"),
-      placeholder: t("Type"),
-      options: [
-        {
-          value: DiscountTypeEnum.PERCENTAGE,
-          label: t("Percentage"),
-        },
-        {
-          value: DiscountTypeEnum.AMOUNT,
-          label: t("Amount"),
-        },
-      ],
-      required: !isEditModalOpen,
-      isDisabled: isEditModalOpen ? true : !(form.type === ""),
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "percentage",
-      label: t("Percentage"),
-      placeholder: t("Percentage"),
-      required: isEditModalOpen
-        ? rowToAction?.percentage
-          ? true
-          : false
-        : form.type === DiscountTypeEnum.PERCENTAGE,
-      isDisabled: isEditModalOpen
-        ? rowToAction?.percentage
-          ? false
-          : true
-        : form.type !== DiscountTypeEnum.PERCENTAGE,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "amount",
-      label: t("Amount"),
-      placeholder: t("Amount"),
-      required: isEditModalOpen
-        ? rowToAction?.amount
-          ? true
-          : false
-        : form.type === DiscountTypeEnum.AMOUNT,
-      isDisabled: isEditModalOpen
-        ? rowToAction?.amount
-          ? false
-          : true
-        : form.type !== DiscountTypeEnum.AMOUNT,
-    },
-  ];
-  const formKeys = [
-    { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "type", type: FormKeyTypeEnum.STRING },
-    { key: "percentage", type: FormKeyTypeEnum.NUMBER },
-    { key: "amount", type: FormKeyTypeEnum.NUMBER },
-  ];
+  const inputs = [NameInput()];
+  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
-    name: t(`Add Discount`),
+    name: t(`Add Kitchen`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -137,15 +54,13 @@ const OrderDiscountPage = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
-        setForm={setForm}
-        submitItem={createOrderDiscount as any}
+        submitItem={createKitchen as any}
         topClassName="flex flex-col gap-2 "
       />
     ),
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
-    icon: null,
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
@@ -153,6 +68,7 @@ const OrderDiscountPage = () => {
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
+    icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
@@ -165,10 +81,10 @@ const OrderDiscountPage = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteOrderDiscount(rowToAction?._id);
+            deleteKitchen(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Discount")}
+          title={t("Delete Kitchen")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
@@ -197,15 +113,16 @@ const OrderDiscountPage = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          setForm={setForm}
-          submitItem={updateOrderDiscount as any}
+          submitItem={updateKitchen as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
+
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+
       isPath: false,
       isDisabled: user
         ? ![
@@ -216,9 +133,7 @@ const OrderDiscountPage = () => {
         : true,
     },
   ];
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [orderDiscounts]);
+  useEffect(() => setTableKey((prev) => prev + 1), [kitchens]);
 
   return (
     <>
@@ -228,8 +143,8 @@ const OrderDiscountPage = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={orderDiscounts}
-          title={t("Discounts")}
+          rows={kitchens}
+          title={t("Kitchens")}
           addButton={addButton}
           isActionsActive={
             user
@@ -246,4 +161,4 @@ const OrderDiscountPage = () => {
   );
 };
 
-export default OrderDiscountPage;
+export default KitchenPage;

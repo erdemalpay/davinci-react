@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -6,8 +6,9 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuCategory } from "../../types";
+import { Kitchen, MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
+import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -29,8 +30,11 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isCategoryTableEditOpen,
     setIsCategoryTableEditOpen,
   } = useGeneralContext();
+  const kitchens = useGetKitchens();
+  if (!kitchens) return null;
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
+  const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,9 +42,37 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-
+  const allRows = categories.map((category) => {
+    return {
+      ...category,
+      kitchen: (category.kitchen as Kitchen)._id,
+      kitchenName: (category.kitchen as Kitchen).name,
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   const inputs = [
     NameInput(),
+    {
+      type: InputTypes.SELECT,
+      formKey: "kitchen",
+      label: t("Kitchen"),
+      options: kitchens.map((kitchen) => {
+        return {
+          value: kitchen._id,
+          label: kitchen.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAutoServed",
+      label: t("Auto served"),
+      placeholder: t("Auto served"),
+      required: true,
+      isTopFlexRow: true,
+    },
     {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
@@ -67,13 +99,17 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   }
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "kitchen", type: FormKeyTypeEnum.STRING },
+    { key: "isAutoServed", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
+    { key: t("Kitchen"), isSortable: true },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
+    { key: t("Auto served"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -90,6 +126,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         </p>
       ),
     },
+    { key: "kitchenName" },
     {
       key: "bahceli",
       node: (row: MenuCategory) =>
@@ -113,6 +150,15 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
+    {
+      key: "isAutoServed",
+      node: (row: MenuCategory) =>
+        row.isAutoServed ? (
           <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl " />
@@ -215,15 +261,20 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       ),
     },
   ];
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [kitchens, categories]);
+
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
-        key={categories.length}
+        key={tableKey}
         rowKeys={rowKeys}
         actions={actions}
         columns={columns}
         isActionsActive={true}
-        rows={categories}
+        rows={rows}
         filters={filters}
         title={t("Categories")}
         imageHolder={NO_IMAGE_URL}

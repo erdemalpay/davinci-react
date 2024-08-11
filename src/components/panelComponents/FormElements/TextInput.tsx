@@ -18,8 +18,8 @@ type TextInputProps = {
   label: string;
   placeholder?: string;
   type: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: any;
+  onChange: (value: any) => void;
   className?: string;
   disabled?: boolean;
   onClear?: () => void;
@@ -140,15 +140,24 @@ const TextInput = ({
             <PopoverContent>
               <DayPicker
                 mode="single"
-                selected={value ? new Date(value) : undefined}
+                selected={
+                  value
+                    ? new Date(
+                        new Date(value).getTime() +
+                          new Date(value).getTimezoneOffset() * 60000
+                      )
+                    : new Date()
+                }
                 onSelect={(day) => {
-                  const formattedDate = day ? format(day, "yyyy-MM-dd") : "";
+                  const formattedDate = day
+                    ? format(day, "yyyy-MM-dd")
+                    : format(new Date(), "yyyy-MM-dd");
                   onChange(formattedDate);
                 }}
                 showOutsideDays
                 className="border-0"
                 classNames={{
-                  caption: "flex justify-center mb-4  relative items-center",
+                  caption: "flex justify-center mb-2  relative items-center",
                   caption_label: "text-lg font-medium text-gray-900",
                   nav: "absolute inset-0 flex justify-between items-center px-2",
                   nav_button:
@@ -164,7 +173,7 @@ const TextInput = ({
                   day_range_end: "day-range-end",
                   day_selected:
                     "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white ",
-                  day_today: "rounded-md bg-gray-200 text-gray-900",
+                  day_today: "rounded-md bg-gray-200 text-gray-900 ",
                   day_outside:
                     "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
                   day_disabled: "text-gray-500 opacity-50",
@@ -192,6 +201,41 @@ const TextInput = ({
               <IoIosClose />
             </button>
           )}
+        </div>
+      </div>
+    );
+  }
+  if (type === "checkbox") {
+    return (
+      <div className={`flex  "flex-row gap-4 w-full`}>
+        <H6 className={`min-w-fit my-auto`}>
+          {label}
+          {requiredField && (
+            <>
+              <span className="text-red-400">* </span>
+              <span className="text-xs text-gray-400">
+                {"("} {t("required")} {")"}
+              </span>
+            </>
+          )}
+        </H6>
+        <div
+          className={`flex flex-row gap-2 items-center ${
+            inputWidth ? inputWidth : "w-full"
+          }`}
+        >
+          <input
+            ref={inputRef}
+            type="checkbox"
+            checked={localValue ? localValue : value}
+            onChange={(e) => {
+              const newValue = e.target.checked;
+              setLocalValue(newValue);
+              onChange(newValue);
+            }}
+            className={inputClassName}
+            disabled={disabled}
+          />
         </div>
       </div>
     );

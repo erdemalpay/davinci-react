@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
+import { Location, MenuItem, OrderDiscount, Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
-import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -22,25 +22,24 @@ type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
   paidQuantity: number;
-  discount: number;
+  discountId: number;
+  discountName: string;
   amount: number;
   location: number;
   date: string;
-  category: string;
-  categoryId: number;
   totalAmountWithDiscount: number;
   itemQuantity: ItemQuantity[];
   collapsible: any;
   className?: string;
   isSortable?: boolean;
 };
-const CategoryBasedSalesReport = () => {
+const DiscountBasedSales = () => {
   const { t } = useTranslation();
+  const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
-  const categories = useGetCategories();
   const locations = useGetLocations();
   const [showFilters, setShowFilters] = useState(false);
-  if (!orders || !categories || !locations) {
+  if (!orders || !locations || !discounts) {
     return null;
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
@@ -48,7 +47,9 @@ const CategoryBasedSalesReport = () => {
   const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders.reduce((acc, order) => {
-    if (!order || order.paidQuantity === 0) return acc;
+    if (!order.discount || order.paidQuantity === 0) {
+      return acc;
+    }
 
     // Location filter
     if (
@@ -71,25 +72,19 @@ const CategoryBasedSalesReport = () => {
       (beforeDate && orderDate > beforeDate) ||
       (afterDate && orderDate < afterDate) ||
       !passesFilter(
-        filterPanelFormElements.category,
-        (order.item as MenuItem).category as number
+        filterPanelFormElements.discount,
+        (order.discount as OrderDiscount)._id
       )
     ) {
       return acc;
     }
 
     const existingEntry = acc.find(
-      (item) => item.categoryId === (order.item as MenuItem).category
+      (item) => item.discountId === (order.discount as OrderDiscount)._id
     );
 
     if (existingEntry) {
       existingEntry.paidQuantity += order.paidQuantity;
-      existingEntry.discount += order?.discountPercentage
-        ? (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100)
-        : (order?.discountAmount ?? 0) * order.paidQuantity;
       existingEntry.amount += order.paidQuantity * order.unitPrice;
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
@@ -100,6 +95,7 @@ const CategoryBasedSalesReport = () => {
             order.unitPrice *
             (1 / 100)
           : (order?.discountAmount ?? 0) * order.paidQuantity);
+
       const existingItem = existingEntry.itemQuantity.find(
         (itemQuantityIteration) =>
           itemQuantityIteration.itemId === (order.item as MenuItem)._id
@@ -141,20 +137,14 @@ const CategoryBasedSalesReport = () => {
         item: (order.item as MenuItem)._id,
         itemName: (order.item as MenuItem).name,
         paidQuantity: order.paidQuantity,
-        discount: order?.discountPercentage
-          ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
-            (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity,
+        discountId: (order.discount as OrderDiscount)._id,
+        discountName:
+          discounts.find(
+            (discount) => discount._id === (order.discount as OrderDiscount)._id
+          )?.name ?? "",
         amount: order.paidQuantity * order.unitPrice,
         location: (order.location as Location)._id,
         date: format(orderDate, "yyyy-MM-dd"),
-        category:
-          categories.find(
-            (category) => category._id === (order.item as MenuItem).category
-          )?.name ?? "",
-        categoryId: (order.item as MenuItem).category as number,
         itemQuantity: [
           {
             itemId: (order.item as MenuItem)._id,
@@ -195,7 +185,9 @@ const CategoryBasedSalesReport = () => {
       itemName: "",
       paidQuantity: allRows.reduce((acc, item) => acc + item.paidQuantity, 0),
       className: "font-semibold",
-      discount: allRows.reduce((acc, item) => acc + item.discount, 0),
+      discountId: 0,
+      discountName: t("Total"),
+      isSortable: false,
       amount: allRows.reduce((acc, item) => acc + item.amount, 0),
       totalAmountWithDiscount: allRows.reduce(
         (acc, item) => acc + item.totalAmountWithDiscount,
@@ -203,9 +195,6 @@ const CategoryBasedSalesReport = () => {
       ),
       location: 4,
       date: "",
-      category: t("Total"),
-      isSortable: false,
-      categoryId: 0,
       itemQuantity: [],
       collapsible: {
         collapsibleHeader: t("Products"),
@@ -219,79 +208,38 @@ const CategoryBasedSalesReport = () => {
     });
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Category"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
     { key: t("Discount"), isSortable: true },
-    { key: t("Total Amount"), isSortable: true },
-    { key: t("General Amount"), isSortable: true },
+    { key: t("Quantity"), isSortable: true },
   ];
   const rowKeys = [
     {
-      key: "category",
-      className: "min-w-32 pr-2",
+      key: "discountName",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.category}</p>;
+        return <p className={`${row?.className}`}>{row.discountName}</p>;
       },
     },
-
     {
       key: "paidQuantity",
       node: (row: any) => {
         return (
-          <p key={"paidQuantity" + row.item} className={`${row?.className}`}>
-            {row.paidQuantity}
-          </p>
-        );
-      },
-    },
-    {
-      key: "discount",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`} key={"discount" + row.item}>
-            {row.discount > 0 && row.discount + " " + TURKISHLIRA}
-          </p>
-        );
-      },
-    },
-    {
-      key: "amount",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`} key={"amount" + row.item}>
-            {row.amount + " " + TURKISHLIRA}
-          </p>
-        );
-      },
-    },
-    {
-      key: "totalAmountWithDiscount",
-      node: (row: any) => {
-        return (
-          <p
-            className={`${row?.className}`}
-            key={"totalAmountWithDiscount" + row.item}
-          >
-            {row.totalAmountWithDiscount + " " + TURKISHLIRA}
-          </p>
+          <p className={`${row?.className} text-center `}>{row.paidQuantity}</p>
         );
       },
     },
   ];
-
   const filterPanelInputs = [
     LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
-      formKey: "category",
-      label: t("Category"),
-      options: categories.map((category) => {
+      formKey: "discount",
+      label: t("Discount"),
+      options: discounts.map((discount) => {
         return {
-          value: category._id,
-          label: category.name,
+          value: discount._id,
+          label: discount.name,
         };
       }),
-      placeholder: t("Category"),
+      placeholder: t("Discount"),
       required: true,
     },
     {
@@ -329,7 +277,7 @@ const CategoryBasedSalesReport = () => {
     setRows(allRows);
     setExpandedRows({});
     setTableKey((prev) => prev + 1);
-  }, [orders, categories, filterPanelFormElements]);
+  }, [orders, orders, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -340,7 +288,7 @@ const CategoryBasedSalesReport = () => {
           rows={rows}
           filters={filters}
           filterPanel={filterPanel}
-          title={t("Category Based Sales")}
+          title={t("Discount Based Sales")}
           isActionsActive={false}
           isCollapsible={true}
         />
@@ -349,4 +297,4 @@ const CategoryBasedSalesReport = () => {
   );
 };
 
-export default CategoryBasedSalesReport;
+export default DiscountBasedSales;

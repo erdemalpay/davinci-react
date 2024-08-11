@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus } from "../../types";
 import {
   useGetGivenDateOrders,
@@ -12,17 +13,18 @@ type Props = { tableId: number };
 const OrderListForPanel = ({ tableId }: Props) => {
   const tables = useGetTables();
   const table = tables.find((table) => table._id === tableId);
-  if (!table) return null;
+  const { user } = useUserContext();
+  if (!table || !user) return null;
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
-  const { deleteOrder } = useOrderMutations();
+  const { updateOrder } = useOrderMutations();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
     return Math.floor((currentTime - orderTime) / 60000);
   };
   return (
-    <div className="bg-white rounded-md rounded-r-none  w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/4 max-w-full  max-h-[90vh] z-[100]">
+    <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[90vh] z-[100]  ">
       <div className="flex flex-col gap-2 px-4 py-6">
         {/* header */}
         <h1 className="font-medium">{t("Orders")}</h1>
@@ -30,7 +32,14 @@ const OrderListForPanel = ({ tableId }: Props) => {
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
           {table.orders?.map((tableOrder) => {
             const order = orders.find((order) => order._id === tableOrder);
-            if (!order || order.status !== OrderStatus.PENDING) return null;
+            if (
+              !order ||
+              !(
+                order.status === OrderStatus.PENDING ||
+                order.status === OrderStatus.AUTOSERVED
+              )
+            )
+              return null;
             return (
               <div
                 key={order._id}
@@ -42,16 +51,28 @@ const OrderListForPanel = ({ tableId }: Props) => {
                 </div>
 
                 <div className="flex flex-row ">
-                  {order.status === OrderStatus.PENDING && (
+                  {(order.status === OrderStatus.PENDING ||
+                    order.status === OrderStatus.AUTOSERVED) && (
                     <div className="flex flex-row gap-[1px]">
                       <h5 className="text-xs whitespace-nowrap min-w-8">
                         {orderWaitTime(order)} m
                       </h5>
 
-                      <HiOutlineTrash
-                        className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                        onClick={() => deleteOrder(order._id)}
-                      />
+                      {order.paidQuantity === 0 && (
+                        <HiOutlineTrash
+                          className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
+                          onClick={() =>
+                            updateOrder({
+                              id: order._id,
+                              updates: {
+                                status: OrderStatus.CANCELLED,
+                                cancelledAt: new Date(),
+                                cancelledBy: user._id,
+                              },
+                            })
+                          }
+                        />
+                      )}
                     </div>
                   )}
                 </div>

@@ -1,44 +1,37 @@
-import {
-  MenuItem,
-  Order,
-  OrderPayment,
-  OrderPaymentItem,
-} from "../../../../types";
-import { useGetGivenDateOrders } from "../../../../utils/api/order/order";
+import { MenuItem, Order } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
-
 type Props = {
-  orderPayment: OrderPayment;
+  tableOrders: Order[];
 };
-const PaidOrders = ({ orderPayment }: Props) => {
-  const orders = useGetGivenDateOrders();
+const PaidOrders = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts();
-  if (!orderPayment || !orders || !discounts) return null;
-
-  const renderPayment = (orderPaymentItem: OrderPaymentItem, order: Order) => {
-    if (orderPaymentItem?.discount) {
+  if (!discounts) return null;
+  const renderPayment = (order: Order) => {
+    if (order?.discount) {
       return (
         <p>
-          {order.unitPrice *
-            (100 - (orderPaymentItem.discountPercentage ?? 0)) *
-            (1 / 100) *
-            orderPaymentItem.paidQuantity}
+          {order?.discountPercentage
+            ? order.unitPrice *
+              (100 - (order?.discountPercentage ?? 0)) *
+              (1 / 100) *
+              order.paidQuantity
+            : (
+                (order.unitPrice - (order?.discountAmount ?? 0)) *
+                order.paidQuantity
+              ).toFixed(2)}
           ₺
         </p>
       );
     } else {
-      return <p>{order.unitPrice * orderPaymentItem.paidQuantity}₺</p>;
+      return <p>{(order.unitPrice * order.paidQuantity).toFixed(2)}₺</p>;
     }
   };
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar ">
       <OrderScreenHeader header="Paid Orders" />
-      {orderPayment?.orders?.map((orderPaymentItem) => {
-        const order = orders.find(
-          (order) => order._id === orderPaymentItem.order
-        );
-        const isOrderPaid = orderPaymentItem.paidQuantity !== 0;
+      {tableOrders?.map((order) => {
+        const isOrderPaid = order.paidQuantity > 1e-6;
         if (!order || !isOrderPaid) return null;
         return (
           <div
@@ -50,7 +43,11 @@ const PaidOrders = ({ orderPayment }: Props) => {
             <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
               <p>
                 {"("}
-                {orderPaymentItem.paidQuantity}
+                {(() => {
+                  return Number.isInteger(order.paidQuantity)
+                    ? order.paidQuantity
+                    : order.paidQuantity.toFixed(2);
+                })()}
                 {")"}-
               </p>
               <p>{(order.item as MenuItem).name}</p>
@@ -58,7 +55,7 @@ const PaidOrders = ({ orderPayment }: Props) => {
 
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {renderPayment(orderPaymentItem, order)}
+              {renderPayment(order)}
             </div>
           </div>
         );

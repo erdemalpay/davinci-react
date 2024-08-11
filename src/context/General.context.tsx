@@ -47,6 +47,8 @@ type GeneralContextType = {
   orderDataActiveTab: number;
   setOrderDataActiveTab: (tab: number) => void;
   accountingActiveTab: number;
+  ordersActiveTab: number;
+  setOrdersActiveTab: (tab: number) => void;
   checkoutActiveTab: number;
   setCheckoutActiveTab: (tab: number) => void;
   setAccountingActiveTab: (tab: number) => void;
@@ -76,6 +78,8 @@ const GeneralContext = createContext<GeneralContextType>({
   accountingActiveTab: AccountingPageTabEnum.EXPENSETYPE,
   checkoutActiveTab: 0,
   setCheckoutActiveTab: () => {},
+  ordersActiveTab: 0,
+  setOrdersActiveTab: () => {},
   setExpensesActiveTab: () => {},
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
@@ -166,12 +170,13 @@ const GeneralContext = createContext<GeneralContextType>({
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.ALL);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.THIRD);
   const [isCategoryTableEditOpen, setIsCategoryTableEditOpen] =
     useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
     countListOptions[0]
   );
+  const [ordersActiveTab, setOrdersActiveTab] = useState<number>(0);
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountInvoice>
   >({});
@@ -253,6 +258,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setAllExpenseForm,
         orderDataActiveTab,
         setOrderDataActiveTab,
+        ordersActiveTab,
+        setOrdersActiveTab,
       }}
     >
       {children}
