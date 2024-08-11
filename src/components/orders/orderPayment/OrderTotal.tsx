@@ -137,7 +137,34 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
                   ₺
                 </p>
                 {tempOrder && (
-                  <PiArrowArcLeftBold className="cursor-pointer text-red-600 text-lg" />
+                  <PiArrowArcLeftBold
+                    className="cursor-pointer text-red-600 text-lg hover:text-red-900"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const tempOrder = temporaryOrders.find(
+                        (tOrder) => tOrder.order._id === order._id
+                      );
+                      setTemporaryOrders(
+                        temporaryOrders.filter(
+                          (tOrder) => tOrder.order._id !== order._id
+                        )
+                      );
+                      const newPaymentAmount =
+                        Number(paymentAmount) -
+                        handlePaymentAmount(order) *
+                          ((tempOrder?.quantity ?? 1) *
+                            (order?.division
+                              ? order.division / order.quantity
+                              : 1));
+                      if (newPaymentAmount < 1e-6) {
+                        setPaymentAmount("");
+                        return;
+                      }
+                      setPaymentAmount(
+                        String(newPaymentAmount > 0 ? newPaymentAmount : "")
+                      );
+                    }}
+                  />
                 )}
               </div>
             </div>
