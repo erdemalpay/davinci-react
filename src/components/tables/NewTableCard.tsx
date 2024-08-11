@@ -21,7 +21,6 @@ import {
 } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
-  deleteTableOrders,
   useGetGivenDateOrders,
   useOrderMutations,
   useUpdateMultipleOrderMutation,
@@ -180,11 +179,7 @@ export function TableCard({
   function handleTableDelete() {
     if (!table._id) return;
     deleteTable(table._id);
-    if (table.orders && table?.orders?.length > 0) {
-      deleteTableOrders({ ids: table?.orders });
-    }
     setIsDeleteConfirmationDialogOpen(false);
-    toast.success(`Table ${table.name} deleted`);
   }
   function getOrder(orderId: number) {
     return orders.find((order) => order._id === orderId);

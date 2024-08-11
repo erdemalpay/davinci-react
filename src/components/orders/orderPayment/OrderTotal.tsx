@@ -83,7 +83,8 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
                       if (tempOrder.order._id === order._id) {
                         const newQuantity = order?.division
                           ? tempOrder.quantity - order.quantity / order.division
-                          : tempOrder.quantity - 1;
+                          : tempOrder.quantity -
+                            Math.min(tempOrder.quantity, 1);
                         const roundedQuantity =
                           Math.abs(newQuantity) < 1e-6 ? 0 : newQuantity;
 
