@@ -16,7 +16,10 @@ const PaidOrders = ({ tableOrders }: Props) => {
               (100 - (order?.discountPercentage ?? 0)) *
               (1 / 100) *
               order.paidQuantity
-            : (order.unitPrice - (order?.discountAmount ?? 0)).toFixed(2)}
+            : (
+                (order.unitPrice - (order?.discountAmount ?? 0)) *
+                order.paidQuantity
+              ).toFixed(2)}
           ₺
         </p>
       );

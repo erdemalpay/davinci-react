@@ -309,18 +309,89 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               )}
               <MdOutlineTouchApp
                 className="cursor-pointer hover:text-red-600 text-lg"
-                // onClick={(e) => {
-                //   e.stopPropagation();
-                //   setTemporaryOrders([
-                //     ...temporaryOrders?.filter(
-                //       (tempOrder) => tempOrder.order._id !== order._id
-                //     ),
-                //     {
-                //       order: order,
-                //       quantity: order.quantity - order.paidQuantity,
-                //     },
-                //   ]);
-                // }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const tempOrder = temporaryOrders?.find(
+                    (tempOrder) => tempOrder.order._id === order._id
+                  );
+                  const orderPrice = order?.division
+                    ? Number(
+                        (
+                          (order.quantity -
+                            order.paidQuantity -
+                            (tempOrder?.quantity ?? 0) <
+                          order.quantity / order.division
+                            ? handlePaymentAmount(order) *
+                              (order.quantity -
+                                order.paidQuantity -
+                                (tempOrder?.quantity ?? 0))
+                            : handlePaymentAmount(order) * order.quantity) /
+                          order.division
+                        ).toFixed(2)
+                      )
+                    : Number(handlePaymentAmount(order).toFixed(2));
+
+                  if (temporaryOrders.length === 0) {
+                    setPaymentAmount(
+                      String(
+                        Math.min(
+                          totalAmount - discountAmount - collectionsTotalAmount,
+                          (order?.discount ? orderPrice : order.unitPrice) *
+                            order.quantity
+                        )
+                      )
+                    );
+                  } else if (
+                    order.division &&
+                    order.quantity -
+                      order.paidQuantity -
+                      (tempOrder?.quantity ?? 0) <
+                      (2 * order.quantity) / order.division
+                  ) {
+                    setPaymentAmount(
+                      String(
+                        Math.round(
+                          Number(paymentAmount) +
+                            orderPrice +
+                            collectionsTotalAmount >
+                            totalAmount - discountAmount
+                            ? totalAmount -
+                                discountAmount -
+                                collectionsTotalAmount
+                            : Number(paymentAmount) +
+                                (order?.discount
+                                  ? orderPrice
+                                  : order.unitPrice) *
+                                  (order.quantity -
+                                    order.paidQuantity -
+                                    (tempOrder?.quantity ?? 0))
+                        )
+                      )
+                    );
+                  } else {
+                    setPaymentAmount(
+                      String(
+                        Math.min(
+                          totalAmount - discountAmount - collectionsTotalAmount,
+                          Number(paymentAmount) +
+                            (order?.discount ? orderPrice : order.unitPrice) *
+                              (order.quantity -
+                                order.paidQuantity -
+                                (tempOrder?.quantity ?? 0))
+                        )
+                      )
+                    );
+                  }
+                  setTemporaryOrders([
+                    ...temporaryOrders?.filter(
+                      (tempOrder) => tempOrder.order._id !== order._id
+                    ),
+                    {
+                      order: order,
+                      quantity: order.quantity - order.paidQuantity,
+                    },
+                  ]);
+                }}
               />
             </div>
           </div>

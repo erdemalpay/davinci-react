@@ -38,6 +38,9 @@ const Collections = () => {
   }
   const allRows = collections
     .map((collection) => {
+      if (!collection?.createdAt) {
+        return null;
+      }
       return {
         _id: collection._id,
         cashier: (collection.createdBy as User)?.name,
@@ -216,6 +219,9 @@ const Collections = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
+      if (!row?.date) {
+        return false;
+      }
       return (
         (filterPanelFormElements.before === "" ||
           row.date <= filterPanelFormElements.before) &&
