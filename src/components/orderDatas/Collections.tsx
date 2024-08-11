@@ -219,6 +219,9 @@ const Collections = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
+      if (!row?.date) {
+        return false;
+      }
       return (
         (filterPanelFormElements.before === "" ||
           row.date <= filterPanelFormElements.before) &&
