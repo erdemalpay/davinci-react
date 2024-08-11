@@ -337,7 +337,10 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                         Math.min(
                           totalAmount - discountAmount - collectionsTotalAmount,
                           (order?.discount ? orderPrice : order.unitPrice) *
-                            (order.quantity - order.paidQuantity)
+                            (order.quantity - order.paidQuantity) *
+                            (order?.division && order?.discount
+                              ? order.division / order.quantity
+                              : 1)
                         )
                       )
                     );
@@ -377,7 +380,10 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             (order?.discount ? orderPrice : order.unitPrice) *
                               (order.quantity -
                                 order.paidQuantity -
-                                (tempOrder?.quantity ?? 0))
+                                (tempOrder?.quantity ?? 0)) *
+                              (order?.division && order?.discount
+                                ? order.division / order.quantity
+                                : 1)
                         )
                       )
                     );
