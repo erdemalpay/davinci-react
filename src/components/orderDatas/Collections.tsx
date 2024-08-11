@@ -38,6 +38,9 @@ const Collections = () => {
   }
   const allRows = collections
     .map((collection) => {
+      if (!collection?.createdAt) {
+        return null;
+      }
       return {
         _id: collection._id,
         cashier: (collection.createdBy as User)?.name,
