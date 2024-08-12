@@ -1,5 +1,11 @@
+import { Header } from "../components/header/Header";
+
 const Settings = () => {
-  return <div>Settings</div>;
+  return (
+    <>
+      <Header showLocationSelector={true} />
+    </>
+  );
 };
 
 export default Settings;
