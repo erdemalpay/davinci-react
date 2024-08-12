@@ -4,8 +4,7 @@ import { format } from "date-fns";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
-import { MdBorderColor } from "react-icons/md";
-import { PiCallBellFill } from "react-icons/pi";
+import { MdBorderColor, MdBrunchDining } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -258,7 +257,7 @@ export function TableCard({
                       },
                     });
                   }}
-                  IconComponent={PiCallBellFill}
+                  IconComponent={MdBrunchDining}
                 />
               </span>
             </Tooltip>
