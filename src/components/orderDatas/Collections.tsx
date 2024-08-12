@@ -63,7 +63,7 @@ const Collections = () => {
           ?._id,
         tableId: (collection.table as Table)._id,
         tableName: (collection.table as Table).name,
-        amount: collection.amount,
+        amount: collection.amount.toFixed(2),
         cancelNote: collection.cancelNote ?? "",
         location: (collection.location as Location)._id,
         locationName: (collection.location as Location).name,
