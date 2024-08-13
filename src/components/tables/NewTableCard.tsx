@@ -231,37 +231,43 @@ export function TableCard({
               </span>
             </Tooltip>
           )}
-          {!table.finishHour && (
-            <Tooltip content={t("Served")}>
-              <span className="text-{8px}">
-                <CardAction
-                  onClick={() => {
-                    if (!table.orders || !orders || !user) return;
-                    const tableReadyToServeOrders = table.orders?.filter(
-                      (tableOrder) =>
-                        orders?.find((order) => order._id === tableOrder)
-                          ?.status === OrderStatus.READYTOSERVE
-                    );
-                    if (
-                      tableReadyToServeOrders?.length === 0 ||
-                      !tableReadyToServeOrders
-                    )
-                      return;
+          {!table.finishHour &&
+            table?.orders?.some((tableOrder) => {
+              return (
+                orders?.find((order) => order._id === tableOrder)?.status ===
+                OrderStatus.READYTOSERVE
+              );
+            }) && (
+              <Tooltip content={t("Served")}>
+                <span className="text-{8px}">
+                  <CardAction
+                    onClick={() => {
+                      if (!table.orders || !orders || !user) return;
+                      const tableReadyToServeOrders = table.orders?.filter(
+                        (tableOrder) =>
+                          orders?.find((order) => order._id === tableOrder)
+                            ?.status === OrderStatus.READYTOSERVE
+                      );
+                      if (
+                        tableReadyToServeOrders?.length === 0 ||
+                        !tableReadyToServeOrders
+                      )
+                        return;
 
-                    updateMultipleOrders({
-                      ids: tableReadyToServeOrders,
-                      updates: {
-                        status: OrderStatus.SERVED,
-                        deliveredAt: new Date(),
-                        deliveredBy: user._id,
-                      },
-                    });
-                  }}
-                  IconComponent={MdBrunchDining}
-                />
-              </span>
-            </Tooltip>
-          )}
+                      updateMultipleOrders({
+                        ids: tableReadyToServeOrders,
+                        updates: {
+                          status: OrderStatus.SERVED,
+                          deliveredAt: new Date(),
+                          deliveredBy: user._id,
+                        },
+                      });
+                    }}
+                    IconComponent={MdBrunchDining}
+                  />
+                </span>
+              </Tooltip>
+            )}
           {table.finishHour && (
             <Tooltip content="Reopen">
               <span className="text-{8px}">
