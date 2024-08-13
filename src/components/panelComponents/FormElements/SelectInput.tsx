@@ -78,7 +78,7 @@ const SelectInput = ({
     placeholder: (base: any) => ({
       ...base,
       color: "#b0b5ba",
-      fontSize: "16px",
+      fontSize: "14px",
       fontWeight: 400,
     }),
     singleValue: (base: any) => ({
