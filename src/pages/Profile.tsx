@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
@@ -51,7 +52,7 @@ export default function Profile() {
     {
       number: 3,
       label: "Settings",
-      icon: <MdOutlineEventNote className="text-lg font-thin" />,
+      icon: <IoIosSettings className="text-lg font-thin" />,
       content: <Settings />,
       isDisabled: false,
     },
