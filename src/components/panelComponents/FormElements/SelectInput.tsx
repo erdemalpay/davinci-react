@@ -59,7 +59,7 @@ const SelectInput = ({
       ...base,
       border: "1px solid #E2E8F0",
       borderRadius: "4px",
-      fontSize: "14px",
+      fontSize: "16px",
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -73,14 +73,20 @@ const SelectInput = ({
       ":hover": {
         color: "#0057FF",
       },
+      fontSize: "16px",
     }),
     placeholder: (base: any) => ({
       ...base,
       color: "#b0b5ba",
-      fontSize: "14px",
+      fontSize: "16px",
       fontWeight: 400,
     }),
+    singleValue: (base: any) => ({
+      ...base,
+      fontSize: "16px",
+    }),
   };
+
   useEffect(() => {
     if (options.length === 1 && !value) {
       const actionMeta: ActionMeta<OptionType> = {
