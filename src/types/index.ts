@@ -54,6 +54,8 @@ export type User = {
   birthDate: Date;
   imageUrl: string;
   workType: WorkType;
+  rowsPerPage?: number;
+  language?: string;
   userGames: [
     {
       game: number;
@@ -739,3 +741,7 @@ export enum ConstantPaymentMethodsIds {
 export const NOTPAID = "Not Paid";
 
 export const TURKISHLIRA = "₺";
+export const languageOptions = [
+  { code: "en-EN", label: "EN" },
+  { code: "tr-TR", label: "TR" },
+];

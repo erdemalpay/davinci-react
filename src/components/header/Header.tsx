@@ -2,10 +2,12 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
 import { Routes } from "../../navigation/constants";
+import { languageOptions } from "../../types";
 import { useGetUser } from "../../utils/api/user";
 import { LocationSelector } from "./LocationSelector";
 import { PageSelector } from "./PageSelector";
 import logo from "./logo.svg";
+
 interface HeaderProps {
   showLocationSelector?: boolean;
 }
@@ -13,10 +15,7 @@ interface HeaderProps {
 export function Header({ showLocationSelector = true }: HeaderProps) {
   const user = useGetUser();
   const { i18n } = useTranslation();
-  const languageOptions = [
-    { code: "en-EN", label: "EN" },
-    { code: "tr-TR", label: "TR" },
-  ];
+
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">

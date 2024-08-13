@@ -24,7 +24,6 @@ import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
-import Settings from "../pages/Settings";
 import SingleCountArchive from "../pages/SingleCountArchive";
 import SingleFixtureCountArchive from "../pages/SingleFixtureCountArchive";
 import Stocks from "../pages/Stocks";
@@ -82,7 +81,6 @@ export enum Routes {
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
   OrderDatas = "/order-datas",
-  Settings = "/settings",
 }
 
 export const allRoutes: {
@@ -303,12 +301,6 @@ export const allRoutes: {
     name: "Users",
     path: Routes.Users,
     element: Users,
-    isOnSidebar: true,
-  },
-  {
-    name: "Settings",
-    path: Routes.Settings,
-    element: Settings,
     isOnSidebar: true,
   },
 ];
