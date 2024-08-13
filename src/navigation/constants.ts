@@ -284,6 +284,12 @@ export const allRoutes: {
     tabs: CheckoutPageTabs,
   },
   {
+    name: "Users",
+    path: Routes.Users,
+    element: Users,
+    isOnSidebar: true,
+  },
+  {
     name: "Panel Control",
     path: Routes.PanelControl,
     element: PanelControl,
@@ -296,12 +302,6 @@ export const allRoutes: {
     element: PageDetails,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
-  },
-  {
-    name: "Users",
-    path: Routes.Users,
-    element: Users,
-    isOnSidebar: true,
   },
 ];
 
