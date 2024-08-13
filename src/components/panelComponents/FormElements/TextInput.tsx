@@ -262,14 +262,13 @@ const TextInput = ({
         )}
       </H6>
       <div
-        className={`flex flex-row gap-2 items-center  ${
+        className={`flex flex-row gap-2 items-center text-base sm:text-sm  ${
           inputWidth ? inputWidth : "w-full"
         }`}
       >
         <input
           ref={inputRef}
           type={type}
-          style={{ fontSize: "16px" }}
           placeholder={placeholder}
           disabled={disabled}
           value={localValue}
