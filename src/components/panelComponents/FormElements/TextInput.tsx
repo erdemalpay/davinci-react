@@ -62,7 +62,9 @@ const TextInput = ({
 
   const inputClassName = `${className} ${
     inputWidth ? "border-gray-100" : ""
-  } w-full text-sm ${type === "number" ? "inputHideNumberArrows" : ""}`;
+  } w-full text-sm ${
+    type === "number" ? "inputHideNumberArrows" : ""
+  } text-base`;
 
   const handleWheel = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -267,6 +269,7 @@ const TextInput = ({
         <input
           ref={inputRef}
           type={type}
+          style={{ fontSize: "16px" }}
           placeholder={placeholder}
           disabled={disabled}
           value={localValue}
