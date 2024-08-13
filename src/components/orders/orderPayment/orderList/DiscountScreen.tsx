@@ -24,7 +24,7 @@ const DiscountScreen = ({ tableOrders }: Props) => {
           return (
             <div
               key={discount._id}
-              className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24"
+              className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24 overflow-scroll no-scrollbar"
               onClick={() => {
                 handleDiscountClick(discount);
               }}

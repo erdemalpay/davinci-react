@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { User } from "../../../types";
 import { useUserMutations } from "../../../utils/api/user";
+import ItemContainer from "../common/ItemContainer";
 import TextInput from "../FormElements/TextInput";
 import { H4, P2 } from "../Typography";
-import ItemContainer from "../common/ItemContainer";
 
 type Props = {
   isEditable: boolean;
