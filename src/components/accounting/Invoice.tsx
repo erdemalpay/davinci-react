@@ -762,7 +762,6 @@ const Invoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
-          isCancelConfirmationDialogExist={true}
           additionalCancelFunction={() => {
             setProductExpenseForm({});
           }}

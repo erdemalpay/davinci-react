@@ -616,7 +616,6 @@ const FixtureInvoice = () => {
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel
-          isCancelConfirmationDialogExist={true}
           additionalCancelFunction={() => {
             setFixtureExpenseForm({});
           }}
