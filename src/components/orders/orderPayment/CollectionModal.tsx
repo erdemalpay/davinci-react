@@ -190,7 +190,11 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                     return {
                       ...order,
                       paidQuantity:
-                        order.paidQuantity - orderCollectionItem.paidQuantity,
+                        order.paidQuantity - orderCollectionItem.paidQuantity <
+                        1e-6
+                          ? 0
+                          : order.paidQuantity -
+                            orderCollectionItem.paidQuantity,
                     };
                   }
                   return null;
