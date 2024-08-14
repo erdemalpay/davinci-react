@@ -206,7 +206,7 @@ const OrderPaymentTypes = ({
           )}
         </div>
         <p className="text-sm font-semibold">
-          {parseFloat(String(collectionsTotalAmount)).toFixed(2) ?? "0.00"} ₺
+          {collectionsTotalAmount.toFixed(2) ?? "0.00"} ₺
         </p>
       </div>
       {/* collection summary */}
@@ -242,7 +242,11 @@ const OrderPaymentTypes = ({
                           ...order,
                           paidQuantity:
                             order.paidQuantity -
-                            orderCollectionItem.paidQuantity,
+                              orderCollectionItem.paidQuantity <
+                            1e-6
+                              ? 0
+                              : order.paidQuantity -
+                                orderCollectionItem.paidQuantity,
                         };
                       }
                       return null;

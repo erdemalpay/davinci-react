@@ -76,9 +76,17 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               );
               const orderPrice = order?.division
                 ? Number(
-                    (
-                      (handlePaymentAmount(order) * order.quantity) /
-                      order.division
+                    (order.quantity -
+                      order.paidQuantity -
+                      (tempOrder?.quantity ?? 0) -
+                      order.quantity / order.division <
+                    1e-6
+                      ? handlePaymentAmount(order) *
+                        (order.quantity -
+                          order.paidQuantity -
+                          (tempOrder?.quantity ?? 0))
+                      : (handlePaymentAmount(order) * order.quantity) /
+                        order.division
                     ).toFixed(2)
                   )
                 : Number(handlePaymentAmount(order).toFixed(2));
@@ -96,9 +104,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 order.division &&
                 order.quantity -
                   order.paidQuantity -
-                  (tempOrder?.quantity ?? 0) -
-                  order.quantity / order.division <
-                  1e-6
+                  (tempOrder?.quantity ?? 0) <
+                  (2 * order.quantity) / order.division
               ) {
                 setPaymentAmount(
                   String(
@@ -138,7 +145,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       return {
                         ...tempOrder,
                         quantity: order?.division
-                          ? 2 * orderDivisionCondition < 1e-6
+                          ? orderDivisionCondition < 1e-6
                             ? order.quantity - order.paidQuantity
                             : tempOrder.quantity +
                               order.quantity / order.division
@@ -318,7 +325,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                           (order.quantity -
                             order.paidQuantity -
                             (tempOrder?.quantity ?? 0) <
-                          1e-6
+                          order.quantity / order.division
                             ? handlePaymentAmount(order) *
                               (order.quantity -
                                 order.paidQuantity -
