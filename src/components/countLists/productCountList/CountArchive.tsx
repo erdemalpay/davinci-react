@@ -12,6 +12,7 @@ import {
   User,
 } from "../../../types";
 import { useGetAccountCounts } from "../../../utils/api/account/count";
+import { useGetAccountCountLists } from "../../../utils/api/account/countList";
 import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
@@ -29,6 +30,7 @@ const CountArchive = () => {
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
+  const countLists = useGetAccountCountLists();
   const users = useGetUsers();
   const locations = useGetAccountStockLocations();
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
@@ -193,9 +195,9 @@ const CountArchive = () => {
       type: InputTypes.SELECT,
       formKey: "countList",
       label: t("NounCount"),
-      options: counts.map((count) => ({
-        value: (count.countList as AccountCountList)._id,
-        label: t((count.countList as AccountCountList).name),
+      options: countLists.map((countList) => ({
+        value: countList._id,
+        label: countList.name,
       })),
       placeholder: t("NounCount"),
       required: true,
