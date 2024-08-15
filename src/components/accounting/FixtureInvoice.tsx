@@ -11,6 +11,7 @@ import {
   AccountExpenseType,
   AccountFixture,
   AccountFixtureInvoice,
+  AccountPaymentMethod,
   AccountStockLocation,
   AccountVendor,
   NOTPAID,
@@ -158,6 +159,10 @@ const FixtureInvoice = () => {
         brnd: invoice.brand as AccountBrand,
         vndr: invoice.vendor as AccountVendor,
         fxtr: invoice.fixture as AccountFixture,
+        paymentMethodName: t(
+          (invoice?.paymentMethod as AccountPaymentMethod)?.name
+        ),
+        paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
       };
     })
   );
@@ -273,8 +278,7 @@ const FixtureInvoice = () => {
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,
-      required: !isEnableEdit,
-      isDisabled: isEnableEdit,
+      required: true,
     }),
     QuantityInput(),
   ];
@@ -323,6 +327,11 @@ const FixtureInvoice = () => {
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddFixtureModalOpen(true),
+    },
+    {
+      key: t("Payment Method"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
     },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -463,6 +472,7 @@ const FixtureInvoice = () => {
         );
       },
     },
+    { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unitPrice",
@@ -675,6 +685,7 @@ const FixtureInvoice = () => {
               )?._id,
               note: rowToAction.note,
               location: (rowToAction.location as AccountStockLocation)._id,
+              paymentMethod: rowToAction?.paymentMethod,
             },
           }}
         />
@@ -771,6 +782,10 @@ const FixtureInvoice = () => {
           brnd: invoice.brand as AccountBrand,
           vndr: invoice.vendor as AccountVendor,
           fxtr: invoice.fixture as AccountFixture,
+          paymentMethodName: t(
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>

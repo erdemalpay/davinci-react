@@ -11,6 +11,7 @@ import {
   AccountExpenseType,
   AccountInvoice,
   AccountPackageType,
+  AccountPaymentMethod,
   AccountProduct,
   AccountStockLocation,
   AccountVendor,
@@ -190,6 +191,10 @@ const Invoice = () => {
         vndr: invoice.vendor as AccountVendor,
         pckgTyp: invoice.packageType as AccountPackageType,
         prdct: invoice.product as AccountProduct,
+        paymentMethodName: t(
+          (invoice?.paymentMethod as AccountPaymentMethod)?.name
+        ),
+        paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
       };
     })
   );
@@ -337,8 +342,7 @@ const Invoice = () => {
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,
-      required: !isEnableEdit,
-      isDisabled: isEnableEdit,
+      required: true,
     }),
     QuantityInput(),
   ];
@@ -397,6 +401,11 @@ const Invoice = () => {
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddPackageTypeOpen(true),
+    },
+    {
+      key: t("Payment Method"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
     },
     { key: t("Quantity"), isSortable: true },
     {
@@ -566,6 +575,7 @@ const Invoice = () => {
         );
       },
     },
+    { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unit",
@@ -825,6 +835,7 @@ const Invoice = () => {
               )?._id,
               note: rowToAction.note,
               location: (rowToAction.location as AccountStockLocation)._id,
+              paymentMethod: rowToAction?.paymentMethod,
             },
           }}
         />
@@ -936,6 +947,10 @@ const Invoice = () => {
           vndr: invoice.vendor as AccountVendor,
           pckgTyp: invoice.packageType as AccountPackageType,
           prdct: invoice.product as AccountProduct,
+          paymentMethodName: t(
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>
