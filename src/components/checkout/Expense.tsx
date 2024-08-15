@@ -361,12 +361,14 @@ const Expenses = () => {
       type: InputTypes.SELECT,
       formKey: "type",
       label: t("Expense Category"),
-      options: Object.entries(ExpenseTypes).map((item) => {
-        return {
-          value: item[1],
-          label: t(item[1]),
-        };
-      }),
+      options: Object.entries(ExpenseTypes)
+        .filter((item) => item[1] !== ExpenseTypes.FIXTURE)
+        .map((item) => {
+          return {
+            value: item[1],
+            label: t(item[1]),
+          };
+        }),
       placeholder: t("Expense Category"),
       isMultiple: false,
       required: true,
