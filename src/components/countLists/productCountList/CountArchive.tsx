@@ -195,7 +195,7 @@ const CountArchive = () => {
       type: InputTypes.SELECT,
       formKey: "countList",
       label: t("NounCount"),
-      options: countLists.map((countList) => ({
+      options: countLists?.map((countList) => ({
         value: countList._id,
         label: countList.name,
       })),
@@ -249,7 +249,7 @@ const CountArchive = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [counts, user, locations, users, filterPanelFormElements]);
+  }, [counts, user, locations, users, filterPanelFormElements, countLists]);
 
   return (
     <>
