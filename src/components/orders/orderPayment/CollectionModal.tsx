@@ -63,7 +63,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
           : "",
         hour: format(collection.createdAt, "HH:mm"),
         paymentMethod: (collection.paymentMethod as AccountPaymentMethod)?.name,
-        amount: collection.amount,
+        amount: collection.amount.toFixed(2),
         cancelNote: collection.cancelNote ?? "",
         status: collection.status,
         collapsible: {
@@ -190,7 +190,11 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                     return {
                       ...order,
                       paidQuantity:
-                        order.paidQuantity - orderCollectionItem.paidQuantity,
+                        order.paidQuantity - orderCollectionItem.paidQuantity <
+                        1e-6
+                          ? 0
+                          : order.paidQuantity -
+                            orderCollectionItem.paidQuantity,
                     };
                   }
                   return null;

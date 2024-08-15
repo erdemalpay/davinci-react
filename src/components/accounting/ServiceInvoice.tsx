@@ -8,6 +8,7 @@ import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
+  AccountPaymentMethod,
   AccountService,
   AccountServiceInvoice,
   AccountStockLocation,
@@ -144,6 +145,10 @@ const ServiceInvoice = () => {
         expType: invoice.expenseType as AccountExpenseType,
         vndr: invoice.vendor as AccountVendor,
         srvc: invoice.service as AccountService,
+        paymentMethodName: t(
+          (invoice?.paymentMethod as AccountPaymentMethod)?.name
+        ),
+        paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
       };
     })
   );
@@ -240,8 +245,7 @@ const ServiceInvoice = () => {
     }),
     PaymentMethodInput({
       paymentMethods: paymentMethods,
-      required: !isEnableEdit,
-      isDisabled: isEnableEdit,
+      required: true,
     }),
     QuantityInput(),
   ];
@@ -291,6 +295,11 @@ const ServiceInvoice = () => {
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddServiceModalOpen(true),
+    },
+    {
+      key: t("Payment Method"),
+      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      isSortable: true,
     },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -406,6 +415,7 @@ const ServiceInvoice = () => {
         );
       },
     },
+    { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unitPrice",
@@ -565,7 +575,6 @@ const ServiceInvoice = () => {
           additionalSubmitFunction={() => {
             setServiceExpenseForm({});
           }}
-          isCancelConfirmationDialogExist={true}
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={[
@@ -615,6 +624,7 @@ const ServiceInvoice = () => {
               )?._id,
               note: rowToAction.note,
               location: (rowToAction.location as AccountStockLocation)._id,
+              paymentMethod: rowToAction?.paymentMethod,
             },
           }}
         />
@@ -706,6 +716,10 @@ const ServiceInvoice = () => {
           expType: invoice.expenseType as AccountExpenseType,
           vndr: invoice.vendor as AccountVendor,
           srvc: invoice.service as AccountService,
+          paymentMethodName: t(
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>

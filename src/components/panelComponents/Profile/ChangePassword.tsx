@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import { useUpdatePasswordMutation } from "../../../utils/api/user";
+import ItemContainer from "../common/ItemContainer";
 import TextInput from "../FormElements/TextInput";
 import { H4, P2 } from "../Typography";
-import ItemContainer from "../common/ItemContainer";
 
 const ChangePassword = () => {
   const [key, setKey] = useState(0);

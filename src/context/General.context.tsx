@@ -10,6 +10,7 @@ import {
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
+import { useUserContext } from "./User.context";
 
 type GeneralContextType = {
   sortConfigKey: {
@@ -169,8 +170,11 @@ const GeneralContext = createContext<GeneralContextType>({
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
+  const { user } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(RowPerPageEnum.THIRD);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(
+    user?.rowsPerPage ?? RowPerPageEnum.THIRD
+  );
   const [isCategoryTableEditOpen, setIsCategoryTableEditOpen] =
     useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(

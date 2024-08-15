@@ -76,17 +76,17 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               );
               const orderPrice = order?.division
                 ? Number(
-                    (
-                      (order.quantity -
-                        order.paidQuantity -
-                        (tempOrder?.quantity ?? 0) <
-                      order.quantity / order.division
-                        ? handlePaymentAmount(order) *
-                          (order.quantity -
-                            order.paidQuantity -
-                            (tempOrder?.quantity ?? 0))
-                        : handlePaymentAmount(order) * order.quantity) /
-                      order.division
+                    (order.quantity -
+                      order.paidQuantity -
+                      (tempOrder?.quantity ?? 0) -
+                      order.quantity / order.division <
+                    1e-6
+                      ? handlePaymentAmount(order) *
+                        (order.quantity -
+                          order.paidQuantity -
+                          (tempOrder?.quantity ?? 0))
+                      : (handlePaymentAmount(order) * order.quantity) /
+                        order.division
                     ).toFixed(2)
                   )
                 : Number(handlePaymentAmount(order).toFixed(2));
@@ -145,8 +145,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       return {
                         ...tempOrder,
                         quantity: order?.division
-                          ? orderDivisionCondition <
-                            order.quantity / order.division
+                          ? orderDivisionCondition < 1e-6
                             ? order.quantity - order.paidQuantity
                             : tempOrder.quantity +
                               order.quantity / order.division

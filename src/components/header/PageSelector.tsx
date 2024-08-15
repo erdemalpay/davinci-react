@@ -56,14 +56,14 @@ export function PageSelector() {
           <Bars3Icon className="h-5 w-5" />
         </button>
       </MenuHandler>
-      <MenuList>
+      <MenuList className=" overflow-scroll no-scrollbar h-[95%]">
         {routes.map((route) => {
           if (!route.isOnSidebar) return <div key={route.name}></div>;
           return (
             <MenuItem
               className={`${
                 route.path === currentRoute ? "bg-gray-100  text-black" : ""
-              } overflow-scroll no-scrollbar `}
+              } `}
               key={route.name}
               onClick={() => {
                 if (currentRoute === route.path) return;

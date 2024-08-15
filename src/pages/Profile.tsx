@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
 import ChangePassword from "../components/panelComponents/Profile/ChangePassword";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
+import Settings from "../components/panelComponents/Profile/Settings";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -49,6 +51,13 @@ export default function Profile() {
     },
     {
       number: 3,
+      label: "Settings",
+      icon: <IoIosSettings className="text-lg font-thin" />,
+      content: <Settings />,
+      isDisabled: false,
+    },
+    {
+      number: 4,
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: data && (
@@ -63,7 +72,7 @@ export default function Profile() {
       ),
     },
     {
-      number: 4,
+      number: 5,
       label: `${t("Known Games")} (${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
