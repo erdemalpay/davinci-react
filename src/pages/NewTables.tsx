@@ -116,6 +116,21 @@ const NewTables = () => {
     newDate.setDate(date.getDate() + 1);
     setSelectedDate(formatDate(newDate));
   };
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      const offset = -100;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition + offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // filter out unfinished visits and only show one visit per user
   const seenUserIds = new Set<string>();
@@ -193,7 +208,7 @@ const NewTables = () => {
               {tables.map((table) => (
                 <a
                   key={table._id + "tableselector"}
-                  href={`#table-${table._id}`}
+                  onClick={() => scrollToSection(`table-${table._id}`)}
                   className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
                 >
                   {table.name}

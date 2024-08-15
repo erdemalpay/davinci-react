@@ -3,13 +3,22 @@ import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { Order } from "../types";
 import { Paths } from "../utils/api/factory";
+import { useUserContext } from "./../context/User.context";
+import { RoleEnum } from "./../types/index";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
+  const { user } = useUserContext();
 
+  const OrderCreateSoundRoles = [RoleEnum.BARISTA, RoleEnum.MANAGER];
+  console.log(OrderCreateSoundRoles);
+  console.log(user && OrderCreateSoundRoles.includes(user?.role?._id));
+  console.log(user);
   useEffect(() => {
+    console.log(user);
+
     // Load the audio files
     const orderCreatedSound = new Audio("/sounds/mixitSoftware.wav");
     const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
@@ -31,9 +40,11 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
 
       // Play order created sound
-      orderCreatedSound
-        .play()
-        .catch((error) => console.error("Error playing sound:", error));
+      if (user && OrderCreateSoundRoles.includes(user?.role?._id)) {
+        orderCreatedSound
+          .play()
+          .catch((error) => console.error("Error playing sound:", error));
+      }
     });
 
     socket.on("orderUpdated", (order: Order) => {
@@ -55,5 +66,5 @@ export function useWebSocket() {
     return () => {
       socket.disconnect();
     };
-  }, [queryClient]);
+  }, [queryClient, user]);
 }
