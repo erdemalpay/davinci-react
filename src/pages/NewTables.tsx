@@ -15,7 +15,7 @@ import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
-import { Game, Table, User } from "../types";
+import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetTables } from "../utils/api/table";
@@ -35,7 +35,9 @@ const NewTables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
-  const tables = useGetTables();
+  const tables = useGetTables().filter(
+    (table) => table?.status !== TableStatus.CANCELLED
+  );
   const users = useGetUsers();
   const orders = useGetGivenDateOrders();
 

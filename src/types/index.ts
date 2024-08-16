@@ -24,6 +24,7 @@ export type Table = {
   finishHour?: string;
   orders?: number[];
   gameplays: Gameplay[];
+  status?: string;
 };
 
 export type Role = {
@@ -731,6 +732,9 @@ export enum OrderStatus {
 
 export enum OrderCollectionStatus {
   PAID = "paid",
+  CANCELLED = "cancelled",
+}
+export enum TableStatus {
   CANCELLED = "cancelled",
 }
 export enum ConstantPaymentMethodsIds {

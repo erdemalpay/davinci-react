@@ -507,5 +507,6 @@
   "Language": "Language",
   "Rows Per Page": "Rows Per Page",
   "Add Vendor Payment": "Add Vendor Payment",
+  "Table has active orders": "Table has active orders",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

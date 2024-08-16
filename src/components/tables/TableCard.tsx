@@ -10,7 +10,7 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowUp } from "react-icons/io";
 import { toast } from "react-toastify";
-import { Game, Gameplay, Table, User } from "../../types";
+import { Game, Gameplay, Table, TableStatus, User } from "../../types";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
@@ -47,7 +47,7 @@ export function TableCard({
     useState(false);
   const [isGameplaysVisible, setIsGameplaysVisible] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
-  const { updateTable, deleteTable } = useTableMutations();
+  const { updateTable } = useTableMutations();
   const { mutate: closeTable } = useCloseTableMutation();
   const { mutate: reopenTable } = useReopenTableMutation();
 
@@ -107,7 +107,10 @@ export function TableCard({
 
   function handleTableDelete() {
     if (!table._id) return;
-    deleteTable(table._id);
+    updateTable({
+      id: table._id,
+      updates: { status: TableStatus.CANCELLED },
+    });
     setIsDeleteConfirmationDialogOpen(false);
     toast.success(`Table ${table.name} deleted`);
   }
