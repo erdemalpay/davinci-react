@@ -3,19 +3,19 @@ import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { RoleEnum, RoleNameEnum } from "../../types";
 import {
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
+import { useGetAllUserRoles } from "../../utils/api/user";
 import { CheckSwitch } from "../common/CheckSwitch";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-
 const PageTabPermissions = () => {
   const { t } = useTranslation();
   const { pageDetailsId } = useParams();
   const pages = useGetPanelControlPages();
+  const roles = useGetAllUserRoles();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const currentPage = pages?.find((page) => page._id === pageDetailsId);
   const [tableKey, setTableKey] = useState(0);
@@ -51,16 +51,13 @@ const PageTabPermissions = () => {
       },
     },
   ];
-  for (const roleKey of Object.keys(RoleEnum)) {
-    const roleEnumKey = roleKey as keyof typeof RoleEnum;
-    const roleName = RoleNameEnum[roleEnumKey];
-    const roleValue = RoleEnum[roleEnumKey];
-    if (roleName && currentPage?.permissionRoles?.includes(roleValue)) {
-      columns.push({ key: roleName, isSortable: true });
+  for (const role of roles) {
+    if (currentPage?.permissionRoles?.includes(role._id)) {
+      columns.push({ key: role.name, isSortable: true });
       rowKeys.push({
-        key: roleKey,
+        key: role._id.toString(),
         node: (row: any) => {
-          const hasPermission = row?.permissionRoles?.includes(roleValue);
+          const hasPermission = row?.permissionRoles?.includes(role._id);
           return isEnableEdit ? (
             <div
               className={` ${
@@ -71,7 +68,7 @@ const PageTabPermissions = () => {
             >
               <CheckSwitch
                 checked={hasPermission}
-                onChange={() => handleRolePermission(row, roleValue)}
+                onChange={() => handleRolePermission(row, role._id)}
               />
             </div>
           ) : hasPermission ? (
