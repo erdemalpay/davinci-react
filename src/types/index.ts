@@ -533,6 +533,7 @@ export enum ExpensesPageTabEnum {
   FIXTUREINVOICE,
   SERVICEINVOICE,
   ALLEXPENSES,
+  ADDVENDORPAYMENT,
 }
 export enum CountListPageTabEnum {
   COUNTARCHIVE,

@@ -1,7 +1,9 @@
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GiAnchor } from "react-icons/gi";
 import { GrMoney } from "react-icons/gr";
+import { LuWallet } from "react-icons/lu";
 import { MdOutlineLocalLaundryService } from "react-icons/md";
+import AddVendorPayment from "../components/accounting/AddVendorPayment";
 import AllExpenses from "../components/accounting/AllExpenses";
 import FixtureInvoice from "../components/accounting/FixtureInvoice";
 import Invoice from "../components/accounting/Invoice";
@@ -39,6 +41,13 @@ export const ExpensePageTabs = [
     label: "All Expenses",
     icon: <GrMoney className="text-lg font-thin" />,
     content: <AllExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.ADDVENDORPAYMENT,
+    label: "Add Vendor Payment",
+    icon: <LuWallet className="text-lg font-thin" />,
+    content: <AddVendorPayment />,
     isDisabled: false,
   },
 ];
