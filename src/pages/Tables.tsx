@@ -16,14 +16,13 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
-import { Game, Table, User } from "../types";
+import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
-
 const TablesPage = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -38,7 +37,9 @@ const TablesPage = () => {
   const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
   const visits = useGetVisits();
-  const tables = useGetTables();
+  const tables = useGetTables().filter(
+    (table) => table?.status !== TableStatus.CANCELLED
+  );
   const users = useGetUsers();
 
   // Sort tables first active tables, then closed ones.

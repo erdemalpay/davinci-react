@@ -16,6 +16,7 @@ import {
   MenuCategory,
   OrderStatus,
   Table,
+  TableStatus,
   User,
 } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -66,7 +67,7 @@ export function TableCard({
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
-  const { updateTable, deleteTable } = useTableMutations();
+  const { updateTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
@@ -175,11 +176,28 @@ export function TableCard({
     setIsEditGameplayDialogOpen(true);
   }
 
-  function handleTableDelete() {
+  function handleTableCancel() {
     if (!table._id) return;
-    deleteTable(table._id);
+    if (table?.orders) {
+      const hasActiveOrders = table.orders.some((order) => {
+        const orderData = getOrder(order);
+        return orderData?.status !== OrderStatus.CANCELLED;
+      });
+
+      if (hasActiveOrders) {
+        toast.error(t("Table has active orders"));
+        setIsDeleteConfirmationDialogOpen(false);
+        return;
+      }
+    }
+    updateTable({
+      id: table._id,
+      updates: { status: TableStatus.CANCELLED },
+    });
+
     setIsDeleteConfirmationDialogOpen(false);
   }
+
   function getOrder(orderId: number) {
     return orders.find((order) => order._id === orderId);
   }
@@ -377,7 +395,7 @@ export function TableCard({
       <ConfirmationDialog
         isOpen={isDeleteConfirmationDialogOpen}
         close={() => setIsDeleteConfirmationDialogOpen(false)}
-        confirm={handleTableDelete}
+        confirm={handleTableCancel}
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />

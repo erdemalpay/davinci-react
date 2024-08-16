@@ -1,12 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { PiBellSimpleRingingFill } from "react-icons/pi";
-import { TbArrowBack } from "react-icons/tb";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, Order, OrderStatus, User } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
 import Timer from "../common/Timer";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
-
 type Props = {
   order: Order;
   user: User;
@@ -53,7 +49,25 @@ const SingleOrderCard = ({ order, user }: Props) => {
         </div>
       </div>
       {/* buttons */}
-      <div className="  flex flex-row justify-between  px-2 ml-auto  ">
+      <div className="  flex flex-row justify-between gap-2  px-2 ml-auto mb-1  ">
+        {/* cancel button */}
+        {order.paidQuantity === 0 && (
+          <button
+            onClick={() => {
+              updateOrder({
+                id: order._id,
+                updates: {
+                  status: OrderStatus.CANCELLED,
+                  cancelledAt: new Date(),
+                  cancelledBy: user._id,
+                },
+              });
+            }}
+            className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-600 hover:text-red-900 font-medium text-sm "
+          >
+            {t("Cancel")}
+          </button>
+        )}
         {/* pending ready button */}
         {order.status === OrderStatus.PENDING && (
           <button
@@ -67,11 +81,9 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 },
               });
             }}
-            className="  rounded-lg"
+            className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
           >
-            <ButtonTooltip content={t("Ready")}>
-              <PiBellSimpleRingingFill className="text-xl" />
-            </ButtonTooltip>
+            {t("Ready")}
           </button>
         )}
         {/* ready to serve back to pending  button */}
@@ -87,11 +99,9 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" rounded-lg"
+                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
               >
-                <ButtonTooltip content={t("Preparing")}>
-                  <TbArrowBack className="text-xl" />
-                </ButtonTooltip>
+                {t("Back")}
               </button>
             )}
             <button
@@ -105,11 +115,9 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className="  rounded-lg"
+              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
             >
-              <ButtonTooltip content={t("Served")}>
-                <PiBellSimpleRingingFill className="text-xl" />
-              </ButtonTooltip>
+              {t("Served")}
             </button>
           </div>
         )}
@@ -125,11 +133,9 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className="  rounded-lg"
+                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
               >
-                <ButtonTooltip content={t("Not Served")}>
-                  <TbArrowBack className="text-xl" />
-                </ButtonTooltip>
+                {t("Back")}
               </button>
             </div>
           )}
