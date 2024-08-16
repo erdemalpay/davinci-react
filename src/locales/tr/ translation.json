@@ -503,5 +503,7 @@
   "Settings": "Ayarlar",
   "Language": "Dil",
   "Rows Per Page": "Sayfa Başına Satır",
+  "Add Vendor Payment": "Tedarikçi Ödemesi Ekle",
+  "Table has active orders": "Masa aktif siparişlere sahip",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

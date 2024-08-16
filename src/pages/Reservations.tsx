@@ -296,7 +296,7 @@ export default function Reservations() {
 
   return (
     <>
-      <Header showLocationSelector={false} />
+      <Header showLocationSelector={true} />
       <div className="w-[90%] mx-auto my-10">
         <GenericTable
           key={tableKey}

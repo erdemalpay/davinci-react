@@ -7,6 +7,7 @@ import {
   AccountBrand,
   AccountExpenseType,
   AccountPackageType,
+  AccountPaymentMethod,
   AccountProduct,
   AccountStockLocation,
   AccountVendor,
@@ -87,6 +88,10 @@ const VendorExpenses = () => {
           vndr: invoice.vendor as AccountVendor,
           pckgTyp: invoice.packageType as AccountPackageType,
           prdct: invoice.product as AccountProduct,
+          paymentMethodName: t(
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       })
   );
@@ -157,11 +162,6 @@ const VendorExpenses = () => {
       className: "min-w-32 pr-2",
       isSortable: true,
     },
-    {
-      key: t("Vendor"),
-      className: "min-w-32 pr-2",
-      isSortable: true,
-    },
     { key: t("Location"), isSortable: true },
     {
       key: t("Expense Type"),
@@ -175,6 +175,11 @@ const VendorExpenses = () => {
     },
     {
       key: t("Package Type"),
+      className: "min-w-32 ",
+      isSortable: true,
+    },
+    {
+      key: t("Payment Method"),
       className: "min-w-32 ",
       isSortable: true,
     },
@@ -192,10 +197,6 @@ const VendorExpenses = () => {
     { key: "note", className: "min-w-40 pr-2" },
     {
       key: "brand",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "vendor",
       className: "min-w-32 pr-2",
     },
     {
@@ -227,6 +228,7 @@ const VendorExpenses = () => {
       key: "packageType",
       className: "min-w-32 pr-2",
     },
+    { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unit",
@@ -310,6 +312,10 @@ const VendorExpenses = () => {
           vndr: invoice.vendor as AccountVendor,
           pckgTyp: invoice.packageType as AccountPackageType,
           prdct: invoice.product as AccountProduct,
+          paymentMethodName: t(
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>

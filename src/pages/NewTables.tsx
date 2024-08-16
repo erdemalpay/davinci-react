@@ -15,7 +15,7 @@ import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
-import { Game, Table, User } from "../types";
+import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetTables } from "../utils/api/table";
@@ -35,7 +35,9 @@ const NewTables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
-  const tables = useGetTables();
+  const tables = useGetTables().filter(
+    (table) => table?.status !== TableStatus.CANCELLED
+  );
   const users = useGetUsers();
   const orders = useGetGivenDateOrders();
 
@@ -205,15 +207,17 @@ const NewTables = () => {
             </div>
             {/* Table name buttons */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
-              {tables.map((table) => (
-                <a
-                  key={table._id + "tableselector"}
-                  onClick={() => scrollToSection(`table-${table._id}`)}
-                  className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
-                >
-                  {table.name}
-                </a>
-              ))}
+              {tables
+                .filter((table) => !table?.finishHour)
+                .map((table) => (
+                  <a
+                    key={table._id + "tableselector"}
+                    onClick={() => scrollToSection(`table-${table._id}`)}
+                    className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                  >
+                    {table.name}
+                  </a>
+                ))}
             </div>
             {/* buttons */}
             <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">

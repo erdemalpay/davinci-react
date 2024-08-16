@@ -40,7 +40,7 @@ function Orders() {
 
   return (
     <>
-      <Header showLocationSelector={false} />
+      <Header showLocationSelector={true} />
       <TabPanel
         tabs={tabs ?? []}
         activeTab={ordersActiveTab}

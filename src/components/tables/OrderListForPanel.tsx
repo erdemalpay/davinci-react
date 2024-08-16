@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { MenuItem, Order, OrderStatus } from "../../types";
+import { MenuItem, Order, OrderStatus, TableStatus } from "../../types";
 import {
   useGetGivenDateOrders,
   useOrderMutations,
@@ -11,7 +11,9 @@ import { useGetTables } from "../../utils/api/table";
 type Props = { tableId: number };
 
 const OrderListForPanel = ({ tableId }: Props) => {
-  const tables = useGetTables();
+  const tables = useGetTables().filter(
+    (table) => table?.status !== TableStatus.CANCELLED
+  );
   const table = tables.find((table) => table._id === tableId);
   const { user } = useUserContext();
   if (!table || !user) return null;
