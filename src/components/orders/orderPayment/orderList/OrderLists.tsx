@@ -28,7 +28,6 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const {
     isProductSelectionOpen,
     setIsProductSelectionOpen,
-    setIsDiscountScreenOpen,
     isDiscountScreenOpen,
     setTemporaryOrders,
     selectedDiscount,
