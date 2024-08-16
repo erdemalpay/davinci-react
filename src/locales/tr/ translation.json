@@ -505,5 +505,6 @@
   "Rows Per Page": "Sayfa Başına Satır",
   "Add Vendor Payment": "Tedarikçi Ödemesi Ekle",
   "Table has active orders": "Masa aktif siparişlere sahip",
+  "Order division cannot be changed": "Sipariş değiştirilemez",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
