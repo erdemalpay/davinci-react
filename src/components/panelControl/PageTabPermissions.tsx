@@ -97,7 +97,7 @@ const PageTabPermissions = () => {
   ];
   useEffect(() => {
     setTableKey((prevKey) => prevKey + 1);
-  }, [pages, currentPage, pageDetailsId]);
+  }, [pages, currentPage, pageDetailsId, roles]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
