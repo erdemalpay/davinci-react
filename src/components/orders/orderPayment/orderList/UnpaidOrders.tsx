@@ -125,7 +125,13 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                     Number(paymentAmount) +
                       orderPrice +
                       collectionsTotalAmount >
-                      totalAmount - discountAmount
+                      totalAmount - discountAmount ||
+                      totalAmount -
+                        discountAmount -
+                        collectionsTotalAmount -
+                        Number(paymentAmount) -
+                        orderPrice <
+                        orderPrice
                       ? totalAmount - discountAmount - collectionsTotalAmount
                       : Number(paymentAmount) + orderPrice
                   )
@@ -358,37 +364,43 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   ) {
                     setPaymentAmount(
                       String(
-                        Math.round(
-                          Number(paymentAmount) +
-                            orderPrice +
-                            collectionsTotalAmount >
-                            totalAmount - discountAmount
-                            ? totalAmount -
-                                discountAmount -
-                                collectionsTotalAmount
-                            : Number(paymentAmount) +
-                                (order?.discount
-                                  ? orderPrice
-                                  : order.unitPrice) *
-                                  (order.quantity -
-                                    order.paidQuantity -
-                                    (tempOrder?.quantity ?? 0))
-                        )
-                      )
-                    );
-                  } else {
-                    setPaymentAmount(
-                      String(
                         Math.min(
                           totalAmount - discountAmount - collectionsTotalAmount,
                           Number(paymentAmount) +
                             (order?.discount ? orderPrice : order.unitPrice) *
                               (order.quantity -
                                 order.paidQuantity -
-                                (tempOrder?.quantity ?? 0)) *
-                              (order?.division && order?.discount
-                                ? order.division / order.quantity
-                                : 1)
+                                (tempOrder?.quantity ?? 0))
+                        )
+                      )
+                    );
+                  } else {
+                    const addedAmount =
+                      Number(paymentAmount) +
+                      (order?.discount ? orderPrice : order.unitPrice) *
+                        (order.quantity -
+                          order.paidQuantity -
+                          (tempOrder?.quantity ?? 0)) *
+                        (order?.division && order?.discount
+                          ? order.division / order.quantity
+                          : 1);
+                    setPaymentAmount(
+                      String(
+                        Math.round(
+                          Math.min(
+                            totalAmount -
+                              discountAmount -
+                              collectionsTotalAmount,
+                            totalAmount -
+                              discountAmount -
+                              collectionsTotalAmount -
+                              addedAmount <
+                              orderPrice
+                              ? totalAmount -
+                                  discountAmount -
+                                  collectionsTotalAmount
+                              : addedAmount
+                          )
                         )
                       )
                     );

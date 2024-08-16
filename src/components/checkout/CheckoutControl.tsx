@@ -117,25 +117,24 @@ const CheckoutControlPage = () => {
         )
         ?.reduce((acc, item) => acc + item.amount, 0),
     })) ?? [];
-
-  const [rows, setRows] = useState(
-    allRows.map((row) => {
-      return {
-        ...row,
-        expectedQuantity:
-          row.beginningQuantity +
+  const arrangedAllRows = allRows.map((row) => {
+    return {
+      ...row,
+      expectedQuantity:
+        row.beginningQuantity +
+        row.incomeQuantity -
+        row.expenseQuantity -
+        row.cashout,
+      difference:
+        row.amount -
+        (row.beginningQuantity +
           row.incomeQuantity -
           row.expenseQuantity -
-          row.cashout,
-        difference:
-          row.amount -
-          (row.beginningQuantity +
-            row.incomeQuantity -
-            row.expenseQuantity -
-            row.cashout),
-      };
-    })
-  );
+          row.cashout),
+    };
+  });
+
+  const [rows, setRows] = useState(arrangedAllRows);
 
   const columns = [
     { key: t("Date"), isSortable: true },
@@ -179,7 +178,11 @@ const CheckoutControlPage = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return row.formattedDate;
+        return (
+          <p className={`${row?.className} min-w-32 pr-2`}>
+            {row.formattedDate}
+          </p>
+        );
       },
     },
     {
@@ -192,7 +195,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -209,7 +212,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -226,7 +229,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -243,7 +246,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -260,7 +263,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -277,7 +280,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -294,7 +297,7 @@ const CheckoutControlPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2">
-            <p>
+            <p className={`${row?.className} `}>
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 2,
@@ -400,30 +403,46 @@ const CheckoutControlPage = () => {
   ];
 
   useEffect(() => {
-    const filteredRows = allRows
-      .map((row) => {
-        return {
-          ...row,
-          expectedQuantity:
-            row.beginningQuantity +
-            row.incomeQuantity -
-            row.expenseQuantity -
-            row.cashout,
-          difference:
-            row.amount -
-            (row.beginningQuantity +
-              row.incomeQuantity -
-              row.expenseQuantity -
-              row.cashout),
-        };
-      })
-      .filter((row) => {
-        return (
-          passesFilter(filterPanelFormElements.location, row.location?._id) &&
-          passesFilter(filterPanelFormElements.user, row.user?._id) &&
-          passesFilter(filterPanelFormElements.date, row.date)
-        );
-      });
+    const filteredRows = arrangedAllRows.filter((row) => {
+      if (row?.location === ("" as any) || row?.user === ("" as any)) {
+        return true;
+      }
+      return (
+        passesFilter(filterPanelFormElements.location, row?.location?._id) &&
+        passesFilter(filterPanelFormElements.user, row?.user?._id) &&
+        passesFilter(filterPanelFormElements.date, row.date)
+      );
+    });
+    filteredRows.push({
+      _id: Infinity,
+      date: t("Total"),
+      formattedDate: t("Total"),
+      usr: "",
+      lctn: "",
+      amount: filteredRows.reduce((acc, row) => acc + row.amount, 0),
+      beginningQuantity: filteredRows.reduce(
+        (acc, row) => acc + row.beginningQuantity,
+        0
+      ),
+      incomeQuantity: filteredRows.reduce(
+        (acc, row) => acc + row.incomeQuantity,
+        0
+      ),
+      expenseQuantity: filteredRows.reduce(
+        (acc, row) => acc + row.expenseQuantity,
+        0
+      ),
+      cashout: filteredRows.reduce((acc, row) => acc + row.cashout, 0),
+      expectedQuantity: filteredRows.reduce(
+        (acc, row) => acc + row.expectedQuantity,
+        0
+      ),
+      difference: filteredRows.reduce((acc, row) => acc + row.difference, 0),
+      user: "" as any,
+      location: "" as any,
+      isSortable: false,
+      className: "font-semibold",
+    } as any);
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [

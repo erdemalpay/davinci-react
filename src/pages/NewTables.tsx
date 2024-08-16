@@ -116,6 +116,21 @@ const NewTables = () => {
     newDate.setDate(date.getDate() + 1);
     setSelectedDate(formatDate(newDate));
   };
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      const offset = -100;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition + offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // filter out unfinished visits and only show one visit per user
   const seenUserIds = new Set<string>();
@@ -187,6 +202,18 @@ const NewTables = () => {
                   handleIncrementDate(selectedDate ?? "");
                 }}
               />
+            </div>
+            {/* Table name buttons */}
+            <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
+              {tables.map((table) => (
+                <a
+                  key={table._id + "tableselector"}
+                  onClick={() => scrollToSection(`table-${table._id}`)}
+                  className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                >
+                  {table.name}
+                </a>
+              ))}
             </div>
             {/* buttons */}
             <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
@@ -268,7 +295,7 @@ const NewTables = () => {
           </div>
         </div>
 
-        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8">
+        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
               {tables.map((table) => (
@@ -286,14 +313,18 @@ const NewTables = () => {
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
           {tables.map((table) => (
-            <TableCard
+            <div
+              id={`table-${table._id}`}
               key={table._id || table.startHour + tableCardKey}
-              table={table}
-              mentors={mentors}
-              games={games as Game[]}
-              showAllGameplays={showAllGameplays}
-              showAllOrders={showAllOrders}
-            />
+            >
+              <TableCard
+                table={table}
+                mentors={mentors}
+                games={games as Game[]}
+                showAllGameplays={showAllGameplays}
+                showAllOrders={showAllOrders}
+              />
+            </div>
           ))}
         </div>
       </div>
