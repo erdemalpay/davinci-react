@@ -30,6 +30,8 @@ export function AddReservationDialog({
     date,
     location: selectedLocationId,
     reservationHour,
+    reservedTable: "",
+    playerCount: 0,
   };
 
   const { data, handleUpdate } = useForm(initialReservation);
@@ -100,7 +102,26 @@ export function AddReservationDialog({
                       value={data.reservationHour}
                       onChange={handleUpdate}
                     ></Input>
+                    <Input
+                      variant="standard"
+                      name="reservedTable"
+                      label="Reserved Table"
+                      type="text"
+                      value={data.reservedTable}
+                      onChange={handleUpdate}
+                    />
                   </div>
+                  <div className="mt-4 flex gap-2">
+                    <Input
+                      variant="standard"
+                      name="playerCount"
+                      label="Player Count"
+                      type="number"
+                      value={data.playerCount}
+                      onChange={handleUpdate}
+                    />
+                  </div>
+
                   <div className="flex items-center justify-between my-4">
                     <button
                       onClick={close}

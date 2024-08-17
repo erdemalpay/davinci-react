@@ -53,7 +53,9 @@ export default function Reservations() {
     if (!selectedReservation) return;
     updateReservationCall({
       id: selectedReservation._id,
-      updates: { status: value },
+      updates: {
+        status: value,
+      },
     });
 
     setIsReservationCalledDialogOpen(false);
@@ -110,12 +112,20 @@ export default function Reservations() {
       placeholder: t("Reserved Table"),
       required: false,
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "playerCount",
+      label: t("Player Count"),
+      placeholder: t("Player Count"),
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "phone", type: FormKeyTypeEnum.STRING },
     { key: "reservationHour", type: FormKeyTypeEnum.STRING },
     { key: "reservedTable", type: FormKeyTypeEnum.STRING },
+    { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
   ];
 
   const columns = [
@@ -123,6 +133,9 @@ export default function Reservations() {
     { key: t("Phone"), isSortable: true },
     { key: t("Time"), isSortable: true },
     { key: t("Reserved Table"), isSortable: true },
+    { key: t("Player Count"), isSortable: true },
+    { key: t("Call Hour"), isSortable: true },
+    { key: t("Approved Hour"), isSortable: true },
     { key: t("Status"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
@@ -143,6 +156,12 @@ export default function Reservations() {
       key: "reservedTable",
       className: "min-w-32",
     },
+    {
+      key: "playerCount",
+      className: "min-w-32",
+    },
+    { key: "callHour" },
+    { key: "approvedHour" },
     {
       key: "status",
       className: "min-w-32",
@@ -205,9 +224,15 @@ export default function Reservations() {
             <button
               className="mt-2  min-w-6  "
               onClick={() => {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, "0");
+                const minutes = String(now.getMinutes()).padStart(2, "0");
+                const approvedHour = `${hours}:${minutes}`;
                 updateReservation({
                   id: row._id,
-                  updates: { status: ReservationStatusEnum.ALREADY_CAME },
+                  updates: {
+                    status: ReservationStatusEnum.ALREADY_CAME,
+                  },
                 });
                 setIsCreateTableDialogOpen(true);
               }}

@@ -479,7 +479,7 @@ export type Reservation = {
   reservedTable: string;
   reservationHour: string;
   callHour: string;
-  approveHour: string;
+  approvedHour?: string;
   callCount: number;
   finishHour: string;
   status: ReservationStatusEnum;
