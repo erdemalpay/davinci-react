@@ -553,6 +553,7 @@ export enum CountListPageTabEnum {
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,
+  USERACTIVITIES,
 }
 export enum PageDetailsPageTabEnum {
   PAGETABPERMISSIONS,

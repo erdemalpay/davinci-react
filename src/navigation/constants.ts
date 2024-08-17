@@ -29,6 +29,7 @@ import SingleFixtureCountArchive from "../pages/SingleFixtureCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
+import UserActivities from "../pages/UserActivities";
 import Users from "../pages/Users";
 import Vendor from "../pages/Vendor";
 import Visits from "../pages/Visits";
@@ -81,6 +82,7 @@ export enum Routes {
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
   OrderDatas = "/order-datas",
+  UserActivities = "/user-activities",
 }
 
 export const allRoutes: {
@@ -165,6 +167,12 @@ export const allRoutes: {
     name: "Analytics",
     path: Routes.Analytics,
     element: Analytics,
+    isOnSidebar: true,
+  },
+  {
+    name: "User Activities",
+    path: Routes.UserActivities,
+    element: UserActivities,
     isOnSidebar: true,
   },
   {
