@@ -156,7 +156,7 @@ const GamesIKnow = ({ userId }: Props) => {
   };
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [user, isEnableEdit]);
+  }, [user, isEnableEdit, games]);
 
   return (
     <div className="w-full  h-fit">
