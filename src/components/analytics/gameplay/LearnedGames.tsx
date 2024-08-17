@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetGames } from "../../../utils/api/game";
-
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
 import GenericTable from "../../panelComponents/Tables/GenericTable";

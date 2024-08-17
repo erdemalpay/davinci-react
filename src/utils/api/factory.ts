@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { UpdatePayload, get, patch, post, remove } from ".";
 export const Paths = {
+  Activity: "/activity",
   Checkout: "/checkout",
   Games: "/games",
   Gameplays: "/gameplays",

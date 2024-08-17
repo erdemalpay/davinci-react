@@ -452,6 +452,15 @@ export type OrderDiscount = {
   amount?: number;
 };
 
+export type Activity = {
+  _id: number;
+  user: User;
+  type: string;
+  createdAt: Date;
+  updatedAt: Date;
+  payload: any;
+};
+
 export enum ReservationStatusEnum {
   WAITING = "Waiting",
   COMING = "Coming",
@@ -544,6 +553,7 @@ export enum CountListPageTabEnum {
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,
+  USERACTIVITIES,
 }
 export enum PageDetailsPageTabEnum {
   PAGETABPERMISSIONS,
