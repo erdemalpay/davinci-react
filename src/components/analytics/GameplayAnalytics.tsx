@@ -6,6 +6,7 @@ import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
+import { useGeneralContext } from "../../context/General.context";
 import { DateFilter } from "../../utils/dateUtil";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import GameplaysByGames from "./gameplay/GameplaysByGame";
@@ -23,6 +24,7 @@ export default function GameplayAnalytics() {
   const [endDate, setEndDate] = useState<string | undefined>("");
   const [location, setLocation] = useState<string>("1,2");
   const [itemLimit, setItemLimit] = useState(5);
+  const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const tabs = [
     {
       number: 0,
@@ -111,6 +113,10 @@ export default function GameplayAnalytics() {
         }))}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        additionalOpenAction={() => {
+          setCurrentPage(1);
+          setSearchQuery("");
+        }}
       />
     </>
   );
