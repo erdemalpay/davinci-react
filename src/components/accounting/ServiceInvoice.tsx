@@ -268,7 +268,7 @@ const ServiceInvoice = () => {
   ];
 
   const columns = [
-    { key: "ID", isSortable: true },
+    { key: "ID", isSortable: true, className: "pl-2" },
     { key: t("Date"), isSortable: true },
     { key: t("Note"), isSortable: true },
     {
@@ -306,7 +306,7 @@ const ServiceInvoice = () => {
     { key: t("Total Expense"), isSortable: true },
   ];
   const rowKeys = [
-    { key: "_id", className: "min-w-32 pr-2" },
+    { key: "_id", className: "min-w-32 px-2" },
     {
       key: "date",
       className: "min-w-32 pr-2",
@@ -800,10 +800,11 @@ const ServiceInvoice = () => {
           rowKeys={rowKeys}
           actions={actions}
           filters={tableFilters}
-          isActionsActive={isEnableEdit}
+          isActionsActive={false}
+          isActionsAtFront={isEnableEdit}
           columns={
             isEnableEdit || isTransferEdit
-              ? [...columns, { key: t("Action"), isSortable: false }]
+              ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }
           rows={rows}
