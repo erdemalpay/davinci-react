@@ -501,6 +501,18 @@ const GenericTable = <T,>({
                               const cellValue = `${
                                 collapsibleRow[rowKey?.key as keyof T]
                               }`;
+                              if (rowKey.node) {
+                                return (
+                                  <td
+                                    key={keyIndex}
+                                    className={`${
+                                      keyIndex === 0 ? "pl-3" : ""
+                                    } py-3 min-w-20 ${rowKey?.className} `}
+                                  >
+                                    {rowKey.node(row)}
+                                  </td>
+                                );
+                              }
 
                               return (
                                 <td

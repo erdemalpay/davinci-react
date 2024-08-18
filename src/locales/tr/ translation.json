@@ -505,5 +505,10 @@
   "Rows Per Page": "Sayfa Başına Satır",
   "Add Vendor Payment": "Tedarikçi Ödemesi Ekle",
   "Table has active orders": "Masa aktif siparişlere sahip",
+  "Order division cannot be changed": "Sipariş değiştirilemez",
+  "Learned Games": "Öğrenilen Oyunlar",
+  "User Activities": "Kullanıcı Aktiviteleri",
+  "Call Hour": "Çağrı Saati",
+  "Approved Hour": "Onay Saati",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

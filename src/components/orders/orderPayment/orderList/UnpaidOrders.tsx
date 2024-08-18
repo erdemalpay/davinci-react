@@ -235,7 +235,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             order.division !== 1 &&
                             order.paidQuantity !== 0
                           ) {
-                            toast.error("Order division cannot be changed.");
+                            toast.error(t("Order division cannot be changed."));
                             return;
                           }
                           if (

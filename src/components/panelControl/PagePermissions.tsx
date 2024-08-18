@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { allRoutes } from "../../navigation/constants";
-import { PanelControlPage, RoleEnum, RoleNameEnum } from "../../types";
+import { PanelControlPage } from "../../types";
 import {
   useCreateMultiplePageMutation,
   useGetPanelControlPages,
   usePanelControlPageMutations,
 } from "../../utils/api/panelControl/page";
+import { useGetAllUserRoles } from "../../utils/api/user";
 import { CheckSwitch } from "../common/CheckSwitch";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -18,6 +19,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 const PagePermissions = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const roles = useGetAllUserRoles();
   const pages = useGetPanelControlPages();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -64,31 +66,26 @@ const PagePermissions = () => {
     },
   ];
   // Adding roles columns and rowkeys
-  for (const roleKey of Object.keys(RoleEnum)) {
-    const roleEnumKey = roleKey as keyof typeof RoleEnum;
-    const roleName = RoleNameEnum[roleEnumKey];
-    const roleValue = RoleEnum[roleEnumKey];
-
-    if (roleName) {
-      columns.push({ key: roleName, isSortable: true });
-      rowKeys.push({
-        key: roleKey,
-        node: (row: any) => {
-          const hasPermission = row?.permissionRoles?.includes(roleValue);
-          return isEnableEdit ? (
-            <CheckSwitch
-              checked={hasPermission}
-              onChange={() => handleRolePermission(row, roleValue)}
-            />
-          ) : hasPermission ? (
-            <IoCheckmark className={`text-blue-500 text-2xl `} />
-          ) : (
-            <IoCloseOutline className={`text-red-800 text-2xl `} />
-          );
-        },
-      });
-    }
+  for (const role of roles) {
+    columns.push({ key: role.name, isSortable: true });
+    rowKeys.push({
+      key: role._id.toString(),
+      node: (row: any) => {
+        const hasPermission = row?.permissionRoles?.includes(role._id);
+        return isEnableEdit ? (
+          <CheckSwitch
+            checked={hasPermission}
+            onChange={() => handleRolePermission(row, role._id)}
+          />
+        ) : hasPermission ? (
+          <IoCheckmark className={`text-blue-500 text-2xl `} />
+        ) : (
+          <IoCloseOutline className={`text-red-800 text-2xl `} />
+        );
+      },
+    });
   }
+
   const fillMissingPages = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
@@ -138,7 +135,7 @@ const PagePermissions = () => {
   useEffect(() => {
     fillMissingPages();
     setTableKey((prev) => prev + 1);
-  }, [pages]);
+  }, [pages, roles]);
 
   const filters = [
     {

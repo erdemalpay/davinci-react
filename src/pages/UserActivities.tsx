@@ -1,50 +1,41 @@
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { Input } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
-import { Game, RowPerPageEnum, User } from "../types";
-import { useGetGames } from "../utils/api/game";
-import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
+import { Activity, RowPerPageEnum, User } from "../types";
+import { ActivityFilter, useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 
-interface GameplayRow {
-  _id: number;
-  game: string;
-  mentor: string;
-  playerCount: number;
-  date: string;
-}
-
-export default function NewGameplays() {
+const UserActivities = () => {
   const { t } = useTranslation();
-  const [gameplays, setGameplays] = useState<GameplayRow[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [filterData, setFilterData] = useState<GameplayFilter>({
+  const [filterData, setFilterData] = useState<ActivityFilter>({
     limit: 10,
     page: 1,
   });
+  const { data } = useGetActivities(filterData);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [tableKey, setTableKey] = useState(0);
-  const { data } = useGetGameplays(filterData);
-  const games = useGetGames();
+  const [totalItems, setTotalItems] = useState(0);
   const users = useGetUsers();
   const columns = [
     {
-      key: t("Game"),
-      isSortable: false,
+      key: t("User"),
+      isSortable: true,
       node: () => (
         <th
-          key="game"
+          key="user"
           className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("game")}
+          onClick={() => handleSort("user")}
         >
-          <div className="flex gap-x-2 pl-3  items-center py-3  min-w-8">
-            <H5>{t("Game")}</H5>
-            {filterData.sort === "game" &&
+          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
+            <H5>{t("User")}</H5>
+            {filterData.sort === "user" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
               ) : (
@@ -55,38 +46,17 @@ export default function NewGameplays() {
       ),
     },
     {
-      key: t("Game Mentor"),
-      isSortable: false,
+      key: t("Type"),
+      isSortable: true,
       node: () => (
         <th
-          key="Game Mentor"
+          key="type"
           className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("mentor")}
+          onClick={() => handleSort("type")}
         >
-          <div className="flex gap-x-2   items-center py-3  min-w-8">
-            <H5>{t("Game Mentor")}</H5>
-            {filterData.sort === "mentor" &&
-              (filterData.asc === 1 ? (
-                <ArrowUpIcon className="h-4 w-4 my-auto" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 my-auto" />
-              ))}
-          </div>
-        </th>
-      ),
-    },
-    {
-      key: t("Player Count"),
-      isSortable: false,
-      node: () => (
-        <th
-          key="Player Count"
-          className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("playerCount")}
-        >
-          <div className="flex gap-x-2   items-center py-3  min-w-8">
-            <H5>{t("Player Count")}</H5>
-            {filterData.sort === "playerCount" &&
+          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
+            <H5>{t("Type")}</H5>
+            {filterData.sort === "type" &&
               (filterData.asc === 1 ? (
                 <ArrowUpIcon className="h-4 w-4 my-auto" />
               ) : (
@@ -98,14 +68,14 @@ export default function NewGameplays() {
     },
     {
       key: t("Date"),
-      isSortable: false,
+      isSortable: true,
       node: () => (
         <th
-          key="Date"
+          key="date"
           className="font-bold text-left cursor-pointer"
           onClick={() => handleSort("date")}
         >
-          <div className="flex gap-x-2   items-center py-3  min-w-8">
+          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
             <H5>{t("Date")}</H5>
             {filterData.sort === "date" &&
               (filterData.asc === 1 ? (
@@ -117,52 +87,53 @@ export default function NewGameplays() {
         </th>
       ),
     },
+    {
+      key: t("Hour"),
+      isSortable: true,
+      node: () => (
+        <th
+          key="hour"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("hour")}
+        >
+          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
+            <H5>{t("Hour")}</H5>
+            {filterData.sort === "hour" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
+    },
   ];
   const rowKeys = [
+    { key: "userName" },
+    { key: "type" },
     {
-      key: "game",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "mentor",
-      className: "min-w-20 pr-1",
-    },
-    { key: "playerCount" },
-    {
-      key: "date",
-      className: "min-w-32",
-      node: (row: GameplayRow) => {
-        return formatAsLocalDate(row.date);
+      key: "createdDate",
+      className: `min-w-32   `,
+      node: (row: any) => {
+        return <p>{row?.formattedCreatedDate}</p>;
       },
     },
+    { key: "createHour" },
   ];
-
-  function handleMentorSelection(mentor: User) {
-    if (!mentor) {
-      setFilterData({ ...filterData, mentor: undefined, page: 1 });
+  function handleDateSelection(event: React.FormEvent<HTMLInputElement>) {
+    setFilterData({
+      ...filterData,
+      date: (event.target as HTMLInputElement).value,
+      page: 1,
+    });
+  }
+  function handleUserSelection(user: User) {
+    if (!user) {
+      setFilterData({ ...filterData, user: undefined, page: 1 });
     } else {
-      setFilterData({ ...filterData, mentor: mentor._id, page: 1 });
+      setFilterData({ ...filterData, user: user._id, page: 1 });
     }
-  }
-
-  function handleGameSelection(game: Game) {
-    setFilterData({ ...filterData, game: game?._id, page: 1 });
-  }
-
-  function handleStartDateSelection(event: React.FormEvent<HTMLInputElement>) {
-    setFilterData({
-      ...filterData,
-      startDate: (event.target as HTMLInputElement).value,
-      page: 1,
-    });
-  }
-
-  function handleEndDateSelection(event: React.FormEvent<HTMLInputElement>) {
-    setFilterData({
-      ...filterData,
-      endDate: (event.target as HTMLInputElement).value,
-      page: 1,
-    });
   }
 
   function handleLimitSelection(value: number) {
@@ -207,17 +178,45 @@ export default function NewGameplays() {
       });
     }
   }
+
   useEffect(() => {
     if (data) {
       const { items, totalCount } = data;
-      setGameplays(
-        items.map((gameplay) => ({
-          _id: gameplay?._id || 0,
-          game: (gameplay?.game as Game)?.name,
-          mentor: gameplay?.mentor?.name,
-          playerCount: gameplay?.playerCount,
-          date: gameplay?.date,
-        }))
+      setActivities(
+        items.map((activity) => {
+          return {
+            ...activity,
+            userName: activity.user.name,
+            userId: activity.user._id,
+            createdDate: activity?.createdAt
+              ? format(activity.createdAt, "yyyy-MM-dd")
+              : "",
+            formattedCreatedDate: activity?.createdAt
+              ? formatAsLocalDate(format(activity.createdAt, "yyyy-MM-dd"))
+              : "",
+            createHour: activity?.createdAt
+              ? format(activity.createdAt, "HH:mm")
+              : "",
+            collapsible: {
+              collapsibleColumns: [{ key: t("Payload"), isSortable: false }],
+              collapsibleRows: activity?.payload
+                ? [
+                    {
+                      payload: activity.payload,
+                    },
+                  ]
+                : [],
+              collapsibleRowKeys: [
+                {
+                  key: "payload",
+                  node: (row: any) => {
+                    return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
+                  },
+                },
+              ],
+            },
+          };
+        })
       );
       setTotalItems(totalCount);
     }
@@ -226,51 +225,36 @@ export default function NewGameplays() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[90%] mx-auto my-10 ">
+      <div className="w-[95%] mx-auto my-10 ">
         <div className="flex flex-col w-full mb-6">
           <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
             <Autocomplete
-              name="mentor"
-              label={t("Game Mentor")}
+              name="user"
+              label={t("User")}
               suggestions={users}
-              handleSelection={handleMentorSelection}
+              handleSelection={handleUserSelection}
               showSelected
             />
-            <Autocomplete
-              name="game"
-              label={t("Game")}
-              suggestions={games}
-              handleSelection={handleGameSelection}
-              showSelected
-            />
-          </div>
-          <div className="flex flex-col lg:flex-row gap-2 mt-4">
             <Input
               variant="standard"
               name="startDay"
-              label={t("After")}
+              label={t("Date")}
               type="date"
-              onChange={handleStartDateSelection}
-            />
-            <Input
-              variant="standard"
-              name="endDay"
-              label={t("Before")}
-              type="date"
-              onChange={handleEndDateSelection}
+              onChange={handleDateSelection}
             />
           </div>
         </div>
         <GenericTable
           key={tableKey}
-          rows={gameplays}
-          rowKeys={rowKeys}
-          isActionsActive={false}
           columns={columns}
-          title={t("GamePlays")}
+          rows={activities}
+          rowKeys={rowKeys}
+          title={t("User Activities")}
+          isActionsActive={false}
           isSearch={false}
           isRowsPerPage={false}
           isPagination={false}
+          isCollapsible={true}
         />
         <div className="ml-auto flex flex-row justify-between w-fit mt-2 gap-4 __className_a182b8">
           {/* rows per page */}
@@ -299,7 +283,7 @@ export default function NewGameplays() {
             <Caption>
               {((filterData.page || 1) - 1) * filterData.limit + 1} -{" "}
               {((filterData.page || 1) - 1) * filterData.limit +
-                gameplays.length}
+                activities.length}
               {" of "}
               {totalItems}
             </Caption>
@@ -322,4 +306,6 @@ export default function NewGameplays() {
       </div>
     </>
   );
-}
+};
+
+export default UserActivities;

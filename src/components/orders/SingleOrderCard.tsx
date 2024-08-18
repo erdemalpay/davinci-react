@@ -1,8 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, Order, OrderStatus, User } from "../../types";
-import { useOrderMutations } from "../../utils/api/order/order";
+import {
+  useCreateOrderForDivideMutation,
+  useOrderMutations,
+} from "../../utils/api/order/order";
+import SelectInput from "../common/SelectInput";
 import Timer from "../common/Timer";
+
 type Props = {
   order: Order;
   user: User;
@@ -10,6 +15,7 @@ type Props = {
 
 const SingleOrderCard = ({ order, user }: Props) => {
   const { updateOrder } = useOrderMutations();
+  const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
   const timerSetter = () => {
     switch (order.status) {
@@ -23,7 +29,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
 
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-24 __className_a182b8  overflow-scroll no-scrollbar">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-28 __className_a182b8  overflow-scroll no-scrollbar">
       <div className="flex flex-row gap-4  px-2 mt-1  ">
         {/* img & time */}
         <div className="flex flex-col gap-1 h-16  items-center ">
@@ -40,10 +46,30 @@ const SingleOrderCard = ({ order, user }: Props) => {
         <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
           <div className="flex flex-row justify-between w-full pr-2 items-center ">
             <p>{(order.item as MenuItem)?.name}</p>
-            <p>
-              {order.quantity > 1 && "x"}
-              {order.quantity}
-            </p>
+
+            <SelectInput
+              options={[...Array(order.quantity - 1)].map((_, index) => ({
+                value: (index + 1).toString(),
+                label: `${index + 1}`,
+              }))}
+              className="text-sm mt-1"
+              placeholder={order?.quantity.toString()}
+              value={{
+                value: order?.quantity.toString(),
+                label: order?.quantity.toString(),
+              }}
+              onChange={(selectedOption: any) => {
+                createOrderForDivide({
+                  orders: [
+                    {
+                      totalQuantity: order.quantity,
+                      selectedQuantity: selectedOption.value,
+                      orderId: order._id,
+                    },
+                  ],
+                });
+              }}
+            />
           </div>
           <p className="text-xs mr-auto">{order?.note}</p>
         </div>
