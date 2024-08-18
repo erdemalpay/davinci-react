@@ -9,9 +9,11 @@ import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
+
 import {
   AccountPaymentMethod,
   Order,
+  OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
@@ -25,6 +27,11 @@ import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
+import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../../panelComponents/shared/types";
 import CollectionModal from "./CollectionModal";
 
 type Props = {
@@ -43,6 +50,12 @@ const OrderPaymentTypes = ({
   const { selectedLocationId } = useLocationContext();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const collections = useGetOrderCollections();
+  const [selectedCollection, setSelectedCollection] =
+    useState<OrderCollection>();
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [inputForm, setInputForm] = useState({
+    note: "",
+  });
   const { user } = useUserContext();
   if (
     !selectedLocationId ||
@@ -75,7 +88,16 @@ const OrderPaymentTypes = ({
   };
   const { createOrderCollection, updateOrderCollection } =
     useOrderCollectionMutations();
-
+  const inputs = [
+    {
+      type: InputTypes.TEXT,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: true,
+    },
+  ];
+  const formKeys = [{ key: "note", type: FormKeyTypeEnum.STRING }];
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order.discount) {
@@ -227,48 +249,101 @@ const OrderPaymentTypes = ({
             <HiOutlineTrash
               className="text-red-600 cursor-pointer text-lg"
               onClick={() => {
-                if (
-                  collection?.orders?.length &&
-                  collection?.orders?.length > 0
-                ) {
-                  const newOrders = collection?.orders
-                    ?.map((orderCollectionItem: OrderCollectionItem) => {
-                      const order = orders?.find(
-                        (orderItem) =>
-                          orderItem._id === orderCollectionItem.order
-                      );
-                      if (order !== undefined) {
-                        return {
-                          ...order,
-                          paidQuantity:
-                            order.paidQuantity -
-                              orderCollectionItem.paidQuantity <
-                            1e-6
-                              ? 0
-                              : order.paidQuantity -
-                                orderCollectionItem.paidQuantity,
-                        };
-                      }
-                      return null;
-                    })
-                    ?.filter((item: any) => item !== null);
-                  updateOrders(newOrders as Order[]);
-                }
-                updateOrderCollection({
-                  id: collection._id,
-                  updates: {
-                    cancelNote: "Cancelled by " + user._id,
-                    cancelledAt: new Date(),
-                    cancelledBy: user._id,
-                    status: OrderCollectionStatus.CANCELLED,
-                  },
-                });
-                resetOrderContext();
+                // if (
+                //   collection?.orders?.length &&
+                //   collection?.orders?.length > 0
+                // ) {
+                //   const newOrders = collection?.orders
+                //     ?.map((orderCollectionItem: OrderCollectionItem) => {
+                //       const order = orders?.find(
+                //         (orderItem) =>
+                //           orderItem._id === orderCollectionItem.order
+                //       );
+                //       if (order !== undefined) {
+                //         return {
+                //           ...order,
+                //           paidQuantity:
+                //             order.paidQuantity -
+                //               orderCollectionItem.paidQuantity <
+                //             1e-6
+                //               ? 0
+                //               : order.paidQuantity -
+                //                 orderCollectionItem.paidQuantity,
+                //         };
+                //       }
+                //       return null;
+                //     })
+                //     ?.filter((item: any) => item !== null);
+                //   updateOrders(newOrders as Order[]);
+                // }
+                // updateOrderCollection({
+                //   id: collection._id,
+                //   updates: {
+                //     cancelNote: "Cancelled by " + user._id,
+                //     cancelledAt: new Date(),
+                //     cancelledBy: user._id,
+                //     status: OrderCollectionStatus.CANCELLED,
+                //   },
+                // });
+                // resetOrderContext();
+                setSelectedCollection(collection);
+                setIsCancelModalOpen(true);
               }}
             />
           </div>
         ))}
       </div>
+      {isCancelModalOpen && selectedCollection !== undefined && (
+        <GenericAddEditPanel
+          isOpen={isCancelModalOpen}
+          generalClassName="overflow-visible"
+          topClassName="flex flex-col gap-2 "
+          setForm={setInputForm}
+          close={() => setIsCancelModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateOrderCollection as any}
+          isEditMode={false}
+          submitFunction={() => {
+            if (
+              selectedCollection?.orders?.length &&
+              selectedCollection?.orders?.length > 0
+            ) {
+              const newOrders = selectedCollection?.orders
+                ?.map((orderCollectionItem: OrderCollectionItem) => {
+                  const order = orders?.find(
+                    (orderItem) => orderItem._id === orderCollectionItem.order
+                  );
+                  if (order) {
+                    return {
+                      ...order,
+                      paidQuantity:
+                        order.paidQuantity - orderCollectionItem.paidQuantity <
+                        1e-6
+                          ? 0
+                          : order.paidQuantity -
+                            orderCollectionItem.paidQuantity,
+                    };
+                  }
+                  return null;
+                })
+                ?.filter((item: any) => item !== null);
+              updateOrders(newOrders as Order[]);
+            }
+            updateOrderCollection({
+              id: selectedCollection._id,
+              updates: {
+                cancelNote: inputForm.note,
+                cancelledAt: new Date(),
+                cancelledBy: user._id,
+                status: OrderCollectionStatus.CANCELLED,
+              },
+            });
+            resetOrderContext();
+            setSelectedCollection(undefined);
+          }}
+        />
+      )}
     </div>
   );
 };

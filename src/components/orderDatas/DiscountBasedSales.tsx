@@ -277,7 +277,7 @@ const DiscountBasedSales = () => {
     setRows(allRows);
     setExpandedRows({});
     setTableKey((prev) => prev + 1);
-  }, [orders, orders, filterPanelFormElements]);
+  }, [orders, orders, filterPanelFormElements, discounts]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
