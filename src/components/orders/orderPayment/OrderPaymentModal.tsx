@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import { OrderCollectionStatus, OrderStatus, Table } from "../../../types";
@@ -90,48 +91,54 @@ const OrderPaymentModal = ({ close, table }: Props) => {
       />
       <div className="relative w-6/7 lg:w-4/5 max-h-full overflow-y-auto">
         <div className="bg-white rounded-md shadow overflow-y-auto max-h-full">
-          <div className="flex flex-col gap-4 border border-gray-200 rounded-lg pb-3 __className_a182b8">
-            {/* header & buttons */}
-            <div className="flex flex-row justify-between items-center px-4 bg-blue-gray-50 rounded-t-lg py-1">
-              {/* header */}
-              <div className="flex flex-col gap-1">
-                <h1 className="font-medium">
-                  <span className="font-semibold">{t("Table")}</span>:{" "}
-                  {table.name}
-                </h1>
-                <h1 className="font-medium">{user.name}</h1>
+          <div className="border border-gray-200 rounded-lg pb-3 __className_a182b8">
+            <IoMdCloseCircleOutline
+              className="absolute top-2 right-2 text-2xl text-red-300 hover:text-red-500 cursor-pointer "
+              onClick={close}
+            />
+            <div className="flex flex-col gap-4 ">
+              {/* header & buttons */}
+              <div className="flex flex-row justify-between items-center px-4 bg-blue-gray-50 rounded-t-lg py-1">
+                {/* header */}
+                <div className="flex flex-col gap-1">
+                  <h1 className="font-medium">
+                    <span className="font-semibold">{t("Table")}</span>:{" "}
+                    {table.name}
+                  </h1>
+                  <h1 className="font-medium">{user.name}</h1>
+                </div>
+                {/* buttons */}
+                {buttons?.map((button) => {
+                  if (button.isActive) {
+                    return (
+                      <button
+                        key={button.label}
+                        onClick={button.onClick}
+                        className="w-fit ml-auto bg-gray-200 px-4 py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold mr-6"
+                      >
+                        {button.label}
+                      </button>
+                    );
+                  }
+                })}
               </div>
-              {/* buttons */}
-              {buttons?.map((button) => {
-                if (button.isActive) {
-                  return (
-                    <button
-                      key={button.label}
-                      onClick={button.onClick}
-                      className="w-fit ml-auto bg-gray-200 px-4 py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold"
-                    >
-                      {button.label}
-                    </button>
-                  );
-                }
-              })}
-            </div>
-            {/* payment part */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2">
-              <OrderLists
-                tableOrders={tableOrders}
-                collectionsTotalAmount={collectionsTotalAmount}
-              />
-              <OrderTotal
-                tableOrders={tableOrders}
-                table={table}
-                collectionsTotalAmount={collectionsTotalAmount}
-              />
-              <OrderPaymentTypes
-                table={table}
-                tableOrders={tableOrders}
-                collectionsTotalAmount={collectionsTotalAmount}
-              />
+              {/* payment part */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2">
+                <OrderLists
+                  tableOrders={tableOrders}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
+                <OrderTotal
+                  tableOrders={tableOrders}
+                  table={table}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
+                <OrderPaymentTypes
+                  table={table}
+                  tableOrders={tableOrders}
+                  collectionsTotalAmount={collectionsTotalAmount}
+                />
+              </div>
             </div>
           </div>
           <ConfirmationDialog

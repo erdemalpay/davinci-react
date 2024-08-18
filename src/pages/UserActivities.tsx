@@ -7,7 +7,7 @@ import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
-import { Activity, RowPerPageEnum, User } from "../types";
+import { Activity, activityTypeDetails, RowPerPageEnum, User } from "../types";
 import { ActivityFilter, useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
@@ -23,6 +23,9 @@ const UserActivities = () => {
   const [tableKey, setTableKey] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const users = useGetUsers();
+  const typeSuggestions = activityTypeDetails.map((activity) => {
+    return { _id: activity.value, name: activity.label };
+  });
   const columns = [
     {
       key: t("User"),
@@ -111,7 +114,21 @@ const UserActivities = () => {
   ];
   const rowKeys = [
     { key: "userName" },
-    { key: "type" },
+    {
+      key: "type",
+      node: (row: any) => {
+        const foundActivity = activityTypeDetails.find(
+          (activity) => activity.value === row.type
+        );
+        return (
+          <p
+            className={`${foundActivity?.bgColor} w-fit px-2 py-0.5 rounded-md text-gray-800 text-sm font-medium`}
+          >
+            {foundActivity?.label}
+          </p>
+        );
+      },
+    },
     {
       key: "createdDate",
       className: `min-w-32   `,
@@ -133,6 +150,13 @@ const UserActivities = () => {
       setFilterData({ ...filterData, user: undefined, page: 1 });
     } else {
       setFilterData({ ...filterData, user: user._id, page: 1 });
+    }
+  }
+  function handleTypeSelection(type: { _id: string; name: string }) {
+    if (!type) {
+      setFilterData({ ...filterData, type: undefined, page: 1 });
+    } else {
+      setFilterData({ ...filterData, type: type._id, page: 1 });
     }
   }
 
@@ -233,6 +257,13 @@ const UserActivities = () => {
               label={t("User")}
               suggestions={users}
               handleSelection={handleUserSelection}
+              showSelected
+            />
+            <Autocomplete
+              name="type"
+              label={t("Type")}
+              suggestions={typeSuggestions}
+              handleSelection={handleTypeSelection}
               showSelected
             />
             <Input
