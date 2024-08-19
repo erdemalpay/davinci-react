@@ -42,10 +42,10 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
 
-      // Play order updated sound
-      orderUpdatedSound
-        .play()
-        .catch((error) => console.error("Error playing sound:", error));
+      // // Play order updated sound
+      // orderUpdatedSound
+      //   .play()
+      //   .catch((error) => console.error("Error playing sound:", error));
     });
 
     socket.on("disconnect", () => {

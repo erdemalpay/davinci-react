@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
+import { useGeneralContext } from "../../../context/General.context";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
 import { InputTypes, PanelFilterType } from "../shared/types";
@@ -15,7 +16,7 @@ const FilterPanel = <T,>({
   closeFilters,
 }: PanelFilterType<T>) => {
   const { t } = useTranslation();
-
+  const { setCurrentPage } = useGeneralContext();
   return (
     <div className="flex flex-col gap-3 __className_a182b8 bg-white min-w-full sm:min-w-[20rem] border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
       <div className="flex flex-row justify-between">
@@ -37,6 +38,7 @@ const FilterPanel = <T,>({
             });
           }
           setFormElements((prev) => ({ ...prev, [key]: value }));
+          setCurrentPage(1);
         };
 
         const handleChangeForSelect =
@@ -71,6 +73,7 @@ const FilterPanel = <T,>({
                 }));
               });
             }
+            setCurrentPage(1);
           };
         if (input.isDisabled) return null;
         return (

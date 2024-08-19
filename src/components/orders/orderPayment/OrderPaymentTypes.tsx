@@ -123,7 +123,7 @@ const OrderPaymentTypes = ({
         <h1>{t("Payment Types")}</h1>
       </div>
       {/* payment types */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 h-52 overflow-scroll no-scrollbar">
         {paymentTypes?.map((paymentType) => (
           <div
             key={paymentType._id}
@@ -199,10 +199,10 @@ const OrderPaymentTypes = ({
               });
               resetOrderContext();
             }}
-            className="flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
+            className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >
             <img
-              className="w-16 h-16"
+              className="w-12 h-12"
               src={paymentTypeImage(paymentType._id)}
               alt={paymentType.name}
             />
@@ -232,7 +232,7 @@ const OrderPaymentTypes = ({
         </p>
       </div>
       {/* collection summary */}
-      <div className="flex flex-col h-64 gap-1 overflow-scroll no-scrollbar ">
+      <div className="flex flex-col h-52 gap-1 overflow-scroll no-scrollbar ">
         {tableNotCancelledCollections.map((collection) => (
           <div
             key={collection._id}
