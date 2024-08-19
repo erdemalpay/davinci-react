@@ -44,6 +44,7 @@ type Props<T> = {
   rowClassNameFunction?: (row: T) => string;
   isSearch?: boolean;
   isPagination?: boolean;
+  isActionsAtFront?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -67,6 +68,7 @@ const GenericTable = <T,>({
   isCollapsible = false,
   isPagination = true,
   isRowsPerPage = true,
+  isActionsAtFront = false,
   tooltipLimit = 40,
   rowClassNameFunction,
   rowsPerPageOptions = [
@@ -335,6 +337,10 @@ const GenericTable = <T,>({
           {row?.collapsible?.collapsibleRows?.length === 0 && (
             <td className="w-6 h-6 mx-auto p-1 "></td>
           )}
+          {/* front actions  */}
+          {actions && isActionsAtFront && (
+            <td>{renderActionButtons(row, actions)}</td>
+          )}
           {rowKeys.map((rowKey, keyIndex) => {
             if (rowKey.node) {
               return (
@@ -432,6 +438,7 @@ const GenericTable = <T,>({
           <td>
             {actions &&
               !(row?.isActionsDisabled ?? false) &&
+              !isActionsAtFront &&
               renderActionButtons(row, actions)}
             {actions &&
               isActionsActive &&

@@ -46,30 +46,36 @@ const SingleOrderCard = ({ order, user }: Props) => {
         <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
           <div className="flex flex-row justify-between w-full pr-2 items-center ">
             <p>{(order.item as MenuItem)?.name}</p>
-
-            <SelectInput
-              options={[...Array(order.quantity - 1)].map((_, index) => ({
-                value: (index + 1).toString(),
-                label: `${index + 1}`,
-              }))}
-              className="text-sm mt-1"
-              placeholder={order?.quantity.toString()}
-              value={{
-                value: order?.quantity.toString(),
-                label: order?.quantity.toString(),
-              }}
-              onChange={(selectedOption: any) => {
-                createOrderForDivide({
-                  orders: [
-                    {
-                      totalQuantity: order.quantity,
-                      selectedQuantity: selectedOption.value,
-                      orderId: order._id,
-                    },
-                  ],
-                });
-              }}
-            />
+            {order.quantity === 1 && (
+              <p className="border px-2 py-0.5 border-gray-300 rounded-md">
+                {order?.quantity}
+              </p>
+            )}
+            {order.quantity > 1 && (
+              <SelectInput
+                options={[...Array(order.quantity - 1)].map((_, index) => ({
+                  value: (index + 1).toString(),
+                  label: `${index + 1}`,
+                }))}
+                className="text-sm mt-1"
+                placeholder={order?.quantity.toString()}
+                value={{
+                  value: order?.quantity.toString(),
+                  label: order?.quantity.toString(),
+                }}
+                onChange={(selectedOption: any) => {
+                  createOrderForDivide({
+                    orders: [
+                      {
+                        totalQuantity: order.quantity,
+                        selectedQuantity: selectedOption.value,
+                        orderId: order._id,
+                      },
+                    ],
+                  });
+                }}
+              />
+            )}
           </div>
           <p className="text-xs mr-auto">{order?.note}</p>
         </div>

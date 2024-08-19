@@ -3,15 +3,27 @@ import { useTranslation } from "react-i18next";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
+import { passesFilter } from "../../../utils/passesFilter";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
+import SwitchButton from "../../panelComponents/common/SwitchButton";
+import { InputTypes } from "../../panelComponents/shared/types";
 
+type FormElementsState = {
+  [key: string]: any;
+};
 const LearnedGames = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   if (!users) return null;
   const [tableKey, setTableKey] = useState(0);
   const games = useGetGames();
-
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      user: "",
+      game: "",
+      date: "",
+    });
   const columns = [
     { key: t("User"), isSortable: true },
     { key: t("Game"), isSortable: true },
@@ -21,8 +33,10 @@ const LearnedGames = () => {
   const allRows = users
     .flatMap((user) =>
       user?.userGames?.map((item) => {
+        const foundGame = games?.find((game) => game._id === item.game);
         return {
-          game: games?.find((game) => game._id === item.game)?.name,
+          game: foundGame?.name,
+          gameId: foundGame?._id,
           userName: user.name,
           userId: user._id,
           learnDate: item.learnDate,
@@ -50,17 +64,78 @@ const LearnedGames = () => {
       },
     },
   ];
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "user",
+      label: t("User"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("User"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "game",
+      label: t("Game"),
+      options: games.map((game) => ({
+        value: game._id,
+        label: t(game.name),
+      })),
+      placeholder: t("Game"),
+      required: true,
+    },
 
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Learn Date"),
+      placeholder: t("Learn Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
+  const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
   useEffect(() => {
-    setRows(allRows);
+    const filteredRows = allRows.filter((row) => {
+      if (!row?.learnDate) {
+        return false;
+      }
+      return (
+        (filterPanelFormElements.date === "" ||
+          row.learnDate === filterPanelFormElements.date) &&
+        passesFilter(filterPanelFormElements.user, row.userId) &&
+        passesFilter(filterPanelFormElements.game, row.gameId)
+      );
+    });
+    setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [users, games]);
+  }, [users, games, filterPanelFormElements]);
 
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
         key={tableKey}
         columns={columns}
+        filterPanel={filterPanel}
+        filters={filters}
         rows={rows}
         rowKeys={rowKeys}
         title={t("Learned Games")}
