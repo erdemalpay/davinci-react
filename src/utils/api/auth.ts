@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Routes } from "../../navigation/constants";
-import { User } from "../../types";
+import { RoleEnum, User } from "../../types";
 import { post } from "./index";
 
 interface LoginError {
@@ -46,13 +46,15 @@ export function useLogin(
   >(loginMethod, {
     // We are updating tables query data with new item
     onSuccess: async (response) => {
-      const { token } = response;
+      const { token, user } = response;
       Cookies.set("jwt", token);
       toast.success(t("Logged in successfully"));
       localStorage.setItem("jwt", token);
       localStorage.setItem("loggedIn", "true");
       const target = location
         ? `${location.pathname}${location.search}`
+        : user?.role?._id === RoleEnum.KITCHEN
+        ? "/orders"
         : Routes.Tables;
       navigate(target);
     },

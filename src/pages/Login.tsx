@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { RoleEnum } from "../types";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
 import { ACCESS_TOKEN } from "../utils/api/axiosClient";
 import { Paths } from "../utils/api/factory";
@@ -49,7 +50,10 @@ const Login = () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (token && localStorage.getItem("loggedIn")) {
           const loggedInUser = await getUserWithToken();
-          if (loggedInUser) {
+
+          if (loggedInUser && loggedInUser.role._id === RoleEnum.KITCHEN) {
+            navigate("/orders", { replace: true });
+          } else if (loggedInUser) {
             navigate(Paths.Tables, { replace: true });
           }
         }
