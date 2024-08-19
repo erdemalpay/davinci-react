@@ -199,7 +199,7 @@ const OrderPaymentTypes = ({
               });
               resetOrderContext();
             }}
-            className="flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
+            className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >
             <img
               className="w-12 h-12"
