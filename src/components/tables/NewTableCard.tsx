@@ -86,12 +86,16 @@ export function TableCard({
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
 
-  const menuItemOptions = menuItems?.map((menuItem) => {
-    return {
-      value: menuItem._id,
-      label: menuItem.name,
-    };
-  });
+  const menuItemOptions = menuItems
+    ?.filter((menuOption) =>
+      menuOption?.locations?.includes(selectedLocationId)
+    )
+    .map((menuItem) => {
+      return {
+        value: menuItem._id,
+        label: menuItem.name,
+      };
+    });
 
   const orderInputs = [
     {
