@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
 import { OrderDiscount, RoleEnum } from "../../types";
 import {
@@ -13,6 +14,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 type FormElementsState = {
   [key: string]: any;
 };
@@ -33,6 +35,7 @@ const OrderDiscountPage = () => {
     type: "",
     percentage: "",
     amount: "",
+    isOnlineOrder: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -45,6 +48,7 @@ const OrderDiscountPage = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Percentage"), isSortable: true },
     { key: t("Amount"), isSortable: true },
+    { key: t("Online Order"), isSortable: false },
   ];
   if (
     user &&
@@ -66,6 +70,15 @@ const OrderDiscountPage = () => {
     {
       key: "amount",
       className: "min-w-32 pr-1",
+    },
+    {
+      key: "isOnlineOrder",
+      node: (row: any) =>
+        row?.isOnlineOrder ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
     },
   ];
   const inputs = [
@@ -120,12 +133,22 @@ const OrderDiscountPage = () => {
           : true
         : form.type !== DiscountTypeEnum.AMOUNT,
     },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlineOrder",
+      label: t("Online Order"),
+      placeholder: t("Online Order"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
+
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "type", type: FormKeyTypeEnum.STRING },
     { key: "percentage", type: FormKeyTypeEnum.NUMBER },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   const addButton = {
