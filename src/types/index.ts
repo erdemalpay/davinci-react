@@ -182,6 +182,7 @@ export type AccountPaymentMethod = {
   _id: string;
   name: string;
   isConstant: boolean;
+  isOnlineOrder?: boolean;
 };
 export type AccountPayment = {
   _id: number;
@@ -332,6 +333,7 @@ export type MenuCategory = {
   locations: number[];
   kitchen: Kitchen | string;
   isAutoServed: boolean;
+  isOnlineOrder?: boolean;
 };
 export type MenuPopular = {
   _id: number;
@@ -450,6 +452,7 @@ export type OrderDiscount = {
   name: string;
   percentage?: number;
   amount?: number;
+  isOnlineOrder?: boolean;
 };
 
 export type Activity = {
