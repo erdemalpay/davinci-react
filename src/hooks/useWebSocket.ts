@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Location, MenuItem, Order, RoleEnum } from "../types";
+import { Kitchen, Location, MenuItem, Order, RoleEnum } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
@@ -47,7 +47,7 @@ export function useWebSocket() {
           (order.location as Location)._id === selectedLocationId) ||
           (user &&
             user.role._id === RoleEnum.KITCHEN &&
-            foundCategory?.kitchen === "flora"))
+            (foundCategory?.kitchen as Kitchen)?._id === "flora"))
       ) {
         orderCreatedSound
           .play()
