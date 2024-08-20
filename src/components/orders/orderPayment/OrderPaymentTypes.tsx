@@ -27,7 +27,6 @@ import {
   useGetOrderCollections,
   useOrderCollectionMutations,
 } from "../../../utils/api/order/orderCollection";
-import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -249,51 +248,48 @@ const OrderPaymentTypes = ({
             <HiOutlineTrash
               className="text-red-600 cursor-pointer text-lg"
               onClick={() => {
-                // if (
-                //   collection?.orders?.length &&
-                //   collection?.orders?.length > 0
-                // ) {
-                //   const newOrders = collection?.orders
-                //     ?.map((orderCollectionItem: OrderCollectionItem) => {
-                //       const order = orders?.find(
-                //         (orderItem) =>
-                //           orderItem._id === orderCollectionItem.order
-                //       );
-                //       if (order !== undefined) {
-                //         return {
-                //           ...order,
-                //           paidQuantity:
-                //             order.paidQuantity -
-                //               orderCollectionItem.paidQuantity <
-                //             1e-6
-                //               ? 0
-                //               : order.paidQuantity -
-                //                 orderCollectionItem.paidQuantity,
-                //         };
-                //       }
-                //       return null;
-                //     })
-                //     ?.filter((item: any) => item !== null);
-                //   updateOrders(newOrders as Order[]);
-                // }
-                // updateOrderCollection({
-                //   id: collection._id,
-                //   updates: {
-                //     cancelNote: "Cancelled by " + user._id,
-                //     cancelledAt: new Date(),
-                //     cancelledBy: user._id,
-                //     status: OrderCollectionStatus.CANCELLED,
-                //   },
-                // });
-                // resetOrderContext();
-                setSelectedCollection(collection);
-                setIsCancelModalOpen(true);
+                if (
+                  collection?.orders?.length &&
+                  collection?.orders?.length > 0
+                ) {
+                  const newOrders = collection?.orders
+                    ?.map((orderCollectionItem: OrderCollectionItem) => {
+                      const order = orders?.find(
+                        (orderItem) =>
+                          orderItem._id === orderCollectionItem.order
+                      );
+                      if (order !== undefined) {
+                        return {
+                          ...order,
+                          paidQuantity:
+                            order.paidQuantity -
+                              orderCollectionItem.paidQuantity <
+                            1e-6
+                              ? 0
+                              : order.paidQuantity -
+                                orderCollectionItem.paidQuantity,
+                        };
+                      }
+                      return null;
+                    })
+                    ?.filter((item: any) => item !== null);
+                  updateOrders(newOrders as Order[]);
+                }
+                updateOrderCollection({
+                  id: collection._id,
+                  updates: {
+                    cancelledAt: new Date(),
+                    cancelledBy: user._id,
+                    status: OrderCollectionStatus.CANCELLED,
+                  },
+                });
+                resetOrderContext();
               }}
             />
           </div>
         ))}
       </div>
-      {isCancelModalOpen && selectedCollection !== undefined && (
+      {/* {isCancelModalOpen && selectedCollection !== undefined && (
         <GenericAddEditPanel
           isOpen={isCancelModalOpen}
           generalClassName="overflow-visible"
@@ -343,7 +339,7 @@ const OrderPaymentTypes = ({
             setSelectedCollection(undefined);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };
