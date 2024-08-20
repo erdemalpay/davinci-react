@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
 import { AccountPaymentMethod, RoleEnum } from "../../types";
 import {
@@ -12,7 +13,7 @@ import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const PaymentMethods = () => {
   const { t, i18n } = useTranslation();
@@ -38,7 +39,10 @@ const PaymentMethods = () => {
     };
   });
   const [rows, setRows] = useState(allRows);
-  const columns = [{ key: t("Name"), isSortable: true }];
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Online Order"), isSortable: false },
+  ];
   if (
     user &&
     [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
@@ -55,9 +59,31 @@ const PaymentMethods = () => {
         return <p>{t(row.name)}</p>;
       },
     },
+    {
+      key: "isOnlineOrder",
+      node: (row: any) =>
+        row?.isOnlineOrder ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
   ];
-  const inputs = [NameInput()];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const inputs = [
+    NameInput(),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlineOrder",
+      label: t("Online Order"),
+      placeholder: t("Online Order"),
+      required: true,
+      isTopFlexRow: true,
+    },
+  ];
+  const formKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+  ];
 
   const addButton = {
     name: t(`Add Payment Method`),
