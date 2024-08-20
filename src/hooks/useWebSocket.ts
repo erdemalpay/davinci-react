@@ -1,13 +1,19 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order } from "../types";
+import { Kitchen, Location, MenuItem, Order, RoleEnum } from "../types";
 import { Paths } from "../utils/api/factory";
+import { useGetCategories } from "../utils/api/menu/category";
+import { useLocationContext } from "./../context/Location.context";
+import { useUserContext } from "./../context/User.context";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
+  const { user } = useUserContext();
+  const { selectedLocationId } = useLocationContext();
+  const categories = useGetCategories();
 
   useEffect(() => {
     // Load the audio files
@@ -29,13 +35,25 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
-
       // Play order created sound
-      orderCreatedSound
-        .play()
-        .catch((error) => console.error("Error playing sound:", error));
+      const foundCategory = categories?.find(
+        (c) => c._id === (order.item as MenuItem).category
+      );
+      if (
+        !foundCategory?.isAutoServed &&
+        ((user &&
+          user.role._id !== RoleEnum.KITCHEN &&
+          selectedLocationId &&
+          (order.location as Location)._id === selectedLocationId) ||
+          (user &&
+            user.role._id === RoleEnum.KITCHEN &&
+            (foundCategory?.kitchen as Kitchen)?._id === "flora"))
+      ) {
+        orderCreatedSound
+          .play()
+          .catch((error) => console.error("Error playing sound:", error));
+      }
     });
-
     socket.on("orderUpdated", (order: Order) => {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Order}`]);
@@ -55,5 +73,5 @@ export function useWebSocket() {
     return () => {
       socket.disconnect();
     };
-  }, [queryClient]);
+  }, [queryClient, categories, user, selectedLocationId]);
 }
