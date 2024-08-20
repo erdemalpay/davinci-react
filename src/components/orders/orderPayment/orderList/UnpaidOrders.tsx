@@ -125,13 +125,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                     Number(paymentAmount) +
                       orderPrice +
                       collectionsTotalAmount >
-                      totalAmount - discountAmount ||
-                      totalAmount -
-                        discountAmount -
-                        collectionsTotalAmount -
-                        Number(paymentAmount) -
-                        orderPrice <
-                        orderPrice
+                      totalAmount - discountAmount
                       ? totalAmount - discountAmount - collectionsTotalAmount
                       : Number(paymentAmount) + orderPrice
                   )
@@ -391,15 +385,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             totalAmount -
                               discountAmount -
                               collectionsTotalAmount,
-                            totalAmount -
-                              discountAmount -
-                              collectionsTotalAmount -
-                              addedAmount <
-                              orderPrice
-                              ? totalAmount -
-                                  discountAmount -
-                                  collectionsTotalAmount
-                              : addedAmount
+                            addedAmount
                           )
                         )
                       )
