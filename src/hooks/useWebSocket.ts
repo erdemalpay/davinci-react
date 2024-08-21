@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Kitchen, Location, MenuItem, Order, RoleEnum } from "../types";
+import { Kitchen, Location, MenuItem, Order, RoleEnum, User } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
@@ -31,6 +31,9 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (order: Order) => {
+      if ((order?.createdBy as User)?._id === user?._id) {
+        return;
+      }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
@@ -39,9 +42,6 @@ export function useWebSocket() {
       const foundCategory = categories?.find(
         (c) => c._id === (order.item as MenuItem).category
       );
-      console.log("foundCategory", foundCategory);
-      console.log((foundCategory?.kitchen as Kitchen)?._id);
-      console.log(user?.role._id);
       if (
         !foundCategory?.isAutoServed &&
         ((user?.role._id !== RoleEnum.KITCHEN &&
@@ -60,11 +60,6 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
-
-      // // Play order updated sound
-      // orderUpdatedSound
-      //   .play()
-      //   .catch((error) => console.error("Error playing sound:", error));
     });
 
     socket.on("disconnect", () => {
