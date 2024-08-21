@@ -25,6 +25,7 @@ import {
   useOrderMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import {
   useReopenTableMutation,
   useTableMutations,
@@ -71,6 +72,7 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
+  const discounts = useGetOrderDiscounts();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
@@ -81,7 +83,7 @@ export function TableCard({
     item: 0,
     quantity: 0,
     note: "",
-    // discount: null,
+    discount: undefined,
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
@@ -99,7 +101,9 @@ export function TableCard({
         label: menuItem.name,
       };
     });
-
+  const filteredDiscounts = discounts.filter((discount) =>
+    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+  );
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -116,6 +120,19 @@ export function TableCard({
     },
     QuantityInput(),
     {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: filteredDiscounts.map((option) => {
+        return {
+          value: option._id,
+          label: option.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: false,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -126,6 +143,7 @@ export function TableCard({
   const orderFormKeys = [
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const bgColor = table.finishHour
@@ -461,6 +479,7 @@ export function TableCard({
               item: 0,
               quantity: 0,
               note: "",
+              discount: undefined,
             });
           }}
           generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-1rem] md:mt-0"
