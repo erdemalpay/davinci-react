@@ -91,7 +91,7 @@ export function TableCard({
     ?.filter((menuItem) =>
       table?.isOnlineSale
         ? (menuItem.category as MenuCategory)?.isOnlineOrder
-        : !(menuItem.category as MenuCategory)?.isOnlineOrder
+        : true
     )
     .map((menuItem) => {
       return {
