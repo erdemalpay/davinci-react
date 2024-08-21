@@ -499,6 +499,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         title={singleItemGroup.category.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
+        isCollapsibleCheckActive={false}
         addCollapsible={addCollapsible}
         isDraggable={true}
         isCollapsible={products.length > 0}
