@@ -25,6 +25,7 @@ export type Table = {
   orders?: number[];
   gameplays: Gameplay[];
   status?: string;
+  isOnlineSale?: boolean;
 };
 
 export type Role = {
@@ -407,7 +408,7 @@ export type Order = {
   _id: number;
   location: Location | number;
   item: MenuItem | number;
-  table?: Table | number;
+  table: Table | number;
   quantity: number;
   status: string;
   note?: string;
