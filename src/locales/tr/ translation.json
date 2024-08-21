@@ -511,5 +511,6 @@
   "Call Hour": "Çağrı Saati",
   "Approved Hour": "Onay Saati",
   "Online Sales": "Online Satışlar",
+  "Order quantity cannot be less than 1": "Sipariş miktarı 1'den küçük olamaz",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }

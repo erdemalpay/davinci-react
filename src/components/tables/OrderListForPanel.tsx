@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { FiMinusCircle } from "react-icons/fi";
+import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, TableStatus } from "../../types";
 import {
@@ -26,7 +29,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
     return Math.floor((currentTime - orderTime) / 60000);
   };
   return (
-    <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[90vh]  z-[100]  ">
+    <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100]  ">
       <div className="flex flex-col gap-2 px-4 py-6">
         {/* header */}
         <h1 className="font-medium">{t("Orders")}</h1>
@@ -47,9 +50,58 @@ const OrderListForPanel = ({ tableId }: Props) => {
                 key={order._id}
                 className={`flex justify-between text-xs  rounded-lg items-center px-2 py-2 `}
               >
-                <div className="flex w-5/6 gap-1">
-                  <p>{(order.item as MenuItem).name} </p>
-                  <h1 className="text-xs">({order.quantity})</h1>
+                <div className="flex flex-row gap-2  items-center  ">
+                  {/* decrement */}
+                  <FiMinusCircle
+                    className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
+                    onClick={() => {
+                      if (order.quantity === 1) {
+                        toast.error(t("Order quantity cannot be less than 1"));
+                      }
+                      if (
+                        order.quantity > 1 &&
+                        ![
+                          OrderStatus.READYTOSERVE,
+                          OrderStatus.SERVED,
+                        ].includes(order.status as OrderStatus) &&
+                        !order.discount
+                      ) {
+                        updateOrder({
+                          id: order._id,
+                          updates: {
+                            quantity: order.quantity - 1,
+                          },
+                        });
+                      }
+                      // TODO other cases will be added when it is discussed
+                    }}
+                  />
+                  {/* name and quantity */}
+                  <div className="flex w-5/6 gap-1 items-center">
+                    <p>{(order.item as MenuItem).name}</p>
+                    <h1 className="text-xs">({order.quantity})</h1>
+                  </div>
+                  {/* increment */}
+                  <GoPlusCircle
+                    className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
+                    onClick={() => {
+                      if (
+                        ![
+                          OrderStatus.READYTOSERVE,
+                          OrderStatus.SERVED,
+                        ].includes(order.status as OrderStatus) &&
+                        !order.discount
+                      ) {
+                        updateOrder({
+                          id: order._id,
+                          updates: {
+                            quantity: order.quantity + 1,
+                          },
+                        });
+                      }
+                    }}
+                    // TODO other cases will be added when it is discussed
+                  />
                 </div>
 
                 <div className="flex flex-row ">
