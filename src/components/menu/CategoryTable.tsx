@@ -74,6 +74,14 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlineOrder",
+      label: t("Online Order"),
+      placeholder: t("Online Order"),
+      required: true,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: t("Image"),
@@ -101,6 +109,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "kitchen", type: FormKeyTypeEnum.STRING },
     { key: "isAutoServed", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
@@ -110,6 +119,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: t("Auto served"), isSortable: false },
+    { key: t("Online Order"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -159,6 +169,15 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       key: "isAutoServed",
       node: (row: MenuCategory) =>
         row.isAutoServed ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
+    {
+      key: "isOnlineOrder",
+      node: (row: MenuCategory) =>
+        row?.isOnlineOrder ? (
           <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl " />

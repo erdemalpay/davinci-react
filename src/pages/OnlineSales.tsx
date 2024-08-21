@@ -14,7 +14,6 @@ import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useDateContext } from "../context/Date.context";
-import { Routes } from "../navigation/constants";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
@@ -24,7 +23,7 @@ import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
 
-const NewTables = () => {
+const OnlineSales = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
 
@@ -36,9 +35,8 @@ const NewTables = () => {
   const games = useGetGames();
   const visits = useGetVisits();
   const tables = useGetTables()
-    .filter((table) => !table?.isOnlineSale)
+    .filter((table) => table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
-
   const users = useGetUsers();
   const orders = useGetGivenDateOrders();
 
@@ -149,12 +147,6 @@ const NewTables = () => {
   });
   const buttons: { label: string; onClick: () => void }[] = [
     {
-      label: t("Open Reservations"),
-      onClick: () => {
-        navigate(Routes.Reservations);
-      },
-    },
-    {
       label: t("Add table"),
       onClick: () => {
         setIsCreateTableDialogOpen(true);
@@ -170,11 +162,6 @@ const NewTables = () => {
       label: t("Show All Orders"),
       checked: showAllOrders,
       onChange: setShowAllOrders,
-    },
-    {
-      label: t("Show All Gameplays"),
-      checked: showAllGameplays,
-      onChange: setShowAllGameplays,
     },
     {
       label: t("Show Closed Tables"),
@@ -221,7 +208,7 @@ const NewTables = () => {
                 ))}
             </div>
             {/* buttons */}
-            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
+            <div className="flex flex-col md:flex-row justify-end gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40 w-full ">
               {buttons.map((button, index) => (
                 <button
                   key={index}
@@ -337,10 +324,11 @@ const NewTables = () => {
         <CreateTableDialog
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
+          isOnlineSale={true}
         />
       )}
     </>
   );
 };
 
-export default NewTables;
+export default OnlineSales;

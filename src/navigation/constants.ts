@@ -15,6 +15,7 @@ import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import NewTables from "../pages/NewTables";
+import OnlineSales from "../pages/OnlineSales";
 import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
 import PageDetails from "../pages/PageDetails";
@@ -54,6 +55,7 @@ export enum Routes {
   Rewards = "/rewards",
   Tables = "/tables",
   NewTables = "/new-tables",
+  OnlineSales = "/online-sales",
   Visits = "/visits",
   Menu = "/menu",
   User = "/user/:userId",
@@ -96,6 +98,12 @@ export const allRoutes: {
     name: "Tables",
     path: Routes.Tables,
     element: NewTables,
+    isOnSidebar: true,
+  },
+  {
+    name: "Online Sales",
+    path: Routes.OnlineSales,
+    element: OnlineSales,
     isOnSidebar: true,
   },
   {

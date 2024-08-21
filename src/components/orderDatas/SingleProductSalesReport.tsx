@@ -53,9 +53,9 @@ const SingleProductSalesReport = () => {
     // other filters
     if (
       (filterPanelFormElements.before !== "" &&
-        (order.table as Table).date > filterPanelFormElements.before) ||
+        (order?.table as Table)?.date > filterPanelFormElements.before) ||
       (filterPanelFormElements.after !== "" &&
-        (order.table as Table).date < filterPanelFormElements.after) ||
+        (order?.table as Table)?.date < filterPanelFormElements.after) ||
       !passesFilter(
         filterPanelFormElements.category,
         (order.item as MenuItem).category as number
@@ -76,8 +76,8 @@ const SingleProductSalesReport = () => {
         : (order?.discountAmount ?? 0) * order.paidQuantity,
       amount: order.paidQuantity * order.unitPrice,
       location: (order.location as Location)._id,
-      date: (order.table as Table).date,
-      formattedDate: formatAsLocalDate((order.table as Table).date),
+      date: (order?.table as Table)?.date,
+      formattedDate: formatAsLocalDate((order?.table as Table)?.date),
       category:
         categories.find(
           (category) => category._id === (order.item as MenuItem).category

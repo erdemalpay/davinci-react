@@ -39,14 +39,15 @@ export function useWebSocket() {
       const foundCategory = categories?.find(
         (c) => c._id === (order.item as MenuItem).category
       );
+      console.log("foundCategory", foundCategory);
+      console.log((foundCategory?.kitchen as Kitchen)?._id);
+      console.log(user?.role._id);
       if (
         !foundCategory?.isAutoServed &&
-        ((user &&
-          user.role._id !== RoleEnum.KITCHEN &&
+        ((user?.role._id !== RoleEnum.KITCHEN &&
           selectedLocationId &&
           (order.location as Location)._id === selectedLocationId) ||
-          (user &&
-            user.role._id === RoleEnum.KITCHEN &&
+          (user?.role._id === RoleEnum.KITCHEN &&
             (foundCategory?.kitchen as Kitchen)?._id === "flora"))
       ) {
         orderCreatedSound

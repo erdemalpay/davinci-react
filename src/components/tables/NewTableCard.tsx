@@ -87,8 +87,11 @@ export function TableCard({
   const menuItems = useGetMenuItems();
 
   const menuItemOptions = menuItems
-    ?.filter((menuOption) =>
-      menuOption?.locations?.includes(selectedLocationId)
+    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+    ?.filter((menuItem) =>
+      table?.isOnlineSale
+        ? (menuItem.category as MenuCategory)?.isOnlineOrder
+        : !(menuItem.category as MenuCategory)?.isOnlineOrder
     )
     .map((menuItem) => {
       return {
@@ -222,7 +225,7 @@ export function TableCard({
           />
         </p>
         <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
-          {!table.finishHour && (
+          {!table.finishHour && !table?.isOnlineSale && (
             <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />

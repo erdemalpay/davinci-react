@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order } from "../../../../types";
+import { Order, Table } from "../../../../types";
 import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
@@ -12,6 +12,7 @@ import PaidOrders from "./PaidOrders";
 import UnpaidOrders from "./UnpaidOrders";
 
 type Props = {
+  table: Table;
   tableOrders: Order[];
   collectionsTotalAmount: number;
 };
@@ -20,7 +21,7 @@ type OrderListButton = {
   onClick: () => void;
   isActive: boolean;
 };
-const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
+const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const { t } = useTranslation();
   const { mutate: createOrderForDiscount } =
     useCreateOrderForDiscountMutation();
@@ -151,7 +152,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount }: Props) => {
       {!isProductDivideOpen &&
         !isProductSelectionOpen &&
         (isDiscountScreenOpen ? (
-          <DiscountScreen tableOrders={tableOrders} />
+          <DiscountScreen tableOrders={tableOrders} table={table} />
         ) : (
           <UnpaidOrders
             tableOrders={tableOrders}

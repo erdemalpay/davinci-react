@@ -21,7 +21,7 @@ const OrderStatusContainer = ({
   if (!user) return <></>;
   const groupedOrders = orders.reduce<{ [key: string]: Order[] }>(
     (acc, order) => {
-      const tableId = (order.table as Table)._id;
+      const tableId = (order?.table as Table)?._id;
       if (!acc[tableId]) {
         acc[tableId] = [];
       }

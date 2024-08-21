@@ -1,13 +1,14 @@
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderDiscount, TURKISHLIRA } from "../../../../types";
+import { Order, OrderDiscount, Table, TURKISHLIRA } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
+  table: Table;
   tableOrders: Order[];
 };
 
-const DiscountScreen = ({ tableOrders }: Props) => {
+const DiscountScreen = ({ tableOrders, table }: Props) => {
   const discounts = useGetOrderDiscounts();
   const { setIsProductSelectionOpen, setSelectedDiscount } = useOrderContext();
   if (!discounts || !tableOrders) return null;
@@ -15,12 +16,15 @@ const DiscountScreen = ({ tableOrders }: Props) => {
     setSelectedDiscount(discount);
     setIsProductSelectionOpen(true);
   };
+  const filteredDiscounts = discounts.filter((discount) =>
+    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+  );
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Discounts" />
       {/* discounts */}
       <div className="grid grid-cols-3 gap-4">
-        {discounts.map((discount) => {
+        {filteredDiscounts.map((discount) => {
           return (
             <div
               key={discount._id}
