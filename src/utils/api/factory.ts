@@ -45,9 +45,7 @@ interface Props<T> {
 export function useGet<T>(path: string, queryKey?: QueryKey) {
   // We are using path as a query key if queryKey is not provided
   const fetchQueryKey = queryKey || [path];
-  const { data } = useQuery(fetchQueryKey, () => get<T>({ path }), {
-    staleTime: Infinity,
-  });
+  const { data } = useQuery(fetchQueryKey, () => get<T>({ path }));
   return data;
 }
 
