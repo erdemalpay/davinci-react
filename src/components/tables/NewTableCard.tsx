@@ -51,6 +51,7 @@ export interface TableCardProps {
   games: Game[];
   showAllGameplays?: boolean;
   showAllOrders?: boolean;
+  showServedOrders?: boolean;
 }
 
 export function TableCard({
@@ -59,6 +60,7 @@ export function TableCard({
   games,
   showAllGameplays = false,
   showAllOrders = false,
+  showServedOrders = false,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -396,7 +398,13 @@ export function TableCard({
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
-              if (!order || order.status === OrderStatus.CANCELLED) return null;
+
+              if (
+                !order ||
+                order.status === OrderStatus.CANCELLED ||
+                (!showServedOrders && order.status === OrderStatus.SERVED)
+              )
+                return null;
               return <OrderCard key={order._id} order={order} table={table} />;
             })}
           </div>
