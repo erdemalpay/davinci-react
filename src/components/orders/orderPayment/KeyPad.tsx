@@ -163,11 +163,19 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
     { key: "7" },
     { key: "8" },
     { key: "9" },
+    {
+      key: t("Cancel"),
+      onClick() {
+        setIsNumberSelection(false);
+        setTemporaryOrders([]);
+        setPaymentAmount("");
+      },
+    },
   ];
   return (
     <div
       className={`p-4 grid ${
-        isNumberSelection ? "grid-cols-3" : "grid-cols-4"
+        isNumberSelection ? "grid-cols-3 " : "grid-cols-4"
       } gap-2`}
     >
       {(isNumberSelection ? numberKeys : keys.flat()).map((keyItem, index) => {

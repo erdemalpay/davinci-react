@@ -30,7 +30,6 @@ export function AddReservationDialog({
     date,
     location: selectedLocationId,
     reservationHour,
-    reservedTable: "",
     playerCount: 0,
   };
 
@@ -102,14 +101,6 @@ export function AddReservationDialog({
                       value={data.reservationHour}
                       onChange={handleUpdate}
                     ></Input>
-                    <Input
-                      variant="standard"
-                      name="reservedTable"
-                      label="Reserved Table"
-                      type="text"
-                      value={data.reservedTable}
-                      onChange={handleUpdate}
-                    />
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Input

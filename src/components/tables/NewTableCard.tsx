@@ -17,6 +17,7 @@ import {
   OrderStatus,
   Table,
   TableStatus,
+  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -30,7 +31,6 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { QuantityInput } from "../../utils/panelInputs";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -98,7 +98,7 @@ export function TableCard({
     .map((menuItem) => {
       return {
         value: menuItem._id,
-        label: menuItem.name,
+        label: menuItem.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
   const filteredDiscounts = discounts.filter((discount) =>
@@ -118,7 +118,14 @@ export function TableCard({
       placeholder: t("Product"),
       required: true,
     },
-    QuantityInput(),
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 1,
+      required: true,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "discount",

@@ -13,7 +13,6 @@ import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   Order,
-  OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
@@ -49,12 +48,13 @@ const OrderPaymentTypes = ({
   const { selectedLocationId } = useLocationContext();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const collections = useGetOrderCollections();
-  const [selectedCollection, setSelectedCollection] =
-    useState<OrderCollection>();
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [inputForm, setInputForm] = useState({
-    note: "",
-  });
+  // this are for collection cancel note if it is activated this will be used
+  // const [selectedCollection, setSelectedCollection] =
+  //   useState<OrderCollection>();
+  // const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  // const [inputForm, setInputForm] = useState({
+  //   note: "",
+  // });
   const { user } = useUserContext();
   if (
     !selectedLocationId ||
