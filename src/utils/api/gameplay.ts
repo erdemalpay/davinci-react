@@ -212,7 +212,7 @@ export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
   const { isLoading, error, data, isFetching } = useQuery(
     queryKey,
     () => get<GameplayGroupQueryResult[]>({ path: query }),
-    { refetchOnWindowFocus: false, staleTime: Infinity }
+    { refetchOnWindowFocus: false }
   );
   return {
     isLoading,
