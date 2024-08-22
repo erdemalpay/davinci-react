@@ -71,6 +71,7 @@ const ExpenseType = () => {
   });
   const [rows, setRows] = useState(allRows);
   const columns = [
+    { key: t("Id"), isSortable: true },
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
     { key: t("Fixture Count"), isSortable: true },
@@ -85,6 +86,7 @@ const ExpenseType = () => {
     columns.push({ key: t("Actions"), isSortable: false });
   }
   const rowKeys = [
+    { key: "_id" },
     {
       key: "name",
 
