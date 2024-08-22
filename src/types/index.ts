@@ -589,6 +589,7 @@ export enum CheckoutPageTabEnum {
 }
 export enum StocksPageTabEnum {
   STOCK,
+  GAMESTOCK,
   FIXTURESTOCK,
   ENTERCONSUMPTION,
   PRODUCTSTOCKHISTORY,

@@ -134,6 +134,21 @@ const NewTables = () => {
       });
     }
   };
+  const scrollToSectionForBigScreen = (id: string) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      const offset = 300;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition + offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // filter out unfinished visits and only show one visit per user
   const seenUserIds = new Set<string>();
@@ -206,7 +221,7 @@ const NewTables = () => {
                 }}
               />
             </div>
-            {/* Table name buttons */}
+            {/* Table name buttons for small screen */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
               {tables
                 .filter((table) => !table?.finishHour)
@@ -233,7 +248,22 @@ const NewTables = () => {
               ))}
             </div>
           </div>
-
+          {/* Table name buttons for big screen */}
+          <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
+            {tables
+              .filter((table) => !table?.finishHour)
+              .map((table) => (
+                <a
+                  key={table._id + "tableselector"}
+                  onClick={() =>
+                    scrollToSectionForBigScreen(`table-${table._id}`)
+                  }
+                  className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                >
+                  {table.name}
+                </a>
+              ))}
+          </div>
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
             {(activeTableCount > 0 ||
