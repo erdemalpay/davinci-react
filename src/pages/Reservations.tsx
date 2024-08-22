@@ -132,7 +132,7 @@ export default function Reservations() {
     { key: t("Name"), isSortable: true },
     { key: t("Phone"), isSortable: true },
     { key: t("Time"), isSortable: true },
-    { key: t("Reserved Table"), isSortable: true },
+    { key: t("Table"), isSortable: true },
     { key: t("Player Count"), isSortable: true },
     { key: t("Call Hour"), isSortable: true },
     { key: t("Approved Hour"), isSortable: true },
