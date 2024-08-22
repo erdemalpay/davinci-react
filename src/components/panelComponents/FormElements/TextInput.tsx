@@ -28,6 +28,7 @@ type TextInputProps = {
   inputWidth?: string;
   requiredField?: boolean;
   isDateInitiallyOpen?: boolean;
+  minNumber?: number;
 };
 
 const TextInput = ({
@@ -41,6 +42,7 @@ const TextInput = ({
   onClear,
   inputWidth,
   isDatePicker = false,
+  minNumber = 0,
   isDateInitiallyOpen = false,
   requiredField = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
@@ -274,11 +276,17 @@ const TextInput = ({
           disabled={disabled}
           value={localValue}
           onChange={(e) => {
-            setLocalValue(e.target.value);
-            onChange(e.target.value);
+            if (type === "number" && +e.target.value < minNumber) {
+              setLocalValue(minNumber.toString());
+              onChange(minNumber.toString());
+            } else {
+              setLocalValue(e.target.value);
+              onChange(e.target.value);
+            }
           }}
           className={inputClassName}
-          {...(type === "number" ? { min: "0", onWheel: handleWheel } : {})}
+          {...(type === "number" ? { min: minNumber } : {})}
+          onWheel={type === "number" ? handleWheel : undefined}
         />
         {onClear && localValue && (
           <button
