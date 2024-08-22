@@ -17,6 +17,7 @@ import {
   OrderStatus,
   Table,
   TableStatus,
+  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -97,7 +98,7 @@ export function TableCard({
     .map((menuItem) => {
       return {
         value: menuItem._id,
-        label: menuItem.name,
+        label: menuItem.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
   const filteredDiscounts = discounts.filter((discount) =>
