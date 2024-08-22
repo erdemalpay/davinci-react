@@ -353,6 +353,7 @@ const NewTables = () => {
                 games={games as Game[]}
                 showAllGameplays={showAllGameplays}
                 showAllOrders={showAllOrders}
+                showServedOrders={showServedOrders}
               />
             </div>
           ))}
