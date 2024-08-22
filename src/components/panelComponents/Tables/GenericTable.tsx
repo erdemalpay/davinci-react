@@ -45,6 +45,7 @@ type Props<T> = {
   isSearch?: boolean;
   isPagination?: boolean;
   isActionsAtFront?: boolean;
+  isCollapsibleCheckActive?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -69,6 +70,7 @@ const GenericTable = <T,>({
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
+  isCollapsibleCheckActive = true,
   tooltipLimit = 40,
   rowClassNameFunction,
   rowsPerPageOptions = [
@@ -323,9 +325,12 @@ const GenericTable = <T,>({
           } ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
-          {isCollapsible && row?.collapsible?.collapsibleRows?.length > 0 && (
+          {(!isCollapsibleCheckActive ||
+            (isCollapsible &&
+              row?.collapsible?.collapsibleRows?.length > 0)) && (
             <td onClick={() => toggleRowExpansion(rowId)}>
-              {row?.collapsible?.collapsibleRows?.length === 0 ? (
+              {isCollapsibleCheckActive &&
+              row?.collapsible?.collapsibleRows?.length === 0 ? (
                 <td className="w-6 h-6 mx-auto p-1 "></td>
               ) : isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
@@ -334,9 +339,10 @@ const GenericTable = <T,>({
               )}
             </td>
           )}
-          {row?.collapsible?.collapsibleRows?.length === 0 && (
-            <td className="w-6 h-6 mx-auto p-1 "></td>
-          )}
+          {isCollapsibleCheckActive &&
+            row?.collapsible?.collapsibleRows?.length === 0 && (
+              <td className="w-6 h-6 mx-auto p-1 "></td>
+            )}
           {/* front actions  */}
           {actions && isActionsAtFront && (
             <td>{renderActionButtons(row, actions)}</td>

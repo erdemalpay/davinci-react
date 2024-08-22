@@ -33,7 +33,7 @@ const OrderPaymentModal = ({ close, table }: Props) => {
   if (!user || !orders) return null;
   const tableOrders = orders.filter(
     (order) =>
-      (order.table as Table)._id === table._id &&
+      (order?.table as Table)._id === table._id &&
       order.status !== OrderStatus.CANCELLED
   );
   const collectionsTotalAmount = Number(
@@ -125,6 +125,7 @@ const OrderPaymentModal = ({ close, table }: Props) => {
               {/* payment part */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2">
                 <OrderLists
+                  table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                 />

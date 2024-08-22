@@ -10,9 +10,11 @@ import { useTableMutations } from "../../utils/api/table";
 export function CreateTableDialog({
   isOpen,
   close,
+  isOnlineSale = false,
 }: {
   isOpen: boolean;
   close: () => void;
+  isOnlineSale?: boolean;
 }) {
   const { selectedLocationId } = useLocationContext();
   const date = format(new Date(), "yyyy-MM-dd");
@@ -29,7 +31,10 @@ export function CreateTableDialog({
   const { createTable } = useTableMutations();
 
   async function handleCreate() {
-    createTable(data);
+    createTable({
+      ...data,
+      ...(isOnlineSale && { isOnlineSale: true }),
+    });
     close();
   }
 

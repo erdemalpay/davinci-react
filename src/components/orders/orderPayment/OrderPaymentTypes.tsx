@@ -115,6 +115,12 @@ const OrderPaymentTypes = ({
     tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
   const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
+
+  const filteredPaymentTypes = paymentTypes.filter((paymentType) =>
+    table?.isOnlineSale
+      ? paymentType?.isOnlineOrder
+      : !paymentType?.isOnlineOrder
+  );
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
       {/*main header part */}
@@ -123,7 +129,7 @@ const OrderPaymentTypes = ({
       </div>
       {/* payment types */}
       <div className="grid grid-cols-3 gap-2 h-52 overflow-scroll no-scrollbar">
-        {paymentTypes?.map((paymentType) => (
+        {filteredPaymentTypes?.map((paymentType) => (
           <div
             key={paymentType._id}
             onClick={() => {

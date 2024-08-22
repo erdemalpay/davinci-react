@@ -25,6 +25,7 @@ import {
   useOrderMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import {
   useReopenTableMutation,
   useTableMutations,
@@ -71,6 +72,7 @@ export function TableCard({
   const { mutate: reopenTable } = useReopenTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
+  const discounts = useGetOrderDiscounts();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
@@ -81,14 +83,17 @@ export function TableCard({
     item: 0,
     quantity: 0,
     note: "",
-    // discount: null,
+    discount: undefined,
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
 
   const menuItemOptions = menuItems
-    ?.filter((menuOption) =>
-      menuOption?.locations?.includes(selectedLocationId)
+    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+    ?.filter((menuItem) =>
+      table?.isOnlineSale
+        ? (menuItem.category as MenuCategory)?.isOnlineOrder
+        : true
     )
     .map((menuItem) => {
       return {
@@ -96,7 +101,9 @@ export function TableCard({
         label: menuItem.name,
       };
     });
-
+  const filteredDiscounts = discounts.filter((discount) =>
+    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+  );
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -113,6 +120,19 @@ export function TableCard({
     },
     QuantityInput(),
     {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: filteredDiscounts.map((option) => {
+        return {
+          value: option._id,
+          label: option.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: false,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -123,6 +143,7 @@ export function TableCard({
   const orderFormKeys = [
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const bgColor = table.finishHour
@@ -222,7 +243,7 @@ export function TableCard({
           />
         </p>
         <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
-          {!table.finishHour && (
+          {!table.finishHour && !table?.isOnlineSale && (
             <Tooltip content={t("Add Gameplay")}>
               <span className="text-{8px}">
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />
@@ -458,9 +479,10 @@ export function TableCard({
               item: 0,
               quantity: 0,
               note: "",
+              discount: undefined,
             });
           }}
-          generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-1rem] md:mt-0"
+          generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
         />
       )}
