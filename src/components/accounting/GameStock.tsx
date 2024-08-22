@@ -53,7 +53,7 @@ const GameStock = () => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) =>
-        (stock.product as AccountProduct)?.expenseType?.includes("oyun_satisi")
+        (stock.product as AccountProduct)?.expenseType?.includes("oys")
       )
       .reduce((acc, stock) => {
         const expense = stock.packageType
@@ -94,7 +94,7 @@ const GameStock = () => {
   const [rows, setRows] = useState(
     stocks
       ?.filter((stock) =>
-        (stock.product as AccountProduct)?.expenseType?.includes("oyun_satisi")
+        (stock.product as AccountProduct)?.expenseType?.includes("oys")
       )
       ?.map((stock) => {
         return {
@@ -134,7 +134,7 @@ const GameStock = () => {
   const inputs = [
     ProductInput({
       products: products?.filter((product) =>
-        product?.expenseType?.includes("oyun_satisi")
+        product?.expenseType?.includes("oys")
       ),
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
       required: true,
@@ -349,7 +349,7 @@ const GameStock = () => {
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) =>
-        (stock.product as AccountProduct)?.expenseType?.includes("oyun_satisi")
+        (stock.product as AccountProduct)?.expenseType?.includes("oys")
       )
       ?.filter((stock) => {
         return (
@@ -447,7 +447,7 @@ const GameStock = () => {
   const filterPanelInputs = [
     ProductInput({
       products: products?.filter((product) =>
-        product?.expenseType?.includes("oyun_satisi")
+        product?.expenseType?.includes("oys")
       ),
       required: true,
       isMultiple: true,
