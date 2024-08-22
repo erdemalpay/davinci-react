@@ -32,6 +32,7 @@ const NewTables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
+  const [showServedOrders, setShowServedOrders] = useState(true);
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -187,6 +188,11 @@ const NewTables = () => {
       onChange: setShowAllOrders,
     },
     {
+      label: t("Show Served Orders"),
+      checked: showServedOrders,
+      onChange: setShowServedOrders,
+    },
+    {
       label: t("Show All Gameplays"),
       checked: showAllGameplays,
       onChange: setShowAllGameplays,
@@ -315,7 +321,7 @@ const NewTables = () => {
               )}
 
               {/* filters */}
-              <div className="flex  gap-4 justify-end mt-4  ">
+              <div className="grid grid-cols-2 md:flex md:flex-row md:gap-4 justify-end mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
@@ -341,6 +347,7 @@ const NewTables = () => {
                   games={games}
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
+                  showServedOrders={showServedOrders}
                 />
               ))}
             </div>
