@@ -12,12 +12,17 @@ interface HeaderProps {
 
 export function Header({ showLocationSelector = true }: HeaderProps) {
   const user = useGetUser();
+  const handleScrollToTop = () => {
+    if (location.pathname === Routes.Tables) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">
         <div className="px-2 lg:px-6 h-16 flex justify-between mx-2 lg:mx-20">
           <div className="flex flex-row gap-8 items-center">
-            <Link to={Routes.Tables}>
+            <Link to={Routes.Tables} onClick={handleScrollToTop}>
               <img
                 src={logo}
                 alt="profile"
