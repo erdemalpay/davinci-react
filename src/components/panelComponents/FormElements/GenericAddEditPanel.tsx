@@ -386,7 +386,6 @@ const GenericAddEditPanel = <T,>({
                           onChange={handleChange(input.formKey)}
                           requiredField={input.required}
                           isOnClearActive={input?.isOnClearActive ?? true}
-                          initialNumberValue={input?.initialNumberValue}
                           isNumberButtonsActive={
                             input?.isNumberButtonsActive ?? false
                           }
