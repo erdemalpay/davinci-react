@@ -33,6 +33,7 @@ type TextInputProps = {
   minNumber?: number;
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
+  initialNumberValue?: number;
 };
 
 const TextInput = ({
@@ -45,6 +46,7 @@ const TextInput = ({
   isTopFlexRow,
   onClear,
   inputWidth,
+  initialNumberValue,
   isDatePicker = false,
   minNumber = 0,
   isDateInitiallyOpen = false,
@@ -53,7 +55,9 @@ const TextInput = ({
   requiredField = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
-  const [localValue, setLocalValue] = useState(value);
+  const [localValue, setLocalValue] = useState(
+    initialNumberValue !== undefined ? initialNumberValue.toString() : value
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const handleDivClick = () => {
