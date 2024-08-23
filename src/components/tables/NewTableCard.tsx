@@ -128,6 +128,7 @@ export function TableCard({
       minNumber: 1,
       required: true,
       isNumberButtonsActive: true,
+      initialNumberValue: 1,
       isOnClearActive: false,
     },
     {
