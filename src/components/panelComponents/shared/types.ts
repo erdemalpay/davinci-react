@@ -82,6 +82,7 @@ export interface GenericInputType {
   isDateInitiallyOpen?: boolean;
   isTopFlexRow?: boolean;
   isDisabled?: boolean;
+  minNumber?: number;
   invalidateKeys?: {
     key: string;
     defaultValue: string | boolean | number;

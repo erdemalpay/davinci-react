@@ -6,8 +6,10 @@ import {
 } from "react-icons/gi";
 import { SlBasketLoaded } from "react-icons/sl";
 // import CountArchive from "../components/accounting/CountArchive";
+import { FaGamepad } from "react-icons/fa";
 import FixtureStock from "../components/accounting/FixtureStock";
 import FixtureStockHistory from "../components/accounting/FixtureStockHistory";
+import GameStock from "../components/accounting/GameStock";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
@@ -24,6 +26,13 @@ export const StockPageTabs = [
     label: "Product Stocks",
     icon: <GiGreatPyramid className="text-lg font-thin" />,
     content: <Stock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.GAMESTOCK,
+    label: "Game Stocks",
+    icon: <FaGamepad className="text-lg font-thin" />,
+    content: <GameStock />,
     isDisabled: false,
   },
   {

@@ -22,7 +22,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
   if (!table || !user) return null;
   const { t } = useTranslation();
   const orders = useGetGivenDateOrders();
-  const { updateOrder } = useOrderMutations();
+  const { updateOrder, createOrder } = useOrderMutations();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
@@ -37,14 +37,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
           {table.orders?.map((tableOrder) => {
             const order = orders.find((order) => order._id === tableOrder);
-            if (
-              !order ||
-              !(
-                order.status === OrderStatus.PENDING ||
-                order.status === OrderStatus.AUTOSERVED
-              )
-            )
-              return null;
+            if (!order || order.status === OrderStatus.CANCELLED) return null;
             return (
               <div
                 key={order._id}
@@ -57,9 +50,9 @@ const OrderListForPanel = ({ tableId }: Props) => {
                     onClick={() => {
                       if (order.quantity === 1) {
                         toast.error(t("Order quantity cannot be less than 1"));
+                        return;
                       }
                       if (
-                        order.quantity > 1 &&
                         ![
                           OrderStatus.READYTOSERVE,
                           OrderStatus.SERVED,
@@ -73,7 +66,25 @@ const OrderListForPanel = ({ tableId }: Props) => {
                           },
                         });
                       }
-                      // TODO other cases will be added when it is discussed
+                      if (
+                        [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
+                          order.status as OrderStatus
+                        ) &&
+                        !order.discount
+                      ) {
+                        createOrder({
+                          ...order,
+                          status: OrderStatus.CANCELLED,
+                          quantity: 1,
+                          paidQuantity: 0,
+                        });
+                        updateOrder({
+                          id: order._id,
+                          updates: {
+                            quantity: order.quantity - 1,
+                          },
+                        });
+                      }
                     }}
                   />
                   {/* name and quantity */}
@@ -98,9 +109,17 @@ const OrderListForPanel = ({ tableId }: Props) => {
                             quantity: order.quantity + 1,
                           },
                         });
+                      } else {
+                        createOrder({
+                          ...order,
+                          status: OrderStatus.PENDING,
+                          quantity: 1,
+                          paidQuantity: 0,
+                          createdAt: new Date(),
+                          createdBy: user._id,
+                        });
                       }
                     }}
-                    // TODO other cases will be added when it is discussed
                   />
                 </div>
 

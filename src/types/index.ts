@@ -589,6 +589,7 @@ export enum CheckoutPageTabEnum {
 }
 export enum StocksPageTabEnum {
   STOCK,
+  GAMESTOCK,
   FIXTURESTOCK,
   ENTERCONSUMPTION,
   PRODUCTSTOCKHISTORY,
@@ -805,6 +806,14 @@ export enum ActivityType {
   CREATE_PAYMENTMETHOD = "CREATE_PAYMENTMETHOD",
   DELETE_PAYMENTMETHOD = "DELETE_PAYMENTMETHOD",
   UPDATE_PAYMENTMETHOD = "UPDATE_PAYMENTMETHOD",
+  CREATE_ORDER = "CREATE_ORDER",
+  ADD_ORDER = "ADD_ORDER",
+  CANCEL_ORDER = "CANCEL_ORDER",
+  PREPARE_ORDER = "PREPARE_ORDER",
+  DELIVER_ORDER = "DELIVER_ORDER",
+  TAKE_PAYMENT = "TAKE_PAYMENT",
+  GAME_LEARNED_ADD = "GAME_LEARNED_ADD",
+  GAME_LEARNED_REMOVE = "GAME_LEARNED_REMOVE",
 }
 export const activityTypeDetails = [
   {
@@ -1001,5 +1010,45 @@ export const activityTypeDetails = [
     value: ActivityType.UPDATE_PAYMENTMETHOD,
     label: "Update Payment Method",
     bgColor: "bg-yellow-500",
+  },
+  {
+    value: ActivityType.CREATE_ORDER,
+    label: "Create Order",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.ADD_ORDER,
+    label: "Add Order",
+    bgColor: "bg-blue-500",
+  },
+  {
+    value: ActivityType.CANCEL_ORDER,
+    label: "Cancel Order",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.PREPARE_ORDER,
+    label: "Prepare Order",
+    bgColor: "bg-yellow-500",
+  },
+  {
+    value: ActivityType.DELIVER_ORDER,
+    label: "Deliver Order",
+    bgColor: "bg-purple-500",
+  },
+  {
+    value: ActivityType.TAKE_PAYMENT,
+    label: "Take Payment",
+    bgColor: "bg-indigo-500",
+  },
+  {
+    value: ActivityType.GAME_LEARNED_ADD,
+    label: "Add Learned Game",
+    bgColor: "bg-teal-500",
+  },
+  {
+    value: ActivityType.GAME_LEARNED_REMOVE,
+    label: "Remove Learned Game",
+    bgColor: "bg-orange-500",
   },
 ];

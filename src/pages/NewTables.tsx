@@ -32,6 +32,7 @@ const NewTables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
+  const [showServedOrders, setShowServedOrders] = useState(false);
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -172,6 +173,11 @@ const NewTables = () => {
       onChange: setShowAllOrders,
     },
     {
+      label: t("Show Served Orders"),
+      checked: showServedOrders,
+      onChange: setShowServedOrders,
+    },
+    {
       label: t("Show All Gameplays"),
       checked: showAllGameplays,
       onChange: setShowAllGameplays,
@@ -206,7 +212,7 @@ const NewTables = () => {
                 }}
               />
             </div>
-            {/* Table name buttons */}
+            {/* Table name buttons for small screen */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
               {tables
                 .filter((table) => !table?.finishHour)
@@ -233,7 +239,20 @@ const NewTables = () => {
               ))}
             </div>
           </div>
-
+          {/* Table name buttons for big screen */}
+          <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
+            {tables
+              .filter((table) => !table?.finishHour)
+              .map((table) => (
+                <a
+                  key={table._id + "tableselector"}
+                  onClick={() => scrollToSection(`table-large-${table._id}`)}
+                  className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                >
+                  {table.name}
+                </a>
+              ))}
+          </div>
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
             {(activeTableCount > 0 ||
@@ -285,7 +304,7 @@ const NewTables = () => {
               )}
 
               {/* filters */}
-              <div className="flex  gap-4 justify-end mt-4  ">
+              <div className="grid grid-cols-2 md:flex md:flex-row md:gap-4 justify-end mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
@@ -304,14 +323,20 @@ const NewTables = () => {
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
               {tables.map((table) => (
-                <TableCard
+                <div
+                  id={`table-large-${table._id}`}
                   key={table._id || table.startHour + tableCardKey}
-                  table={table}
-                  mentors={mentors}
-                  games={games}
-                  showAllGameplays={showAllGameplays}
-                  showAllOrders={showAllOrders}
-                />
+                >
+                  <TableCard
+                    key={table._id || table.startHour + tableCardKey}
+                    table={table}
+                    mentors={mentors}
+                    games={games}
+                    showAllGameplays={showAllGameplays}
+                    showAllOrders={showAllOrders}
+                    showServedOrders={showServedOrders}
+                  />
+                </div>
               ))}
             </div>
           ))}
@@ -328,6 +353,7 @@ const NewTables = () => {
                 games={games as Game[]}
                 showAllGameplays={showAllGameplays}
                 showAllOrders={showAllOrders}
+                showServedOrders={showServedOrders}
               />
             </div>
           ))}

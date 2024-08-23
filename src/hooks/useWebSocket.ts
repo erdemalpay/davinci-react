@@ -6,6 +6,7 @@ import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
 import { useUserContext } from "./../context/User.context";
+import { OrderStatus } from "./../types/index";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
 
@@ -17,7 +18,7 @@ export function useWebSocket() {
 
   useEffect(() => {
     // Load the audio files
-    const orderCreatedSound = new Audio("/sounds/mixitSoftware.wav");
+    const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
     const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
 
     const socket: Socket = io(SOCKET_URL, {
@@ -44,6 +45,7 @@ export function useWebSocket() {
       );
       if (
         !foundCategory?.isAutoServed &&
+        order?.status !== OrderStatus.CANCELLED &&
         ((user?.role._id !== RoleEnum.KITCHEN &&
           selectedLocationId &&
           (order.location as Location)._id === selectedLocationId) ||

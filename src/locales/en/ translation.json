@@ -515,5 +515,7 @@
   "Approved Hour": "Approved Hour",
   "Online Sales": "Online Sales",
   "Order quantity cannot be less than 1": "Order quantity cannot be less than 1",
+  "Game Stocks": "Game Stocks",
+  "Show Served Orders": "Show Served Orders",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
