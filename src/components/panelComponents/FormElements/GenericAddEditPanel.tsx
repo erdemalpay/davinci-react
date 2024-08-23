@@ -385,6 +385,10 @@ const GenericAddEditPanel = <T,>({
                           placeholder={input.placeholder ?? ""}
                           onChange={handleChange(input.formKey)}
                           requiredField={input.required}
+                          isOnClearActive={input?.isOnClearActive ?? true}
+                          isNumberButtonsActive={
+                            input?.isNumberButtonsActive ?? false
+                          }
                           isDateInitiallyOpen={
                             input.isDateInitiallyOpen ?? false
                           }

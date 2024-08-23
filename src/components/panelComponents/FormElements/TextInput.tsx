@@ -11,6 +11,8 @@ import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
 import { useTranslation } from "react-i18next";
+import { FiMinusCircle } from "react-icons/fi";
+import { GoPlusCircle } from "react-icons/go";
 import { IoIosClose } from "react-icons/io";
 import { H6 } from "../Typography";
 
@@ -29,6 +31,8 @@ type TextInputProps = {
   requiredField?: boolean;
   isDateInitiallyOpen?: boolean;
   minNumber?: number;
+  isNumberButtonsActive?: boolean;
+  isOnClearActive?: boolean;
 };
 
 const TextInput = ({
@@ -44,6 +48,8 @@ const TextInput = ({
   isDatePicker = false,
   minNumber = 0,
   isDateInitiallyOpen = false,
+  isNumberButtonsActive = false,
+  isOnClearActive = true,
   requiredField = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
@@ -61,7 +67,21 @@ const TextInput = ({
       inputRef.current.click();
     }
   }, [isDateInitiallyOpen, type]);
+  const handleIncrement = () => {
+    if (type === "number") {
+      const newValue = Math.max(minNumber, +localValue + 1);
+      setLocalValue(newValue.toString());
+      onChange(newValue.toString());
+    }
+  };
 
+  const handleDecrement = () => {
+    if (type === "number" && +localValue > minNumber) {
+      const newValue = Math.max(minNumber, +localValue - 1);
+      setLocalValue(newValue.toString());
+      onChange(newValue.toString());
+    }
+  };
   const inputClassName = `${className} ${
     inputWidth ? "border-gray-100" : ""
   } w-full text-sm ${
@@ -264,10 +284,16 @@ const TextInput = ({
         )}
       </H6>
       <div
-        className={`flex flex-row gap-2 items-center  ${
-          inputWidth ? inputWidth : "w-full"
-        }`}
+        className={`flex items-center ${
+          isNumberButtonsActive ? "gap-1" : "gap-2"
+        } ${inputWidth ? inputWidth : "w-full"}`}
       >
+        {isNumberButtonsActive && (
+          <FiMinusCircle
+            className="w-5 h-5 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
+            onClick={handleDecrement}
+          />
+        )}
         <input
           ref={inputRef}
           type={type}
@@ -288,13 +314,19 @@ const TextInput = ({
           {...(type === "number" ? { min: minNumber } : {})}
           onWheel={type === "number" ? handleWheel : undefined}
         />
-        {onClear && localValue && (
+        {isNumberButtonsActive && (
+          <GoPlusCircle
+            className="w-5 h-5 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
+            onClick={handleIncrement}
+          />
+        )}
+        {onClear && localValue && isOnClearActive && (
           <button
             onClick={() => {
               setLocalValue("");
               onClear();
             }}
-            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
           </button>

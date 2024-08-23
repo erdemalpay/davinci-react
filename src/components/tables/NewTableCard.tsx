@@ -127,6 +127,8 @@ export function TableCard({
       placeholder: t("Quantity"),
       minNumber: 1,
       required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
     },
     {
       type: InputTypes.SELECT,
