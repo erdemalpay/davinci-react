@@ -32,7 +32,7 @@ const NewTables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const [showServedOrders, setShowServedOrders] = useState(true);
+  const [showServedOrders, setShowServedOrders] = useState(false);
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
