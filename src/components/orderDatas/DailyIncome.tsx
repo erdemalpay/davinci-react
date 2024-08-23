@@ -8,14 +8,15 @@ import {
   Location,
   OrderCollectionStatus,
   TURKISHLIRA,
+  Table,
 } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type AllRows = {
   date: string;
@@ -45,7 +46,8 @@ const DailyIncome = () => {
       (collection) => collection.status !== OrderCollectionStatus.CANCELLED
     )
     ?.reduce((acc, collection) => {
-      if (!collection || !collection.createdAt) return acc;
+      const tableDate = (collection.table as Table)?.date;
+      if (!collection || !tableDate) return acc;
       // location filter
       if (
         filterPanelFormElements.location !== "" &&
@@ -57,16 +59,14 @@ const DailyIncome = () => {
       // other filters
       if (
         (filterPanelFormElements.before !== "" &&
-          format(collection?.createdAt, "yyyy-MM-dd") >
-            filterPanelFormElements.before) ||
+          format(tableDate, "yyyy-MM-dd") > filterPanelFormElements.before) ||
         (filterPanelFormElements.after !== "" &&
-          format(collection?.createdAt, "yyyy-MM-dd") <
-            filterPanelFormElements.after)
+          format(tableDate, "yyyy-MM-dd") < filterPanelFormElements.after)
       ) {
         return acc;
       }
       const existingEntry = acc.find(
-        (item) => item.date === format(collection?.createdAt, "yyyy-MM-dd")
+        (item) => item.date === format(tableDate, "yyyy-MM-dd")
       );
       if (existingEntry) {
         if (
@@ -88,10 +88,8 @@ const DailyIncome = () => {
         existingEntry.total += collection.amount;
       } else {
         acc.push({
-          date: format(collection?.createdAt, "yyyy-MM-dd"),
-          formattedDate: formatAsLocalDate(
-            format(collection?.createdAt, "yyyy-MM-dd")
-          ),
+          date: format(tableDate, "yyyy-MM-dd"),
+          formattedDate: formatAsLocalDate(format(tableDate, "yyyy-MM-dd")),
           location: (collection.location as Location)._id,
           paymentMethod: (collection.paymentMethod as AccountPaymentMethod)._id,
           cash:
