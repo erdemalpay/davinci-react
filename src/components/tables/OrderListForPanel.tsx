@@ -52,6 +52,10 @@ const OrderListForPanel = ({ tableId }: Props) => {
                         toast.error(t("Order quantity cannot be less than 1"));
                         return;
                       }
+                      if (order.paidQuantity > 0) {
+                        toast.error(t("Paid orders cannot be changed"));
+                        return;
+                      }
                       if (
                         ![
                           OrderStatus.READYTOSERVE,
