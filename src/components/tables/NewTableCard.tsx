@@ -127,6 +127,8 @@ export function TableCard({
       placeholder: t("Quantity"),
       minNumber: 1,
       required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
     },
     {
       type: InputTypes.SELECT,
@@ -449,6 +451,7 @@ export function TableCard({
           isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
+          constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
           anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
