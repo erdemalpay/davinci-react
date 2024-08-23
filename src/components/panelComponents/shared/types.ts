@@ -83,7 +83,6 @@ export interface GenericInputType {
   isTopFlexRow?: boolean;
   isDisabled?: boolean;
   minNumber?: number;
-  initialNumberValue?: number;
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
   invalidateKeys?: {
