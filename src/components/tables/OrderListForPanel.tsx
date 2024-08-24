@@ -4,20 +4,15 @@ import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
-import { MenuItem, Order, OrderStatus, TableStatus } from "../../types";
+import { MenuItem, Order, OrderStatus, Table } from "../../types";
 import {
   useGetGivenDateOrders,
   useOrderMutations,
 } from "../../utils/api/order/order";
-import { useGetTables } from "../../utils/api/table";
 
-type Props = { tableId: number };
+type Props = { table: Table };
 
-const OrderListForPanel = ({ tableId }: Props) => {
-  const tables = useGetTables().filter(
-    (table) => table?.status !== TableStatus.CANCELLED
-  );
-  const table = tables.find((table) => table._id === tableId);
+const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
@@ -32,7 +27,7 @@ const OrderListForPanel = ({ tableId }: Props) => {
     <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100]  ">
       <div className="flex flex-col gap-2 px-4 py-6">
         {/* header */}
-        <h1 className="font-medium">{t("Orders")}</h1>
+        <h1 className="font-medium">{table.name}</h1>
         {/* orders */}
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
           {table.orders?.map((tableOrder) => {
