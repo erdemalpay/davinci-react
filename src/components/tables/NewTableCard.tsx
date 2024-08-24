@@ -117,6 +117,7 @@ export function TableCard({
           label: option.label,
         };
       }),
+      invalidateKeys: [{ key: "discount", defaultValue: undefined }],
       placeholder: t("Product"),
       required: true,
     },

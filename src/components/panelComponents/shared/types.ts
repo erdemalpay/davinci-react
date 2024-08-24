@@ -88,7 +88,7 @@ export interface GenericInputType {
   isAutoFill?: boolean;
   invalidateKeys?: {
     key: string;
-    defaultValue: string | boolean | number;
+    defaultValue: string | boolean | number | undefined;
   }[];
 }
 
