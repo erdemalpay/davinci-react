@@ -20,7 +20,7 @@ export function useWebSocket() {
     // Load the audio files
     const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
     const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
-
+    orderCreatedSound.volume = 1;
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["websocket"],
