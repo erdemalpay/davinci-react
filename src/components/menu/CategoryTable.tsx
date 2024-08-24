@@ -9,6 +9,7 @@ import { NO_IMAGE_URL } from "../../navigation/constants";
 import { Kitchen, MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -30,8 +31,8 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isCategoryTableEditOpen,
     setIsCategoryTableEditOpen,
   } = useGeneralContext();
+  const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
-  if (!kitchens) return null;
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
   const [tableKey, setTableKey] = useState(0);
@@ -56,14 +57,26 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       type: InputTypes.SELECT,
       formKey: "kitchen",
       label: t("Kitchen"),
-      options: kitchens.map((kitchen) => {
+      options: kitchens?.map((kitchen) => {
         return {
           value: kitchen._id,
           label: kitchen.name,
         };
       }),
-      placeholder: t("Discount"),
+      placeholder: t("Kitchen"),
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discounts",
+      label: t("Discount"),
+      options: discounts?.map((discount) => ({
+        value: discount._id,
+        label: discount.name,
+      })),
+      placeholder: t("Discount"),
+      isMultiple: true,
+      required: false,
     },
     {
       type: InputTypes.CHECKBOX,
@@ -108,6 +121,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "kitchen", type: FormKeyTypeEnum.STRING },
+    { key: "discounts", type: FormKeyTypeEnum.STRING },
     { key: "isAutoServed", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
@@ -116,6 +130,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
     { key: t("Kitchen"), isSortable: true },
+    { key: t("Discounts"), isSortable: false },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: t("Auto served"), isSortable: false },
@@ -137,6 +152,26 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       ),
     },
     { key: "kitchenName" },
+    {
+      key: "discounts",
+      className: "min-w-32",
+      node: (row: any) => {
+        return row?.discounts?.map((discount: number, index: any) => {
+          const foundDiscount = discounts?.find(
+            (dscnt) => dscnt._id === discount
+          );
+          return (
+            <span
+              key={foundDiscount?.name ?? index + row._id + "foundDiscount"}
+              className={`text-sm   mr-1 rounded-md w-fit `}
+            >
+              {foundDiscount?.name}
+              {(row?.discounts?.length ?? 0) - 1 !== index && ","}
+            </span>
+          );
+        });
+      },
+    },
     {
       key: "bahceli",
       node: (row: MenuCategory) =>

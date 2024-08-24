@@ -134,13 +134,25 @@ export function TableCard({
       type: InputTypes.SELECT,
       formKey: "discount",
       label: t("Discount"),
-      options: filteredDiscounts.map((option) => {
-        return {
-          value: option._id,
-          label: option.name,
-        };
-      }),
+      options: orderForm?.item
+        ? filteredDiscounts
+            .filter((discount) => {
+              const menuItem = menuItems?.find(
+                (item) => item._id === orderForm.item
+              );
+              return (menuItem?.category as MenuCategory)?.discounts?.includes(
+                discount._id
+              );
+            })
+            ?.map((option) => {
+              return {
+                value: option._id,
+                label: option.name,
+              };
+            })
+        : [],
       placeholder: t("Discount"),
+      isAutoFill: false,
       required: false,
     },
     {
