@@ -48,7 +48,6 @@ const Count = () => {
   const [tableKey, setTableKey] = useState(0);
   const {
     setCurrentPage,
-    setRowsPerPage,
     setSearchQuery,
     setCountListActiveTab,
     setSortConfigKey,
@@ -72,6 +71,8 @@ const Count = () => {
         });
         if (location && item.locations.includes(location)) {
           return {
+            products: currentCount?.products,
+            productId: item.product,
             product: products.find((p) => p._id === item.product)?.name || "",
             packageDetails: currentCount?.products
               ?.filter((p) => p.product === item.product)
@@ -100,6 +101,9 @@ const Count = () => {
                   return {
                     packageType:
                       packages.find((pck) => pck._id === p.packageType)?.name ||
+                      "",
+                    packageTypeId:
+                      packages.find((pck) => pck._id === p.packageType)?._id ||
                       "",
                     quantity: p.countQuantity,
                   };
@@ -145,6 +149,8 @@ const Count = () => {
           });
           if (location && item.locations.includes(location)) {
             return {
+              products: currentCount?.products,
+              productId: item.product,
               product: products.find((p) => p._id === item.product)?.name || "",
               packageDetails: currentCount?.products
                 ?.filter((p) => p.product === item.product)
@@ -174,6 +180,9 @@ const Count = () => {
                       packageType:
                         packages.find((pck) => pck._id === p.packageType)
                           ?.name || "",
+                      packageTypeId:
+                        packages.find((pck) => pck._id === p.packageType)
+                          ?._id || "",
                       quantity: p.countQuantity,
                     };
                   }),
@@ -330,15 +339,14 @@ const Count = () => {
             (item.countList as AccountCountList)._id === countListId
           );
         });
-        const rowProduct = products.find((p) => p.name === row?.product);
-        const newProducts = [
-          ...(currentCount?.products?.filter(
-            (p) =>
-              p.product !== rowProduct?._id ||
-              p.packageType !== collapsibleForm?.packageType
-          ) || []),
-        ];
         if (!currentCount) return;
+        const newProducts = row?.products?.filter(
+          (p: any) =>
+            !(
+              p.product === row.productId && p.packageType === row.packageTypeId
+            )
+        );
+
         return (
           <div
             className="text-red-500 cursor-pointer text-xl"
