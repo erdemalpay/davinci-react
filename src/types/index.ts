@@ -335,6 +335,7 @@ export type MenuCategory = {
   kitchen: Kitchen | string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
+  discounts?: number[];
 };
 export type MenuPopular = {
   _id: number;

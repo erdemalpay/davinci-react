@@ -42,6 +42,7 @@ interface SelectInputProps {
   placeholder: string;
   isMultiple?: boolean;
   requiredField?: boolean;
+  isAutoFill?: boolean;
 }
 
 const SelectInput = ({
@@ -52,6 +53,7 @@ const SelectInput = ({
   isMultiple,
   placeholder,
   onClear,
+  isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
   const customStyles = {
@@ -88,7 +90,7 @@ const SelectInput = ({
   };
 
   useEffect(() => {
-    if (options.length === 1 && !value) {
+    if (options.length === 1 && !value && isAutoFill) {
       const actionMeta: ActionMeta<OptionType> = {
         action: "select-option",
         option: options[0],

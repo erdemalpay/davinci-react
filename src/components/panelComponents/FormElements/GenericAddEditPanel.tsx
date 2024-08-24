@@ -425,6 +425,7 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          isAutoFill={input?.isAutoFill}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}
                           isMultiple={input.isMultiple ?? false}
