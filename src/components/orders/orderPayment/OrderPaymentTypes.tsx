@@ -19,7 +19,6 @@ import {
   Table,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import { useUpdateOrdersForSaleMutation } from "../../../utils/api/order/order";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import {
   FormKeyTypeEnum,
@@ -68,7 +67,6 @@ const OrderPaymentTypes = ({
       (collection.table as Table)._id === table._id &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
-  const { mutate: updateOrders } = useUpdateOrdersForSaleMutation();
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
@@ -148,20 +146,20 @@ const OrderPaymentTypes = ({
                 return;
               }
               // if payment amount is greater than total amount or there are items in the temporary orders
+              let newOrders: Order[] = [];
               if (
                 temporaryOrders.length !== 0 ||
                 totalMoneySpend >= totalAmount - discountAmount
               ) {
                 if (totalMoneySpend >= totalAmount - discountAmount) {
-                  const newOrders = tableOrders?.map((order) => {
+                  newOrders = tableOrders?.map((order) => {
                     return {
                       ...order,
                       paidQuantity: order.quantity,
                     };
                   });
-                  updateOrders(newOrders);
                 } else {
-                  const newOrders = tableOrders?.map((order) => {
+                  newOrders = tableOrders?.map((order) => {
                     const temporaryOrder = temporaryOrders.find(
                       (temporaryOrder) => temporaryOrder.order._id === order._id
                     );
@@ -174,7 +172,6 @@ const OrderPaymentTypes = ({
                         order.paidQuantity + temporaryOrder.quantity,
                     };
                   });
-                  updateOrders(newOrders);
                 }
               }
               createOrderCollection({
@@ -200,6 +197,7 @@ const OrderPaymentTypes = ({
                         order: order.order._id,
                         paidQuantity: order.quantity,
                       })),
+                ...(newOrders && { newOrders: newOrders }),
               });
               resetOrderContext();
             }}
@@ -255,11 +253,12 @@ const OrderPaymentTypes = ({
             <HiOutlineTrash
               className="text-red-600 cursor-pointer text-lg"
               onClick={() => {
+                let newOrders: Order[] = [];
                 if (
                   collection?.orders?.length &&
                   collection?.orders?.length > 0
                 ) {
-                  const newOrders = collection?.orders
+                  newOrders = collection?.orders
                     ?.map((orderCollectionItem: OrderCollectionItem) => {
                       const order = givenDateOrders?.find(
                         (orderItem) =>
@@ -279,8 +278,7 @@ const OrderPaymentTypes = ({
                       }
                       return null;
                     })
-                    ?.filter((item: any) => item !== null);
-                  updateOrders(newOrders as Order[]);
+                    ?.filter((item): item is Order => item !== null);
                 }
                 updateOrderCollection({
                   id: collection._id,
@@ -288,7 +286,8 @@ const OrderPaymentTypes = ({
                     cancelledAt: new Date(),
                     cancelledBy: user._id,
                     status: OrderCollectionStatus.CANCELLED,
-                  },
+                    newOrders: newOrders,
+                  } as Partial<OrderCollection>,
                 });
                 resetOrderContext();
               }}
