@@ -13,8 +13,8 @@ export function useOrderCollectionMutations() {
     baseQuery: baseUrl,
     additionalInvalidates: [
       [`${Paths.Order}/collection/date`],
-      [`${Paths.Order}`],
-      [`${Paths.Order}/collection`],
+      // [`${Paths.Order}`],
+      // [`${Paths.Order}/collection`],
     ],
   });
   return {
