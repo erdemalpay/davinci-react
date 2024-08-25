@@ -286,7 +286,7 @@ const OrderPaymentTypes = ({
                     cancelledAt: new Date(),
                     cancelledBy: user._id,
                     status: OrderCollectionStatus.CANCELLED,
-                    newOrders: newOrders,
+                    ...(newOrders && { newOrders: newOrders }),
                   } as Partial<OrderCollection>,
                 });
                 resetOrderContext();

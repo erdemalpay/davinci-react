@@ -11,11 +11,6 @@ export function useOrderCollectionMutations() {
     createItem: createOrderCollection,
   } = useMutationApi<OrderCollection>({
     baseQuery: baseUrl,
-    additionalInvalidates: [
-      [`${Paths.Order}/collection/date`],
-      // [`${Paths.Order}`],
-      // [`${Paths.Order}/collection`],
-    ],
   });
   return {
     deleteOrderCollection,

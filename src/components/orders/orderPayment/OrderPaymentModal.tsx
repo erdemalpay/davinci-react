@@ -6,12 +6,12 @@ import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import {
   Order,
+  OrderCollection,
   OrderCollectionStatus,
   OrderStatus,
   Table,
 } from "../../../types";
 
-import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useCloseTableMutation } from "../../../utils/api/table";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import OrderLists from "./orderList/OrderLists";
@@ -22,14 +22,14 @@ type Props = {
   close: () => void;
   table: Table;
   orders?: Order[];
+  collections?: OrderCollection[];
 };
 type ButtonType = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderPaymentModal = ({ close, table, orders }: Props) => {
-  const collections = useGetOrderCollections();
+const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =

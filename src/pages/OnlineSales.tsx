@@ -17,6 +17,7 @@ import { useDateContext } from "../context/Date.context";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
+import { useGetOrderCollections } from "../utils/api/order/orderCollection";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -31,6 +32,7 @@ const OnlineSales = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
+  const collections = useGetOrderCollections();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -101,9 +103,9 @@ const OnlineSales = () => {
       }
     });
   }, [defaultUser, visits]);
-  useEffect(() => {
-    setTableCardKey((prev) => prev + 1);
-  }, [orders, showAllGameplays, showAllOrders]);
+  // useEffect(() => {
+  //   setTableCardKey((prev) => prev + 1);
+  // }, [orders, showAllGameplays, showAllOrders]);
 
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
@@ -290,36 +292,42 @@ const OnlineSales = () => {
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
-              {tables.map((table) => (
-                <TableCard
-                  key={table._id || table.startHour + tableCardKey}
-                  table={table}
-                  mentors={mentors}
-                  games={games}
-                  showAllGameplays={showAllGameplays}
-                  showAllOrders={showAllOrders}
-                  orders={orders}
-                />
-              ))}
+              {orders &&
+                collections &&
+                tables.map((table) => (
+                  <TableCard
+                    key={table._id || table.startHour + tableCardKey}
+                    table={table}
+                    mentors={mentors}
+                    games={games}
+                    showAllGameplays={showAllGameplays}
+                    showAllOrders={showAllOrders}
+                    orders={orders}
+                    collections={collections}
+                  />
+                ))}
             </div>
           ))}
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {tables.map((table) => (
-            <div
-              id={`table-${table._id}`}
-              key={table._id || table.startHour + tableCardKey}
-            >
-              <TableCard
-                table={table}
-                mentors={mentors}
-                games={games as Game[]}
-                showAllGameplays={showAllGameplays}
-                showAllOrders={showAllOrders}
-                orders={orders}
-              />
-            </div>
-          ))}
+          {orders &&
+            collections &&
+            tables.map((table) => (
+              <div
+                id={`table-${table._id}`}
+                key={table._id || table.startHour + tableCardKey}
+              >
+                <TableCard
+                  table={table}
+                  mentors={mentors}
+                  games={games as Game[]}
+                  showAllGameplays={showAllGameplays}
+                  showAllOrders={showAllOrders}
+                  orders={orders}
+                  collections={collections}
+                />
+              </div>
+            ))}
         </div>
       </div>
       {isCreateTableDialogOpen && (
