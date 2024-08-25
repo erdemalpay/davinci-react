@@ -60,6 +60,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             { key: t("Unit"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
             { key: t("Cost"), isSortable: true },
+            { key: t("Decrement Stock"), isSortable: false },
             { key: t("Action"), isSortable: false, className: "text-center" },
           ],
           collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
@@ -79,12 +80,45 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
               )?.unitPrice ?? 0) * itemProduction.quantity
             ).toFixed(4),
             quantity: itemProduction.quantity,
+            isDecrementStock: itemProduction?.isDecrementStock,
           })),
           collapsibleRowKeys: [
             { key: "name" },
             { key: "unit" },
             { key: "quantity" },
             { key: "price" },
+            {
+              key: "isDecrementStock",
+              node: (row: any) => {
+                return (
+                  <div className="ml-6">
+                    <CheckSwitch
+                      checked={row?.isDecrementStock}
+                      onChange={() => {
+                        updateItem({
+                          id: item._id,
+                          updates: {
+                            itemProduction: item.itemProduction?.map(
+                              (itemProduction) => {
+                                if (itemProduction.product === row.product) {
+                                  return {
+                                    ...itemProduction,
+                                    isDecrementStock:
+                                      !itemProduction.isDecrementStock,
+                                  };
+                                } else {
+                                  return itemProduction;
+                                }
+                              }
+                            ),
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                );
+              },
+            },
           ],
         },
       };
@@ -117,6 +151,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
               { key: t("Unit"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
               { key: t("Cost"), isSortable: true },
+              { key: t("Decrement Stock"), isSortable: false },
               { key: t("Action"), isSortable: false, className: "text-center" },
             ],
             collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
@@ -136,12 +171,45 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
                 )?.unitPrice ?? 0) * itemProduction.quantity
               ).toFixed(4),
               quantity: itemProduction.quantity,
+              isDecrementStock: itemProduction?.isDecrementStock,
             })),
             collapsibleRowKeys: [
               { key: "name" },
               { key: "unit" },
               { key: "quantity" },
               { key: "price" },
+              {
+                key: "isDecrementStock",
+                node: (row: any) => {
+                  return (
+                    <div className="ml-6">
+                      <CheckSwitch
+                        checked={row?.isDecrementStock}
+                        onChange={() => {
+                          updateItem({
+                            id: item._id,
+                            updates: {
+                              itemProduction: item.itemProduction?.map(
+                                (itemProduction) => {
+                                  if (itemProduction.product === row.product) {
+                                    return {
+                                      ...itemProduction,
+                                      isDecrementStock:
+                                        !itemProduction.isDecrementStock,
+                                    };
+                                  } else {
+                                    return itemProduction;
+                                  }
+                                }
+                              ),
+                            },
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                },
+              },
             ],
           },
         };
@@ -177,10 +245,19 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       placeholder: t("Quantity"),
       required: true,
     },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isDecrementStock",
+      label: t("Decrement Stock"),
+      placeholder: t("Decrement Stock"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const collapsibleFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "isDecrementStock", type: FormKeyTypeEnum.BOOLEAN },
   ];
   // these are the inputs for the add item modal
   const inputs = [
@@ -353,7 +430,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         inputs={collapsibleInputs}
         formKeys={collapsibleFormKeys}
         submitItem={updateItem as any}
-        constantValues={{ category: singleItemGroup.category }}
         isEditMode={true}
         setForm={setForm}
         handleUpdate={() => {

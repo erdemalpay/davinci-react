@@ -89,7 +89,6 @@ export function TableCard({
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
-
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
@@ -413,7 +412,6 @@ export function TableCard({
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
-
               if (
                 !order ||
                 order.status === OrderStatus.CANCELLED ||

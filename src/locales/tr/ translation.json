@@ -514,5 +514,6 @@
   "Order quantity cannot be less than 1": "Sipariş miktarı 1'den küçük olamaz",
   "Game Stocks": "Oyun Stokları",
   "Show Served Orders": "Servis Edilenleri Göster",
+  "Decrement Stock": "Stok Azalt",
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
 }
