@@ -18,6 +18,7 @@ import { Routes } from "../navigation/constants";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
+import { useGetOrderCollections } from "../utils/api/order/orderCollection";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -42,7 +43,7 @@ const NewTables = () => {
 
   const users = useGetUsers();
   const orders = useGetGivenDateOrders();
-
+  const collections = useGetOrderCollections();
   tables.sort(sortTable);
   const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name
@@ -104,9 +105,9 @@ const NewTables = () => {
       }
     });
   }, [defaultUser, visits]);
-  useEffect(() => {
-    setTableCardKey((prev) => prev + 1);
-  }, [orders, showAllGameplays, showAllOrders]);
+  // useEffect(() => {
+  //   setTableCardKey((prev) => prev + 1);
+  // }, [ showAllGameplays, showAllOrders]);
 
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
@@ -323,6 +324,7 @@ const NewTables = () => {
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
               {orders &&
+                collections &&
                 tables.map((table) => (
                   <div
                     id={`table-large-${table._id}`}
@@ -337,6 +339,7 @@ const NewTables = () => {
                       showAllOrders={showAllOrders}
                       showServedOrders={showServedOrders}
                       orders={orders}
+                      collections={collections}
                     />
                   </div>
                 ))}
@@ -345,6 +348,7 @@ const NewTables = () => {
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
           {orders &&
+            collections &&
             tables.map((table) => (
               <div
                 id={`table-${table._id}`}
@@ -358,6 +362,7 @@ const NewTables = () => {
                   showAllOrders={showAllOrders}
                   showServedOrders={showServedOrders}
                   orders={orders}
+                  collections={collections}
                 />
               </div>
             ))}

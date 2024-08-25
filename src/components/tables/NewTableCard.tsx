@@ -10,11 +10,13 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
+
 import {
   Game,
   Gameplay,
   MenuCategory,
   Order,
+  OrderCollection,
   OrderStatus,
   Table,
   TableStatus,
@@ -53,6 +55,7 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   orders: Order[];
+  collections: OrderCollection[];
 }
 
 export function TableCard({
@@ -63,6 +66,7 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   orders,
+  collections,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -519,6 +523,7 @@ export function TableCard({
       {isOrderPaymentModalOpen && orders && (
         <OrderPaymentModal
           orders={orders}
+          collections={collections}
           table={table}
           close={() => {
             setExpandedRows({});
