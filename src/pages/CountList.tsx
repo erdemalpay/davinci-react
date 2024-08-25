@@ -295,7 +295,7 @@ const CountList = () => {
       ) : (
         ""
       ),
-      className: "text-red-500 cursor-pointer text-2xl  ",
+      className: "text-red-500 cursor-pointer text-2xl   ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
@@ -419,7 +419,7 @@ const CountList = () => {
             }
             filters={filters}
             title={countLists.find((row) => row._id === countListId)?.name}
-            isActionsActive={isEnableEdit}
+            isActionsActive={true}
           />
           {isCountLocationModalOpen && (
             <GenericAddEditPanel

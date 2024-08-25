@@ -146,7 +146,9 @@ const TablesPage = () => {
   });
   return (
     <>
+  
       <Header />
+
       <div className="container relative h-full py-4 px-2 lg:px-12 ">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex lg:justify-between justify-center flex-col lg:flex-row">

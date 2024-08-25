@@ -20,7 +20,7 @@ export function useWebSocket() {
     // Load the audio files
     const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
     const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
-
+    orderCreatedSound.volume = 1;
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["websocket"],
@@ -57,7 +57,10 @@ export function useWebSocket() {
           .catch((error) => console.error("Error playing sound:", error));
       }
     });
-    socket.on("orderUpdated", (order: Order) => {
+    socket.on("orderUpdated", (socketUser: User, order: Order) => {
+      if (socketUser?._id === user?._id) {
+        return;
+      }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);

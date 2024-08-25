@@ -77,68 +77,74 @@ export default function Menu() {
       }
     });
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
-    setTabs([
-      ...itemGroups.map((itemGroup) => ({
-        number: itemGroup.category?.order - 1,
-        label: itemGroup.category?.name,
-        icon: null,
-        content: (
-          <MenuItemTable
-            key={
-              itemGroup.category?.name +
-              tableKeys +
-              itemGroup.category?.locations.length
-            }
-            singleItemGroup={itemGroup}
-            popularItems={popularItems}
-            products={products}
-          />
-        ),
-        isDisabled: false,
-      })),
+    setTabs(
+      [
+        ...itemGroups.map((itemGroup) => ({
+          number: itemGroup.category?.order - 1,
+          label: itemGroup.category?.name,
+          icon: null,
+          content: (
+            <MenuItemTable
+              key={
+                itemGroup.category?.name +
+                tableKeys +
+                itemGroup.category?.locations.length
+              }
+              singleItemGroup={itemGroup}
+              popularItems={popularItems}
+              products={products}
+            />
+          ),
+          isDisabled: false,
+        })),
 
-      ...(emptyCategories.length > 0
-        ? emptyCategories.map((category) => ({
-            number: (category.order ?? emptyCategories.length) - 1,
-            label: category.name,
-            icon: null,
-            content: (
-              <MenuItemTable
-                key={category.name + tableKeys + category.locations?.length}
-                singleItemGroup={{ category, order: category.order, items: [] }}
-                popularItems={popularItems}
-                products={products}
-              />
-            ),
-            isDisabled: false,
-          }))
-        : []),
-      {
-        number: itemCategories.length + emptyCategories.length,
-        label: "Popular",
-        icon: null,
-        content: (
-          <PopularTable
-            key={"popular" + tableKeys}
-            popularItems={popularItems}
-          />
-        ),
-        isDisabled: false,
-      },
-      {
-        number: itemCategories.length + emptyCategories.length + 1,
-        label: "Categories",
-        icon: null,
-        content: (
-          <CategoryTable
-            key={"categories" + tableKeys}
-            categories={categories as MenuCategory[]}
-            handleCategoryChange={handleCategoryChange}
-          />
-        ),
-        isDisabled: false,
-      },
-    ]);
+        ...(emptyCategories.length > 0
+          ? emptyCategories.map((category) => ({
+              number: (category.order ?? emptyCategories.length) - 1,
+              label: category.name,
+              icon: null,
+              content: (
+                <MenuItemTable
+                  key={category.name + tableKeys + category.locations?.length}
+                  singleItemGroup={{
+                    category,
+                    order: category.order,
+                    items: [],
+                  }}
+                  popularItems={popularItems}
+                  products={products}
+                />
+              ),
+              isDisabled: false,
+            }))
+          : []),
+        {
+          number: itemCategories.length + emptyCategories.length,
+          label: "Popular",
+          icon: null,
+          content: (
+            <PopularTable
+              key={"popular" + tableKeys}
+              popularItems={popularItems}
+            />
+          ),
+          isDisabled: false,
+        },
+        {
+          number: itemCategories.length + emptyCategories.length + 1,
+          label: "Categories",
+          icon: null,
+          content: (
+            <CategoryTable
+              key={"categories" + tableKeys}
+              categories={categories as MenuCategory[]}
+              handleCategoryChange={handleCategoryChange}
+            />
+          ),
+          isDisabled: false,
+        },
+      ].sort((a, b) => a.number - b.number)
+    );
     setTableKeys(tableKeys + 1);
   };
 
@@ -157,7 +163,7 @@ export default function Menu() {
     <>
       <Header showLocationSelector={false} />
       <TabPanel
-        tabs={tabs.sort((a, b) => a.number - b.number)}
+        tabs={tabs}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
         additionalOpenAction={() => {
