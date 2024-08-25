@@ -1,4 +1,4 @@
-import { MenuItem, Order } from "../../../../types";
+import { MenuItem, Order, OrderDiscount } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 type Props = {
@@ -52,6 +52,11 @@ const PaidOrders = ({ tableOrders }: Props) => {
               </p>
               <p>{(order.item as MenuItem).name}</p>
             </div>
+            {order.discount && (
+              <div className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center">
+                <p>{(order.discount as OrderDiscount).name}</p>
+              </div>
+            )}
 
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
