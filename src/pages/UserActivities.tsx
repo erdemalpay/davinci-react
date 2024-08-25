@@ -122,7 +122,7 @@ const UserActivities = () => {
         );
         return (
           <p
-            className={`${foundActivity?.bgColor} w-fit px-2 py-0.5 rounded-md text-gray-800 text-sm font-medium`}
+            className={`${foundActivity?.bgColor} w-fit px-2 py-0.5 rounded-md text-white text-sm font-semibold`}
           >
             {foundActivity?.label}
           </p>

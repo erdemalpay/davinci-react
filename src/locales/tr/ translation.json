@@ -515,8 +515,6 @@
   "Game Stocks": "Oyun Stokları",
   "Show Served Orders": "Servis Edilenleri Göster",
   "Decrement Stock": "Stok Azalt",
-  "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
+  "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
-  
 }
-
