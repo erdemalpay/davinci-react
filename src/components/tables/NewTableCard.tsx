@@ -14,6 +14,7 @@ import {
   Game,
   Gameplay,
   MenuCategory,
+  Order,
   OrderStatus,
   Table,
   TableStatus,
@@ -22,7 +23,6 @@ import {
 } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
-  useGetGivenDateOrders,
   useOrderMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
@@ -52,6 +52,7 @@ export interface TableCardProps {
   showAllGameplays?: boolean;
   showAllOrders?: boolean;
   showServedOrders?: boolean;
+  orders: Order[];
 }
 
 export function TableCard({
@@ -61,6 +62,7 @@ export function TableCard({
   showAllGameplays = false,
   showAllOrders = false,
   showServedOrders = false,
+  orders,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -76,7 +78,6 @@ export function TableCard({
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
-  const orders = useGetGivenDateOrders();
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
@@ -465,7 +466,7 @@ export function TableCard({
           constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
-          anotherPanel={<OrderListForPanel table={table} />}
+          anotherPanel={<OrderListForPanel table={table} orders={orders} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
@@ -517,6 +518,7 @@ export function TableCard({
       )}
       {isOrderPaymentModalOpen && orders && (
         <OrderPaymentModal
+          orders={orders}
           table={table}
           close={() => {
             setExpandedRows({});

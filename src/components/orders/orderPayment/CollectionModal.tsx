@@ -7,19 +7,15 @@ import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   MenuItem,
+  Order,
+  OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
   User,
 } from "../../../types";
-import {
-  useGetGivenDateOrders,
-  useUpdateOrdersMutation,
-} from "../../../utils/api/order/order";
-import {
-  useGetOrderCollections,
-  useOrderCollectionMutations,
-} from "../../../utils/api/order/orderCollection";
+import { useUpdateOrdersMutation } from "../../../utils/api/order/order";
+import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -30,11 +26,16 @@ import {
 type Props = {
   table: number;
   setIsCollectionModalOpen: (isOpen: boolean) => void;
+  orders: Order[];
+  collections: OrderCollection[];
 };
 
-const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
-  const collections = useGetOrderCollections();
-  const orders = useGetGivenDateOrders();
+const CollectionModal = ({
+  table,
+  setIsCollectionModalOpen,
+  orders,
+  collections,
+}: Props) => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();

@@ -4,8 +4,13 @@ import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
-import { OrderCollectionStatus, OrderStatus, Table } from "../../../types";
-import { useGetGivenDateOrders } from "../../../utils/api/order/order";
+import {
+  Order,
+  OrderCollectionStatus,
+  OrderStatus,
+  Table,
+} from "../../../types";
+
 import { useGetOrderCollections } from "../../../utils/api/order/orderCollection";
 import { useCloseTableMutation } from "../../../utils/api/table";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -16,22 +21,22 @@ import OrderTotal from "./OrderTotal";
 type Props = {
   close: () => void;
   table: Table;
+  orders?: Order[];
 };
 type ButtonType = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderPaymentModal = ({ close, table }: Props) => {
+const OrderPaymentModal = ({ close, table, orders }: Props) => {
+  const collections = useGetOrderCollections();
   const { t } = useTranslation();
   const { user } = useUserContext();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
-  const orders = useGetGivenDateOrders();
-  const collections = useGetOrderCollections();
   const { mutate: closeTable } = useCloseTableMutation();
-  if (!user || !orders) return null;
-  const tableOrders = orders.filter(
+  if (!user || !orders || !collections) return null;
+  const tableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)._id === table._id &&
       order.status !== OrderStatus.CANCELLED
@@ -128,16 +133,22 @@ const OrderPaymentModal = ({ close, table }: Props) => {
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  givenDateOrders={orders ?? []}
+                  givenDateCollections={collections ?? []}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}
                   table={table}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  givenDateOrders={orders ?? []}
+                  givenDateCollections={collections ?? []}
                 />
                 <OrderPaymentTypes
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  givenDateOrders={orders ?? []}
+                  givenDateCollections={collections ?? []}
                 />
               </div>
             </div>

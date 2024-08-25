@@ -5,18 +5,14 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table } from "../../types";
-import {
-  useGetGivenDateOrders,
-  useOrderMutations,
-} from "../../utils/api/order/order";
+import { useOrderMutations } from "../../utils/api/order/order";
 
-type Props = { table: Table };
+type Props = { table: Table; orders: Order[] };
 
-const OrderListForPanel = ({ table }: Props) => {
+const OrderListForPanel = ({ table, orders }: Props) => {
   const { user } = useUserContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
-  const orders = useGetGivenDateOrders();
   const { updateOrder, createOrder } = useOrderMutations();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
