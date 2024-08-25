@@ -19,7 +19,7 @@ import {
   Table,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import { useUpdateOrdersMutation } from "../../../utils/api/order/order";
+import { useUpdateOrdersForSaleMutation } from "../../../utils/api/order/order";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import {
   FormKeyTypeEnum,
@@ -68,7 +68,7 @@ const OrderPaymentTypes = ({
       (collection.table as Table)._id === table._id &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
-  const { mutate: updateOrders } = useUpdateOrdersMutation();
+  const { mutate: updateOrders } = useUpdateOrdersForSaleMutation();
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
@@ -119,7 +119,6 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
-
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
