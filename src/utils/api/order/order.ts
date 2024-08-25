@@ -77,21 +77,7 @@ export function useUpdateOrdersMutation() {
     },
   });
 }
-export function useUpdateOrdersForSaleMutation() {
-  const queryKey = [`${Paths.Order}/today`];
-  const queryClient = useQueryClient();
-  return useMutation(updateOrders, {
-    onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
-    },
-    onSettled: () => {},
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
-      setTimeout(() => toast.error(errorMessage), 200);
-    },
-  });
-}
+
 export function updateMultipleOrders(payload: UpdateMultipleOrder) {
   return patch({
     path: `/order/update_multiple`,
