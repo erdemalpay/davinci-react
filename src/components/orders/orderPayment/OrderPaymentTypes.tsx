@@ -10,7 +10,6 @@ import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 
-import { useIsMutating } from "@tanstack/react-query";
 import {
   AccountPaymentMethod,
   Order,
@@ -122,11 +121,11 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
-  const isMutating = useIsMutating();
+  // const isMutating = useIsMutating();
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
-      {isMutating ? (
+      {/*isMutating ? (
         <div className="fixed inset-0 w-full h-full z-50">
           -
           <div className="absolute inset-0 w-full h-full z-50 opacity-50 bg-black text-white">
@@ -155,7 +154,7 @@ const OrderPaymentTypes = ({
             </div>
           </div>
         </div>
-      ) : null}
+      ) : null*/}
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Payment Types")}</h1>
