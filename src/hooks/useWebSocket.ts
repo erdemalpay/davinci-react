@@ -57,7 +57,10 @@ export function useWebSocket() {
           .catch((error) => console.error("Error playing sound:", error));
       }
     });
-    socket.on("orderUpdated", (order: Order) => {
+    socket.on("orderUpdated", (socketUser: User, order: Order) => {
+      if (socketUser?._id === user?._id) {
+        return;
+      }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
