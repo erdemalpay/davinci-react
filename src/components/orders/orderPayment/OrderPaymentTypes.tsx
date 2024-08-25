@@ -10,7 +10,7 @@ import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 
-import { useIsFetching } from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import {
   AccountPaymentMethod,
   Order,
@@ -122,11 +122,11 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
-  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
-      {isFetching ? (
+      {isMutating ? (
         <div className="fixed inset-0 w-full h-full z-50">
           -
           <div className="absolute inset-0 w-full h-full z-50 opacity-50 bg-black text-white">
