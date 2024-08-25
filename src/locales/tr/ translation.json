@@ -514,6 +514,9 @@
   "Order quantity cannot be less than 1": "Sipariş miktarı 1'den küçük olamaz",
   "Game Stocks": "Oyun Stokları",
   "Show Served Orders": "Servis Edilenleri Göster",
-  "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",
+  "Decrement Stock": "Stok Azalt",
+  "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?"
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
+  
 }
+

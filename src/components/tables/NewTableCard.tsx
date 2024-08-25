@@ -89,7 +89,6 @@ export function TableCard({
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
-
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
@@ -413,7 +412,6 @@ export function TableCard({
           <div className="flex flex-col gap-2 mt-2">
             {table?.orders.map((orderId) => {
               const order = getOrder(orderId);
-
               if (
                 !order ||
                 order.status === OrderStatus.CANCELLED ||
@@ -467,7 +465,7 @@ export function TableCard({
           constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
-          anotherPanel={<OrderListForPanel tableId={selectedTable._id} />}
+          anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item

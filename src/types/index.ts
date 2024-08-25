@@ -357,6 +357,7 @@ export type MenuItem = {
   itemProduction?: {
     product: string;
     quantity: number;
+    isDecrementStock?: boolean;
   }[];
   price: number;
   locations: number[];
