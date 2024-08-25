@@ -34,6 +34,8 @@ interface UpdateMultipleOrder {
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
   const {
     deleteItem: deleteOrder,
     updateItem: updateOrder,
@@ -41,6 +43,9 @@ export function useOrderMutations() {
   } = useMutationApi<Order>({
     baseQuery: baseUrl,
     additionalInvalidates: [[`${Paths.Tables}`], [`${Paths.Order}/today`]],
+    queryKey: [
+      `${baseUrl}/date/?location=${selectedLocationId}&date=${selectedDate}`,
+    ],
   });
 
   return { deleteOrder, updateOrder, createOrder };
