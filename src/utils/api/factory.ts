@@ -40,6 +40,8 @@ interface Props<T> {
   queryKey?: QueryKey;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
   additionalInvalidates?: QueryKey[];
+  additionalOnMutateFunction?: (item: any) => void;
+  additionalOnErrorFunction?: (item: any) => void;
 }
 
 export function useGet<T>(path: string, queryKey?: QueryKey) {
@@ -58,6 +60,8 @@ export function useMutationApi<T extends { _id: number | string }>({
   queryKey = [baseQuery],
   sortFunction,
   additionalInvalidates,
+  additionalOnMutateFunction,
+  additionalOnErrorFunction,
 }: Props<T>) {
   function createRequest(itemDetails: Partial<T>): Promise<T> {
     return post<Partial<T>, T>({
@@ -98,7 +102,7 @@ export function useMutationApi<T extends { _id: number | string }>({
 
         // Optimistically update to the new value
         queryClient.setQueryData(queryKey, updatedItems);
-
+        additionalOnMutateFunction?.(itemDetails);
         // Return a context object with the snapshotted value
         return { previousItems };
       },
@@ -111,6 +115,7 @@ export function useMutationApi<T extends { _id: number | string }>({
           const { previousItems } = previousItemContext;
           queryClient.setQueryData<T[]>(queryKey, previousItems);
         }
+        additionalOnErrorFunction?.(previousItemContext);
         const errorMessage =
           _err?.response?.data?.message || "An unexpected error occurred";
         setTimeout(() => toast.error(t(errorMessage)), 200);
@@ -192,6 +197,7 @@ export function useMutationApi<T extends { _id: number | string }>({
           updatedItems.sort(sortFunction);
         }
 
+        additionalOnMutateFunction?.(updates);
         // Optimistically update to the new value
         queryClient.setQueryData(queryKey, updatedItems);
 
@@ -210,6 +216,7 @@ export function useMutationApi<T extends { _id: number | string }>({
         const errorMessage =
           _err?.response?.data?.message || "An unexpected error occurred";
         setTimeout(() => toast.error(t(errorMessage)), 200);
+        additionalOnErrorFunction?.(previousItemContext);
       },
       // Always refetch after error or success:
       onSettled: async () => {
