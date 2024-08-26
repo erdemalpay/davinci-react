@@ -7,9 +7,9 @@ import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
 
-type Props = { table: Table; orders: Order[] };
+type Props = { table: Table };
 
-const OrderListForPanel = ({ table, orders }: Props) => {
+const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
@@ -26,8 +26,7 @@ const OrderListForPanel = ({ table, orders }: Props) => {
         <h1 className="font-medium">{table.name}</h1>
         {/* orders */}
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
-          {table.orders?.map((tableOrder) => {
-            const order = orders.find((order) => order._id === tableOrder);
+          {(table.orders as Order[])?.map((order) => {
             if (!order || order.status === OrderStatus.CANCELLED) return null;
             return (
               <div

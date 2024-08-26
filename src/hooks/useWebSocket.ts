@@ -36,7 +36,6 @@ export function useWebSocket() {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
-      queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
       // Play order created sound
@@ -62,7 +61,6 @@ export function useWebSocket() {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
-      queryClient.invalidateQueries([`${Paths.Order}`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     });

@@ -17,7 +17,6 @@ import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
-import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetOrderCollections } from "../utils/api/order/orderCollection";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
@@ -40,12 +39,9 @@ const NewTables = () => {
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
-
   const users = useGetUsers();
-  const orders = useGetGivenDateOrders();
   const collections = useGetOrderCollections();
   tables.sort(sortTable);
-  const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
@@ -105,9 +101,6 @@ const NewTables = () => {
       }
     });
   }, [defaultUser, visits]);
-  // useEffect(() => {
-  //   setTableCardKey((prev) => prev + 1);
-  // }, [ showAllGameplays, showAllOrders]);
 
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
@@ -323,22 +316,20 @@ const NewTables = () => {
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
-              {orders &&
-                collections &&
+              {collections &&
                 tables.map((table) => (
                   <div
                     id={`table-large-${table._id}`}
-                    key={table._id || table.startHour + tableCardKey}
+                    key={table._id || table.startHour}
                   >
                     <TableCard
-                      key={table._id || table.startHour + tableCardKey}
+                      key={table._id || table.startHour}
                       table={table}
                       mentors={mentors}
                       games={games}
                       showAllGameplays={showAllGameplays}
                       showAllOrders={showAllOrders}
                       showServedOrders={showServedOrders}
-                      orders={orders}
                       collections={collections}
                     />
                   </div>
@@ -347,13 +338,9 @@ const NewTables = () => {
           ))}
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {orders &&
-            collections &&
+          {collections &&
             tables.map((table) => (
-              <div
-                id={`table-${table._id}`}
-                key={table._id || table.startHour + tableCardKey}
-              >
+              <div id={`table-${table._id}`} key={table._id || table.startHour}>
                 <TableCard
                   table={table}
                   mentors={mentors}
@@ -361,7 +348,6 @@ const NewTables = () => {
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
                   showServedOrders={showServedOrders}
-                  orders={orders}
                   collections={collections}
                 />
               </div>
