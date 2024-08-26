@@ -54,7 +54,6 @@ export interface TableCardProps {
   showAllGameplays?: boolean;
   showAllOrders?: boolean;
   showServedOrders?: boolean;
-  orders: Order[];
   collections: OrderCollection[];
 }
 
@@ -65,7 +64,6 @@ export function TableCard({
   showAllGameplays = false,
   showAllOrders = false,
   showServedOrders = false,
-  orders,
   collections,
 }: TableCardProps) {
   const { t } = useTranslation();
@@ -178,8 +176,7 @@ export function TableCard({
     ? "bg-gray-500"
     : table.orders?.some(
         (tableOrder) =>
-          orders.find((order) => order._id === tableOrder)?.status ===
-          OrderStatus.READYTOSERVE
+          (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
       )
     ? "bg-orange-200"
     : "bg-gray-200";
@@ -233,8 +230,7 @@ export function TableCard({
     if (!table._id) return;
     if (table?.orders) {
       const hasActiveOrders = table.orders.some((order) => {
-        const orderData = getOrder(order);
-        return orderData?.status !== OrderStatus.CANCELLED;
+        return (order as Order)?.status !== OrderStatus.CANCELLED;
       });
 
       if (hasActiveOrders) {
@@ -249,10 +245,6 @@ export function TableCard({
     });
 
     setIsDeleteConfirmationDialogOpen(false);
-  }
-
-  function getOrder(orderId: number) {
-    return orders.find((order) => order._id === orderId);
   }
 
   return (
@@ -304,20 +296,17 @@ export function TableCard({
           )}
           {!table.finishHour &&
             table?.orders?.some((tableOrder) => {
-              return (
-                orders?.find((order) => order._id === tableOrder)?.status ===
-                OrderStatus.READYTOSERVE
-              );
+              return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
             }) && (
               <Tooltip content={t("Served")}>
                 <span className="text-{8px}">
                   <CardAction
                     onClick={() => {
-                      if (!table.orders || !orders || !user) return;
+                      if (!table.orders || !user) return;
                       const tableReadyToServeOrders = table.orders?.filter(
                         (tableOrder) =>
-                          orders?.find((order) => order._id === tableOrder)
-                            ?.status === OrderStatus.READYTOSERVE
+                          (tableOrder as Order)?.status ===
+                          OrderStatus.READYTOSERVE
                       );
                       if (
                         tableReadyToServeOrders?.length === 0 ||
@@ -326,7 +315,7 @@ export function TableCard({
                         return;
 
                       updateMultipleOrders({
-                        ids: tableReadyToServeOrders,
+                        ids: tableReadyToServeOrders as number[],
                         updates: {
                           status: OrderStatus.SERVED,
                           deliveredAt: new Date(),
@@ -415,15 +404,13 @@ export function TableCard({
         {/* table orders */}
         {table.orders && table?.orders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2">
-            {table?.orders.map((orderId) => {
-              const order = getOrder(orderId);
+            {(table?.orders as Order[])?.map((order) => {
               if (
-                !order ||
                 order.status === OrderStatus.CANCELLED ||
                 (!showServedOrders && order.status === OrderStatus.SERVED)
               )
                 return null;
-              return <OrderCard key={order._id} order={order} table={table} />;
+              return <OrderCard key={order?._id} order={order} table={table} />;
             })}
           </div>
         )}
@@ -470,7 +457,7 @@ export function TableCard({
           constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
-          anotherPanel={<OrderListForPanel table={table} orders={orders} />}
+          anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems.find(
               (item) => item._id === orderForm.item
@@ -520,9 +507,9 @@ export function TableCard({
           topClassName="flex flex-col gap-2   "
         />
       )}
-      {isOrderPaymentModalOpen && orders && (
+      {isOrderPaymentModalOpen && (
         <OrderPaymentModal
-          orders={orders}
+          orders={table.orders as Order[]}
           collections={collections}
           table={table}
           close={() => {

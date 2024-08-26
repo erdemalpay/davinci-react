@@ -2,8 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
-import { useDateContext } from "./../../../context/Date.context";
-import { useLocationContext } from "./../../../context/Location.context";
 import { Order } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
@@ -108,14 +106,6 @@ export function useGetOrders() {
   return useGetList<Order>(baseUrl);
 }
 
-export function useGetGivenDateOrders() {
-  const { selectedLocationId } = useLocationContext();
-  const { selectedDate } = useDateContext();
-  return useGetList<Order>(
-    `${baseUrl}/date/?location=${selectedLocationId}&date=${selectedDate}`,
-    [Paths.Order, selectedLocationId, selectedDate]
-  );
-}
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {
   return post<CreateOrderForDiscount, Order>({
     path: `${Paths.Order}/create_order_for_discount`,
