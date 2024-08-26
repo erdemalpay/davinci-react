@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, Order, Table } from "../../../types";
+import { MenuItem, Order, OrderCollection, Table } from "../../../types";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import Keypad from "./KeyPad";
 
@@ -9,9 +9,17 @@ type Props = {
   tableOrders: Order[];
   table: Table;
   collectionsTotalAmount: number;
+  givenDateOrders?: Order[];
+  givenDateCollections?: OrderCollection[];
 };
 
-const OrderTotal = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
+const OrderTotal = ({
+  tableOrders,
+  collectionsTotalAmount,
+  table,
+  givenDateCollections,
+  givenDateOrders,
+}: Props) => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
   if (!tableOrders || !discounts) {

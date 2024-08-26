@@ -13,19 +13,13 @@ import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   Order,
+  OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import {
-  useGetGivenDateOrders,
-  useUpdateOrdersMutation,
-} from "../../../utils/api/order/order";
-import {
-  useGetOrderCollections,
-  useOrderCollectionMutations,
-} from "../../../utils/api/order/orderCollection";
+import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -36,18 +30,20 @@ type Props = {
   tableOrders: Order[];
   collectionsTotalAmount: number;
   table: Table;
+  givenDateOrders?: Order[];
+  givenDateCollections?: OrderCollection[];
 };
 const OrderPaymentTypes = ({
   tableOrders,
   collectionsTotalAmount,
   table,
+  givenDateCollections,
+  givenDateOrders,
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
-  const orders = useGetGivenDateOrders();
   const { selectedLocationId } = useLocationContext();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  const collections = useGetOrderCollections();
   // this are for collection cancel note if it is activated this will be used
   // const [selectedCollection, setSelectedCollection] =
   //   useState<OrderCollection>();
@@ -58,19 +54,19 @@ const OrderPaymentTypes = ({
   const { user } = useUserContext();
   if (
     !selectedLocationId ||
-    !collections ||
+    !givenDateCollections ||
     !paymentTypes ||
-    !orders ||
+    !givenDateOrders ||
+    !givenDateCollections ||
     !user
   ) {
     return null;
   }
-  const tableNotCancelledCollections = collections.filter(
+  const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
       (collection.table as Table)._id === table._id &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
-  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
@@ -121,40 +117,9 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
-  // const isMutating = useIsMutating();
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
-      {/*isMutating ? (
-        <div className="fixed inset-0 w-full h-full z-50">
-          -
-          <div className="absolute inset-0 w-full h-full z-50 opacity-50 bg-black text-white">
-            <div className="flex justify-center w-full h-full items-center">
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              <h1 className="text-2xl">Loading...</h1>
-            </div>
-          </div>
-        </div>
-      ) : null*/}
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Payment Types")}</h1>
@@ -181,20 +146,20 @@ const OrderPaymentTypes = ({
                 return;
               }
               // if payment amount is greater than total amount or there are items in the temporary orders
+              let newOrders: Order[] = [];
               if (
                 temporaryOrders.length !== 0 ||
                 totalMoneySpend >= totalAmount - discountAmount
               ) {
                 if (totalMoneySpend >= totalAmount - discountAmount) {
-                  const newOrders = tableOrders?.map((order) => {
+                  newOrders = tableOrders?.map((order) => {
                     return {
                       ...order,
                       paidQuantity: order.quantity,
                     };
                   });
-                  updateOrders(newOrders);
                 } else {
-                  const newOrders = tableOrders?.map((order) => {
+                  newOrders = tableOrders?.map((order) => {
                     const temporaryOrder = temporaryOrders.find(
                       (temporaryOrder) => temporaryOrder.order._id === order._id
                     );
@@ -207,7 +172,6 @@ const OrderPaymentTypes = ({
                         order.paidQuantity + temporaryOrder.quantity,
                     };
                   });
-                  updateOrders(newOrders);
                 }
               }
               createOrderCollection({
@@ -233,6 +197,7 @@ const OrderPaymentTypes = ({
                         order: order.order._id,
                         paidQuantity: order.quantity,
                       })),
+                ...(newOrders && { newOrders: newOrders }),
               });
               resetOrderContext();
             }}
@@ -261,6 +226,8 @@ const OrderPaymentTypes = ({
             <CollectionModal
               setIsCollectionModalOpen={setIsCollectionModalOpen}
               table={table._id}
+              orders={givenDateOrders}
+              collections={givenDateCollections}
             />
           )}
         </div>
@@ -286,13 +253,14 @@ const OrderPaymentTypes = ({
             <HiOutlineTrash
               className="text-red-600 cursor-pointer text-lg"
               onClick={() => {
+                let newOrders: Order[] = [];
                 if (
                   collection?.orders?.length &&
                   collection?.orders?.length > 0
                 ) {
-                  const newOrders = collection?.orders
+                  newOrders = collection?.orders
                     ?.map((orderCollectionItem: OrderCollectionItem) => {
-                      const order = orders?.find(
+                      const order = givenDateOrders?.find(
                         (orderItem) =>
                           orderItem._id === orderCollectionItem.order
                       );
@@ -310,8 +278,7 @@ const OrderPaymentTypes = ({
                       }
                       return null;
                     })
-                    ?.filter((item: any) => item !== null);
-                  updateOrders(newOrders as Order[]);
+                    ?.filter((item): item is Order => item !== null);
                 }
                 updateOrderCollection({
                   id: collection._id,
@@ -319,7 +286,8 @@ const OrderPaymentTypes = ({
                     cancelledAt: new Date(),
                     cancelledBy: user._id,
                     status: OrderCollectionStatus.CANCELLED,
-                  },
+                    ...(newOrders && { newOrders: newOrders }),
+                  } as Partial<OrderCollection>,
                 });
                 resetOrderContext();
               }}

@@ -5,10 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table } from "../../types";
-import {
-  useGetGivenDateOrders,
-  useOrderMutations,
-} from "../../utils/api/order/order";
+import { useOrderMutations } from "../../utils/api/order/order";
 
 type Props = { table: Table };
 
@@ -16,7 +13,6 @@ const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
-  const orders = useGetGivenDateOrders();
   const { updateOrder, createOrder } = useOrderMutations();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
@@ -30,8 +26,7 @@ const OrderListForPanel = ({ table }: Props) => {
         <h1 className="font-medium">{table.name}</h1>
         {/* orders */}
         <div className="overflow-scroll no-scrollbar h-64 border border-gray-200 rounded-md bg-white shadow-sm px-2 py-1  ">
-          {table.orders?.map((tableOrder) => {
-            const order = orders.find((order) => order._id === tableOrder);
+          {(table.orders as Order[])?.map((order) => {
             if (!order || order.status === OrderStatus.CANCELLED) return null;
             return (
               <div

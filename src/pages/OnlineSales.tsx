@@ -3,7 +3,6 @@ import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -16,7 +15,7 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useDateContext } from "../context/Date.context";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
-import { useGetGivenDateOrders } from "../utils/api/order/order";
+import { useGetOrderCollections } from "../utils/api/order/orderCollection";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -26,22 +25,18 @@ import { sortTable } from "../utils/sort";
 const OnlineSales = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
-
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const navigate = useNavigate();
+  const collections = useGetOrderCollections();
   const games = useGetGames();
   const visits = useGetVisits();
   const tables = useGetTables()
     .filter((table) => table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
   const users = useGetUsers();
-  const orders = useGetGivenDateOrders();
-
   tables.sort(sortTable);
-  const [tableCardKey, setTableCardKey] = useState(0);
   // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
@@ -101,9 +96,6 @@ const OnlineSales = () => {
       }
     });
   }, [defaultUser, visits]);
-  useEffect(() => {
-    setTableCardKey((prev) => prev + 1);
-  }, [orders, showAllGameplays, showAllOrders]);
 
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
@@ -290,34 +282,35 @@ const OnlineSales = () => {
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns.map((tables, idx) => (
             <div key={idx}>
-              {tables.map((table) => (
-                <TableCard
-                  key={table._id || table.startHour + tableCardKey}
-                  table={table}
-                  mentors={mentors}
-                  games={games}
-                  showAllGameplays={showAllGameplays}
-                  showAllOrders={showAllOrders}
-                />
-              ))}
+              {collections &&
+                tables.map((table) => (
+                  <TableCard
+                    key={table._id || table.startHour}
+                    table={table}
+                    mentors={mentors}
+                    games={games}
+                    showAllGameplays={showAllGameplays}
+                    showAllOrders={showAllOrders}
+                    collections={collections}
+                  />
+                ))}
             </div>
           ))}
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {tables.map((table) => (
-            <div
-              id={`table-${table._id}`}
-              key={table._id || table.startHour + tableCardKey}
-            >
-              <TableCard
-                table={table}
-                mentors={mentors}
-                games={games as Game[]}
-                showAllGameplays={showAllGameplays}
-                showAllOrders={showAllOrders}
-              />
-            </div>
-          ))}
+          {collections &&
+            tables.map((table) => (
+              <div id={`table-${table._id}`} key={table._id || table.startHour}>
+                <TableCard
+                  table={table}
+                  mentors={mentors}
+                  games={games as Game[]}
+                  showAllGameplays={showAllGameplays}
+                  showAllOrders={showAllOrders}
+                  collections={collections}
+                />
+              </div>
+            ))}
         </div>
       </div>
       {isCreateTableDialogOpen && (

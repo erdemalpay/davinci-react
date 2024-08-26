@@ -7,19 +7,14 @@ import { useUserContext } from "../../../context/User.context";
 import {
   AccountPaymentMethod,
   MenuItem,
+  Order,
+  OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
   User,
 } from "../../../types";
-import {
-  useGetGivenDateOrders,
-  useUpdateOrdersMutation,
-} from "../../../utils/api/order/order";
-import {
-  useGetOrderCollections,
-  useOrderCollectionMutations,
-} from "../../../utils/api/order/orderCollection";
+import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -30,16 +25,20 @@ import {
 type Props = {
   table: number;
   setIsCollectionModalOpen: (isOpen: boolean) => void;
+  orders: Order[];
+  collections: OrderCollection[];
 };
 
-const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
-  const collections = useGetOrderCollections();
-  const orders = useGetGivenDateOrders();
+const CollectionModal = ({
+  table,
+  setIsCollectionModalOpen,
+  orders,
+  collections,
+}: Props) => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const { mutate: updateOrders } = useUpdateOrdersMutation();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
@@ -180,8 +179,10 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
             if (!rowToAction) {
               return;
             }
+            let newOrders: Order[] = [];
+
             if (rowToAction?.orders?.length > 0) {
-              const newOrders = rowToAction?.orders
+              newOrders = rowToAction?.orders
                 ?.map((orderCollectionItem: OrderCollectionItem) => {
                   const order = orders?.find(
                     (orderItem) => orderItem._id === orderCollectionItem.order
@@ -199,8 +200,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                   }
                   return null;
                 })
-                ?.filter((item: any) => item !== null);
-              updateOrders(newOrders);
+                ?.filter((item: any): item is Order => item !== null);
             }
             updateOrderCollection({
               id: rowToAction._id,
@@ -209,6 +209,7 @@ const CollectionModal = ({ table, setIsCollectionModalOpen }: Props) => {
                 cancelledAt: new Date(),
                 cancelledBy: user._id,
                 status: OrderCollectionStatus.CANCELLED,
+                ...(newOrders && { newOrders: newOrders }),
               },
             });
             resetOrderContext();
