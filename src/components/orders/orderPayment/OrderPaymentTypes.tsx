@@ -83,6 +83,7 @@ const OrderPaymentTypes = ({
   };
   const { createOrderCollection, updateOrderCollection } =
     useOrderCollectionMutations();
+
   const inputs = [
     {
       type: InputTypes.TEXT,
@@ -174,7 +175,8 @@ const OrderPaymentTypes = ({
                   });
                 }
               }
-              createOrderCollection({
+              console.log({ newOrders });
+              const createdCollection = {
                 table: table._id,
                 location: selectedLocationId,
                 paymentMethod: paymentType._id,
@@ -198,7 +200,9 @@ const OrderPaymentTypes = ({
                         paidQuantity: order.quantity,
                       })),
                 ...(newOrders && { newOrders: newOrders }),
-              });
+              };
+              console.log({ createdCollection });
+              createOrderCollection(createdCollection);
               resetOrderContext();
             }}
             className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
