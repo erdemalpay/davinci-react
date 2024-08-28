@@ -107,7 +107,7 @@ export function useCreateOrderCollectionMutation() {
         const tableOrder = tableToUpdate.orders.find(
           (order) => (order as Order)._id === orderItem.order
         );
-        (tableOrder as Order).paidQuantity = orderItem.paidQuantity;
+        (tableOrder as Order).paidQuantity += orderItem.paidQuantity;
         updatedTables.splice(tableIndex, 1, tableToUpdate);
       }
       // Optimistically update to the new value
