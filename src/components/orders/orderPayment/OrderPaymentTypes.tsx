@@ -11,7 +11,6 @@ import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 
 import {
-  AccountPaymentMethod,
   Order,
   OrderCollection,
   OrderCollectionItem,
@@ -43,6 +42,7 @@ const OrderPaymentTypes = ({
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
+  const paymentMethods = useGetAccountPaymentMethods();
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   // this are for collection cancel note if it is activated this will be used
   // const [selectedCollection, setSelectedCollection] =
@@ -62,9 +62,14 @@ const OrderPaymentTypes = ({
   ) {
     return null;
   }
+
+  function getPaymentMethodName(paymentType: string) {
+    return paymentMethods.find((method) => method._id === paymentType);
+  }
+
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
-      (collection.table as Table)._id === table._id &&
+      collection.table === table._id &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
   const { paymentAmount, temporaryOrders, resetOrderContext } =
@@ -83,6 +88,7 @@ const OrderPaymentTypes = ({
   };
   const { createOrderCollection, updateOrderCollection } =
     useOrderCollectionMutations();
+
   const inputs = [
     {
       type: InputTypes.TEXT,
@@ -174,7 +180,7 @@ const OrderPaymentTypes = ({
                   });
                 }
               }
-              createOrderCollection({
+              const createdCollection = {
                 table: table._id,
                 location: selectedLocationId,
                 paymentMethod: paymentType._id,
@@ -198,7 +204,8 @@ const OrderPaymentTypes = ({
                         paidQuantity: order.quantity,
                       })),
                 ...(newOrders && { newOrders: newOrders }),
-              });
+              };
+              createOrderCollection(createdCollection);
               resetOrderContext();
             }}
             className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
@@ -246,7 +253,11 @@ const OrderPaymentTypes = ({
             <div className="flex flex-row gap-2 ">
               <p className="min-w-9">{collection.amount} ₺</p>
               <p>
-                {t((collection.paymentMethod as AccountPaymentMethod).name)}
+                {collection.paymentMethod
+                  ? t(
+                      getPaymentMethodName(collection.paymentMethod)?.name || ""
+                    )
+                  : ""}
               </p>
             </div>
             {/* right part */}
@@ -287,6 +298,7 @@ const OrderPaymentTypes = ({
                     cancelledBy: user._id,
                     status: OrderCollectionStatus.CANCELLED,
                     ...(newOrders && { newOrders: newOrders }),
+                    table: table._id,
                   } as Partial<OrderCollection>,
                 });
                 resetOrderContext();

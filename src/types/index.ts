@@ -440,9 +440,10 @@ export type OrderCollection = {
   cancelNote?: string;
   amount: number;
   status: string;
-  paymentMethod: AccountPaymentMethod | string;
+  paymentMethod: string;
   orders?: OrderCollectionItem[];
-  table: Table | number;
+  newOrders?: Order[];
+  table: number;
 };
 
 export type OrderCollectionItem = {
