@@ -86,7 +86,16 @@ export function useCreateOrderCollectionMutation() {
       // Snapshot the previous value
       const previousCollections =
         queryClient.getQueryData<OrderCollection[]>(collectionQueryKey) || [];
-      const updatedCollections = [...previousCollections, createdCollection];
+      const updatedCollections: OrderCollection[] = JSON.parse(
+        JSON.stringify(previousCollections)
+      );
+      updatedCollections.push(createdCollection as OrderCollection);
+
+      console.log({
+        collectionQueryKey,
+        previousCollections,
+        updatedCollections,
+      });
       // Optimistically update to the new value
       queryClient.setQueryData(collectionQueryKey, updatedCollections);
 

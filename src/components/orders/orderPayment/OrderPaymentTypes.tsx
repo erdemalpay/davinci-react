@@ -57,7 +57,6 @@ const OrderPaymentTypes = ({
     !givenDateCollections ||
     !paymentTypes ||
     !givenDateOrders ||
-    !givenDateCollections ||
     !user
   ) {
     return null;
@@ -69,10 +68,11 @@ const OrderPaymentTypes = ({
 
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
-      (collection.table as Table)?._id === table._id &&
+      ((collection.table as Table)?._id === table._id ||
+        collection.table === table._id) &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
-  console.log({ tableNotCancelledCollections });
+
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
