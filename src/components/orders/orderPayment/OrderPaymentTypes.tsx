@@ -69,9 +69,10 @@ const OrderPaymentTypes = ({
 
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
-      collection.table === table._id &&
+      (collection.table as Table)?._id === table._id &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
+  console.log({ tableNotCancelledCollections });
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {
@@ -180,6 +181,7 @@ const OrderPaymentTypes = ({
                   });
                 }
               }
+              console.log("Before creating order collection:", { newOrders });
               const createdCollection = {
                 table: table._id,
                 location: selectedLocationId,
@@ -205,6 +207,9 @@ const OrderPaymentTypes = ({
                       })),
                 ...(newOrders && { newOrders: newOrders }),
               };
+              console.log("After creating order collection:", {
+                createdCollection,
+              });
               createOrderCollection(createdCollection);
               resetOrderContext();
             }}

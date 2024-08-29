@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  AccountPaymentMethod,
   Location,
   MenuItem,
   OrderCollectionStatus,
@@ -18,9 +17,9 @@ import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const Collections = () => {
   const { t } = useTranslation();
@@ -41,6 +40,9 @@ const Collections = () => {
       if (!collection?.createdAt) {
         return null;
       }
+      const paymentMethod = paymentMethods.find(
+        (method) => method._id === collection.paymentMethod
+      );
       return {
         _id: collection._id,
         cashier: (collection.createdBy as User)?.name,
@@ -56,11 +58,8 @@ const Collections = () => {
           ? format(collection.cancelledAt, "HH:mm")
           : "",
         hour: format(collection.createdAt, "HH:mm"),
-        paymentMethod: t(
-          (collection.paymentMethod as AccountPaymentMethod)?.name
-        ),
-        paymentMethodId: (collection.paymentMethod as AccountPaymentMethod)
-          ?._id,
+        paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
+        paymentMethodId: collection.paymentMethod,
         tableId: (collection.table as Table)._id,
         tableName: (collection.table as Table).name,
         amount: collection.amount.toFixed(2),

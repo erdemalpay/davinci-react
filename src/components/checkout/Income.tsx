@@ -6,7 +6,6 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  AccountPaymentMethod,
   CheckoutIncome,
   Location,
   OrderCollectionStatus,
@@ -79,8 +78,7 @@ const Income = () => {
             (collection.createdAt
               ? format(collection?.createdAt, "yyyy-MM-dd") === income?.date
               : false) &&
-            (collection?.paymentMethod as AccountPaymentMethod)?._id ===
-              "cash" &&
+            collection?.paymentMethod === "cash" &&
             collection.status === OrderCollectionStatus.PAID &&
             getCollectionLocationIdAsString(
               (collection.location as Location)._id

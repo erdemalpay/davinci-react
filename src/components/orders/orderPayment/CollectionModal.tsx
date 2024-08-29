@@ -5,7 +5,6 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
-  AccountPaymentMethod,
   MenuItem,
   Order,
   OrderCollection,
@@ -14,6 +13,7 @@ import {
   Table,
   User,
 } from "../../../types";
+import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
@@ -39,6 +39,7 @@ const CollectionModal = ({
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const paymentMethods = useGetAccountPaymentMethods();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
@@ -51,6 +52,9 @@ const CollectionModal = ({
   const allRows = collections
     .filter((collection) => (collection.table as Table)._id === table)
     .map((collection) => {
+      const paymentMethod = paymentMethods.find(
+        (method) => method._id === collection.paymentMethod
+      );
       return {
         _id: collection._id,
         table: (collection.table as Table)._id,
@@ -61,7 +65,7 @@ const CollectionModal = ({
           ? format(collection.cancelledAt, "HH:mm")
           : "",
         hour: format(collection.createdAt, "HH:mm"),
-        paymentMethod: (collection.paymentMethod as AccountPaymentMethod)?.name,
+        paymentMethod: paymentMethod?.name,
         amount: collection.amount.toFixed(2),
         cancelNote: collection.cancelNote ?? "",
         status: collection.status,
