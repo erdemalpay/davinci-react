@@ -128,7 +128,7 @@ export function TableCard({
       formKey: "quantity",
       label: t("Quantity"),
       placeholder: t("Quantity"),
-      minNumber: 1,
+      minNumber: 0,
       required: true,
       isNumberButtonsActive: true,
       isOnClearActive: false,
