@@ -443,7 +443,7 @@ export type OrderCollection = {
   paymentMethod: string;
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
-  table: number;
+  table: Table | number;
 };
 
 export type OrderCollectionItem = {

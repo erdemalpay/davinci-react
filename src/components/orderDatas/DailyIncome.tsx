@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  AccountPaymentMethod,
   ConstantPaymentMethodsIds,
   Location,
   OrderCollectionStatus,
@@ -69,19 +68,14 @@ const DailyIncome = () => {
         (item) => item.date === format(tableDate, "yyyy-MM-dd")
       );
       if (existingEntry) {
-        if (
-          (collection.paymentMethod as AccountPaymentMethod)._id ===
-          ConstantPaymentMethodsIds.CASH
-        ) {
+        if (collection.paymentMethod === ConstantPaymentMethodsIds.CASH) {
           existingEntry.cash += collection.amount;
         } else if (
-          (collection.paymentMethod as AccountPaymentMethod)._id ===
-          ConstantPaymentMethodsIds.CREDITCARD
+          collection.paymentMethod === ConstantPaymentMethodsIds.CREDITCARD
         ) {
           existingEntry.creditCard += collection.amount;
         } else if (
-          (collection.paymentMethod as AccountPaymentMethod)._id ===
-          ConstantPaymentMethodsIds.BANKTRANSFER
+          collection.paymentMethod === ConstantPaymentMethodsIds.BANKTRANSFER
         ) {
           existingEntry.bankTransfer += collection.amount;
         }
@@ -91,20 +85,17 @@ const DailyIncome = () => {
           date: format(tableDate, "yyyy-MM-dd"),
           formattedDate: formatAsLocalDate(format(tableDate, "yyyy-MM-dd")),
           location: (collection.location as Location)._id,
-          paymentMethod: (collection.paymentMethod as AccountPaymentMethod)._id,
+          paymentMethod: collection.paymentMethod,
           cash:
-            (collection.paymentMethod as AccountPaymentMethod)._id ===
-            ConstantPaymentMethodsIds.CASH
+            collection.paymentMethod === ConstantPaymentMethodsIds.CASH
               ? collection.amount
               : 0,
           creditCard:
-            (collection.paymentMethod as AccountPaymentMethod)._id ===
-            ConstantPaymentMethodsIds.CREDITCARD
+            collection.paymentMethod === ConstantPaymentMethodsIds.CREDITCARD
               ? collection.amount
               : 0,
           bankTransfer:
-            (collection.paymentMethod as AccountPaymentMethod)._id ===
-            ConstantPaymentMethodsIds.BANKTRANSFER
+            collection.paymentMethod === ConstantPaymentMethodsIds.BANKTRANSFER
               ? collection.amount
               : 0,
           total: collection.amount,
