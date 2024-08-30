@@ -129,14 +129,11 @@ const NewTables = () => {
     }
   };
   const bgColor = (table: Table) =>
-    table.finishHour
-      ? "bg-gray-500"
-      : table.orders?.some(
-          (tableOrder) =>
-            (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
-        )
+    table.orders?.some(
+      (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
+    )
       ? "bg-orange-200"
-      : "bg-gray-200";
+      : "bg-gray-100";
   // filter out unfinished visits and only show one visit per user
 
   const seenUserIds = new Set<string>();
