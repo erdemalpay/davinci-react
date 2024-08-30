@@ -9,7 +9,7 @@ type Props = {
   order: Order;
   table: Table;
 };
-export const orderBgColor = (order: Order) => {
+export const orderBgColor = (order: Order, defaultBgColor?: string) => {
   switch (order.status) {
     case OrderStatus.PENDING:
       return "bg-blue-200";
@@ -18,7 +18,7 @@ export const orderBgColor = (order: Order) => {
     case OrderStatus.SERVED:
       return "bg-green-200";
     default:
-      return "bg-gray-200";
+      return defaultBgColor ?? "bg-gray-100";
   }
 };
 const OrderCard = ({ order, table }: Props) => {

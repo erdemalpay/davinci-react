@@ -39,7 +39,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
           <div
             key={order._id}
             className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 ${
-              order.status !== OrderStatus.SERVED && orderBgColor(order)
+              order.status !== OrderStatus.SERVED && orderBgColor(order, "")
             }`}
           >
             {/* item name,quantity part */}
