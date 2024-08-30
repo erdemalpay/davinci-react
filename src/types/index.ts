@@ -642,6 +642,8 @@ export enum StockHistoryStatusEnum {
   TRANSFERFIXTURETOINVOICE = "TRANSFERFIXTURETOINVOICE",
   TRANSFERINVOICETOFIXTURE = "TRANSFERINVOICETOFIXTURE",
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
+  ORDERCANCEL = "ORDERCANCEL",
+  ORDERCREATE = "ORDERCREATE",
 }
 export enum OrderDataTabEnum {
   DAILYINCOME,
@@ -732,6 +734,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.TRANSFERINVOICETOSERVICE,
     label: "Transfer Invoice To Service",
     backgroundColor: "bg-rose-500",
+  },
+  {
+    value: StockHistoryStatusEnum.ORDERCANCEL,
+    label: "Order Cancel",
+    backgroundColor: "bg-red-500",
+  },
+  {
+    value: StockHistoryStatusEnum.ORDERCREATE,
+    label: "Order Create",
+    backgroundColor: "bg-green-500",
   },
 ];
 
