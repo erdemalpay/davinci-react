@@ -360,6 +360,7 @@ export type MenuItem = {
     isDecrementStock?: boolean;
   }[];
   price: number;
+  onlinePrice?: number;
   locations: number[];
   priceHistory: {
     date: string;

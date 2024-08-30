@@ -13,6 +13,7 @@ import {
   LocationEnum,
   MenuItem,
   MenuPopular,
+  TURKISHLIRA,
 } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
@@ -283,6 +284,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       required: true,
     },
     {
+      type: InputTypes.NUMBER,
+      formKey: "onlinePrice",
+      label: `${t("Online Price")}`,
+      placeholder: `${t("Online Price")}`,
+      required: singleItemGroup.category?.isOnlineOrder ?? false,
+      isDisabled: !singleItemGroup.category?.isOnlineOrder,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: "Image",
@@ -294,6 +303,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "description", type: FormKeyTypeEnum.STRING },
     { key: "price", type: FormKeyTypeEnum.NUMBER },
+    { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
@@ -304,6 +314,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
+    ...(singleItemGroup.category?.isOnlineOrder
+      ? [{ key: `${t("Online Price")}`, isSortable: true }]
+      : []),
     { key: t("Cost"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
@@ -346,6 +359,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         return `${item.price} ₺`;
       },
     },
+    ...(singleItemGroup.category?.isOnlineOrder
+      ? [
+          {
+            key: "onlinePrice",
+            node: (item: MenuItem) => {
+              return `${
+                item?.onlinePrice ? item.onlinePrice + TURKISHLIRA : "-"
+              } `;
+            },
+          },
+        ]
+      : []),
     {
       key: "cost",
       node: (item: MenuItem) => {
