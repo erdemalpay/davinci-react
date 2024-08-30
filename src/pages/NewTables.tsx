@@ -15,7 +15,7 @@ import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
-import { Game, Table, TableStatus, User } from "../types";
+import { Game, Order, OrderStatus, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetOrderCollections } from "../utils/api/order/orderCollection";
 import { useGetTables } from "../utils/api/table";
@@ -27,7 +27,6 @@ import { sortTable } from "../utils/sort";
 const NewTables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
-
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
@@ -129,8 +128,17 @@ const NewTables = () => {
       });
     }
   };
-
+  const bgColor = (table: Table) =>
+    table.finishHour
+      ? "bg-gray-500"
+      : table.orders?.some(
+          (tableOrder) =>
+            (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
+        )
+      ? "bg-orange-200"
+      : "bg-gray-200";
   // filter out unfinished visits and only show one visit per user
+
   const seenUserIds = new Set<string>();
   const filteredVisits = visits.filter((visit) => {
     const isUnfinished = !visit.finishHour;
@@ -214,7 +222,9 @@ const NewTables = () => {
                   <a
                     key={table._id + "tableselector"}
                     onClick={() => scrollToSection(`table-${table._id}`)}
-                    className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                    className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                      table
+                    )}`}
                   >
                     {table.name}
                   </a>
@@ -241,7 +251,9 @@ const NewTables = () => {
                 <a
                   key={table._id + "tableselector"}
                   onClick={() => scrollToSection(`table-large-${table._id}`)}
-                  className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
+                  className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
+                    table
+                  )}`}
                 >
                   {table.name}
                 </a>
