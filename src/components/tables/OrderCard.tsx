@@ -9,24 +9,24 @@ type Props = {
   order: Order;
   table: Table;
 };
-
+export const orderBgColor = (order: Order) => {
+  switch (order.status) {
+    case OrderStatus.PENDING:
+      return "bg-blue-200";
+    case OrderStatus.READYTOSERVE:
+      return "bg-orange-200";
+    case OrderStatus.SERVED:
+      return "bg-green-200";
+    default:
+      return "bg-gray-200";
+  }
+};
 const OrderCard = ({ order, table }: Props) => {
   const { t } = useTranslation();
-  const { deleteOrder, updateOrder } = useOrderMutations();
+  const { updateOrder } = useOrderMutations();
   const { user } = useUserContext();
   if (!user) return <></>;
-  const orderBgColor = () => {
-    switch (order.status) {
-      case OrderStatus.PENDING:
-        return "bg-blue-200";
-      case OrderStatus.READYTOSERVE:
-        return "bg-orange-200";
-      case OrderStatus.SERVED:
-        return "bg-green-200";
-      default:
-        return "bg-gray-200";
-    }
-  };
+
   const orderWaitTime = () => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
@@ -52,8 +52,9 @@ const OrderCard = ({ order, table }: Props) => {
   return (
     <div
       key={order._id}
-      className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor()}`}
-      // onClick={() => editorder(order)}
+      className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor(
+        order
+      )}`}
     >
       <div className="flex w-5/6 gap-1">
         <p>{(order.item as MenuItem).name} </p>

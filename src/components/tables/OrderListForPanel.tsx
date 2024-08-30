@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { MenuItem, Order, OrderStatus, Table } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
+import { orderBgColor } from "./OrderCard";
 
 type Props = { table: Table };
 
@@ -31,7 +32,9 @@ const OrderListForPanel = ({ table }: Props) => {
             return (
               <div
                 key={order._id}
-                className={`flex justify-between text-xs  rounded-lg items-center px-2 py-2 `}
+                className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 mb-1 ${orderBgColor(
+                  order
+                )} `}
               >
                 <div className="flex flex-row gap-2  items-center  ">
                   {/* decrement */}

@@ -2,12 +2,13 @@ import { useTranslation } from "react-i18next";
 import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, Order, OrderDiscount } from "../../../../types";
+import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
 } from "../../../../utils/api/order/order";
 import SelectInput from "../../../common/SelectInput";
+import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
@@ -69,7 +70,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
         return (
           <div
             key={order._id}
-            className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+            className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  cursor-pointer ${
+              order.status !== OrderStatus.SERVED
+                ? orderBgColor(order)
+                : "hover:bg-gray-100"
+            }`}
             onClick={() => {
               const tempOrder = temporaryOrders?.find(
                 (tempOrder) => tempOrder.order._id === order._id

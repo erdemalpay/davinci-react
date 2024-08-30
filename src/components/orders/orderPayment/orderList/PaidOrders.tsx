@@ -1,6 +1,8 @@
-import { MenuItem, Order, OrderDiscount } from "../../../../types";
+import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
+import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
+
 type Props = {
   tableOrders: Order[];
 };
@@ -36,7 +38,9 @@ const PaidOrders = ({ tableOrders }: Props) => {
         return (
           <div
             key={order._id}
-            className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200"
+            className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 ${
+              order.status !== OrderStatus.SERVED && orderBgColor(order)
+            }`}
           >
             {/* item name,quantity part */}
 
