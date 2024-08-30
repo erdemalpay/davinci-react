@@ -1,3 +1,5 @@
+import { Tooltip } from "@material-tailwind/react";
+import { MdOutlineOnlinePrediction } from "react-icons/md";
 import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { orderBgColor } from "../../../tables/OrderCard";
@@ -55,6 +57,17 @@ const PaidOrders = ({ tableOrders }: Props) => {
                 {")"}-
               </p>
               <p>{(order.item as MenuItem).name}</p>
+              {order?.isOnlinePrice && (
+                <Tooltip
+                  content={"online"}
+                  placement="top"
+                  className={"!z-[999999999999999999999]"}
+                >
+                  <div className="relative">
+                    <MdOutlineOnlinePrediction className="w-6 h-6" />
+                  </div>
+                </Tooltip>
+              )}
             </div>
             {order.discount && (
               <div className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center">

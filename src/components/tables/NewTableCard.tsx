@@ -89,6 +89,7 @@ export function TableCard({
     quantity: 0,
     note: "",
     discount: undefined,
+    isOnlinePrice: false,
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
@@ -108,6 +109,13 @@ export function TableCard({
   const filteredDiscounts = discounts.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
   );
+  const isOnlinePrice = () => {
+    const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+    if ((menuItem?.category as MenuCategory)?.isOnlineOrder) {
+      return true;
+    }
+    return false;
+  };
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -119,7 +127,10 @@ export function TableCard({
           label: option.label,
         };
       }),
-      invalidateKeys: [{ key: "discount", defaultValue: undefined }],
+      invalidateKeys: [
+        { key: "discount", defaultValue: undefined },
+        { key: "isOnlinePrice", defaultValue: false },
+      ],
       placeholder: t("Product"),
       required: true,
     },
@@ -159,6 +170,15 @@ export function TableCard({
       required: false,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlinePrice",
+      label: t("Online Price"),
+      placeholder: t("Online Price"),
+      required: isOnlinePrice(),
+      isDisabled: !isOnlinePrice(),
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -166,10 +186,12 @@ export function TableCard({
       required: false,
     },
   ];
+
   const orderFormKeys = [
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
+    { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const bgColor = table.finishHour
@@ -248,10 +270,7 @@ export function TableCard({
   }
 
   return (
-    <div
-      className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8"
-      // style={{ lineHeight: "8px" }}
-    >
+    <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
         className={`${bgColor} rounded-tl-md rounded-tr-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-between mb-2`}
       >
@@ -474,7 +493,9 @@ export function TableCard({
                 ...orderForm,
                 location: selectedLocationId,
                 table: selectedTable._id,
-                unitPrice: selectedMenuItem.price,
+                unitPrice: orderForm?.isOnlinePrice
+                  ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+                  : selectedMenuItem.price,
                 paidQuantity: 0,
                 deliveredAt: new Date(),
                 deliveredBy: user?._id,
@@ -492,7 +513,9 @@ export function TableCard({
                 ...orderForm,
                 location: selectedLocationId,
                 table: selectedTable._id,
-                unitPrice: selectedMenuItem.price,
+                unitPrice: orderForm?.isOnlinePrice
+                  ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+                  : selectedMenuItem.price,
                 paidQuantity: 0,
               });
             }
@@ -501,6 +524,7 @@ export function TableCard({
               quantity: 0,
               note: "",
               discount: undefined,
+              isOnlinePrice: false,
             });
           }}
           generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"

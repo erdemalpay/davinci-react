@@ -429,6 +429,7 @@ export type Order = {
   discountPercentage?: number;
   discountAmount?: number;
   division?: number;
+  isOnlinePrice?: boolean;
 };
 
 export type OrderCollection = {

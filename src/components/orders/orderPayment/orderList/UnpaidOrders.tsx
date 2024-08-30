@@ -1,5 +1,10 @@
+import { Tooltip } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineCancel, MdOutlineTouchApp } from "react-icons/md";
+import {
+  MdOutlineCancel,
+  MdOutlineOnlinePrediction,
+  MdOutlineTouchApp,
+} from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
 import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
@@ -72,7 +77,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
             key={order._id}
             className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  cursor-pointer ${
               order.status !== OrderStatus.SERVED
-                ? orderBgColor(order)
+                ? orderBgColor(order, "hover:bg-gray-100")
                 : "hover:bg-gray-100"
             }`}
             onClick={() => {
@@ -200,6 +205,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   <p className={`${order.division ? "max-w-28" : ""}`}>
                     {(order.item as MenuItem).name}
                   </p>
+                  {order?.isOnlinePrice && (
+                    <Tooltip
+                      content={"online"}
+                      placement="top"
+                      className={"!z-[999999999999999999999]"}
+                    >
+                      <div className="relative">
+                        <MdOutlineOnlinePrediction className="w-6 h-6" />
+                      </div>
+                    </Tooltip>
+                  )}
+
                   {/* order division */}
                   {(isOrderDivisionActive || order.division) && (
                     <div
