@@ -519,5 +519,6 @@
   "Show Served Orders": "Show Served Orders",
   "Paid orders cannot be changed": "Paid orders cannot be changed",
   "Decrement Stock": "Decrement Stock",
+  "Created By": "Created By",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

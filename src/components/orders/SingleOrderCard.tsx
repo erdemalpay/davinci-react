@@ -80,97 +80,104 @@ const SingleOrderCard = ({ order, user }: Props) => {
           <p className="text-xs mr-auto">{order?.note}</p>
         </div>
       </div>
-      {/* buttons */}
-      <div className="  flex flex-row justify-between gap-2  px-2 ml-auto mb-1  ">
-        {/* cancel button */}
-        {order.paidQuantity === 0 && (
-          <button
-            onClick={() => {
-              updateOrder({
-                id: order._id,
-                updates: {
-                  status: OrderStatus.CANCELLED,
-                  cancelledAt: new Date(),
-                  cancelledBy: user._id,
-                },
-              });
-            }}
-            className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-600 hover:text-red-900 font-medium text-sm "
-          >
-            {t("Cancel")}
-          </button>
-        )}
-        {/* pending ready button */}
-        {order.status === OrderStatus.PENDING && (
-          <button
-            onClick={() => {
-              updateOrder({
-                id: order._id,
-                updates: {
-                  status: OrderStatus.READYTOSERVE,
-                  preparedAt: new Date(),
-                  preparedBy: user._id,
-                },
-              });
-            }}
-            className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
-          >
-            {t("Ready")}
-          </button>
-        )}
-        {/* ready to serve back to pending  button */}
-        {order.status === OrderStatus.READYTOSERVE && (
-          <div className="flex flex-row gap-2  ">
-            {user._id === (order.preparedBy as User)._id && (
-              <button
-                onClick={() => {
-                  updateOrder({
-                    id: order._id,
-                    updates: {
-                      status: OrderStatus.PENDING,
-                    },
-                  });
-                }}
-                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
-              >
-                {t("Back")}
-              </button>
-            )}
+      {/* createdBy and buttons */}
+      <div className="flex flex-row justify-between w-full px-2 mb-1 items-center">
+        {/* created by */}
+        <p className="text-xs text-gray-500">
+          {t("Created By")}: {(order.createdBy as User)?.name}
+        </p>
+        {/* buttons */}
+        <div className="  flex flex-row justify-between gap-2  ">
+          {/* cancel button */}
+          {order.paidQuantity === 0 && (
             <button
               onClick={() => {
                 updateOrder({
                   id: order._id,
                   updates: {
-                    status: OrderStatus.SERVED,
-                    deliveredAt: new Date(),
-                    deliveredBy: user._id,
+                    status: OrderStatus.CANCELLED,
+                    cancelledAt: new Date(),
+                    cancelledBy: user._id,
+                  },
+                });
+              }}
+              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-600 hover:text-red-900 font-medium text-sm "
+            >
+              {t("Cancel")}
+            </button>
+          )}
+          {/* pending ready button */}
+          {order.status === OrderStatus.PENDING && (
+            <button
+              onClick={() => {
+                updateOrder({
+                  id: order._id,
+                  updates: {
+                    status: OrderStatus.READYTOSERVE,
+                    preparedAt: new Date(),
+                    preparedBy: user._id,
                   },
                 });
               }}
               className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
             >
-              {t("Served")}
+              {t("Ready")}
             </button>
-          </div>
-        )}
-        {order.status === OrderStatus.SERVED &&
-          user._id === (order.deliveredBy as User)?._id && (
-            <div className="flex flex-row ">
+          )}
+          {/* ready to serve back to pending  button */}
+          {order.status === OrderStatus.READYTOSERVE && (
+            <div className="flex flex-row gap-2  ">
+              {user._id === (order.preparedBy as User)._id && (
+                <button
+                  onClick={() => {
+                    updateOrder({
+                      id: order._id,
+                      updates: {
+                        status: OrderStatus.PENDING,
+                      },
+                    });
+                  }}
+                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                >
+                  {t("Back")}
+                </button>
+              )}
               <button
                 onClick={() => {
                   updateOrder({
                     id: order._id,
                     updates: {
-                      status: OrderStatus.READYTOSERVE,
+                      status: OrderStatus.SERVED,
+                      deliveredAt: new Date(),
+                      deliveredBy: user._id,
                     },
                   });
                 }}
                 className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
               >
-                {t("Back")}
+                {t("Served")}
               </button>
             </div>
           )}
+          {order.status === OrderStatus.SERVED &&
+            user._id === (order.deliveredBy as User)?._id && (
+              <div className="flex flex-row ">
+                <button
+                  onClick={() => {
+                    updateOrder({
+                      id: order._id,
+                      updates: {
+                        status: OrderStatus.READYTOSERVE,
+                      },
+                    });
+                  }}
+                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                >
+                  {t("Back")}
+                </button>
+              </div>
+            )}
+        </div>
       </div>
     </div>
   );
