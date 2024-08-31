@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  ConstantPaymentMethodsIds,
   Location,
   OrderCollectionStatus,
   TURKISHLIRA,
   Table,
 } from "../../types";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
@@ -17,24 +17,13 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type AllRows = {
-  date: string;
-  formattedDate: string;
-  location: number;
-  paymentMethod: string;
-  cash: number;
-  creditCard: number;
-  bankTransfer: number;
-  total: number;
-  className?: string;
-  isSortable?: boolean;
-};
 const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetLocations();
-  if (!collections || !locations) {
+  const paymentMethods = useGetAccountPaymentMethods();
+  if (!collections || !locations || !paymentMethods) {
     return null;
   }
   const [showFilters, setShowFilters] = useState(false);
@@ -47,7 +36,6 @@ const DailyIncome = () => {
     ?.reduce((acc, collection) => {
       const tableDate = (collection.table as Table)?.date;
       if (!collection || !tableDate) return acc;
-      // location filter
       if (
         filterPanelFormElements.location !== "" &&
         filterPanelFormElements.location !==
@@ -55,7 +43,6 @@ const DailyIncome = () => {
       ) {
         return acc;
       }
-      // other filters
       if (
         (filterPanelFormElements.before !== "" &&
           format(tableDate, "yyyy-MM-dd") > filterPanelFormElements.before) ||
@@ -68,100 +55,75 @@ const DailyIncome = () => {
         (item) => item.date === format(tableDate, "yyyy-MM-dd")
       );
       if (existingEntry) {
-        if (collection.paymentMethod === ConstantPaymentMethodsIds.CASH) {
-          existingEntry.cash += collection.amount;
-        } else if (
-          collection.paymentMethod === ConstantPaymentMethodsIds.CREDITCARD
-        ) {
-          existingEntry.creditCard += collection.amount;
-        } else if (
-          collection.paymentMethod === ConstantPaymentMethodsIds.BANKTRANSFER
-        ) {
-          existingEntry.bankTransfer += collection.amount;
-        }
+        paymentMethods.forEach((method) => {
+          if (collection.paymentMethod === method._id) {
+            existingEntry[method._id] =
+              (existingEntry[method._id] || 0) + collection.amount;
+          }
+        });
         existingEntry.total += collection.amount;
       } else {
-        acc.push({
+        const newEntry: any = {
           date: format(tableDate, "yyyy-MM-dd"),
           formattedDate: formatAsLocalDate(format(tableDate, "yyyy-MM-dd")),
           location: (collection.location as Location)._id,
-          paymentMethod: collection.paymentMethod,
-          cash:
-            collection.paymentMethod === ConstantPaymentMethodsIds.CASH
-              ? collection.amount
-              : 0,
-          creditCard:
-            collection.paymentMethod === ConstantPaymentMethodsIds.CREDITCARD
-              ? collection.amount
-              : 0,
-          bankTransfer:
-            collection.paymentMethod === ConstantPaymentMethodsIds.BANKTRANSFER
-              ? collection.amount
-              : 0,
           total: collection.amount,
+        };
+
+        paymentMethods.forEach((method) => {
+          newEntry[method._id] =
+            collection.paymentMethod === method._id ? collection.amount : 0;
         });
+
+        acc.push(newEntry);
       }
       return acc;
-    }, [] as AllRows[]);
+    }, [] as any[]);
+
   allRows.push({
     date: t("Total"),
     formattedDate: t("Total"),
     location: 0,
     paymentMethod: "",
-    cash: allRows.reduce((acc, row) => acc + row.cash, 0),
-    creditCard: allRows.reduce((acc, row) => acc + row.creditCard, 0),
-    bankTransfer: allRows.reduce((acc, row) => acc + row.bankTransfer, 0),
+    ...paymentMethods.reduce((acc, method) => {
+      acc[method._id] = allRows.reduce((sum, row) => sum + row[method._id], 0);
+      return acc;
+    }, {} as any),
     total: allRows.reduce((acc, row) => acc + row.total, 0),
     className: "font-semibold",
     isSortable: false,
   });
 
   const [rows, setRows] = useState(allRows);
+  const paymentMethodColumns = paymentMethods.map((method) => ({
+    key: t(method.name),
+    isSortable: true,
+  }));
   const columns = [
     { key: t("Date"), isSortable: true },
-    { key: t("Cash"), isSortable: true },
-    { key: t("Credit Card"), isSortable: true },
-    { key: t("Bank Transfer"), isSortable: true },
+    ...paymentMethodColumns,
     { key: t("Total"), isSortable: true },
   ];
+
+  const paymentMethodRowKeys = paymentMethods.map((method) => ({
+    key: method._id,
+    node: (row: any) => {
+      return (
+        <p className={`${row?.className}`}>
+          {row[method._id] > 0 && row[method._id] + " " + TURKISHLIRA}
+        </p>
+      );
+    },
+  }));
   const rowKeys = [
     {
       key: "date",
-      className: "min-w-32 pr-2 ",
+      className: "min-w-32 pr-2",
       node: (row: any) => {
         return <p className={`${row?.className}`}>{row.formattedDate}</p>;
       },
     },
-    {
-      key: "cash",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`}>
-            {row.cash > 0 && row.cash + " " + TURKISHLIRA}
-          </p>
-        );
-      },
-    },
-    {
-      key: "creditCard",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`}>
-            {row.creditCard > 0 && row.creditCard + " " + TURKISHLIRA}
-          </p>
-        );
-      },
-    },
-    {
-      key: "bankTransfer",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className}`}>
-            {row.bankTransfer > 0 && row.bankTransfer + " " + TURKISHLIRA}
-          </p>
-        );
-      },
-    },
+    ...paymentMethodRowKeys,
     {
       key: "total",
       node: (row: any) => {
@@ -209,7 +171,7 @@ const DailyIncome = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [collections, locations, filterPanelFormElements]);
+  }, [collections, locations, filterPanelFormElements, paymentMethods]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
