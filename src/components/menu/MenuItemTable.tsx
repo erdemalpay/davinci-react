@@ -5,6 +5,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import {
@@ -13,6 +14,7 @@ import {
   LocationEnum,
   MenuItem,
   MenuPopular,
+  RoleEnum,
   TURKISHLIRA,
 } from "../../types";
 import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
@@ -33,6 +35,7 @@ type Props = {
 
 const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const { i18n } = useTranslation();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -50,81 +53,83 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
-  const [rows, setRows] = useState(
-    singleItemGroup.items.map((item) => {
-      return {
-        ...item,
-        collapsible: {
-          collapsibleHeader: t("Ingredients"),
-          collapsibleColumns: [
-            { key: t("Product"), isSortable: true },
-            { key: t("Unit"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
-            { key: t("Cost"), isSortable: true },
-            { key: t("Decrement Stock"), isSortable: false },
-            { key: t("Action"), isSortable: false, className: "text-center" },
-          ],
-          collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
-            product: itemProduction.product,
-            name: products?.find(
-              (product: AccountProduct) =>
-                product._id === itemProduction.product
-            )?.name,
-            unit: (
-              products?.find(
-                (product) => product._id === itemProduction.product
-              )?.unit as AccountUnit
-            )?.name,
-            price: (
-              (products?.find(
-                (product) => product._id === itemProduction.product
-              )?.unitPrice ?? 0) * itemProduction.quantity
-            ).toFixed(4),
-            quantity: itemProduction.quantity,
-            isDecrementStock: itemProduction?.isDecrementStock,
-          })),
-          collapsibleRowKeys: [
-            { key: "name" },
-            { key: "unit" },
-            { key: "quantity" },
-            { key: "price" },
-            {
-              key: "isDecrementStock",
-              node: (row: any) => {
-                return (
-                  <div className="ml-6">
-                    <CheckSwitch
-                      checked={row?.isDecrementStock}
-                      onChange={() => {
-                        updateItem({
-                          id: item._id,
-                          updates: {
-                            itemProduction: item.itemProduction?.map(
-                              (itemProduction) => {
-                                if (itemProduction.product === row.product) {
-                                  return {
-                                    ...itemProduction,
-                                    isDecrementStock:
-                                      !itemProduction.isDecrementStock,
-                                  };
-                                } else {
-                                  return itemProduction;
-                                }
+  const allRows = singleItemGroup.items.map((item) => {
+    return {
+      ...item,
+      collapsible: {
+        collapsibleHeader: t("Ingredients"),
+        collapsibleColumns: [
+          { key: t("Product"), isSortable: true },
+          { key: t("Unit"), isSortable: true },
+          { key: t("Quantity"), isSortable: true },
+          ...(!singleItemGroup.category?.isOnlineOrder ||
+          user?.role?._id === RoleEnum.MANAGER
+            ? [{ key: t("Cost"), isSortable: true }]
+            : []),
+          { key: t("Decrement Stock"), isSortable: false },
+          { key: t("Action"), isSortable: false, className: "text-center" },
+        ],
+        collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
+          product: itemProduction.product,
+          name: products?.find(
+            (product: AccountProduct) => product._id === itemProduction.product
+          )?.name,
+          unit: (
+            products?.find((product) => product._id === itemProduction.product)
+              ?.unit as AccountUnit
+          )?.name,
+          price: (
+            (products?.find((product) => product._id === itemProduction.product)
+              ?.unitPrice ?? 0) * itemProduction.quantity
+          ).toFixed(4),
+          quantity: itemProduction.quantity,
+          isDecrementStock: itemProduction?.isDecrementStock,
+        })),
+        collapsibleRowKeys: [
+          { key: "name" },
+          { key: "unit" },
+          { key: "quantity" },
+          ...(!singleItemGroup.category?.isOnlineOrder ||
+          user?.role?._id === RoleEnum.MANAGER
+            ? [{ key: "price" }]
+            : []),
+          {
+            key: "isDecrementStock",
+            node: (row: any) => {
+              return (
+                <div className="ml-6">
+                  <CheckSwitch
+                    checked={row?.isDecrementStock}
+                    onChange={() => {
+                      updateItem({
+                        id: item._id,
+                        updates: {
+                          itemProduction: item.itemProduction?.map(
+                            (itemProduction) => {
+                              if (itemProduction.product === row.product) {
+                                return {
+                                  ...itemProduction,
+                                  isDecrementStock:
+                                    !itemProduction.isDecrementStock,
+                                };
+                              } else {
+                                return itemProduction;
                               }
-                            ),
-                          },
-                        });
-                      }}
-                    />
-                  </div>
-                );
-              },
+                            }
+                          ),
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              );
             },
-          ],
-        },
-      };
-    })
-  );
+          },
+        ],
+      },
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   function handleLocationUpdate(item: MenuItem, location: number) {
     const newLocations = item.locations || [];
     // Add if it doesn't exist, remove otherwise
@@ -141,81 +146,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     toast.success(`${t("Menu Item updated successfully")}`);
   }
   useEffect(() => {
-    setRows(
-      singleItemGroup.items.map((item) => {
-        return {
-          ...item,
-          collapsible: {
-            collapsibleHeader: t("Ingredients"),
-            collapsibleColumns: [
-              { key: t("Product"), isSortable: true },
-              { key: t("Unit"), isSortable: true },
-              { key: t("Quantity"), isSortable: true },
-              { key: t("Cost"), isSortable: true },
-              { key: t("Decrement Stock"), isSortable: false },
-              { key: t("Action"), isSortable: false, className: "text-center" },
-            ],
-            collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
-              product: itemProduction.product,
-              name: products?.find(
-                (product: AccountProduct) =>
-                  product._id === itemProduction.product
-              )?.name,
-              unit: (
-                products?.find(
-                  (product) => product._id === itemProduction.product
-                )?.unit as AccountUnit
-              )?.name,
-              price: (
-                (products?.find(
-                  (product) => product._id === itemProduction.product
-                )?.unitPrice ?? 0) * itemProduction.quantity
-              ).toFixed(4),
-              quantity: itemProduction.quantity,
-              isDecrementStock: itemProduction?.isDecrementStock,
-            })),
-            collapsibleRowKeys: [
-              { key: "name" },
-              { key: "unit" },
-              { key: "quantity" },
-              { key: "price" },
-              {
-                key: "isDecrementStock",
-                node: (row: any) => {
-                  return (
-                    <div className="ml-6">
-                      <CheckSwitch
-                        checked={row?.isDecrementStock}
-                        onChange={() => {
-                          updateItem({
-                            id: item._id,
-                            updates: {
-                              itemProduction: item.itemProduction?.map(
-                                (itemProduction) => {
-                                  if (itemProduction.product === row.product) {
-                                    return {
-                                      ...itemProduction,
-                                      isDecrementStock:
-                                        !itemProduction.isDecrementStock,
-                                    };
-                                  } else {
-                                    return itemProduction;
-                                  }
-                                }
-                              ),
-                            },
-                          });
-                        }}
-                      />
-                    </div>
-                  );
-                },
-              },
-            ],
-          },
-        };
-      })
-    );
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [singleItemGroup.items, products, i18n.language]);
   const collapsibleInputs = [
@@ -406,6 +337,21 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     );
     rowKeys.splice(
       rowKeys.findIndex((rowKey) => rowKey.key === "neorama"),
+      1
+    );
+  }
+  // for online orders cost field is removed
+  if (
+    user &&
+    ![RoleEnum.MANAGER].includes(user?.role?._id) &&
+    singleItemGroup.category?.isOnlineOrder
+  ) {
+    columns.splice(
+      columns.findIndex((column) => column.key === "Cost"),
+      1
+    );
+    rowKeys.splice(
+      rowKeys.findIndex((rowKey) => rowKey.key === "cost"),
       1
     );
   }
