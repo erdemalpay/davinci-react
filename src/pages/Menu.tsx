@@ -79,8 +79,8 @@ export default function Menu() {
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
     setTabs(
       [
-        ...itemGroups.map((itemGroup) => ({
-          number: itemGroup.category?.order - 1,
+        ...itemGroups?.map((itemGroup, index) => ({
+          number: index,
           label: itemGroup.category?.name,
           icon: null,
           content: (
@@ -99,8 +99,8 @@ export default function Menu() {
         })),
 
         ...(emptyCategories.length > 0
-          ? emptyCategories.map((category) => ({
-              number: (category.order ?? emptyCategories.length) - 1,
+          ? emptyCategories?.map((category, index) => ({
+              number: itemGroups?.length + index,
               label: category.name,
               icon: null,
               content: (
@@ -119,7 +119,7 @@ export default function Menu() {
             }))
           : []),
         {
-          number: itemCategories.length + emptyCategories.length,
+          number: itemCategories?.length + emptyCategories?.length,
           label: "Popular",
           icon: null,
           content: (
@@ -131,7 +131,7 @@ export default function Menu() {
           isDisabled: false,
         },
         {
-          number: itemCategories.length + emptyCategories.length + 1,
+          number: itemCategories?.length + emptyCategories?.length + 1,
           label: "Categories",
           icon: null,
           content: (

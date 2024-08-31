@@ -159,6 +159,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       key: "discounts",
       className: "min-w-32",
       node: (row: any) => {
+        if (!row?.discounts) {
+          return <span className="text-sm">-</span>;
+        }
         return row?.discounts?.map((discount: number, index: any) => {
           const foundDiscount = discounts?.find(
             (dscnt) => dscnt._id === discount
