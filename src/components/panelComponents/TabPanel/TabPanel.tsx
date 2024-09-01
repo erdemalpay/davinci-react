@@ -37,7 +37,7 @@ const TabPanel: React.FC<Props> = ({
   const tabsRef = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { i18n } = useTranslation();
-  const { setSortConfigKey } = useGeneralContext();
+  const { setSortConfigKey, setExpandedRows } = useGeneralContext();
   useEffect(() => {
     additionalOpenAction?.();
     if (tabsRef.current[activeTab] && containerRef.current) {
@@ -65,6 +65,7 @@ const TabPanel: React.FC<Props> = ({
   const handleTabChange = (tab: Tab) => {
     additionalClickAction && additionalClickAction();
     setSortConfigKey(null);
+    setExpandedRows({});
     setActiveTab(tab.number);
   };
 
