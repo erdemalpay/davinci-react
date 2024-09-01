@@ -302,17 +302,17 @@ export function TableCard({
               </span>
             </Tooltip>
           )}
-          {!table.finishHour && (
-            <Tooltip content={t("Check")}>
-              <span className="text-{8px}">
-                <CardAction
-                  // onClick={() => setIsCloseConfirmationDialogOpen(true)}
-                  onClick={() => newClose()}
-                  IconComponent={IoReceipt}
-                />
-              </span>
-            </Tooltip>
-          )}
+
+          <Tooltip content={t("Check")}>
+            <span className="text-{8px}">
+              <CardAction
+                // onClick={() => setIsCloseConfirmationDialogOpen(true)}
+                onClick={() => newClose()}
+                IconComponent={IoReceipt}
+              />
+            </span>
+          </Tooltip>
+
           {!table.finishHour &&
             table?.orders?.some((tableOrder) => {
               return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
