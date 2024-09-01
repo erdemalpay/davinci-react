@@ -18,6 +18,7 @@ import NewTables from "../pages/NewTables";
 import OnlineSales from "../pages/OnlineSales";
 import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
+import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
 import Product from "../pages/Product";
@@ -84,6 +85,7 @@ export enum Routes {
   PageDetails = "/page-details/:pageDetailsId",
   OrderDatas = "/order-datas",
   UserActivities = "/user-activities",
+  OrdersSummary = "/orders-summary",
 }
 
 export const allRoutes: {
@@ -110,6 +112,12 @@ export const allRoutes: {
     name: "Orders",
     path: Routes.Orders,
     element: Orders,
+    isOnSidebar: true,
+  },
+  {
+    name: "Orders Summary",
+    path: Routes.OrdersSummary,
+    element: OrdersSummary,
     isOnSidebar: true,
   },
   {
