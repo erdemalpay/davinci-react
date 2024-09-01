@@ -18,7 +18,7 @@ const SummaryCard = ({
   secondSubHeader,
   secondSubHeaderValue,
   percentage,
-  sideColor = "blue-500", // default color
+  sideColor,
 }: Props) => {
   const { t } = useTranslation();
 

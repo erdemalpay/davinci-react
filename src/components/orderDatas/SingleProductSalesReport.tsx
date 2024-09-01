@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
@@ -39,7 +38,6 @@ const SingleProductSalesReport = () => {
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders.reduce((acc, order) => {
     if (!order || order.paidQuantity === 0) return acc;
@@ -237,7 +235,6 @@ const SingleProductSalesReport = () => {
   ];
   useEffect(() => {
     setRows(allRows);
-    setExpandedRows({});
     setTableKey((prev) => prev + 1);
   }, [orders, orders, categories, filterPanelFormElements]);
   return (

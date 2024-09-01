@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { Location, MenuItem, OrderDiscount, Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
@@ -44,7 +43,6 @@ const DiscountBasedSales = () => {
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  const { setExpandedRows } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders.reduce((acc, order) => {
     if (!order.discount || order.paidQuantity === 0) {
@@ -275,9 +273,8 @@ const DiscountBasedSales = () => {
   ];
   useEffect(() => {
     setRows(allRows);
-    setExpandedRows({});
     setTableKey((prev) => prev + 1);
-  }, [orders, orders, filterPanelFormElements, discounts]);
+  }, [orders, filterPanelFormElements, discounts]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
