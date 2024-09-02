@@ -181,7 +181,6 @@ const OrderPaymentTypes = ({
                   });
                 }
               }
-              console.log("Before creating order collection:", { newOrders });
               const createdCollection = {
                 table: table._id,
                 location: selectedLocationId,
@@ -207,9 +206,6 @@ const OrderPaymentTypes = ({
                       })),
                 ...(newOrders && { newOrders: newOrders }),
               };
-              console.log("After creating order collection:", {
-                createdCollection,
-              });
               createOrderCollection(createdCollection);
               resetOrderContext();
             }}
