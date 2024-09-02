@@ -21,7 +21,7 @@ function Orders() {
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;
-  const orderTabs = kitchens.map((kitchen, index) => ({
+  const orderTabs = kitchens?.map((kitchen, index) => ({
     number: index,
     label: kitchen.name,
     content: <SingleOrdersPage kitchen={kitchen._id} />,

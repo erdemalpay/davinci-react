@@ -16,8 +16,8 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
   const filteredOrders = todayOrders.filter(
     (order) =>
       (
-        categories.find(
-          (category) => category._id === (order.item as MenuItem).category
+        categories?.find(
+          (category) => category?._id === (order?.item as MenuItem)?.category
         )?.kitchen as Kitchen
       )?._id === kitchen
   );
