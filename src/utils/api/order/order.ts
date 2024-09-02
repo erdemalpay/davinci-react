@@ -21,6 +21,11 @@ interface CreateOrderForDivide {
     orderId: number;
   }[];
 }
+interface TransferTablePayload {
+  orders: Order[];
+  oldTableId: number;
+  transferredTableId: number;
+}
 interface CancelOrderForDiscount {
   orderId: number;
   cancelQuantity: number;
@@ -56,6 +61,29 @@ export function updateOrders(orders: Order[]) {
     payload: { orders },
   });
 }
+export function transferTable(payload: TransferTablePayload) {
+  return post({
+    path: `/order/table_transfer`,
+    payload: payload,
+  });
+}
+export function useTransferTableMutation() {
+  const queryKey = [`${Paths.Tables}`];
+  const queryClient = useQueryClient();
+  return useMutation(transferTable, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 export function useUpdateOrdersMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
@@ -65,8 +93,6 @@ export function useUpdateOrdersMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =

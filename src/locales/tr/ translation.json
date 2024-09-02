@@ -518,5 +518,8 @@
   "GeneralDeleteMessage": "silinmek üzeredir. Devam etmek istediğinizden emin misiniz?",
   "Created By": "Oluşturan",
   "Orders Summary": "Siparişler Özeti",
+  "Transfer Table": "Masa Transferi",
+  "Are you sure to transfer the table?": "Masa transferi yapmak istediğinizden emin misiniz?",
+  "Stock Increment": "Stok Arttır",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

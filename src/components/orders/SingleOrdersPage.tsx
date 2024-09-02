@@ -13,7 +13,7 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
   const categories = useGetCategories();
   const todayOrders = useGetTodayOrders();
   if (!todayOrders || !categories) return <></>;
-  const filteredOrders = todayOrders.filter(
+  const filteredOrders = todayOrders?.filter(
     (order) =>
       (
         categories?.find(

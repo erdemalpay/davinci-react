@@ -5,12 +5,12 @@ import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
 import { MdBorderColor, MdBrunchDining } from "react-icons/md";
+import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
-
 import {
   Game,
   Gameplay,
@@ -26,6 +26,7 @@ import {
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useOrderMutations,
+  useTransferTableMutation,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -55,6 +56,7 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   collections: OrderCollection[];
+  tables: Table[];
 }
 
 export function TableCard({
@@ -65,6 +67,7 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   collections,
+  tables,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -76,10 +79,12 @@ export function TableCard({
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { updateTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
+  const { mutate: transferTable } = useTransferTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
@@ -91,7 +96,11 @@ export function TableCard({
     discount: undefined,
     isOnlinePrice: false,
   });
+  const [tableTransferForm, setTableTransferForm] = useState({
+    table: "",
+  });
   const [selectedTable, setSelectedTable] = useState<Table>();
+  console.log(tables);
   const menuItems = useGetMenuItems();
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
@@ -194,6 +203,30 @@ export function TableCard({
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
+  const tableTransferInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "table",
+      label: t("Table"),
+      options: tables
+        ?.filter(
+          (filteredTable) =>
+            filteredTable._id !== table._id && !filteredTable?.finishHour
+        )
+        ?.map((tableMap) => {
+          return {
+            value: tableMap._id,
+            label: tableMap.name,
+          };
+        }),
+      placeholder: t("Table"),
+      required: true,
+    },
+  ];
+  const tableTransferFormKeys = [
+    { key: "table", type: FormKeyTypeEnum.STRING },
+  ];
+
   const bgColor = table.finishHour
     ? "bg-gray-500"
     : table.orders?.some(
@@ -531,6 +564,23 @@ export function TableCard({
           topClassName="flex flex-col gap-2   "
         />
       )}
+
+      {/* buttom buttons */}
+      <div
+        className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2 max-h-10`}
+      >
+        <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
+          <Tooltip content={t("Table Transfer")}>
+            <span>
+              <CardAction
+                onClick={() => setIsTableTransferOpen(true)}
+                IconComponent={RiFileTransferFill}
+              />
+            </span>
+          </Tooltip>
+        </div>
+      </div>
+
       {isOrderPaymentModalOpen && (
         <OrderPaymentModal
           orders={table.orders as Order[]}
@@ -541,6 +591,29 @@ export function TableCard({
             resetOrderContext();
             setIsOrderPaymentModalOpen(false);
           }}
+        />
+      )}
+      {isTableTransferOpen && (
+        <GenericAddEditPanel
+          isOpen={isTableTransferOpen}
+          close={() => setIsTableTransferOpen(false)}
+          inputs={tableTransferInputs}
+          formKeys={tableTransferFormKeys}
+          submitItem={transferTable as any}
+          submitFunction={() => {
+            transferTable({
+              orders: table.orders as Order[],
+              oldTableId: table._id,
+              transferredTableId: Number(tableTransferForm.table),
+            });
+          }}
+          isCreateConfirmationDialogExist={true}
+          createConfirmationDialogHeader={t("Transfer Table")}
+          createConfirmationDialogText={t(
+            "Are you sure to transfer the table?"
+          )}
+          setForm={setTableTransferForm}
+          topClassName="flex flex-col gap-2 "
         />
       )}
     </div>

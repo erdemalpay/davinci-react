@@ -521,5 +521,8 @@
   "Decrement Stock": "Decrement Stock",
   "Created By": "Created By",
   "Orders Summary": "Orders Summary",
+  "Transfer Table": "Transfer Table",
+  "Are you sure to transfer the table?": "Are you sure to transfer the table?",
+  "Stock Increment": "Stock Increment",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

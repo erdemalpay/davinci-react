@@ -33,6 +33,7 @@ type Props<T> = {
   isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isCancelConfirmationDialogExist?: boolean;
+  isCreateConfirmationDialogExist?: boolean;
   isCreateCloseActive?: boolean;
   isEditMode?: boolean;
   folderName?: string;
@@ -40,6 +41,8 @@ type Props<T> = {
   cancelButtonLabel?: string;
   anotherPanel?: React.ReactNode;
   anotherPanelTopClassName?: string;
+  createConfirmationDialogText?: string;
+  createConfirmationDialogHeader?: string;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -71,6 +74,9 @@ const GenericAddEditPanel = <T,>({
   additionalSubmitFunction,
   additionalCancelFunction,
   isCancelConfirmationDialogExist = false,
+  isCreateConfirmationDialogExist = false,
+  createConfirmationDialogText,
+  createConfirmationDialogHeader,
   isCreateCloseActive = true,
   anotherPanelTopClassName,
   setForm,
@@ -80,7 +86,9 @@ const GenericAddEditPanel = <T,>({
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
   const [resetTextInput, setResetTextInput] = useState(false);
-  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+  const [isCancelConfirmationDialogOpen, setIsCancelConfirmationDialogOpen] =
+    useState(false);
+  const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
@@ -473,7 +481,7 @@ const GenericAddEditPanel = <T,>({
             <button
               onClick={() => {
                 isCancelConfirmationDialogExist
-                  ? setIsConfirmationDialogOpen(true)
+                  ? setIsCancelConfirmationDialogOpen(true)
                   : handleCancelButtonClick();
               }}
               className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
@@ -481,7 +489,11 @@ const GenericAddEditPanel = <T,>({
               {t(cancelButtonLabel)}
             </button>
             <button
-              onClick={handleCreateButtonClick}
+              onClick={() => {
+                isCreateConfirmationDialogExist
+                  ? setIsCreateConfirmationDialogOpen(true)
+                  : handleCreateButtonClick();
+              }}
               className={`inline-block ${
                 !allRequiredFilled
                   ? "bg-gray-500"
@@ -501,7 +513,7 @@ const GenericAddEditPanel = <T,>({
         !isOpen && "hidden"
       }`}
       onClick={
-        isBlurFieldClickCloseEnabled && !isConfirmationDialogOpen
+        isBlurFieldClickCloseEnabled && !isCancelConfirmationDialogOpen
           ? () => {
               close?.();
               isEditMode ? additionalCancelFunction?.() : undefined;
@@ -517,17 +529,33 @@ const GenericAddEditPanel = <T,>({
       ) : (
         renderGenericAddEditModal()
       )}
-      {isConfirmationDialogOpen && (
+      {isCancelConfirmationDialogOpen && (
         <ConfirmationDialog
-          isOpen={isConfirmationDialogOpen}
+          isOpen={isCancelConfirmationDialogOpen}
           close={() => {
-            setIsConfirmationDialogOpen(false);
+            setIsCancelConfirmationDialogOpen(false);
           }}
           confirm={() => {
             handleCancelButtonClick();
           }}
           title={t("Cancel Entry")}
           text={`${t("Are you sure you want to cancel this entry?")}`}
+        />
+      )}
+      {isCreateConfirmationDialogOpen && (
+        <ConfirmationDialog
+          isOpen={isCreateConfirmationDialogOpen}
+          close={() => {
+            setIsCreateConfirmationDialogOpen(false);
+          }}
+          confirm={() => {
+            handleCreateButtonClick();
+          }}
+          title={createConfirmationDialogHeader ?? t("Create Entry")}
+          text={
+            createConfirmationDialogText ??
+            `${t("Are you sure you want to create this entry?")}`
+          }
         />
       )}
     </div>
