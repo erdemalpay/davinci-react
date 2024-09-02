@@ -292,6 +292,7 @@ const OnlineSales = () => {
                     showAllGameplays={showAllGameplays}
                     showAllOrders={showAllOrders}
                     collections={collections}
+                    tables={tables}
                   />
                 ))}
             </div>
@@ -308,6 +309,7 @@ const OnlineSales = () => {
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
                   collections={collections}
+                  tables={tables}
                 />
               </div>
             ))}

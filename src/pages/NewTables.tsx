@@ -323,10 +323,10 @@ const NewTables = () => {
         </div>
 
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns.map((tables, idx) => (
+          {tableColumns.map((tablesColumns, idx) => (
             <div key={idx}>
               {collections &&
-                tables.map((table) => (
+                tablesColumns.map((table) => (
                   <div
                     id={`table-large-${table._id}`}
                     key={table._id || table.startHour}
@@ -340,6 +340,7 @@ const NewTables = () => {
                       showAllOrders={showAllOrders}
                       showServedOrders={showServedOrders}
                       collections={collections}
+                      tables={tables}
                     />
                   </div>
                 ))}
@@ -358,6 +359,7 @@ const NewTables = () => {
                   showAllOrders={showAllOrders}
                   showServedOrders={showServedOrders}
                   collections={collections}
+                  tables={tables}
                 />
               </div>
             ))}
