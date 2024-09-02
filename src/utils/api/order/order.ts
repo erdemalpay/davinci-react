@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
+import { useDateContext } from "./../../../context/Date.context";
+import { useLocationContext } from "./../../../context/Location.context";
 import { Order } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
@@ -68,7 +70,10 @@ export function transferTable(payload: TransferTablePayload) {
   });
 }
 export function useTransferTableMutation() {
-  const queryKey = [`${Paths.Tables}`];
+  const tableBaseUrl = `${Paths.Tables}`;
+  const { selectedLocationId } = useLocationContext();
+  const { selectedDate } = useDateContext();
+  const queryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation(transferTable, {
     onMutate: async () => {
