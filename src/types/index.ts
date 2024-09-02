@@ -233,6 +233,7 @@ export type AccountInvoice = {
   kdv?: number;
   paymentMethod: AccountPaymentMethod | string;
   isPaid: boolean;
+  isStockIncrement?: boolean;
 };
 export type AccountFixtureInvoice = {
   _id: number;
