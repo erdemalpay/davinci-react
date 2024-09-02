@@ -36,9 +36,9 @@ const OnlineSales = () => {
     .filter((table) => table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
   const users = useGetUsers();
-  tables.sort(sortTable);
+  tables?.sort(sortTable);
   // Sort users by name
-  users.sort((a: User, b: User) => {
+  users?.sort((a: User, b: User) => {
     if (a.name > b.name) {
       return 1;
     } else if (a.name < b.name) {
@@ -47,7 +47,7 @@ const OnlineSales = () => {
       return 0;
     }
   });
-  visits.sort((a, b) => {
+  visits?.sort((a, b) => {
     if (a.user.role.name > b.user.role.name) {
       return 1;
     } else if (a.user.role.name < b.user.role.name) {
@@ -188,14 +188,14 @@ const OnlineSales = () => {
             {/* Table name buttons */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
               {tables
-                .filter((table) => !table?.finishHour)
+                ?.filter((table) => !table?.finishHour)
                 .map((table) => (
                   <a
                     key={table._id + "tableselector"}
                     onClick={() => scrollToSection(`table-${table._id}`)}
                     className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
                   >
-                    {table.name}
+                    {table?.name}
                   </a>
                 ))}
             </div>

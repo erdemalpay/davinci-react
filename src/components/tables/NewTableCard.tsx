@@ -109,10 +109,10 @@ export function TableCard({
         ? (menuItem.category as MenuCategory)?.isOnlineOrder
         : true
     )
-    .map((menuItem) => {
+    ?.map((menuItem) => {
       return {
-        value: menuItem._id,
-        label: menuItem.name + " (" + menuItem.price + TURKISHLIRA + ")",
+        value: menuItem?._id,
+        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
   const filteredDiscounts = discounts.filter((discount) =>
@@ -169,8 +169,8 @@ export function TableCard({
             })
             ?.map((option) => {
               return {
-                value: option._id,
-                label: option.name,
+                value: option?._id,
+                label: option?.name,
               };
             })
         : [],
@@ -215,8 +215,8 @@ export function TableCard({
         )
         ?.map((tableMap) => {
           return {
-            value: tableMap._id,
-            label: tableMap.name,
+            value: tableMap?._id,
+            label: tableMap?.name,
           };
         }),
       placeholder: t("Table"),
@@ -250,7 +250,7 @@ export function TableCard({
     reopenTable({
       id: table._id,
     });
-    toast.success(`Table ${table.name} reopened`);
+    toast.success(`Table ${table?.name} reopened`);
   }
   function newClose() {
     setIsOrderPaymentModalOpen(true);
