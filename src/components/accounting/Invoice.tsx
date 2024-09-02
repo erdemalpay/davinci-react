@@ -344,6 +344,14 @@ const Invoice = () => {
       paymentMethods: paymentMethods,
       required: true,
     }),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isStockIncrement",
+      label: t("Stock Increment"),
+      placeholder: t("Stock Increment"),
+      required: false,
+      isTopFlexRow: true,
+    },
     QuantityInput(),
   ];
   const formKeys = [
@@ -356,6 +364,7 @@ const Invoice = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
+    { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -690,6 +699,7 @@ const Invoice = () => {
         topClassName="flex flex-col gap-2 "
         setForm={setProductExpenseForm}
         constantValues={{
+          isStockIncrement: true,
           date: format(new Date(), "yyyy-MM-dd"),
           ...productExpenseForm,
         }}
@@ -836,6 +846,7 @@ const Invoice = () => {
               note: rowToAction.note,
               location: (rowToAction.location as AccountStockLocation)._id,
               paymentMethod: rowToAction?.paymentMethod,
+              isStockIncrement: rowToAction?.isStockIncrement,
             },
           }}
         />

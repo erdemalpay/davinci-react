@@ -130,6 +130,7 @@ const GeneralContext = createContext<GeneralContextType>({
     paymentMethod: "",
     price: 0,
     kdv: 0,
+    isStockIncrement: true,
   },
   setProductExpenseForm: () => {},
   serviceExpenseForm: {
