@@ -100,7 +100,6 @@ export function TableCard({
     table: "",
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
-  console.log(tables);
   const menuItems = useGetMenuItems();
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
@@ -109,10 +108,10 @@ export function TableCard({
         ? (menuItem.category as MenuCategory)?.isOnlineOrder
         : true
     )
-    .map((menuItem) => {
+    ?.map((menuItem) => {
       return {
-        value: menuItem._id,
-        label: menuItem.name + " (" + menuItem.price + TURKISHLIRA + ")",
+        value: menuItem?._id,
+        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
   const filteredDiscounts = discounts.filter((discount) =>
@@ -169,8 +168,8 @@ export function TableCard({
             })
             ?.map((option) => {
               return {
-                value: option._id,
-                label: option.name,
+                value: option?._id,
+                label: option?.name,
               };
             })
         : [],
@@ -215,8 +214,8 @@ export function TableCard({
         )
         ?.map((tableMap) => {
           return {
-            value: tableMap._id,
-            label: tableMap.name,
+            value: tableMap?._id,
+            label: tableMap?.name,
           };
         }),
       placeholder: t("Table"),
@@ -250,7 +249,7 @@ export function TableCard({
     reopenTable({
       id: table._id,
     });
-    toast.success(`Table ${table.name} reopened`);
+    toast.success(`Table ${table?.name} reopened`);
   }
   function newClose() {
     setIsOrderPaymentModalOpen(true);
@@ -511,7 +510,7 @@ export function TableCard({
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
-            const selectedMenuItem = menuItems.find(
+            const selectedMenuItem = menuItems?.find(
               (item) => item._id === orderForm.item
             );
             if (

@@ -86,19 +86,13 @@ export function useMutationApi<T extends { _id: number | string }>({
       onMutate: async (itemDetails) => {
         // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries(queryKey);
-        console.log({ queryKey });
         // Snapshot the previous value
         const previousItems = queryClient.getQueryData<T[]>(queryKey);
-        console.log({ previousItems });
         if (!previousItems) return;
-        console.log({ previousItems });
-        console.log({ itemDetails });
         const updatedItems = [...(previousItems as T[]), itemDetails];
-        console.log({ updatedItems });
         if (sortFunction) {
           updatedItems.sort(sortFunction);
         }
-
         // Optimistically update to the new value
         queryClient.setQueryData(queryKey, updatedItems);
 
