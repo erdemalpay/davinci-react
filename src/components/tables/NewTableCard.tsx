@@ -304,7 +304,7 @@ export function TableCard({
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
-        className={`${bgColor} rounded-tl-md rounded-tr-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-between mb-2`}
+        className={`${bgColor} rounded-tl-md rounded-tr-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-between mb-2 max-h-12`}
       >
         <p className="text-base font-semibold cursor-pointer w-full">
           <EditableText
@@ -566,7 +566,7 @@ export function TableCard({
 
       {/* buttom buttons */}
       <div
-        className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2 max-h-10`}
+        className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2  h-9`}
       >
         <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
           <Tooltip content={t("Table Transfer")}>

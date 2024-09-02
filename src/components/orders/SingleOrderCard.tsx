@@ -57,7 +57,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   value: (index + 1).toString(),
                   label: `${index + 1}`,
                 }))}
-                className="text-sm mt-1"
+                className="text-sm mt-1 min-w-20"
                 placeholder={order?.quantity.toString()}
                 value={{
                   value: order?.quantity.toString(),

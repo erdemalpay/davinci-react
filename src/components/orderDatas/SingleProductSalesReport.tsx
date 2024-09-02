@@ -55,8 +55,8 @@ const SingleProductSalesReport = () => {
       (filterPanelFormElements.after !== "" &&
         (order?.table as Table)?.date < filterPanelFormElements.after) ||
       !passesFilter(
-        filterPanelFormElements.category,
-        (order.item as MenuItem).category as number
+        filterPanelFormElements?.category,
+        (order.item as MenuItem)?.category as number
       )
     ) {
       return acc;
@@ -77,10 +77,10 @@ const SingleProductSalesReport = () => {
       date: (order?.table as Table)?.date,
       formattedDate: formatAsLocalDate((order?.table as Table)?.date),
       category:
-        categories.find(
-          (category) => category._id === (order.item as MenuItem).category
+        categories?.find(
+          (category) => category?._id === (order.item as MenuItem)?.category
         )?.name ?? "",
-      categoryId: (order.item as MenuItem).category as number,
+      categoryId: (order.item as MenuItem)?.category as number,
       totalAmountWithDiscount:
         order.paidQuantity * order.unitPrice -
         (order?.discountPercentage
@@ -193,10 +193,10 @@ const SingleProductSalesReport = () => {
       type: InputTypes.SELECT,
       formKey: "category",
       label: t("Category"),
-      options: categories.map((category) => {
+      options: categories?.map((category) => {
         return {
-          value: category._id,
-          label: category.name,
+          value: category?._id,
+          label: category?.name,
         };
       }),
       placeholder: t("Category"),

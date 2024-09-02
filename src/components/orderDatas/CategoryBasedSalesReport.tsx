@@ -69,15 +69,15 @@ const CategoryBasedSalesReport = () => {
       (beforeDate && orderDate > beforeDate) ||
       (afterDate && orderDate < afterDate) ||
       !passesFilter(
-        filterPanelFormElements.category,
-        (order.item as MenuItem).category as number
+        filterPanelFormElements?.category,
+        (order.item as MenuItem)?.category as number
       )
     ) {
       return acc;
     }
 
     const existingEntry = acc.find(
-      (item) => item.categoryId === (order.item as MenuItem).category
+      (item) => item?.categoryId === (order.item as MenuItem)?.category
     );
 
     if (existingEntry) {
@@ -150,9 +150,9 @@ const CategoryBasedSalesReport = () => {
         date: format(orderDate, "yyyy-MM-dd"),
         category:
           categories.find(
-            (category) => category._id === (order.item as MenuItem).category
+            (category) => category._id === (order.item as MenuItem)?.category
           )?.name ?? "",
-        categoryId: (order.item as MenuItem).category as number,
+        categoryId: (order.item as MenuItem)?.category as number,
         itemQuantity: [
           {
             itemId: (order.item as MenuItem)._id,
@@ -228,7 +228,7 @@ const CategoryBasedSalesReport = () => {
       key: "category",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.category}</p>;
+        return <p className={`${row?.className}`}>{row?.category}</p>;
       },
     },
 
@@ -283,10 +283,10 @@ const CategoryBasedSalesReport = () => {
       type: InputTypes.SELECT,
       formKey: "category",
       label: t("Category"),
-      options: categories.map((category) => {
+      options: categories?.map((category) => {
         return {
-          value: category._id,
-          label: category.name,
+          value: category?._id,
+          label: category?.name,
         };
       }),
       placeholder: t("Category"),

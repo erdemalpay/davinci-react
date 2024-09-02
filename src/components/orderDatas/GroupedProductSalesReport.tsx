@@ -60,8 +60,8 @@ const GroupedProductSalesReport = () => {
       (filterPanelFormElements.after !== "" &&
         (order?.table as Table).date < filterPanelFormElements.after) ||
       !passesFilter(
-        filterPanelFormElements.category,
-        (order.item as MenuItem).category as number
+        filterPanelFormElements?.category,
+        (order.item as MenuItem)?.category as number
       )
     ) {
       return acc;
@@ -137,10 +137,10 @@ const GroupedProductSalesReport = () => {
         location: (order.location as Location)._id,
         date: (order?.table as Table)?.date,
         category:
-          categories.find(
-            (category) => category._id === (order.item as MenuItem).category
+          categories?.find(
+            (category) => category?._id === (order.item as MenuItem)?.category
           )?.name ?? "",
-        categoryId: (order.item as MenuItem).category as number,
+        categoryId: (order.item as MenuItem)?.category as number,
         unitPriceQuantity: [
           {
             unitPrice: order.unitPrice,
@@ -282,10 +282,10 @@ const GroupedProductSalesReport = () => {
       type: InputTypes.SELECT,
       formKey: "category",
       label: t("Category"),
-      options: categories.map((category) => {
+      options: categories?.map((category) => {
         return {
-          value: category._id,
-          label: category.name,
+          value: category?._id,
+          label: category?.name,
         };
       }),
       placeholder: t("Category"),
