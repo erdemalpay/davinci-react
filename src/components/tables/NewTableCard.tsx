@@ -100,7 +100,6 @@ export function TableCard({
     table: "",
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
-  console.log(tables);
   const menuItems = useGetMenuItems();
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
@@ -511,7 +510,7 @@ export function TableCard({
           anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
-            const selectedMenuItem = menuItems.find(
+            const selectedMenuItem = menuItems?.find(
               (item) => item._id === orderForm.item
             );
             if (
