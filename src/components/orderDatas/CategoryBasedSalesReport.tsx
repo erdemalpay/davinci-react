@@ -51,7 +51,7 @@ const CategoryBasedSalesReport = () => {
     // Location filter
     if (
       filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order.location as Location)._id
+      filterPanelFormElements.location !== (order.location as Location)?._id
     ) {
       return acc;
     }
@@ -70,14 +70,14 @@ const CategoryBasedSalesReport = () => {
       (afterDate && orderDate < afterDate) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order.item as MenuItem)?.category as number
+        (order?.item as MenuItem)?.category as number
       )
     ) {
       return acc;
     }
 
     const existingEntry = acc.find(
-      (item) => item?.categoryId === (order.item as MenuItem)?.category
+      (item) => item?.categoryId === (order?.item as MenuItem)?.category
     );
 
     if (existingEntry) {
@@ -100,7 +100,7 @@ const CategoryBasedSalesReport = () => {
           : (order?.discountAmount ?? 0) * order.paidQuantity);
       const existingItem = existingEntry.itemQuantity.find(
         (itemQuantityIteration) =>
-          itemQuantityIteration.itemId === (order.item as MenuItem)._id
+          itemQuantityIteration.itemId === (order?.item as MenuItem)?._id
       );
       if (existingItem) {
         existingEntry.itemQuantity = existingEntry.itemQuantity.map(
@@ -114,8 +114,8 @@ const CategoryBasedSalesReport = () => {
         );
       } else {
         existingEntry.itemQuantity.push({
-          itemId: (order.item as MenuItem)._id,
-          itemName: (order.item as MenuItem).name,
+          itemId: (order?.item as MenuItem)?._id,
+          itemName: (order?.item as MenuItem).name,
           quantity: order.paidQuantity,
         });
       }
@@ -136,8 +136,8 @@ const CategoryBasedSalesReport = () => {
       };
     } else {
       acc.push({
-        item: (order.item as MenuItem)._id,
-        itemName: (order.item as MenuItem).name,
+        item: (order?.item as MenuItem)?._id,
+        itemName: (order?.item as MenuItem).name,
         paidQuantity: order.paidQuantity,
         discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
@@ -146,17 +146,17 @@ const CategoryBasedSalesReport = () => {
             (1 / 100)
           : (order?.discountAmount ?? 0) * order.paidQuantity,
         amount: order.paidQuantity * order.unitPrice,
-        location: (order.location as Location)._id,
+        location: (order.location as Location)?._id,
         date: format(orderDate, "yyyy-MM-dd"),
         category:
-          categories.find(
-            (category) => category._id === (order.item as MenuItem)?.category
+          categories?.find(
+            (category) => category?._id === (order?.item as MenuItem)?.category
           )?.name ?? "",
-        categoryId: (order.item as MenuItem)?.category as number,
+        categoryId: (order?.item as MenuItem)?.category as number,
         itemQuantity: [
           {
-            itemId: (order.item as MenuItem)._id,
-            itemName: (order.item as MenuItem).name,
+            itemId: (order?.item as MenuItem)?._id,
+            itemName: (order?.item as MenuItem).name,
             quantity: order.paidQuantity,
           },
         ],
@@ -168,7 +168,7 @@ const CategoryBasedSalesReport = () => {
           ],
           collapsibleRows: [
             {
-              product: (order.item as MenuItem).name,
+              product: (order?.item as MenuItem).name,
               quantity: order.paidQuantity,
             },
           ],
