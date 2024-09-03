@@ -115,7 +115,7 @@ const CategoryBasedSalesReport = () => {
       } else {
         existingEntry.itemQuantity.push({
           itemId: (order?.item as MenuItem)?._id,
-          itemName: (order?.item as MenuItem).name,
+          itemName: (order?.item as MenuItem)?.name,
           quantity: order.paidQuantity,
         });
       }
@@ -137,7 +137,7 @@ const CategoryBasedSalesReport = () => {
     } else {
       acc.push({
         item: (order?.item as MenuItem)?._id,
-        itemName: (order?.item as MenuItem).name,
+        itemName: (order?.item as MenuItem)?.name,
         paidQuantity: order.paidQuantity,
         discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
@@ -156,7 +156,7 @@ const CategoryBasedSalesReport = () => {
         itemQuantity: [
           {
             itemId: (order?.item as MenuItem)?._id,
-            itemName: (order?.item as MenuItem).name,
+            itemName: (order?.item as MenuItem)?.name,
             quantity: order.paidQuantity,
           },
         ],
@@ -168,7 +168,7 @@ const CategoryBasedSalesReport = () => {
           ],
           collapsibleRows: [
             {
-              product: (order?.item as MenuItem).name,
+              product: (order?.item as MenuItem)?.name,
               quantity: order.paidQuantity,
             },
           ],
