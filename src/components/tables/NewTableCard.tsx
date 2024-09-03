@@ -499,7 +499,7 @@ export function TableCard({
           isCreateCloseActive={false}
           constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="flex flex-col gap-2  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
+          anotherPanelTopClassName="flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems?.find(
