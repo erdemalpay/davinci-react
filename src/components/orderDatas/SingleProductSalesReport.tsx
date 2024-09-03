@@ -44,7 +44,7 @@ const SingleProductSalesReport = () => {
     // location filter
     if (
       filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order.location as Location)._id
+      filterPanelFormElements.location !== (order?.location as Location)?._id
     ) {
       return acc;
     }
@@ -56,14 +56,14 @@ const SingleProductSalesReport = () => {
         (order?.table as Table)?.date < filterPanelFormElements.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order.item as MenuItem)?.category as number
+        (order?.item as MenuItem)?.category as number
       )
     ) {
       return acc;
     }
     acc.push({
-      item: (order.item as MenuItem)._id,
-      itemName: (order.item as MenuItem).name,
+      item: (order?.item as MenuItem)?._id,
+      itemName: (order?.item as MenuItem).name,
       unitPrice: order.unitPrice,
       paidQuantity: order.paidQuantity,
       discount: order?.discountPercentage
@@ -73,14 +73,14 @@ const SingleProductSalesReport = () => {
           (1 / 100)
         : (order?.discountAmount ?? 0) * order.paidQuantity,
       amount: order.paidQuantity * order.unitPrice,
-      location: (order.location as Location)._id,
+      location: (order?.location as Location)?._id,
       date: (order?.table as Table)?.date,
       formattedDate: formatAsLocalDate((order?.table as Table)?.date),
       category:
         categories?.find(
-          (category) => category?._id === (order.item as MenuItem)?.category
+          (category) => category?._id === (order?.item as MenuItem)?.category
         )?.name ?? "",
-      categoryId: (order.item as MenuItem)?.category as number,
+      categoryId: (order?.item as MenuItem)?.category as number,
       totalAmountWithDiscount:
         order.paidQuantity * order.unitPrice -
         (order?.discountPercentage

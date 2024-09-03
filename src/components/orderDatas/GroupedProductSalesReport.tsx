@@ -49,7 +49,7 @@ const GroupedProductSalesReport = () => {
     // location filter
     if (
       filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order.location as Location)._id
+      filterPanelFormElements.location !== (order?.location as Location)?._id
     ) {
       return acc;
     }
@@ -67,7 +67,7 @@ const GroupedProductSalesReport = () => {
       return acc;
     }
     const existingEntry = acc.find(
-      (item) => item.item === (order.item as MenuItem)._id
+      (item) => item.item === (order.item as MenuItem)?._id
     );
 
     if (existingEntry) {
@@ -123,7 +123,7 @@ const GroupedProductSalesReport = () => {
       }
     } else {
       acc.push({
-        item: (order.item as MenuItem)._id,
+        item: (order.item as MenuItem)?._id,
         itemName: (order.item as MenuItem).name,
         unitPrice: order.unitPrice,
         paidQuantity: order.paidQuantity,
@@ -134,7 +134,7 @@ const GroupedProductSalesReport = () => {
             (1 / 100)
           : (order?.discountAmount ?? 0) * order.paidQuantity,
         amount: order.paidQuantity * order.unitPrice,
-        location: (order.location as Location)._id,
+        location: (order?.location as Location)?._id,
         date: (order?.table as Table)?.date,
         category:
           categories?.find(

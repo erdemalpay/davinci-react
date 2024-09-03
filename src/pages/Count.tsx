@@ -59,27 +59,27 @@ const Count = () => {
   });
   const [rows, setRows] = useState(
     countLists
-      .find((cl) => cl._id === countListId)
+      ?.find((cl) => cl?._id === countListId)
       ?.products?.map((item) => {
         const currentCount = counts?.find((item) => {
           return (
             item.isCompleted === false &&
-            (item.location as AccountStockLocation)._id === location &&
+            (item.location as AccountStockLocation)?._id === location &&
             (item.user as User)._id === user?._id &&
-            (item.countList as AccountCountList)._id === countListId
+            (item.countList as AccountCountList)?._id === countListId
           );
         });
         if (location && item.locations.includes(location)) {
           return {
             products: currentCount?.products,
             productId: item.product,
-            product: products.find((p) => p._id === item.product)?.name || "",
+            product: products?.find((p) => p?._id === item.product)?.name || "",
             packageDetails: currentCount?.products
               ?.filter((p) => p.product === item.product)
               ?.map((p) => {
                 return {
                   packageType:
-                    packages.find((pck) => pck._id === p.packageType)?.name ||
+                    packages?.find((pck) => pck?._id === p.packageType)?.name ||
                     "",
                   quantity: p.countQuantity,
                 };
@@ -100,11 +100,11 @@ const Count = () => {
                 ?.map((p) => {
                   return {
                     packageType:
-                      packages.find((pck) => pck._id === p.packageType)?.name ||
-                      "",
+                      packages?.find((pck) => pck?._id === p.packageType)
+                        ?.name || "",
                     packageTypeId:
-                      packages.find((pck) => pck._id === p.packageType)?._id ||
-                      "",
+                      packages?.find((pck) => pck?._id === p.packageType)
+                        ?._id || "",
                     quantity: p.countQuantity,
                   };
                 }),
@@ -142,23 +142,24 @@ const Count = () => {
           const currentCount = counts?.find((item) => {
             return (
               item.isCompleted === false &&
-              (item.location as AccountStockLocation)._id === location &&
+              (item.location as AccountStockLocation)?._id === location &&
               (item.user as User)._id === user?._id &&
-              (item.countList as AccountCountList)._id === countListId
+              (item.countList as AccountCountList)?._id === countListId
             );
           });
           if (location && item.locations.includes(location)) {
             return {
               products: currentCount?.products,
               productId: item.product,
-              product: products.find((p) => p._id === item.product)?.name || "",
+              product:
+                products?.find((p) => p?._id === item.product)?.name || "",
               packageDetails: currentCount?.products
                 ?.filter((p) => p.product === item.product)
                 ?.map((p) => {
                   return {
                     packageType:
-                      packages.find((pck) => pck._id === p.packageType)?.name ||
-                      "",
+                      packages.find((pck) => pck?._id === p.packageType)
+                        ?.name || "",
                     quantity: p.countQuantity,
                   };
                 }),
@@ -178,10 +179,10 @@ const Count = () => {
                   ?.map((p) => {
                     return {
                       packageType:
-                        packages.find((pck) => pck._id === p.packageType)
+                        packages?.find((pck) => pck?._id === p.packageType)
                           ?.name || "",
                       packageTypeId:
-                        packages.find((pck) => pck._id === p.packageType)
+                        packages?.find((pck) => pck?._id === p.packageType)
                           ?._id || "",
                       quantity: p.countQuantity,
                     };
@@ -215,7 +216,7 @@ const Count = () => {
       options: products
         ?.find((p) => p.name === rowToAction?.product)
         ?.packages?.map((item) => {
-          const pck = packages?.find((p) => p._id === item.package);
+          const pck = packages?.find((p) => p?._id === item.package);
           return {
             value: pck?._id,
             label: pck?.name,
@@ -259,9 +260,9 @@ const Count = () => {
             const currentCount = counts?.find((item) => {
               return (
                 item.isCompleted === false &&
-                (item.location as AccountStockLocation)._id === location &&
+                (item.location as AccountStockLocation)?._id === location &&
                 (item.user as User)._id === user?._id &&
-                (item.countList as AccountCountList)._id === countListId
+                (item.countList as AccountCountList)?._id === countListId
               );
             });
             if (!currentCount || !rowProduct) {
@@ -269,8 +270,8 @@ const Count = () => {
             }
             const productStock = stocks?.find(
               (s) =>
-                (s.product as AccountProduct)._id === rowProduct?._id &&
-                (s.packageType as AccountPackageType)._id ===
+                (s?.product as AccountProduct)?._id === rowProduct?._id &&
+                (s?.packageType as AccountPackageType)?._id ===
                   collapsibleForm?.packageType
             );
             const newProducts = [
@@ -334,9 +335,9 @@ const Count = () => {
         const currentCount = counts?.find((item) => {
           return (
             item.isCompleted === false &&
-            (item.location as AccountStockLocation)._id === location &&
-            (item.user as User)._id === user?._id &&
-            (item.countList as AccountCountList)._id === countListId
+            (item.location as AccountStockLocation)?._id === location &&
+            (item.user as User)?._id === user?._id &&
+            (item.countList as AccountCountList)?._id === countListId
           );
         });
         if (!currentCount) return;
@@ -352,7 +353,7 @@ const Count = () => {
             className="text-red-500 cursor-pointer text-xl"
             onClick={() => {
               updateAccountCount({
-                id: currentCount._id,
+                id: currentCount?._id,
                 updates: {
                   products: newProducts,
                 },
@@ -393,9 +394,9 @@ const Count = () => {
               const currentCount = counts?.find((item) => {
                 return (
                   item.isCompleted === false &&
-                  (item.location as AccountStockLocation)._id === location &&
+                  (item.location as AccountStockLocation)?._id === location &&
                   (item.user as User)._id === user?._id &&
-                  (item.countList as AccountCountList)._id === countListId
+                  (item.countList as AccountCountList)?._id === countListId
                 );
               });
               if (!currentCount) {
