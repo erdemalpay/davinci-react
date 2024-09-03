@@ -389,14 +389,6 @@ export function TableCard({
               </span>
             </Tooltip>
           )}
-          <Tooltip content={t("Delete")}>
-            <span>
-              <CardAction
-                onClick={() => setIsDeleteConfirmationDialogOpen(true)}
-                IconComponent={TrashIcon}
-              />
-            </span>
-          </Tooltip>
         </div>
       </div>
       <div className={`px-4 lg:px-3 md:pb-4 pb-8 gap-2`}>
@@ -574,6 +566,14 @@ export function TableCard({
               <CardAction
                 onClick={() => setIsTableTransferOpen(true)}
                 IconComponent={RiFileTransferFill}
+              />
+            </span>
+          </Tooltip>
+          <Tooltip content={t("Delete")}>
+            <span>
+              <CardAction
+                onClick={() => setIsDeleteConfirmationDialogOpen(true)}
+                IconComponent={TrashIcon}
               />
             </span>
           </Tooltip>

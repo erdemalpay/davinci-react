@@ -61,13 +61,13 @@ const GroupedProductSalesReport = () => {
         (order?.table as Table).date < filterPanelFormElements.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order.item as MenuItem)?.category as number
+        (order?.item as MenuItem)?.category as number
       )
     ) {
       return acc;
     }
     const existingEntry = acc.find(
-      (item) => item.item === (order.item as MenuItem)?._id
+      (item) => item.item === (order?.item as MenuItem)?._id
     );
 
     if (existingEntry) {
@@ -123,8 +123,8 @@ const GroupedProductSalesReport = () => {
       }
     } else {
       acc.push({
-        item: (order.item as MenuItem)?._id,
-        itemName: (order.item as MenuItem).name,
+        item: (order?.item as MenuItem)?._id,
+        itemName: (order?.item as MenuItem)?.name,
         unitPrice: order.unitPrice,
         paidQuantity: order.paidQuantity,
         discount: order?.discountPercentage
@@ -138,9 +138,9 @@ const GroupedProductSalesReport = () => {
         date: (order?.table as Table)?.date,
         category:
           categories?.find(
-            (category) => category?._id === (order.item as MenuItem)?.category
+            (category) => category?._id === (order?.item as MenuItem)?.category
           )?.name ?? "",
-        categoryId: (order.item as MenuItem)?.category as number,
+        categoryId: (order?.item as MenuItem)?.category as number,
         unitPriceQuantity: [
           {
             unitPrice: order.unitPrice,

@@ -37,7 +37,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
             <Timer createdAt={timerSetter() ?? new Date()} />
           )}
           <img
-            src={(order.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
+            src={(order?.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
             alt="item"
             className="w-10 h-10 object-cover rounded-lg"
           />
@@ -45,7 +45,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         {/* itemName,quantity & orderNote */}
         <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
           <div className="flex flex-row justify-between w-full pr-2 items-center ">
-            <p>{(order.item as MenuItem)?.name}</p>
+            <p>{(order?.item as MenuItem)?.name}</p>
             {order.quantity === 1 && (
               <p className="border px-2 py-0.5 border-gray-300 rounded-md">
                 {order?.quantity}
