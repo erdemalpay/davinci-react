@@ -11,6 +11,7 @@ type Props = {
   setActiveTab: (tab: number) => void;
   additionalClickAction?: () => void;
   additionalOpenAction?: () => void;
+  topClassName?: string;
 };
 
 const TabPanel: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const TabPanel: React.FC<Props> = ({
   activeTab,
   setActiveTab,
   additionalOpenAction,
+  topClassName,
 }) => {
   const { t } = useTranslation();
   const adjustedTabs = tabs
@@ -70,10 +72,16 @@ const TabPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="my-6 flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8">
+    <div
+      className={` flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8 ${
+        topClassName ? topClassName : "my-6"
+      }`}
+    >
       <div
         ref={containerRef}
-        className="flex flex-row py-6 border-b relative overflow-x-auto scroll-auto scrollbar-hide"
+        className={`flex flex-row  border-b relative overflow-x-auto scroll-auto scrollbar-hide ${
+          topClassName ? "py-5" : "py-6"
+        }`}
       >
         {adjustedTabs
           .filter((tab) => !tab.isDisabled)
@@ -100,7 +108,7 @@ const TabPanel: React.FC<Props> = ({
       </div>
       {adjustedTabs.find((tab) => tab.number === activeTab)?.content &&
         !adjustedTabs.find((tab) => tab.number === activeTab)?.isDisabled && (
-          <div className="py-6 ">
+          <div className={`${topClassName ? "pt-3" : "py-6"}`}>
             {adjustedTabs.find((tab) => tab.number === activeTab)?.content}
           </div>
         )}

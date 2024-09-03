@@ -266,7 +266,7 @@ const GenericAddEditPanel = <T,>({
           anotherPanelTopClassName
             ? ""
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
-        }   max-h-[90vh] z-[100]   ${generalClassName}`}
+        }   max-h-[90vh]   ${generalClassName}`}
       >
         <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
           <div
