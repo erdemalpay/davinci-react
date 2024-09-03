@@ -45,6 +45,28 @@ interface SelectInputProps {
   isAutoFill?: boolean;
 }
 
+const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/i̇/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+};
+
+const customFilterOption = (
+  option: { value: string; label: string },
+  searchInput: string
+) => {
+  const normalizedLabel = normalizeText(option.label);
+  const normalizedSearch = normalizeText(searchInput);
+
+  return normalizedLabel.includes(normalizedSearch);
+};
+
 const SelectInput = ({
   label,
   options,
@@ -100,6 +122,7 @@ const SelectInput = ({
   }, [options, value, onChange]);
 
   const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-2 __className_a182b8">
       <H6>
@@ -125,6 +148,7 @@ const SelectInput = ({
               placeholder={placeholder}
               styles={customStyles}
               closeMenuOnSelect={false}
+              filterOption={customFilterOption}
             />
           ) : (
             <Select
@@ -134,6 +158,7 @@ const SelectInput = ({
               components={{ Option: CustomOption }}
               placeholder={placeholder}
               styles={customStyles}
+              filterOption={customFilterOption}
             />
           )}
         </div>
