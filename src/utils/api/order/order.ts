@@ -4,7 +4,7 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
-import { Order } from "./../../../types/index";
+import { Order, Table } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
   orders: {
@@ -75,20 +75,69 @@ export function useTransferTableMutation() {
   const { selectedDate } = useDateContext();
   const queryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
+
   return useMutation(transferTable, {
-    onMutate: async () => {
+    onMutate: async ({
+      orders,
+      oldTableId,
+      transferredTableId,
+    }: TransferTablePayload) => {
+      // Cancel any outgoing refetches to prevent overwriting the optimistic update
       await queryClient.cancelQueries(queryKey);
+
+      // Snapshot the previous value
+      const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
+
+      // Create a deep copy of the tables to avoid mutating the original data
+      const updatedTables: Table[] = JSON.parse(JSON.stringify(previousTables));
+
+      const oldTable = updatedTables.find((table) => table._id === oldTableId);
+      const newTable = updatedTables.find(
+        (table) => table._id === transferredTableId
+      );
+
+      if (oldTable && newTable) {
+        newTable.gameplays = [
+          ...(newTable.gameplays || []),
+          ...(oldTable.gameplays || []),
+        ];
+
+        newTable.orders = [
+          ...((newTable.orders as any) || []),
+          ...(oldTable.orders || []),
+        ];
+
+        // Filter out the old table and the new table (which will be re-added with updated values)
+        const remainingTables = updatedTables.filter(
+          (table) =>
+            table._id !== oldTableId && table._id !== transferredTableId
+        );
+
+        // Update the tables list with the new state of the transferred table
+        queryClient.setQueryData<Table[]>(queryKey, [
+          ...remainingTables,
+          newTable,
+        ]);
+      }
+
+      // Return the previous state in case of rollback
+      return { previousTables };
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
-    },
-    onError: (_err: any) => {
+    onError: (_err: any, _newTable, context) => {
+      if (context?.previousTables) {
+        queryClient.setQueryData<Table[]>(queryKey, context.previousTables);
+      }
+
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
   });
 }
+
 export function useUpdateOrdersMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();

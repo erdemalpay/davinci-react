@@ -91,11 +91,6 @@ export function useCreateOrderCollectionMutation() {
       );
       updatedCollections.push(createdCollection as OrderCollection);
 
-      console.log({
-        collectionQueryKey,
-        previousCollections,
-        updatedCollections,
-      });
       // Optimistically update to the new value
       queryClient.setQueryData(collectionQueryKey, updatedCollections);
 
