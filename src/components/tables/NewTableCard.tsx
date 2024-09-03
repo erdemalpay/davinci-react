@@ -446,7 +446,7 @@ export function TableCard({
         )}
         {/* table orders */}
         {table.orders && table?.orders?.length > 0 && showAllOrders && (
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-2 mt-2 ">
             {(table?.orders as Order[])?.map((order) => {
               if (
                 order.status === OrderStatus.CANCELLED ||
@@ -499,7 +499,7 @@ export function TableCard({
           isCreateCloseActive={false}
           constantValues={{ quantity: 1 }}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="grid grid-cols-1 md:grid-cols-2  overflow-scroll no-scrollbar w-5/6 md:w-1/2"
+          anotherPanelTopClassName="flex flex-col gap-2  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems?.find(
@@ -551,7 +551,7 @@ export function TableCard({
               isOnlinePrice: false,
             });
           }}
-          generalClassName="overflow-scroll md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
         />
       )}
