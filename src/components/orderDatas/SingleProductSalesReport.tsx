@@ -40,7 +40,7 @@ const SingleProductSalesReport = () => {
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders.reduce((acc, order) => {
-    if (!order || order.paidQuantity === 0) return acc;
+    if (!order || order?.paidQuantity === 0) return acc;
     // location filter
     if (
       filterPanelFormElements.location !== "" &&
@@ -63,16 +63,16 @@ const SingleProductSalesReport = () => {
     }
     acc.push({
       item: (order?.item as MenuItem)?._id,
-      itemName: (order?.item as MenuItem).name,
-      unitPrice: order.unitPrice,
-      paidQuantity: order.paidQuantity,
+      itemName: (order?.item as MenuItem)?.name,
+      unitPrice: order?.unitPrice,
+      paidQuantity: order?.paidQuantity,
       discount: order?.discountPercentage
         ? (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
+          order?.paidQuantity *
+          order?.unitPrice *
           (1 / 100)
-        : (order?.discountAmount ?? 0) * order.paidQuantity,
-      amount: order.paidQuantity * order.unitPrice,
+        : (order?.discountAmount ?? 0) * order?.paidQuantity,
+      amount: order?.paidQuantity * order?.unitPrice,
       location: (order?.location as Location)?._id,
       date: (order?.table as Table)?.date,
       formattedDate: formatAsLocalDate((order?.table as Table)?.date),
@@ -82,13 +82,13 @@ const SingleProductSalesReport = () => {
         )?.name ?? "",
       categoryId: (order?.item as MenuItem)?.category as number,
       totalAmountWithDiscount:
-        order.paidQuantity * order.unitPrice -
+        order?.paidQuantity * order?.unitPrice -
         (order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
+            order?.paidQuantity *
+            order?.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity),
+          : (order?.discountAmount ?? 0) * order?.paidQuantity),
     });
     return acc;
   }, [] as OrderWithPaymentInfo[]);
