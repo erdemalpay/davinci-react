@@ -280,10 +280,10 @@ const OnlineSales = () => {
         </div>
 
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns.map((tables, idx) => (
+          {tableColumns.map((tableColumn, idx) => (
             <div key={idx}>
               {collections &&
-                tables.map((table) => (
+                tableColumn.map((table) => (
                   <TableCard
                     key={table._id || table.startHour}
                     table={table}
