@@ -53,7 +53,9 @@ const OrderListForPanel = ({ table }: Props) => {
     <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100]  ">
       <div className="flex flex-col gap-2 px-4 py-6">
         {/* header */}
-        <h1 className="font-medium">{table.name}</h1>
+        <h1 className="font-medium">
+          {t("Table")}: {table.name}
+        </h1>
         {/* orders */}
         <TabPanel
           tabs={tabs}
