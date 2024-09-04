@@ -2,9 +2,10 @@ import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table, User } from "../../types";
+import { Location, MenuItem, OrderDiscount, Table, User } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
@@ -19,10 +20,11 @@ const OrdersReport = () => {
   const locations = useGetLocations();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
+  const discounts = useGetOrderDiscounts();
   const [tableKey, setTableKey] = useState(0);
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  if (!orders || !locations || !users) {
+  if (!orders || !locations || !users || !discounts) {
     return null;
   }
   const statusOptions = [
@@ -60,6 +62,12 @@ const OrdersReport = () => {
           order.deliveredAt && order.preparedAt
             ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
             : null,
+        discountId: (order?.discount as OrderDiscount)?._id,
+        discountName:
+          discounts?.find(
+            (discount) =>
+              discount?._id === (order?.discount as OrderDiscount)?._id
+          )?.name ?? "",
         item: (order.item as MenuItem)?.name,
         location: (order.location as Location)?.name,
         locationId: (order.location as Location)?._id,
@@ -191,6 +199,19 @@ const OrdersReport = () => {
       placeholder: t("Status"),
       required: true,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: discounts.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: true,
+    },
     LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.DATE,
@@ -244,12 +265,13 @@ const OrdersReport = () => {
           filterPanelFormElements.cancelledBy,
           row.cancelledByUserId
         ) &&
+        passesFilter(filterPanelFormElements.discount, row.discountId) &&
         passesFilter(filterPanelFormElements.status, row.status)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, locations, users, filterPanelFormElements]);
+  }, [orders, locations, users, filterPanelFormElements, discounts]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">

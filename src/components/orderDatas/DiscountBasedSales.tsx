@@ -135,10 +135,11 @@ const DiscountBasedSales = () => {
         item: (order.item as MenuItem)._id,
         itemName: (order.item as MenuItem).name,
         paidQuantity: order.paidQuantity,
-        discountId: (order.discount as OrderDiscount)._id,
+        discountId: (order?.discount as OrderDiscount)?._id,
         discountName:
-          discounts.find(
-            (discount) => discount._id === (order.discount as OrderDiscount)._id
+          discounts?.find(
+            (discount) =>
+              discount._id === (order?.discount as OrderDiscount)?._id
           )?.name ?? "",
         amount: order.paidQuantity * order.unitPrice,
         location: (order.location as Location)._id,
