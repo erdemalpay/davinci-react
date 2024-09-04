@@ -137,6 +137,7 @@ export type AccountCount = {
     packageType: string;
     stockQuantity: number;
     countQuantity: number;
+    isStockEqualized?: boolean;
   }[];
   countList: string | AccountCountList;
 };
