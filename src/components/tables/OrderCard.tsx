@@ -81,7 +81,9 @@ const OrderCard = ({ order, table }: Props) => {
             // )
             <></> // not served button may be added later
           ))}
-        {order.status === OrderStatus.PENDING && (
+        {[OrderStatus.PENDING, OrderStatus.READYTOSERVE].includes(
+          order.status as OrderStatus
+        ) && (
           <div className="flex flex-row gap-[1px]">
             <h5 className="text-xs whitespace-nowrap min-w-8">
               {orderWaitTime()} m

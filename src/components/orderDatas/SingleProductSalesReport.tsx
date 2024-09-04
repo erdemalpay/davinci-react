@@ -39,21 +39,21 @@ const SingleProductSalesReport = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = orders.reduce((acc, order) => {
+  const allRows = orders?.reduce((acc, order) => {
     if (!order || order?.paidQuantity === 0) return acc;
     // location filter
     if (
-      filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order?.location as Location)?._id
+      filterPanelFormElements?.location !== "" &&
+      filterPanelFormElements?.location !== (order?.location as Location)?._id
     ) {
       return acc;
     }
     // other filters
     if (
-      (filterPanelFormElements.before !== "" &&
-        (order?.table as Table)?.date > filterPanelFormElements.before) ||
-      (filterPanelFormElements.after !== "" &&
-        (order?.table as Table)?.date < filterPanelFormElements.after) ||
+      (filterPanelFormElements?.before !== "" &&
+        (order?.table as Table)?.date > filterPanelFormElements?.before) ||
+      (filterPanelFormElements?.after !== "" &&
+        (order?.table as Table)?.date < filterPanelFormElements?.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
         (order?.item as MenuItem)?.category as number
@@ -128,13 +128,13 @@ const SingleProductSalesReport = () => {
       key: "itemName",
       className: "min-w-fit pr-2",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.itemName}</p>;
+        return <p className={`${row?.className}`}>{row?.itemName}</p>;
       },
     },
     {
       key: "paidQuantity",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.paidQuantity}</p>;
+        return <p className={`${row?.className}`}>{row?.paidQuantity}</p>;
       },
     },
     { key: "category", className: "min-w-32 pr-2" },
@@ -142,7 +142,7 @@ const SingleProductSalesReport = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return row.formattedDate;
+        return row?.formattedDate;
       },
     },
     {
@@ -150,7 +150,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.unitPrice > 0 && row.unitPrice + " " + TURKISHLIRA}
+            {row?.unitPrice > 0 && row?.unitPrice + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -160,7 +160,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.discount !== 0 ? row.discount + " " + TURKISHLIRA : ""}
+            {row?.discount !== 0 ? row?.discount + " " + TURKISHLIRA : ""}
           </p>
         );
       },
@@ -170,7 +170,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.amount + " " + TURKISHLIRA}
+            {row?.amount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -180,7 +180,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -236,7 +236,7 @@ const SingleProductSalesReport = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, orders, categories, filterPanelFormElements]);
+  }, [orders, categories, filterPanelFormElements, locations]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

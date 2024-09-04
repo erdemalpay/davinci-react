@@ -44,21 +44,21 @@ const GroupedProductSalesReport = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = orders.reduce((acc, order) => {
-    if (!order || order.paidQuantity === 0) return acc;
+  const allRows = orders?.reduce((acc, order) => {
+    if (!order || order?.paidQuantity === 0) return acc;
     // location filter
     if (
-      filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order?.location as Location)?._id
+      filterPanelFormElements?.location !== "" &&
+      filterPanelFormElements?.location !== (order?.location as Location)?._id
     ) {
       return acc;
     }
     // other filters
     if (
-      (filterPanelFormElements.before !== "" &&
-        (order?.table as Table).date > filterPanelFormElements.before) ||
-      (filterPanelFormElements.after !== "" &&
-        (order?.table as Table).date < filterPanelFormElements.after) ||
+      (filterPanelFormElements?.before !== "" &&
+        (order?.table as Table).date > filterPanelFormElements?.before) ||
+      (filterPanelFormElements?.after !== "" &&
+        (order?.table as Table).date < filterPanelFormElements?.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
         (order?.item as MenuItem)?.category as number
@@ -67,44 +67,44 @@ const GroupedProductSalesReport = () => {
       return acc;
     }
     const existingEntry = acc.find(
-      (item) => item.item === (order?.item as MenuItem)?._id
+      (entryItem) => entryItem.item === (order?.item as MenuItem)?._id
     );
 
     if (existingEntry) {
-      existingEntry.paidQuantity += order.paidQuantity;
+      existingEntry.paidQuantity += order?.paidQuantity;
       existingEntry.discount += order?.discountPercentage
         ? (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
+          order?.paidQuantity *
+          order?.unitPrice *
           (1 / 100)
-        : (order?.discountAmount ?? 0) * order.paidQuantity;
-      existingEntry.amount += order.paidQuantity * order.unitPrice;
+        : (order?.discountAmount ?? 0) * order?.paidQuantity;
+      existingEntry.amount += order?.paidQuantity * order?.unitPrice;
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
-        order.paidQuantity * order.unitPrice -
+        order?.paidQuantity * order?.unitPrice -
         (order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
+            order?.paidQuantity *
+            order?.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity);
+          : (order?.discountAmount ?? 0) * order?.paidQuantity);
       const existingUnitPrice = existingEntry.unitPriceQuantity.find(
-        (item) => item.unitPrice === order.unitPrice
+        (item) => item.unitPrice === order?.unitPrice
       );
       if (existingUnitPrice) {
         existingEntry.unitPriceQuantity = [
           ...existingEntry.unitPriceQuantity.filter(
-            (item) => item.unitPrice !== order.unitPrice
+            (item) => item.unitPrice !== order?.unitPrice
           ),
           {
-            unitPrice: order.unitPrice,
-            quantity: order.paidQuantity + existingUnitPrice.quantity,
+            unitPrice: order?.unitPrice,
+            quantity: order?.paidQuantity + existingUnitPrice.quantity,
           },
         ];
       } else {
         existingEntry.unitPriceQuantity.push({
-          unitPrice: order.unitPrice,
-          quantity: order.paidQuantity,
+          unitPrice: order?.unitPrice,
+          quantity: order?.paidQuantity,
         });
         existingEntry.collapsible = {
           collapsibleColumns: [
@@ -125,15 +125,15 @@ const GroupedProductSalesReport = () => {
       acc.push({
         item: (order?.item as MenuItem)?._id,
         itemName: (order?.item as MenuItem)?.name,
-        unitPrice: order.unitPrice,
-        paidQuantity: order.paidQuantity,
+        unitPrice: order?.unitPrice,
+        paidQuantity: order?.paidQuantity,
         discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
+            order?.paidQuantity *
+            order?.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity,
-        amount: order.paidQuantity * order.unitPrice,
+          : (order?.discountAmount ?? 0) * order?.paidQuantity,
+        amount: order?.paidQuantity * order?.unitPrice,
         location: (order?.location as Location)?._id,
         date: (order?.table as Table)?.date,
         category:
@@ -143,8 +143,8 @@ const GroupedProductSalesReport = () => {
         categoryId: (order?.item as MenuItem)?.category as number,
         unitPriceQuantity: [
           {
-            unitPrice: order.unitPrice,
-            quantity: order.paidQuantity,
+            unitPrice: order?.unitPrice,
+            quantity: order?.paidQuantity,
           },
         ],
         collapsible: {
@@ -156,13 +156,13 @@ const GroupedProductSalesReport = () => {
           collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
         },
         totalAmountWithDiscount:
-          order.paidQuantity * order.unitPrice -
+          order?.paidQuantity * order?.unitPrice -
           (order?.discountPercentage
             ? (order?.discountPercentage ?? 0) *
-              order.paidQuantity *
-              order.unitPrice *
+              order?.paidQuantity *
+              order?.unitPrice *
               (1 / 100)
-            : (order?.discountAmount ?? 0) * order.paidQuantity),
+            : (order?.discountAmount ?? 0) * order?.paidQuantity),
       });
     }
 
@@ -212,8 +212,8 @@ const GroupedProductSalesReport = () => {
       className: "min-w-fit pr-2",
       node: (row: any) => {
         return (
-          <p key={"itemName" + row.item} className={`${row?.className}`}>
-            {row.itemName}
+          <p key={"itemName" + row?.item} className={`${row?.className}`}>
+            {row?.itemName}
           </p>
         );
       },
@@ -222,8 +222,8 @@ const GroupedProductSalesReport = () => {
       key: "paidQuantity",
       node: (row: any) => {
         return (
-          <p key={"paidQuantity" + row.item} className={`${row?.className}`}>
-            {row.paidQuantity}
+          <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
+            {row?.paidQuantity}
           </p>
         );
       },
@@ -233,10 +233,10 @@ const GroupedProductSalesReport = () => {
       key: "unitPrice",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"unitPrice" + row.item}>
-            {row.unitPriceQuantity.length > 1 || row.unitPrice === 0
+          <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
+            {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
               ? ""
-              : row.unitPrice + " " + TURKISHLIRA}
+              : row?.unitPrice + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -245,8 +245,8 @@ const GroupedProductSalesReport = () => {
       key: "discount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"discount" + row.item}>
-            {row.discount > 0 && row.discount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"discount" + row?.item}>
+            {row?.discount > 0 && row?.discount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -255,8 +255,8 @@ const GroupedProductSalesReport = () => {
       key: "amount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"amount" + row.item}>
-            {row.amount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"amount" + row?.item}>
+            {row?.amount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -267,9 +267,9 @@ const GroupedProductSalesReport = () => {
         return (
           <p
             className={`${row?.className}`}
-            key={"totalAmountWithDiscount" + row.item}
+            key={"totalAmountWithDiscount" + row?.item}
           >
-            {row.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -325,7 +325,7 @@ const GroupedProductSalesReport = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, orders, categories, filterPanelFormElements]);
+  }, [orders, categories, filterPanelFormElements, locations]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
