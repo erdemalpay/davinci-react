@@ -212,8 +212,8 @@ const GroupedProductSalesReport = () => {
       className: "min-w-fit pr-2",
       node: (row: any) => {
         return (
-          <p key={"itemName" + row.item} className={`${row?.className}`}>
-            {row.itemName}
+          <p key={"itemName" + row?.item} className={`${row?.className}`}>
+            {row?.itemName}
           </p>
         );
       },
@@ -222,8 +222,8 @@ const GroupedProductSalesReport = () => {
       key: "paidQuantity",
       node: (row: any) => {
         return (
-          <p key={"paidQuantity" + row.item} className={`${row?.className}`}>
-            {row.paidQuantity}
+          <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
+            {row?.paidQuantity}
           </p>
         );
       },
@@ -233,10 +233,10 @@ const GroupedProductSalesReport = () => {
       key: "unitPrice",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"unitPrice" + row.item}>
-            {row.unitPriceQuantity.length > 1 || row.unitPrice === 0
+          <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
+            {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
               ? ""
-              : row.unitPrice + " " + TURKISHLIRA}
+              : row?.unitPrice + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -245,8 +245,8 @@ const GroupedProductSalesReport = () => {
       key: "discount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"discount" + row.item}>
-            {row.discount > 0 && row.discount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"discount" + row?.item}>
+            {row?.discount > 0 && row?.discount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -255,8 +255,8 @@ const GroupedProductSalesReport = () => {
       key: "amount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"amount" + row.item}>
-            {row.amount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"amount" + row?.item}>
+            {row?.amount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -267,9 +267,9 @@ const GroupedProductSalesReport = () => {
         return (
           <p
             className={`${row?.className}`}
-            key={"totalAmountWithDiscount" + row.item}
+            key={"totalAmountWithDiscount" + row?.item}
           >
-            {row.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount + " " + TURKISHLIRA}
           </p>
         );
       },
