@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { LuCircleEqual } from "react-icons/lu";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
+import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountCountList, AccountUnit, RoleEnum, User } from "../types";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  AccountUnit,
+  RoleEnum,
+  User,
+} from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
+  useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
 import { useGetAccountProducts } from "../utils/api/account/product";
 
@@ -21,6 +32,8 @@ const SingleCountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
+  const { mutate: updateStockForStockCount } =
+    useUpdateStockForStockCountMutation();
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
@@ -46,13 +59,17 @@ const SingleCountArchive = () => {
       canBeClicked: false,
     },
   ];
-  const [rows, setRows] = useState(() => {
+  const allRows = () => {
     const currentCount = counts?.find((count) => count._id === archiveId);
     if (!currentCount) return [];
     const date = new Date(currentCount.createdAt);
     return (
       currentCount?.products?.map((option) => ({
+        currentCountId: currentCount._id,
+        currentCountLocationId: (currentCount?.location as AccountStockLocation)
+          ._id,
         product: products?.find((item) => item._id === option.product)?.name,
+        productId: option.product,
         unit: (
           products?.find((item) => item._id === option.product)
             ?.unit as AccountUnit
@@ -60,12 +77,16 @@ const SingleCountArchive = () => {
         date: `${pad(date.getDate())}-${pad(
           date.getMonth() + 1
         )}-${date.getFullYear()}`,
-        packageType: option.packageType,
+
+        packageType: option.packageType, //TODO:this needs to be made name packageTypes eklenip daha sonra oradan bulup adini koy
+        packageTypeId: option.packageType,
         stockQuantity: option.stockQuantity,
         countQuantity: option.countQuantity,
+        isStockEqualized: option?.isStockEqualized ?? false,
       })) || []
     );
-  });
+  };
+  const [rows, setRows] = useState(allRows());
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Product"), isSortable: true },
@@ -73,6 +94,8 @@ const SingleCountArchive = () => {
     { key: t("Package Type"), isSortable: true },
     { key: t("Stock Quantity"), isSortable: true },
     { key: t("Count Quantity"), isSortable: true },
+    { key: t("Stock Equalized"), isSortable: true },
+    { key: t("Actions"), isSortable: true },
   ];
   const rowKeys = [
     { key: "date", className: "min-w-32" },
@@ -81,6 +104,16 @@ const SingleCountArchive = () => {
     { key: "packageType" },
     { key: "stockQuantity" },
     { key: "countQuantity" },
+    {
+      key: "isStockEqualized",
+      node: (row: any) => {
+        return row?.isStockEqualized ? (
+          <IoCheckmark className={`text-blue-500 text-2xl `} />
+        ) : (
+          <IoCloseOutline className={`text-red-800 text-2xl `} />
+        );
+      },
+    },
   ];
   function getBgColor(row: {
     stockQuantity: number;
@@ -98,26 +131,7 @@ const SingleCountArchive = () => {
     return "bg-green-500";
   }
   useEffect(() => {
-    setRows(() => {
-      const currentCount = counts?.find((count) => count._id === archiveId);
-      if (!currentCount) return [];
-      const date = new Date(currentCount.createdAt);
-      return (
-        currentCount?.products?.map((option) => ({
-          product: products?.find((item) => item._id === option.product)?.name,
-          unit: (
-            products?.find((item) => item._id === option.product)
-              ?.unit as AccountUnit
-          )?.name,
-          date: `${pad(date.getDate())}-${pad(
-            date.getMonth() + 1
-          )}-${date.getFullYear()}`,
-          packageType: option.packageType,
-          stockQuantity: option.stockQuantity,
-          countQuantity: option.countQuantity,
-        })) || []
-      );
-    });
+    setRows(allRows());
     setTableKey((prev) => prev + 1);
   }, [counts, products, archiveId]);
   const filters = [
@@ -156,6 +170,36 @@ const SingleCountArchive = () => {
       rowKeys.splice(rowKeyIndex, 1);
     }
   }
+  const actions = [
+    {
+      name: t("Equalize"),
+      icon: <LuCircleEqual />,
+      node: (row: any) => (
+        <ButtonTooltip content={t("Equalize")}>
+          <button
+            onClick={() => {
+              if (row?.isStockEqualized) {
+                toast.error(t("Stock is already equalized"));
+                return;
+              }
+              updateStockForStockCount({
+                product: row.productId,
+                location: row.currentCountLocationId,
+                packageType: row.packageTypeId,
+                quantity: row.countQuantity,
+                currentCountId: row.currentCountId,
+              });
+            }}
+          >
+            <LuCircleEqual className=" w-6 h-6 mt-2" />
+          </button>
+        </ButtonTooltip>
+      ),
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: false,
+      isPath: false,
+    },
+  ];
   return (
     <>
       <Header />
@@ -167,7 +211,8 @@ const SingleCountArchive = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows}
-            isActionsActive={false}
+            actions={actions}
+            isActionsActive={true}
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }
