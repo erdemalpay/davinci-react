@@ -56,6 +56,8 @@ const ProductStockHistory = () => {
         pckgTyp: stockHistory?.packageType?.name,
         lctn: stockHistory?.location?.name,
         usr: stockHistory?.user?.name,
+        newQuantity:
+          (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
         date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(
           format(stockHistory?.createdAt, "yyyy-MM-dd")
@@ -108,6 +110,7 @@ const ProductStockHistory = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Old Quantity"), isSortable: true },
     { key: t("Changed"), isSortable: true },
+    { key: t("New Quantity"), isSortable: true },
     { key: t("Status"), isSortable: true },
   ];
   const rowKeys = [
@@ -144,6 +147,10 @@ const ProductStockHistory = () => {
     },
     {
       key: "change",
+      className: "min-w-32 pr-1",
+    },
+    {
+      key: "newQuantity",
       className: "min-w-32 pr-1",
     },
     {
