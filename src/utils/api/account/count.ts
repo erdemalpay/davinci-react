@@ -9,9 +9,12 @@ interface UpdateStockPayload {
   packageType: string;
   location: string;
   quantity: number;
-  currentCountId: number;
+  currentCountId: string;
 }
 
+interface UpdateStockBulkPayload {
+  currentCountId: string;
+}
 const baseUrl = `${Paths.Accounting}/counts`;
 export function useAccountCountMutations() {
   const { updateItem: updateAccountCount, createItem: createAccountCount } =
@@ -35,6 +38,35 @@ export function useUpdateStockForStockCountMutation() {
   const queryKey = [`${Paths.Accounting}/stocks`];
   const queryClient = useQueryClient();
   return useMutation(updateStockForStockCount, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries([baseUrl]);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([baseUrl]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export const updateStockForStockCountBulk = (
+  payload: UpdateStockBulkPayload
+) => {
+  return patch({
+    path: `/accounting/stock_equalize_bulk`,
+    payload: payload,
+  });
+};
+
+export function useUpdateStockForStockCountBulkMutation() {
+  const queryKey = [`${Paths.Accounting}/stocks`];
+  const queryClient = useQueryClient();
+  return useMutation(updateStockForStockCountBulk, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
       await queryClient.cancelQueries([baseUrl]);

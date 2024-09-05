@@ -5,6 +5,7 @@ import { LuCircleEqual } from "react-icons/lu";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -22,6 +23,7 @@ import {
 import {
   useAccountCountMutations,
   useGetAccountCounts,
+  useUpdateStockForStockCountBulkMutation,
   useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -34,6 +36,8 @@ const SingleCountArchive = () => {
   const counts = useGetAccountCounts();
   const { mutate: updateStockForStockCount } =
     useUpdateStockForStockCountMutation();
+  const { mutate: updateStockForStockCountBulk } =
+    useUpdateStockForStockCountBulkMutation();
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
@@ -199,6 +203,36 @@ const SingleCountArchive = () => {
       isPath: false,
     },
   ];
+  const archieveFilters = [
+    {
+      isUpperSide: false,
+      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      node: (
+        <ButtonFilter
+          buttonName={t("Stock Equalize")}
+          onclick={() => {
+            const currentCount = counts?.find(
+              (count) => count._id === archiveId
+            );
+            if (
+              !currentCount ||
+              currentCount?.products?.filter(
+                (product) => !product?.isStockEqualized
+              )?.length === 0
+            ) {
+              console.log("currentCount", currentCount);
+              toast.error(t("Stock is already equalized"));
+              return;
+            }
+
+            updateStockForStockCountBulk({
+              currentCountId: currentCount?._id,
+            });
+          }}
+        />
+      ),
+    },
+  ];
   useEffect(() => {
     setRows(allRows());
     setTableKey((prev) => prev + 1);
@@ -223,7 +257,9 @@ const SingleCountArchive = () => {
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }
-            filters={foundCount && !foundCount.isCompleted ? filters : []}
+            filters={
+              foundCount && !foundCount.isCompleted ? filters : archieveFilters
+            }
             title={`${(foundCount?.user as User)?.name}  ${t("Countu")}`} //date will be added here
           />
         )}

@@ -527,5 +527,7 @@
   "Waiting": "Waiting",
   "Stock Equalized": "Stock Equalized",
   "New Quantity": "New Quantity",
+  "Equalize": "Equalize",
+  "Stock is already equalized": "Stock is already equalized",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
