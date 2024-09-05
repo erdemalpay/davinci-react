@@ -147,6 +147,8 @@ export function useUpdateOrdersMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =

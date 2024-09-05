@@ -272,7 +272,8 @@ const Count = () => {
               (s) =>
                 (s?.product as AccountProduct)?._id === rowProduct?._id &&
                 (s?.packageType as AccountPackageType)?._id ===
-                  collapsibleForm?.packageType
+                  collapsibleForm?.packageType &&
+                (s?.location as AccountStockLocation)?._id === location
             );
             const newProducts = [
               ...(currentCount?.products?.filter(
