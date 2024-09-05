@@ -130,10 +130,7 @@ const SingleCountArchive = () => {
     }
     return "bg-green-500";
   }
-  useEffect(() => {
-    setRows(allRows());
-    setTableKey((prev) => prev + 1);
-  }, [counts, products, archiveId]);
+
   const filters = [
     {
       isUpperSide: false,
@@ -157,18 +154,20 @@ const SingleCountArchive = () => {
     },
   ];
   if (user?.role?._id !== RoleEnum.MANAGER) {
-    const columnIndex = columns.findIndex(
-      (column) => column.key === t("Stock Quantity")
-    );
-    if (columnIndex !== -1) {
-      columns.splice(columnIndex, 1);
-    }
-    const rowKeyIndex = rowKeys.findIndex(
-      (rKey) => rKey.key === "stockQuantity"
-    );
-    if (rowKeyIndex !== -1) {
-      rowKeys.splice(rowKeyIndex, 1);
-    }
+    const splicedColumns = ["Stock Quantity", "Stock Equalized", "Actions"];
+    const splicedRowKeys = ["stockQuantity", "isStockEqualized"];
+    splicedColumns.forEach((item) => {
+      columns.splice(
+        columns.findIndex((column) => column.key === item),
+        1
+      );
+    });
+    splicedRowKeys.forEach((item) => {
+      rowKeys.splice(
+        rowKeys.findIndex((rowKey) => rowKey.key === item),
+        1
+      );
+    });
   }
   const actions = [
     {
@@ -200,6 +199,10 @@ const SingleCountArchive = () => {
       isPath: false,
     },
   ];
+  useEffect(() => {
+    setRows(allRows());
+    setTableKey((prev) => prev + 1);
+  }, [counts, products, archiveId]);
   return (
     <>
       <Header />
@@ -211,8 +214,12 @@ const SingleCountArchive = () => {
             rowKeys={rowKeys}
             columns={columns}
             rows={rows}
-            actions={actions}
-            isActionsActive={true}
+            actions={
+              user && user?.role?._id === RoleEnum.MANAGER ? actions : []
+            }
+            isActionsActive={
+              user && user?.role?._id === RoleEnum.MANAGER ? true : false
+            }
             rowClassNameFunction={
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }
