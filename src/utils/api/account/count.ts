@@ -41,6 +41,7 @@ export function useUpdateStockForStockCountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([baseUrl]);
     },
     onError: (_err: any) => {
       const errorMessage =
