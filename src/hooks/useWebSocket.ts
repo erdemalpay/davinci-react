@@ -45,11 +45,15 @@ export function useWebSocket() {
       if (
         !foundCategory?.isAutoServed &&
         order?.status !== OrderStatus.CANCELLED &&
-        ((user?.role._id !== RoleEnum.KITCHEN &&
+        ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
+          user?.role?._id as RoleEnum
+        ) &&
           selectedLocationId &&
-          (order.location as Location)._id === selectedLocationId) ||
-          (user?.role._id === RoleEnum.KITCHEN &&
-            (foundCategory?.kitchen as Kitchen)?._id === "flora"))
+          (order?.location as Location)?._id === selectedLocationId) ||
+          (user?.role?._id === RoleEnum.KITCHEN &&
+            (foundCategory?.kitchen as Kitchen)?._id === "flora") ||
+          (user?.role?._id === RoleEnum.KITCHEN2 &&
+            (foundCategory?.kitchen as Kitchen)?._id === "farm"))
       ) {
         orderCreatedSound
           .play()
