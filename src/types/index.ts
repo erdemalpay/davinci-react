@@ -527,6 +527,7 @@ export enum RoleEnum {
   KITCHEN,
   SERVICE,
   CLEANING,
+  KITCHEN2,
 }
 
 export enum RoleNameEnum {
