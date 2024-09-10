@@ -51,7 +51,12 @@ const Login = () => {
         if (token && localStorage.getItem("loggedIn")) {
           const loggedInUser = await getUserWithToken();
 
-          if (loggedInUser && loggedInUser.role._id === RoleEnum.KITCHEN) {
+          if (
+            loggedInUser &&
+            [RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
+              loggedInUser.role._id
+            )
+          ) {
             navigate("/orders", { replace: true });
           } else if (loggedInUser) {
             navigate(Paths.Tables, { replace: true });
