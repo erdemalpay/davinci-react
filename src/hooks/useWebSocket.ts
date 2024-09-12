@@ -32,12 +32,6 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (order: Order) => {
-      console.log(RoleEnum.KITCHEN, RoleEnum.KITCHEN2);
-      console.log(
-        ![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
-          user?.role?._id as RoleEnum
-        )
-      );
       if ((order?.createdBy as User)?._id === user?._id) {
         return;
       }
