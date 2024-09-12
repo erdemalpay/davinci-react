@@ -19,6 +19,7 @@ import {
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -35,8 +36,8 @@ const Income = () => {
   const incomes = useGetCheckoutIncomes();
   const { user } = useUserContext();
   const locations = useGetAccountStockLocations();
-  const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const [tableKey, setTableKey] = useState(0);
   const { selectedLocationId } = useLocationContext();
   const collections = useGetAllOrderCollections();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -54,6 +55,9 @@ const Income = () => {
       location: "",
       date: "",
     });
+  if (!users || !locations || !incomes) {
+    return <></>;
+  }
   const getCollectionLocationIdAsString = (collection: number) => {
     switch (collection) {
       case 1:
@@ -67,26 +71,30 @@ const Income = () => {
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =
-    incomes?.map((income) => ({
-      ...income,
-      usr: income?.user?.name,
-      lctn: income?.location?.name,
-      formattedDate: formatAsLocalDate(income?.date),
-      collectionIncome: collections
-        ?.filter(
-          (collection) =>
-            (collection.createdAt
-              ? format(collection?.createdAt, "yyyy-MM-dd") === income?.date
-              : false) &&
-            collection?.paymentMethod === "cash" &&
-            collection.status === OrderCollectionStatus.PAID &&
-            getCollectionLocationIdAsString(
-              (collection.location as Location)._id
-            ) === income.location._id
-        )
-        ?.map((collection) => collection.amount)
-        ?.reduce((a, b) => a + b, 0),
-    })) ?? [];
+    incomes?.map((income) => {
+      const incomeUser = getItem(income?.user, users);
+      const incomeLocation = getItem(income?.location, locations);
+      return {
+        ...income,
+        usr: incomeUser?.name,
+        lctn: incomeLocation?.name,
+        formattedDate: formatAsLocalDate(income?.date),
+        collectionIncome: collections
+          ?.filter(
+            (collection) =>
+              (collection.createdAt
+                ? format(collection?.createdAt, "yyyy-MM-dd") === income?.date
+                : false) &&
+              collection?.paymentMethod === "cash" &&
+              collection.status === OrderCollectionStatus.PAID &&
+              getCollectionLocationIdAsString(
+                (collection.location as Location)._id
+              ) === income.location
+          )
+          ?.map((collection) => collection.amount)
+          ?.reduce((a, b) => a + b, 0),
+      };
+    }) ?? [];
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
@@ -244,8 +252,8 @@ const Income = () => {
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       return (
-        passesFilter(filterPanelFormElements.location, row.location?._id) &&
-        passesFilter(filterPanelFormElements.user, row.user?._id) &&
+        passesFilter(filterPanelFormElements.location, row.location) &&
+        passesFilter(filterPanelFormElements.user, row.user) &&
         passesFilter(filterPanelFormElements.date, row.date)
       );
     });

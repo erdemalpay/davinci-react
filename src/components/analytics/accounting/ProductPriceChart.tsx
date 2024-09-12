@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccountProduct, AccountUnit } from "../../../types";
+import { AccountProduct } from "../../../types";
 import { useGetAccountInvoices } from "../../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
+import { useGetAccountUnits } from "../../../utils/api/account/unit";
 import { formatAsLocalDate } from "../../../utils/format";
+import { getItem } from "../../../utils/getItem";
 import SelectInput from "../../common/SelectInput";
 import PriceChart from "./PriceChart";
 
@@ -13,10 +15,12 @@ export default function ProductPriceChart({}: Props) {
   const products = useGetAccountProducts();
   const invoices = useGetAccountInvoices();
   const [chartKey, setChartKey] = useState(0);
+  const units = useGetAccountUnits();
   const productOptions = products?.map((product) => {
+    const productUnit = getItem(product?.unit, units);
     return {
       value: product._id,
-      label: product.name + `(${(product.unit as AccountUnit).name})`,
+      label: product.name + `(${productUnit?.name})`,
     };
   });
   const [selectedProduct, setSelectedProduct] = useState<
@@ -204,7 +208,7 @@ export default function ProductPriceChart({}: Props) {
                   label:
                     selectedProduct.name +
                     " (" +
-                    (selectedProduct.unit as AccountUnit).name +
+                    getItem(selectedProduct.unit, units)?.name +
                     ")",
                 }
               : null

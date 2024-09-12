@@ -34,9 +34,7 @@ const Unit = () => {
     return {
       ...unit,
       productCount:
-        products?.filter(
-          (product) => (product?.unit as AccountUnit)?._id === unit._id
-        )?.length ?? 0,
+        products?.filter((product) => product?.unit === unit._id)?.length ?? 0,
     };
   });
   const [rows, setRows] = useState(allRows);

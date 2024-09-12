@@ -15,6 +15,7 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { getItem } from "../../utils/getItem";
 import { NameInput, QuantityInput, UnitInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -106,14 +107,13 @@ const PackageType = () => {
           (product) =>
             !product.packages?.some(
               (item) => item.package === rowToAction?._id
-            ) &&
-            (product?.unit as AccountUnit)?._id ===
-              (rowToAction?.unit as AccountUnit)?._id
+            ) && product?.unit === (rowToAction?.unit as AccountUnit)?._id
         )
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       isMultiple: true,

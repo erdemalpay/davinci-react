@@ -17,6 +17,7 @@ import {
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
@@ -91,9 +92,10 @@ const Product = () => {
     useAccountProductMutations();
   const [rows, setRows] = useState(
     products.map((product) => {
+      const productUnit = getItem(product?.unit, units);
       return {
         ...product,
-        unit: (product.unit as AccountUnit)?.name,
+        unit: productUnit?.name,
       };
     })
   );
@@ -105,9 +107,10 @@ const Product = () => {
       options: products
         .filter((product) => product._id !== form.removedProduct)
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       placeholder: t("Stayed Product"),
@@ -124,14 +127,14 @@ const Product = () => {
           )?.unit;
           return !(
             product._id === form?.stayedProduct ||
-            (product.unit as AccountUnit)?._id !==
-              (stayedProductUnit as AccountUnit)?._id
+            product.unit !== stayedProductUnit
           );
         })
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       placeholder: t("Removed Product"),
@@ -473,10 +476,7 @@ const Product = () => {
       products
         .filter((product) => {
           return (
-            passesFilter(
-              filterPanelFormElements.unit,
-              (product.unit as AccountUnit)?._id
-            ) &&
+            passesFilter(filterPanelFormElements.unit, product.unit) &&
             (filterPanelFormElements.brand === "" ||
               product.brand?.includes(filterPanelFormElements.brand)) &&
             (filterPanelFormElements.vendor === "" ||
@@ -492,9 +492,10 @@ const Product = () => {
           );
         })
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             ...product,
-            unit: (product.unit as AccountUnit)?.name,
+            unit: productUnit?.name,
           };
         })
     );

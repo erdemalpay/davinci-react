@@ -1,6 +1,6 @@
 import { FaRegClock } from "react-icons/fa6";
 import { useLocationContext } from "../../context/Location.context";
-import { Kitchen, Location, MenuItem, OrderStatus } from "../../types";
+import { Location, MenuItem, OrderStatus } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetTodayOrders } from "../../utils/api/order/order";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
@@ -15,11 +15,9 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
   if (!todayOrders || !categories) return <></>;
   const filteredOrders = todayOrders?.filter(
     (order) =>
-      (
-        categories?.find(
-          (category) => category?._id === (order?.item as MenuItem)?.category
-        )?.kitchen as Kitchen
-      )?._id === kitchen
+      categories?.find(
+        (category) => category?._id === (order?.item as MenuItem)?.category
+      )?.kitchen === kitchen
   );
   const orderStatusArray = [
     {

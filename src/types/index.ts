@@ -77,7 +77,7 @@ export type Game = {
 export type AccountProduct = {
   _id: string;
   name: string;
-  unit: AccountUnit | string;
+  unit: string;
   expenseType: string[];
   vendor?: string[];
   brand?: string[];
@@ -334,7 +334,7 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
   locations: number[];
-  kitchen: Kitchen | string;
+  kitchen: string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
   discounts?: number[];
@@ -342,7 +342,7 @@ export type MenuCategory = {
 export type MenuPopular = {
   _id: number;
   order: number;
-  item: MenuItem | number;
+  item: number;
 };
 export type Kitchen = {
   _id: string;
@@ -371,23 +371,23 @@ export type MenuItem = {
 };
 export type CheckoutIncome = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
 };
 export type CheckoutControl = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
 };
 
 export type CheckoutCashout = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
   description: string;
@@ -1078,3 +1078,9 @@ export const activityTypeDetails = [
     bgColor: "bg-orange-500",
   },
 ];
+
+export interface SocketEventType {
+  event: string;
+  invalidateKeys: string[];
+  condition: (socketUser: any, payload: any) => boolean;
+}
