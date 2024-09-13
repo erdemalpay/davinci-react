@@ -2,9 +2,8 @@
   Over time there may be more useful event item components that can be included
   in the library
 */
+
 import { Visit } from "../../types";
-import { useGetUsers } from "../../utils/api/user";
-import { getItem } from "../../utils/getItem";
 
 type Props = {
   visit: Visit;
@@ -34,8 +33,6 @@ const getIndexBackgroundColor = (index: number) => {
   return colors[colorIndex];
 };
 export const VisitEventItem = ({ visit, index }: Props) => {
-  const users = useGetUsers();
-  if (!users) return <></>;
   return (
     <li className="py-1">
       <div className="flex text-sm flex-1 justify-between gap-1 ">
@@ -44,7 +41,7 @@ export const VisitEventItem = ({ visit, index }: Props) => {
             index
           )} px-2 py-[1.4px] text-white rounded-lg`}
         >
-          {getItem(visit?.user, users)?.name}
+          {visit.user.name}
         </h3>
         <div className="flex gap-2 text-gray-500">
           <p>{visit.startHour}</p>

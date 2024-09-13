@@ -2,15 +2,19 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { OrderCollectionStatus, Table } from "../../types";
+import {
+  Location,
+  MenuItem,
+  OrderCollectionStatus,
+  Table,
+  User,
+} from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetLocations } from "../../utils/api/location";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -24,7 +28,6 @@ const Collections = () => {
   const locations = useGetLocations();
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
-  const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const { filterPanelFormElements, setFilterPanelFormElements } =
@@ -42,10 +45,11 @@ const Collections = () => {
       );
       return {
         _id: collection._id,
-        cashier: getItem(collection.createdBy, users)?.name,
+        cashier: (collection.createdBy as User)?.name,
+        createdBy: (collection.createdBy as User)?._id,
         orders: collection.orders,
-        cancelledBy: getItem(collection?.cancelledBy, users)?.name,
-        cancelledById: collection?.cancelledBy,
+        cancelledBy: (collection?.cancelledBy as User)?.name,
+        cancelledById: (collection?.cancelledBy as User)?._id,
         date: format(collection.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(
           format(collection.createdAt, "yyyy-MM-dd")
@@ -58,11 +62,10 @@ const Collections = () => {
         paymentMethodId: collection.paymentMethod,
         tableId: (collection.table as Table)._id,
         tableName: (collection.table as Table).name,
-        location: collection.location,
-        createdBy: collection?.createdBy,
         amount: collection.amount.toFixed(2),
         cancelNote: collection.cancelNote ?? "",
-        locationName: getItem(collection.location, locations)?.name,
+        location: (collection.location as Location)._id,
+        locationName: (collection.location as Location).name,
         status: collection.status,
         collapsible: {
           collapsibleHeader: t("Orders"),
@@ -71,10 +74,9 @@ const Collections = () => {
             { key: t("Quantity"), isSortable: true },
           ],
           collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
-            product: getItem(
+            product: (
               orders?.find((order) => order._id === orderCollectionItem.order)
-                ?.item,
-              items
+                ?.item as MenuItem
             )?.name,
             quantity: orderCollectionItem.paidQuantity.toFixed(2),
           })),
@@ -240,7 +242,6 @@ const Collections = () => {
     users,
     filterPanelFormElements,
     paymentMethods,
-    items,
   ]);
 
   return (

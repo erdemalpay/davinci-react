@@ -14,6 +14,7 @@ import { useUserContext } from "../../context/User.context";
 import {
   Game,
   Gameplay,
+  MenuCategory,
   Order,
   OrderCollection,
   OrderStatus,
@@ -22,7 +23,6 @@ import {
   TURKISHLIRA,
   User,
 } from "../../types";
-import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useOrderMutations,
@@ -34,7 +34,6 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
-import { getItem } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -84,7 +83,6 @@ export function TableCard({
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts();
-  const categories = useGetCategories();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { resetOrderContext } = useOrderContext();
@@ -107,7 +105,7 @@ export function TableCard({
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
       table?.isOnlineSale
-        ? getItem(menuItem.category, categories)?.isOnlineOrder
+        ? (menuItem.category as MenuCategory)?.isOnlineOrder
         : true
     )
     ?.map((menuItem) => {
@@ -121,7 +119,7 @@ export function TableCard({
   );
   const isOnlinePrice = () => {
     const menuItem = menuItems?.find((item) => item._id === orderForm.item);
-    if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
+    if ((menuItem?.category as MenuCategory)?.isOnlineOrder) {
       return true;
     }
     return false;
@@ -164,10 +162,9 @@ export function TableCard({
               const menuItem = menuItems?.find(
                 (item) => item._id === orderForm.item
               );
-              return getItem(
-                menuItem?.category,
-                categories
-              )?.discounts?.includes(discount._id);
+              return (menuItem?.category as MenuCategory)?.discounts?.includes(
+                discount._id
+              );
             })
             ?.map((option) => {
               return {
@@ -513,7 +510,7 @@ export function TableCard({
                 user &&
                 selectedMenuItem &&
                 selectedTable &&
-                getItem(selectedMenuItem.category, categories)
+                (selectedMenuItem?.category as MenuCategory)
               )?.isAutoServed
             ) {
               createOrder({
@@ -534,7 +531,7 @@ export function TableCard({
             if (
               selectedMenuItem &&
               selectedTable &&
-              !getItem(selectedMenuItem?.category, categories)?.isAutoServed
+              !(selectedMenuItem?.category as MenuCategory)?.isAutoServed
             ) {
               createOrder({
                 ...orderForm,

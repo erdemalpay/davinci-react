@@ -1,8 +1,6 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 import { Visit } from "../../types";
-import { useGetUsers } from "../../utils/api/user";
-import { getItem } from "../../utils/getItem";
 
 interface PreviousVisitListProps {
   visits: Visit[];
@@ -10,8 +8,6 @@ interface PreviousVisitListProps {
 
 export function PreviousVisitList({ visits }: PreviousVisitListProps) {
   const { t } = useTranslation();
-  const users = useGetUsers();
-  if (!users) return <></>;
   return visits?.length ? (
     <div className="flex flex-col lg:flex-row w-full gap-2">
       <label
@@ -25,14 +21,11 @@ export function PreviousVisitList({ visits }: PreviousVisitListProps) {
         id="mentors"
       >
         {visits.map((visit) => (
-          <Tooltip
-            key={visit?.user}
-            content={getItem(visit.user, users)?.role?.name}
-          >
+          <Tooltip key={visit?.user?._id} content={visit.user?.role?.name}>
             <Chip
-              value={getItem(visit.user, users)?.name}
+              value={visit.user.name}
               style={{
-                backgroundColor: getItem(visit.user, users)?.role?.color,
+                backgroundColor: visit.user?.role?.color,
                 height: "fit-content",
               }}
               color="gray"

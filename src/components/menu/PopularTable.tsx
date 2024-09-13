@@ -5,9 +5,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, MenuPopular } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
-import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -18,18 +16,16 @@ type Props = {
 const PopularTable = ({ popularItems }: Props) => {
   const { t } = useTranslation();
   const categories = useGetCategories();
-  const items = useGetMenuItems();
   const { deletePopular, updatePopular } = usePopularMutations();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
-  const rows = popularItems.map((popItem) => {
-    const popularItem = getItem(popItem.item, items);
-    return {
-      ...popularItem,
-      order: popItem.order,
-      _id: popItem._id,
-      category: categories?.find((c) => c._id === popularItem?.category)?.name,
-    };
-  });
+  const rows = popularItems.map((popularItem) => ({
+    ...(popularItem.item as MenuItem),
+    order: popularItem.order,
+    _id: popularItem._id,
+    category: categories?.find(
+      (c) => c._id === (popularItem.item as MenuItem)?.category
+    )?.name,
+  }));
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -99,13 +95,12 @@ const PopularTable = ({ popularItems }: Props) => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            const popularItem = getItem(
-              popularItems.find((c) => c._id === rowToAction._id)?.item,
-              items
+            deletePopular(
+              (
+                popularItems.find((c) => c._id === rowToAction._id)
+                  ?.item as MenuItem
+              )?._id
             );
-            if (popularItem) {
-              deletePopular(popularItem?._id);
-            }
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Remove Popular Item")}

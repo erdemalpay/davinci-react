@@ -9,13 +9,13 @@ import {
   AccountCountList,
   AccountStockLocation,
   RoleEnum,
+  User,
 } from "../../../types";
 import { useGetAccountCounts } from "../../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../../utils/api/account/countList";
 import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
-import { getItem } from "../../../utils/getItem";
 import { StockLocationInput } from "../../../utils/panelInputs";
 import { passesFilter } from "../../../utils/passesFilter";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
@@ -49,7 +49,7 @@ const CountArchive = () => {
   const allRows = counts
     .filter((count) => {
       if (
-        count?.user === user?._id ||
+        (count.user as User)?._id === user?._id ||
         (user &&
           [
             RoleEnum.MANAGER,
@@ -61,31 +61,31 @@ const CountArchive = () => {
       }
     })
     .map((count) => {
-      if (!count?.createdAt) {
+      if (!count.createdAt) {
         return null;
       }
       const startDate = new Date(count?.createdAt);
       const endDate = new Date(count?.completedAt ?? 0);
       return {
         ...count,
-        cntLst: getItem(count?.countList, countLists)?.name,
-        cntLstId: count?.countList,
-        lctn: getItem(count?.location, locations)?.name,
-        lctnId: count?.location,
-        usr: getItem(count?.user, users)?.name,
-        usrId: count?.user,
-        startDate: format(count?.createdAt, "yyyy-MM-dd"),
+        cntLst: (count.countList as AccountCountList).name,
+        cntLstId: (count.countList as AccountCountList)._id,
+        lctn: (count.location as AccountStockLocation).name,
+        lctnId: (count.location as AccountStockLocation)._id,
+        usr: (count.user as User)?.name,
+        usrId: (count.user as User)?._id,
+        startDate: format(count.createdAt, "yyyy-MM-dd"),
         formattedStartDate: formatAsLocalDate(
-          format(count?.createdAt, "yyyy-MM-dd")
+          format(count.createdAt, "yyyy-MM-dd")
         ),
         startHour: `${pad(startDate.getHours())}:${pad(
           startDate.getMinutes()
         )}`,
         endDate: count?.completedAt
-          ? format(count?.completedAt, "yyyy-MM-dd")
+          ? format(count.completedAt, "yyyy-MM-dd")
           : "",
         formattedEndDate: count?.completedAt
-          ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
+          ? formatAsLocalDate(format(count.completedAt, "yyyy-MM-dd"))
           : "-",
         endHour: count?.completedAt
           ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
@@ -111,26 +111,26 @@ const CountArchive = () => {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
-            if (row?.isCompleted) {
+            if (row.isCompleted) {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSortConfigKey(null);
               setSearchQuery("");
-              navigate(`/archive/${row?._id}`);
+              navigate(`/archive/${row._id}`);
             } else {
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               setSortConfigKey(null);
               navigate(
-                `/count/${(row?.location as AccountStockLocation)._id}/${
-                  (row?.countList as AccountCountList)._id
+                `/count/${(row.location as AccountStockLocation)._id}/${
+                  (row.countList as AccountCountList)._id
                 }`
               );
             }
           }}
         >
-          {row?.formattedStartDate}
+          {row.formattedStartDate}
         </p>
       ),
       className: "min-w-32",
@@ -143,7 +143,7 @@ const CountArchive = () => {
       key: "endDate",
       className: "min-w-32 pr-1",
       node: (row: any) => {
-        return <p>{row?.formattedEndDate}</p>;
+        return <p>{row.formattedEndDate}</p>;
       },
     },
     {
@@ -159,7 +159,7 @@ const CountArchive = () => {
     {
       key: "isCompleted",
       node: (row: AccountCount) => {
-        if (row?.isCompleted) {
+        if (row.isCompleted) {
           return (
             <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
               {t("Completed")}
@@ -239,12 +239,12 @@ const CountArchive = () => {
       if (!row?.startDate) return false;
       return (
         (filterPanelFormElements.before === "" ||
-          row?.startDate <= filterPanelFormElements.before) &&
+          row.startDate <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
-          row?.startDate >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, row?.lctnId) &&
-        passesFilter(filterPanelFormElements.countList, row?.cntLstId) &&
-        passesFilter(filterPanelFormElements.createdBy, row?.usrId)
+          row.startDate >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.location, row.lctnId) &&
+        passesFilter(filterPanelFormElements.countList, row.cntLstId) &&
+        passesFilter(filterPanelFormElements.createdBy, row.usrId)
       );
     });
     setRows(filteredRows);

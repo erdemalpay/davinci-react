@@ -3,10 +3,8 @@ import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
-import { Order, OrderStatus, User } from "../../types";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { MenuItem, Order, OrderStatus, User } from "../../types";
 import { useOrderMutations } from "../../utils/api/order/order";
-import { getItem } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
 
 type Props = {
@@ -20,13 +18,8 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
-
     return Math.floor((currentTime - orderTime) / 60000);
   };
-  const items = useGetMenuItems();
-  if (!items) {
-    return <></>;
-  }
   return (
     <div className="  px-2   ">
       {orders?.map((order) => {
@@ -87,7 +80,7 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
               />
               {/* name and quantity */}
               <div className="flex w-5/6 gap-1 items-center">
-                <p>{getItem(order?.item, items)?.name}</p>
+                <p>{(order.item as MenuItem).name}</p>
                 <h1 className="text-xs">({order.quantity})</h1>
               </div>
               {/* increment */}

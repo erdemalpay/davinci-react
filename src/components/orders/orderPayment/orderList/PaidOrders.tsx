@@ -1,9 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { MdOutlineOnlinePrediction } from "react-icons/md";
-import { Order, OrderStatus } from "../../../../types";
-import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
+import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
-import { getItem } from "../../../../utils/getItem";
 import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
 
@@ -12,8 +10,7 @@ type Props = {
 };
 const PaidOrders = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts();
-  const items = useGetMenuItems();
-  if (!discounts || !items) return null;
+  if (!discounts) return null;
   const renderPayment = (order: Order) => {
     if (order?.discount) {
       return (
@@ -59,7 +56,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
                 })()}
                 {")"}-
               </p>
-              <p>{getItem(order?.item, items)?.name}</p>
+              <p>{(order.item as MenuItem).name}</p>
               {order?.isOnlinePrice && (
                 <Tooltip
                   content={"online"}
@@ -74,7 +71,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
             </div>
             {order.discount && (
               <div className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center">
-                <p>{getItem(order.discount, discounts)?.name}</p>
+                <p>{(order.discount as OrderDiscount).name}</p>
               </div>
             )}
 

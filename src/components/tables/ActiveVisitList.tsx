@@ -2,14 +2,13 @@ import { Chip, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
 import { User, Visit } from "../../types";
-import { useGetUsers } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
 } from "../../utils/api/visit";
-import { getItem } from "../../utils/getItem";
 import { Autocomplete } from "../common/Autocomplete";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+
 interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: User[];
   visits: Visit[];
@@ -23,7 +22,7 @@ export function ActiveVisitList({
 }: ActiveMentorListProps) {
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
-  const users = useGetUsers();
+
   const { selectedLocationId } = useLocationContext();
 
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
@@ -36,7 +35,7 @@ export function ActiveVisitList({
   function handleSelection(item: User) {
     if (!item) return;
     createVisit({
-      user: item as any,
+      user: item,
       location: selectedLocationId,
     });
     // setItems([...items, item]);
@@ -47,7 +46,7 @@ export function ActiveVisitList({
       suggestions.filter(
         (s) =>
           !visits
-            .map((visit) => !visit.finishHour && visit.user)
+            .map((visit) => !visit.finishHour && visit.user?._id)
             .includes(s._id) && s.name !== "-"
       )
     );
@@ -65,14 +64,11 @@ export function ActiveVisitList({
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
         {visits.map((visit) => (
-          <Tooltip
-            key={visit?.user}
-            content={getItem(visit?.user, users)?.role?.name}
-          >
+          <Tooltip key={visit.user?._id} content={visit.user?.role?.name}>
             <Chip
-              value={getItem(visit?.user, users)?.name}
+              value={visit.user?.name}
               style={{
-                backgroundColor: getItem(visit?.user, users)?.role?.color,
+                backgroundColor: visit.user?.role?.color,
                 height: "fit-content",
               }}
               color="gray"

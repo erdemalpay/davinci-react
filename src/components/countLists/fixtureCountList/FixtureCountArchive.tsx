@@ -8,12 +8,9 @@ import {
   AccountFixtureCountList,
   AccountStockLocation,
   RoleEnum,
+  User,
 } from "../../../types";
 import { useGetAccountFixtureCounts } from "../../../utils/api/account/fixtureCount";
-import { useGetAccountFixtureCountLists } from "../../../utils/api/account/fixtureCountList";
-import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
-import { useGetUsers } from "../../../utils/api/user";
-import { getItem } from "../../../utils/getItem";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 
 const FixtureCountArchive = () => {
@@ -24,14 +21,11 @@ const FixtureCountArchive = () => {
     useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
-  const users = useGetUsers();
-  const locations = useGetAccountStockLocations();
-  const countLists = useGetAccountFixtureCountLists();
   const [tableKey, setTableKey] = useState(0);
   const allRows = counts
     .filter((count) => {
       if (
-        count.user === user?._id ||
+        (count.user as User)?._id === user?._id ||
         (user &&
           [
             RoleEnum.MANAGER,
@@ -48,8 +42,8 @@ const FixtureCountArchive = () => {
       return {
         ...count,
         cntLst: (count.countList as AccountFixtureCountList).name,
-        lctn: getItem(count.location, locations)?.name,
-        usr: getItem(count.user, users)?.name,
+        lctn: (count.location as AccountStockLocation).name,
+        usr: (count.user as User)?.name,
         startDate: `${pad(startDate.getDate())}-${pad(
           startDate.getMonth() + 1
         )}-${startDate.getFullYear()}`,
@@ -148,7 +142,7 @@ const FixtureCountArchive = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [counts, users, locations, countLists]);
+  }, [counts]);
 
   return (
     <>

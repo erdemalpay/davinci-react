@@ -18,6 +18,13 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
+  AccountCountList,
+  AccountPackageType,
+  AccountProduct,
+  AccountStockLocation,
+  User,
+} from "../types";
+import {
   useAccountCountMutations,
   useGetAccountCounts,
 } from "../utils/api/account/count";
@@ -57,9 +64,9 @@ const Count = () => {
         const currentCount = counts?.find((item) => {
           return (
             item.isCompleted === false &&
-            item.location === location &&
-            item.user === user?._id &&
-            item.countList === countListId
+            (item.location as AccountStockLocation)?._id === location &&
+            (item.user as User)._id === user?._id &&
+            (item.countList as AccountCountList)?._id === countListId
           );
         });
         if (location && item.locations.includes(location)) {
@@ -135,9 +142,9 @@ const Count = () => {
           const currentCount = counts?.find((item) => {
             return (
               item.isCompleted === false &&
-              item.location === location &&
-              item.user === user?._id &&
-              item.countList === countListId
+              (item.location as AccountStockLocation)?._id === location &&
+              (item.user as User)._id === user?._id &&
+              (item.countList as AccountCountList)?._id === countListId
             );
           });
           if (location && item.locations.includes(location)) {
@@ -253,9 +260,9 @@ const Count = () => {
             const currentCount = counts?.find((item) => {
               return (
                 item.isCompleted === false &&
-                item.location === location &&
-                item.user === user?._id &&
-                item.countList === countListId
+                (item.location as AccountStockLocation)?._id === location &&
+                (item.user as User)._id === user?._id &&
+                (item.countList as AccountCountList)?._id === countListId
               );
             });
             if (!currentCount || !rowProduct) {
@@ -263,9 +270,10 @@ const Count = () => {
             }
             const productStock = stocks?.find(
               (s) =>
-                s?.product === rowProduct?._id &&
-                s?.packageType === collapsibleForm?.packageType &&
-                s?.location === location
+                (s?.product as AccountProduct)?._id === rowProduct?._id &&
+                (s?.packageType as AccountPackageType)?._id ===
+                  collapsibleForm?.packageType &&
+                (s?.location as AccountStockLocation)?._id === location
             );
             const newProducts = [
               ...(currentCount?.products?.filter(
@@ -328,9 +336,9 @@ const Count = () => {
         const currentCount = counts?.find((item) => {
           return (
             item.isCompleted === false &&
-            item.location === location &&
-            item.user === user?._id &&
-            item.countList === countListId
+            (item.location as AccountStockLocation)?._id === location &&
+            (item.user as User)?._id === user?._id &&
+            (item.countList as AccountCountList)?._id === countListId
           );
         });
         if (!currentCount) return;
@@ -387,9 +395,9 @@ const Count = () => {
               const currentCount = counts?.find((item) => {
                 return (
                   item.isCompleted === false &&
-                  item.location === location &&
-                  item.user === user?._id &&
-                  item.countList === countListId
+                  (item.location as AccountStockLocation)?._id === location &&
+                  (item.user as User)._id === user?._id &&
+                  (item.countList as AccountCountList)?._id === countListId
                 );
               });
               if (!currentCount) {

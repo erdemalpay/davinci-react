@@ -7,14 +7,11 @@ import {
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderStatus } from "../../../../types";
-import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
+import { MenuItem, Order, OrderDiscount, OrderStatus } from "../../../../types";
 import {
   useCancelOrderForDiscountMutation,
   useOrderMutations,
 } from "../../../../utils/api/order/order";
-import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
-import { getItem } from "../../../../utils/getItem";
 import SelectInput from "../../../common/SelectInput";
 import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
@@ -29,20 +26,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { mutate: cancelOrderForDiscount } =
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
-  const items = useGetMenuItems();
-  const discounts = useGetOrderDiscounts();
   const discountAmount = tableOrders.reduce((acc, order) => {
-    if (!order?.discount) {
+    if (!order.discount) {
       return acc;
     }
     const discountValue =
-      (order?.unitPrice * order?.quantity * (order?.discountPercentage ?? 0)) /
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
         100 +
-      (order?.discountAmount ?? 0) * order?.quantity;
+      (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
   const totalAmount = tableOrders.reduce((acc, order) => {
-    return acc + order?.unitPrice * order?.quantity;
+    return acc + order.unitPrice * order.quantity;
   }, 0);
   const {
     temporaryOrders,
@@ -57,51 +52,51 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
       <OrderScreenHeader header="Unpaid Orders" />
       {/* orders */}
       {tableOrders?.map((order) => {
-        const isAllPaid = order?.paidQuantity === order?.quantity;
+        const isAllPaid = order.paidQuantity === order.quantity;
         if (!order || isAllPaid) return null;
         const tempOrder = temporaryOrders.find(
-          (tempOrder) => tempOrder.order?._id === order?._id
+          (tempOrder) => tempOrder.order._id === order._id
         );
         const isAllPaidWithTempOrder =
-          order?.paidQuantity + (tempOrder?.quantity ?? 0) === order?.quantity;
+          order.paidQuantity + (tempOrder?.quantity ?? 0) === order.quantity;
         if (isAllPaidWithTempOrder) return null;
 
         const handlePaymentAmount = (order: Order) => {
           if (order?.discount) {
             return order?.discountPercentage
-              ? order?.unitPrice *
+              ? order.unitPrice *
                   (100 - (order?.discountPercentage ?? 0)) *
                   (1 / 100)
-              : order?.unitPrice - (order?.discountAmount ?? 0);
+              : order.unitPrice - (order?.discountAmount ?? 0);
           } else {
-            return order?.unitPrice;
+            return order.unitPrice;
           }
         };
         return (
           <div
-            key={order?._id}
+            key={order._id}
             className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  cursor-pointer ${
-              order?.status !== OrderStatus.SERVED
+              order.status !== OrderStatus.SERVED
                 ? orderBgColor(order, "hover:bg-gray-100")
                 : "hover:bg-gray-100"
             }`}
             onClick={() => {
               const tempOrder = temporaryOrders?.find(
-                (tempOrder) => tempOrder.order?._id === order?._id
+                (tempOrder) => tempOrder.order._id === order._id
               );
               const orderPrice = order?.division
                 ? Number(
-                    (order?.quantity -
-                      order?.paidQuantity -
+                    (order.quantity -
+                      order.paidQuantity -
                       (tempOrder?.quantity ?? 0) -
-                      order?.quantity / order?.division <
+                      order.quantity / order.division <
                     1e-6
                       ? handlePaymentAmount(order) *
-                        (order?.quantity -
-                          order?.paidQuantity -
+                        (order.quantity -
+                          order.paidQuantity -
                           (tempOrder?.quantity ?? 0))
-                      : (handlePaymentAmount(order) * order?.quantity) /
-                        order?.division
+                      : (handlePaymentAmount(order) * order.quantity) /
+                        order.division
                     ).toFixed(2)
                   )
                 : Number(handlePaymentAmount(order).toFixed(2));
@@ -116,11 +111,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   )
                 );
               } else if (
-                order?.division &&
-                order?.quantity -
-                  order?.paidQuantity -
+                order.division &&
+                order.quantity -
+                  order.paidQuantity -
                   (tempOrder?.quantity ?? 0) <
-                  (2 * order?.quantity) / order?.division
+                  (2 * order.quantity) / order.division
               ) {
                 setPaymentAmount(
                   String(
@@ -149,25 +144,25 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               if (tempOrder) {
                 setTemporaryOrders(
                   temporaryOrders?.map((tempOrder) => {
-                    if (tempOrder.order?._id === order?._id) {
+                    if (tempOrder.order._id === order._id) {
                       const orderDivisionCondition = order?.division
-                        ? order?.quantity -
-                          order?.paidQuantity -
+                        ? order.quantity -
+                          order.paidQuantity -
                           tempOrder.quantity -
-                          order?.quantity / order?.division
+                          order.quantity / order.division
                         : 0;
 
                       return {
                         ...tempOrder,
                         quantity: order?.division
                           ? orderDivisionCondition < 1e-6
-                            ? order?.quantity - order?.paidQuantity
+                            ? order.quantity - order.paidQuantity
                             : tempOrder.quantity +
-                              order?.quantity / order?.division
+                              order.quantity / order.division
                           : tempOrder.quantity +
                             Math.min(
-                              order?.quantity -
-                                order?.paidQuantity -
+                              order.quantity -
+                                order.paidQuantity -
                                 tempOrder.quantity,
                               1
                             ),
@@ -182,8 +177,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   {
                     order,
                     quantity: order?.division
-                      ? order?.quantity / order?.division
-                      : Math.min(order?.quantity - order?.paidQuantity, 1),
+                      ? order.quantity / order.division
+                      : Math.min(order.quantity - order.paidQuantity, 1),
                   },
                 ]);
               }
@@ -196,8 +191,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 {"("}
                 {(() => {
                   const remainingQuantity =
-                    order?.quantity -
-                    (order?.paidQuantity + (tempOrder?.quantity ?? 0));
+                    order.quantity -
+                    (order.paidQuantity + (tempOrder?.quantity ?? 0));
 
                   return Number.isInteger(remainingQuantity)
                     ? remainingQuantity
@@ -207,8 +202,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               </p>
               <div className="flex flex-col gap-1 justify-start mr-auto ">
                 <div className="flex flex-row justify-center items-center gap-2 mr-auto">
-                  <p className={`${order?.division ? "max-w-28" : ""}`}>
-                    {getItem(order?.item, items)?.name}
+                  <p className={`${order.division ? "max-w-28" : ""}`}>
+                    {(order.item as MenuItem).name}
                   </p>
                   {order?.isOnlinePrice && (
                     <Tooltip
@@ -223,7 +218,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   )}
 
                   {/* order division */}
-                  {(isOrderDivisionActive || order?.division) && (
+                  {(isOrderDivisionActive || order.division) && (
                     <div
                       className="flex"
                       onClick={(e) => {
@@ -252,19 +247,19 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             return;
                           }
                           if (
-                            order?.division &&
-                            order?.division !== 1 &&
-                            order?.paidQuantity !== 0
+                            order.division &&
+                            order.division !== 1 &&
+                            order.paidQuantity !== 0
                           ) {
                             toast.error(t("Order division cannot be changed."));
                             return;
                           }
                           if (
                             selectedOption.value === "1" &&
-                            order?.paidQuantity === 0
+                            order.paidQuantity === 0
                           ) {
                             updateOrder({
-                              id: order?._id,
+                              id: order._id,
                               updates: {
                                 division: 1,
                               },
@@ -274,7 +269,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             return;
                           }
                           updateOrder({
-                            id: order?._id,
+                            id: order._id,
                             updates: {
                               division: Number(selectedOption.value),
                             },
@@ -286,18 +281,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                     </div>
                   )}
                 </div>
-                {order?.discount && (
+                {order.discount && (
                   <div
                     className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
                     onClick={(e) => {
                       e.stopPropagation();
                       cancelOrderForDiscount({
-                        orderId: order?._id,
-                        cancelQuantity: order?.quantity - order?.paidQuantity,
+                        orderId: order._id,
+                        cancelQuantity: order.quantity - order.paidQuantity,
                       });
                     }}
                   >
-                    <p>{getItem(order?.discount, discounts)?.name}</p>
+                    <p>{(order.discount as OrderDiscount).name}</p>
                     <MdOutlineCancel className="w-4 h-4" />
                   </div>
                 )}
@@ -309,20 +304,20 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 <div className="flex flex-col ml-auto justify-center items-center">
                   <p className="text-xs line-through">
                     {(
-                      order?.unitPrice *
-                      (order?.quantity -
-                        (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
+                      order.unitPrice *
+                      (order.quantity -
+                        (order.paidQuantity + (tempOrder?.quantity ?? 0)))
                     ).toFixed(2)}
                     ₺
                   </p>
                   <p>
                     {(
                       (order?.discountPercentage
-                        ? order?.unitPrice *
+                        ? order.unitPrice *
                           (100 - (order?.discountPercentage ?? 0)) *
                           (1 / 100)
-                        : order?.unitPrice - (order?.discountAmount ?? 0)) *
-                      (order?.quantity -
+                        : order.unitPrice - (order?.discountAmount ?? 0)) *
+                      (order.quantity -
                         (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
                     ).toFixed(2)}
                     ₺
@@ -332,8 +327,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               {!order?.discount && (
                 <p>
                   {(
-                    order?.unitPrice *
-                    (order?.quantity -
+                    order.unitPrice *
+                    (order.quantity -
                       (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
                   ).toFixed(2)}
                   ₺
@@ -344,21 +339,21 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   const tempOrder = temporaryOrders?.find(
-                    (tempOrder) => tempOrder.order?._id === order?._id
+                    (tempOrder) => tempOrder.order._id === order._id
                   );
                   const orderPrice = order?.division
                     ? Number(
                         (
-                          (order?.quantity -
-                            order?.paidQuantity -
+                          (order.quantity -
+                            order.paidQuantity -
                             (tempOrder?.quantity ?? 0) <
-                          order?.quantity / order?.division
+                          order.quantity / order.division
                             ? handlePaymentAmount(order) *
-                              (order?.quantity -
-                                order?.paidQuantity -
+                              (order.quantity -
+                                order.paidQuantity -
                                 (tempOrder?.quantity ?? 0))
-                            : handlePaymentAmount(order) * order?.quantity) /
-                          order?.division
+                            : handlePaymentAmount(order) * order.quantity) /
+                          order.division
                         ).toFixed(2)
                       )
                     : Number(handlePaymentAmount(order).toFixed(2));
@@ -368,29 +363,29 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       String(
                         Math.min(
                           totalAmount - discountAmount - collectionsTotalAmount,
-                          (order?.discount ? orderPrice : order?.unitPrice) *
-                            (order?.quantity - order?.paidQuantity) *
+                          (order?.discount ? orderPrice : order.unitPrice) *
+                            (order.quantity - order.paidQuantity) *
                             (order?.division && order?.discount
-                              ? order?.division / order?.quantity
+                              ? order.division / order.quantity
                               : 1)
                         )
                       )
                     );
                   } else if (
-                    order?.division &&
-                    order?.quantity -
-                      order?.paidQuantity -
+                    order.division &&
+                    order.quantity -
+                      order.paidQuantity -
                       (tempOrder?.quantity ?? 0) <
-                      (2 * order?.quantity) / order?.division
+                      (2 * order.quantity) / order.division
                   ) {
                     setPaymentAmount(
                       String(
                         Math.min(
                           totalAmount - discountAmount - collectionsTotalAmount,
                           Number(paymentAmount) +
-                            (order?.discount ? orderPrice : order?.unitPrice) *
-                              (order?.quantity -
-                                order?.paidQuantity -
+                            (order?.discount ? orderPrice : order.unitPrice) *
+                              (order.quantity -
+                                order.paidQuantity -
                                 (tempOrder?.quantity ?? 0))
                         )
                       )
@@ -398,12 +393,12 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   } else {
                     const addedAmount =
                       Number(paymentAmount) +
-                      (order?.discount ? orderPrice : order?.unitPrice) *
-                        (order?.quantity -
-                          order?.paidQuantity -
+                      (order?.discount ? orderPrice : order.unitPrice) *
+                        (order.quantity -
+                          order.paidQuantity -
                           (tempOrder?.quantity ?? 0)) *
                         (order?.division && order?.discount
-                          ? order?.division / order?.quantity
+                          ? order.division / order.quantity
                           : 1);
                     setPaymentAmount(
                       String(
@@ -420,11 +415,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                   }
                   setTemporaryOrders([
                     ...temporaryOrders?.filter(
-                      (tempOrder) => tempOrder.order?._id !== order?._id
+                      (tempOrder) => tempOrder.order._id !== order._id
                     ),
                     {
                       order: order,
-                      quantity: order?.quantity - order?.paidQuantity,
+                      quantity: order.quantity - order.paidQuantity,
                     },
                   ]);
                 }}

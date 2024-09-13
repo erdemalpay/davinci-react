@@ -1,13 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { Order, OrderStatus, User } from "../../types";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { MenuItem, Order, OrderStatus, User } from "../../types";
 import {
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
-import { useGetUsers } from "../../utils/api/user";
-import { getItem } from "../../utils/getItem";
 import SelectInput from "../common/SelectInput";
 import Timer from "../common/Timer";
 
@@ -20,19 +17,14 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const { updateOrder } = useOrderMutations();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
-  const users = useGetUsers();
-  const items = useGetMenuItems();
-  if (!items || !users) {
-    return null;
-  }
   const timerSetter = () => {
-    switch (order?.status) {
+    switch (order.status) {
       case OrderStatus.PENDING:
-        return order?.createdAt;
+        return order.createdAt;
       case OrderStatus.READYTOSERVE:
-        return order?.preparedAt;
+        return order.preparedAt;
       default:
-        return order?.createdAt;
+        return order.createdAt;
     }
   };
 
@@ -41,11 +33,11 @@ const SingleOrderCard = ({ order, user }: Props) => {
       <div className="flex flex-row gap-4  px-2 mt-1  ">
         {/* img & time */}
         <div className="flex flex-col gap-1 h-16  items-center ">
-          {order?.status !== OrderStatus.SERVED && (
+          {order.status !== OrderStatus.SERVED && (
             <Timer createdAt={timerSetter() ?? new Date()} />
           )}
           <img
-            src={getItem(order?.item, items)?.imageUrl || NO_IMAGE_URL}
+            src={(order?.item as MenuItem)?.imageUrl || NO_IMAGE_URL}
             alt="item"
             className="w-10 h-10 object-cover rounded-lg"
           />
@@ -53,15 +45,15 @@ const SingleOrderCard = ({ order, user }: Props) => {
         {/* itemName,quantity & orderNote */}
         <div className="flex flex-col gap-2 justify-center  items-center w-full h-full  overflow-scroll no-scrollbar  ">
           <div className="flex flex-row justify-between w-full pr-2 items-center ">
-            <p>{getItem(order?.item, items)?.name}</p>
-            {order?.quantity === 1 && (
+            <p>{(order?.item as MenuItem)?.name}</p>
+            {order.quantity === 1 && (
               <p className="border px-2 py-0.5 border-gray-300 rounded-md">
                 {order?.quantity}
               </p>
             )}
-            {order?.quantity > 1 && (
+            {order.quantity > 1 && (
               <SelectInput
-                options={[...Array(order?.quantity - 1)].map((_, index) => ({
+                options={[...Array(order.quantity - 1)].map((_, index) => ({
                   value: (index + 1).toString(),
                   label: `${index + 1}`,
                 }))}
@@ -75,9 +67,9 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   createOrderForDivide({
                     orders: [
                       {
-                        totalQuantity: order?.quantity,
+                        totalQuantity: order.quantity,
                         selectedQuantity: selectedOption.value,
-                        orderId: order?._id,
+                        orderId: order._id,
                       },
                     ],
                   });
@@ -92,16 +84,16 @@ const SingleOrderCard = ({ order, user }: Props) => {
       <div className="flex flex-row justify-between w-full px-2 mb-1 items-center">
         {/* created by */}
         <p className="text-xs text-gray-500">
-          {t("Created By")}: {getItem(order?.createdBy, users)?.name}
+          {t("Created By")}: {(order.createdBy as User)?.name}
         </p>
         {/* buttons */}
         <div className="  flex flex-row justify-between gap-2  ">
           {/* cancel button */}
-          {order?.paidQuantity === 0 && (
+          {order.paidQuantity === 0 && (
             <button
               onClick={() => {
                 updateOrder({
-                  id: order?._id,
+                  id: order._id,
                   updates: {
                     status: OrderStatus.CANCELLED,
                     cancelledAt: new Date(),
@@ -115,11 +107,11 @@ const SingleOrderCard = ({ order, user }: Props) => {
             </button>
           )}
           {/* pending ready button */}
-          {order?.status === OrderStatus.PENDING && (
+          {order.status === OrderStatus.PENDING && (
             <button
               onClick={() => {
                 updateOrder({
-                  id: order?._id,
+                  id: order._id,
                   updates: {
                     status: OrderStatus.READYTOSERVE,
                     preparedAt: new Date(),
@@ -133,13 +125,13 @@ const SingleOrderCard = ({ order, user }: Props) => {
             </button>
           )}
           {/* ready to serve back to pending  button */}
-          {order?.status === OrderStatus.READYTOSERVE && (
+          {order.status === OrderStatus.READYTOSERVE && (
             <div className="flex flex-row gap-2  ">
-              {user._id === order?.preparedBy && (
+              {user._id === (order.preparedBy as User)._id && (
                 <button
                   onClick={() => {
                     updateOrder({
-                      id: order?._id,
+                      id: order._id,
                       updates: {
                         status: OrderStatus.PENDING,
                       },
@@ -153,7 +145,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
               <button
                 onClick={() => {
                   updateOrder({
-                    id: order?._id,
+                    id: order._id,
                     updates: {
                       status: OrderStatus.SERVED,
                       deliveredAt: new Date(),
@@ -167,13 +159,13 @@ const SingleOrderCard = ({ order, user }: Props) => {
               </button>
             </div>
           )}
-          {order?.status === OrderStatus.SERVED &&
-            user._id === order?.deliveredBy && (
+          {order.status === OrderStatus.SERVED &&
+            user._id === (order.deliveredBy as User)?._id && (
               <div className="flex flex-row ">
                 <button
                   onClick={() => {
                     updateOrder({
-                      id: order?._id,
+                      id: order._id,
                       updates: {
                         status: OrderStatus.READYTOSERVE,
                       },

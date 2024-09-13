@@ -1,15 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order, RoleEnum, User } from "../types";
+import { Kitchen, Location, MenuItem, Order, RoleEnum, User } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
-import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useLocationContext } from "./../context/Location.context";
 import { useUserContext } from "./../context/User.context";
 import { OrderStatus } from "./../types/index";
-import { getItem } from "./../utils/getItem";
-import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
 
@@ -18,7 +15,6 @@ export function useWebSocket() {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const categories = useGetCategories();
-  const items = useGetMenuItems();
 
   useEffect(() => {
     // Load the audio files
@@ -36,7 +32,7 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (order: Order) => {
-      if ((order?.createdBy as any)?._id === user?._id) {
+      if ((order?.createdBy as User)?._id === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
@@ -44,7 +40,7 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
       // Play order created sound
       const foundCategory = categories?.find(
-        (c) => c._id === getItem(order?.item, items)?.category
+        (c) => c._id === (order.item as MenuItem).category
       );
       if (
         !foundCategory?.isAutoServed &&
@@ -56,11 +52,11 @@ export function useWebSocket() {
             (foundCategory?.kitchen as Kitchen)?._id
           ) &&
           selectedLocationId &&
-          order?.location === selectedLocationId) ||
+          (order?.location as Location)?._id === selectedLocationId) ||
           (user?.role?._id === RoleEnum.KITCHEN &&
-            foundCategory?.kitchen === "flora") ||
+            (foundCategory?.kitchen as Kitchen)?._id === "flora") ||
           (user?.role?._id === RoleEnum.KITCHEN2 &&
-            foundCategory?.kitchen === "farm"))
+            (foundCategory?.kitchen as Kitchen)?._id === "farm"))
       ) {
         orderCreatedSound
           .play()
@@ -74,16 +70,6 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
-    });
-
-    socketEventListeners.forEach((eventConfig) => {
-      socket.on(eventConfig.event, (user: any, payload: any) => {
-        if (eventConfig.condition(user, payload)) {
-          eventConfig.invalidateKeys.forEach((key) => {
-            queryClient.invalidateQueries([key]);
-          });
-        }
-      });
     });
 
     socket.on("disconnect", () => {

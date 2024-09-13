@@ -3,15 +3,19 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType } from "../../types";
+import {
+  AccountBrand,
+  AccountExpenseType,
+  AccountFixture,
+  AccountStockLocation,
+  AccountVendor,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   StockLocationInput,
@@ -33,7 +37,6 @@ const FixtureExpenses = () => {
   const vendors = useGetAccountVendors();
   const fixtures = useGetAccountFixtures();
   const { fixtureId } = useParams();
-  const expenseTypes = useGetAccountExpenseTypes();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
@@ -49,30 +52,34 @@ const FixtureExpenses = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const allRows = invoices
-    ?.filter((invoice) => invoice?.fixture === currentFixture?._id)
+    ?.filter(
+      (invoice) =>
+        (invoice.fixture as AccountFixture)._id === currentFixture?._id
+    )
     ?.map((invoice) => {
       return {
         ...invoice,
-        fixture: getItem(invoice?.fixture, fixtures)?.name,
-        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-        brand: getItem(invoice?.brand, brands)?.name,
-        vendor: getItem(invoice?.vendor, vendors)?.name,
-        brandId: invoice?.brand,
-        vendorId: invoice?.vendor,
-        formattedDate: formatAsLocalDate(invoice?.date),
-        lctn: getItem(invoice?.location, locations)?.name,
+        fixture: (invoice.fixture as AccountFixture)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        brand: (invoice.brand as AccountBrand)?.name,
+        brandId: (invoice.brand as AccountBrand)?._id,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        vendorId: (invoice.vendor as AccountVendor)?._id,
+        formattedDate: formatAsLocalDate(invoice.date),
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
-        expType: getItem(invoice?.expenseType, expenseTypes),
-        brnd: getItem(invoice?.brand, brands),
-        vndr: getItem(invoice?.vendor, vendors),
-        fxtr: getItem(invoice?.fixture, fixtures),
+        expType: invoice.expenseType as AccountExpenseType,
+        brnd: invoice.brand as AccountBrand,
+        vndr: invoice.vendor as AccountVendor,
+        fxtr: invoice.fixture as AccountFixture,
       };
     });
   const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    rows?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
+    rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
   const outsideSearch = () => {
     return (
@@ -225,6 +232,54 @@ const FixtureExpenses = () => {
       },
     },
   ];
+  useEffect(() => {
+    const processedRows = allRows.filter((invoice) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          invoice.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          invoice.date >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.vendor, invoice.vendorId) &&
+        passesFilter(filterPanelFormElements.brand, invoice.brandId) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (invoice.location as AccountStockLocation)?._id
+        )
+      );
+    });
+
+    const filteredRows = processedRows.filter((row) =>
+      rowKeys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        const timeValue = row["formattedDate"];
+        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
+        if (typeof value === "string") {
+          return (
+            value.toLocaleLowerCase("tr-TR").includes(query) ||
+            timeValue.toLowerCase().includes(query)
+          );
+        } else if (typeof value === "number") {
+          return value.toString().includes(query);
+        } else if (typeof value === "boolean") {
+          return (value ? "true" : "false").includes(query);
+        }
+        return false;
+      })
+    );
+    const newGeneralTotalExpense = filteredRows.reduce(
+      (acc, invoice) => acc + invoice.totalExpense,
+      0
+    );
+    setRows(filteredRows);
+    setGeneralTotalExpense(newGeneralTotalExpense);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
+      setCurrentPage(1);
+    }
+    setTableKey((prev) => prev + 1);
+  }, [invoices, filterPanelFormElements, searchQuery, currentFixture]);
   const filters = [
     {
       label: t("Total") + " :",
@@ -255,62 +310,6 @@ const FixtureExpenses = () => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
-  useEffect(() => {
-    const processedRows = allRows.filter((invoice) => {
-      return (
-        (filterPanelFormElements.before === "" ||
-          invoice?.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          invoice?.date >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.vendor, invoice?.vendorId) &&
-        passesFilter(filterPanelFormElements.brand, invoice?.brandId) &&
-        passesFilter(filterPanelFormElements.location, invoice?.location)
-      );
-    });
-
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice?.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
-    setTableKey((prev) => prev + 1);
-  }, [
-    invoices,
-    filterPanelFormElements,
-    searchQuery,
-    currentFixture,
-    expenseTypes,
-    fixtures,
-    vendors,
-    brands,
-    locations,
-  ]);
-
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
