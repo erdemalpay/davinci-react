@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { AccountPaymentMethod, AccountStockLocation } from "../../types";
 import { useGetAccountPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -36,17 +36,19 @@ const VendorPayments = () => {
       after: "",
     });
   const allRows = payments
-    ?.filter((i) => i?.vendor?._id === selectedVendor?._id)
+    ?.filter((i) => i?.vendor === selectedVendor?._id)
     ?.map((payment) => {
       return {
         ...payment,
         formattedDate: formatAsLocalDate(payment?.date),
-        usr: payment?.user?.name,
-        userId: payment?.user?._id,
-        pymntMthd: t((payment?.paymentMethod as AccountPaymentMethod)?.name),
-        pymntMthdId: (payment?.paymentMethod as AccountPaymentMethod)?._id,
-        lctn: (payment?.location as AccountStockLocation)?.name,
-        lctnId: (payment?.location as AccountStockLocation)?._id,
+        usr: getItem(payment?.user, users)?.name,
+        userId: payment?.user,
+        pymntMthd: t(
+          getItem(payment?.paymentMethod, paymentMethods)?.name ?? ""
+        ),
+        pymntMthdId: payment?.paymentMethod,
+        lctn: getItem(payment?.location, locations)?.name,
+        lctnId: payment?.location,
       };
     });
   const [showFilters, setShowFilters] = useState(false);

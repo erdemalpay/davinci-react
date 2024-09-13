@@ -7,15 +7,7 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
-  AccountBrand,
   AccountExpenseType,
-  AccountFixture,
-  AccountPackageType,
-  AccountPaymentMethod,
-  AccountProduct,
-  AccountService,
-  AccountStockLocation,
-  AccountVendor,
   ConstantPaymentMethodsIds,
   ExpenseTypes,
   NOTPAID,
@@ -42,6 +34,7 @@ import { useGetAccountStockLocations } from "../../utils/api/account/stockLocati
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
@@ -118,85 +111,70 @@ const Expenses = () => {
     });
   const allInvoices = [
     ...invoices
-      .filter(
-        (i) =>
-          (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethodsIds.CASH
-      )
+      .filter((i) => i.paymentMethod === ConstantPaymentMethodsIds.CASH)
       .map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.product as AccountProduct)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          packageType: (invoice.packageType as AccountPackageType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
+          product: getItem(invoice?.product, products)?.name,
+          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+          packageType: getItem(invoice?.packageType, packages)?.name,
+          brand: getItem(invoice?.brand, brands)?.name,
+          vendor: getItem(invoice?.vendor, vendors)?.name,
+          lctn: getItem(invoice?.location, locations)?.name,
+          formattedDate: formatAsLocalDate(invoice?.date),
           type: ExpenseTypes.INVOICE,
           unitPrice: parseFloat(
             (
-              invoice.totalExpense /
-              (invoice.quantity *
-                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
+              invoice?.totalExpense /
+              (invoice?.quantity *
+                (getItem(invoice?.packageType, packages)?.quantity ?? 1))
             ).toFixed(4)
           ),
           unit: units?.find(
             (unit) =>
-              unit._id === ((invoice.product as AccountProduct).unit as string)
+              unit._id === (getItem(invoice?.product, products)?.unit as string)
           )?.name,
-          expType: invoice.expenseType as AccountExpenseType,
+          expType: getItem(invoice?.expenseType, expenseTypes),
         };
       }),
     ...fixtureInvoices
-      .filter(
-        (i) =>
-          (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethodsIds.CASH
-      )
+      .filter((i) => i.paymentMethod === ConstantPaymentMethodsIds.CASH)
       .map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.fixture as AccountFixture)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          location: invoice.location as AccountStockLocation,
+          product: getItem(invoice?.fixture, fixtures)?.name,
+          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+          brand: getItem(invoice?.brand, brands)?.name,
+          vendor: getItem(invoice?.vendor, vendors)?.name,
           type: ExpenseTypes.FIXTURE,
           packageType: null,
           unit: null,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
+          lctn: getItem(invoice?.location, locations)?.name,
+          formattedDate: formatAsLocalDate(invoice?.date),
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
+            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
           ),
-          expType: invoice.expenseType as AccountExpenseType,
+          expType: getItem(invoice?.expenseType, expenseTypes),
         };
       }),
     ...serviceInvoices
-      .filter(
-        (i) =>
-          (i.paymentMethod as AccountPaymentMethod)?._id ===
-          ConstantPaymentMethodsIds.CASH
-      )
+      .filter((i) => i.paymentMethod === ConstantPaymentMethodsIds.CASH)
       .map((invoice) => {
         return {
           ...invoice,
-          product: (invoice.service as AccountService)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          product: getItem(invoice?.service, services)?.name,
+          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
           brand: null,
           packageType: null,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          location: invoice.location as AccountStockLocation,
+          vendor: getItem(invoice?.vendor, vendors)?.name,
           type: ExpenseTypes.SERVICE,
           unit: null,
-          lctn: (invoice.location as AccountStockLocation)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
+          lctn: getItem(invoice?.location, locations)?.name,
+          formattedDate: formatAsLocalDate(invoice?.date),
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
+            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
           ),
-          expType: invoice.expenseType as AccountExpenseType,
+          expType: getItem(invoice?.expenseType, expenseTypes),
         };
       }),
   ].sort((a, b) => {
@@ -204,7 +182,7 @@ const Expenses = () => {
   });
   const [rows, setRows] = useState(allInvoices);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
+    invoices.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
   );
 
   const filterPanelInputs = [
@@ -229,6 +207,7 @@ const Expenses = () => {
       required: true,
     },
     ProductInput({
+      units: units,
       products: products,
       required: true,
       isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
@@ -383,6 +362,7 @@ const Expenses = () => {
       ],
     },
     ProductInput({
+      units: units,
       products: products,
       required: allExpenseForm?.type === ExpenseTypes.INVOICE,
       isDisabled: allExpenseForm?.type !== ExpenseTypes.INVOICE,
@@ -659,44 +639,41 @@ const Expenses = () => {
     const processedRows = allInvoices.filter((invoice) => {
       return (
         (filterPanelFormElements.before === "" ||
-          invoice.date <= filterPanelFormElements.before) &&
+          invoice?.date <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
-          invoice.date >= filterPanelFormElements.after) &&
+          invoice?.date >= filterPanelFormElements.after) &&
         passesFilter(
           filterPanelFormElements.packages,
           packages.find(
-            (packageType) => packageType.name === invoice.packageType
+            (packageType) => packageType.name === invoice?.packageType
           )?._id
         ) &&
         passesFilter(
           filterPanelFormElements.product,
-          products.find((item) => item.name === invoice.product)?._id
+          products.find((item) => item.name === invoice?.product)?._id
         ) &&
         passesFilter(
           filterPanelFormElements.fixture,
-          fixtures.find((item) => item.name === invoice.product)?._id
+          fixtures.find((item) => item.name === invoice?.product)?._id
         ) &&
         passesFilter(
           filterPanelFormElements.service,
-          services.find((item) => item.name === invoice.product)?._id
+          services.find((item) => item.name === invoice?.product)?._id
         ) &&
         passesFilter(
           filterPanelFormElements.vendor,
-          vendors.find((item) => item.name === invoice.vendor)?._id
+          vendors.find((item) => item.name === invoice?.vendor)?._id
         ) &&
-        passesFilter(filterPanelFormElements.type, invoice.type) &&
+        passesFilter(filterPanelFormElements.type, invoice?.type) &&
         passesFilter(
           filterPanelFormElements.brand,
-          brands.find((item) => item.name === invoice.brand)?._id
+          brands.find((item) => item.name === invoice?.brand)?._id
         ) &&
         passesFilter(
           filterPanelFormElements.expenseType,
-          expenseTypes.find((item) => item.name === invoice.expenseType)?._id
+          expenseTypes.find((item) => item.name === invoice?.expenseType)?._id
         ) &&
-        passesFilter(
-          filterPanelFormElements.location,
-          (invoice.location as AccountStockLocation)?._id
-        )
+        passesFilter(filterPanelFormElements.location, invoice?.location)
       );
     });
 
@@ -719,7 +696,7 @@ const Expenses = () => {
       })
     );
     const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.totalExpense,
+      (acc, invoice) => acc + invoice?.totalExpense,
       0
     );
     setRows(filteredRows);
@@ -737,6 +714,16 @@ const Expenses = () => {
     products,
     fixtureInvoices,
     serviceInvoices,
+    packages,
+    products,
+    expenseTypes,
+    brands,
+    vendors,
+    fixtures,
+    services,
+    locations,
+    units,
+    services,
   ]);
 
   const filterPanel = {

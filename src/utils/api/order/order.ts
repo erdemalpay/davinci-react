@@ -39,16 +39,13 @@ interface UpdateMultipleOrder {
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
-  const {
-    deleteItem: deleteOrder,
-    updateItem: updateOrder,
-    createItem: createOrder,
-  } = useMutationApi<Order>({
-    baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Tables}`], [`${Paths.Order}/today`]],
-  });
+  const { updateItem: updateOrder, createItem: createOrder } =
+    useMutationApi<Order>({
+      baseQuery: baseUrl,
+      additionalInvalidates: [[`${Paths.Tables}`], [`${Paths.Order}/today`]],
+    });
 
-  return { deleteOrder, updateOrder, createOrder };
+  return { updateOrder, createOrder };
 }
 
 export function deleteTableOrders({ ids }: { ids: number[] }) {

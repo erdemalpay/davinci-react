@@ -2,22 +2,21 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { useGeneralContext } from "../../context/General.context";
-import {
-  AccountExpenseType,
-  AccountService,
-  AccountStockLocation,
-  AccountVendor,
-} from "../../types";
+import { AccountExpenseType, AccountService } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type Props = {
   selectedService: AccountService;
 };
@@ -29,6 +28,8 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const invoices = useGetAccountServiceInvoices();
   const vendors = useGetAccountVendors();
   const locations = useGetAccountStockLocations();
+  const services = useGetAccountServices();
+  const expenseTypes = useGetAccountExpenseTypes();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -41,31 +42,27 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const allRows = invoices
-    ?.filter(
-      (invoice) =>
-        (invoice.service as AccountService)._id === selectedService?._id
-    )
+    ?.filter((invoice) => invoice?.service === selectedService?._id)
     ?.map((invoice) => {
       return {
         ...invoice,
-        service: (invoice.service as AccountService)?.name,
-        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-        vendor: (invoice.vendor as AccountVendor)?.name,
-        vendorId: (invoice.vendor as AccountVendor)?._id,
-        formattedDate: formatAsLocalDate(invoice.date),
-        location: invoice.location as AccountStockLocation,
-        lctn: (invoice.location as AccountStockLocation)?.name,
+        service: getItem(invoice?.service, services)?.name,
+        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+        vendor: getItem(invoice?.vendor, vendors)?.name,
+        vendorId: invoice?.vendor,
+        formattedDate: formatAsLocalDate(invoice?.date),
+        lctn: getItem(invoice?.location, locations)?.name,
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(4)
+          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
         ),
-        expType: invoice.expenseType as AccountExpenseType,
-        vndr: invoice.vendor as AccountVendor,
-        srvc: invoice.service as AccountService,
+        expType: getItem(invoice?.expenseType, expenseTypes),
+        vndr: getItem(invoice?.vendor, vendors),
+        srvc: getItem(invoice?.service, services),
       };
     });
   const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
+    rows?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
   );
   const outsideSearch = () => {
     return (
@@ -208,52 +205,6 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       },
     },
   ];
-  useEffect(() => {
-    const processedRows = allRows.filter((invoice) => {
-      return (
-        (filterPanelFormElements.before === "" ||
-          invoice.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          invoice.date >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.vendor, invoice.vendorId) &&
-        passesFilter(
-          filterPanelFormElements.location,
-          (invoice.location as AccountStockLocation)?._id
-        )
-      );
-    });
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
-    setTableKey((prev) => prev + 1);
-  }, [invoices, filterPanelFormElements, searchQuery]);
   const filters = [
     {
       label: t("Total") + " :",
@@ -284,6 +235,58 @@ const ServiceExpenses = ({ selectedService }: Props) => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+  useEffect(() => {
+    const processedRows = allRows?.filter((invoice) => {
+      return (
+        (filterPanelFormElements.before === "" ||
+          invoice?.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          invoice?.date >= filterPanelFormElements.after) &&
+        passesFilter(filterPanelFormElements.vendor, invoice?.vendorId) &&
+        passesFilter(filterPanelFormElements.location, invoice?.location)
+      );
+    });
+    const filteredRows = processedRows.filter((row) =>
+      rowKeys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        const timeValue = row["formattedDate"];
+        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
+        if (typeof value === "string") {
+          return (
+            value.toLocaleLowerCase("tr-TR").includes(query) ||
+            timeValue.toLowerCase().includes(query)
+          );
+        } else if (typeof value === "number") {
+          return value.toString().includes(query);
+        } else if (typeof value === "boolean") {
+          return (value ? "true" : "false").includes(query);
+        }
+        return false;
+      })
+    );
+    const newGeneralTotalExpense = filteredRows.reduce(
+      (acc, invoice) => acc + invoice?.totalExpense,
+      0
+    );
+    setRows(filteredRows);
+    setGeneralTotalExpense(newGeneralTotalExpense);
+    if (
+      searchQuery !== "" ||
+      Object.values(filterPanelFormElements).some((value) => value !== "")
+    ) {
+      setCurrentPage(1);
+    }
+    setTableKey((prev) => prev + 1);
+  }, [
+    invoices,
+    filterPanelFormElements,
+    searchQuery,
+    expenseTypes,
+    vendors,
+    services,
+    locations,
+  ]);
+
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable

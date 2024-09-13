@@ -7,13 +7,8 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
-  AccountBrand,
   AccountExpenseType,
-  AccountFixture,
   AccountFixtureInvoice,
-  AccountPaymentMethod,
-  AccountStockLocation,
-  AccountVendor,
   NOTPAID,
 } from "../../types";
 import {
@@ -43,6 +38,7 @@ import {
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import {
   BackgroundColorInput,
   BrandInput,
@@ -145,29 +141,28 @@ const FixtureInvoice = () => {
     invoices.map((invoice) => {
       return {
         ...invoice,
-        fixture: (invoice.fixture as AccountFixture)?.name,
-        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-        brand: (invoice.brand as AccountBrand)?.name,
-        vendor: (invoice.vendor as AccountVendor)?.name,
-        location: invoice.location as AccountStockLocation,
-        lctn: (invoice.location as AccountStockLocation)?.name,
-        formattedDate: formatAsLocalDate(invoice.date),
+        fixture: getItem(invoice?.fixture, fixtures)?.name,
+        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+        brand: getItem(invoice?.brand, brands)?.name,
+        vendor: getItem(invoice?.vendor, vendors)?.name,
+        lctn: getItem(invoice?.location, locations)?.name,
+
+        formattedDate: formatAsLocalDate(invoice?.date),
         unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(4)
+          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
         ),
-        expType: invoice.expenseType as AccountExpenseType,
-        brnd: invoice.brand as AccountBrand,
-        vndr: invoice.vendor as AccountVendor,
-        fxtr: invoice.fixture as AccountFixture,
+        expType: getItem(invoice?.expenseType, expenseTypes),
+        brnd: getItem(invoice?.brand, brands),
+        vndr: getItem(invoice?.vendor, vendors),
+        fxtr: getItem(invoice?.fixture, fixtures),
         paymentMethodName: t(
-          (invoice?.paymentMethod as AccountPaymentMethod)?.name
+          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
         ),
-        paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
       };
     })
   );
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
+    invoices.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
   );
   // open add modal on ` key press
   useEffect(() => {
@@ -665,26 +660,22 @@ const FixtureInvoice = () => {
             updates: {
               ...rowToAction,
               date: rowToAction.date,
-              fixture: (
-                invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.fixture as AccountFixture
-              )?._id,
-              expenseType: (
-                invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.expenseType as AccountExpenseType
-              )?._id,
+              fixture: invoices.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.fixture,
+              expenseType: invoices.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.expenseType,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
-              brand: (
-                invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.brand as AccountBrand
-              )?._id,
-              vendor: (
-                invoices.find((invoice) => invoice._id === rowToAction._id)
-                  ?.vendor as AccountVendor
-              )?._id,
+              brand: invoices.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.brand,
+              vendor: invoices.find(
+                (invoice) => invoice?._id === rowToAction._id
+              )?.vendor,
               note: rowToAction.note,
-              location: (rowToAction.location as AccountStockLocation)._id,
+              location: rowToAction.location,
               paymentMethod: rowToAction?.paymentMethod,
             },
           }}
@@ -737,55 +728,42 @@ const FixtureInvoice = () => {
       .filter((invoice) => {
         return (
           (filterPanelFormElements.before === "" ||
-            invoice.date <= filterPanelFormElements.before) &&
+            invoice?.date <= filterPanelFormElements.before) &&
           (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after) &&
+            invoice?.date >= filterPanelFormElements.after) &&
           (!filterPanelFormElements.fixture.length ||
             filterPanelFormElements.fixture?.some((panelFixture: string) =>
-              passesFilter(
-                panelFixture,
-                (invoice.fixture as AccountFixture)?._id
-              )
+              passesFilter(panelFixture, invoice?.fixture)
             )) &&
-          passesFilter(
-            filterPanelFormElements.vendor,
-            (invoice.vendor as AccountVendor)?._id
-          ) &&
-          passesFilter(
-            filterPanelFormElements.brand,
-            (invoice.brand as AccountBrand)?._id
-          ) &&
+          passesFilter(filterPanelFormElements.vendor, invoice?.vendor) &&
+          passesFilter(filterPanelFormElements.brand, invoice?.brand) &&
           passesFilter(
             filterPanelFormElements.expenseType,
-            (invoice.expenseType as AccountExpenseType)?._id
+            invoice?.expenseType
           ) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (invoice.location as AccountStockLocation)?._id
-          )
+          passesFilter(filterPanelFormElements.location, invoice?.location)
         );
       })
       .map((invoice) => {
         return {
           ...invoice,
-          fixture: (invoice.fixture as AccountFixture)?.name,
-          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
-          brand: (invoice.brand as AccountBrand)?.name,
-          vendor: (invoice.vendor as AccountVendor)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          location: invoice.location as AccountStockLocation,
-          lctn: (invoice.location as AccountStockLocation)?.name,
+          fixture: getItem(invoice?.fixture, fixtures)?.name,
+          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+          brand: getItem(invoice?.brand, brands)?.name,
+          vendor: getItem(invoice?.vendor, vendors)?.name,
+          lctn: getItem(invoice?.location, locations)?.name,
+
+          formattedDate: formatAsLocalDate(invoice?.date),
           unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
+            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
           ),
-          expType: invoice.expenseType as AccountExpenseType,
-          brnd: invoice.brand as AccountBrand,
-          vndr: invoice.vendor as AccountVendor,
-          fxtr: invoice.fixture as AccountFixture,
+          expType: getItem(invoice?.expenseType, expenseTypes),
+          brnd: getItem(invoice?.brand, brands),
+          vndr: getItem(invoice?.vendor, vendors),
+          fxtr: getItem(invoice?.fixture, fixtures),
           paymentMethodName: t(
-            (invoice?.paymentMethod as AccountPaymentMethod)?.name
+            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
           ),
-          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -808,7 +786,7 @@ const FixtureInvoice = () => {
       })
     );
     const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.totalExpense,
+      (acc, invoice) => acc + invoice?.totalExpense,
       0
     );
     setRows(filteredRows);
@@ -819,7 +797,17 @@ const FixtureInvoice = () => {
     ) {
       setCurrentPage(1);
     }
-  }, [invoices, filterPanelFormElements, searchQuery]);
+  }, [
+    invoices,
+    filterPanelFormElements,
+    searchQuery,
+    fixtures,
+    expenseTypes,
+    brands,
+    vendors,
+    locations,
+    paymentMethods,
+  ]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

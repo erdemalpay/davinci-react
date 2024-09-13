@@ -8,7 +8,7 @@ import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountUnit, AccountVendor, RoleEnum } from "../../types";
+import { AccountVendor, RoleEnum } from "../../types";
 import {
   useAccountFixtureMutations,
   useGetAccountFixtures,
@@ -18,11 +18,13 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
 import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -34,6 +36,7 @@ const Vendor = () => {
   const { user } = useUserContext();
   const vendors = useGetAccountVendors();
   const pages = useGetPanelControlPages();
+  const units = useGetAccountUnits();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
@@ -131,9 +134,10 @@ const Vendor = () => {
             !product.vendor?.some((item) => item === rowToAction?._id)
         )
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       isMultiple: true,
@@ -346,7 +350,7 @@ const Vendor = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [vendors, products, fixtures, services]);
+  }, [vendors, products, fixtures, services, units]);
 
   return (
     <>

@@ -2,12 +2,14 @@ import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, OrderDiscount, Table, User } from "../../types";
+import { Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -21,6 +23,7 @@ const OrdersReport = () => {
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
   const discounts = useGetOrderDiscounts();
+  const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
@@ -43,34 +46,32 @@ const OrdersReport = () => {
         _id: order._id,
         date: format(order.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
-        createdBy: (order.createdBy as User)?.name,
-        createdByUserId: (order.createdBy as User)?._id,
+        createdBy: getItem(order.createdBy, users)?.name,
+        createdByUserId: order.createdBy,
         createdAt: format(order.createdAt, "HH:mm"),
-        preparedBy: (order?.preparedBy as User)?.name ?? "",
-        preparedByUserId: (order?.preparedBy as User)?._id ?? "",
+        preparedBy: getItem(order.preparedBy, users)?.name ?? "",
+        preparedByUserId: order?.preparedBy ?? "",
         preparationTime: order.preparedAt
           ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
           : null,
-        cancelledBy: (order.cancelledBy as User)?.name,
-        cancelledByUserId: (order.cancelledBy as User)?._id,
+        cancelledBy: getItem(order.cancelledBy, users)?.name,
+        cancelledByUserId: order.cancelledBy,
         cancelledAt: order.cancelledAt
           ? format(order.cancelledAt, "HH:mm")
           : "",
-        deliveredBy: (order.deliveredBy as User)?.name,
-        deliveredByUserId: (order.deliveredBy as User)?._id,
+        deliveredBy: getItem(order.deliveredBy, users)?.name,
+        deliveredByUserId: order.deliveredBy,
         deliveryTime:
           order.deliveredAt && order.preparedAt
             ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
             : null,
-        discountId: (order?.discount as OrderDiscount)?._id,
+        discountId: order?.discount,
         discountName:
-          discounts?.find(
-            (discount) =>
-              discount?._id === (order?.discount as OrderDiscount)?._id
-          )?.name ?? "",
-        item: (order.item as MenuItem)?.name,
-        location: (order.location as Location)?.name,
-        locationId: (order.location as Location)?._id,
+          discounts?.find((discount) => discount?._id === order?.discount)
+            ?.name ?? "",
+        item: getItem(order.item, items)?.name,
+        location: getItem(order.location, locations)?.name,
+        locationId: order.location,
         quantity: order.quantity,
         tableId: (order?.table as Table)?._id,
         tableName: (order?.table as Table)?.name,
@@ -271,7 +272,7 @@ const OrdersReport = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, locations, users, filterPanelFormElements, discounts]);
+  }, [orders, locations, users, filterPanelFormElements, discounts, items]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">

@@ -2,10 +2,12 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
+import { Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -37,6 +39,7 @@ const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const categories = useGetCategories();
+  const items = useGetMenuItems();
   const locations = useGetLocations();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {
@@ -51,7 +54,7 @@ const CategoryBasedSalesReport = () => {
     // Location filter
     if (
       filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order.location as Location)?._id
+      filterPanelFormElements.location !== order.location
     ) {
       return acc;
     }
@@ -70,14 +73,14 @@ const CategoryBasedSalesReport = () => {
       (afterDate && orderDate < afterDate) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order?.item as MenuItem)?.category as number
+        getItem(order?.item, items)?.category
       )
     ) {
       return acc;
     }
 
     const existingEntry = acc.find(
-      (item) => item?.categoryId === (order?.item as MenuItem)?.category
+      (item) => item?.categoryId === getItem(order?.item, items)?.category
     );
 
     if (existingEntry) {
@@ -100,7 +103,7 @@ const CategoryBasedSalesReport = () => {
           : (order?.discountAmount ?? 0) * order.paidQuantity);
       const existingItem = existingEntry.itemQuantity.find(
         (itemQuantityIteration) =>
-          itemQuantityIteration.itemId === (order?.item as MenuItem)?._id
+          itemQuantityIteration.itemId === getItem(order?.item, items)?._id
       );
       if (existingItem) {
         existingEntry.itemQuantity = existingEntry.itemQuantity.map(
@@ -114,8 +117,8 @@ const CategoryBasedSalesReport = () => {
         );
       } else {
         existingEntry.itemQuantity.push({
-          itemId: (order?.item as MenuItem)?._id,
-          itemName: (order?.item as MenuItem)?.name,
+          itemId: order?.item,
+          itemName: getItem(order?.item, items)?.name ?? "",
           quantity: order.paidQuantity,
         });
       }
@@ -136,9 +139,10 @@ const CategoryBasedSalesReport = () => {
       };
     } else {
       acc.push({
-        item: (order?.item as MenuItem)?._id,
-        itemName: (order?.item as MenuItem)?.name,
+        item: order?.item,
+        itemName: getItem(order?.item, items)?.name ?? "",
         paidQuantity: order.paidQuantity,
+        location: order.location,
         discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
             order.paidQuantity *
@@ -146,17 +150,17 @@ const CategoryBasedSalesReport = () => {
             (1 / 100)
           : (order?.discountAmount ?? 0) * order.paidQuantity,
         amount: order.paidQuantity * order.unitPrice,
-        location: (order.location as Location)?._id,
         date: format(orderDate, "yyyy-MM-dd"),
         category:
           categories?.find(
-            (category) => category?._id === (order?.item as MenuItem)?.category
+            (category) =>
+              category?._id === getItem(order?.item, items)?.category
           )?.name ?? "",
-        categoryId: (order?.item as MenuItem)?.category as number,
+        categoryId: getItem(order?.item, items)?.category ?? 0,
         itemQuantity: [
           {
-            itemId: (order?.item as MenuItem)?._id,
-            itemName: (order?.item as MenuItem)?.name,
+            itemId: order?.item,
+            itemName: getItem(order?.item, items)?.name ?? "",
             quantity: order.paidQuantity,
           },
         ],
@@ -168,7 +172,7 @@ const CategoryBasedSalesReport = () => {
           ],
           collapsibleRows: [
             {
-              product: (order?.item as MenuItem)?.name,
+              product: getItem(order?.item, items)?.name,
               quantity: order.paidQuantity,
             },
           ],
@@ -326,7 +330,7 @@ const CategoryBasedSalesReport = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, categories, filterPanelFormElements]);
+  }, [orders, categories, filterPanelFormElements, locations, items]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
