@@ -5,7 +5,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { AccountPackageType, AccountUnit, RoleEnum } from "../../types";
+import { AccountPackageType, RoleEnum } from "../../types";
 import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
@@ -49,7 +49,7 @@ const PackageType = () => {
   const allRows = packageTypes.map((packageType) => {
     return {
       ...packageType,
-      unt: (packageType?.unit as AccountUnit)?.name,
+      unt: getItem(packageType.unit, units)?.name,
       productCount:
         products?.filter((item) =>
           item?.packages?.some((p) => p.package === packageType._id)
@@ -107,7 +107,7 @@ const PackageType = () => {
           (product) =>
             !product.packages?.some(
               (item) => item.package === rowToAction?._id
-            ) && product?.unit === (rowToAction?.unit as AccountUnit)?._id
+            ) && product?.unit === rowToAction?.unit
         )
         .map((product) => {
           const productUnit = getItem(product?.unit, units);
@@ -197,7 +197,7 @@ const PackageType = () => {
             id: rowToAction._id,
             updates: {
               ...rowToAction,
-              unit: (rowToAction.unit as AccountUnit)._id,
+              unit: rowToAction?.unit,
             },
           }}
         />

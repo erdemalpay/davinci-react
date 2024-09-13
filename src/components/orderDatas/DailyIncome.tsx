@@ -2,12 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import {
-  Location,
-  OrderCollectionStatus,
-  TURKISHLIRA,
-  Table,
-} from "../../types";
+import { OrderCollectionStatus, TURKISHLIRA, Table } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
@@ -38,8 +33,7 @@ const DailyIncome = () => {
       if (!collection || !tableDate) return acc;
       if (
         filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !==
-          (collection.location as Location)._id
+        filterPanelFormElements.location !== collection.location
       ) {
         return acc;
       }
@@ -66,7 +60,7 @@ const DailyIncome = () => {
         const newEntry: any = {
           date: format(tableDate, "yyyy-MM-dd"),
           formattedDate: formatAsLocalDate(format(tableDate, "yyyy-MM-dd")),
-          location: (collection.location as Location)._id,
+          location: collection.location,
           total: collection.amount,
         };
 

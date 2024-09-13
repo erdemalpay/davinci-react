@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { GrCheckbox, GrCheckboxSelected } from "react-icons/gr";
 import { useOrderContext } from "../../../../context/Order.context";
-import { MenuItem, Order } from "../../../../types";
+import { Order } from "../../../../types";
 import { useGetCategories } from "../../../../utils/api/menu/category";
+import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
+import { getItem } from "../../../../utils/getItem";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
@@ -11,6 +13,7 @@ type Props = {
 const OrderSelect = ({ tableOrders }: Props) => {
   const { t } = useTranslation();
   const categories = useGetCategories();
+  const items = useGetMenuItems();
   if (!categories) return <></>;
   const {
     temporaryOrders,
@@ -25,7 +28,9 @@ const OrderSelect = ({ tableOrders }: Props) => {
   if (selectedDiscount) {
     filteredOrders = filteredOrders.filter((order) =>
       categories
-        ?.find((category) => category._id === (order.item as MenuItem).category)
+        ?.find(
+          (category) => category._id === getItem(order?.item, items)?.category
+        )
         ?.discounts?.includes(selectedDiscount._id)
     );
   }
@@ -187,7 +192,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   (order.paidQuantity + (tempOrder?.quantity ?? 0))}
                 {")"}-
               </p>
-              <p>{(order.item as MenuItem).name}</p>
+              <p>{getItem(order?.item, items)?.name}</p>
             </div>
             {/* buttons */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">

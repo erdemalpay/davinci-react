@@ -1,12 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Location, MenuItem, Order, RoleEnum, User } from "../types";
+import { Order, RoleEnum, User } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useLocationContext } from "./../context/Location.context";
 import { useUserContext } from "./../context/User.context";
 import { OrderStatus } from "./../types/index";
+import { getItem } from "./../utils/getItem";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
@@ -16,6 +18,7 @@ export function useWebSocket() {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const categories = useGetCategories();
+  const items = useGetMenuItems();
 
   useEffect(() => {
     // Load the audio files
@@ -33,7 +36,7 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (order: Order) => {
-      if ((order?.createdBy as User)?._id === user?._id) {
+      if ((order?.createdBy as any)?._id === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
@@ -41,7 +44,7 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
       // Play order created sound
       const foundCategory = categories?.find(
-        (c) => c._id === (order.item as MenuItem).category
+        (c) => c._id === getItem(order?.item, items)?.category
       );
       if (
         !foundCategory?.isAutoServed &&
@@ -50,7 +53,7 @@ export function useWebSocket() {
           user?.role?._id as RoleEnum
         ) &&
           selectedLocationId &&
-          (order?.location as Location)?._id === selectedLocationId) ||
+          order?.location === selectedLocationId) ||
           (user?.role?._id === RoleEnum.KITCHEN &&
             foundCategory?.kitchen === "flora") ||
           (user?.role?._id === RoleEnum.KITCHEN2 &&

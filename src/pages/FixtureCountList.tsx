@@ -19,12 +19,7 @@ import {
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import {
-  AccountFixtureCountList,
-  AccountStockLocation,
-  RoleEnum,
-  User,
-} from "../types";
+import { AccountFixtureCountList, RoleEnum } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import {
   useAccountFixtureCountMutations,
@@ -435,9 +430,8 @@ const FixtureCountList = () => {
                   counts?.filter((item) => {
                     return (
                       item.isCompleted === false &&
-                      (item.location as AccountStockLocation)._id ===
-                        countLocationForm.location &&
-                      (item.user as User)._id === user._id &&
+                      item.location === countLocationForm.location &&
+                      item.user === user._id &&
                       (item.countList as AccountFixtureCountList)._id ===
                         fixtureCountListId
                     );

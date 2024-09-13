@@ -13,20 +13,18 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import {
-  AccountCountList,
-  AccountStockLocation,
-  AccountUnit,
-  RoleEnum,
-  User,
-} from "../types";
+import { RoleEnum } from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
   useUpdateStockForStockCountBulkMutation,
   useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
+import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
+import { useGetAccountUnits } from "../utils/api/account/unit";
+import { useGetUsers } from "../utils/api/user";
+import { getItem } from "../utils/getItem";
 
 const SingleCountArchive = () => {
   const { t } = useTranslation();
@@ -34,6 +32,9 @@ const SingleCountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
+  const countLists = useGetAccountCountLists();
+  const units = useGetAccountUnits();
+  const users = useGetUsers();
   const { mutate: updateStockForStockCount } =
     useUpdateStockForStockCountMutation();
   const { mutate: updateStockForStockCountBulk } =
@@ -58,7 +59,7 @@ const SingleCountArchive = () => {
     },
     {
       name:
-        (foundCount?.countList as AccountCountList)?.name + " " + t("Countu"),
+        getItem(foundCount?.countList, countLists)?.name + " " + t("Countu"),
       path: `/archive/${archiveId}`,
       canBeClicked: false,
     },
@@ -70,13 +71,13 @@ const SingleCountArchive = () => {
     return (
       currentCount?.products?.map((option) => ({
         currentCountId: currentCount._id,
-        currentCountLocationId: (currentCount?.location as AccountStockLocation)
-          ._id,
+        currentCountLocationId: currentCount?.location,
         product: products?.find((item) => item._id === option.product)?.name,
         productId: option.product,
-        unit: (
-          products?.find((item) => item._id === option.product)
-            ?.unit as AccountUnit
+        unit: units?.find(
+          (unit) =>
+            unit._id ===
+            products?.find((item) => item._id === option.product)?.unit
         )?.name,
         date: `${pad(date.getDate())}-${pad(
           date.getMonth() + 1
@@ -220,7 +221,6 @@ const SingleCountArchive = () => {
                 (product) => !product?.isStockEqualized
               )?.length === 0
             ) {
-              console.log("currentCount", currentCount);
               toast.error(t("Stock is already equalized"));
               return;
             }
@@ -236,7 +236,7 @@ const SingleCountArchive = () => {
   useEffect(() => {
     setRows(allRows());
     setTableKey((prev) => prev + 1);
-  }, [counts, products, archiveId]);
+  }, [counts, products, archiveId, units, countLists, users]);
   return (
     <>
       <Header />
@@ -260,7 +260,7 @@ const SingleCountArchive = () => {
             filters={
               foundCount && !foundCount.isCompleted ? filters : archieveFilters
             }
-            title={`${(foundCount?.user as User)?.name}  ${t("Countu")}`} //date will be added here
+            title={`${getItem(foundCount?.user, users)?.name}  ${t("Countu")}`} //date will be added here
           />
         )}
       </div>

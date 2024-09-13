@@ -6,7 +6,9 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { AccountProduct, AccountUnit } from "../../../types";
+import { AccountProduct } from "../../../types";
+import { useGetAccountUnits } from "../../../utils/api/account/unit";
+import { getItem } from "../../../utils/getItem";
 
 type Props = {
   chartConfig: any;
@@ -14,6 +16,8 @@ type Props = {
 };
 
 const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
+  const units = useGetAccountUnits();
+
   return (
     <Card className="shadow-none">
       <CardHeader
@@ -30,7 +34,7 @@ const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
             {selectedProduct &&
               selectedProduct?.name +
                 "(" +
-                (selectedProduct?.unit as AccountUnit)?.name +
+                getItem(selectedProduct?.unit, units)?.name +
                 ")"}
           </Typography>
         </div>

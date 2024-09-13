@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { AccountPaymentMethod, CheckoutControl } from "../../types";
+import { CheckoutControl } from "../../types";
 import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
@@ -85,7 +85,7 @@ const CheckoutControlPage = () => {
             ? checkoutControls[index - 1].amount
             : beginningCashs?.filter(
                 (cash) =>
-                  cash.location._id === checkoutControl?.location &&
+                  cash.location === checkoutControl?.location &&
                   cash.date <= checkoutControl?.date
               )?.[0]?.amount ?? 0,
         incomeQuantity: incomes
@@ -98,7 +98,7 @@ const CheckoutControlPage = () => {
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
-                (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+                item?.paymentMethod === "cash" &&
                 item.date === getPreviousDate(checkoutControl?.date)
             )
             ?.reduce((acc, item) => acc + item.totalExpense, 0) +
@@ -106,7 +106,7 @@ const CheckoutControlPage = () => {
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
-                (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+                item?.paymentMethod === "cash" &&
                 item.date === getPreviousDate(checkoutControl?.date)
             )
             ?.reduce((acc, item) => acc + item.totalExpense, 0) +
@@ -114,7 +114,7 @@ const CheckoutControlPage = () => {
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
-                (item?.paymentMethod as AccountPaymentMethod)?._id === "cash" &&
+                item?.paymentMethod === "cash" &&
                 item.date === getPreviousDate(checkoutControl?.date)
             )
             ?.reduce((acc, item) => acc + item.totalExpense, 0),

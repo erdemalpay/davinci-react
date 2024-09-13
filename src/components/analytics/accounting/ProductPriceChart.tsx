@@ -105,8 +105,7 @@ export default function ProductPriceChart({}: Props) {
 
   useEffect(() => {
     const invoicesForProduct = invoices?.filter(
-      (invoice) =>
-        (invoice.product as AccountProduct)._id === selectedProduct?._id
+      (invoice) => invoice.product === selectedProduct?._id
     );
     const prices = invoicesForProduct
       ?.map((invoice) =>

@@ -103,7 +103,6 @@ const PopularTable = ({ popularItems }: Props) => {
               popularItems.find((c) => c._id === rowToAction._id)?.item,
               items
             );
-            console.log(popularItem);
             if (popularItem) {
               deletePopular(popularItem?._id);
             }

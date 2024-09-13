@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { MenuItem, Order, OrderCollection, Table } from "../../../types";
+import { Order, OrderCollection, Table } from "../../../types";
+import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
+import { getItem } from "../../../utils/getItem";
 import Keypad from "./KeyPad";
 
 type Props = {
@@ -22,7 +24,8 @@ const OrderTotal = ({
 }: Props) => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
-  if (!tableOrders || !discounts) {
+  const items = useGetMenuItems();
+  if (!tableOrders || !discounts || !items) {
     return null;
   }
   const {
@@ -128,7 +131,7 @@ const OrderTotal = ({
                   })()}
                   {")"}-
                 </p>
-                <p>{(order.item as MenuItem).name}</p>
+                <p>{getItem(order?.item, items)?.name}</p>
               </div>
 
               {/* buttons */}

@@ -5,7 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountProduct, AccountUnit, RoleEnum } from "../../types";
+import { AccountProduct, RoleEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
@@ -161,9 +161,7 @@ const Product = () => {
       required: true,
     }),
     PackageTypeInput({
-      packages: packages.filter(
-        (p) => (p.unit as AccountUnit)._id === inputForm.unit
-      ),
+      packages: packages.filter((p) => p.unit === inputForm.unit),
       isMultiple: true,
       required: true,
     }),

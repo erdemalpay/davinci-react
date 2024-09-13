@@ -1,8 +1,10 @@
 import { FaRegClock } from "react-icons/fa6";
 import { useLocationContext } from "../../context/Location.context";
-import { Location, MenuItem, OrderStatus } from "../../types";
+import { OrderStatus } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetTodayOrders } from "../../utils/api/order/order";
+import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
 
 type Props = {
@@ -12,11 +14,12 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
   const { selectedLocationId } = useLocationContext();
   const categories = useGetCategories();
   const todayOrders = useGetTodayOrders();
-  if (!todayOrders || !categories) return <></>;
+  const items = useGetMenuItems();
+  if (!todayOrders || !categories || !items) return <></>;
   const filteredOrders = todayOrders?.filter(
     (order) =>
       categories?.find(
-        (category) => category?._id === (order?.item as MenuItem)?.category
+        (category) => category?._id === getItem(order?.item, items)?.category
       )?.kitchen === kitchen
   );
   const orderStatusArray = [
@@ -58,8 +61,7 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
               <OrderStatusContainer
                 status={orderStatus.status}
                 orders={orderStatus.orders.filter(
-                  (order) =>
-                    (order.location as Location)._id === selectedLocationId
+                  (order) => order.location === selectedLocationId
                 )}
                 icon={orderStatus.icon}
                 iconBackgroundColor={orderStatus.iconBackgroundColor}

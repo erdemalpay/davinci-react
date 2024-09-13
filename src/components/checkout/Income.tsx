@@ -5,12 +5,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import {
-  CheckoutIncome,
-  Location,
-  OrderCollectionStatus,
-  RoleEnum,
-} from "../../types";
+import { CheckoutIncome, OrderCollectionStatus, RoleEnum } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutIncomeMutations,
@@ -87,9 +82,8 @@ const Income = () => {
                 : false) &&
               collection?.paymentMethod === "cash" &&
               collection.status === OrderCollectionStatus.PAID &&
-              getCollectionLocationIdAsString(
-                (collection.location as Location)._id
-              ) === income.location
+              getCollectionLocationIdAsString(collection.location) ===
+                income.location
           )
           ?.map((collection) => collection.amount)
           ?.reduce((a, b) => a + b, 0),
