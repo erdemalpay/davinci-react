@@ -5,7 +5,14 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountStock, RoleEnum, StockHistoryStatusEnum } from "../../types";
+import {
+  AccountPackageType,
+  AccountProduct,
+  AccountStock,
+  AccountStockLocation,
+  RoleEnum,
+  StockHistoryStatusEnum,
+} from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -15,7 +22,6 @@ import {
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { getItem } from "../../utils/getItem";
 import {
   ExpenseTypeInput,
   ProductInput,
@@ -28,7 +34,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -53,14 +58,14 @@ const Stock = () => {
       const expense = stock.packageType
         ? parseFloat(
             (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
               stock.quantity *
-              (getItem(stock.packageType, packages)?.quantity ?? 1)
+              (stock.packageType as AccountPackageType).quantity
             ).toFixed(1)
           )
         : parseFloat(
             (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
               stock.quantity
             ).toFixed(1)
           );
@@ -90,28 +95,29 @@ const Stock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        prdct: getItem(stock.product, products)?.name,
-        pckgType: getItem(stock.packageType, packages)?.name,
-        lctn: getItem(stock.location, locations)?.name,
+        prdct: (stock.product as AccountProduct)?.name,
+        pckgType: (stock?.packageType as AccountPackageType)?.name,
+        lctn: (stock.location as AccountStockLocation)?.name,
         unit: units?.find(
-          (unit) => unit._id === getItem(stock.product, products)?.unit
+          (unit) => unit._id === (stock.product as AccountProduct)?.unit
         )?.name,
         unitPrice: stock?.packageType
-          ? getItem(stock.product, products)?.packages?.find(
-              (pkg) => pkg.package === stock?.packageType
+          ? (stock.product as AccountProduct).packages?.find(
+              (pkg) =>
+                pkg.package === (stock?.packageType as AccountPackageType)?._id
             )?.packageUnitPrice
-          : getItem(stock.product, products)?.unitPrice,
+          : (stock.product as AccountProduct)?.unitPrice,
         totalPrice: stock?.packageType
           ? parseFloat(
               (
-                (getItem(stock.product, products)?.unitPrice ?? 0) *
+                ((stock.product as AccountProduct).unitPrice ?? 0) *
                 stock.quantity *
-                (getItem(stock.packageType, packages)?.quantity ?? 1)
+                (stock.packageType as AccountPackageType).quantity
               ).toFixed(1)
             )
           : parseFloat(
               (
-                (getItem(stock.product, products)?.unitPrice ?? 0) *
+                ((stock.product as AccountProduct).unitPrice ?? 0) *
                 stock.quantity
               ).toFixed(1)
             ),
@@ -122,7 +128,6 @@ const Stock = () => {
     useAccountStockMutations();
   const inputs = [
     ProductInput({
-      units: units,
       products: products,
       invalidateKeys: [{ key: "packageType", defaultValue: "" }],
       required: true,
@@ -241,7 +246,7 @@ const Stock = () => {
           }}
           title={t("Delete Stock")}
           text={`${
-            getItem(rowToAction.product, products)?.name
+            (rowToAction.product as AccountProduct).name
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -261,7 +266,7 @@ const Stock = () => {
       onClick: (row: AccountStock) => {
         setForm({
           ...form,
-          product: row.product,
+          product: (row.product as AccountProduct)._id,
         });
       },
       modal: rowToAction ? (
@@ -277,17 +282,23 @@ const Stock = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              product: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.product,
-              location: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.location,
+              product: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.product as AccountProduct
+              )?._id,
+              location: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.location as AccountStockLocation
+              )?._id,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
-              packageType: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.packageType,
-              unitPrice: getItem(
-                stocks.find((stock) => stock._id === rowToAction._id)?.product,
-                products
+              packageType: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.packageType as AccountPackageType
+              )?._id,
+              unitPrice: (
+                stocks.find((stock) => stock._id === rowToAction._id)
+                  ?.product as AccountProduct
               )?.unitPrice,
             },
           }}
@@ -332,45 +343,54 @@ const Stock = () => {
     const processedRows = stocks
       .filter((stock) => {
         return (
-          passesFilter(filterPanelFormElements.location, stock.location) &&
-          getItem(stock.product, products)?.expenseType?.some((type) =>
+          passesFilter(
+            filterPanelFormElements.location,
+            (stock.location as AccountStockLocation)?._id
+          ) &&
+          (stock.product as AccountProduct)?.expenseType?.some((type) =>
             passesFilter(filterPanelFormElements.expenseType, type)
           ) &&
           (!filterPanelFormElements.product.length ||
             filterPanelFormElements.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, getItem(stock.product, products)?._id)
+              passesFilter(panelProduct, (stock.product as AccountProduct)?._id)
             )) &&
           passesFilter(
             filterPanelFormElements.packageType,
-            getItem(stock.packageType, packages)?._id
+            (stock.packageType as AccountPackageType)?._id
           )
         );
       })
       .map((stock) => {
         return {
           ...stock,
-          prdct: getItem(stock.product, products)?.name,
-          pckgType: getItem(stock.packageType, packages)?.name,
-          lctn: getItem(stock.location, locations)?.name,
-          unit: units?.find(
-            (unit) => unit._id === getItem(stock.product, products)?.unit
-          )?.name,
+          prdct: (stock.product as AccountProduct).name,
+          pckgType: (stock?.packageType as AccountPackageType)?.name,
+          lctn: (stock.location as AccountStockLocation)?.name,
           unitPrice: stock?.packageType
-            ? getItem(stock.product, products)?.packages?.find(
-                (pkg) => pkg.package === stock?.packageType
+            ? (stock.product as AccountProduct).packages?.find(
+                (pkg) =>
+                  pkg.package ===
+                  (stock?.packageType as AccountPackageType)?._id
               )?.packageUnitPrice
-            : getItem(stock.product, products)?.unitPrice,
+            : (stock.product as AccountProduct)?.unitPrice,
+          unit: units?.find(
+            (unit) => unit._id === (stock.product as AccountProduct).unit
+          )?.name,
           totalPrice: stock?.packageType
             ? parseFloat(
                 (
-                  (getItem(stock.product, products)?.unitPrice ?? 0) *
+                  ((stock?.product as AccountProduct)?.packages?.find(
+                    (pkg) =>
+                      pkg.package ===
+                      (stock.packageType as AccountPackageType)?._id
+                  )?.packageUnitPrice ?? 0) *
                   stock.quantity *
-                  (getItem(stock.packageType, packages)?.quantity ?? 1)
+                  (stock.packageType as AccountPackageType).quantity
                 ).toFixed(1)
               )
             : parseFloat(
                 (
-                  (getItem(stock.product, products)?.unitPrice ?? 0) *
+                  ((stock.product as AccountProduct).unitPrice ?? 0) *
                   stock.quantity
                 ).toFixed(1)
               ),
@@ -394,14 +414,14 @@ const Stock = () => {
       const expense = stock.packageType
         ? parseFloat(
             (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
               stock.quantity *
-              (getItem(stock.packageType, packages)?.quantity ?? 1)
+              (stock.packageType as AccountPackageType).quantity
             ).toFixed(1)
           )
         : parseFloat(
             (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              ((stock.product as AccountProduct).unitPrice ?? 0) *
               stock.quantity
             ).toFixed(1)
           );
@@ -418,12 +438,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements, searchQuery]);
   const filterPanelInputs = [
-    ProductInput({
-      units: units,
-      products: products,
-      required: true,
-      isMultiple: true,
-    }),
+    ProductInput({ products: products, required: true, isMultiple: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
     {

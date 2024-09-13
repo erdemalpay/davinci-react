@@ -11,7 +11,6 @@ import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetPopularItems } from "../utils/api/menu/popular";
-import { getItem } from "../utils/getItem";
 
 export interface ItemGroup {
   category: MenuCategory;
@@ -44,27 +43,25 @@ export default function Menu() {
     const itemCategories = items
       .map((item) => item.category)
       .filter((category) => {
-        if (seenCategories.hasOwnProperty(category)) {
+        if (seenCategories.hasOwnProperty((category as MenuCategory)?._id)) {
           return false;
         } else {
-          seenCategories[category] = true;
+          seenCategories[(category as MenuCategory)?._id] = true;
           return true;
         }
       })
-      .sort(
-        (a, b) =>
-          (getItem(a, categories)?.order as number) -
-          (getItem(b, categories)?.order as number)
-      );
+      .sort((a, b) => (a as MenuCategory)?.order - (b as MenuCategory)?.order);
     const emptyCategories = categories?.filter(
       (category) =>
-        itemCategories.filter((itemCategory) => itemCategory === category?._id)
-          .length === 0
+        itemCategories.filter(
+          (itemCategory) =>
+            (itemCategory as MenuCategory)?._id === category?._id
+        ).length === 0
     );
     const itemGroups: ItemGroup[] = [];
     if (!items) return;
     items.forEach((item) => {
-      const category = getItem(item.category, categories);
+      const category = item.category as MenuCategory;
       const existingGroup = itemGroups.find(
         (itemGroup) => itemGroup.category?.name === category?.name
       );
@@ -72,8 +69,8 @@ export default function Menu() {
         existingGroup.items.push(item);
       } else {
         const newGroup = {
-          category: category as MenuCategory,
-          order: category?.order as number,
+          category: category,
+          order: category?.order,
           items: [item],
         };
         itemGroups.push(newGroup);

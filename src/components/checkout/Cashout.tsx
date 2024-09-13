@@ -12,7 +12,6 @@ import {
 } from "../../utils/api/checkout/cashout";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -52,16 +51,12 @@ const Cashout = () => {
     updateCheckoutCashout,
   } = useCheckoutCashoutMutations();
   const allRows =
-    cashouts?.map((cashout) => {
-      const cashoutUser = getItem(cashout?.user, users);
-      const cashoutLocation = getItem(cashout?.location, locations);
-      return {
-        ...cashout,
-        usr: cashoutUser?.name,
-        lctn: cashoutLocation?.name,
-        formattedDate: formatAsLocalDate(cashout?.date),
-      };
-    }) ?? [];
+    cashouts?.map((cashout) => ({
+      ...cashout,
+      usr: cashout?.user?.name,
+      lctn: cashout?.location?.name,
+      formattedDate: formatAsLocalDate(cashout?.date),
+    })) ?? [];
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -101,7 +96,7 @@ const Cashout = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return row?.formattedDate;
+        return row.formattedDate;
       },
     },
     {
@@ -218,9 +213,9 @@ const Cashout = () => {
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       return (
-        passesFilter(filterPanelFormElements.location, row?.location) &&
-        passesFilter(filterPanelFormElements.user, row?.user) &&
-        passesFilter(filterPanelFormElements.date, row?.date)
+        passesFilter(filterPanelFormElements.location, row.location?._id) &&
+        passesFilter(filterPanelFormElements.user, row.user?._id) &&
+        passesFilter(filterPanelFormElements.date, row.date)
       );
     });
     setRows(filteredRows);

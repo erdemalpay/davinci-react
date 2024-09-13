@@ -3,18 +3,22 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType } from "../../types";
+import {
+  AccountBrand,
+  AccountExpenseType,
+  AccountPackageType,
+  AccountPaymentMethod,
+  AccountProduct,
+  AccountStockLocation,
+  AccountVendor,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
-import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ProductInput,
@@ -38,9 +42,6 @@ const VendorExpenses = () => {
   const brands = useGetAccountBrands();
   const products = useGetAccountProducts();
   const units = useGetAccountUnits();
-  const expenseTypes = useGetAccountExpenseTypes();
-  const packages = useGetAccountPackageTypes();
-  const paymentMethods = useGetAccountPaymentMethods();
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -56,40 +57,46 @@ const VendorExpenses = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rows, setRows] = useState(
     invoices
-      ?.filter((invoice) => invoice?.vendor === selectedVendor?._id)
+      ?.filter(
+        (invoice) =>
+          (invoice?.vendor as AccountVendor)?._id === selectedVendor?._id
+      )
       ?.map((invoice) => {
         return {
           ...invoice,
-          product: getItem(invoice?.product, products)?.name,
-          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          packageType: getItem(invoice?.packageType, packages)?.name,
-          brand: getItem(invoice?.brand, brands)?.name,
-          vendor: getItem(invoice?.vendor, vendors)?.name,
+          product: (invoice.product as AccountProduct)?.name,
+          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          packageType: (invoice.packageType as AccountPackageType)?.name,
+          brand: (invoice.brand as AccountBrand)?.name,
+          vendor: (invoice.vendor as AccountVendor)?.name,
           formattedDate: formatAsLocalDate(invoice.date),
-          lctn: getItem(invoice?.location, locations)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (
-              invoice?.totalExpense /
-              (invoice?.quantity *
-                (getItem(invoice?.packageType, packages)?.quantity ?? 1))
+              invoice.totalExpense /
+              (invoice.quantity *
+                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
             ).toFixed(4)
           ),
           unit: units?.find(
-            (unit) => unit._id === getItem(invoice?.product, products)?.unit
+            (unit) =>
+              unit._id === ((invoice.product as AccountProduct).unit as string)
           )?.name,
-          expType: getItem(invoice?.expenseType, expenseTypes),
-          brnd: getItem(invoice?.brand, brands),
-          vndr: getItem(invoice?.vendor, vendors),
-          pckgTyp: getItem(invoice?.packageType, packages),
-          prdct: getItem(invoice?.product, products),
+          expType: invoice.expenseType as AccountExpenseType,
+          brnd: invoice.brand as AccountBrand,
+          vndr: invoice.vendor as AccountVendor,
+          pckgTyp: invoice.packageType as AccountPackageType,
+          prdct: invoice.product as AccountProduct,
           paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
           ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       })
   );
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    rows?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
+    rows?.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
   );
   const outsideSearch = () => {
     return (
@@ -124,7 +131,6 @@ const VendorExpenses = () => {
 
   const filterPanelInputs = [
     ProductInput({
-      units: units,
       products: products.filter((i) => i.vendor?.includes(selectedVendor?._id)),
       required: true,
     }),
@@ -255,46 +261,61 @@ const VendorExpenses = () => {
   ];
   useEffect(() => {
     const processedRows = invoices
-      ?.filter((invoice) => invoice?.vendor === selectedVendor?._id)
+      ?.filter(
+        (invoice) =>
+          (invoice?.vendor as AccountVendor)?._id === selectedVendor?._id
+      )
       ?.filter((invoice) => {
         return (
           (filterPanelFormElements.before === "" ||
-            invoice?.date <= filterPanelFormElements.before) &&
+            invoice.date <= filterPanelFormElements.before) &&
           (filterPanelFormElements.after === "" ||
-            invoice?.date >= filterPanelFormElements.after) &&
-          passesFilter(filterPanelFormElements.product, invoice?.product) &&
-          passesFilter(filterPanelFormElements.brand, invoice?.brand) &&
-          passesFilter(filterPanelFormElements.location, invoice?.location)
+            invoice.date >= filterPanelFormElements.after) &&
+          passesFilter(
+            filterPanelFormElements.product,
+            (invoice.product as AccountProduct)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.brand,
+            (invoice.brand as AccountBrand)?._id
+          ) &&
+          passesFilter(
+            filterPanelFormElements.location,
+            (invoice.location as AccountStockLocation)?._id
+          )
         );
       })
       .map((invoice) => {
         return {
           ...invoice,
-          product: getItem(invoice?.product, products)?.name,
-          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          packageType: getItem(invoice?.packageType, packages)?.name,
-          brand: getItem(invoice?.brand, brands)?.name,
-          vendor: getItem(invoice?.vendor, vendors)?.name,
+          product: (invoice.product as AccountProduct)?.name,
+          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          packageType: (invoice.packageType as AccountPackageType)?.name,
+          brand: (invoice.brand as AccountBrand)?.name,
+          vendor: (invoice.vendor as AccountVendor)?.name,
           formattedDate: formatAsLocalDate(invoice.date),
-          lctn: getItem(invoice?.location, locations)?.name,
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (
-              invoice?.totalExpense /
-              (invoice?.quantity *
-                (getItem(invoice?.packageType, packages)?.quantity ?? 1))
+              invoice.totalExpense /
+              (invoice.quantity *
+                ((invoice.packageType as AccountPackageType)?.quantity ?? 1))
             ).toFixed(4)
           ),
           unit: units?.find(
-            (unit) => unit._id === getItem(invoice?.product, products)?.unit
+            (unit) =>
+              unit._id === ((invoice.product as AccountProduct).unit as string)
           )?.name,
-          expType: getItem(invoice?.expenseType, expenseTypes),
-          brnd: getItem(invoice?.brand, brands),
-          vndr: getItem(invoice?.vendor, vendors),
-          pckgTyp: getItem(invoice?.packageType, packages),
-          prdct: getItem(invoice?.product, products),
+          expType: invoice.expenseType as AccountExpenseType,
+          brnd: invoice.brand as AccountBrand,
+          vndr: invoice.vendor as AccountVendor,
+          pckgTyp: invoice.packageType as AccountPackageType,
+          prdct: invoice.product as AccountProduct,
           paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
           ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -316,7 +337,7 @@ const VendorExpenses = () => {
       })
     );
     const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice?.totalExpense,
+      (acc, invoice) => acc + invoice.totalExpense,
       0
     );
     setRows(filteredRows);

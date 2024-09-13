@@ -6,11 +6,10 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuCategory } from "../../types";
+import { Kitchen, MenuCategory } from "../../types";
 import { useCategoryMutations } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
-import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -45,11 +44,10 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const allRows = categories.map((category) => {
-    const categoryKitchen = getItem(category.kitchen, kitchens);
     return {
       ...category,
-
-      kitchenName: categoryKitchen?.name,
+      kitchen: (category.kitchen as Kitchen)._id,
+      kitchenName: (category.kitchen as Kitchen).name,
     };
   });
   const [rows, setRows] = useState(allRows);

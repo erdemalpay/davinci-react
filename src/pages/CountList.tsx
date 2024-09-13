@@ -19,7 +19,12 @@ import {
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountCountList, RoleEnum } from "../types";
+import {
+  AccountCountList,
+  AccountStockLocation,
+  RoleEnum,
+  User,
+} from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -429,9 +434,10 @@ const CountList = () => {
                   counts?.filter((item) => {
                     return (
                       item.isCompleted === false &&
-                      item.location === countLocationForm.location &&
-                      item.user === user._id &&
-                      item.countList === countListId
+                      (item.location as AccountStockLocation)._id ===
+                        countLocationForm.location &&
+                      (item.user as User)._id === user._id &&
+                      (item.countList as AccountCountList)._id === countListId
                     );
                   }).length > 0
                 ) {

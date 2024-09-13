@@ -5,7 +5,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { AccountPackageType, RoleEnum } from "../../types";
+import { AccountPackageType, AccountUnit, RoleEnum } from "../../types";
 import {
   useAccountPackageTypeMutations,
   useGetAccountPackageTypes,
@@ -15,7 +15,6 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { getItem } from "../../utils/getItem";
 import { NameInput, QuantityInput, UnitInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -49,7 +48,7 @@ const PackageType = () => {
   const allRows = packageTypes.map((packageType) => {
     return {
       ...packageType,
-      unt: getItem(packageType.unit, units)?.name,
+      unt: (packageType?.unit as AccountUnit)?.name,
       productCount:
         products?.filter((item) =>
           item?.packages?.some((p) => p.package === packageType._id)
@@ -107,13 +106,14 @@ const PackageType = () => {
           (product) =>
             !product.packages?.some(
               (item) => item.package === rowToAction?._id
-            ) && product?.unit === rowToAction?.unit
+            ) &&
+            (product?.unit as AccountUnit)?._id ===
+              (rowToAction?.unit as AccountUnit)?._id
         )
         .map((product) => {
-          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${productUnit?.name})`,
+            label: product.name + `(${(product.unit as AccountUnit).name})`,
           };
         }),
       isMultiple: true,
@@ -197,7 +197,7 @@ const PackageType = () => {
             id: rowToAction._id,
             updates: {
               ...rowToAction,
-              unit: rowToAction?.unit,
+              unit: (rowToAction.unit as AccountUnit)._id,
             },
           }}
         />

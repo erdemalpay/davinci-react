@@ -8,7 +8,11 @@ import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
+  AccountPaymentMethod,
+  AccountService,
   AccountServiceInvoice,
+  AccountStockLocation,
+  AccountVendor,
   NOTPAID,
 } from "../../types";
 import {
@@ -34,7 +38,6 @@ import {
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import {
   BackgroundColorInput,
   ExpenseTypeInput,
@@ -130,20 +133,22 @@ const ServiceInvoice = () => {
     invoices.map((invoice) => {
       return {
         ...invoice,
-        service: getItem(invoice.service, services)?.name,
-        expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-        vendor: getItem(invoice.vendor, vendors)?.name,
-        lctn: getItem(invoice.location, locations)?.name,
+        service: (invoice.service as AccountService)?.name,
+        expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+        vendor: (invoice.vendor as AccountVendor)?.name,
+        location: invoice.location as AccountStockLocation,
+        lctn: (invoice.location as AccountStockLocation)?.name,
         formattedDate: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
           (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
-        expType: getItem(invoice.expenseType, expenseTypes),
-        vndr: getItem(invoice.vendor, vendors),
-        srvc: getItem(invoice.service, services),
+        expType: invoice.expenseType as AccountExpenseType,
+        vndr: invoice.vendor as AccountVendor,
+        srvc: invoice.service as AccountService,
         paymentMethodName: t(
-          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+          (invoice?.paymentMethod as AccountPaymentMethod)?.name
         ),
+        paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
       };
     })
   );
@@ -603,19 +608,22 @@ const ServiceInvoice = () => {
             updates: {
               ...rowToAction,
               date: rowToAction.date,
-              service: invoices.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.service,
-              expenseType: invoices?.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.expenseType,
+              service: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.service as AccountService
+              )?._id,
+              expenseType: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.expenseType as AccountExpenseType
+              )?._id,
               quantity: rowToAction.quantity,
               totalExpense: rowToAction.totalExpense,
-              vendor: invoices?.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.vendor,
+              vendor: (
+                invoices.find((invoice) => invoice._id === rowToAction._id)
+                  ?.vendor as AccountVendor
+              )?._id,
               note: rowToAction.note,
-              location: rowToAction.location,
+              location: (rowToAction.location as AccountStockLocation)._id,
               paymentMethod: rowToAction?.paymentMethod,
             },
           }}
@@ -674,33 +682,44 @@ const ServiceInvoice = () => {
             invoice.date >= filterPanelFormElements.after) &&
           (!filterPanelFormElements.service.length ||
             filterPanelFormElements.service?.some((panelService: string) =>
-              passesFilter(panelService, invoice.service)
+              passesFilter(
+                panelService,
+                (invoice.service as AccountService)?._id
+              )
             )) &&
-          passesFilter(filterPanelFormElements.vendor, invoice.vendor) &&
+          passesFilter(
+            filterPanelFormElements.vendor,
+            (invoice.vendor as AccountVendor)?._id
+          ) &&
           passesFilter(
             filterPanelFormElements.expenseType,
-            invoice.expenseType
+            (invoice.expenseType as AccountExpenseType)?._id
           ) &&
-          passesFilter(filterPanelFormElements.location, invoice.location)
+          passesFilter(
+            filterPanelFormElements.location,
+            (invoice.location as AccountStockLocation)?._id
+          )
         );
       })
       .map((invoice) => {
         return {
           ...invoice,
-          service: getItem(invoice.service, services)?.name,
-          expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-          vendor: getItem(invoice.vendor, vendors)?.name,
-          lctn: getItem(invoice.location, locations)?.name,
+          service: (invoice.service as AccountService)?.name,
+          expenseType: (invoice.expenseType as AccountExpenseType)?.name,
+          vendor: (invoice.vendor as AccountVendor)?.name,
           formattedDate: formatAsLocalDate(invoice.date),
+          location: invoice.location as AccountStockLocation,
+          lctn: (invoice.location as AccountStockLocation)?.name,
           unitPrice: parseFloat(
             (invoice.totalExpense / invoice.quantity).toFixed(4)
           ),
-          expType: getItem(invoice.expenseType, expenseTypes),
-          vndr: getItem(invoice.vendor, vendors),
-          srvc: getItem(invoice.service, services),
+          expType: invoice.expenseType as AccountExpenseType,
+          vndr: invoice.vendor as AccountVendor,
+          srvc: invoice.service as AccountService,
           paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+            (invoice?.paymentMethod as AccountPaymentMethod)?.name
           ),
+          paymentMethod: (invoice?.paymentMethod as AccountPaymentMethod)?._id,
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -733,15 +752,7 @@ const ServiceInvoice = () => {
     ) {
       setCurrentPage(1);
     }
-  }, [
-    invoices,
-    filterPanelFormElements,
-    searchQuery,
-    locations,
-    vendors,
-    expenseTypes,
-    paymentMethods,
-  ]);
+  }, [invoices, filterPanelFormElements, searchQuery]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

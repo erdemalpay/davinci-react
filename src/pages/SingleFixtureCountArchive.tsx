@@ -8,13 +8,11 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountFixtureCountList, RoleEnum } from "../types";
+import { AccountFixtureCountList, RoleEnum, User } from "../types";
 import { useAccountCountMutations } from "../utils/api/account/count";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import { useGetAccountFixtureCounts } from "../utils/api/account/fixtureCount";
 import { useGetAccountFixtureCountLists } from "../utils/api/account/fixtureCountList";
-import { useGetUsers } from "../utils/api/user";
-import { getItem } from "../utils/getItem";
 
 const SingleFixtureCountArchive = () => {
   const { t } = useTranslation();
@@ -22,7 +20,6 @@ const SingleFixtureCountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountFixtureCounts();
-  const users = useGetUsers();
   const countLists = useGetAccountFixtureCountLists();
   const { updateAccountCount } = useAccountCountMutations();
   const fixtures = useGetAccountFixtures();
@@ -109,7 +106,7 @@ const SingleFixtureCountArchive = () => {
       );
     });
     setTableKey((prev) => prev + 1);
-  }, [counts, fixtures, archiveId, users]);
+  }, [counts, fixtures, archiveId]);
   const filters = [
     {
       isUpperSide: false,
@@ -162,7 +159,7 @@ const SingleFixtureCountArchive = () => {
               user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
             }
             filters={foundCount && !foundCount.isCompleted ? filters : []}
-            title={`${getItem(foundCount?.user, users)?.name}  ${t("Countu")}`} //date will be added here
+            title={`${(foundCount?.user as User)?.name}  ${t("Countu")}`} //date will be added here
           />
         )}
       </div>

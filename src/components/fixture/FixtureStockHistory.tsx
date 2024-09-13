@@ -2,13 +2,11 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { stockHistoryStatuses } from "../../types";
+import { AccountStockLocation, stockHistoryStatuses } from "../../types";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import { useGetAccountFixtureStockHistorys } from "../../utils/api/account/fixtureStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -26,7 +24,6 @@ const FixtureStockHistory = () => {
   const locations = useGetAccountStockLocations();
   const fixtures = useGetAccountFixtures();
   const { fixtureId } = useParams();
-  const users = useGetUsers();
   const currentFixture = fixtures?.find((fixture) => fixture._id === fixtureId);
   if (!currentFixture) return <></>;
   const [showFilters, setShowFilters] = useState(false);
@@ -40,7 +37,7 @@ const FixtureStockHistory = () => {
 
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistories
-    .filter((item) => item.fixture === currentFixture._id)
+    .filter((item) => item.fixture._id === currentFixture._id)
     .map((stockHistory) => {
       if (!stockHistory?.createdAt) {
         return null;
@@ -48,9 +45,9 @@ const FixtureStockHistory = () => {
       const date = new Date(stockHistory.createdAt);
       return {
         ...stockHistory,
-        fxtr: getItem(stockHistory?.fixture, fixtures)?.name,
-        lctn: getItem(stockHistory?.location, locations)?.name,
-        usr: getItem(stockHistory?.user, users)?.name,
+        fxtr: stockHistory.fixture?.name,
+        lctn: stockHistory?.location?.name,
+        usr: stockHistory?.user?.name,
         date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(
           format(stockHistory?.createdAt, "yyyy-MM-dd")
@@ -162,20 +159,16 @@ const FixtureStockHistory = () => {
           stockHistory.createdAt <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
           stockHistory.createdAt >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, stockHistory.location) &&
+        passesFilter(
+          filterPanelFormElements.location,
+          (stockHistory.location as AccountStockLocation)?._id
+        ) &&
         passesFilter(filterPanelFormElements.status, stockHistory.status)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [
-    stockHistories,
-    filterPanelFormElements,
-    currentFixture,
-    users,
-    locations,
-    fixtures,
-  ]);
+  }, [stockHistories, filterPanelFormElements, currentFixture]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

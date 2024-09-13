@@ -1,8 +1,10 @@
-import { subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -10,35 +12,42 @@ import InfoBox from "../components/panelComponents/FormElements/InfoBox";
 import { H5 } from "../components/panelComponents/Typography";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
-import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
+import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
+import { Routes } from "../navigation/constants";
 import { Game, Table, TableStatus, User } from "../types";
 import { useGetGames } from "../utils/api/game";
-import { useGetOrderCollections } from "../utils/api/order/orderCollection";
-import { useGetTables } from "../utils/api/table";
+import { useCloseAllTableMutation, useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { sortTable } from "../utils/sort";
-
-const OnlineSales = () => {
+const TablesPage = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
-  const [showAllOrders, setShowAllOrders] = useState(true);
-  const collections = useGetOrderCollections();
+  const navigate = useNavigate();
+  const { mutate: closeAllTables } = useCloseAllTableMutation();
   const games = useGetGames();
   const visits = useGetVisits();
-  const tables = useGetTables()
-    .filter((table) => table?.isOnlineSale)
-    .filter((table) => table?.status !== TableStatus.CANCELLED);
+  const tables = useGetTables().filter(
+    (table) => table?.status !== TableStatus.CANCELLED
+  );
   const users = useGetUsers();
-  tables?.sort(sortTable);
+
+  // Sort tables first active tables, then closed ones.
+  // if both active then sort by name
+  tables.sort(sortTable);
+
   // Sort users by name
-  users?.sort((a: User, b: User) => {
+  users.sort((a: User, b: User) => {
     if (a.name > b.name) {
       return 1;
     } else if (a.name < b.name) {
@@ -47,7 +56,8 @@ const OnlineSales = () => {
       return 0;
     }
   });
-  visits?.sort((a, b) => {
+
+  visits.sort((a, b) => {
     if (a.user.role.name > b.user.role.name) {
       return 1;
     } else if (a.user.role.name < b.user.role.name) {
@@ -60,14 +70,23 @@ const OnlineSales = () => {
       return 0;
     }
   });
+  const handleCloseAllTables = () => {
+    const finishHour = format(new Date(), "HH:mm");
+    const ids = tables.filter((t) => !t.finishHour).map((t) => t._id);
+    closeAllTables({ ids, finishHour });
+    setIsCloseAllConfirmationDialogOpen(false);
+  };
 
   const defaultUser: User = users.find((user) => user._id === "dv") as User;
+
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
+
   const activeTables = tables.filter((table) => !table.finishHour);
   const activeTableCount = activeTables.length;
   const totalTableCount = tables.length;
+
   const activeCustomerCount = activeTables.reduce(
     (prev: number, curr: Table) => {
       return Number(prev) + Number(curr.playerCount);
@@ -81,13 +100,16 @@ const OnlineSales = () => {
   (showAllTables ? tables : activeTables).forEach((table, index) => {
     tableColumns[index % 4].push(table);
   });
+
   useEffect(() => {
     const newMentors = defaultUser ? [defaultUser] : [];
+
     if (visits) {
       visits.forEach(
         (visit) => !visit.finishHour && newMentors.push(visit.user)
       );
     }
+
     setMentors((mentors) => {
       if (isEqual(mentors, newMentors)) {
         return mentors;
@@ -109,21 +131,6 @@ const OnlineSales = () => {
     newDate.setDate(date.getDate() + 1);
     setSelectedDate(formatDate(newDate));
   };
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-
-    if (element) {
-      const offset = -100;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition + offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-  };
 
   // filter out unfinished visits and only show one visit per user
   const seenUserIds = new Set<string>();
@@ -137,33 +144,11 @@ const OnlineSales = () => {
 
     return false;
   });
-  const buttons: { label: string; onClick: () => void }[] = [
-    {
-      label: t("Add table"),
-      onClick: () => {
-        setIsCreateTableDialogOpen(true);
-      },
-    },
-  ];
-  const switchFilters: {
-    label: string;
-    checked: boolean;
-    onChange: (value: boolean) => void;
-  }[] = [
-    {
-      label: t("Show All Orders"),
-      checked: showAllOrders,
-      onChange: setShowAllOrders,
-    },
-    {
-      label: t("Show Closed Tables"),
-      checked: showAllTables,
-      onChange: setShowAllTables,
-    },
-  ];
   return (
     <>
+  
       <Header />
+
       <div className="container relative h-full py-4 px-2 lg:px-12 ">
         <div className="h-full flex w-full flex-wrap flex-col">
           <div className="flex lg:justify-between justify-center flex-col lg:flex-row">
@@ -185,31 +170,26 @@ const OnlineSales = () => {
                 }}
               />
             </div>
-            {/* Table name buttons */}
-            <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
-              {tables
-                ?.filter((table) => !table?.finishHour)
-                .map((table) => (
-                  <a
-                    key={table._id + "tableselector"}
-                    onClick={() => scrollToSection(`table-${table._id}`)}
-                    className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium "
-                  >
-                    {table?.name}
-                  </a>
-                ))}
-            </div>
             {/* buttons */}
-            <div className="flex flex-col md:flex-row justify-end gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40 w-full ">
-              {buttons.map((button, index) => (
-                <button
-                  key={index}
-                  onClick={button.onClick}
-                  className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
-                >
-                  {button.label}
-                </button>
-              ))}
+            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
+              <button
+                onClick={() => setIsCloseAllConfirmationDialogOpen(true)}
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
+              >
+                {t("Close all tables")}
+              </button>
+              <button
+                onClick={() => navigate(Routes.Reservations)}
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
+              >
+                {t("Open Reservations")}
+              </button>
+              <button
+                onClick={() => setIsCreateTableDialogOpen(true)}
+                className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
+              >
+                {t("Add table")}
+              </button>
             </div>
           </div>
 
@@ -264,66 +244,76 @@ const OnlineSales = () => {
               )}
 
               {/* filters */}
-              <div className="flex  gap-4 justify-end mt-4  ">
-                {switchFilters.map((filter, index) => (
-                  <div key={index} className="flex gap-2 items-center">
-                    <H5>{filter.label}</H5>
-                    <SwitchButton
-                      checked={filter.checked}
-                      onChange={filter.onChange as any}
-                    />
-                  </div>
-                ))}
+              <div className="flex flex-row gap-4 justify-end mt-4  ">
+                <div className="flex  gap-4 items-center">
+                  <H5>{t("Show All Gameplays")}</H5>
+                  <SwitchButton
+                    checked={showAllGameplays}
+                    onChange={setShowAllGameplays}
+                  />
+                </div>
+                <div className="flex gap-4 items-center">
+                  <H5> {t("Show Closed Tables")}</H5>
+                  <SwitchButton
+                    checked={showAllTables}
+                    onChange={setShowAllTables}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns.map((tableColumn, idx) => (
+        <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8">
+          {tableColumns.map((tables, idx) => (
             <div key={idx}>
-              {collections &&
-                tableColumn.map((table) => (
-                  <TableCard
-                    key={table._id || table.startHour}
-                    table={table}
-                    mentors={mentors}
-                    games={games}
-                    showAllGameplays={showAllGameplays}
-                    showAllOrders={showAllOrders}
-                    collections={collections}
-                    tables={tables}
-                  />
-                ))}
+              {tables.map((table) => (
+                <TableCard
+                  key={
+                    table._id + String(showAllGameplays) ||
+                    table.startHour + String(showAllGameplays)
+                  }
+                  table={table}
+                  mentors={mentors}
+                  games={games}
+                  showAllGameplays={showAllGameplays}
+                />
+              ))}
             </div>
           ))}
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {collections &&
-            tables.map((table) => (
-              <div id={`table-${table._id}`} key={table._id || table.startHour}>
-                <TableCard
-                  table={table}
-                  mentors={mentors}
-                  games={games as Game[]}
-                  showAllGameplays={showAllGameplays}
-                  showAllOrders={showAllOrders}
-                  collections={collections}
-                  tables={tables}
-                />
-              </div>
-            ))}
+          {tables.map((table) => (
+            <TableCard
+              key={
+                table._id + String(showAllGameplays) ||
+                table.startHour + String(showAllGameplays)
+              }
+              table={table}
+              mentors={mentors}
+              games={games as Game[]}
+              showAllGameplays={showAllGameplays}
+            />
+          ))}
         </div>
       </div>
       {isCreateTableDialogOpen && (
         <CreateTableDialog
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
-          isOnlineSale={true}
         />
       )}
+      <ConfirmationDialog
+        isOpen={isCloseAllConfirmationDialogOpen}
+        close={() => setIsCloseAllConfirmationDialogOpen(false)}
+        confirm={handleCloseAllTables}
+        title={t("Close All Table")}
+        text={t("CloseTableMessage")}
+      />
     </>
   );
 };
 
-export default OnlineSales;
+// TablesPage.whyDidYouRender = true;
+
+export default TablesPage;
