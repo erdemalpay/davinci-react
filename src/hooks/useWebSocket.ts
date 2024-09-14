@@ -75,7 +75,7 @@ export function useWebSocket() {
     });
 
     socketEventListeners.forEach((eventConfig) => {
-      socket.on(eventConfig.event, (user: any, payload: any) => {
+      socket.on(eventConfig.event, (user?: any, payload?: any) => {
         if (eventConfig.condition(user, payload)) {
           eventConfig.invalidateKeys.forEach((key) => {
             queryClient.invalidateQueries([key]);
