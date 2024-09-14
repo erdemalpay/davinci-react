@@ -41,7 +41,7 @@ export function useWebSocket() {
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
+
       // Play order created sound
       const foundCategory = categories?.find(
         (c) => c._id === getItem(order?.item, items)?.category
@@ -71,7 +71,6 @@ export function useWebSocket() {
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     });
 
     socketEventListeners.forEach((eventConfig) => {
