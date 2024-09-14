@@ -14,6 +14,7 @@ import {
   NOTPAID,
 } from "../types/index";
 import { AccountService } from "./../types/index";
+import { getItem } from "./getItem";
 
 export function NameInput({ required = true } = {}) {
   const { t } = useTranslation();
@@ -200,12 +201,14 @@ export function ProductInput({
   isMultiple = false,
   invalidateKeys = [],
   products,
+  units,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   products: AccountProduct[];
+  units: AccountUnit[];
 }) {
   const { t } = useTranslation();
   return {
@@ -213,9 +216,10 @@ export function ProductInput({
     formKey: "product",
     label: t("Product"),
     options: products.map((product) => {
+      const productUnit = getItem(product.unit, units);
       return {
         value: product._id,
-        label: product.name + `(${(product.unit as AccountUnit).name})`,
+        label: product.name + `(${productUnit?.name})`,
       };
     }),
     isDisabled: isDisabled,

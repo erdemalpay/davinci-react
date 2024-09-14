@@ -1,17 +1,15 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  AccountPackageType,
-  AccountProduct,
-  AccountStockLocation,
-  stockHistoryStatuses,
-} from "../../types";
+import { stockHistoryStatuses } from "../../types";
 import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import {
   PackageTypeInput,
   ProductInput,
@@ -31,7 +29,9 @@ const ProductStockHistory = () => {
   const stockHistories = useGetAccountProductStockHistorys();
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
+  const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
+  const users = useGetUsers();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -52,10 +52,10 @@ const ProductStockHistory = () => {
       const date = new Date(stockHistory.createdAt);
       return {
         ...stockHistory,
-        prdct: stockHistory.product?.name,
-        pckgTyp: stockHistory?.packageType?.name,
-        lctn: stockHistory?.location?.name,
-        usr: stockHistory?.user?.name,
+        prdct: getItem(stockHistory.product, products)?.name,
+        pckgTyp: getItem(stockHistory?.packageType, packages)?.name,
+        lctn: getItem(stockHistory?.location, locations)?.name,
+        usr: getItem(stockHistory?.user, users)?.name,
         newQuantity:
           (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
         date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
@@ -68,7 +68,12 @@ const ProductStockHistory = () => {
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
-    ProductInput({ products: products, required: true, isMultiple: true }),
+    ProductInput({
+      units: units,
+      products: products,
+      required: true,
+      isMultiple: true,
+    }),
     PackageTypeInput({ packages: packages, required: true }),
     StockLocationInput({ locations: locations }),
     {
@@ -183,25 +188,27 @@ const ProductStockHistory = () => {
           stockHistory.createdAt >= filterPanelFormElements.after) &&
         passesFilter(
           filterPanelFormElements.packages,
-          (stockHistory.packageType as AccountPackageType)?._id
+          stockHistory.packageType
         ) &&
         (!filterPanelFormElements.product.length ||
           filterPanelFormElements.product?.some((panelProduct: string) =>
-            passesFilter(
-              panelProduct,
-              (stockHistory.product as AccountProduct)?._id
-            )
+            passesFilter(panelProduct, stockHistory.product)
           )) &&
-        passesFilter(
-          filterPanelFormElements.location,
-          (stockHistory.location as AccountStockLocation)?._id
-        ) &&
+        passesFilter(filterPanelFormElements.location, stockHistory.location) &&
         passesFilter(filterPanelFormElements.status, stockHistory.status)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [stockHistories, filterPanelFormElements]);
+  }, [
+    stockHistories,
+    filterPanelFormElements,
+    units,
+    users,
+    products,
+    packages,
+    locations,
+  ]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

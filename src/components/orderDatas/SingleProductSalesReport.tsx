@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
+import { Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -32,6 +34,7 @@ const SingleProductSalesReport = () => {
   const orders = useGetOrders();
   const categories = useGetCategories();
   const locations = useGetLocations();
+  const items = useGetMenuItems();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {
     return null;
@@ -44,7 +47,7 @@ const SingleProductSalesReport = () => {
     // location filter
     if (
       filterPanelFormElements?.location !== "" &&
-      filterPanelFormElements?.location !== (order?.location as Location)?._id
+      filterPanelFormElements?.location !== order?.location
     ) {
       return acc;
     }
@@ -56,14 +59,14 @@ const SingleProductSalesReport = () => {
         (order?.table as Table)?.date < filterPanelFormElements?.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order?.item as MenuItem)?.category as number
+        getItem(order?.item, items)?.category
       )
     ) {
       return acc;
     }
     acc.push({
-      item: (order?.item as MenuItem)?._id,
-      itemName: (order?.item as MenuItem)?.name,
+      item: order?.item,
+      itemName: getItem(order?.item, items)?.name ?? "",
       unitPrice: order?.unitPrice,
       paidQuantity: order?.paidQuantity,
       discount: order?.discountPercentage
@@ -73,14 +76,14 @@ const SingleProductSalesReport = () => {
           (1 / 100)
         : (order?.discountAmount ?? 0) * order?.paidQuantity,
       amount: order?.paidQuantity * order?.unitPrice,
-      location: (order?.location as Location)?._id,
+      location: order?.location,
       date: (order?.table as Table)?.date,
       formattedDate: formatAsLocalDate((order?.table as Table)?.date),
       category:
         categories?.find(
-          (category) => category?._id === (order?.item as MenuItem)?.category
+          (category) => category?._id === getItem(order?.item, items)?.category
         )?.name ?? "",
-      categoryId: (order?.item as MenuItem)?.category as number,
+      categoryId: getItem(order?.item, items)?.category as number,
       totalAmountWithDiscount:
         order?.paidQuantity * order?.unitPrice -
         (order?.discountPercentage

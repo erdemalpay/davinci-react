@@ -15,12 +15,7 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import {
-  AccountFixture,
-  AccountFixtureCountList,
-  AccountStockLocation,
-  User,
-} from "../types";
+import { AccountFixtureCountList } from "../types";
 import { useGetAccountFixtures } from "../utils/api/account/fixture";
 import {
   useAccountFixtureCountMutations,
@@ -59,8 +54,8 @@ const FixtureCount = () => {
     const currentCount = counts?.find((item) => {
       return (
         item.isCompleted === false &&
-        (item.location as AccountStockLocation)._id === location &&
-        (item.user as User)._id === user?._id &&
+        item.location === location &&
+        item.user === user?._id &&
         (item.countList as AccountFixtureCountList)._id === countListId
       );
     });
@@ -113,8 +108,8 @@ const FixtureCount = () => {
       const currentCount = counts?.find((item) => {
         return (
           item.isCompleted === false &&
-          (item.location as AccountStockLocation)._id === location &&
-          (item.user as User)._id === user?._id &&
+          item.location === location &&
+          item.user === user?._id &&
           (item.countList as AccountFixtureCountList)._id === countListId
         );
       });
@@ -171,8 +166,8 @@ const FixtureCount = () => {
             const currentCount = counts?.find((item) => {
               return (
                 item.isCompleted === false &&
-                (item.location as AccountStockLocation)._id === location &&
-                (item.user as User)._id === user?._id &&
+                item.location === location &&
+                item.user === user?._id &&
                 (item.countList as AccountFixtureCountList)._id === countListId
               );
             });
@@ -180,7 +175,7 @@ const FixtureCount = () => {
               return;
             }
             const fixtureStock = stocks?.find(
-              (s) => (s.fixture as AccountFixture)._id === rowFixture?._id
+              (s) => s.fixture === rowFixture?._id
             );
             const newFixtures = [
               ...(currentCount?.fixtures?.filter(
@@ -247,8 +242,8 @@ const FixtureCount = () => {
               const currentCount = counts?.find((item) => {
                 return (
                   item.isCompleted === false &&
-                  (item.location as AccountStockLocation)._id === location &&
-                  (item.user as User)._id === user?._id &&
+                  item.location === location &&
+                  item.user === user?._id &&
                   (item.countList as AccountFixtureCountList)._id ===
                     countListId
                 );

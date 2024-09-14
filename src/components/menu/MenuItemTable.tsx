@@ -10,15 +10,16 @@ import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import {
   AccountProduct,
-  AccountUnit,
   LocationEnum,
   MenuItem,
   MenuPopular,
   RoleEnum,
   TURKISHLIRA,
 } from "../../types";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -52,6 +53,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const units = useGetAccountUnits();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
   const allRows = singleItemGroup.items.map((item) => {
     return {
@@ -74,9 +76,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           name: products?.find(
             (product: AccountProduct) => product._id === itemProduction.product
           )?.name,
-          unit: (
-            products?.find((product) => product._id === itemProduction.product)
-              ?.unit as AccountUnit
+          unit: units?.find(
+            (unit) =>
+              unit._id ===
+              products?.find(
+                (product) => product._id === itemProduction.product
+              )?.unit
           )?.name,
           price: (
             (products?.find((product) => product._id === itemProduction.product)
@@ -162,9 +167,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             )
         )
         .map((product) => {
+          const productUnit = getItem(product.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       placeholder: t("Product"),
@@ -492,7 +498,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
     {
@@ -502,7 +507,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
       icon: null,
       node: (row: MenuItem) => {
         const isPopular = popularItems?.some(
-          (popularItem) => (popularItem.item as MenuItem)?._id === row?._id
+          (popularItem) => popularItem.item === row?._id
         );
         return isPopular ? (
           <button

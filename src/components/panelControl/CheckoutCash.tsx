@@ -10,6 +10,7 @@ import {
   usePanelControlCheckoutCashMutations,
 } from "../../utils/api/panelControl/checkoutCash";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -39,7 +40,7 @@ const CheckoutCash = () => {
     return {
       ...cash,
       usr: cash?.user?.name,
-      lctn: cash?.location?.name,
+      lctn: getItem(cash?.location, locations)?.name,
       formattedDate: formatAsLocalDate(cash?.date),
     };
   });
@@ -142,7 +143,7 @@ const CheckoutCash = () => {
           topClassName="flex flex-col gap-2 "
           itemToEdit={{
             id: rowToAction._id,
-            updates: { ...rowToAction, location: rowToAction.location._id },
+            updates: { ...rowToAction, location: rowToAction.location },
           }}
         />
       ) : null,

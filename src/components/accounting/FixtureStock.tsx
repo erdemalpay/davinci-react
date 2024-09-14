@@ -5,12 +5,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import {
-  AccountFixture,
-  AccountFixtureStock,
-  AccountStockLocation,
-  RoleEnum,
-} from "../../types";
+import { AccountFixtureStock, RoleEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountFixtures } from "../../utils/api/account/fixture";
 import {
@@ -18,6 +13,7 @@ import {
   useGetAccountFixtureStocks,
 } from "../../utils/api/account/fixtureStock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { getItem } from "../../utils/getItem";
 import {
   ExpenseTypeInput,
   FixtureInput,
@@ -52,7 +48,7 @@ const FixtureStock = () => {
     return stocks.reduce((acc, stock) => {
       const expense = parseFloat(
         (
-          ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+          (getItem(stock?.fixture, fixtures)?.unitPrice ?? 0) * stock.quantity
         ).toFixed(1)
       );
       return acc + expense;
@@ -77,12 +73,12 @@ const FixtureStock = () => {
     stocks.map((stock) => {
       return {
         ...stock,
-        fxtr: (stock.fixture as AccountFixture)?.name,
-        lctn: (stock.location as AccountStockLocation)?.name,
-        unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
+        fxtr: getItem(stock?.fixture, fixtures)?.name,
+        lctn: getItem(stock?.location, locations)?.name,
+        unitPrice: getItem(stock?.fixture, fixtures)?.unitPrice,
         totalPrice: parseFloat(
           (
-            ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+            (getItem(stock?.fixture, fixtures)?.unitPrice ?? 0) * stock.quantity
           ).toFixed(1)
         ),
       };
@@ -219,7 +215,7 @@ const FixtureStock = () => {
           }}
           title={t("Delete Fixture Stock")}
           text={`${
-            (rowToAction.fixture as AccountFixture).name
+            getItem(rowToAction.fixture, fixtures)?.name
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -239,7 +235,7 @@ const FixtureStock = () => {
       onClick: (row: AccountFixtureStock) => {
         setForm({
           ...form,
-          fixture: (row.fixture as AccountFixture)._id,
+          fixture: row.fixture,
         });
       },
       modal: rowToAction ? (
@@ -255,19 +251,15 @@ const FixtureStock = () => {
           itemToEdit={{
             id: rowToAction._id,
             updates: {
-              fixture: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.fixture as AccountFixture
-              )?._id,
-              location: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.location as AccountStockLocation
-              )?._id,
+              fixture: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.fixture,
+              location: stocks.find((stock) => stock._id === rowToAction._id)
+                ?.location,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
-              unitPrice: (
-                stocks.find((stock) => stock._id === rowToAction._id)
-                  ?.fixture as AccountFixture
+              unitPrice: getItem(
+                stocks.find((stock) => stock._id === rowToAction._id)?.fixture,
+                fixtures
               )?.unitPrice,
             },
           }}
@@ -319,26 +311,23 @@ const FixtureStock = () => {
         return (
           (!filterPanelFormElements.fixture.length ||
             filterPanelFormElements.fixture?.some((panelFixture: string) =>
-              passesFilter(panelFixture, (stock.fixture as AccountFixture)?._id)
+              passesFilter(panelFixture, stock.fixture)
             )) &&
-          (stock.fixture as AccountFixture)?.expenseType?.some((type) =>
+          getItem(stock?.fixture, fixtures)?.expenseType?.some((type) =>
             passesFilter(filterPanelFormElements.expenseType, type)
           ) &&
-          passesFilter(
-            filterPanelFormElements.location,
-            (stock.location as AccountStockLocation)?._id
-          )
+          passesFilter(filterPanelFormElements.location, stock.location)
         );
       })
       .map((stock) => {
         return {
           ...stock,
-          fxtr: (stock.fixture as AccountFixture)?.name,
-          lctn: (stock.location as AccountStockLocation)?.name,
-          unitPrice: (stock.fixture as AccountFixture)?.unitPrice,
+          fxtr: getItem(stock?.fixture, fixtures)?.name,
+          lctn: getItem(stock?.location, locations)?.name,
+          unitPrice: getItem(stock?.fixture, fixtures)?.unitPrice,
           totalPrice: parseFloat(
             (
-              ((stock.fixture as AccountFixture).unitPrice ?? 0) *
+              (getItem(stock?.fixture, fixtures)?.unitPrice ?? 0) *
               stock.quantity
             ).toFixed(1)
           ),
@@ -361,7 +350,7 @@ const FixtureStock = () => {
     const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
       const expense = parseFloat(
         (
-          ((stock.fixture as AccountFixture).unitPrice ?? 0) * stock.quantity
+          (getItem(stock?.fixture, fixtures)?.unitPrice ?? 0) * stock.quantity
         ).toFixed(1)
       );
       return acc + expense;
@@ -375,7 +364,7 @@ const FixtureStock = () => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, searchQuery]);
+  }, [stocks, filterPanelFormElements, searchQuery, locations, fixtures]);
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,

@@ -77,7 +77,7 @@ export type Game = {
 export type AccountProduct = {
   _id: string;
   name: string;
-  unit: AccountUnit | string;
+  unit: string;
   expenseType: string[];
   vendor?: string[];
   brand?: string[];
@@ -130,8 +130,8 @@ export type AccountCount = {
   isCompleted: boolean;
   createdAt: Date;
   completedAt?: Date;
-  location: string | AccountStockLocation;
-  user: string | User;
+  location: string;
+  user: string;
   products?: {
     product: string;
     packageType: string;
@@ -139,15 +139,15 @@ export type AccountCount = {
     countQuantity: number;
     isStockEqualized?: boolean;
   }[];
-  countList: string | AccountCountList;
+  countList: string;
 };
 export type AccountFixtureCount = {
   _id: string;
   isCompleted: boolean;
   createdAt: Date;
   completedAt?: Date;
-  location: string | AccountStockLocation;
-  user: string | User;
+  location: string;
+  user: string;
   fixtures?: {
     fixture: string;
     stockQuantity: number;
@@ -165,7 +165,7 @@ export type AccountPackageType = {
   _id: string;
   name: string;
   quantity: number;
-  unit: AccountUnit | string;
+  unit: string;
 };
 export type AccountBrand = {
   _id: string;
@@ -188,119 +188,120 @@ export type AccountPaymentMethod = {
 };
 export type AccountPayment = {
   _id: number;
-  vendor: AccountVendor;
+  vendor: string;
   invoice?: number;
   fixtureInvoice?: number;
   serviceInvoice?: number;
-  paymentMethod: AccountPaymentMethod | string;
-  location: string | AccountStockLocation;
-  user: User;
+  paymentMethod: string;
+  location: string;
+  user: string;
   date: string;
   amount: number;
 };
 export type AccountOverallExpense = {
   _id: number;
-  product: AccountProduct | string;
-  expenseType: AccountExpenseType | string;
+  product: string;
+  expenseType: string;
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: AccountBrand | string;
-  vendor?: AccountVendor | string;
-  packageType?: AccountPackageType | string;
+  brand?: string;
+  vendor?: string;
+  packageType?: string;
   note?: string;
-  location: string | AccountStockLocation;
+  location: string;
   price?: number;
   kdv?: number;
-  fixture: AccountFixture | string;
-  service: AccountService | string;
+  fixture: string;
+  service: string;
   type: string;
-  paymentMethod: AccountPaymentMethod | string;
+  paymentMethod: string;
 };
 
 export type AccountInvoice = {
   _id: number;
-  product: AccountProduct | string;
-  expenseType: AccountExpenseType | string;
+  product: string;
+  expenseType: string;
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: AccountBrand | string;
-  vendor?: AccountVendor | string;
-  packageType?: AccountPackageType | string;
+  brand?: string;
+  vendor?: string;
+  packageType?: string;
   note?: string;
-  location: string | AccountStockLocation;
+  location: string;
   price?: number;
   kdv?: number;
-  paymentMethod: AccountPaymentMethod | string;
+  paymentMethod: string;
   isPaid: boolean;
   isStockIncrement?: boolean;
 };
 export type AccountFixtureInvoice = {
   _id: number;
-  fixture: AccountFixture | string;
-  expenseType: AccountExpenseType | string;
+  fixture: string;
+  expenseType: string;
   quantity: number;
   totalExpense: number;
   date: string;
-  brand?: AccountBrand | string;
-  vendor?: AccountVendor | string;
+  brand?: string;
+  vendor?: string;
   note?: string;
-  location: string | AccountStockLocation;
+  location: string;
   price?: number;
   kdv?: number;
-  paymentMethod: AccountPaymentMethod | string;
+  paymentMethod: string;
   isPaid: boolean;
 };
 
 export type AccountServiceInvoice = {
   _id: number;
-  service: AccountService | string;
-  expenseType: AccountExpenseType | string;
+  service: string;
+  expenseType: string;
   quantity: number;
   totalExpense: number;
   date: string;
-  vendor?: AccountVendor | string;
+  vendor?: string;
   note?: string;
-  location: string | AccountStockLocation;
+  location: string;
   price?: number;
   kdv?: number;
-  paymentMethod: AccountPaymentMethod | string;
+  paymentMethod: string;
   isPaid: boolean;
+  user: string;
 };
 
 export type AccountStock = {
   _id: string;
-  product: AccountProduct | string;
-  location: string | AccountStockLocation;
+  product: string;
+  location: string;
   quantity: number;
-  packageType?: AccountPackageType | string;
+  packageType?: string;
 };
 export type AccountProductStockHistory = {
   _id: number;
-  product: AccountProduct;
-  location: AccountStockLocation;
+  product: string;
+  location: string;
   change: number;
   currentAmount: number;
   status: string;
-  user: User;
-  packageType?: AccountPackageType;
+  user: string;
+  packageType?: string;
   createdAt: Date;
 };
 export type AccountFixtureStockHistory = {
   _id: number;
-  fixture: AccountFixture;
-  location: AccountStockLocation;
+  fixture: string;
+  location: string;
   change: number;
   currentAmount: number;
   status: string;
-  user: User;
+  user: string;
   createdAt: Date;
 };
 export type AccountFixtureStock = {
   _id: string;
-  fixture: AccountFixture | string;
-  location: string | AccountStockLocation;
+  fixture: string;
+  location: string;
   quantity: number;
 };
 
@@ -308,7 +309,7 @@ export type Visit = {
   _id: number;
   location: number;
   date: string;
-  user: User;
+  user: string;
   startHour: string;
   finishHour?: string;
 };
@@ -334,7 +335,7 @@ export type MenuCategory = {
   order: number;
   imageUrl: string;
   locations: number[];
-  kitchen: Kitchen | string;
+  kitchen: string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
   discounts?: number[];
@@ -342,7 +343,7 @@ export type MenuCategory = {
 export type MenuPopular = {
   _id: number;
   order: number;
-  item: MenuItem | number;
+  item: number;
 };
 export type Kitchen = {
   _id: string;
@@ -354,7 +355,7 @@ export type MenuItem = {
   name: string;
   description: string;
   imageUrl: string;
-  category: MenuCategory | number;
+  category: number;
   order: number;
   itemProduction?: {
     product: string;
@@ -371,23 +372,23 @@ export type MenuItem = {
 };
 export type CheckoutIncome = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
 };
 export type CheckoutControl = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
 };
 
 export type CheckoutCashout = {
   _id: number;
-  user: User;
-  location: AccountStockLocation;
+  user: string;
+  location: string;
   date: string;
   amount: number;
   description: string;
@@ -407,27 +408,27 @@ export type PanelControlCheckoutCash = {
   amount: number;
   date: string;
   user: User;
-  location: AccountStockLocation;
+  location: string;
 };
 export type Order = {
   _id: number;
-  location: Location | number;
-  item: MenuItem | number;
+  location: number;
+  item: number;
   table: Table | number;
   quantity: number;
   status: string;
   note?: string;
   unitPrice: number;
   createdAt: Date;
-  createdBy: User | string;
+  createdBy: string;
   preparedAt?: Date;
-  preparedBy?: User | string;
+  preparedBy?: string;
   deliveredAt?: Date;
-  deliveredBy?: User | string;
+  deliveredBy?: string;
   cancelledAt?: Date;
-  cancelledBy?: User | string;
+  cancelledBy?: string;
   paidQuantity: number;
-  discount?: OrderDiscount | number;
+  discount?: number;
   discountPercentage?: number;
   discountAmount?: number;
   division?: number;
@@ -436,11 +437,11 @@ export type Order = {
 
 export type OrderCollection = {
   _id: number;
-  location: Location | number;
+  location: number;
   createdAt: Date;
-  createdBy: User | string;
+  createdBy: string;
   cancelledAt?: Date;
-  cancelledBy?: User | string;
+  cancelledBy?: string;
   cancelNote?: string;
   amount: number;
   status: string;
@@ -1078,3 +1079,9 @@ export const activityTypeDetails = [
     bgColor: "bg-orange-500",
   },
 ];
+
+export interface SocketEventType {
+  event: string;
+  invalidateKeys: string[];
+  condition: (socketUser: any, payload: any) => boolean;
+}
