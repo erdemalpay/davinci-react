@@ -22,6 +22,7 @@ import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
+import { getItem } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
 
 const NewTables = () => {
@@ -51,20 +52,23 @@ const NewTables = () => {
       return 0;
     }
   });
-  visits.sort((a, b) => {
-    if (a.user.role.name > b.user.role.name) {
+  visits?.sort((a, b) => {
+    const aUser = getItem(a.user, users);
+    const bUser = getItem(b.user, users);
+    const aUserRole = aUser?.role?.name as string;
+    const bUserRole = bUser?.role?.name as string;
+    if (aUserRole > bUserRole) {
       return 1;
-    } else if (a.user.role.name < b.user.role.name) {
+    } else if (aUserRole < bUserRole) {
       return -1;
-    } else if (a.user.name > b.user.name) {
+    } else if ((aUser?.name as string) > (bUser?.name as string)) {
       return 1;
-    } else if (a.user.name < b.user.name) {
+    } else if ((aUser?.name as string) < (bUser?.name as string)) {
       return -1;
     } else {
       return 0;
     }
   });
-
   const defaultUser: User = users.find((user) => user._id === "dv") as User;
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
@@ -89,7 +93,9 @@ const NewTables = () => {
     const newMentors = defaultUser ? [defaultUser] : [];
     if (visits) {
       visits.forEach(
-        (visit) => !visit.finishHour && newMentors.push(visit.user)
+        (visit) =>
+          !visit.finishHour &&
+          newMentors.push(getItem(visit.user, users) as User)
       );
     }
     setMentors((mentors) => {
@@ -139,9 +145,9 @@ const NewTables = () => {
   const seenUserIds = new Set<string>();
   const filteredVisits = visits.filter((visit) => {
     const isUnfinished = !visit.finishHour;
-    const isUserNotSeen = !seenUserIds.has(visit.user._id);
+    const isUserNotSeen = !seenUserIds.has(visit.user);
     if (isUnfinished && isUserNotSeen) {
-      seenUserIds.add(visit.user._id);
+      seenUserIds.add(visit.user);
       return true;
     }
 

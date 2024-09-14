@@ -6,7 +6,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbHexagonPlus } from "react-icons/tb";
 import { useUserContext } from "../../context/User.context";
-import { AccountExpenseType, AccountUnit, RoleEnum } from "../../types";
+import { AccountExpenseType, RoleEnum } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
@@ -20,6 +20,8 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
+import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { getItem } from "../../utils/getItem";
 import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -35,6 +37,7 @@ const ExpenseType = () => {
   const products = useGetAccountProducts();
   const fixtures = useGetAccountFixtures();
   const services = useGetAccountServices();
+  const units = useGetAccountUnits();
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
@@ -117,9 +120,10 @@ const ExpenseType = () => {
             !product.expenseType?.some((item) => item === rowToAction?._id)
         )
         .map((product) => {
+          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${(product.unit as AccountUnit).name})`,
+            label: product.name + `(${productUnit?.name})`,
           };
         }),
       isMultiple: true,
@@ -330,7 +334,7 @@ const ExpenseType = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [expenseTypes, products, fixtures, services]);
+  }, [expenseTypes, products, fixtures, services, units]);
 
   return (
     <>

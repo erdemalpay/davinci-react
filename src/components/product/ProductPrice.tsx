@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AccountProduct } from "../../types";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { formatAsLocalDate } from "../../utils/format";
@@ -92,8 +91,7 @@ const ProductPrice = () => {
   });
   useEffect(() => {
     const invoicesForProduct = invoices?.filter(
-      (invoice) =>
-        (invoice.product as AccountProduct)._id === selectedProduct?._id
+      (invoice) => invoice.product === selectedProduct?._id
     );
     const prices = invoicesForProduct
       ?.map((invoice) =>

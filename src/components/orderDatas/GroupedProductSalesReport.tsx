@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, Table, TURKISHLIRA } from "../../types";
+import { Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -36,6 +38,7 @@ const GroupedProductSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const categories = useGetCategories();
+  const items = useGetMenuItems();
   const locations = useGetLocations();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {
@@ -49,7 +52,7 @@ const GroupedProductSalesReport = () => {
     // location filter
     if (
       filterPanelFormElements?.location !== "" &&
-      filterPanelFormElements?.location !== (order?.location as Location)?._id
+      filterPanelFormElements?.location !== order?.location
     ) {
       return acc;
     }
@@ -61,13 +64,13 @@ const GroupedProductSalesReport = () => {
         (order?.table as Table).date < filterPanelFormElements?.after) ||
       !passesFilter(
         filterPanelFormElements?.category,
-        (order?.item as MenuItem)?.category as number
+        getItem(order?.item, items)?.category
       )
     ) {
       return acc;
     }
     const existingEntry = acc.find(
-      (entryItem) => entryItem.item === (order?.item as MenuItem)?._id
+      (entryItem) => entryItem.item === order?.item
     );
 
     if (existingEntry) {
@@ -123,8 +126,8 @@ const GroupedProductSalesReport = () => {
       }
     } else {
       acc.push({
-        item: (order?.item as MenuItem)?._id,
-        itemName: (order?.item as MenuItem)?.name,
+        item: order?.item,
+        itemName: getItem(order?.item, items)?.name ?? "",
         unitPrice: order?.unitPrice,
         paidQuantity: order?.paidQuantity,
         discount: order?.discountPercentage
@@ -134,13 +137,14 @@ const GroupedProductSalesReport = () => {
             (1 / 100)
           : (order?.discountAmount ?? 0) * order?.paidQuantity,
         amount: order?.paidQuantity * order?.unitPrice,
-        location: (order?.location as Location)?._id,
+        location: order?.location,
         date: (order?.table as Table)?.date,
         category:
           categories?.find(
-            (category) => category?._id === (order?.item as MenuItem)?.category
+            (category) =>
+              category?._id === getItem(order?.item, items)?.category
           )?.name ?? "",
-        categoryId: (order?.item as MenuItem)?.category as number,
+        categoryId: getItem(order?.item, items)?.category ?? 0,
         unitPriceQuantity: [
           {
             unitPrice: order?.unitPrice,

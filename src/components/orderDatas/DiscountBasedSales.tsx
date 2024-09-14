@@ -2,10 +2,12 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Location, MenuItem, OrderDiscount, Table } from "../../types";
+import { Table } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -37,22 +39,23 @@ const DiscountBasedSales = () => {
   const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
   const locations = useGetLocations();
+  const items = useGetMenuItems();
   const [showFilters, setShowFilters] = useState(false);
-  if (!orders || !locations || !discounts) {
+  if (!orders || !locations || !discounts || !items) {
     return null;
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders.reduce((acc, order) => {
-    if (!order.discount || order.paidQuantity === 0) {
+    if (!order?.discount || order?.paidQuantity === 0) {
       return acc;
     }
 
     // Location filter
     if (
       filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== (order.location as Location)._id
+      filterPanelFormElements.location !== order?.location
     ) {
       return acc;
     }
@@ -69,34 +72,30 @@ const DiscountBasedSales = () => {
     if (
       (beforeDate && orderDate > beforeDate) ||
       (afterDate && orderDate < afterDate) ||
-      !passesFilter(
-        filterPanelFormElements.discount,
-        (order.discount as OrderDiscount)._id
-      )
+      !passesFilter(filterPanelFormElements.discount, order?.discount)
     ) {
       return acc;
     }
 
     const existingEntry = acc.find(
-      (item) => item.discountId === (order.discount as OrderDiscount)._id
+      (item) => item.discountId === order?.discount
     );
 
     if (existingEntry) {
-      existingEntry.paidQuantity += order.paidQuantity;
-      existingEntry.amount += order.paidQuantity * order.unitPrice;
+      existingEntry.paidQuantity += order?.paidQuantity;
+      existingEntry.amount += order?.paidQuantity * order?.unitPrice;
       existingEntry.totalAmountWithDiscount =
         existingEntry.totalAmountWithDiscount +
-        order.paidQuantity * order.unitPrice -
+        order?.paidQuantity * order?.unitPrice -
         (order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
+            order?.paidQuantity *
+            order?.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity);
+          : (order?.discountAmount ?? 0) * order?.paidQuantity);
 
       const existingItem = existingEntry.itemQuantity.find(
-        (itemQuantityIteration) =>
-          itemQuantityIteration.itemId === (order.item as MenuItem)._id
+        (itemQuantityIteration) => itemQuantityIteration.itemId === order?.item
       );
       if (existingItem) {
         existingEntry.itemQuantity = existingEntry.itemQuantity.map(
@@ -104,15 +103,16 @@ const DiscountBasedSales = () => {
             itemQuantityIteration.itemId === existingItem.itemId
               ? {
                   ...itemQuantityIteration,
-                  quantity: itemQuantityIteration.quantity + order.paidQuantity,
+                  quantity:
+                    itemQuantityIteration.quantity + order?.paidQuantity,
                 }
               : itemQuantityIteration
         );
       } else {
         existingEntry.itemQuantity.push({
-          itemId: (order.item as MenuItem)._id,
-          itemName: (order.item as MenuItem).name,
-          quantity: order.paidQuantity,
+          itemId: order?.item,
+          itemName: getItem(order?.item, items)?.name ?? "",
+          quantity: order?.paidQuantity,
         });
       }
 
@@ -132,23 +132,21 @@ const DiscountBasedSales = () => {
       };
     } else {
       acc.push({
-        item: (order.item as MenuItem)._id,
-        itemName: (order.item as MenuItem).name,
-        paidQuantity: order.paidQuantity,
-        discountId: (order?.discount as OrderDiscount)?._id,
+        item: order?.item,
+        itemName: getItem(order?.item, items)?.name ?? "",
+        paidQuantity: order?.paidQuantity,
+        discountId: order?.discount,
         discountName:
-          discounts?.find(
-            (discount) =>
-              discount._id === (order?.discount as OrderDiscount)?._id
-          )?.name ?? "",
-        amount: order.paidQuantity * order.unitPrice,
-        location: (order.location as Location)._id,
+          discounts?.find((discount) => discount._id === order?.discount)
+            ?.name ?? "",
+        amount: order?.paidQuantity * order?.unitPrice,
+        location: order?.location,
         date: format(orderDate, "yyyy-MM-dd"),
         itemQuantity: [
           {
-            itemId: (order.item as MenuItem)._id,
-            itemName: (order.item as MenuItem).name,
-            quantity: order.paidQuantity,
+            itemId: order?.item,
+            itemName: getItem(order?.item, items)?.name ?? "",
+            quantity: order?.paidQuantity,
           },
         ],
         collapsible: {
@@ -159,20 +157,20 @@ const DiscountBasedSales = () => {
           ],
           collapsibleRows: [
             {
-              product: (order.item as MenuItem).name,
-              quantity: order.paidQuantity,
+              product: getItem(order?.item, items)?.name,
+              quantity: order?.paidQuantity,
             },
           ],
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
         totalAmountWithDiscount:
-          order.paidQuantity * order.unitPrice -
+          order?.paidQuantity * order?.unitPrice -
           (order?.discountPercentage
             ? (order?.discountPercentage ?? 0) *
-              order.paidQuantity *
-              order.unitPrice *
+              order?.paidQuantity *
+              order?.unitPrice *
               (1 / 100)
-            : (order?.discountAmount ?? 0) * order.paidQuantity),
+            : (order?.discountAmount ?? 0) * order?.paidQuantity),
       });
     }
 
@@ -275,7 +273,7 @@ const DiscountBasedSales = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, filterPanelFormElements, discounts]);
+  }, [orders, filterPanelFormElements, discounts, items, locations]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

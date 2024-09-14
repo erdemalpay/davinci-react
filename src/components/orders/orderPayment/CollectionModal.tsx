@@ -5,16 +5,17 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
-  MenuItem,
   Order,
   OrderCollection,
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
-  User,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
+import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
+import { useGetUsers } from "../../../utils/api/user";
+import { getItem } from "../../../utils/getItem";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -40,6 +41,8 @@ const CollectionModal = ({
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const paymentMethods = useGetAccountPaymentMethods();
+  const users = useGetUsers();
+  const items = useGetMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations();
@@ -58,9 +61,9 @@ const CollectionModal = ({
       return {
         _id: collection._id,
         table: (collection.table as Table)._id,
-        cashier: (collection.createdBy as User)?.name,
+        cashier: getItem(collection?.createdBy, users)?.name,
         orders: collection.orders,
-        cancelledBy: (collection?.cancelledBy as User)?.name,
+        cancelledBy: getItem(collection?.cancelledBy, users)?.name,
         cancelledAt: collection?.cancelledAt
           ? format(collection.cancelledAt, "HH:mm")
           : "",
@@ -76,9 +79,10 @@ const CollectionModal = ({
             { key: t("Quantity"), isSortable: true },
           ],
           collapsibleRows: collection?.orders?.map((orderCollectionItem) => ({
-            product: (
+            product: getItem(
               orders?.find((order) => order._id === orderCollectionItem.order)
-                ?.item as MenuItem
+                ?.item,
+              items
             )?.name,
             quantity: orderCollectionItem.paidQuantity.toFixed(2),
           })),
