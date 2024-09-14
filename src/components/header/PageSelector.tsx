@@ -5,6 +5,7 @@ import {
   MenuItem,
   MenuList,
 } from "@material-tailwind/react";
+import { QueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
@@ -20,6 +21,7 @@ export function PageSelector() {
   const { t } = useTranslation();
   const location = useLocation();
   const pages = useGetPanelControlPages();
+  const queryClient = new QueryClient();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
   const {
@@ -46,6 +48,7 @@ export function PageSelector() {
     setTimeout(() => localStorage.removeItem("loggedOut"), 500);
     Cookies.remove("jwt");
     setUser(undefined);
+    queryClient.clear();
     navigate("/login");
   }
 
