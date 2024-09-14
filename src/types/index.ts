@@ -1083,5 +1083,4 @@ export const activityTypeDetails = [
 export interface SocketEventType {
   event: string;
   invalidateKeys: string[];
-  isUserCheck: Boolean;
 }

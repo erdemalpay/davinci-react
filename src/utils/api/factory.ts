@@ -38,6 +38,8 @@ export const Paths = {
 interface Props<T> {
   baseQuery: string;
   queryKey?: QueryKey;
+  isInvalidate?: boolean;
+  isAdditionalInvalidate?: boolean;
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
   additionalInvalidates?: QueryKey[];
 }
@@ -58,6 +60,8 @@ export function useGetList<T>(path: string, queryKey?: QueryKey) {
 export function useMutationApi<T extends { _id: number | string }>({
   baseQuery,
   queryKey = [baseQuery],
+  isInvalidate = false,
+  isAdditionalInvalidate = false,
   sortFunction,
   additionalInvalidates,
 }: Props<T>) {
@@ -116,10 +120,14 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async () => {
-        queryClient.invalidateQueries(queryKey);
-        additionalInvalidates?.forEach((key) => {
-          queryClient.invalidateQueries(key);
-        });
+        if (isInvalidate) {
+          queryClient.invalidateQueries(queryKey);
+        }
+        if (isAdditionalInvalidate) {
+          additionalInvalidates?.forEach((key) => {
+            queryClient.invalidateQueries(key);
+          });
+        }
       },
     });
   }
@@ -161,10 +169,14 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async () => {
-        queryClient.invalidateQueries(queryKey);
-        additionalInvalidates?.forEach((key) => {
-          queryClient.invalidateQueries(key);
-        });
+        if (isInvalidate) {
+          queryClient.invalidateQueries(queryKey);
+        }
+        if (isAdditionalInvalidate) {
+          additionalInvalidates?.forEach((key) => {
+            queryClient.invalidateQueries(key);
+          });
+        }
       },
     });
   }
@@ -212,10 +224,14 @@ export function useMutationApi<T extends { _id: number | string }>({
       },
       // Always refetch after error or success:
       onSettled: async () => {
-        queryClient.invalidateQueries(queryKey);
-        additionalInvalidates?.forEach((key) => {
-          queryClient.invalidateQueries(key);
-        });
+        if (isInvalidate) {
+          queryClient.invalidateQueries(queryKey);
+        }
+        if (isAdditionalInvalidate) {
+          additionalInvalidates?.forEach((key) => {
+            queryClient.invalidateQueries(key);
+          });
+        }
       },
     });
   }

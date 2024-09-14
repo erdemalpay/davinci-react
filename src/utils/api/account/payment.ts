@@ -9,7 +9,6 @@ export function useAccountPaymentMutations() {
     createItem: createAccountPayment,
   } = useMutationApi<AccountPayment>({
     baseQuery: baseUrl,
-    additionalInvalidates: [],
   });
 
   return {

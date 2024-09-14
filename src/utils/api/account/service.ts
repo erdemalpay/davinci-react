@@ -9,7 +9,6 @@ export function useAccountServiceMutations() {
     createItem: createAccountService,
   } = useMutationApi<AccountService>({
     baseQuery: baseUrl,
-    additionalInvalidates: [[`${Paths.Accounting}/service-invoice`]],
   });
 
   return { deleteAccountService, updateAccountService, createAccountService };

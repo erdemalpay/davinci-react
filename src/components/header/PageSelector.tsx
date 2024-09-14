@@ -31,7 +31,6 @@ export function PageSelector() {
     setSearchQuery,
     setSortConfigKey,
   } = useGeneralContext();
-
   const routes = allRoutes.filter(
     (route) =>
       route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
@@ -41,7 +40,6 @@ export function PageSelector() {
           page.permissionRoles?.includes((user?.role as Role)._id)
       )
   );
-
   function logout() {
     localStorage.clear();
     localStorage.setItem("loggedOut", "true");
@@ -51,7 +49,6 @@ export function PageSelector() {
     queryClient.clear();
     navigate("/login");
   }
-
   return (
     <Menu>
       <MenuHandler>

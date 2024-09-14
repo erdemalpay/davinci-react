@@ -9,11 +9,6 @@ export function useAccountPaymentMethodMutations() {
     createItem: createAccountPaymentMethod,
   } = useMutationApi<AccountPaymentMethod>({
     baseQuery: baseUrl,
-    additionalInvalidates: [
-      [`${Paths.Accounting}/invoices`],
-      [`${Paths.Accounting}/fixture-invoice`],
-      [`${Paths.Accounting}/service-invoice`],
-    ],
   });
 
   return {
