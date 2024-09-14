@@ -1,42 +1,36 @@
 import { Paths } from "../utils/api/factory";
-import { useUserContext } from "./../context/User.context";
 import { SocketEventType } from "./../types/index";
 
-export const constantCondition = (socketUser: any, payload: any) => {
-  const { user } = useUserContext();
-
-  return socketUser?._id !== user?._id;
-};
 export const socketEventListeners: SocketEventType[] = [
   {
     event: "rewardChanged",
     invalidateKeys: [`${Paths.Rewards}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "reservationChanged",
     invalidateKeys: [`${Paths.Reservations}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "tableChanged",
     invalidateKeys: [`${Paths.Tables}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "visitChanged",
     invalidateKeys: [`${Paths.Visits}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "userChanged",
     invalidateKeys: [`${Paths.Users}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "itemChanged",
     invalidateKeys: [`${Paths.MenuItems}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "categoryChanged",
@@ -45,181 +39,181 @@ export const socketEventListeners: SocketEventType[] = [
       `${Paths.MenuItems}`,
       `${Paths.MenuPopular}`,
     ],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "popularChanged",
     invalidateKeys: [`${Paths.MenuPopular}`, `${Paths.MenuItems}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "kitchenChanged",
     invalidateKeys: [`${Paths.Kitchen}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "membershipChanged",
     invalidateKeys: [`${Paths.Memberships}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "locationChanged",
     invalidateKeys: [`${Paths.Location}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "gameplayChanged",
     invalidateKeys: [`${Paths.Gameplays}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "gameChanged",
     invalidateKeys: [`${Paths.Games}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "pageChanged",
     invalidateKeys: [`${Paths.PanelControl}/pages`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "panelControlChanged",
     invalidateKeys: [`${Paths.PanelControl}`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "checkoutCashChanged",
     invalidateKeys: [`${Paths.PanelControl}/checkout-cash`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "cashoutChanged",
     invalidateKeys: [`${Paths.Checkout}/cashout`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "incomeChanged",
     invalidateKeys: [`${Paths.Checkout}/income`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: " checkoutControlChanged",
     invalidateKeys: [`${Paths.Checkout}/checkout-control`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "brandChanged",
     invalidateKeys: [`${Paths.Accounting}/brands`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "countChanged",
     invalidateKeys: [`${Paths.Accounting}/counts`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "countListChanged",
     invalidateKeys: [`${Paths.Accounting}/count-list`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "expenseTypeChanged",
     invalidateKeys: [`${Paths.Accounting}/expense-types`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "fixtureChanged",
     invalidateKeys: [`${Paths.Accounting}/fixtures`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "fixtureCountChanged",
     invalidateKeys: [`${Paths.Accounting}/fixture-counts`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "fixtureInvoiceChanged",
     invalidateKeys: [`${Paths.Accounting}/fixture-invoice`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "fixtureCountListChanged",
     invalidateKeys: [`${Paths.Accounting}/fixture-count-list`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "invoiceChanged",
     invalidateKeys: [`${Paths.Accounting}/invoices`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "packageTypeChanged",
     invalidateKeys: [`${Paths.Accounting}/package-types`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "paymentChanged",
     invalidateKeys: [`${Paths.Accounting}/payments`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "paymentMethodChanged",
     invalidateKeys: [`${Paths.Accounting}/payment-methods`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "productChanged",
     invalidateKeys: [`${Paths.Accounting}/products`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "productStockHistoryChanged",
     invalidateKeys: [`${Paths.Accounting}/product-stock-histories`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "serviceChanged",
     invalidateKeys: [`${Paths.Accounting}/services`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "serviceInvoiceChanged",
     invalidateKeys: [`${Paths.Accounting}/service-invoice`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "stockChanged",
     invalidateKeys: [`${Paths.Accounting}/stocks`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "stockLocationChanged",
     invalidateKeys: [`${Paths.Accounting}/stock-locations`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "unitChanged",
     invalidateKeys: [`${Paths.Accounting}/units`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "vendorChanged",
     invalidateKeys: [`${Paths.Accounting}/vendors`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "discountChanged",
     invalidateKeys: [`${Paths.Order}/discount`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "collectionChanged",
     invalidateKeys: [`${Paths.Order}/collection`],
-    condition: () => true,
+    isUserCheck: true,
   },
   {
     event: "activityChanged",
     invalidateKeys: [`${Paths.Activity}`],
-    condition: () => true,
+    isUserCheck: false,
   },
 ];
