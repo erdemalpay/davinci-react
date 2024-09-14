@@ -71,10 +71,10 @@ const CategoryBasedSalesReport = () => {
     if (
       (beforeDate && orderDate > beforeDate) ||
       (afterDate && orderDate < afterDate) ||
-      !passesFilter(
-        filterPanelFormElements?.category,
-        getItem(order?.item, items)?.category
-      )
+      (filterPanelFormElements?.category?.length > 0 &&
+        !filterPanelFormElements?.category?.some((category: any) =>
+          passesFilter(category, getItem(order?.item, items)?.category)
+        ))
     ) {
       return acc;
     }
@@ -293,6 +293,7 @@ const CategoryBasedSalesReport = () => {
           label: category?.name,
         };
       }),
+      isMultiple: true,
       placeholder: t("Category"),
       required: true,
     },

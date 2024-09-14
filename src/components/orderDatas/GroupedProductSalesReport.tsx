@@ -62,10 +62,10 @@ const GroupedProductSalesReport = () => {
         (order?.table as Table).date > filterPanelFormElements?.before) ||
       (filterPanelFormElements?.after !== "" &&
         (order?.table as Table).date < filterPanelFormElements?.after) ||
-      !passesFilter(
-        filterPanelFormElements?.category,
-        getItem(order?.item, items)?.category
-      )
+      (filterPanelFormElements?.category?.length > 0 &&
+        !filterPanelFormElements?.category?.some((category: any) =>
+          passesFilter(category, getItem(order?.item, items)?.category)
+        ))
     ) {
       return acc;
     }
@@ -292,6 +292,7 @@ const GroupedProductSalesReport = () => {
           label: category?.name,
         };
       }),
+      isMultiple: true,
       placeholder: t("Category"),
       required: true,
     },
