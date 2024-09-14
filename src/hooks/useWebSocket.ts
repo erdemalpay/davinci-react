@@ -52,9 +52,7 @@ export function useWebSocket() {
         ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
           user?.role?._id as RoleEnum
         ) &&
-          !["flora", "farm"].includes(
-            (foundCategory?.kitchen as Kitchen)?._id
-          ) &&
+          !["flora", "farm"].includes(foundCategory?.kitchen as string) &&
           selectedLocationId &&
           order?.location === selectedLocationId) ||
           (user?.role?._id === RoleEnum.KITCHEN &&
