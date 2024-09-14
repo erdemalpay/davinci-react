@@ -5,7 +5,7 @@ import {
   MenuItem,
   MenuList,
 } from "@material-tailwind/react";
-import { QueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
@@ -21,7 +21,7 @@ export function PageSelector() {
   const { t } = useTranslation();
   const location = useLocation();
   const pages = useGetPanelControlPages();
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
   const {
