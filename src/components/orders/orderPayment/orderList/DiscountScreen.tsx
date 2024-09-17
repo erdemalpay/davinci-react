@@ -16,7 +16,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     setSelectedDiscount(discount);
     setIsProductSelectionOpen(true);
   };
-  const filteredDiscounts = discounts.filter((discount) =>
+  const filteredDiscounts = discounts?.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
   );
   return (
@@ -24,7 +24,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
       <OrderScreenHeader header="Discounts" />
       {/* discounts */}
       <div className="grid grid-cols-3 gap-4">
-        {filteredDiscounts.map((discount) => {
+        {filteredDiscounts?.map((discount) => {
           return (
             <div
               key={discount._id}

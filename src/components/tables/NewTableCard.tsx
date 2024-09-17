@@ -29,6 +29,7 @@ import {
   useTransferTableMutation,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
+import { useGetTableCollections } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import {
   useReopenTableMutation,
@@ -56,7 +57,6 @@ export interface TableCardProps {
   showAllGameplays?: boolean;
   showAllOrders?: boolean;
   showServedOrders?: boolean;
-  collections: OrderCollection[];
   tables: Table[];
 }
 
@@ -67,13 +67,16 @@ export function TableCard({
   showAllGameplays = false,
   showAllOrders = false,
   showServedOrders = false,
-  collections,
   tables,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
+  let tableCollections: OrderCollection[] = [];
+  if (table?._id) {
+    tableCollections = useGetTableCollections(table?._id);
+  }
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
@@ -586,7 +589,7 @@ export function TableCard({
       {isOrderPaymentModalOpen && (
         <OrderPaymentModal
           orders={table.orders as Order[]}
-          collections={collections}
+          collections={tableCollections ?? []}
           table={table}
           close={() => {
             setExpandedRows({});

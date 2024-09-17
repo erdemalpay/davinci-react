@@ -69,8 +69,9 @@ export function useWebSocket() {
       if (socketUser?._id === user?._id) {
         return;
       }
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
       queryClient.invalidateQueries([`${Paths.Tables}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/table`]);
     });
 
     socketEventListeners.forEach((eventConfig) => {
