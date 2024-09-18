@@ -38,6 +38,7 @@ export function useOrderCollectionMutations() {
 export function useGetTableCollections(tableId: number) {
   return useGetList<OrderCollection>(`${collectionBaseUrl}/table/${tableId}`, [
     `${Paths.Order}/collection/table`,
+    tableId,
   ]);
 }
 
