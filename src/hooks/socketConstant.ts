@@ -167,13 +167,6 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Order}/discount`],
   },
   {
-    event: "collectionChanged",
-    invalidateKeys: [
-      `${Paths.Order}/collection`,
-      `${Paths.Order}/collection/table`,
-    ],
-  },
-  {
     event: "activityChanged",
     invalidateKeys: [`${Paths.Activity}`],
   },

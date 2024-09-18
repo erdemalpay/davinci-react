@@ -37,19 +37,11 @@ export function useOrderCollectionMutations() {
 
 export function useGetTableCollections(tableId: number) {
   return useGetList<OrderCollection>(`${collectionBaseUrl}/table/${tableId}`, [
-    `${Paths.Order}/collection/table`,
+    `${Paths.Order}/collection/table/${tableId}`,
     tableId,
   ]);
 }
 
-export function useGetOrderCollections() {
-  const { selectedLocationId } = useLocationContext();
-  const { selectedDate } = useDateContext();
-  return useGetList<OrderCollection>(
-    `${collectionBaseUrl}/date/?location=${selectedLocationId}&date=${selectedDate}`,
-    [`${Paths.Order}/collection/date`, selectedLocationId, selectedDate]
-  );
-}
 export function useGetAllOrderCollections() {
   return useGetList<OrderCollection>(collectionBaseUrl);
 }
