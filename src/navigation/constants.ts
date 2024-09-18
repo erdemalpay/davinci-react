@@ -14,7 +14,6 @@ import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
-import NewTables from "../pages/NewTables";
 import OnlineSales from "../pages/OnlineSales";
 import OrderDatas from "../pages/OrderDatas";
 import Orders from "../pages/Orders";
@@ -29,6 +28,7 @@ import Service from "../pages/Service";
 import SingleCountArchive from "../pages/SingleCountArchive";
 import SingleFixtureCountArchive from "../pages/SingleFixtureCountArchive";
 import Stocks from "../pages/Stocks";
+import Tables from "../pages/Tables";
 import User from "../pages/User";
 import UserActivities from "../pages/UserActivities";
 import Users from "../pages/Users";
@@ -99,7 +99,7 @@ export const allRoutes: {
   {
     name: "Tables",
     path: Routes.Tables,
-    element: NewTables,
+    element: Tables,
     isOnSidebar: true,
   },
   {

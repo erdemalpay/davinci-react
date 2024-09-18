@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { UpdatePayload, patch, post } from "..";
-import {
-  Order,
-  OrderCollection,
-  OrderCollectionStatus,
-  Table,
-} from "../../../types";
+import { OrderCollection, OrderCollectionStatus, Table } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
@@ -105,14 +100,15 @@ export function useCreateOrderCollectionMutation() {
 
       const tableIndex = updatedTables.findIndex((t) => t._id === table);
       const tableToUpdate = updatedTables[tableIndex];
-      for (const orderItem of orders) {
-        if (!tableToUpdate.orders) continue;
-        const tableOrder = tableToUpdate.orders.find(
-          (order) => (order as Order)._id === orderItem.order
-        );
-        (tableOrder as Order).paidQuantity += orderItem.paidQuantity;
-        updatedTables.splice(tableIndex, 1, tableToUpdate);
-      }
+      // for (const orderItem of orders) {
+      //   if (!tableToUpdate.orders) continue;
+      //   const tableOrder = tableToUpdate.orders.find(
+      //     (order) => order === orderItem.order
+      //   );
+
+      //   (tableOrder ).paidQuantity += orderItem.paidQuantity;
+      //   updatedTables.splice(tableIndex, 1, tableToUpdate);
+      // }
       // Optimistically update to the new value
       queryClient.setQueryData<Table[]>(tableQueryKey, updatedTables);
 
@@ -186,14 +182,14 @@ export function useUpdateOrderCollectionMutation() {
 
       const tableIndex = updatedTables.findIndex((t) => t._id === table);
       const tableToUpdate = updatedTables[tableIndex];
-      for (const orderItem of newOrders) {
-        if (!tableToUpdate.orders) continue;
-        const tableOrder = tableToUpdate.orders.find(
-          (order) => (order as Order)._id === orderItem._id
-        );
-        (tableOrder as Order).paidQuantity = orderItem.paidQuantity;
-        updatedTables.splice(tableIndex, 1, tableToUpdate);
-      }
+      // for (const orderItem of newOrders) {
+      //   if (!tableToUpdate.orders) continue;
+      //   const tableOrder = tableToUpdate.orders.find(
+      //     (order) => (order as Order)._id === orderItem._id
+      //   );
+      //   (tableOrder as Order).paidQuantity = orderItem.paidQuantity;
+      //   updatedTables.splice(tableIndex, 1, tableToUpdate);
+      // }
       // Optimistically update to the new value
       queryClient.setQueryData<Table[]>(tableQueryKey, updatedTables);
 

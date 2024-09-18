@@ -151,6 +151,12 @@ export function useUpdateOrdersMutation() {
     },
   });
 }
+export function useGetTableOrders(tableId: number) {
+  return useGetList<Order>(`${baseUrl}/table/${tableId}`, [
+    `${Paths.Order}/table/${tableId}`,
+    tableId,
+  ]);
+}
 
 export function updateMultipleOrders(payload: UpdateMultipleOrder) {
   return patch({
@@ -193,8 +199,6 @@ export function useCreateOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -218,8 +222,6 @@ export function useCancelOrderForDiscountMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =
@@ -248,8 +250,6 @@ export function useCreateOrderForDivideMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
-      queryClient.invalidateQueries([`${Paths.Order}/collection/date`]);
     },
     onError: (_err: any) => {
       const errorMessage =

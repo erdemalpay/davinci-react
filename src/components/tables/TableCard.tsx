@@ -25,6 +25,7 @@ import {
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
+  useGetTableOrders,
   useOrderMutations,
   useTransferTableMutation,
   useUpdateMultipleOrderMutation,
@@ -74,9 +75,12 @@ export function TableCard({
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
   let tableCollections: OrderCollection[] = [];
+  let tableOrders: Order[] = [];
   if (table?._id) {
     tableCollections = useGetTableCollections(table?._id);
+    tableOrders = useGetTableOrders(table?._id);
   }
+
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
@@ -234,7 +238,7 @@ export function TableCard({
 
   const bgColor = table.finishHour
     ? "bg-gray-500"
-    : table.orders?.some(
+    : tableOrders?.some(
         (tableOrder) =>
           (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
       )
@@ -288,8 +292,8 @@ export function TableCard({
 
   function handleTableCancel() {
     if (!table._id) return;
-    if (table?.orders) {
-      const hasActiveOrders = table.orders.some((order) => {
+    if (tableOrders) {
+      const hasActiveOrders = tableOrders.some((order) => {
         return (order as Order)?.status !== OrderStatus.CANCELLED;
       });
 
@@ -352,19 +356,21 @@ export function TableCard({
           </Tooltip>
 
           {!table.finishHour &&
-            table?.orders?.some((tableOrder) => {
+            tableOrders?.some((tableOrder) => {
               return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
             }) && (
               <Tooltip content={t("Served")}>
                 <span className="text-{8px}">
                   <CardAction
                     onClick={() => {
-                      if (!table.orders || !user) return;
-                      const tableReadyToServeOrders = table.orders?.filter(
-                        (tableOrder) =>
-                          (tableOrder as Order)?.status ===
-                          OrderStatus.READYTOSERVE
-                      );
+                      if (!tableOrders || !user) return;
+                      const tableReadyToServeOrders = tableOrders
+                        ?.filter(
+                          (tableOrder) =>
+                            (tableOrder as Order)?.status ===
+                            OrderStatus.READYTOSERVE
+                        )
+                        .map((tableOrder) => tableOrder?._id);
                       if (
                         tableReadyToServeOrders?.length === 0 ||
                         !tableReadyToServeOrders
@@ -430,8 +436,8 @@ export function TableCard({
         {showAllGameplays && table?.gameplays?.length > 0 && (
           <div
             className={`${
-              table.orders &&
-              table?.orders?.length > 0 &&
+              tableOrders &&
+              tableOrders?.length > 0 &&
               "pb-3 border-b-[1px] border-b-gray-300"
             }`}
           >
@@ -451,9 +457,9 @@ export function TableCard({
           </div>
         )}
         {/* table orders */}
-        {table.orders && table?.orders?.length > 0 && showAllOrders && (
+        {tableOrders && tableOrders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2 ">
-            {(table?.orders as Order[])?.map((order) => {
+            {(tableOrders as Order[])?.map((order) => {
               if (
                 order.status === OrderStatus.CANCELLED ||
                 (!showServedOrders && order.status === OrderStatus.SERVED)
@@ -588,7 +594,7 @@ export function TableCard({
 
       {isOrderPaymentModalOpen && (
         <OrderPaymentModal
-          orders={table.orders as Order[]}
+          orders={tableOrders as Order[]}
           collections={tableCollections ?? []}
           table={table}
           close={() => {
@@ -607,7 +613,7 @@ export function TableCard({
           submitItem={transferTable as any}
           submitFunction={() => {
             transferTable({
-              orders: table.orders as Order[],
+              orders: tableOrders as Order[],
               oldTableId: table._id,
               transferredTableId: Number(tableTransferForm.table),
             });

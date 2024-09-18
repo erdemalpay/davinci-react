@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
@@ -11,13 +12,13 @@ import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
-import { TableCard } from "../components/tables/NewTableCard";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
+import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Order, OrderStatus, Table, TableStatus, User } from "../types";
+import { Paths } from "../utils/api/factory";
 import { useGetGames } from "../utils/api/game";
-
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -25,7 +26,7 @@ import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { sortTable } from "../utils/sort";
 
-const NewTables = () => {
+const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
@@ -33,6 +34,7 @@ const NewTables = () => {
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -73,7 +75,7 @@ const NewTables = () => {
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
-  const activeTables = tables.filter((table) => !table.finishHour);
+  const activeTables = tables.filter((table) => !table?.finishHour);
   const activeTableCount = activeTables.length;
   const totalTableCount = tables.length;
   const activeCustomerCount = activeTables.reduce(
@@ -134,12 +136,19 @@ const NewTables = () => {
       });
     }
   };
-  const bgColor = (table: Table) =>
-    table.orders?.some(
+  const bgColor = (table: Table) => {
+    const tableOrders = queryClient.getQueryData<Order[]>([
+      `${Paths.Order}/table/${table?._id}`,
+      table?._id,
+    ]);
+    console.log(tableOrders);
+    if (!tableOrders) return "bg-gray-100";
+    return tableOrders?.some(
       (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
     )
       ? "bg-orange-200"
       : "bg-gray-100";
+  };
   // filter out unfinished visits and only show one visit per user
 
   const seenUserIds = new Set<string>();
@@ -220,16 +229,16 @@ const NewTables = () => {
             {/* Table name buttons for small screen */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
               {tables
-                .filter((table) => !table?.finishHour)
-                .map((table) => (
+                ?.filter((table) => !table?.finishHour)
+                ?.map((table) => (
                   <a
-                    key={table._id + "tableselector"}
-                    onClick={() => scrollToSection(`table-${table._id}`)}
+                    key={table?._id + "tableselector"}
+                    onClick={() => scrollToSection(`table-${table?._id}`)}
                     className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
                       table
                     )}`}
                   >
-                    {table.name}
+                    {table?.name}
                   </a>
                 ))}
             </div>
@@ -249,16 +258,16 @@ const NewTables = () => {
           {/* Table name buttons for big screen */}
           <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
             {tables
-              .filter((table) => !table?.finishHour)
-              .map((table) => (
+              ?.filter((table) => !table?.finishHour)
+              ?.map((table) => (
                 <a
-                  key={table._id + "tableselector"}
-                  onClick={() => scrollToSection(`table-large-${table._id}`)}
+                  key={table?._id + "tableselector"}
+                  onClick={() => scrollToSection(`table-large-${table?._id}`)}
                   className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
                     table
                   )}`}
                 >
-                  {table.name}
+                  {table?.name}
                 </a>
               ))}
           </div>
@@ -333,11 +342,11 @@ const NewTables = () => {
             <div key={idx}>
               {tablesColumns.map((table) => (
                 <div
-                  id={`table-large-${table._id}`}
-                  key={table._id || table.startHour}
+                  id={`table-large-${table?._id}`}
+                  key={table?._id || table?.startHour}
                 >
                   <TableCard
-                    key={table._id || table.startHour}
+                    key={table?._id || table?.startHour}
                     table={table}
                     mentors={mentors}
                     games={games}
@@ -353,7 +362,10 @@ const NewTables = () => {
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
           {tables.map((table) => (
-            <div id={`table-${table._id}`} key={table._id || table.startHour}>
+            <div
+              id={`table-${table?._id}`}
+              key={table?._id || table?.startHour}
+            >
               <TableCard
                 table={table}
                 mentors={mentors}
@@ -377,4 +389,4 @@ const NewTables = () => {
   );
 };
 
-export default NewTables;
+export default Tables;

@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order, RoleEnum, User } from "../types";
+import { Order, RoleEnum } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -36,11 +36,12 @@ export function useWebSocket() {
     });
 
     socket.on("orderCreated", (order: Order) => {
+      queryClient.invalidateQueries([`${Paths.Order}/table/${order.table}`]);
+
       if ((order?.createdBy as any)?._id === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
 
       // Play order created sound
       const foundCategory = categories?.find(
@@ -65,12 +66,16 @@ export function useWebSocket() {
           .catch((error) => console.error("Error playing sound:", error));
       }
     });
-    socket.on("orderUpdated", (socketUser: User, order: Order) => {
-      if (socketUser?._id === user?._id) {
+    socket.on("orderUpdated", (data) => {
+      const tableId =
+        typeof data.order.table === "number"
+          ? data.order.table
+          : data.order.table._id;
+      queryClient.invalidateQueries([`${Paths.Order}/table/${tableId}`]);
+      if (data.socketUser?._id === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
-      queryClient.invalidateQueries([`${Paths.Tables}`]);
     });
     socket.on("collectionChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/collection`]);
