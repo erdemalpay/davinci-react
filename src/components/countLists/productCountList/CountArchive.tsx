@@ -4,12 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { useUserContext } from "../../../context/User.context";
-import {
-  AccountCount,
-  AccountCountList,
-  AccountStockLocation,
-  RoleEnum,
-} from "../../../types";
+import { AccountCount, RoleEnum } from "../../../types";
 import { useGetAccountCounts } from "../../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../../utils/api/account/countList";
 import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
@@ -122,11 +117,7 @@ const CountArchive = () => {
               // setRowsPerPage(RowPerPageEnum.FIRST);
               setSearchQuery("");
               setSortConfigKey(null);
-              navigate(
-                `/count/${(row?.location as AccountStockLocation)._id}/${
-                  (row?.countList as AccountCountList)._id
-                }`
-              );
+              navigate(`/count/${row?.location}/${row?.countList}`);
             }
           }}
         >
