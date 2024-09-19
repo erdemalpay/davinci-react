@@ -240,7 +240,7 @@ const GroupedProductSalesReport = () => {
           <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
             {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
               ? ""
-              : row?.unitPrice + " " + TURKISHLIRA}
+              : row?.unitPrice?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -250,7 +250,7 @@ const GroupedProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"discount" + row?.item}>
-            {row?.discount > 0 && row?.discount + " " + TURKISHLIRA}
+            {row?.discount?.toFixed(2) > 0 && row?.discount + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -260,7 +260,7 @@ const GroupedProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"amount" + row?.item}>
-            {row?.amount + " " + TURKISHLIRA}
+            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -273,7 +273,7 @@ const GroupedProductSalesReport = () => {
             className={`${row?.className}`}
             key={"totalAmountWithDiscount" + row?.item}
           >
-            {row?.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },

@@ -153,7 +153,8 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.unitPrice > 0 && row?.unitPrice + " " + TURKISHLIRA}
+            {row?.unitPrice > 0 &&
+              row?.unitPrice?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -163,7 +164,9 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.discount !== 0 ? row?.discount + " " + TURKISHLIRA : ""}
+            {row?.discount !== 0
+              ? row?.discount?.toFixed(2) + " " + TURKISHLIRA
+              : ""}
           </p>
         );
       },
@@ -173,7 +176,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.amount + " " + TURKISHLIRA}
+            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -183,7 +186,7 @@ const SingleProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },

@@ -240,8 +240,8 @@ const CategoryBasedSalesReport = () => {
       key: "paidQuantity",
       node: (row: any) => {
         return (
-          <p key={"paidQuantity" + row.item} className={`${row?.className}`}>
-            {row.paidQuantity}
+          <p key={"paidQuantity" + row?.item} className={`${row?.className}`}>
+            {row?.paidQuantity}
           </p>
         );
       },
@@ -250,8 +250,8 @@ const CategoryBasedSalesReport = () => {
       key: "discount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"discount" + row.item}>
-            {row.discount > 0 && row.discount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"discount" + row?.item}>
+            {row?.discount > 0 && row?.discount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -260,8 +260,8 @@ const CategoryBasedSalesReport = () => {
       key: "amount",
       node: (row: any) => {
         return (
-          <p className={`${row?.className}`} key={"amount" + row.item}>
-            {row.amount + " " + TURKISHLIRA}
+          <p className={`${row?.className}`} key={"amount" + row?.item}>
+            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -272,9 +272,9 @@ const CategoryBasedSalesReport = () => {
         return (
           <p
             className={`${row?.className}`}
-            key={"totalAmountWithDiscount" + row.item}
+            key={"totalAmountWithDiscount" + row?.item}
           >
-            {row.totalAmountWithDiscount + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
