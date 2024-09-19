@@ -38,14 +38,14 @@ const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
   if (!user || !orders || !collections) return null;
   const tableOrders = orders?.filter(
     (order) =>
-      (order?.table as Table)._id === table._id &&
+      (order?.table as Table)?._id === table?._id &&
       order.status !== OrderStatus.CANCELLED
   );
   const collectionsTotalAmount = Number(
     collections
-      .filter((collection) => (collection.table as Table)._id === table._id)
+      .filter((collection) => (collection?.table as Table)?._id === table._id)
       ?.reduce((acc, collection) => {
-        if (collection.status === OrderCollectionStatus.CANCELLED) {
+        if (collection?.status === OrderCollectionStatus.CANCELLED) {
           return acc;
         }
         return acc + (collection?.amount ?? 0);

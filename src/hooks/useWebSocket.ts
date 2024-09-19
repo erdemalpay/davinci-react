@@ -38,7 +38,7 @@ export function useWebSocket() {
     socket.on("orderCreated", (order: Order) => {
       queryClient.invalidateQueries([`${Paths.Order}/table/${order.table}`]);
 
-      if ((order?.createdBy as any)?._id === user?._id) {
+      if (order?.createdBy === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
