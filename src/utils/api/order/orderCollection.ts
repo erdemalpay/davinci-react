@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { UpdatePayload, patch, post } from "..";
-import { OrderCollection, OrderCollectionStatus, Table } from "../../../types";
+import {
+  Order,
+  OrderCollection,
+  OrderCollectionStatus,
+  Table,
+} from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
@@ -68,11 +73,11 @@ export function useCreateOrderCollectionMutation() {
     selectedLocationId,
     selectedDate,
   ];
-  const tableQueryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
   return useMutation(createRequest, {
     // We are updating tables query data with new table
     onMutate: async (createdCollection: Partial<OrderCollection>) => {
+      const tableQueryKey = [`${Paths.Order}/table/${createdCollection.table}`];
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(collectionQueryKey);
       await queryClient.cancelQueries(tableQueryKey);
@@ -90,44 +95,48 @@ export function useCreateOrderCollectionMutation() {
 
       const { table, orders } = createdCollection;
 
-      const previousTables =
-        queryClient.getQueryData<Table[]>(tableQueryKey) || [];
+      const previousTableData =
+        queryClient.getQueryData<Order[]>(tableQueryKey) || [];
       if (!orders) {
-        return { previousCollections, previousTables };
+        return { previousCollections, previousTableData };
       }
 
-      const updatedTables: Table[] = JSON.parse(JSON.stringify(previousTables));
+      const updatedTableData: Order[] = JSON.parse(
+        JSON.stringify(previousTableData)
+      );
+      const mergedData = updatedTableData.map((order) => {
+        // Attempt to find a matching item in the 'orders' array
+        const updatedOrder = orders.find((item) => item.order === order._id);
+        if (updatedOrder) {
+          return { ...order, paidQuantity: updatedOrder.paidQuantity };
+        }
+        // If an updated order exists, return it, otherwise return the original order
+        return order;
+      });
 
-      const tableIndex = updatedTables.findIndex((t) => t._id === table);
-      const tableToUpdate = updatedTables[tableIndex];
-      // for (const orderItem of orders) {
-      //   if (!tableToUpdate.orders) continue;
-      //   const tableOrder = tableToUpdate.orders.find(
-      //     (order) => order === orderItem.order
-      //   );
-
-      //   (tableOrder ).paidQuantity += orderItem.paidQuantity;
-      //   updatedTables.splice(tableIndex, 1, tableToUpdate);
-      // }
       // Optimistically update to the new value
-      queryClient.setQueryData<Table[]>(tableQueryKey, updatedTables);
+      queryClient.setQueryData<Order[]>(tableQueryKey, mergedData);
 
       // Return a context object with the snapshotted value
-      return { previousCollections, previousTables };
+      return { previousCollections, previousTableData, tableQueryKey };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: any, _newTable, context) => {
       const previousContext = context as {
         previousCollections: OrderCollection[];
-        previousTables: Table[];
+        previousTableData: Order[];
+        tableQueryKey: string[];
       };
       if (previousContext?.previousCollections) {
-        const { previousCollections, previousTables } = previousContext;
+        const { previousCollections, previousTableData } = previousContext;
         queryClient.setQueryData<OrderCollection[]>(
           collectionQueryKey,
           previousCollections
         );
-        queryClient.setQueryData<Table[]>(tableQueryKey, previousTables);
+        queryClient.setQueryData<Order[]>(
+          previousContext.tableQueryKey,
+          previousTableData
+        );
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
