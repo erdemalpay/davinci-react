@@ -104,7 +104,8 @@ const DailyIncome = () => {
     node: (row: any) => {
       return (
         <p className={`${row?.className}`}>
-          {row[method._id] > 0 && row[method._id] + " " + TURKISHLIRA}
+          {row[method._id] > 0 &&
+            row[method._id].toFixed(2) + " " + TURKISHLIRA}
         </p>
       );
     },
@@ -123,7 +124,7 @@ const DailyIncome = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.total > 0 && row.total + " " + TURKISHLIRA}
+            {row.total > 0 && row.total.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },
