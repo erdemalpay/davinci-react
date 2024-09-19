@@ -17,14 +17,18 @@ interface UpdateStockBulkPayload {
 }
 const baseUrl = `${Paths.Accounting}/counts`;
 export function useAccountCountMutations() {
-  const { updateItem: updateAccountCount, createItem: createAccountCount } =
-    useMutationApi<AccountCount>({
-      baseQuery: baseUrl,
-    });
+  const {
+    updateItem: updateAccountCount,
+    createItem: createAccountCount,
+    deleteItem: deleteAccountCount,
+  } = useMutationApi<AccountCount>({
+    baseQuery: baseUrl,
+  });
 
   return {
     updateAccountCount,
     createAccountCount,
+    deleteAccountCount,
   };
 }
 export const updateStockForStockCount = (payload: UpdateStockPayload) => {

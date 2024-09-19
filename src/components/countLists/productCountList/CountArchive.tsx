@@ -1,11 +1,15 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../../context/General.context";
 import { useUserContext } from "../../../context/User.context";
 import { AccountCount, RoleEnum } from "../../../types";
-import { useGetAccountCounts } from "../../../utils/api/account/count";
+import {
+  useAccountCountMutations,
+  useGetAccountCounts,
+} from "../../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../../utils/api/account/countList";
 import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
 import { useGetUsers } from "../../../utils/api/user";
@@ -13,6 +17,7 @@ import { formatAsLocalDate } from "../../../utils/format";
 import { getItem } from "../../../utils/getItem";
 import { StockLocationInput } from "../../../utils/panelInputs";
 import { passesFilter } from "../../../utils/passesFilter";
+import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -27,6 +32,12 @@ const CountArchive = () => {
   const counts = useGetAccountCounts();
   const countLists = useGetAccountCountLists();
   const users = useGetUsers();
+  const { deleteAccountCount } = useAccountCountMutations();
+  const [rowToAction, setRowToAction] = useState<Partial<AccountCount>>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const locations = useGetAccountStockLocations();
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
@@ -99,6 +110,14 @@ const CountArchive = () => {
     { key: t("User"), isSortable: true },
     { key: t("Status"), isSortable: false },
   ];
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const rowKeys = [
     {
       key: "startDate",
@@ -225,6 +244,37 @@ const CountArchive = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const actions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteAccountCount(rowToAction?._id as any);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Count")}
+          text={`Count ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+  ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       if (!row?.startDate) return false;
@@ -248,12 +298,21 @@ const CountArchive = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          isActionsActive={false}
           columns={columns}
           rows={rows}
           title={t("Count Archive")}
           filterPanel={filterPanel}
           filters={filters}
+          actions={actions}
+          isActionsActive={
+            user
+              ? [
+                  RoleEnum.MANAGER,
+                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.GAMEMANAGER,
+                ].includes(user?.role?._id)
+              : false
+          }
         />
       </div>
     </>
