@@ -17,8 +17,8 @@ import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { Routes } from "../navigation/constants";
 import { Game, Order, OrderStatus, Table, TableStatus, User } from "../types";
-import { Paths } from "../utils/api/factory";
 import { useGetGames } from "../utils/api/game";
+import { useGetTodayOrders } from "../utils/api/order/order";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -34,6 +34,7 @@ const Tables = () => {
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
+  const todayOrders = useGetTodayOrders();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const games = useGetGames();
@@ -137,12 +138,9 @@ const Tables = () => {
     }
   };
   const bgColor = (table: Table) => {
-    const tableOrders = queryClient.getQueryData<Order[]>([
-      `${Paths.Order}/table/${table?._id}`,
-      table?._id,
-    ]);
-    console.log(tableOrders);
-    if (!tableOrders) return "bg-gray-100";
+    const tableOrders = todayOrders?.filter(
+      (order) => (order.table as Table)?._id === table?._id
+    );
     return tableOrders?.some(
       (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
     )
