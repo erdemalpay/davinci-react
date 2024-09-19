@@ -171,7 +171,9 @@ export function useUpdateMultipleOrderMutation() {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },
-
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
