@@ -9,7 +9,6 @@ import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
-
 import {
   Order,
   OrderCollection,
@@ -252,7 +251,7 @@ const OrderPaymentTypes = ({
           >
             {/* left part */}
             <div className="flex flex-row gap-2 ">
-              <p className="min-w-9">{collection.amount} ₺</p>
+              <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
               <p>
                 {collection.paymentMethod
                   ? t(
