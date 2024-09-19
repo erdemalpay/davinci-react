@@ -12,7 +12,10 @@ import {
   Table,
 } from "../../../types";
 
-import { useCloseTableMutation } from "../../../utils/api/table";
+import {
+  useCloseTableMutation,
+  useReopenTableMutation,
+} from "../../../utils/api/table";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
@@ -32,6 +35,7 @@ type ButtonType = {
 const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const { mutate: reopenTable } = useReopenTableMutation();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
@@ -73,7 +77,14 @@ const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
       onClick: () => {
         setIsCloseConfirmationDialogOpen(true);
       },
-      isActive: isAllItemsPaid ?? false,
+      isActive: (isAllItemsPaid && !table?.finishHour) ?? false,
+    },
+    {
+      label: t("Open Table"),
+      onClick: () => {
+        reopenTable({ id: table._id });
+      },
+      isActive: table?.finishHour ? true : false,
     },
   ];
 

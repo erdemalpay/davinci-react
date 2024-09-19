@@ -262,49 +262,51 @@ const OrderPaymentTypes = ({
               </p>
             </div>
             {/* right part */}
-            <HiOutlineTrash
-              className="text-red-600 cursor-pointer text-lg"
-              onClick={() => {
-                let newOrders: Order[] = [];
-                if (
-                  collection?.orders?.length &&
-                  collection?.orders?.length > 0
-                ) {
-                  newOrders = collection?.orders
-                    ?.map((orderCollectionItem: OrderCollectionItem) => {
-                      const order = givenDateOrders?.find(
-                        (orderItem) =>
-                          orderItem._id === orderCollectionItem.order
-                      );
-                      if (order !== undefined) {
-                        return {
-                          ...order,
-                          paidQuantity:
-                            order.paidQuantity -
-                              orderCollectionItem.paidQuantity <
-                            1e-6
-                              ? 0
-                              : order.paidQuantity -
-                                orderCollectionItem.paidQuantity,
-                        };
-                      }
-                      return null;
-                    })
-                    ?.filter((item): item is Order => item !== null);
-                }
-                updateOrderCollection({
-                  id: collection._id,
-                  updates: {
-                    cancelledAt: new Date(),
-                    cancelledBy: user._id,
-                    status: OrderCollectionStatus.CANCELLED,
-                    ...(newOrders && { newOrders: newOrders }),
-                    table: table._id,
-                  } as Partial<OrderCollection>,
-                });
-                resetOrderContext();
-              }}
-            />
+            {!table?.finishHour && (
+              <HiOutlineTrash
+                className="text-red-600 cursor-pointer text-lg"
+                onClick={() => {
+                  let newOrders: Order[] = [];
+                  if (
+                    collection?.orders?.length &&
+                    collection?.orders?.length > 0
+                  ) {
+                    newOrders = collection?.orders
+                      ?.map((orderCollectionItem: OrderCollectionItem) => {
+                        const order = givenDateOrders?.find(
+                          (orderItem) =>
+                            orderItem._id === orderCollectionItem.order
+                        );
+                        if (order !== undefined) {
+                          return {
+                            ...order,
+                            paidQuantity:
+                              order.paidQuantity -
+                                orderCollectionItem.paidQuantity <
+                              1e-6
+                                ? 0
+                                : order.paidQuantity -
+                                  orderCollectionItem.paidQuantity,
+                          };
+                        }
+                        return null;
+                      })
+                      ?.filter((item): item is Order => item !== null);
+                  }
+                  updateOrderCollection({
+                    id: collection._id,
+                    updates: {
+                      cancelledAt: new Date(),
+                      cancelledBy: user._id,
+                      status: OrderCollectionStatus.CANCELLED,
+                      ...(newOrders && { newOrders: newOrders }),
+                      table: table._id,
+                    } as Partial<OrderCollection>,
+                  });
+                  resetOrderContext();
+                }}
+              />
+            )}
           </div>
         ))}
       </div>
