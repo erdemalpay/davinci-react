@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { UpdatePayload, patch, post } from "..";
+import { useOrderContext } from "../../../context/Order.context";
 import {
   Order,
   OrderCollection,
@@ -43,7 +44,10 @@ export function useGetTableCollections(tableId: number) {
 }
 
 export function useGetAllOrderCollections() {
-  return useGetList<OrderCollection>(collectionBaseUrl);
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<OrderCollection>(
+    `${collectionBaseUrl}/query?after=${filterPanelFormElements.after}`
+  );
 }
 
 function createRequest(
