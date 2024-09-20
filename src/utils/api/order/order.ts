@@ -4,6 +4,7 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
+import { useOrderContext } from "./../../../context/Order.context";
 import { Order, Table } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
@@ -183,7 +184,10 @@ export function useUpdateMultipleOrderMutation() {
 }
 
 export function useGetOrders() {
-  return useGetList<Order>(baseUrl);
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<Order>(
+    `${baseUrl}/query?after=${filterPanelFormElements.after}`
+  );
 }
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {

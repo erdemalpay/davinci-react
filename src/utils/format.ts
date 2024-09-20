@@ -11,3 +11,11 @@ export function convertDateFormat(dateStr: string) {
   const parts = dateStr.split("-"); // Split the date by '-'
   return `${parts[2]}-${parts[1]}-${parts[0]}`; // Reformat to 'YYYY-MM-DD'
 }
+
+export function getFirstDayOfCurrentMonth() {
+  const now = new Date(); // Gets the current date and time
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 2);
+  // Formatting the date in 'yyyy-mm-dd' format
+  const formattedDate = firstDay.toISOString().slice(0, 10);
+  return formattedDate;
+}

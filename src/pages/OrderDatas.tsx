@@ -1,4 +1,5 @@
 import { BiCategory } from "react-icons/bi";
+import { BsClipboard2Data } from "react-icons/bs";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { SiFampay } from "react-icons/si";
 import {
@@ -14,6 +15,7 @@ import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import OrdersReport from "../components/orderDatas/OrdersReport";
+import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -69,6 +71,13 @@ export const OrderDataTabs = [
     label: "Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <OrdersReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.PERSONALORDERDATAS,
+    label: "Personal Order Datas",
+    icon: <BsClipboard2Data className="text-lg font-thin" />,
+    content: <PersonalOrderDatas />,
     isDisabled: false,
   },
 ];
