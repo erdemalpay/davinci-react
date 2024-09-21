@@ -539,7 +539,10 @@ export function TableCard({
           isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
-          constantValues={{ quantity: 1 }}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+          }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
           anotherPanel={<OrderListForPanel table={table} />}
