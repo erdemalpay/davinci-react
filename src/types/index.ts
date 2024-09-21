@@ -433,6 +433,7 @@ export type Order = {
   discountAmount?: number;
   division?: number;
   isOnlinePrice?: boolean;
+  stockLocation?: string;
 };
 
 export type OrderCollection = {
@@ -449,6 +450,7 @@ export type OrderCollection = {
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
   table: Table | number;
+  stockLocation?: string;
 };
 
 export type OrderCollectionItem = {
