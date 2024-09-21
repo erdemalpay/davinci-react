@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { RoleEnum } from "../types";
+import { Order, RoleEnum } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -35,30 +35,29 @@ export function useWebSocket() {
       console.log("Connected to WebSocket");
     });
 
-    socket.on("orderCreated", (data) => {
+    socket.on("orderCreated", (order: Order) => {
       const tableId =
-        typeof data?.order.table === "number"
-          ? data?.order.table
-          : data?.order.table._id;
+        typeof order.table === "number" ? order.table : order.table._id;
+
       queryClient.invalidateQueries([`${Paths.Order}/table/${tableId}`]);
-      if (data?.order?.createdBy === user?._id) {
+      if (order?.createdBy === user?._id) {
         return;
       }
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
 
       // Play order created sound
       const foundCategory = categories?.find(
-        (c) => c._id === getItem(data?.order?.item, items)?.category
+        (c) => c._id === getItem(order?.item, items)?.category
       );
       if (
         !foundCategory?.isAutoServed &&
-        data?.order?.status !== OrderStatus.CANCELLED &&
+        order?.status !== OrderStatus.CANCELLED &&
         ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
           user?.role?._id as RoleEnum
         ) &&
           !["flora", "farm"].includes(foundCategory?.kitchen as string) &&
           selectedLocationId &&
-          data?.order?.location === selectedLocationId) ||
+          order?.location === selectedLocationId) ||
           (user?.role?._id === RoleEnum.KITCHEN &&
             foundCategory?.kitchen === "flora") ||
           (user?.role?._id === RoleEnum.KITCHEN2 &&
@@ -75,9 +74,7 @@ export function useWebSocket() {
           ? data?.order.table
           : data?.order.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table/${tableId}`]);
-      if (data?.socketUser?._id === user?._id) {
-        return;
-      }
+
       queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
     });
     socket.on("collectionChanged", (data) => {
