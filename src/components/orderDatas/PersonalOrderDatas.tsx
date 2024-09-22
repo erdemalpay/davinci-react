@@ -1,33 +1,23 @@
-import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useOrderContext } from "../../context/Order.context";
-import { Table } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
-import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
-import { LocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
+interface PersonalOrderData {
+  user: string;
+  createdByCount: number;
+  preparedByCount: number;
+  cancelledByCount: number;
+  deliveredByCount: number;
+}
 const PersonalOrderDatas = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
-  const locations = useGetLocations();
   const users = useGetUsers();
-  const [showFilters, setShowFilters] = useState(false);
-  const discounts = useGetOrderDiscounts();
-  const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
-  if (!orders || !locations || !users || !discounts) {
+
+  if (!orders || !users) {
     return null;
   }
   const statusOptions = [
@@ -37,254 +27,82 @@ const PersonalOrderDatas = () => {
     { value: "cancelled", label: t("Cancelled") },
     { value: "autoserved", label: t("Auto served") },
   ];
-  const allRows = orders
-    .map((order) => {
+  const allRows: PersonalOrderData[] = orders.reduce<PersonalOrderData[]>(
+    (acc, order) => {
       if (!order || !order.createdAt) {
-        return null;
+        return acc;
       }
-      return {
-        _id: order._id,
-        date: format(order.createdAt, "yyyy-MM-dd"),
-        formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
-        createdBy: getItem(order.createdBy, users)?.name,
-        createdByUserId: order.createdBy,
-        createdAt: format(order.createdAt, "HH:mm"),
-        preparedBy: getItem(order.preparedBy, users)?.name ?? "",
-        preparedByUserId: order?.preparedBy ?? "",
-        preparationTime: order.preparedAt
-          ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
-          : null,
-        cancelledBy: getItem(order.cancelledBy, users)?.name,
-        cancelledByUserId: order.cancelledBy,
-        cancelledAt: order.cancelledAt
-          ? format(order.cancelledAt, "HH:mm")
-          : "",
-        deliveredBy: getItem(order.deliveredBy, users)?.name,
-        deliveredByUserId: order.deliveredBy,
-        deliveryTime:
-          order.deliveredAt && order.preparedAt
-            ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
-            : null,
-        discountId: order?.discount,
-        discountName:
-          discounts?.find((discount) => discount?._id === order?.discount)
-            ?.name ?? "",
-        item: getItem(order.item, items)?.name,
-        location: getItem(order.location, locations)?.name,
-        locationId: order.location,
-        quantity: order.quantity,
-        tableId: (order?.table as Table)?._id,
-        tableName: (order?.table as Table)?.name,
-        amount: order.unitPrice * order.quantity,
-        note: order.note,
-        status: t(order.status),
-        statusLabel: statusOptions.find(
-          (status) => status.value === order.status
-        )?.label,
-      };
-    })
-    ?.filter((item) => item !== null);
+
+      // Define roles to be processed
+      const roles = [
+        { key: "createdBy", prop: "createdByCount" },
+        { key: "preparedBy", prop: "preparedByCount" },
+        { key: "cancelledBy", prop: "cancelledByCount" },
+        { key: "deliveredBy", prop: "deliveredByCount" },
+      ];
+
+      // Function to update or initialize user records
+      roles.forEach(({ key, prop }) => {
+        const userId = order[key];
+        if (userId) {
+          let userRecord = acc.find(
+            (item: PersonalOrderData) => item.user === userId
+          );
+          if (!userRecord) {
+            userRecord = {
+              user: userId,
+              createdByCount: 0,
+              preparedByCount: 0,
+              cancelledByCount: 0,
+              deliveredByCount: 0,
+            };
+            acc.push(userRecord);
+          }
+          userRecord[prop as keyof PersonalOrderData]++;
+        }
+      });
+
+      return acc;
+    },
+    []
+  );
+
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Date"), isSortable: true },
-    { key: t("Table Id"), isSortable: true },
-    { key: t("Table Name"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
-    { key: t("Amount"), isSortable: true },
-    { key: t("Note"), isSortable: true },
-    { key: t("Created At"), isSortable: true },
-    { key: t("Created By"), isSortable: true },
-    { key: t("Prepared In"), isSortable: true },
-    { key: t("Prepared By"), isSortable: true },
-    { key: t("Delivered In"), isSortable: true },
-    { key: t("Delivered By"), isSortable: true },
-    { key: t("Cancelled At"), isSortable: true },
-    { key: t("Cancelled By"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Status"), isSortable: true },
+    { key: t("User"), isSortable: true },
+    { key: t("Created By Count"), isSortable: true },
+    { key: t("Prepared By Count"), isSortable: true },
+    { key: t("Delivered By Count"), isSortable: true },
+    { key: t("Cancelled By Count"), isSortable: true },
   ];
   const rowKeys = [
     {
-      key: "date",
-      node: (row: any) => {
-        return (
-          <p className={`${row?.className} min-w-32 pr-2`}>
-            {row.formattedDate}
-          </p>
-        );
+      key: "user",
+      node: (row: PersonalOrderData) => {
+        const user = users.find((user) => user._id === row.user);
+        return user?.name;
       },
     },
-    { key: "tableId" },
-    { key: "tableName", className: "min-w-40 pr-2" },
-    { key: "item", className: "min-w-40 pr-2" },
-    { key: "quantity" },
-    {
-      key: "amount",
-      node: (row: any) => (
-        <p className="min-w-32 pr-2" key={row._id + "amount"}>
-          {row.amount} ₺
-        </p>
-      ),
-    },
-    { key: "note", className: "min-w-32 pr-2" },
-    { key: "createdAt" },
-    { key: "createdBy" },
-    { key: "preparationTime" },
-    { key: "preparedBy" },
-    { key: "deliveryTime" },
-    { key: "deliveredBy" },
-    { key: "cancelledAt" },
-    { key: "cancelledBy" },
-    { key: "location" },
-    { key: "statusLabel", className: "min-w-32 pr-2" },
+    { key: "createdByCount" },
+    { key: "preparedByCount" },
+    { key: "deliveredByCount" },
+    { key: "cancelledByCount" },
   ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "createdBy",
-      label: t("Created By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Created By"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "preparedBy",
-      label: t("Prepared By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Prepared By"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "deliveredBy",
-      label: t("Delivered By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Delivered By"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "cancelledBy",
-      label: t("Cancelled By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Cancelled By"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "status",
-      label: t("Status"),
-      options: statusOptions,
-      placeholder: t("Status"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "discount",
-      label: t("Discount"),
-      options: discounts.map((discount) => {
-        return {
-          value: discount._id,
-          label: discount.name,
-        };
-      }),
-      placeholder: t("Discount"),
-      required: true,
-    },
-    LocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
+
   useEffect(() => {
-    const filteredRows = allRows.filter((row: any) => {
-      return (
-        (filterPanelFormElements.before === "" ||
-          row?.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row?.date >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, row.locationId) &&
-        passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
-        passesFilter(
-          filterPanelFormElements.preparedBy,
-          row.preparedByUserId
-        ) &&
-        passesFilter(
-          filterPanelFormElements.deliveredBy,
-          row.deliveredByUserId
-        ) &&
-        passesFilter(
-          filterPanelFormElements.cancelledBy,
-          row.cancelledByUserId
-        ) &&
-        passesFilter(filterPanelFormElements.discount, row.discountId) &&
-        passesFilter(filterPanelFormElements.status, row.status)
-      );
-    });
-    setRows(filteredRows);
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, locations, users, filterPanelFormElements, discounts, items]);
+  }, [orders, users]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}
-          title={t("Orders")}
+          title={t("Personal Order Datas")}
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={false}
-          filterPanel={filterPanel}
-          filters={filters}
         />
       </div>
     </>

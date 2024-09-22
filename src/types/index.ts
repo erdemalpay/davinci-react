@@ -434,6 +434,7 @@ export type Order = {
   division?: number;
   isOnlinePrice?: boolean;
   stockLocation?: string;
+  [key: string]: any;
 };
 
 export type OrderCollection = {

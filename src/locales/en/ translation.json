@@ -530,5 +530,9 @@
   "Equalize": "Equalize",
   "Stock is already equalized": "Stock is already equalized",
   "Personal Order Datas": "Personal Order Datas",
+  "Created By Count": "Created By",
+  "Cancelled By Count": "Cancelled By",
+  "Prepared By Count": "Prepared By",
+  "Delivered By Count": "Delivered By",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
