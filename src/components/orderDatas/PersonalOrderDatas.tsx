@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { Order, Table } from "../../types";
 import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -54,11 +55,12 @@ const PersonalOrderDatas = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const users = useGetUsers();
+  const discounts = useGetOrderDiscounts();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  if (!orders || !users) {
+  if (!orders || !users || !discounts) {
     return null;
   }
 
@@ -98,7 +100,8 @@ const PersonalOrderDatas = () => {
           filterPanelFormElements.before === "" ||
           format(order.createdAt, "yyyy-MM-dd") <=
             filterPanelFormElements.before
-        )
+        ) ||
+        filterPanelFormElements.discount.includes(order.discount)
       ) {
         return acc;
       }
@@ -168,6 +171,20 @@ const PersonalOrderDatas = () => {
   ];
   const filterPanelInputs = [
     {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Eliminate Discount"),
+      options: discounts.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Eliminate Discount"),
+      required: true,
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
@@ -201,7 +218,7 @@ const PersonalOrderDatas = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, users, filterPanelFormElements]);
+  }, [orders, users, filterPanelFormElements, discounts]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
