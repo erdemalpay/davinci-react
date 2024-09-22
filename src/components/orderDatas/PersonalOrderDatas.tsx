@@ -1,9 +1,13 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useOrderContext } from "../../context/Order.context";
 import { Order, Table } from "../../types";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { InputTypes } from "../panelComponents/shared/types";
 
 interface PersonalOrderData {
   user: string;
@@ -51,7 +55,9 @@ const PersonalOrderDatas = () => {
   const orders = useGetOrders();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
-
+  const [showFilters, setShowFilters] = useState(false);
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useOrderContext();
   if (!orders || !users) {
     return null;
   }
@@ -85,6 +91,15 @@ const PersonalOrderDatas = () => {
   const allRows: PersonalOrderData[] = orders.reduce<PersonalOrderData[]>(
     (acc, order) => {
       if (!order || !order.createdAt) {
+        return acc;
+      }
+      if (
+        !(
+          filterPanelFormElements.before === "" ||
+          format(order.createdAt, "yyyy-MM-dd") <=
+            filterPanelFormElements.before
+        )
+      ) {
         return acc;
       }
       roles.forEach(({ key, countProp, tableProp, tableCountProp }) => {
@@ -151,11 +166,42 @@ const PersonalOrderDatas = () => {
     { key: "cancelledByCount" },
     { key: "cancelledByTableCount" },
   ];
-
+  const filterPanelInputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
+  const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, users]);
+  }, [orders, users, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
@@ -166,6 +212,8 @@ const PersonalOrderDatas = () => {
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={false}
+          filterPanel={filterPanel}
+          filters={filters}
         />
       </div>
     </>
