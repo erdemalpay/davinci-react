@@ -527,5 +527,11 @@
   "Equalize": "Eşitle",
   "Stock is already equalized": "Stok zaten eşitlendi",
   "Personal Order Datas": "Personel Sipariş Verileri",
+  "Created By Count": "Oluşturma Sayısı",
+  "Cancelled By Count": "İptal Sayısı",
+  "Delivered By Count": "Teslim Sayısı",
+  "Prepared By Count": "Hazırlama Sayısı",
+  "Table Count": "Masa Sayısı",
+  "Eliminate Discount": "İndirimi Ele",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

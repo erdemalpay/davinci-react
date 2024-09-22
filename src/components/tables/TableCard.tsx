@@ -22,6 +22,7 @@ import {
   TableStatus,
   User,
 } from "../../types";
+import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
@@ -59,6 +60,7 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   tables: Table[];
+  isOrderLocationSelection?: boolean;
 }
 
 export function TableCard({
@@ -69,6 +71,7 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   tables,
+  isOrderLocationSelection = false,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -91,6 +94,7 @@ export function TableCard({
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts();
+  const locations = useGetAccountStockLocations();
   const categories = useGetCategories();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
@@ -104,6 +108,7 @@ export function TableCard({
     note: "",
     discount: undefined,
     isOnlinePrice: false,
+    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
   });
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
@@ -151,6 +156,7 @@ export function TableCard({
       placeholder: t("Product"),
       required: true,
     },
+
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
@@ -161,6 +167,7 @@ export function TableCard({
       isNumberButtonsActive: true,
       isOnClearActive: false,
     },
+
     {
       type: InputTypes.SELECT,
       formKey: "discount",
@@ -188,6 +195,20 @@ export function TableCard({
       required: false,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "stockLocation",
+      label: t("Location"),
+      options: locations.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Location"),
+      isDisabled: !isOrderLocationSelection,
+      required: isOrderLocationSelection,
+    },
+    {
       type: InputTypes.CHECKBOX,
       formKey: "isOnlinePrice",
       label: t("Online Price"),
@@ -209,6 +230,7 @@ export function TableCard({
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
@@ -310,6 +332,14 @@ export function TableCard({
 
     setIsDeleteConfirmationDialogOpen(false);
   }
+  const orderLocationAdjustment = (location: any) => {
+    if (location === 1) {
+      return "bahceli";
+    } else if (location === 2) {
+      return "neorama";
+    }
+    return location;
+  };
 
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
@@ -509,7 +539,10 @@ export function TableCard({
           isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
-          constantValues={{ quantity: 1 }}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+          }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
           anotherPanel={<OrderListForPanel table={table} />}
@@ -561,6 +594,7 @@ export function TableCard({
               note: "",
               discount: undefined,
               isOnlinePrice: false,
+              stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
             });
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"

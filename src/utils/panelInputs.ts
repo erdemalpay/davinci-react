@@ -233,11 +233,13 @@ export function ProductInput({
 export function StockLocationInput({
   required = true,
   isMultiple = false,
+  isDisabled = false,
   locations,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   locations: AccountStockLocation[];
+  isDisabled?: boolean;
 }) {
   const { t } = useTranslation();
   return {
@@ -252,6 +254,7 @@ export function StockLocationInput({
     }),
     placeholder: t("Location"),
     isMultiple: isMultiple,
+    isDisabled: isDisabled,
     required: required,
   };
 }
