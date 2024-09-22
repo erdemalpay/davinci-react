@@ -154,7 +154,7 @@ export function useUpdateOrdersMutation() {
 }
 export function useGetTableOrders(tableId: number) {
   return useGetList<Order>(`${baseUrl}/table/${tableId}`, [
-    `${Paths.Order}/table/${tableId}`,
+    `${Paths.Order}/table`,
     tableId,
   ]);
 }

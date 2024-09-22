@@ -45,7 +45,7 @@ const CollectionModal = ({
   const items = useGetMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
-  const { updateOrderCollection } = useOrderCollectionMutations();
+  const { updateOrderCollection } = useOrderCollectionMutations(table);
   const [inputForm, setInputForm] = useState({
     note: "",
   });

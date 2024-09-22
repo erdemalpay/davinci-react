@@ -2,33 +2,23 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { UpdatePayload, patch, post } from "..";
 import { useOrderContext } from "../../../context/Order.context";
-import {
-  Order,
-  OrderCollection,
-  OrderCollectionStatus,
-  Table,
-} from "../../../types";
+import { Order, OrderCollection, OrderCollectionStatus } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
-import { useDateContext } from "./../../../context/Date.context";
-import { useLocationContext } from "./../../../context/Location.context";
 
-const collectionBaseUrl = `${Paths.Order}/collection`;
-const tableBaseUrl = `${Paths.Tables}`;
-export function useOrderCollectionMutations() {
-  const { selectedLocationId } = useLocationContext();
-  const { selectedDate } = useDateContext();
+const collectionBaseUrl = `${Paths.Order}/collection/table`;
+const orderBaseUrl = `${Paths.Order}/table`;
+
+export function useOrderCollectionMutations(tableId: number) {
   const { deleteItem: deleteOrderCollection } = useMutationApi<OrderCollection>(
     {
       baseQuery: collectionBaseUrl,
-      queryKey: [
-        `${Paths.Order}/collection/date`,
-        selectedLocationId,
-        selectedDate,
-      ],
+      queryKey: [collectionBaseUrl, tableId],
     }
   );
-  const { mutate: createOrderCollection } = useCreateOrderCollectionMutation();
-  const { mutate: updateOrderCollection } = useUpdateOrderCollectionMutation();
+  const { mutate: createOrderCollection } =
+    useCreateOrderCollectionMutation(tableId);
+  const { mutate: updateOrderCollection } =
+    useUpdateOrderCollectionMutation(tableId);
   return {
     deleteOrderCollection,
     updateOrderCollection,
@@ -37,8 +27,8 @@ export function useOrderCollectionMutations() {
 }
 
 export function useGetTableCollections(tableId: number) {
-  return useGetList<OrderCollection>(`${collectionBaseUrl}/table/${tableId}`, [
-    `${Paths.Order}/collection/table/${tableId}`,
+  return useGetList<OrderCollection>(`${collectionBaseUrl}/${tableId}`, [
+    collectionBaseUrl,
     tableId,
   ]);
 }
@@ -69,22 +59,18 @@ function updateRequest(
   });
 }
 
-export function useCreateOrderCollectionMutation() {
-  const { selectedLocationId } = useLocationContext();
-  const { selectedDate } = useDateContext();
-  const collectionQueryKey = [
-    `${Paths.Order}/collection/date`,
-    selectedLocationId,
-    selectedDate,
-  ];
+export function useCreateOrderCollectionMutation(tableId: number) {
   const queryClient = useQueryClient();
+
+  const collectionQueryKey = [collectionBaseUrl, tableId];
+  const orderQueryKey = [orderBaseUrl, tableId];
+
   return useMutation(createRequest, {
     // We are updating tables query data with new table
     onMutate: async (createdCollection: Partial<OrderCollection>) => {
-      const tableQueryKey = [`${Paths.Order}/table/${createdCollection.table}`];
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(collectionQueryKey);
-      await queryClient.cancelQueries(tableQueryKey);
+      await queryClient.cancelQueries(orderQueryKey);
 
       // Snapshot the previous value
       const previousCollections =
@@ -97,18 +83,18 @@ export function useCreateOrderCollectionMutation() {
       // Optimistically update to the new value
       queryClient.setQueryData(collectionQueryKey, updatedCollections);
 
-      const { table, orders } = createdCollection;
+      const { orders, newOrders } = createdCollection;
 
-      const previousTableData =
-        queryClient.getQueryData<Order[]>(tableQueryKey) || [];
+      const previousOrderData =
+        queryClient.getQueryData<Order[]>(orderQueryKey) || [];
       if (!orders) {
-        return { previousCollections, previousTableData };
+        return { previousCollections, previousOrderData };
       }
 
-      const updatedTableData: Order[] = JSON.parse(
-        JSON.stringify(previousTableData)
+      /* const updatedOrderData: Order[] = JSON.parse(
+        JSON.stringify(previousOrderData)
       );
-      const mergedData = updatedTableData.map((order) => {
+      const mergedData = updatedOrderData.map((order) => {
         // Attempt to find a matching item in the 'orders' array
         const updatedOrder = orders.find((item) => item.order === order._id);
         if (updatedOrder) {
@@ -116,31 +102,30 @@ export function useCreateOrderCollectionMutation() {
         }
         // If an updated order exists, return it, otherwise return the original order
         return order;
-      });
+      }); */
 
       // Optimistically update to the new value
-      queryClient.setQueryData<Order[]>(tableQueryKey, mergedData);
+      queryClient.setQueryData<Order[]>(orderQueryKey, newOrders);
 
       // Return a context object with the snapshotted value
-      return { previousCollections, previousTableData, tableQueryKey };
+      return {
+        previousCollections,
+        previousOrderData,
+      };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: any, _newTable, context) => {
       const previousContext = context as {
         previousCollections: OrderCollection[];
-        previousTableData: Order[];
-        tableQueryKey: string[];
+        previousOrderData: Order[];
       };
       if (previousContext?.previousCollections) {
-        const { previousCollections, previousTableData } = previousContext;
+        const { previousCollections, previousOrderData } = previousContext;
         queryClient.setQueryData<OrderCollection[]>(
           collectionQueryKey,
           previousCollections
         );
-        queryClient.setQueryData<Order[]>(
-          previousContext.tableQueryKey,
-          previousTableData
-        );
+        queryClient.setQueryData<Order[]>(orderQueryKey, previousOrderData);
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
@@ -148,27 +133,22 @@ export function useCreateOrderCollectionMutation() {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(collectionQueryKey);
+      queryClient.invalidateQueries([collectionQueryKey]);
+      queryClient.invalidateQueries([orderQueryKey]);
     },
   });
 }
 
-export function useUpdateOrderCollectionMutation() {
-  const { selectedLocationId } = useLocationContext();
-  const { selectedDate } = useDateContext();
-  const collectionQueryKey = [
-    `${Paths.Order}/collection/date`,
-    selectedLocationId,
-    selectedDate,
-  ];
-  const tableQueryKey = [tableBaseUrl, selectedLocationId, selectedDate];
+export function useUpdateOrderCollectionMutation(tableId: number) {
+  const collectionQueryKey = [collectionBaseUrl, tableId];
+  const orderQueryKey = [orderBaseUrl, tableId];
   const queryClient = useQueryClient();
   return useMutation(updateRequest, {
     // We are updating tables query data with new table
     onMutate: async ({ id, updates }: UpdatePayload<OrderCollection>) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(collectionQueryKey);
-      await queryClient.cancelQueries(tableQueryKey);
+      await queryClient.cancelQueries(orderQueryKey);
 
       // Snapshot the previous value
       const previousCollections =
@@ -185,16 +165,16 @@ export function useUpdateOrderCollectionMutation() {
 
       const { table, newOrders } = updates;
 
-      const previousTables =
-        queryClient.getQueryData<Table[]>(tableQueryKey) || [];
+      const previousOrders =
+        queryClient.getQueryData<Order[]>(orderQueryKey) || [];
       if (!newOrders) {
-        return { previousCollections, previousTables };
+        return { previousCollections, previousOrders };
       }
 
-      const updatedTables: Table[] = JSON.parse(JSON.stringify(previousTables));
+      const updatedOrders: Order[] = JSON.parse(JSON.stringify(previousOrders));
 
-      const tableIndex = updatedTables.findIndex((t) => t._id === table);
-      const tableToUpdate = updatedTables[tableIndex];
+      const tableIndex = updatedOrders.findIndex((t) => t._id === table);
+      const tableToUpdate = updatedOrders[tableIndex];
       // for (const orderItem of newOrders) {
       //   if (!tableToUpdate.orders) continue;
       //   const tableOrder = tableToUpdate.orders.find(
@@ -204,24 +184,24 @@ export function useUpdateOrderCollectionMutation() {
       //   updatedTables.splice(tableIndex, 1, tableToUpdate);
       // }
       // Optimistically update to the new value
-      queryClient.setQueryData<Table[]>(tableQueryKey, updatedTables);
+      queryClient.setQueryData<Order[]>(orderQueryKey, updatedOrders);
 
       // Return a context object with the snapshotted value
-      return { previousCollections, previousTables };
+      return { previousCollections, previousTables: previousOrders };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: any, _newTable, context) => {
       const previousContext = context as {
         previousCollections: OrderCollection[];
-        previousTables: Table[];
+        previousOrders: Order[];
       };
       if (previousContext?.previousCollections) {
-        const { previousCollections, previousTables } = previousContext;
+        const { previousCollections, previousOrders } = previousContext;
         queryClient.setQueryData<OrderCollection[]>(
           collectionQueryKey,
           previousCollections
         );
-        queryClient.setQueryData<Table[]>(tableQueryKey, previousTables);
+        queryClient.setQueryData<Order[]>(orderQueryKey, previousOrders);
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
