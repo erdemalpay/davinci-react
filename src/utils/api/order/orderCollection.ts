@@ -131,11 +131,6 @@ export function useCreateOrderCollectionMutation(tableId: number) {
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries([collectionQueryKey]);
-      queryClient.invalidateQueries([orderQueryKey]);
-    },
   });
 }
 
@@ -208,8 +203,8 @@ export function useUpdateOrderCollectionMutation(tableId: number) {
       setTimeout(() => toast.error(errorMessage), 200);
     },
     // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries(collectionQueryKey);
-    },
+    // onSettled: () => {
+    //   queryClient.invalidateQueries(collectionQueryKey);
+    // },
   });
 }
