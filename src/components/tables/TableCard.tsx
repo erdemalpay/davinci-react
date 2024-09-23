@@ -17,9 +17,9 @@ import {
   Order,
   OrderCollection,
   OrderStatus,
+  TURKISHLIRA,
   Table,
   TableStatus,
-  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -628,7 +628,7 @@ export function TableCard({
 
       {isOrderPaymentModalOpen && (
         <OrderPaymentModal
-          orders={tableOrders as Order[]}
+          orders={tableOrders}
           collections={tableCollections ?? []}
           table={table}
           close={() => {
@@ -647,7 +647,7 @@ export function TableCard({
           submitItem={transferTable as any}
           submitFunction={() => {
             transferTable({
-              orders: tableOrders as Order[],
+              orders: tableOrders,
               oldTableId: table._id,
               transferredTableId: Number(tableTransferForm.table),
             });

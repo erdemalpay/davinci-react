@@ -38,8 +38,7 @@ export function useWebSocket() {
     socket.on("orderCreated", (order: Order) => {
       const tableId =
         typeof order.table === "number" ? order.table : order.table._id;
-
-      queryClient.invalidateQueries([`${Paths.Order}/table/${tableId}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       if (order?.createdBy === user?._id) {
         return;
       }
@@ -73,14 +72,15 @@ export function useWebSocket() {
         typeof data?.order.table === "number"
           ? data?.order.table
           : data?.order.table._id;
-      queryClient.invalidateQueries([`${Paths.Order}/table/${tableId}`]);
+      queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
 
       queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
     });
     socket.on("collectionChanged", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/collection`]);
+      // queryClient.invalidateQueries([`${Paths.Order}/collection`]);
       queryClient.invalidateQueries([
-        `${Paths.Order}/collection/table/${data?.collection.table}`,
+        `${Paths.Order}/collection/table`,
+        data.collection.table,
       ]);
     });
 

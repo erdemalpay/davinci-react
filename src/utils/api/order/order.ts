@@ -43,8 +43,6 @@ export function useOrderMutations() {
   const { updateItem: updateOrder, createItem: createOrder } =
     useMutationApi<Order>({
       baseQuery: baseUrl,
-      isAdditionalInvalidate: true,
-      additionalInvalidates: [[`${Paths.Order}/today`]],
     });
 
   return { updateOrder, createOrder };
@@ -154,7 +152,7 @@ export function useUpdateOrdersMutation() {
 }
 export function useGetTableOrders(tableId: number) {
   return useGetList<Order>(`${baseUrl}/table/${tableId}`, [
-    `${Paths.Order}/table/${tableId}`,
+    `${Paths.Order}/table`,
     tableId,
   ]);
 }
@@ -172,9 +170,9 @@ export function useUpdateMultipleOrderMutation() {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
-    },
+    // onSettled: () => {
+    //   queryClient.invalidateQueries(queryKey);
+    // },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";

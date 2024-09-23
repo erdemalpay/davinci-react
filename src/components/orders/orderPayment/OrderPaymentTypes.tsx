@@ -87,7 +87,7 @@ const OrderPaymentTypes = ({
     }
   };
   const { createOrderCollection, updateOrderCollection } =
-    useOrderCollectionMutations();
+    useOrderCollectionMutations(table._id);
 
   const inputs = [
     {
