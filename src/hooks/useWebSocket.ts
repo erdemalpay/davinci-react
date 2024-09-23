@@ -39,10 +39,10 @@ export function useWebSocket() {
       const tableId =
         typeof order.table === "number" ? order.table : order.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
+      queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (order?.createdBy === user?._id) {
         return;
       }
-      queryClient.invalidateQueries([`${Paths.Order}/today`]);
 
       // Play order created sound
       const foundCategory = categories?.find(
