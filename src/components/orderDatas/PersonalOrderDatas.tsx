@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Order, Table } from "../../types";
+import { Order, OrderStatus, Table } from "../../types";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
@@ -105,6 +105,7 @@ const PersonalOrderDatas = () => {
       ) {
         return acc;
       }
+
       roles.forEach(({ key, countProp, tableProp, tableCountProp }) => {
         const userId = order[key as keyof Order];
         const tableId = (order.table as Table)._id;
@@ -128,10 +129,20 @@ const PersonalOrderDatas = () => {
             };
             acc.push(userRecord);
           }
-          userRecord[countProp]++;
-          if (userRecord[tableProp] instanceof Set) {
-            userRecord[tableProp].add(tableId as number);
-            userRecord[tableCountProp] = userRecord[tableProp].size; // Directly update the count
+          if (order.status === OrderStatus.CANCELLED) {
+            if (countProp === "cancelledByCount") {
+              userRecord[countProp]++;
+              if (userRecord[tableProp] instanceof Set) {
+                userRecord[tableProp].add(tableId as number);
+                userRecord[tableCountProp] = userRecord[tableProp].size;
+              }
+            }
+          } else {
+            userRecord[countProp]++;
+            if (userRecord[tableProp] instanceof Set) {
+              userRecord[tableProp].add(tableId as number);
+              userRecord[tableCountProp] = userRecord[tableProp].size;
+            }
           }
         }
       });
