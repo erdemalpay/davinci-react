@@ -332,15 +332,6 @@ export function TableCard({
 
     setIsDeleteConfirmationDialogOpen(false);
   }
-  const orderLocationAdjustment = (location: any) => {
-    if (location === 1) {
-      return "bahceli";
-    } else if (location === 2) {
-      return "neorama";
-    }
-    return location;
-  };
-
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
@@ -571,6 +562,10 @@ export function TableCard({
                 preparedAt: new Date(),
                 preparedBy: user?._id,
                 status: OrderStatus.AUTOSERVED,
+                stockLocation:
+                  orderForm?.stockLocation ?? selectedLocationId === 1
+                    ? "bahceli"
+                    : "neorama",
               });
             }
             if (
@@ -586,6 +581,10 @@ export function TableCard({
                   ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
                   : selectedMenuItem.price,
                 paidQuantity: 0,
+                stockLocation:
+                  orderForm?.stockLocation ?? selectedLocationId === 1
+                    ? "bahceli"
+                    : "neorama",
               });
             }
             setOrderForm({
