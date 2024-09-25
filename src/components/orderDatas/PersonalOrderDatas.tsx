@@ -26,10 +26,10 @@ interface PersonalOrderData {
   deliveredByTables: Set<number>;
 }
 interface RoleDetail {
-  key: keyof Order; // Ensure this is correct based on the Order structure
-  countProp: keyof PersonalOrderDataCounts; // Props for counts
-  tableProp: keyof PersonalOrderDataTables; // Props for Sets of tables
-  tableCountProp: keyof PersonalOrderDataCounts; // Props for table counts
+  key: keyof Order;
+  countProp: keyof PersonalOrderDataCounts;
+  tableProp: keyof PersonalOrderDataTables;
+  tableCountProp: keyof PersonalOrderDataCounts;
 }
 
 type PersonalOrderDataCounts = Pick<

@@ -17,7 +17,10 @@ import {
   TURKISHLIRA,
 } from "../../types";
 import { useGetAccountUnits } from "../../utils/api/account/unit";
-import { useMenuItemMutations } from "../../utils/api/menu/menu-item";
+import {
+  useGetMenuItems,
+  useMenuItemMutations,
+} from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -39,6 +42,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   const { user } = useUserContext();
   const { i18n } = useTranslation();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
+  const items = useGetMenuItems();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -153,7 +157,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [singleItemGroup.items, products, i18n.language]);
+  }, [singleItemGroup.items, products, i18n.language, units, items]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
