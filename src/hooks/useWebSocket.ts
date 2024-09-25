@@ -32,7 +32,7 @@ export function useWebSocket() {
     });
 
     socket.on("connect", () => {
-      console.log("Connected to WebSocket");
+      console.log("Connected to WebSocket.");
     });
 
     socket.on("orderCreated", (order: Order) => {
