@@ -77,7 +77,6 @@ export function useWebSocket() {
     });
     socket.on("collectionChanged", (data) => {
       // queryClient.invalidateQueries([`${Paths.Order}/collection`]);
-      console.log(data.collection);
       if (data?.collection?.orders?.length === 0) {
         queryClient.invalidateQueries([
           `${Paths.Order}/table`,
