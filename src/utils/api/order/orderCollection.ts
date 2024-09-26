@@ -105,7 +105,9 @@ export function useCreateOrderCollectionMutation(tableId: number) {
       }); */
 
       // Optimistically update to the new value
-      queryClient.setQueryData<Order[]>(orderQueryKey, newOrders);
+      if (orders && orders?.length > 0) {
+        queryClient.setQueryData<Order[]>(orderQueryKey, newOrders);
+      }
 
       // Return a context object with the snapshotted value
       return {
