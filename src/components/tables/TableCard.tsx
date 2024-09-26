@@ -1,7 +1,7 @@
 import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
 import { MdBorderColor, MdBrunchDining } from "react-icons/md";
@@ -332,6 +332,12 @@ export function TableCard({
 
     setIsDeleteConfirmationDialogOpen(false);
   }
+  useEffect(() => {
+    setOrderForm({
+      ...orderForm,
+      stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+    });
+  }, [selectedLocationId]);
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
@@ -562,10 +568,11 @@ export function TableCard({
                 preparedAt: new Date(),
                 preparedBy: user?._id,
                 status: OrderStatus.AUTOSERVED,
-                stockLocation:
-                  orderForm?.stockLocation ?? selectedLocationId === 1
-                    ? "bahceli"
-                    : "neorama",
+                stockLocation: orderForm?.stockLocation
+                  ? orderForm?.stockLocation
+                  : selectedLocationId === 1
+                  ? "bahceli"
+                  : "neorama",
               });
             }
             if (
