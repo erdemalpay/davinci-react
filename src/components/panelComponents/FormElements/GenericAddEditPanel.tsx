@@ -402,6 +402,7 @@ const GenericAddEditPanel = <T,>({
                           }
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           minNumber={input?.minNumber ?? 0}
+                          isMinNumber={input?.isMinNumber ?? true}
                           onClear={() => {
                             handleInputClear(input);
                           }}

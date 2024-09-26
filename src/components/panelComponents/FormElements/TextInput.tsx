@@ -31,6 +31,7 @@ type TextInputProps = {
   requiredField?: boolean;
   isDateInitiallyOpen?: boolean;
   minNumber?: number;
+  isMinNumber?: boolean;
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
 };
@@ -47,6 +48,7 @@ const TextInput = ({
   inputWidth,
   isDatePicker = false,
   minNumber = 0,
+  isMinNumber = true,
   isDateInitiallyOpen = false,
   isNumberButtonsActive = false,
   isOnClearActive = true,
@@ -302,7 +304,11 @@ const TextInput = ({
           disabled={disabled}
           value={localValue}
           onChange={(e) => {
-            if (type === "number" && +e.target.value < minNumber) {
+            if (
+              type === "number" &&
+              +e.target.value < minNumber &&
+              isMinNumber
+            ) {
               setLocalValue(minNumber.toString());
               onChange(minNumber.toString());
             } else {
@@ -311,7 +317,7 @@ const TextInput = ({
             }
           }}
           className={inputClassName}
-          {...(type === "number" ? { min: minNumber } : {})}
+          {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
           onWheel={type === "number" ? handleWheel : undefined}
         />
         {isNumberButtonsActive && (

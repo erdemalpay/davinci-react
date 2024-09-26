@@ -754,6 +754,7 @@ const AllExpenses = () => {
             label: t("Price"),
             placeholder: t("Price"),
             required: true,
+            isMinNumber: false,
           },
           {
             type: InputTypes.NUMBER,
