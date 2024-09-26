@@ -568,7 +568,7 @@ export function TableCard({
                 preparedAt: new Date(),
                 preparedBy: user?._id,
                 status: OrderStatus.AUTOSERVED,
-                stockLocation: orderForm?.stockLocation
+                stockLocation: isOrderLocationSelection
                   ? orderForm?.stockLocation
                   : selectedLocationId === 1
                   ? "bahceli"
@@ -588,10 +588,11 @@ export function TableCard({
                   ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
                   : selectedMenuItem.price,
                 paidQuantity: 0,
-                stockLocation:
-                  orderForm?.stockLocation ?? selectedLocationId === 1
-                    ? "bahceli"
-                    : "neorama",
+                stockLocation: isOrderLocationSelection
+                  ? orderForm?.stockLocation
+                  : selectedLocationId === 1
+                  ? "bahceli"
+                  : "neorama",
               });
             }
             setOrderForm({
