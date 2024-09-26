@@ -86,6 +86,7 @@ export interface GenericInputType {
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
   isAutoFill?: boolean;
+  isMinNumber?: boolean;
   invalidateKeys?: {
     key: string;
     defaultValue: string | boolean | number | undefined;
