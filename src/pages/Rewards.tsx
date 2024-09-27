@@ -208,7 +208,7 @@ export default function Rewards() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[90%] mx-auto my-10">
+      <div className="w-[98%] mx-auto my-10">
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
