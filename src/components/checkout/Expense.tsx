@@ -14,11 +14,6 @@ import {
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountFixtures } from "../../utils/api/account/fixture";
-import {
-  useAccountFixtureInvoiceMutations,
-  useGetAccountFixtureInvoices,
-} from "../../utils/api/account/fixtureInvoice";
 import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
@@ -38,7 +33,6 @@ import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
-  FixtureInput,
   PackageTypeInput,
   ProductInput,
   QuantityInput,
@@ -48,11 +42,11 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
@@ -60,7 +54,6 @@ type FormElementsState = {
 const Expenses = () => {
   const { t } = useTranslation();
   const invoices = useGetAccountInvoices();
-  const fixtureInvoices = useGetAccountFixtureInvoices();
   const serviceInvoices = useGetAccountServiceInvoices();
   const units = useGetAccountUnits();
   const packages = useGetAccountPackageTypes();
@@ -78,15 +71,12 @@ const Expenses = () => {
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
-  const fixtures = useGetAccountFixtures();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountInvoice, deleteAccountInvoice } =
     useAccountInvoiceMutations();
-  const { createAccountFixtureInvoice, deleteAccountFixtureInvoice } =
-    useAccountFixtureInvoiceMutations();
   const { createAccountServiceInvoice, deleteAccountServiceInvoice } =
     useAccountServiceInvoiceMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -98,7 +88,6 @@ const Expenses = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
-      fixture: "",
       service: "",
       vendor: "",
       brand: "",
@@ -134,26 +123,6 @@ const Expenses = () => {
             (unit) =>
               unit._id === (getItem(invoice?.product, products)?.unit as string)
           )?.name,
-          expType: getItem(invoice?.expenseType, expenseTypes),
-        };
-      }),
-    ...fixtureInvoices
-      .filter((i) => i.paymentMethod === ConstantPaymentMethodsIds.CASH)
-      .map((invoice) => {
-        return {
-          ...invoice,
-          product: getItem(invoice?.fixture, fixtures)?.name,
-          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          brand: getItem(invoice?.brand, brands)?.name,
-          vendor: getItem(invoice?.vendor, vendors)?.name,
-          type: ExpenseTypes.FIXTURE,
-          packageType: null,
-          unit: null,
-          lctn: getItem(invoice?.location, locations)?.name,
-          formattedDate: formatAsLocalDate(invoice?.date),
-          unitPrice: parseFloat(
-            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-          ),
           expType: getItem(invoice?.expenseType, expenseTypes),
         };
       }),
@@ -198,7 +167,6 @@ const Expenses = () => {
       }),
       invalidateKeys: [
         { key: "product", defaultValue: "" },
-        { key: "fixture", defaultValue: "" },
         { key: "service", defaultValue: "" },
         { key: "packages", defaultValue: "" },
       ],
@@ -211,11 +179,6 @@ const Expenses = () => {
       products: products,
       required: true,
       isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
-    }),
-    FixtureInput({
-      fixtures: fixtures,
-      required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.FIXTURE,
     }),
     ServiceInput({
       services: services,
@@ -257,14 +220,6 @@ const Expenses = () => {
             ?.expenseType.includes(exp._id)
         ) ?? []
       );
-    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
-      return (
-        expenseTypes.filter((exp) =>
-          fixtures
-            .find((item) => item._id === allExpenseForm?.fixture)
-            ?.expenseType.includes(exp._id)
-        ) ?? []
-      );
     } else if (allExpenseForm?.type === ExpenseTypes.SERVICE) {
       return (
         expenseTypes.filter((exp) =>
@@ -286,14 +241,6 @@ const Expenses = () => {
             ?.brand?.includes(brnd._id)
         ) ?? []
       );
-    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
-      return (
-        brands?.filter((brnd) =>
-          fixtures
-            .find((item) => item._id === allExpenseForm?.fixture)
-            ?.brand?.includes(brnd._id)
-        ) ?? []
-      );
     } else {
       return [];
     }
@@ -304,14 +251,6 @@ const Expenses = () => {
         vendors?.filter((vndr) =>
           products
             .find((prod) => prod._id === allExpenseForm?.product)
-            ?.vendor?.includes(vndr._id)
-        ) ?? []
-      );
-    } else if (allExpenseForm?.type === ExpenseTypes.FIXTURE) {
-      return (
-        vendors?.filter((vndr) =>
-          fixtures
-            .find((item) => item._id === allExpenseForm?.fixture)
             ?.vendor?.includes(vndr._id)
         ) ?? []
       );
@@ -340,20 +279,17 @@ const Expenses = () => {
       type: InputTypes.SELECT,
       formKey: "type",
       label: t("Expense Category"),
-      options: Object.entries(ExpenseTypes)
-        .filter((item) => item[1] !== ExpenseTypes.FIXTURE)
-        .map((item) => {
-          return {
-            value: item[1],
-            label: t(item[1]),
-          };
-        }),
+      options: Object.entries(ExpenseTypes).map((item) => {
+        return {
+          value: item[1],
+          label: t(item[1]),
+        };
+      }),
       placeholder: t("Expense Category"),
       isMultiple: false,
       required: true,
       invalidateKeys: [
         { key: "product", defaultValue: "" },
-        { key: "fixture", defaultValue: "" },
         { key: "service", defaultValue: "" },
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
@@ -371,16 +307,6 @@ const Expenses = () => {
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
         { key: "packageType", defaultValue: "" },
-      ],
-    }),
-    FixtureInput({
-      fixtures: fixtures,
-      required: allExpenseForm?.type === ExpenseTypes.FIXTURE,
-      isDisabled: allExpenseForm?.type !== ExpenseTypes.FIXTURE,
-      invalidateKeys: [
-        { key: "expenseType", defaultValue: "" },
-        { key: "brand", defaultValue: "" },
-        { key: "vendor", defaultValue: "" },
       ],
     }),
     ServiceInput({
@@ -653,10 +579,6 @@ const Expenses = () => {
           products.find((item) => item.name === invoice?.product)?._id
         ) &&
         passesFilter(
-          filterPanelFormElements.fixture,
-          fixtures.find((item) => item.name === invoice?.product)?._id
-        ) &&
-        passesFilter(
           filterPanelFormElements.service,
           services.find((item) => item.name === invoice?.product)?._id
         ) &&
@@ -712,14 +634,12 @@ const Expenses = () => {
     filterPanelFormElements,
     searchQuery,
     products,
-    fixtureInvoices,
     serviceInvoices,
     packages,
     products,
     expenseTypes,
     brands,
     vendors,
-    fixtures,
     services,
     locations,
     units,
@@ -819,21 +739,6 @@ const Expenses = () => {
                     (Number(allExpenseForm.price) / 100),
               });
             setAllExpenseForm({});
-          } else if (allExpenseForm.type === ExpenseTypes.FIXTURE) {
-            allExpenseForm.price &&
-              allExpenseForm.kdv &&
-              allExpenseForm.quantity &&
-              createAccountFixtureInvoice({
-                ...allExpenseForm,
-                location: selectedLocationId === 1 ? "bahceli" : "neorama",
-                paymentMethod: ConstantPaymentMethodsIds.CASH,
-                isPaid: true,
-                totalExpense:
-                  Number(allExpenseForm.price) +
-                  Number(allExpenseForm.kdv) *
-                    (Number(allExpenseForm.price) / 100),
-              });
-            setAllExpenseForm({});
           } else if (allExpenseForm.type === ExpenseTypes.SERVICE) {
             allExpenseForm.price &&
               allExpenseForm.kdv &&
@@ -890,8 +795,6 @@ const Expenses = () => {
           confirm={() => {
             if (rowToAction.type === ExpenseTypes.INVOICE)
               deleteAccountInvoice(rowToAction._id);
-            else if (rowToAction.type === ExpenseTypes.FIXTURE)
-              deleteAccountFixtureInvoice(rowToAction?._id);
             else if (rowToAction.type === ExpenseTypes.SERVICE)
               deleteAccountServiceInvoice(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);

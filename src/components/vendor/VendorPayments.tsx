@@ -64,7 +64,6 @@ const VendorPayments = () => {
       isSortable: true,
     },
     { key: t("Product Expense ID"), isSortable: true },
-    { key: t("Fixture Expense ID"), isSortable: true },
     { key: t("Service Expense ID"), isSortable: true },
     { key: t("Amount"), isSortable: true },
   ];
@@ -78,7 +77,6 @@ const VendorPayments = () => {
     { key: "lctn" },
     { key: "pymntMthd" },
     { key: "invoice" },
-    { key: "fixtureInvoice" },
     { key: "serviceInvoice" },
     { key: "amount" },
   ];

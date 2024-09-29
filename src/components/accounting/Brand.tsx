@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -13,10 +12,6 @@ import {
   useAccountBrandMutations,
   useGetAccountBrands,
 } from "../../utils/api/account/brand";
-import {
-  useAccountFixtureMutations,
-  useGetAccountFixtures,
-} from "../../utils/api/account/fixture";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -41,18 +36,12 @@ const Brand = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
-  const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
-  const fixtures = useGetAccountFixtures();
   const { updateAccountProduct } = useAccountProductMutations();
-  const { updateAccountFixture } = useAccountFixtureMutations();
   const [rowToAction, setRowToAction] = useState<AccountBrand>();
   const [productForm, setProductForm] = useState({
     product: [],
-  });
-  const [fixtureForm, setFixtureForm] = useState({
-    fixture: [],
   });
   const products = useGetAccountProducts();
   const [
@@ -67,9 +56,6 @@ const Brand = () => {
       productCount:
         products?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
         0,
-      fixtureCount:
-        fixtures?.filter((item) => item?.brand?.includes(brand?._id))?.length ??
-        0,
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -77,7 +63,6 @@ const Brand = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
-    { key: t("Fixture Count"), isSortable: true },
   ];
   if (
     user &&
@@ -114,7 +99,6 @@ const Brand = () => {
         ),
     },
     { key: "productCount" },
-    { key: "fixtureCount" },
   ];
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -140,27 +124,6 @@ const Brand = () => {
     },
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
-  const addFixtureInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "fixture",
-      label: t("Fixture"),
-      options: fixtures
-        .filter(
-          (fixture) => !fixture.brand?.some((item) => item === rowToAction?._id)
-        )
-        .map((fixture) => {
-          return {
-            value: fixture._id,
-            label: fixture.name,
-          };
-        }),
-      isMultiple: true,
-      placeholder: t("Fixture"),
-      required: true,
-    },
-  ];
-  const addFixtureFormKeys = [{ key: "fixture", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Brand`),
     isModal: true,
@@ -248,52 +211,6 @@ const Brand = () => {
         : true,
     },
     {
-      name: t("Add Into Fixture"),
-      icon: <TbHexagonPlus />,
-      className: "text-2xl mt-1 text-gray-600  cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: (
-        <GenericAddEditPanel
-          isOpen={isAddFixureModalOpen}
-          close={() => setIsAddFixtureModalOpen(false)}
-          inputs={addFixtureInputs}
-          formKeys={addFixtureFormKeys}
-          submitItem={updateAccountFixture as any}
-          isEditMode={true}
-          setForm={setFixtureForm}
-          topClassName="flex flex-col gap-2  "
-          handleUpdate={() => {
-            if (rowToAction) {
-              forEach(fixtureForm.fixture, (fixture) => {
-                updateAccountFixture({
-                  id: fixture,
-                  updates: {
-                    brand: [
-                      ...(fixtures
-                        ?.find((p) => p._id === fixture)
-                        ?.brand?.filter((item) => item !== "") || []),
-                      rowToAction._id,
-                    ],
-                  },
-                });
-              });
-            }
-          }}
-        />
-      ),
-      isModalOpen: isAddFixureModalOpen,
-      setIsModal: setIsAddFixtureModalOpen,
-      isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-    {
       name: t("Add Into Product"),
       icon: <CiCirclePlus />,
       className: "text-2xl mt-1  mr-auto cursor-pointer",
@@ -343,7 +260,7 @@ const Brand = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [brands, fixtures, products, units]);
+  }, [brands, products, units]);
 
   return (
     <>

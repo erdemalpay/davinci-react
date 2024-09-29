@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import BrandExpenses from "../components/brand/BrandExpenses";
-import BrandFixtures from "../components/brand/BrandFixtures";
 import BrandProducts from "../components/brand/BrandProducts";
 import SelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
@@ -26,13 +24,6 @@ export const BrandPageTabs = [
     isDisabled: false,
   },
   {
-    number: BrandPageTabEnum.BRANDFIXTURES,
-    label: "Brand Fixtures",
-    icon: <FaAnchor className="text-lg font-thin" />,
-    content: <BrandFixtures />,
-    isDisabled: false,
-  },
-  {
     number: BrandPageTabEnum.BRANDEXPENSES,
     label: "Brand Expenses",
     icon: <GiTakeMyMoney className="text-lg font-thin" />,
@@ -43,7 +34,7 @@ export const BrandPageTabs = [
 export default function Brand() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedBrand, setSelectedBrand] = useState<AccountBrand>();

@@ -1,11 +1,9 @@
 import { FaFileInvoiceDollar } from "react-icons/fa6";
-import { GiAnchor } from "react-icons/gi";
 import { GrMoney } from "react-icons/gr";
 import { LuWallet } from "react-icons/lu";
 import { MdOutlineLocalLaundryService } from "react-icons/md";
 import AddVendorPayment from "../components/accounting/AddVendorPayment";
 import AllExpenses from "../components/accounting/AllExpenses";
-import FixtureInvoice from "../components/accounting/FixtureInvoice";
 import Invoice from "../components/accounting/Invoice";
 import ServiceInvoice from "../components/accounting/ServiceInvoice";
 import { Header } from "../components/header/Header";
@@ -20,13 +18,6 @@ export const ExpensePageTabs = [
     label: "Product Expenses",
     icon: <FaFileInvoiceDollar className="text-lg font-thin" />,
     content: <Invoice />,
-    isDisabled: false,
-  },
-  {
-    number: ExpensesPageTabEnum.FIXTUREINVOICE,
-    label: "Fixture Expenses",
-    icon: <GiAnchor className="text-lg font-thin" />,
-    content: <FixtureInvoice />,
     isDisabled: false,
   },
   {

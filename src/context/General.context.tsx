@@ -1,7 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
-  AccountFixtureInvoice,
   AccountingPageTabEnum,
   AccountInvoice,
   AccountOverallExpense,
@@ -29,8 +28,6 @@ type GeneralContextType = {
   setIsCategoryTableEditOpen: (value: (prev: boolean) => boolean) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
-  fixtureExpenseForm: Partial<AccountFixtureInvoice>;
-  setFixtureExpenseForm: (form: Partial<AccountFixtureInvoice>) => void;
   serviceExpenseForm: Partial<AccountServiceInvoice>;
   setServiceExpenseForm: (form: Partial<AccountOverallExpense>) => void;
   allExpenseForm: Partial<AccountOverallExpense>;
@@ -41,8 +38,6 @@ type GeneralContextType = {
   setMenuActiveTab: (tab: number) => void;
   countListActiveTab: number;
   setCountListActiveTab: (tab: number) => void;
-  fixtureCountListActiveTab: number;
-  setFixtureCountListActiveTab: (tab: number) => void;
   panelControlActiveTab: number;
   setPanelControlActiveTab: (tab: number) => void;
   orderDataActiveTab: number;
@@ -89,8 +84,6 @@ const GeneralContext = createContext<GeneralContextType>({
   setMenuActiveTab: () => {},
   countListActiveTab: 0,
   setCountListActiveTab: () => {},
-  fixtureCountListActiveTab: 0,
-  setFixtureCountListActiveTab: () => {},
   panelControlActiveTab: 0,
   setPanelControlActiveTab: () => {},
   setCurrentPage: () => {},
@@ -101,21 +94,6 @@ const GeneralContext = createContext<GeneralContextType>({
   setRowsPerPage: () => {},
   expandedRows: {},
   setExpandedRows: () => {},
-  fixtureExpenseForm: {
-    date: "",
-    fixture: "",
-    expenseType: "",
-    quantity: 0,
-    totalExpense: 0,
-    brand: "",
-    location: "",
-    vendor: "",
-    note: "",
-    paymentMethod: "",
-    price: 0,
-    kdv: 0,
-  },
-  setFixtureExpenseForm: () => {},
   productExpenseForm: {
     date: "",
     product: "",
@@ -149,7 +127,6 @@ const GeneralContext = createContext<GeneralContextType>({
   allExpenseForm: {
     date: "",
     product: "",
-    fixture: "",
     service: "",
     type: "",
     expenseType: "",
@@ -185,9 +162,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [productExpenseForm, setProductExpenseForm] = useState<
     Partial<AccountInvoice>
   >({});
-  const [fixtureExpenseForm, setFixtureExpenseForm] = useState<
-    Partial<AccountFixtureInvoice>
-  >({});
   const [sortConfigKey, setSortConfigKey] = useState<{
     key: string;
     direction: "ascending" | "descending";
@@ -215,8 +189,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [menuActiveTab, setMenuActiveTab] = useState<number>(0);
   const [checkoutActiveTab, setCheckoutActiveTab] = useState<number>(0);
   const [countListActiveTab, setCountListActiveTab] = useState<number>(0);
-  const [fixtureCountListActiveTab, setFixtureCountListActiveTab] =
-    useState<number>(0);
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
@@ -231,14 +203,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setCountListOption,
         checkoutActiveTab,
         setCheckoutActiveTab,
-        fixtureExpenseForm,
-        setFixtureExpenseForm,
         currentPage,
         setCurrentPage,
         countListActiveTab,
         setCountListActiveTab,
-        fixtureCountListActiveTab,
-        setFixtureCountListActiveTab,
         panelControlActiveTab,
         setPanelControlActiveTab,
         menuActiveTab,

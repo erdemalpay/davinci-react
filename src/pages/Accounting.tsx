@@ -1,5 +1,5 @@
 import { AiOutlinePercentage } from "react-icons/ai";
-import { FaAnchor, FaServicestack } from "react-icons/fa";
+import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet, FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { LuPackageOpen } from "react-icons/lu";
 import { MdOutlinePayment } from "react-icons/md";
@@ -8,7 +8,6 @@ import { SiImprovmx } from "react-icons/si";
 import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
-import Fixture from "../components/accounting/Fixture";
 import KitchenPage from "../components/accounting/Kitchen";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PackageType from "../components/accounting/PackageType";
@@ -66,13 +65,6 @@ export const AccountingPageTabs = [
     label: "Products",
     icon: <RiProductHuntLine className="text-lg font-thin" />,
     content: <Product />,
-    isDisabled: false,
-  },
-  {
-    number: AccountingPageTabEnum.FIXTURES,
-    label: "Fixtures",
-    icon: <FaAnchor className="text-lg font-thin" />,
-    content: <Fixture />,
     isDisabled: false,
   },
   {
