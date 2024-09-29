@@ -27,7 +27,10 @@ import {
   useAccountFixtureInvoiceMutations,
   useGetAccountFixtureInvoices,
 } from "../../utils/api/account/fixtureInvoice";
-import { useFixtureInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import {
+  useFixtureInvoiceTransferInvoiceMutation,
+  useFixtureInvoiceTransferServiceInvoiceMutation,
+} from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountStockLocationMutations,
@@ -80,6 +83,8 @@ const FixtureInvoice = () => {
   const fixtures = useGetAccountFixtures();
   const { mutate: transferFixtureInvoiceToInvoice } =
     useFixtureInvoiceTransferInvoiceMutation();
+  const { mutate: transferFixtureInvoiceToServiceInvoice } =
+    useFixtureInvoiceTransferServiceInvoiceMutation();
   const paymentMethods = useGetAccountPaymentMethods();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -582,6 +587,27 @@ const FixtureInvoice = () => {
             <TbTransfer
               className="text-red-500 cursor-pointer text-2xl"
               onClick={() => transferFixtureInvoiceToInvoice({ id: row._id })}
+            />
+          </ButtonTooltip>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: false,
+      isPath: false,
+    },
+    {
+      name: t("Transfer to Service Invoice"),
+      isDisabled: !isTransferEdit,
+      icon: <TbTransfer />,
+      setRow: setRowToAction,
+      node: (row: AccountFixtureInvoice) => {
+        return (
+          <ButtonTooltip content={t("Transfer to Service Expense")}>
+            <TbTransfer
+              className="text-red-500 cursor-pointer text-2xl"
+              onClick={() =>
+                transferFixtureInvoiceToServiceInvoice({ id: row._id })
+              }
             />
           </ButtonTooltip>
         );

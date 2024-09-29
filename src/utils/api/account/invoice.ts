@@ -42,6 +42,14 @@ export function transferFixtureInvoiceToInvoice({ id }: { id: number }) {
     },
   });
 }
+export function transferFixtureInvoiceToServiceInvoice({ id }: { id: number }) {
+  return patch({
+    path: `${baseUrl}/transfer_fixture_invoice_to_service_invoice/${id}`,
+    payload: {
+      id: id,
+    },
+  });
+}
 export function transferServiceInvoiceToInvoice({ id }: { id: number }) {
   return patch({
     path: `${baseUrl}/transfer_service_invoice_to_invoice/${id}`,
@@ -72,6 +80,24 @@ export function useFixtureInvoiceTransferInvoiceMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   return useMutation(transferFixtureInvoiceToInvoice, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries([`${Paths.Accounting}/fixture-invoice`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function useFixtureInvoiceTransferServiceInvoiceMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(transferFixtureInvoiceToServiceInvoice, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },
