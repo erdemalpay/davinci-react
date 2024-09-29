@@ -87,14 +87,6 @@ export type AccountProduct = {
     packageUnitPrice: number;
   }[];
 };
-export type AccountFixture = {
-  _id: string;
-  name: string;
-  expenseType: string[];
-  vendor?: string[];
-  brand?: string[];
-  unitPrice: number;
-};
 export type AccountService = {
   _id: string;
   name: string;
@@ -116,15 +108,6 @@ export type AccountCountList = {
     locations: string[];
   }[];
 };
-export type AccountFixtureCountList = {
-  _id: string;
-  name: string;
-  locations: string[];
-  fixtures?: {
-    fixture: string;
-    locations: string[];
-  }[];
-};
 export type AccountCount = {
   _id: string;
   isCompleted: boolean;
@@ -140,20 +123,6 @@ export type AccountCount = {
     isStockEqualized?: boolean;
   }[];
   countList: string;
-};
-export type AccountFixtureCount = {
-  _id: string;
-  isCompleted: boolean;
-  createdAt: Date;
-  completedAt?: Date;
-  location: string;
-  user: string;
-  fixtures?: {
-    fixture: string;
-    stockQuantity: number;
-    countQuantity: number;
-  }[];
-  countList: string | AccountFixtureCountList;
 };
 export type AccountExpenseType = {
   _id: string;
@@ -190,7 +159,6 @@ export type AccountPayment = {
   _id: number;
   vendor: string;
   invoice?: number;
-  fixtureInvoice?: number;
   serviceInvoice?: number;
   paymentMethod: string;
   location: string;
@@ -212,7 +180,6 @@ export type AccountOverallExpense = {
   location: string;
   price?: number;
   kdv?: number;
-  fixture: string;
   service: string;
   type: string;
   paymentMethod: string;
@@ -235,22 +202,6 @@ export type AccountInvoice = {
   paymentMethod: string;
   isPaid: boolean;
   isStockIncrement?: boolean;
-};
-export type AccountFixtureInvoice = {
-  _id: number;
-  fixture: string;
-  expenseType: string;
-  quantity: number;
-  totalExpense: number;
-  date: string;
-  brand?: string;
-  vendor?: string;
-  note?: string;
-  location: string;
-  price?: number;
-  kdv?: number;
-  paymentMethod: string;
-  isPaid: boolean;
 };
 
 export type AccountServiceInvoice = {
@@ -287,22 +238,6 @@ export type AccountProductStockHistory = {
   user: string;
   packageType?: string;
   createdAt: Date;
-};
-export type AccountFixtureStockHistory = {
-  _id: number;
-  fixture: string;
-  location: string;
-  change: number;
-  currentAmount: number;
-  status: string;
-  user: string;
-  createdAt: Date;
-};
-export type AccountFixtureStock = {
-  _id: string;
-  fixture: string;
-  location: string;
-  quantity: number;
 };
 
 export type Visit = {
@@ -556,7 +491,6 @@ export enum StockLocationEnum {
 }
 export enum ExpensesPageTabEnum {
   INVOICE,
-  FIXTUREINVOICE,
   SERVICEINVOICE,
   ALLEXPENSES,
   ADDVENDORPAYMENT,
@@ -574,11 +508,6 @@ export enum PanelControlPageTabEnum {
 export enum PageDetailsPageTabEnum {
   PAGETABPERMISSIONS,
 }
-export enum FixtureCountListPageTabEnum {
-  FIXTURECOUNTARCHIVE,
-  FIXTURECOUNTLISTS,
-  COUNTLISTFIXTURES,
-}
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
   UNIT,
@@ -586,7 +515,6 @@ export enum AccountingPageTabEnum {
   BRAND,
   PACKAGETYPE,
   PRODUCT,
-  FIXTURES,
   SERVICES,
   DISCOUNTS,
   PAYMENTMETHODS,
@@ -602,10 +530,8 @@ export enum CheckoutPageTabEnum {
 export enum StocksPageTabEnum {
   STOCK,
   GAMESTOCK,
-  FIXTURESTOCK,
   ENTERCONSUMPTION,
   PRODUCTSTOCKHISTORY,
-  FIXTURESTOCKHISTORY,
 }
 export enum ProductPageTabEnum {
   PRODUCTPRICECHART,
@@ -616,19 +542,13 @@ export enum ProductPageTabEnum {
 
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
-  VENDORFIXTURES,
   VENDORSERVICES,
   VENDOREXPENSES,
   VENDORPAYMENTS,
 }
 export enum BrandPageTabEnum {
   BRANDPRODUCTS,
-  BRANDFIXTURES,
   BRANDEXPENSES,
-}
-export enum FixturePageTabEnum {
-  FIXTUREEXPENSES,
-  FIXTURESTOCKHISTORY,
 }
 export enum ServicePageTabEnum {
   SERVICEEXPENSES,
@@ -648,8 +568,6 @@ export enum StockHistoryStatusEnum {
   STOCKUPDATEENTRY = "STOCKUPDATEENTRY",
   CONSUMPTION = "CONSUMPTION",
   TRANSFERSERVICETOINVOICE = "TRANSFERSERVICETOINVOICE",
-  TRANSFERFIXTURETOINVOICE = "TRANSFERFIXTURETOINVOICE",
-  TRANSFERINVOICETOFIXTURE = "TRANSFERINVOICETOFIXTURE",
   TRANSFERINVOICETOSERVICE = "TRANSFERINVOICETOSERVICE",
   ORDERCANCEL = "ORDERCANCEL",
   ORDERCREATE = "ORDERCREATE",
@@ -732,16 +650,6 @@ export const stockHistoryStatuses = [
     backgroundColor: "bg-amber-500",
   },
   {
-    value: StockHistoryStatusEnum.TRANSFERFIXTURETOINVOICE,
-    label: "Transfer Fixture To Invoice",
-    backgroundColor: "bg-blue-700",
-  },
-  {
-    value: StockHistoryStatusEnum.TRANSFERINVOICETOFIXTURE,
-    label: "Transfer Invoice To Fixture",
-    backgroundColor: "bg-lime-500",
-  },
-  {
     value: StockHistoryStatusEnum.TRANSFERINVOICETOSERVICE,
     label: "Transfer Invoice To Service",
     backgroundColor: "bg-rose-500",
@@ -765,7 +673,6 @@ export const stockHistoryStatuses = [
 
 export enum ExpenseTypes {
   INVOICE = "Product Expense",
-  FIXTURE = "Fixture Expense",
   SERVICE = "Service Expense",
 }
 export enum OrderStatus {
@@ -813,9 +720,6 @@ export enum ActivityType {
   CREATE_EXPENSE = "CREATE_EXPENSE",
   DELETE_EXPENSE = "DELETE_EXPENSE",
   UPDATE_EXPENSE = "UPDATE_EXPENSE",
-  CREATE_FIXTUREEXPENSE = "CREATE_FIXTUREEXPENSE",
-  DELETE_FIXTUREEXPENSE = "DELETE_FIXTUREEXPENSE",
-  UPDATE_FIXTUREEXPENSE = "UPDATE_FIXTUREEXPENSE",
   CREATE_SERVICEEXPENSE = "CREATE_SERVICEEXPENSE",
   DELETE_SERVICEEXPENSE = "DELETE_SERVICEEXPENSE",
   UPDATE_SERVICEEXPENSE = "UPDATE_SERVICEEXPENSE",
@@ -920,21 +824,6 @@ export const activityTypeDetails = [
   {
     value: ActivityType.UPDATE_EXPENSE,
     label: "Update Expense",
-    bgColor: "bg-yellow-500",
-  },
-  {
-    value: ActivityType.CREATE_FIXTUREEXPENSE,
-    label: "Create Fixture Expense",
-    bgColor: "bg-green-500",
-  },
-  {
-    value: ActivityType.DELETE_FIXTUREEXPENSE,
-    label: "Delete Fixture Expense",
-    bgColor: "bg-red-500",
-  },
-  {
-    value: ActivityType.UPDATE_FIXTUREEXPENSE,
-    label: "Update Fixture Expense",
     bgColor: "bg-yellow-500",
   },
   {

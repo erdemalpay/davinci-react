@@ -3,7 +3,6 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import {
   AccountBrand,
   AccountExpenseType,
-  AccountFixture,
   AccountPackageType,
   AccountPaymentMethod,
   AccountProduct,
@@ -315,38 +314,6 @@ export function LocationInput({
       };
     }),
     placeholder: t("Location"),
-    isMultiple: isMultiple,
-    required: required,
-  };
-}
-
-export function FixtureInput({
-  required = false,
-  isMultiple = false,
-  invalidateKeys = [],
-  isDisabled = false,
-  fixtures,
-}: {
-  required?: boolean;
-  isMultiple?: boolean;
-  isDisabled?: boolean;
-  invalidateKeys?: { key: string; defaultValue: string }[];
-  fixtures: AccountFixture[];
-}) {
-  const { t } = useTranslation();
-  return {
-    type: InputTypes.SELECT,
-    formKey: "fixture",
-    label: t("Fixture"),
-    options: fixtures.map((fixture) => {
-      return {
-        value: fixture._id,
-        label: fixture.name,
-      };
-    }),
-    isDisabled: isDisabled,
-    placeholder: t("Fixture"),
-    invalidateKeys: invalidateKeys,
     isMultiple: isMultiple,
     required: required,
   };

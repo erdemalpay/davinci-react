@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbTransfer, TbTransferIn } from "react-icons/tb";
+import { TbTransferIn } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
@@ -23,7 +23,6 @@ import {
 import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
-  useTransferFixtureInvoiceMutation,
   useTransferServiceInvoiceMutation,
 } from "../../utils/api/account/invoice";
 import {
@@ -64,12 +63,12 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -102,8 +101,6 @@ const Invoice = () => {
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
   const products = useGetAccountProducts();
-  const { mutate: transferToFixtureInvoice } =
-    useTransferFixtureInvoiceMutation();
   const { mutate: transferToServiceInvoice } =
     useTransferServiceInvoiceMutation();
   const [tableKey, setTableKey] = useState(0);
@@ -713,25 +710,6 @@ const Invoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
-    {
-      name: "Transfer",
-      isDisabled: !isTransferEdit,
-      icon: <TbTransfer />,
-      setRow: setRowToAction,
-      node: (row: AccountInvoice) => {
-        return (
-          <ButtonTooltip content={t("Transfer to Fixture")}>
-            <TbTransfer
-              className="text-red-500 cursor-pointer text-2xl"
-              onClick={() => transferToFixtureInvoice({ id: row._id })}
-            />
-          </ButtonTooltip>
-        );
-      },
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: false,
-      isPath: false,
-    },
     {
       name: "Transfer Service",
       isDisabled: !isTransferEdit,

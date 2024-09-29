@@ -1,14 +1,10 @@
-import { FaFileArchive } from "react-icons/fa";
 import {
   GiArchiveResearch,
   GiEatingPelican,
   GiGreatPyramid,
 } from "react-icons/gi";
-import { SlBasketLoaded } from "react-icons/sl";
 // import CountArchive from "../components/accounting/CountArchive";
 import { FaGamepad } from "react-icons/fa";
-import FixtureStock from "../components/accounting/FixtureStock";
-import FixtureStockHistory from "../components/accounting/FixtureStockHistory";
 import GameStock from "../components/accounting/GameStock";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
 import Stock from "../components/accounting/Stock";
@@ -36,13 +32,6 @@ export const StockPageTabs = [
     isDisabled: false,
   },
   {
-    number: StocksPageTabEnum.FIXTURESTOCK,
-    label: "Fixture Stocks",
-    icon: <SlBasketLoaded className="text-lg font-thin" />,
-    content: <FixtureStock />,
-    isDisabled: false,
-  },
-  {
     number: StocksPageTabEnum.ENTERCONSUMPTION,
     label: "Enter Consumption",
     icon: <GiEatingPelican className="text-xl font-thin" />,
@@ -54,13 +43,6 @@ export const StockPageTabs = [
     label: "Product Stock History",
     icon: <GiArchiveResearch className="text-lg font-thin" />,
     content: <ProductStockHistory />,
-    isDisabled: false,
-  },
-  {
-    number: StocksPageTabEnum.FIXTURESTOCKHISTORY,
-    label: "Fixture Stock History",
-    icon: <FaFileArchive className="text-lg font-thin" />,
-    content: <FixtureStockHistory />,
     isDisabled: false,
   },
 ];

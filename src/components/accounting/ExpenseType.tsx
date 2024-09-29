@@ -4,17 +4,12 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbHexagonPlus } from "react-icons/tb";
 import { useUserContext } from "../../context/User.context";
 import { AccountExpenseType, RoleEnum } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
-import {
-  useAccountFixtureMutations,
-  useGetAccountFixtures,
-} from "../../utils/api/account/fixture";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -35,13 +30,10 @@ const ExpenseType = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const products = useGetAccountProducts();
-  const fixtures = useGetAccountFixtures();
   const services = useGetAccountServices();
   const units = useGetAccountUnits();
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
-  const { updateAccountFixture } = useAccountFixtureMutations();
   const [rowToAction, setRowToAction] = useState<AccountExpenseType>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -55,17 +47,11 @@ const ExpenseType = () => {
   const [productForm, setProductForm] = useState({
     product: [],
   });
-  const [fixtureForm, setFixtureForm] = useState({
-    fixture: [],
-  });
   const allRows = expenseTypes.map((i) => {
     return {
       ...i,
       productCount:
         products?.filter((item) => item?.expenseType?.includes(i?._id))
-          ?.length ?? 0,
-      fixtureCount:
-        fixtures?.filter((item) => item?.expenseType?.includes(i?._id))
           ?.length ?? 0,
       serviceCount:
         services?.filter((item) => item?.expenseType?.includes(i?._id))
@@ -76,7 +62,6 @@ const ExpenseType = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
-    { key: t("Fixture Count"), isSortable: true },
     { key: t("Service Count"), isSortable: true },
   ];
   if (
@@ -101,7 +86,6 @@ const ExpenseType = () => {
       ),
     },
     { key: "productCount" },
-    { key: "fixtureCount" },
     { key: "serviceCount" },
   ];
   const inputs = [NameInput(), BackgroundColorInput()];
@@ -132,28 +116,6 @@ const ExpenseType = () => {
     },
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
-  const addFixtureInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "fixture",
-      label: t("Fixture"),
-      options: fixtures
-        .filter(
-          (fixture) =>
-            !fixture.expenseType?.some((item) => item === rowToAction?._id)
-        )
-        .map((fixture) => {
-          return {
-            value: fixture._id,
-            label: fixture.name,
-          };
-        }),
-      isMultiple: true,
-      placeholder: t("Fixture"),
-      required: true,
-    },
-  ];
-  const addFixtureFormKeys = [{ key: "fixture", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Expense Type`),
     isModal: true,
@@ -241,51 +203,6 @@ const ExpenseType = () => {
         : true,
     },
     {
-      name: t("Add Into Fixture"),
-      icon: <TbHexagonPlus />,
-      className: "text-2xl mt-1 text-gray-600  cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: (
-        <GenericAddEditPanel
-          isOpen={isAddFixureModalOpen}
-          close={() => setIsAddFixtureModalOpen(false)}
-          inputs={addFixtureInputs}
-          formKeys={addFixtureFormKeys}
-          submitItem={updateAccountFixture as any}
-          isEditMode={true}
-          setForm={setFixtureForm}
-          topClassName="flex flex-col gap-2  "
-          handleUpdate={() => {
-            if (rowToAction) {
-              forEach(fixtureForm.fixture, (fixture) => {
-                updateAccountFixture({
-                  id: fixture,
-                  updates: {
-                    expenseType: [
-                      ...(fixtures?.find((p) => p._id === fixture)
-                        ?.expenseType || []),
-                      rowToAction._id,
-                    ],
-                  },
-                });
-              });
-            }
-          }}
-        />
-      ),
-      isModalOpen: isAddFixureModalOpen,
-      setIsModal: setIsAddFixtureModalOpen,
-      isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-    {
       name: t("Add Into Product"),
       icon: <CiCirclePlus />,
       className: "text-2xl mt-1  mr-auto cursor-pointer",
@@ -334,7 +251,7 @@ const ExpenseType = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [expenseTypes, products, fixtures, services, units]);
+  }, [expenseTypes, products, services, units]);
 
   return (
     <>

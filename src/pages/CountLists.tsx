@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import SelectInput from "../components/common/SelectInput";
-import FixtureCountListMenu from "../components/countLists/fixtureCountList/FixtureCountListMenu";
 import CountListMenu from "../components/countLists/productCountList/CountListMenu";
 import { Header } from "../components/header/Header";
 import { useGeneralContext } from "../context/General.context";
@@ -16,12 +15,6 @@ export const countListOptions: CountListOptions[] = [
     id: "0",
     label: "Product Count List",
     component: <CountListMenu />,
-    isDisabled: false,
-  },
-  {
-    id: "1",
-    label: "Fixture Count List",
-    component: <FixtureCountListMenu />,
     isDisabled: false,
   },
 ];

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaAnchor } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import {
   MdOutlineCleaningServices,
@@ -13,7 +12,6 @@ import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
-import VendorFixtures from "../components/vendor/VendorFixtures";
 import VendorPayments from "../components/vendor/VendorPayments";
 import VendorProducts from "../components/vendor/VendorProducts";
 import VendorServices from "../components/vendor/VendorServices";
@@ -30,13 +28,6 @@ export const VendorPageTabs = [
     label: "Vendor Products",
     icon: <MdOutlineMenuBook className="text-lg font-thin" />,
     content: <VendorProducts />,
-    isDisabled: false,
-  },
-  {
-    number: VendorPageTabEnum.VENDORFIXTURES,
-    label: "Vendor Fixtures",
-    icon: <FaAnchor className="text-lg font-thin" />,
-    content: <VendorFixtures />,
     isDisabled: false,
   },
   {

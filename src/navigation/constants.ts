@@ -7,9 +7,6 @@ import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
-import Fixture from "../pages/Fixture";
-import FixtureCount from "../pages/FixtureCount";
-import FixtureCountList from "../pages/FixtureCountList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Memberships from "../pages/Memberships";
@@ -26,7 +23,6 @@ import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import SingleCountArchive from "../pages/SingleCountArchive";
-import SingleFixtureCountArchive from "../pages/SingleFixtureCountArchive";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -37,7 +33,6 @@ import Visits from "../pages/Visits";
 import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
-import { FixturePageTabs } from "./../pages/Fixture";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
@@ -69,17 +64,13 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Count = "/count/:location/:countListId",
-  FixtureCount = "/fixture-count/:location/:countListId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
   Brand = "/brand/:brandId",
-  Fixture = "/fixture/:fixtureId",
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
-  SingleFixtureCountArchive = "/fixture-archive/:archiveId",
   CountLists = "/count-lists",
   CountList = "/count-list/:countListId",
-  FixtureCountList = "/fixture-count-list/:fixtureCountListId",
   Checkout = "/checkout",
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
@@ -191,33 +182,15 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
-    name: "Fixture Count",
-    path: Routes.FixtureCount,
-    element: FixtureCount,
-    isOnSidebar: false,
-  },
-  {
     name: "Count List",
     path: Routes.CountList,
     element: CountList,
     isOnSidebar: false,
   },
   {
-    name: "Fixture Count List",
-    path: Routes.FixtureCountList,
-    element: FixtureCountList,
-    isOnSidebar: false,
-  },
-  {
     name: "Single Count Archive",
     path: Routes.SingleCountArchive,
     element: SingleCountArchive,
-    isOnSidebar: false,
-  },
-  {
-    name: "Single Fixture Count Archive",
-    path: Routes.SingleFixtureCountArchive,
-    element: SingleFixtureCountArchive,
     isOnSidebar: false,
   },
   {
@@ -266,13 +239,6 @@ export const allRoutes: {
     element: Brand,
     isOnSidebar: false,
     tabs: BrandPageTabs,
-  },
-  {
-    name: "Fixture",
-    path: Routes.Fixture,
-    element: Fixture,
-    isOnSidebar: false,
-    tabs: FixturePageTabs,
   },
   {
     name: "Menu",

@@ -4,15 +4,10 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbHexagonPlus } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountVendor, RoleEnum } from "../../types";
-import {
-  useAccountFixtureMutations,
-  useGetAccountFixtures,
-} from "../../utils/api/account/fixture";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -40,14 +35,11 @@ const Vendor = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const [isAddFixureModalOpen, setIsAddFixtureModalOpen] = useState(false);
-  const fixtures = useGetAccountFixtures();
   const services = useGetAccountServices();
-  const { updateAccountFixture } = useAccountFixtureMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateAccountProduct } = useAccountProductMutations();
   const products = useGetAccountProducts();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const [rowToAction, setRowToAction] = useState<AccountVendor>();
   const [
@@ -59,17 +51,11 @@ const Vendor = () => {
   const [productForm, setProductForm] = useState({
     product: [],
   });
-  const [fixtureForm, setFixtureForm] = useState({
-    fixture: [],
-  });
   const allRows = vendors?.map((vendor) => {
     return {
       ...vendor,
       productCount:
         products?.filter((item) => item?.vendor?.includes(vendor?._id))
-          ?.length ?? 0,
-      fixtureCount:
-        fixtures?.filter((item) => item?.vendor?.includes(vendor?._id))
           ?.length ?? 0,
       serviceCount:
         services?.filter((item) => item?.vendor?.includes(vendor?._id))
@@ -80,7 +66,6 @@ const Vendor = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Product Count"), isSortable: true },
-    { key: t("Fixture Count"), isSortable: true },
     { key: t("Service Count"), isSortable: true },
   ];
   if (
@@ -118,7 +103,6 @@ const Vendor = () => {
         ),
     },
     { key: "productCount" },
-    { key: "fixtureCount" },
     { key: "serviceCount" },
   ];
   const inputs = [NameInput()];
@@ -146,28 +130,6 @@ const Vendor = () => {
     },
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
-  const addFixtureInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "fixture",
-      label: t("Fixture"),
-      options: fixtures
-        .filter(
-          (fixture) =>
-            !fixture.vendor?.some((item) => item === rowToAction?._id)
-        )
-        .map((fixture) => {
-          return {
-            value: fixture._id,
-            label: fixture.name,
-          };
-        }),
-      isMultiple: true,
-      placeholder: t("Fixture"),
-      required: true,
-    },
-  ];
-  const addFixtureFormKeys = [{ key: "fixture", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Vendor`),
     isModal: true,
@@ -255,52 +217,6 @@ const Vendor = () => {
         : true,
     },
     {
-      name: t("Add Into Fixture"),
-      icon: <TbHexagonPlus />,
-      className: "text-2xl mt-1 text-gray-600  cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: (
-        <GenericAddEditPanel
-          isOpen={isAddFixureModalOpen}
-          close={() => setIsAddFixtureModalOpen(false)}
-          inputs={addFixtureInputs}
-          formKeys={addFixtureFormKeys}
-          submitItem={updateAccountFixture as any}
-          isEditMode={true}
-          setForm={setFixtureForm}
-          topClassName="flex flex-col gap-2  "
-          handleUpdate={() => {
-            if (rowToAction) {
-              forEach(fixtureForm.fixture, (fixture) => {
-                updateAccountFixture({
-                  id: fixture,
-                  updates: {
-                    vendor: [
-                      ...(fixtures
-                        ?.find((p) => p._id === fixture)
-                        ?.vendor?.filter((item) => item !== "") || []),
-                      rowToAction._id,
-                    ],
-                  },
-                });
-              });
-            }
-          }}
-        />
-      ),
-      isModalOpen: isAddFixureModalOpen,
-      setIsModal: setIsAddFixtureModalOpen,
-      isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
-    },
-    {
       name: t("Add Into Product"),
       icon: <CiCirclePlus />,
       className: "text-2xl mt-1  mr-auto cursor-pointer",
@@ -350,7 +266,7 @@ const Vendor = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [vendors, products, fixtures, services, units]);
+  }, [vendors, products, services, units]);
 
   return (
     <>

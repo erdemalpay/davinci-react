@@ -5,7 +5,6 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutControl } from "../../types";
-import { useGetAccountFixtureInvoices } from "../../utils/api/account/fixtureInvoice";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -35,7 +34,6 @@ const CheckoutControlPage = () => {
   const checkoutControls = useGetCheckoutControls();
   const incomes = useGetCheckoutIncomes();
   const invoices = useGetAccountInvoices();
-  const fixtureInvoices = useGetAccountFixtureInvoices();
   const serviceInvoices = useGetAccountServiceInvoices();
   const cashouts = useGetCheckoutCashouts();
   const beginningCashs = useGetPanelControlCheckoutCashs();
@@ -95,14 +93,6 @@ const CheckoutControlPage = () => {
           ?.reduce((acc, item) => acc + item.amount, 0),
         expenseQuantity:
           invoices
-            ?.filter(
-              (item) =>
-                checkoutControl?.date >= item?.date &&
-                item?.paymentMethod === "cash" &&
-                item.date === getPreviousDate(checkoutControl?.date)
-            )
-            ?.reduce((acc, item) => acc + item.totalExpense, 0) +
-          fixtureInvoices
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
@@ -460,7 +450,6 @@ const CheckoutControlPage = () => {
     locations,
     filterPanelFormElements,
     invoices,
-    fixtureInvoices,
     serviceInvoices,
     incomes,
     cashouts,
