@@ -185,14 +185,7 @@ const GameStock = () => {
       node: (row: any) => <div>{row.totalPrice} ₺</div>,
     },
   ];
-  if (
-    user &&
-    ![
-      RoleEnum.MANAGER,
-      RoleEnum.CATERINGMANAGER,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
-  ) {
+  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     const splicedColumns = ["Unit Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "totalPrice"];
     splicedColumns.forEach((item) => {
