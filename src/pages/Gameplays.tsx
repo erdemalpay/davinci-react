@@ -226,7 +226,7 @@ export default function NewGameplays() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[90%] mx-auto my-10 ">
+      <div className="w-[98%] mx-auto my-10 ">
         <div className="flex flex-col w-full mb-6">
           <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
             <Autocomplete

@@ -322,7 +322,7 @@ export default function Reservations() {
   return (
     <>
       <Header showLocationSelector={true} />
-      <div className="w-[90%] mx-auto my-10">
+      <div className="w-[98%] mx-auto my-10">
         <GenericTable
           key={tableKey}
           rows={filteredReservations() as Reservation[]}

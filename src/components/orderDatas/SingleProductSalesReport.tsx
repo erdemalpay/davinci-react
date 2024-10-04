@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Table, TURKISHLIRA } from "../../types";
+import { OrderStatus, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -13,6 +13,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
@@ -42,59 +43,62 @@ const SingleProductSalesReport = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = orders?.reduce((acc, order) => {
-    if (!order || order?.paidQuantity === 0) return acc;
-    // location filter
-    if (
-      filterPanelFormElements?.location !== "" &&
-      filterPanelFormElements?.location !== order?.location
-    ) {
-      return acc;
-    }
-    // other filters
-    if (
-      (filterPanelFormElements?.before !== "" &&
-        (order?.table as Table)?.date > filterPanelFormElements?.before) ||
-      (filterPanelFormElements?.after !== "" &&
-        (order?.table as Table)?.date < filterPanelFormElements?.after) ||
-      (filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements?.category?.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        ))
-    ) {
-      return acc;
-    }
-    acc.push({
-      item: order?.item,
-      itemName: getItem(order?.item, items)?.name ?? "",
-      unitPrice: order?.unitPrice,
-      paidQuantity: order?.paidQuantity,
-      discount: order?.discountPercentage
-        ? (order?.discountPercentage ?? 0) *
-          order?.paidQuantity *
-          order?.unitPrice *
-          (1 / 100)
-        : (order?.discountAmount ?? 0) * order?.paidQuantity,
-      amount: order?.paidQuantity * order?.unitPrice,
-      location: order?.location,
-      date: (order?.table as Table)?.date,
-      formattedDate: formatAsLocalDate((order?.table as Table)?.date),
-      category:
-        categories?.find(
-          (category) => category?._id === getItem(order?.item, items)?.category
-        )?.name ?? "",
-      categoryId: getItem(order?.item, items)?.category as number,
-      totalAmountWithDiscount:
-        order?.paidQuantity * order?.unitPrice -
-        (order?.discountPercentage
+  const allRows = orders
+    ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+    ?.reduce((acc, order) => {
+      if (!order || order?.paidQuantity === 0) return acc;
+      // location filter
+      if (
+        filterPanelFormElements?.location !== "" &&
+        filterPanelFormElements?.location !== order?.location
+      ) {
+        return acc;
+      }
+      // other filters
+      if (
+        (filterPanelFormElements?.before !== "" &&
+          (order?.table as Table)?.date > filterPanelFormElements?.before) ||
+        (filterPanelFormElements?.after !== "" &&
+          (order?.table as Table)?.date < filterPanelFormElements?.after) ||
+        (filterPanelFormElements?.category?.length > 0 &&
+          !filterPanelFormElements?.category?.some((category: any) =>
+            passesFilter(category, getItem(order?.item, items)?.category)
+          ))
+      ) {
+        return acc;
+      }
+      acc.push({
+        item: order?.item,
+        itemName: getItem(order?.item, items)?.name ?? "",
+        unitPrice: order?.unitPrice,
+        paidQuantity: order?.paidQuantity,
+        discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
             order?.paidQuantity *
             order?.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order?.paidQuantity),
-    });
-    return acc;
-  }, [] as OrderWithPaymentInfo[]);
+          : (order?.discountAmount ?? 0) * order?.paidQuantity,
+        amount: order?.paidQuantity * order?.unitPrice,
+        location: order?.location,
+        date: (order?.table as Table)?.date,
+        formattedDate: formatAsLocalDate((order?.table as Table)?.date),
+        category:
+          categories?.find(
+            (category) =>
+              category?._id === getItem(order?.item, items)?.category
+          )?.name ?? "",
+        categoryId: getItem(order?.item, items)?.category as number,
+        totalAmountWithDiscount:
+          order?.paidQuantity * order?.unitPrice -
+          (order?.discountPercentage
+            ? (order?.discountPercentage ?? 0) *
+              order?.paidQuantity *
+              order?.unitPrice *
+              (1 / 100)
+            : (order?.discountAmount ?? 0) * order?.paidQuantity),
+      });
+      return acc;
+    }, [] as OrderWithPaymentInfo[]);
   allRows.length > 0 &&
     allRows.push({
       item: 0,

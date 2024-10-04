@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Table, TURKISHLIRA } from "../../types";
+import { OrderStatus, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -48,149 +48,152 @@ const CategoryBasedSalesReport = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = orders.reduce((acc, order) => {
-    if (!order || order.paidQuantity === 0) return acc;
+  const allRows = orders
+    ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+    ?.reduce((acc, order) => {
+      if (!order || order.paidQuantity === 0) return acc;
 
-    // Location filter
-    if (
-      filterPanelFormElements.location !== "" &&
-      filterPanelFormElements.location !== order.location
-    ) {
-      return acc;
-    }
-
-    // Date filters
-    const orderDate = new Date((order?.table as Table).date);
-    const beforeDate = filterPanelFormElements.before
-      ? new Date(filterPanelFormElements.before)
-      : null;
-    const afterDate = filterPanelFormElements.after
-      ? new Date(filterPanelFormElements.after)
-      : null;
-
-    if (
-      (beforeDate && orderDate > beforeDate) ||
-      (afterDate && orderDate < afterDate) ||
-      (filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements?.category?.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        ))
-    ) {
-      return acc;
-    }
-
-    const existingEntry = acc.find(
-      (item) => item?.categoryId === getItem(order?.item, items)?.category
-    );
-
-    if (existingEntry) {
-      existingEntry.paidQuantity += order.paidQuantity;
-      existingEntry.discount += order?.discountPercentage
-        ? (order?.discountPercentage ?? 0) *
-          order.paidQuantity *
-          order.unitPrice *
-          (1 / 100)
-        : (order?.discountAmount ?? 0) * order.paidQuantity;
-      existingEntry.amount += order.paidQuantity * order.unitPrice;
-      existingEntry.totalAmountWithDiscount =
-        existingEntry.totalAmountWithDiscount +
-        order.paidQuantity * order.unitPrice -
-        (order?.discountPercentage
-          ? (order?.discountPercentage ?? 0) *
-            order.paidQuantity *
-            order.unitPrice *
-            (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity);
-      const existingItem = existingEntry.itemQuantity.find(
-        (itemQuantityIteration) =>
-          itemQuantityIteration.itemId === getItem(order?.item, items)?._id
-      );
-      if (existingItem) {
-        existingEntry.itemQuantity = existingEntry.itemQuantity.map(
-          (itemQuantityIteration) =>
-            itemQuantityIteration.itemId === existingItem.itemId
-              ? {
-                  ...itemQuantityIteration,
-                  quantity: itemQuantityIteration.quantity + order.paidQuantity,
-                }
-              : itemQuantityIteration
-        );
-      } else {
-        existingEntry.itemQuantity.push({
-          itemId: order?.item,
-          itemName: getItem(order?.item, items)?.name ?? "",
-          quantity: order.paidQuantity,
-        });
+      // Location filter
+      if (
+        filterPanelFormElements.location !== "" &&
+        filterPanelFormElements.location !== order.location
+      ) {
+        return acc;
       }
 
-      existingEntry.collapsible = {
-        collapsibleHeader: t("Products"),
-        collapsibleColumns: [
-          { key: t("Product"), isSortable: true },
-          { key: t("Quantity"), isSortable: true },
-        ],
-        collapsibleRows: existingEntry.itemQuantity.map(
-          (itemQuantityIteration) => ({
-            product: itemQuantityIteration.itemName,
-            quantity: itemQuantityIteration.quantity,
-          })
-        ),
-        collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-      };
-    } else {
-      acc.push({
-        item: order?.item,
-        itemName: getItem(order?.item, items)?.name ?? "",
-        paidQuantity: order.paidQuantity,
-        location: order.location,
-        discount: order?.discountPercentage
+      // Date filters
+      const orderDate = new Date((order?.table as Table).date);
+      const beforeDate = filterPanelFormElements.before
+        ? new Date(filterPanelFormElements.before)
+        : null;
+      const afterDate = filterPanelFormElements.after
+        ? new Date(filterPanelFormElements.after)
+        : null;
+
+      if (
+        (beforeDate && orderDate > beforeDate) ||
+        (afterDate && orderDate < afterDate) ||
+        (filterPanelFormElements?.category?.length > 0 &&
+          !filterPanelFormElements?.category?.some((category: any) =>
+            passesFilter(category, getItem(order?.item, items)?.category)
+          ))
+      ) {
+        return acc;
+      }
+
+      const existingEntry = acc.find(
+        (item) => item?.categoryId === getItem(order?.item, items)?.category
+      );
+
+      if (existingEntry) {
+        existingEntry.paidQuantity += order.paidQuantity;
+        existingEntry.discount += order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
             order.paidQuantity *
             order.unitPrice *
             (1 / 100)
-          : (order?.discountAmount ?? 0) * order.paidQuantity,
-        amount: order.paidQuantity * order.unitPrice,
-        date: format(orderDate, "yyyy-MM-dd"),
-        category:
-          categories?.find(
-            (category) =>
-              category?._id === getItem(order?.item, items)?.category
-          )?.name ?? "",
-        categoryId: getItem(order?.item, items)?.category ?? 0,
-        itemQuantity: [
-          {
-            itemId: order?.item,
-            itemName: getItem(order?.item, items)?.name ?? "",
-            quantity: order.paidQuantity,
-          },
-        ],
-        collapsible: {
-          collapsibleHeader: t("Products"),
-          collapsibleColumns: [
-            { key: t("Unit Price"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
-          ],
-          collapsibleRows: [
-            {
-              product: getItem(order?.item, items)?.name,
-              quantity: order.paidQuantity,
-            },
-          ],
-          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
-        },
-        totalAmountWithDiscount:
+          : (order?.discountAmount ?? 0) * order.paidQuantity;
+        existingEntry.amount += order.paidQuantity * order.unitPrice;
+        existingEntry.totalAmountWithDiscount =
+          existingEntry.totalAmountWithDiscount +
           order.paidQuantity * order.unitPrice -
           (order?.discountPercentage
             ? (order?.discountPercentage ?? 0) *
               order.paidQuantity *
               order.unitPrice *
               (1 / 100)
-            : (order?.discountAmount ?? 0) * order.paidQuantity),
-      });
-    }
+            : (order?.discountAmount ?? 0) * order.paidQuantity);
+        const existingItem = existingEntry.itemQuantity.find(
+          (itemQuantityIteration) =>
+            itemQuantityIteration.itemId === getItem(order?.item, items)?._id
+        );
+        if (existingItem) {
+          existingEntry.itemQuantity = existingEntry.itemQuantity.map(
+            (itemQuantityIteration) =>
+              itemQuantityIteration.itemId === existingItem.itemId
+                ? {
+                    ...itemQuantityIteration,
+                    quantity:
+                      itemQuantityIteration.quantity + order.paidQuantity,
+                  }
+                : itemQuantityIteration
+          );
+        } else {
+          existingEntry.itemQuantity.push({
+            itemId: order?.item,
+            itemName: getItem(order?.item, items)?.name ?? "",
+            quantity: order.paidQuantity,
+          });
+        }
 
-    return acc;
-  }, [] as OrderWithPaymentInfo[]);
+        existingEntry.collapsible = {
+          collapsibleHeader: t("Products"),
+          collapsibleColumns: [
+            { key: t("Product"), isSortable: true },
+            { key: t("Quantity"), isSortable: true },
+          ],
+          collapsibleRows: existingEntry.itemQuantity.map(
+            (itemQuantityIteration) => ({
+              product: itemQuantityIteration.itemName,
+              quantity: itemQuantityIteration.quantity,
+            })
+          ),
+          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+        };
+      } else {
+        acc.push({
+          item: order?.item,
+          itemName: getItem(order?.item, items)?.name ?? "",
+          paidQuantity: order.paidQuantity,
+          location: order.location,
+          discount: order?.discountPercentage
+            ? (order?.discountPercentage ?? 0) *
+              order.paidQuantity *
+              order.unitPrice *
+              (1 / 100)
+            : (order?.discountAmount ?? 0) * order.paidQuantity,
+          amount: order.paidQuantity * order.unitPrice,
+          date: format(orderDate, "yyyy-MM-dd"),
+          category:
+            categories?.find(
+              (category) =>
+                category?._id === getItem(order?.item, items)?.category
+            )?.name ?? "",
+          categoryId: getItem(order?.item, items)?.category ?? 0,
+          itemQuantity: [
+            {
+              itemId: order?.item,
+              itemName: getItem(order?.item, items)?.name ?? "",
+              quantity: order.paidQuantity,
+            },
+          ],
+          collapsible: {
+            collapsibleHeader: t("Products"),
+            collapsibleColumns: [
+              { key: t("Unit Price"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+            ],
+            collapsibleRows: [
+              {
+                product: getItem(order?.item, items)?.name,
+                quantity: order.paidQuantity,
+              },
+            ],
+            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+          },
+          totalAmountWithDiscount:
+            order.paidQuantity * order.unitPrice -
+            (order?.discountPercentage
+              ? (order?.discountPercentage ?? 0) *
+                order.paidQuantity *
+                order.unitPrice *
+                (1 / 100)
+              : (order?.discountAmount ?? 0) * order.paidQuantity),
+        });
+      }
+
+      return acc;
+    }, [] as OrderWithPaymentInfo[]);
   allRows.length > 0 &&
     allRows.push({
       item: 0,
