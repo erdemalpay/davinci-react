@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Table, TURKISHLIRA } from "../../types";
+import { OrderStatus, Table, TURKISHLIRA } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -47,111 +47,114 @@ const GroupedProductSalesReport = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = orders?.reduce((acc, order) => {
-    if (!order || order?.paidQuantity === 0) return acc;
-    if (
-      filterPanelFormElements?.location !== "" &&
-      filterPanelFormElements?.location !== order?.location
-    ) {
-      return acc;
-    }
-    if (
-      (filterPanelFormElements?.before !== "" &&
-        (order?.table as Table).date > filterPanelFormElements.before) ||
-      (filterPanelFormElements?.after !== "" &&
-        (order?.table as Table).date < filterPanelFormElements.after) ||
-      (filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements.category.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        ))
-    ) {
-      return acc;
-    }
+  const allRows = orders
+    ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+    ?.reduce((acc, order) => {
+      if (!order || order?.paidQuantity === 0) return acc;
+      if (
+        filterPanelFormElements?.location !== "" &&
+        filterPanelFormElements?.location !== order?.location
+      ) {
+        return acc;
+      }
+      if (
+        (filterPanelFormElements?.before !== "" &&
+          (order?.table as Table).date > filterPanelFormElements.before) ||
+        (filterPanelFormElements?.after !== "" &&
+          (order?.table as Table).date < filterPanelFormElements.after) ||
+        (filterPanelFormElements?.category?.length > 0 &&
+          !filterPanelFormElements.category.some((category: any) =>
+            passesFilter(category, getItem(order?.item, items)?.category)
+          ))
+      ) {
+        return acc;
+      }
 
-    const existingEntry = acc.find((entry) => entry.item === order?.item);
-    if (existingEntry) {
-      existingEntry.paidQuantity += order?.paidQuantity;
-      existingEntry.discount += order?.discountPercentage
-        ? order?.discountPercentage *
-          order?.paidQuantity *
-          order?.unitPrice *
-          0.01
-        : (order?.discountAmount ?? 0) * order?.paidQuantity;
-      existingEntry.amount += order?.paidQuantity * order?.unitPrice;
-      existingEntry.totalAmountWithDiscount +=
-        order?.paidQuantity * order?.unitPrice -
-        (order?.discountPercentage
+      const existingEntry = acc.find((entry) => entry.item === order?.item);
+      if (existingEntry) {
+        existingEntry.paidQuantity += order?.paidQuantity;
+        existingEntry.discount += order?.discountPercentage
           ? order?.discountPercentage *
             order?.paidQuantity *
             order?.unitPrice *
             0.01
-          : (order?.discountAmount ?? 0) * order?.paidQuantity);
-      const existingUnitPrice = existingEntry.unitPriceQuantity.find(
-        (item) => item.unitPrice === order?.unitPrice
-      );
-      if (existingUnitPrice) {
-        existingUnitPrice.quantity += order?.paidQuantity;
-      } else {
-        existingEntry.unitPriceQuantity.push({
-          unitPrice: order?.unitPrice,
-          quantity: order?.paidQuantity,
-        });
-      }
-      if (existingEntry.unitPriceQuantity.length > 1) {
-        existingEntry.collapsible.collapsibleRows =
-          existingEntry.unitPriceQuantity.map((item) => ({
-            unitPrice: item.unitPrice.toString() + " " + TURKISHLIRA,
-            quantity: item.quantity,
-            unitPriceValue: item.unitPrice,
-          }));
-      }
-    } else {
-      acc.push({
-        item: order?.item,
-        itemName: getItem(order?.item, items)?.name ?? "",
-        unitPrice: order?.unitPrice,
-        paidQuantity: order?.paidQuantity,
-        discount: order?.discountPercentage
-          ? order?.discountPercentage *
-            order?.paidQuantity *
-            order?.unitPrice *
-            0.01
-          : (order?.discountAmount ?? 0) * order?.paidQuantity,
-        amount: order?.paidQuantity * order?.unitPrice,
-        location: order?.location,
-        date: (order?.table as Table).date,
-        category:
-          categories?.find(
-            (category) => category._id === getItem(order?.item, items)?.category
-          )?.name ?? "",
-        categoryId: getItem(order?.item, items)?.category ?? 0,
-        unitPriceQuantity: [
-          {
-            unitPrice: order?.unitPrice,
-            quantity: order?.paidQuantity,
-          },
-        ],
-        collapsible: {
-          collapsibleColumns: [
-            { key: t("Unit Price"), isSortable: true },
-            { key: t("Quantity"), isSortable: true },
-          ],
-          collapsibleRows: [],
-          collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
-        },
-        totalAmountWithDiscount:
+          : (order?.discountAmount ?? 0) * order?.paidQuantity;
+        existingEntry.amount += order?.paidQuantity * order?.unitPrice;
+        existingEntry.totalAmountWithDiscount +=
           order?.paidQuantity * order?.unitPrice -
           (order?.discountPercentage
             ? order?.discountPercentage *
               order?.paidQuantity *
               order?.unitPrice *
               0.01
-            : (order?.discountAmount ?? 0) * order?.paidQuantity),
-      });
-    }
+            : (order?.discountAmount ?? 0) * order?.paidQuantity);
+        const existingUnitPrice = existingEntry.unitPriceQuantity.find(
+          (item) => item.unitPrice === order?.unitPrice
+        );
+        if (existingUnitPrice) {
+          existingUnitPrice.quantity += order?.paidQuantity;
+        } else {
+          existingEntry.unitPriceQuantity.push({
+            unitPrice: order?.unitPrice,
+            quantity: order?.paidQuantity,
+          });
+        }
+        if (existingEntry.unitPriceQuantity.length > 1) {
+          existingEntry.collapsible.collapsibleRows =
+            existingEntry.unitPriceQuantity.map((item) => ({
+              unitPrice: item.unitPrice.toString() + " " + TURKISHLIRA,
+              quantity: item.quantity,
+              unitPriceValue: item.unitPrice,
+            }));
+        }
+      } else {
+        acc.push({
+          item: order?.item,
+          itemName: getItem(order?.item, items)?.name ?? "",
+          unitPrice: order?.unitPrice,
+          paidQuantity: order?.paidQuantity,
+          discount: order?.discountPercentage
+            ? order?.discountPercentage *
+              order?.paidQuantity *
+              order?.unitPrice *
+              0.01
+            : (order?.discountAmount ?? 0) * order?.paidQuantity,
+          amount: order?.paidQuantity * order?.unitPrice,
+          location: order?.location,
+          date: (order?.table as Table).date,
+          category:
+            categories?.find(
+              (category) =>
+                category._id === getItem(order?.item, items)?.category
+            )?.name ?? "",
+          categoryId: getItem(order?.item, items)?.category ?? 0,
+          unitPriceQuantity: [
+            {
+              unitPrice: order?.unitPrice,
+              quantity: order?.paidQuantity,
+            },
+          ],
+          collapsible: {
+            collapsibleColumns: [
+              { key: t("Unit Price"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+            ],
+            collapsibleRows: [],
+            collapsibleRowKeys: [{ key: "unitPrice" }, { key: "quantity" }],
+          },
+          totalAmountWithDiscount:
+            order?.paidQuantity * order?.unitPrice -
+            (order?.discountPercentage
+              ? order?.discountPercentage *
+                order?.paidQuantity *
+                order?.unitPrice *
+                0.01
+              : (order?.discountAmount ?? 0) * order?.paidQuantity),
+        });
+      }
 
-    return acc;
-  }, [] as OrderWithPaymentInfo[]);
+      return acc;
+    }, [] as OrderWithPaymentInfo[]);
 
   allRows.length > 0 &&
     allRows.push({
