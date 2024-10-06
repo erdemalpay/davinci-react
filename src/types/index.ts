@@ -77,15 +77,10 @@ export type Game = {
 export type AccountProduct = {
   _id: string;
   name: string;
-  unit: string;
   expenseType: string[];
   vendor?: string[];
   brand?: string[];
   unitPrice: number;
-  packages?: {
-    package: string;
-    packageUnitPrice: number;
-  }[];
 };
 export type AccountService = {
   _id: string;
@@ -93,10 +88,6 @@ export type AccountService = {
   expenseType: string[];
   vendor?: string[];
   unitPrice: number;
-};
-export type AccountUnit = {
-  _id: string;
-  name: string;
 };
 
 export type AccountCountList = {
@@ -117,7 +108,6 @@ export type AccountCount = {
   user: string;
   products?: {
     product: string;
-    packageType: string;
     stockQuantity: number;
     countQuantity: number;
     isStockEqualized?: boolean;
@@ -130,12 +120,6 @@ export type AccountExpenseType = {
   backgroundColor: string;
 };
 
-export type AccountPackageType = {
-  _id: string;
-  name: string;
-  quantity: number;
-  unit: string;
-};
 export type AccountBrand = {
   _id: string;
   name: string;
@@ -175,7 +159,6 @@ export type AccountOverallExpense = {
   date: string;
   brand?: string;
   vendor?: string;
-  packageType?: string;
   note?: string;
   location: string;
   price?: number;
@@ -194,7 +177,6 @@ export type AccountInvoice = {
   date: string;
   brand?: string;
   vendor?: string;
-  packageType?: string;
   note?: string;
   location: string;
   price?: number;
@@ -226,7 +208,6 @@ export type AccountStock = {
   product: string;
   location: string;
   quantity: number;
-  packageType?: string;
 };
 export type AccountProductStockHistory = {
   _id: number;
@@ -236,7 +217,6 @@ export type AccountProductStockHistory = {
   currentAmount: number;
   status: string;
   user: string;
-  packageType?: string;
   createdAt: Date;
 };
 
@@ -510,10 +490,8 @@ export enum PageDetailsPageTabEnum {
 }
 export enum AccountingPageTabEnum {
   EXPENSETYPE,
-  UNIT,
   VENDOR,
   BRAND,
-  PACKAGETYPE,
   PRODUCT,
   SERVICES,
   DISCOUNTS,
@@ -723,9 +701,6 @@ export enum ActivityType {
   CREATE_SERVICEEXPENSE = "CREATE_SERVICEEXPENSE",
   DELETE_SERVICEEXPENSE = "DELETE_SERVICEEXPENSE",
   UPDATE_SERVICEEXPENSE = "UPDATE_SERVICEEXPENSE",
-  CREATE_UNIT = "CREATE_UNIT",
-  DELETE_UNIT = "DELETE_UNIT",
-  UPDATE_UNIT = "UPDATE_UNIT",
   CREATE_EXPENSETYPE = "CREATE_EXPENSETYPE",
   DELETE_EXPENSETYPE = "DELETE_EXPENSETYPE",
   UPDATE_EXPENSETYPE = "UPDATE_EXPENSETYPE",
@@ -735,9 +710,6 @@ export enum ActivityType {
   CREATE_BRAND = "CREATE_BRAND",
   DELETE_BRAND = "DELETE_BRAND",
   UPDATE_BRAND = "UPDATE_BRAND",
-  CREATE_PACKAGETYPE = "CREATE_PACKAGETYPE",
-  DELETE_PACKAGETYPE = "DELETE_PACKAGETYPE",
-  UPDATE_PACKAGETYPE = "UPDATE_PACKAGETYPE",
   CREATE_PAYMENTMETHOD = "CREATE_PAYMENTMETHOD",
   DELETE_PAYMENTMETHOD = "DELETE_PAYMENTMETHOD",
   UPDATE_PAYMENTMETHOD = "UPDATE_PAYMENTMETHOD",
@@ -842,21 +814,6 @@ export const activityTypeDetails = [
     bgColor: "bg-yellow-500",
   },
   {
-    value: ActivityType.CREATE_UNIT,
-    label: "Create Unit",
-    bgColor: "bg-green-500",
-  },
-  {
-    value: ActivityType.DELETE_UNIT,
-    label: "Delete Unit",
-    bgColor: "bg-red-500",
-  },
-  {
-    value: ActivityType.UPDATE_UNIT,
-    label: "Update Unit",
-    bgColor: "bg-yellow-500",
-  },
-  {
     value: ActivityType.CREATE_EXPENSETYPE,
     label: "Create Expense Type",
     bgColor: "bg-green-500",
@@ -899,21 +856,6 @@ export const activityTypeDetails = [
   {
     value: ActivityType.UPDATE_BRAND,
     label: "Update Brand",
-    bgColor: "bg-yellow-500",
-  },
-  {
-    value: ActivityType.CREATE_PACKAGETYPE,
-    label: "Create Package Type",
-    bgColor: "bg-green-500",
-  },
-  {
-    value: ActivityType.DELETE_PACKAGETYPE,
-    label: "Delete Package Type",
-    bgColor: "bg-red-500",
-  },
-  {
-    value: ActivityType.UPDATE_PACKAGETYPE,
-    label: "Update Package Type",
     bgColor: "bg-yellow-500",
   },
   {

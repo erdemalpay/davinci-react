@@ -16,9 +16,7 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
-import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -31,7 +29,6 @@ const Brand = () => {
   const pages = useGetPanelControlPages();
   const navigate = useNavigate();
   const brands = useGetAccountBrands();
-  const units = useGetAccountUnits();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -112,10 +109,9 @@ const Brand = () => {
           (product) => !product.brand?.some((item) => item === rowToAction?._id)
         )
         .map((product) => {
-          const productUnit = getItem(product?.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${productUnit?.name})`,
+            label: product.name,
           };
         }),
       isMultiple: true,
@@ -260,7 +256,7 @@ const Brand = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [brands, products, units]);
+  }, [brands, products]);
 
   return (
     <>

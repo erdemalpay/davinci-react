@@ -1,21 +1,18 @@
 import { AiOutlinePercentage } from "react-icons/ai";
 import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet, FaMagnifyingGlassLocation } from "react-icons/fa6";
-import { LuPackageOpen } from "react-icons/lu";
 import { MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
-import { TbBrandBlogger, TbWeight, TbZoomMoney } from "react-icons/tb";
+import { TbBrandBlogger, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
-import PackageType from "../components/accounting/PackageType";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import Service from "../components/accounting/Service";
 import StockLocations from "../components/accounting/StockLocation";
-import Unit from "../components/accounting/Unit";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -33,13 +30,6 @@ export const AccountingPageTabs = [
     isDisabled: false,
   },
   {
-    number: AccountingPageTabEnum.UNIT,
-    label: "Units",
-    icon: <TbWeight className="text-lg font-thin" />,
-    content: <Unit />,
-    isDisabled: false,
-  },
-  {
     number: AccountingPageTabEnum.VENDOR,
     label: "Vendors",
     icon: <SiImprovmx className="text-lg font-thin" />,
@@ -51,13 +41,6 @@ export const AccountingPageTabs = [
     label: "Brands",
     icon: <TbBrandBlogger className="text-lg font-thin" />,
     content: <Brand />,
-    isDisabled: false,
-  },
-  {
-    number: AccountingPageTabEnum.PACKAGETYPE,
-    label: "Package Types",
-    icon: <LuPackageOpen className="text-lg font-thin" />,
-    content: <PackageType />,
     isDisabled: false,
   },
   {

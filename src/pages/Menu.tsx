@@ -95,7 +95,6 @@ export default function Menu() {
               }
               singleItemGroup={itemGroup}
               popularItems={popularItems}
-              products={products}
             />
           ),
           isDisabled: false,
@@ -115,7 +114,6 @@ export default function Menu() {
                     items: [],
                   }}
                   popularItems={popularItems}
-                  products={products}
                 />
               ),
               isDisabled: false,

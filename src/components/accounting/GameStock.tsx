@@ -6,14 +6,12 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountStock, RoleEnum, StockHistoryStatusEnum } from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { getItem } from "../../utils/getItem";
 import {
   ProductInput,
@@ -25,7 +23,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -34,9 +32,7 @@ const GameStock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
   const { user } = useUserContext();
-  const units = useGetAccountUnits();
   const products = useGetAccountProducts();
-  const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -51,20 +47,11 @@ const GameStock = () => {
         getItem(stock.product, products)?.expenseType?.includes("oys")
       )
       .reduce((acc, stock) => {
-        const expense = stock.packageType
-          ? parseFloat(
-              (
-                (getItem(stock.product, products)?.unitPrice ?? 0) *
-                stock.quantity *
-                (getItem(stock.packageType, packages)?.quantity ?? 1)
-              ).toFixed(1)
-            )
-          : parseFloat(
-              (
-                (getItem(stock.product, products)?.unitPrice ?? 0) *
-                stock.quantity
-              ).toFixed(1)
-            );
+        const expense = parseFloat(
+          (
+            (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
+          ).toFixed(1)
+        );
         return acc + expense;
       }, 0);
   });
@@ -73,13 +60,11 @@ const GameStock = () => {
     useState<FormElementsState>({
       product: [],
       location: "",
-      packageType: "",
     });
   const [form, setForm] = useState({
     product: "",
     location: "",
     quantity: 0,
-    packageType: "",
     status: "",
   });
   const [
@@ -95,31 +80,14 @@ const GameStock = () => {
         return {
           ...stock,
           prdct: getItem(stock.product, products)?.name,
-          pckgType: getItem(stock.packageType, packages)?.name,
           lctn: getItem(stock.location, locations)?.name,
-          unit: units?.find(
-            (unit) => unit._id === getItem(stock.product, products)?.unit
-          )?.name,
-          unitPrice: stock?.packageType
-            ? getItem(stock.product, products)?.packages?.find(
-                (pkg) =>
-                  pkg.package === getItem(stock.packageType, packages)?._id
-              )?.packageUnitPrice
-            : getItem(stock.product, products)?.unitPrice,
-          totalPrice: stock?.packageType
-            ? parseFloat(
-                (
-                  (getItem(stock.product, products)?.unitPrice ?? 0) *
-                  stock.quantity *
-                  (getItem(stock.packageType, packages)?.quantity ?? 1)
-                ).toFixed(1)
-              )
-            : parseFloat(
-                (
-                  (getItem(stock.product, products)?.unitPrice ?? 0) *
-                  stock.quantity
-                ).toFixed(1)
-              ),
+          unitPrice: getItem(stock.product, products)?.unitPrice,
+          totalPrice: parseFloat(
+            (
+              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              stock.quantity
+            ).toFixed(1)
+          ),
         };
       })
   );
@@ -127,43 +95,21 @@ const GameStock = () => {
     useAccountStockMutations();
   const inputs = [
     ProductInput({
-      units: units,
       products: products?.filter((product) =>
         product?.expenseType?.includes("oys")
       ),
-      invalidateKeys: [{ key: "packageType", defaultValue: "" }],
       required: true,
     }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: products
-        .find((prod) => prod._id === form?.product)
-        ?.packages?.map((item) => {
-          const packageType = packages.find((pkg) => pkg._id === item.package);
-          return {
-            value: packageType?._id,
-            label: packageType?.name,
-          };
-        }),
-      placeholder: t("Package Type"),
-      required: true,
-      isDisabled: false,
-    },
     StockLocationInput({ locations: locations }),
     QuantityInput(),
   ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
@@ -173,7 +119,6 @@ const GameStock = () => {
   const rowKeys = [
     { key: "prdct" },
     { key: "pckgType", className: "min-w-32 " },
-    { key: "unit" },
     { key: "lctn" },
     { key: "quantity" },
     {
@@ -283,8 +228,6 @@ const GameStock = () => {
                 ?.location,
               quantity: stocks.find((stock) => stock._id === rowToAction._id)
                 ?.quantity,
-              packageType: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.packageType,
               unitPrice: getItem(
                 stocks.find((stock) => stock._id === rowToAction._id)?.product,
                 products
@@ -342,41 +285,21 @@ const GameStock = () => {
           (!filterPanelFormElements.product.length ||
             filterPanelFormElements.product?.some((panelProduct: string) =>
               passesFilter(panelProduct, getItem(stock.product, products)?._id)
-            )) &&
-          passesFilter(filterPanelFormElements.packageType, stock.packageType)
+            ))
         );
       })
       .map((stock) => {
         return {
           ...stock,
           prdct: getItem(stock.product, products)?.name,
-          pckgType: getItem(stock.packageType, packages)?.name,
           lctn: getItem(stock.location, locations)?.name,
-          unitPrice: stock?.packageType
-            ? getItem(stock.product, products)?.packages?.find(
-                (pkg) =>
-                  pkg.package === getItem(stock.packageType, packages)?._id
-              )?.packageUnitPrice
-            : getItem(stock.product, products)?.unitPrice,
-          unit: units?.find(
-            (unit) => unit._id === getItem(stock.product, products)?.unit
-          )?.name,
-          totalPrice: stock?.packageType
-            ? parseFloat(
-                (
-                  (getItem(stock.product, products)?.packages?.find(
-                    (pkg) => pkg.package === stock.packageType
-                  )?.packageUnitPrice ?? 0) *
-                  stock.quantity *
-                  (getItem(stock.packageType, packages)?.quantity ?? 1)
-                ).toFixed(1)
-              )
-            : parseFloat(
-                (
-                  (getItem(stock.product, products)?.unitPrice ?? 0) *
-                  stock.quantity
-                ).toFixed(1)
-              ),
+          unitPrice: getItem(stock.product, products)?.unitPrice,
+          totalPrice: parseFloat(
+            (
+              (getItem(stock.product, products)?.unitPrice ?? 0) *
+              stock.quantity
+            ).toFixed(1)
+          ),
         };
       });
     const filteredRows = processedRows.filter((row) =>
@@ -394,20 +317,11 @@ const GameStock = () => {
       })
     );
     const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
-      const expense = stock.packageType
-        ? parseFloat(
-            (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
-              stock.quantity *
-              (getItem(stock.packageType, packages)?.quantity ?? 1)
-            ).toFixed(1)
-          )
-        : parseFloat(
-            (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
-              stock.quantity
-            ).toFixed(1)
-          );
+      const expense = parseFloat(
+        (
+          (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
+        ).toFixed(1)
+      );
       return acc + expense;
     }, 0);
     setRows(filteredRows);
@@ -419,18 +333,9 @@ const GameStock = () => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [
-    stocks,
-    filterPanelFormElements,
-    searchQuery,
-    products,
-    packages,
-    locations,
-    units,
-  ]);
+  }, [stocks, filterPanelFormElements, searchQuery, products, locations]);
   const filterPanelInputs = [
     ProductInput({
-      units: units,
       products: products?.filter((product) =>
         product?.expenseType?.includes("oys")
       ),
@@ -438,21 +343,6 @@ const GameStock = () => {
       isMultiple: true,
     }),
     StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: packages
-        .sort((a, b) => a.quantity - b.quantity)
-        .map((item) => {
-          return {
-            value: item._id,
-            label: item.name,
-          };
-        }),
-      placeholder: t("Package Type"),
-      required: true,
-    },
   ];
   const filterPanel = {
     isFilterPanelActive: showFilters,

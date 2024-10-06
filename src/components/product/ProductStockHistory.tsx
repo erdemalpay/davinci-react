@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { stockHistoryStatuses } from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -12,9 +11,9 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -27,7 +26,6 @@ const ProductStockHistory = () => {
   const selectedProduct = products?.find(
     (product) => product._id === productId
   );
-  const packages = useGetAccountPackageTypes();
   const users = useGetUsers();
   if (!selectedProduct) return <></>;
   const stockHistories = useGetAccountProductStockHistorys();
@@ -52,7 +50,6 @@ const ProductStockHistory = () => {
       return {
         ...stockHistory,
         prdct: getItem(stockHistory.product, products)?.name,
-        pckgTyp: getItem(stockHistory?.packageType, packages)?.name,
         lctn: getItem(stockHistory?.location, locations)?.name,
         usr: getItem(stockHistory?.user, users)?.name,
         date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
@@ -101,7 +98,6 @@ const ProductStockHistory = () => {
     { key: t("Hour"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Old Quantity"), isSortable: true },
     { key: t("Changed"), isSortable: true },
@@ -183,7 +179,6 @@ const ProductStockHistory = () => {
     selectedProduct,
     locations,
     users,
-    packages,
     products,
   ]);
 

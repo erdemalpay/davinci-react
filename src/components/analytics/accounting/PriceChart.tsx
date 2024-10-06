@@ -7,8 +7,6 @@ import {
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
 import { AccountProduct } from "../../../types";
-import { useGetAccountUnits } from "../../../utils/api/account/unit";
-import { getItem } from "../../../utils/getItem";
 
 type Props = {
   chartConfig: any;
@@ -16,8 +14,6 @@ type Props = {
 };
 
 const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
-  const units = useGetAccountUnits();
-
   return (
     <Card className="shadow-none">
       <CardHeader
@@ -31,11 +27,7 @@ const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
         </div>
         <div>
           <Typography variant="h6" color="blue-gray">
-            {selectedProduct &&
-              selectedProduct?.name +
-                "(" +
-                getItem(selectedProduct?.unit, units)?.name +
-                ")"}
+            {selectedProduct && selectedProduct?.name}
           </Typography>
         </div>
       </CardHeader>

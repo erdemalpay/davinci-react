@@ -254,7 +254,7 @@ const ServiceInvoice = () => {
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
-  const nameInput = [NameInput()]; // same for unit,brand and location inputs
+  const nameInput = [NameInput()]; // same for brand and location inputs
   const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
   const expenseTypeFormKeys = [

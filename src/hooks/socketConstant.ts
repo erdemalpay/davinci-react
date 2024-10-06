@@ -103,10 +103,6 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Accounting}/invoices`],
   },
   {
-    event: "packageTypeChanged",
-    invalidateKeys: [`${Paths.Accounting}/package-types`],
-  },
-  {
     event: "paymentChanged",
     invalidateKeys: [`${Paths.Accounting}/payments`],
   },
@@ -137,10 +133,6 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "stockLocationChanged",
     invalidateKeys: [`${Paths.Accounting}/stock-locations`],
-  },
-  {
-    event: "unitChanged",
-    invalidateKeys: [`${Paths.Accounting}/units`],
   },
   {
     event: "vendorChanged",
