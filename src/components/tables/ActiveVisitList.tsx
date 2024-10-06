@@ -36,7 +36,6 @@ export function ActiveVisitList({
   function handleSelection(item: User) {
     if (!item) return;
     createVisit({
-      user: item as any,
       location: selectedLocationId,
     });
     // setItems([...items, item]);
