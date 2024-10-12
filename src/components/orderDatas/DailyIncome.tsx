@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -39,15 +38,13 @@ const DailyIncome = () => {
       }
       if (
         (filterPanelFormElements.before !== "" &&
-          format(tableDate, "yyyy-MM-dd") > filterPanelFormElements.before) ||
+          tableDate > filterPanelFormElements.before) ||
         (filterPanelFormElements.after !== "" &&
-          format(tableDate, "yyyy-MM-dd") < filterPanelFormElements.after)
+          tableDate < filterPanelFormElements.after)
       ) {
         return acc;
       }
-      const existingEntry = acc.find(
-        (item) => item.date === format(tableDate, "yyyy-MM-dd")
-      );
+      const existingEntry = acc.find((item) => item.date === tableDate);
       if (existingEntry) {
         paymentMethods.forEach((method) => {
           if (collection.paymentMethod === method._id) {
@@ -58,8 +55,8 @@ const DailyIncome = () => {
         existingEntry.total += collection.amount;
       } else {
         const newEntry: any = {
-          date: format(tableDate, "yyyy-MM-dd"),
-          formattedDate: formatAsLocalDate(format(tableDate, "yyyy-MM-dd")),
+          date: tableDate,
+          formattedDate: formatAsLocalDate(tableDate),
           location: collection.location,
           total: collection.amount,
         };
