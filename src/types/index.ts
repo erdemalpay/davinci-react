@@ -368,6 +368,7 @@ export type Order = {
   discountAmount?: number;
   division?: number;
   isOnlinePrice?: boolean;
+  discountNote?: string;
   stockLocation?: string;
   [key: string]: any;
 };

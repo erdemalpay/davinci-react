@@ -10,10 +10,18 @@ type Props = {
 
 const DiscountScreen = ({ tableOrders, table }: Props) => {
   const discounts = useGetOrderDiscounts();
-  const { setIsProductSelectionOpen, setSelectedDiscount } = useOrderContext();
+  const {
+    setIsProductSelectionOpen,
+    setSelectedDiscount,
+    setIsDiscountNoteOpen,
+  } = useOrderContext();
   if (!discounts || !tableOrders) return null;
   const handleDiscountClick = (discount: OrderDiscount) => {
     setSelectedDiscount(discount);
+    if (discount?.isNoteRequired) {
+      setIsDiscountNoteOpen(true);
+      return;
+    }
     setIsProductSelectionOpen(true);
   };
   const filteredDiscounts = discounts?.filter((discount) =>

@@ -16,6 +16,7 @@ interface CreateOrderForDiscount {
   discount: number;
   discountPercentage?: number;
   discountAmout?: number;
+  discountNote?: string;
 }
 interface CreateOrderForDivide {
   orders: {

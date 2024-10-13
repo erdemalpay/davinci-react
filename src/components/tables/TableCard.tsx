@@ -107,6 +107,7 @@ export function TableCard({
     quantity: 0,
     note: "",
     discount: undefined,
+    discountNote: "",
     isOnlinePrice: false,
     stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
   });
@@ -151,6 +152,7 @@ export function TableCard({
       }),
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
         { key: "isOnlinePrice", defaultValue: false },
       ],
       placeholder: t("Product"),
@@ -190,9 +192,27 @@ export function TableCard({
               };
             })
         : [],
+      invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: t("Discount Note"),
+      required:
+        (orderForm?.discount &&
+          discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        false,
+      isDisabled:
+        (orderForm?.discount &&
+          !discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        true,
+      isOnClearActive: true,
     },
     {
       type: InputTypes.SELECT,
@@ -230,6 +250,7 @@ export function TableCard({
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
+    { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
@@ -600,6 +621,7 @@ export function TableCard({
               quantity: 0,
               note: "",
               discount: undefined,
+              discountNote: "",
               isOnlinePrice: false,
               stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
             });
