@@ -80,7 +80,12 @@ const CheckoutControlPage = () => {
         formattedDate: formatAsLocalDate(checkoutControl?.date),
         beginningQuantity:
           index !== 0
-            ? checkoutControls[index - 1].amount
+            ? checkoutControls
+                .slice(0, index)
+                .reverse()
+                .find(
+                  (control) => control.location === checkoutControl?.location
+                )?.amount ?? 0
             : beginningCashs?.filter(
                 (cash) =>
                   cash.location === checkoutControl?.location &&
