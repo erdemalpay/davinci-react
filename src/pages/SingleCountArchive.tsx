@@ -21,7 +21,7 @@ import {
   useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
-import { useGetAccountProducts } from "../utils/api/account/product";
+import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
@@ -38,7 +38,7 @@ const SingleCountArchive = () => {
   const { mutate: updateStockForStockCountBulk } =
     useUpdateStockForStockCountBulkMutation();
   const { updateAccountCount } = useAccountCountMutations();
-  const products = useGetAccountProducts();
+  const products = useGetAllAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
