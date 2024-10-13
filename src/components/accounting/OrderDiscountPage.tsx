@@ -36,6 +36,7 @@ const OrderDiscountPage = () => {
     percentage: "",
     amount: "",
     isOnlineOrder: "",
+    isNoteRequired: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -49,6 +50,7 @@ const OrderDiscountPage = () => {
     { key: t("Percentage"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
+    { key: t("Note Required"), isSortable: false },
   ];
   if (
     user &&
@@ -80,6 +82,15 @@ const OrderDiscountPage = () => {
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
+    {
+      key: "isNoteRequired",
+      node: (row: any) =>
+        row?.isNoteRequired ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
   ];
   const inputs = [
     NameInput(),
@@ -99,7 +110,10 @@ const OrderDiscountPage = () => {
         },
       ],
       required: !isEditModalOpen,
-      isDisabled: isEditModalOpen ? true : !(form.type === ""),
+      invalidateKeys: [
+        { key: "percentage", defaultValue: "" },
+        { key: "amount", defaultValue: "" },
+      ],
     },
     {
       type: InputTypes.NUMBER,
@@ -138,7 +152,15 @@ const OrderDiscountPage = () => {
       formKey: "isOnlineOrder",
       label: t("Online Order"),
       placeholder: t("Online Order"),
-      required: true,
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isNoteRequired",
+      label: t("Note Required"),
+      placeholder: t("Note Required"),
+      required: false,
       isTopFlexRow: true,
     },
   ];
@@ -149,6 +171,7 @@ const OrderDiscountPage = () => {
     { key: "percentage", type: FormKeyTypeEnum.NUMBER },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   const addButton = {

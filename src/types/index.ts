@@ -399,6 +399,7 @@ export type OrderDiscount = {
   name: string;
   percentage?: number;
   amount?: number;
+  isNoteRequired?: boolean;
   isOnlineOrder?: boolean;
 };
 
