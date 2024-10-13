@@ -145,7 +145,9 @@ const OrdersReport = () => {
       key: "discountAmount",
       node: (row: any) => (
         <p className="min-w-32 pr-2" key={row._id + "discountAmount"}>
-          {Number(row.discountAmount) !== 0 ? row.discountAmount + "₺" : "-"}
+          {Number(row.discountAmount) !== 0 && row?.discount
+            ? row.discountAmount + "₺"
+            : "-"}
         </p>
       ),
     },
