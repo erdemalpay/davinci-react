@@ -501,5 +501,6 @@
   "Delivered By Count": "Delivered By",
   "Table Count": "Table Count",
   "Eliminate Discount": "Eliminate Discount",
+  "Please refund {{refundAmount}}{{TURKISHLIRA}}": "Please refund {{refundAmount}}{{TURKISHLIRA}}",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

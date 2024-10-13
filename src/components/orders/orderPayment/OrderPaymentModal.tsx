@@ -10,6 +10,7 @@ import {
   OrderCollectionStatus,
   OrderStatus,
   Table,
+  TURKISHLIRA,
 } from "../../../types";
 
 import { useIsMutating } from "@tanstack/react-query";
@@ -77,6 +78,17 @@ const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
     {
       label: t("Close Table"),
       onClick: () => {
+        const refundAmount =
+          collectionsTotalAmount - (totalAmount - discountAmount);
+        if (refundAmount > 0) {
+          toast.error(
+            t("Please refund {{refundAmount}}{{TURKISHLIRA}}", {
+              refundAmount,
+              TURKISHLIRA,
+            })
+          );
+          return;
+        }
         setIsCloseConfirmationDialogOpen(true);
       },
       isActive: (isAllItemsPaid && !table?.finishHour) ?? false,
