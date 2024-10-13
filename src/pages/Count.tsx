@@ -130,14 +130,18 @@ const Count = () => {
       key: "countQuantity",
       node: (row: any) => {
         return (
-          <div className="text-center">
+          <div className="flex text-center justify-center">
             <TextInput
               key={row.productId}
               type={"number"}
-              value={row.countQuantity}
+              value={row.countQuantity ?? 0}
               label={""}
               placeholder={""}
+              inputWidth="w-32 md:w-40"
               onChange={(value) => {
+                if (value === "") {
+                  return;
+                }
                 const rowProduct = products.find(
                   (p) => p.name === row?.product
                 );
@@ -173,8 +177,8 @@ const Count = () => {
                   },
                 });
               }}
-              isOnClearActive={false}
-              isNumberButtonsActive={false}
+              isOnClearActive={true}
+              isNumberButtonsActive={true}
               isDateInitiallyOpen={false}
               isTopFlexRow={false}
               minNumber={0}
