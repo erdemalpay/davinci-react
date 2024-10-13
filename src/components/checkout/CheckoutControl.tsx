@@ -67,61 +67,61 @@ const CheckoutControlPage = () => {
     return currentDate.toISOString().split("T")[0]; // Convert to "YYYY-MM-DD" format
   };
   const allRows =
-    checkoutControls
-      .filter((checkoutControl) => {
-        let currentLocation = selectedLocationId === 1 ? "bahceli" : "neorama";
-        return checkoutControl?.location === currentLocation;
-      })
-      ?.map((checkoutControl, index) => {
-        const checkoutControlUser = getItem(checkoutControl?.user, users);
-        const checkoutControlLocation = getItem(
-          checkoutControl?.location,
-          locations
-        );
-        return {
-          ...checkoutControl,
-          usr: checkoutControlUser?.name,
-          lctn: checkoutControlLocation?.name,
-          formattedDate: formatAsLocalDate(checkoutControl?.date),
-          beginningQuantity:
-            index !== 0
-              ? checkoutControls[index - 1].amount
-              : beginningCashs?.filter(
-                  (cash) =>
-                    cash.location === checkoutControl?.location &&
-                    cash.date <= checkoutControl?.date
-                )?.[0]?.amount ?? 0,
-          incomeQuantity: incomes
-            ?.filter(
-              (item) => item.date === getPreviousDate(checkoutControl?.date)
-            )
-            ?.reduce((acc, item) => acc + item.amount, 0),
-          expenseQuantity:
-            invoices
-              ?.filter(
-                (item) =>
-                  checkoutControl?.date >= item?.date &&
-                  item?.paymentMethod === "cash" &&
-                  item.date === getPreviousDate(checkoutControl?.date)
-              )
-              ?.reduce((acc, item) => acc + item.totalExpense, 0) +
-            serviceInvoices
-              ?.filter(
-                (item) =>
-                  checkoutControl?.date >= item?.date &&
-                  item?.paymentMethod === "cash" &&
-                  item.date === getPreviousDate(checkoutControl?.date)
-              )
-              ?.reduce((acc, item) => acc + item.totalExpense, 0),
-          cashout: cashouts
+    checkoutControls?.map((checkoutControl, index) => {
+      const checkoutControlUser = getItem(checkoutControl?.user, users);
+      const checkoutControlLocation = getItem(
+        checkoutControl?.location,
+        locations
+      );
+      return {
+        ...checkoutControl,
+        usr: checkoutControlUser?.name,
+        lctn: checkoutControlLocation?.name,
+        formattedDate: formatAsLocalDate(checkoutControl?.date),
+        beginningQuantity:
+          index !== 0
+            ? checkoutControls
+                .slice(0, index)
+                .reverse()
+                .find(
+                  (control) => control.location === checkoutControl?.location
+                )?.amount ?? 0
+            : beginningCashs?.filter(
+                (cash) =>
+                  cash.location === checkoutControl?.location &&
+                  cash.date <= checkoutControl?.date
+              )?.[0]?.amount ?? 0,
+        incomeQuantity: incomes
+          ?.filter(
+            (item) => item.date === getPreviousDate(checkoutControl?.date)
+          )
+          ?.reduce((acc, item) => acc + item.amount, 0),
+        expenseQuantity:
+          invoices
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
+                item?.paymentMethod === "cash" &&
                 item.date === getPreviousDate(checkoutControl?.date)
             )
-            ?.reduce((acc, item) => acc + item.amount, 0),
-        };
-      }) ?? [];
+            ?.reduce((acc, item) => acc + item.totalExpense, 0) +
+          serviceInvoices
+            ?.filter(
+              (item) =>
+                checkoutControl?.date >= item?.date &&
+                item?.paymentMethod === "cash" &&
+                item.date === getPreviousDate(checkoutControl?.date)
+            )
+            ?.reduce((acc, item) => acc + item.totalExpense, 0),
+        cashout: cashouts
+          ?.filter(
+            (item) =>
+              checkoutControl?.date >= item?.date &&
+              item.date === getPreviousDate(checkoutControl?.date)
+          )
+          ?.reduce((acc, item) => acc + item.amount, 0),
+      };
+    }) ?? [];
   const arrangedAllRows = allRows.map((row) => {
     return {
       ...row,
@@ -458,7 +458,6 @@ const CheckoutControlPage = () => {
     serviceInvoices,
     incomes,
     cashouts,
-    selectedLocationId,
   ]);
   const filters = [
     {
