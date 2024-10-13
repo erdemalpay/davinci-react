@@ -6,6 +6,7 @@ import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
 } from "../../../../utils/api/order/order";
+import DiscountNoteScreen from "./DiscountNoteScreen";
 import DiscountScreen from "./DiscountScreen";
 import OrderSelect from "./OrderSelect";
 import PaidOrders from "./PaidOrders";
@@ -29,6 +30,10 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
     useCreateOrderForDiscountMutation();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const {
+    setSelectedOrders,
+    setDiscountNote,
+    isDiscountNoteOpen,
+    setIsDiscountNoteOpen,
     isProductSelectionOpen,
     setIsProductSelectionOpen,
     isDiscountScreenOpen,
@@ -40,6 +45,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
     setIsProductDivideOpen,
     setIsOrderDivisionActive,
     isOrderDivisionActive,
+    discountNote,
   } = useOrderContext();
 
   const discountAmount = tableOrders.reduce((acc, order) => {
@@ -71,8 +77,16 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       label: t("Back"),
       onClick: () => {
         setIsProductSelectionOpen(false);
+        setSelectedOrders([]);
+        if (discountNote) {
+          setIsDiscountNoteOpen(true);
+        }
+        if (isDiscountNoteOpen) {
+          setDiscountNote("");
+          setIsDiscountNoteOpen(false);
+        }
       },
-      isActive: isProductSelectionOpen,
+      isActive: isProductSelectionOpen || isDiscountNoteOpen,
     },
     {
       label: t("Product Divide"),
@@ -86,6 +100,18 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
           isDiscountScreenOpen ||
           isOrderDivisionActive
         ) && !isProductDivideOpen,
+    },
+    {
+      label: t("Order Select"),
+      onClick: () => {
+        if (!discountNote) {
+          toast.error(t("Please enter a discount note"));
+          return;
+        }
+        setIsDiscountNoteOpen(false);
+        setIsProductSelectionOpen(true);
+      },
+      isActive: isDiscountNoteOpen,
     },
     {
       label: t("Product Based 1/n"),
@@ -136,6 +162,9 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
             ...(selectedDiscount.amount && {
               discountAmount: selectedDiscount.amount,
             }),
+            ...(discountNote && {
+              discountNote: discountNote,
+            }),
           });
         }
         resetOrderContext();
@@ -153,6 +182,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       {/* orders */}
       {!isProductDivideOpen &&
         !isProductSelectionOpen &&
+        !isDiscountNoteOpen &&
         (isDiscountScreenOpen ? (
           <DiscountScreen tableOrders={tableOrders} table={table} />
         ) : (
@@ -164,6 +194,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       {(isProductSelectionOpen || isProductDivideOpen) && (
         <OrderSelect tableOrders={tableOrders} />
       )}
+      {isDiscountNoteOpen && <DiscountNoteScreen />}
       <PaidOrders tableOrders={tableOrders} />
       {/* buttons */}
       <div className="flex flex-row gap-2 justify-end ml-auto items-center">

@@ -10,6 +10,8 @@ type OrderContextType = {
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
+  discountNote: string;
+  setDiscountNote: (discountNote: string) => void;
   selectedDiscount: OrderDiscount | null;
   setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
   isOrderDivisionActive: boolean;
@@ -29,6 +31,8 @@ type OrderContextType = {
   ) => void;
   isProductSelectionOpen: boolean;
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
+  isDiscountNoteOpen: boolean;
+  setIsDiscountNoteOpen: (isDiscountNoteOpen: boolean) => void;
   isDiscountScreenOpen: boolean;
   setIsDiscountScreenOpen: (isDiscountScreenOpen: boolean) => void;
   isProductDivideOpen: boolean;
@@ -51,6 +55,8 @@ type OrderContextType = {
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   isOrderDivisionActive: false,
+  discountNote: "",
+  setDiscountNote: () => {},
   setIsOrderDivisionActive: () => {},
   paymentAmount: "",
   setPaymentAmount: () => {},
@@ -60,6 +66,8 @@ const OrderContext = createContext<OrderContextType>({
   setIsProductSelectionOpen: () => {},
   isDiscountScreenOpen: false,
   setIsDiscountScreenOpen: () => {},
+  isDiscountNoteOpen: false,
+  setIsDiscountNoteOpen: () => {},
   selectedOrders: [],
   setSelectedOrders: () => {},
   isSelectAll: false,
@@ -92,8 +100,10 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     { order: Order; quantity: number }[]
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
+  const [isDiscountNoteOpen, setIsDiscountNoteOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
+  const [discountNote, setDiscountNote] = useState<string>("");
   const [selectedOrders, setSelectedOrders] = useState<
     {
       order: Order;
@@ -122,6 +132,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     });
   const resetOrderContext = () => {
     setPaymentAmount("");
+    setDiscountNote("");
     setTemporaryOrders([]);
     setIsProductSelectionOpen(false);
     setIsDiscountScreenOpen(false);
@@ -130,10 +141,13 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setIsSelectAll(false);
     setSelectedDiscount(null);
     setIsOrderDivisionActive(false);
+    setIsDiscountNoteOpen(false);
   };
   return (
     <OrderContext.Provider
       value={{
+        discountNote,
+        setDiscountNote,
         paymentAmount,
         setPaymentAmount,
         temporaryOrders,
@@ -153,6 +167,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setFilterPanelFormElements,
         isProductDivideOpen,
         setIsProductDivideOpen,
+        isDiscountNoteOpen,
+        setIsDiscountNoteOpen,
         isOrderDivisionActive,
         setIsOrderDivisionActive,
       }}

@@ -501,5 +501,10 @@
   "Table Count": "Masa Sayısı",
   "Eliminate Discount": "İndirimi Ele",
   "Please refund {{refundAmount}}{{TURKISHLIRA}}": "Lütfen {{refundAmount}}{{TURKISHLIRA}} iade yapın",
+  "Order Select": "Sipariş Seç",
+  "Please enter a discount note": "Lütfen bir indirim notu girin",
+  "Discount Note": "İndirim Notu",
+  "Enter discount note": "Lütfen indirim notu girin",
+  "Discount Amount": "İndirim Tutarı",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

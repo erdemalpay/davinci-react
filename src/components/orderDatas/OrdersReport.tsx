@@ -66,6 +66,18 @@ const OrdersReport = () => {
             ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
             : null,
         discountId: order?.discount,
+        discountNote: order?.discountNote,
+        discountAmount: order?.discountAmount
+          ? order?.discountAmount
+          : parseFloat(
+              (
+                (order.unitPrice *
+                  order.quantity *
+                  (order?.discountPercentage ?? 0)) /
+                100
+              ).toFixed(2)
+            ),
+
         discountName:
           discounts?.find((discount) => discount?._id === order?.discount)
             ?.name ?? "",
@@ -92,6 +104,8 @@ const OrdersReport = () => {
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Amount"), isSortable: true },
+    { key: t("Discount Amount"), isSortable: true },
+    { key: t("Discount Note"), isSortable: true },
     { key: t("Note"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Created By"), isSortable: true },
@@ -127,6 +141,15 @@ const OrdersReport = () => {
         </p>
       ),
     },
+    {
+      key: "discountAmount",
+      node: (row: any) => (
+        <p className="min-w-32 pr-2" key={row._id + "discountAmount"}>
+          {Number(row.discountAmount) !== 0 ? row.discountAmount + "₺" : "-"}
+        </p>
+      ),
+    },
+    { key: "discountNote", className: "min-w-32 pr-2" },
     { key: "note", className: "min-w-32 pr-2" },
     { key: "createdAt" },
     { key: "createdBy" },

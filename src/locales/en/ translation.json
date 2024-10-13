@@ -502,5 +502,10 @@
   "Table Count": "Table Count",
   "Eliminate Discount": "Eliminate Discount",
   "Please refund {{refundAmount}}{{TURKISHLIRA}}": "Please refund {{refundAmount}}{{TURKISHLIRA}}",
+  "Order Select": "Order Select",
+  "Please enter a discount note": "Please enter a discount note",
+  "Discount Note": "Discount Note",
+  "Enter discount note": "Enter discount note",
+  "Discount Amount": "Discount Amount",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
