@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import TextInput from "../components/panelComponents/FormElements/TextInput";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
@@ -23,7 +24,6 @@ const Count = () => {
   const products = useGetAccountProducts();
   const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
-  const [rowToAction, setRowToAction] = useState<any>();
   const { updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
@@ -54,7 +54,8 @@ const Count = () => {
               products?.find((p) => p?._id === countListProduct.product)
                 ?.name || "",
             countQuantity: currentCount?.products?.find(
-              (p) => p.product === countListProduct.product
+              (countProduct) =>
+                countProduct.product === countListProduct.product
             )?.countQuantity,
           };
         }
@@ -69,7 +70,6 @@ const Count = () => {
       canBeClicked: true,
       additionalSubmitFunction: () => {
         setCurrentPage(1);
-        // setRowsPerPage(RowPerPageEnum.FIRST);
         setSortConfigKey(null);
         setSearchQuery("");
       },
@@ -97,13 +97,13 @@ const Count = () => {
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
+              product:
+                products?.find((p) => p?._id === countListProduct.product)
+                  ?.name || "",
               countQuantity: currentCount?.products?.find(
                 (countProduct) =>
                   countProduct.product === countListProduct.product
               )?.countQuantity,
-              product:
-                products?.find((p) => p?._id === countListProduct.product)
-                  ?.name || "",
             };
           }
           return { product: "", countQuantity: 0 };
@@ -124,7 +124,68 @@ const Count = () => {
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
   ];
-  const rowKeys = [{ key: "product" }, { key: "countQuantity" }];
+  const rowKeys = [
+    { key: "product" },
+    {
+      key: "countQuantity",
+      node: (row: any) => {
+        return (
+          <div className="text-center">
+            <TextInput
+              key={row.productId}
+              type={"number"}
+              value={row.countQuantity}
+              label={""}
+              placeholder={""}
+              onChange={(value) => {
+                const rowProduct = products.find(
+                  (p) => p.name === row?.product
+                );
+                const currentCount = counts?.find((item) => {
+                  return (
+                    item.isCompleted === false &&
+                    item.location === location &&
+                    item.user === user?._id &&
+                    item.countList === countListId
+                  );
+                });
+                if (!currentCount || !rowProduct) {
+                  return;
+                }
+                const productStock = stocks?.find(
+                  (s) =>
+                    s?.product === rowProduct?._id && s?.location === location
+                );
+                const newProducts = [
+                  ...(currentCount?.products?.filter(
+                    (p) => p.product !== rowProduct?._id
+                  ) || []),
+                  {
+                    product: rowProduct?._id,
+                    countQuantity: value,
+                    stockQuantity: productStock?.quantity || 0,
+                  },
+                ];
+                updateAccountCount({
+                  id: currentCount?._id,
+                  updates: {
+                    products: newProducts,
+                  },
+                });
+              }}
+              isOnClearActive={false}
+              isNumberButtonsActive={false}
+              isDateInitiallyOpen={false}
+              isTopFlexRow={false}
+              minNumber={0}
+              isMinNumber={true}
+              className="w-20 h-10 text-center"
+            />
+          </div>
+        );
+      },
+    },
+  ];
   return (
     <>
       <Header />
@@ -136,7 +197,7 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
-          isActionsActive={true}
+          isActionsActive={false}
         />
         <div className="flex justify-end mt-4">
           <button
