@@ -6,7 +6,6 @@ import { patch } from "../index";
 
 interface UpdateStockPayload {
   product: string;
-  packageType: string;
   location: string;
   quantity: number;
   currentCountId: string;

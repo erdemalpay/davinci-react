@@ -11,7 +11,6 @@ import {
   useAccountInvoiceMutations,
   useGetAccountInvoices,
 } from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
@@ -20,14 +19,12 @@ import {
   useGetAccountServiceInvoices,
 } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
-  PackageTypeInput,
   PaymentMethodInput,
   ProductInput,
   QuantityInput,
@@ -51,8 +48,6 @@ const AllExpenses = () => {
   const invoices = useGetAccountInvoices();
   const serviceInvoices = useGetAccountServiceInvoices();
   const paymentMethods = useGetAccountPaymentMethods();
-  const units = useGetAccountUnits();
-  const packages = useGetAccountPackageTypes();
   const {
     searchQuery,
     setCurrentPage,
@@ -80,7 +75,6 @@ const AllExpenses = () => {
       vendor: "",
       brand: "",
       expenseType: "",
-      packages: "",
       location: "",
       before: "",
       after: "",
@@ -93,23 +87,14 @@ const AllExpenses = () => {
         ...invoice,
         product: getItem(invoice.product, products)?.name,
         expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-        packageType: getItem(invoice.packageType, packages)?.name,
         brand: getItem(invoice.brand, brands)?.name,
         vendor: getItem(invoice.vendor, vendors)?.name,
         lctn: getItem(invoice.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice.date),
         type: ExpenseTypes.INVOICE,
         unitPrice: parseFloat(
-          (
-            invoice.totalExpense /
-            (invoice.quantity *
-              (getItem(invoice.packageType, packages)?.quantity ?? 1))
-          ).toFixed(4)
+          (invoice.totalExpense / invoice.quantity).toFixed(4)
         ),
-        unit: units?.find(
-          (unit) =>
-            unit._id === (getItem(invoice.product, products)?.unit as string)
-        )?.name,
         expType: getItem(invoice.expenseType, expenseTypes),
       };
     }),
@@ -119,10 +104,8 @@ const AllExpenses = () => {
         product: getItem(invoice.service, services)?.name,
         expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
         brand: null,
-        packageType: null,
         vendor: getItem(invoice.vendor, vendors)?.name,
         type: ExpenseTypes.SERVICE,
-        unit: null,
         lctn: getItem(invoice.location, locations)?.name,
         formattedDate: formatAsLocalDate(invoice.date),
         unitPrice: parseFloat(
@@ -153,14 +136,12 @@ const AllExpenses = () => {
       invalidateKeys: [
         { key: "product", defaultValue: "" },
         { key: "service", defaultValue: "" },
-        { key: "packages", defaultValue: "" },
       ],
       placeholder: t("Expense Category"),
       isMultiple: false,
       required: true,
     },
     ProductInput({
-      units: units,
       products: products,
       required: true,
       isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
@@ -170,11 +151,6 @@ const AllExpenses = () => {
       services: services,
       required: true,
       isDisabled: filterPanelFormElements?.type !== ExpenseTypes.SERVICE,
-    }),
-    PackageTypeInput({
-      packages: packages,
-      required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
     }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
@@ -280,11 +256,9 @@ const AllExpenses = () => {
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
-        { key: "packageType", defaultValue: "" },
       ],
     },
     ProductInput({
-      units: units,
       products: products,
       required: allExpenseForm?.type === ExpenseTypes.INVOICE,
       isDisabled: allExpenseForm?.type !== ExpenseTypes.INVOICE,
@@ -292,7 +266,6 @@ const AllExpenses = () => {
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
-        { key: "packageType", defaultValue: "" },
       ],
     }),
     ServiceInput({
@@ -303,31 +276,8 @@ const AllExpenses = () => {
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
         { key: "vendor", defaultValue: "" },
-        { key: "packageType", defaultValue: "" },
       ],
     }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: products
-        .find((prod) => prod._id === allExpenseForm?.product)
-        ?.packages?.map((item) => {
-          const packageType = packages.find((pkg) => pkg._id === item.package);
-          return {
-            value: packageType?._id,
-            label: packageType?.name,
-          };
-        }),
-      placeholder: t("Package Type"),
-      required:
-        (products.find((prod) => prod._id === allExpenseForm?.product)?.packages
-          ?.length ?? 0) > 0 && allExpenseForm?.type === ExpenseTypes.INVOICE,
-      isDisabled:
-        (products?.find((prod) => prod._id === allExpenseForm?.product)
-          ?.packages?.length ?? 0) < 1 ||
-        allExpenseForm?.type !== ExpenseTypes.INVOICE,
-    },
     ExpenseTypeInput({
       expenseTypes: expenseTypeInputOptions() ?? [],
       required: true,
@@ -347,7 +297,6 @@ const AllExpenses = () => {
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
@@ -386,13 +335,7 @@ const AllExpenses = () => {
       className: "min-w-32 pr-2",
       isSortable: true,
     },
-    {
-      key: t("Package Type"),
-      className: "min-w-40 pr-2",
-      isSortable: true,
-    },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -470,27 +413,7 @@ const AllExpenses = () => {
         );
       },
     },
-    {
-      key: "packageType",
-      node: (row: any) => {
-        return (
-          <div>
-            <p className="min-w-32">{row.packageType}</p>
-          </div>
-        );
-      },
-    },
     { key: "quantity", className: "min-w-32" },
-    {
-      key: "unit",
-      node: (row: any) => {
-        return (
-          <div>
-            <p>{row.unit ?? "-"}</p>
-          </div>
-        );
-      },
-    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -549,12 +472,6 @@ const AllExpenses = () => {
           invoice.date <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
           invoice.date >= filterPanelFormElements.after) &&
-        passesFilter(
-          filterPanelFormElements.packages,
-          packages.find(
-            (packageType) => packageType.name === invoice.packageType
-          )?._id
-        ) &&
         passesFilter(
           filterPanelFormElements.product,
           products.find((item) => item.name === invoice.product)?._id
@@ -616,14 +533,12 @@ const AllExpenses = () => {
     searchQuery,
     products,
     serviceInvoices,
-    packages,
     products,
     expenseTypes,
     brands,
     vendors,
     services,
     locations,
-    units,
     paymentMethods,
   ]);
 

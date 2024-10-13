@@ -17,9 +17,7 @@ import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import { AccountProduct, ProductPageTabEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountUnits } from "../utils/api/account/unit";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
-import { getItem } from "../utils/getItem";
 
 export const ProductPageTabs = [
   {
@@ -54,9 +52,8 @@ export const ProductPageTabs = [
 export default function Product() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
-  const units = useGetAccountUnits();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<AccountProduct>();
   const { productId } = useParams();
@@ -82,10 +79,9 @@ export default function Product() {
     },
   ];
   const productOption = products?.map((p) => {
-    const productUnit = getItem(p?.unit, units);
     return {
       value: p._id,
-      label: p.name + `(${productUnit?.name})`,
+      label: p.name,
     };
   });
 

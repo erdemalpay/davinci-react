@@ -5,6 +5,7 @@ import { post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/products`;
+const allProductsBaseUrl = `${Paths.Accounting}/all-products`;
 
 export interface JoinProductsRequest {
   stayedProduct: string;
@@ -52,4 +53,8 @@ export function useJoinProductsMutation() {
 
 export function useGetAccountProducts() {
   return useGetList<AccountProduct>(baseUrl);
+}
+
+export function useGetAllAccountProducts() {
+  return useGetList<AccountProduct>(allProductsBaseUrl);
 }

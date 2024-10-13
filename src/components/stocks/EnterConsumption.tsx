@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -12,11 +11,9 @@ const EnterConsumption = () => {
   const { t } = useTranslation();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const products = useGetAccountProducts();
-  const packages = useGetAccountPackageTypes();
   const locations = useGetAccountStockLocations();
   const [form, setForm] = useState({
     product: "",
-    packageType: "",
     location: "",
     quantity: 0,
   });
@@ -31,24 +28,7 @@ const EnterConsumption = () => {
           label: product.name,
         };
       }),
-      invalidateKeys: [{ key: "packageType", defaultValue: "" }],
       placeholder: t("Product"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "packageType",
-      label: t("Package Type"),
-      options: products
-        .find((prod) => prod._id === form?.product)
-        ?.packages?.map((item) => {
-          const packageType = packages.find((pkg) => pkg._id === item.package);
-          return {
-            value: packageType?._id,
-            label: packageType?.name,
-          };
-        }),
-      placeholder: t("Package Type"),
       required: true,
     },
     StockLocationInput({ locations: locations }),
@@ -56,7 +36,6 @@ const EnterConsumption = () => {
   ];
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "packageType", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];

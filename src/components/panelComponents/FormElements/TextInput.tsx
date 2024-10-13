@@ -58,6 +58,9 @@ const TextInput = ({
   const [localValue, setLocalValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
+  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
+    null
+  );
   const handleDivClick = () => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -69,6 +72,23 @@ const TextInput = ({
       inputRef.current.click();
     }
   }, [isDateInitiallyOpen, type]);
+
+  // Debounce onChange
+  const handleChange = (e: { target: { value: string | number } }) => {
+    const newValue =
+      type === "number" && +e.target.value < minNumber
+        ? minNumber.toString()
+        : e.target.value;
+    setLocalValue(newValue);
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+    const timer = setTimeout(() => {
+      onChange(newValue); // Only call onChange after the debounce delay
+    }, 1000); // 1 second delay
+    setDebounceTimer(timer);
+  };
+
   const handleIncrement = () => {
     if (type === "number") {
       const newValue = Math.max(minNumber, +localValue + 1);
@@ -269,12 +289,10 @@ const TextInput = ({
 
   return (
     <div
-      className={` flex ${
-        isTopFlexRow ? "flex-row gap-4 " : "flex-col gap-2"
-      }   w-full  `}
+      className={` flex ${isTopFlexRow ? "flex-row gap-4 " : "flex-col gap-2"}`}
       onClick={handleDivClick}
     >
-      <H6 className={`${isTopFlexRow ? "min-w-20 " : "min-w-10"}   my-auto`}>
+      <H6 className={`${isTopFlexRow ? "min-w-20 " : "min-w-10"} my-auto`}>
         {label}
         {requiredField && (
           <>
@@ -303,19 +321,7 @@ const TextInput = ({
           placeholder={placeholder}
           disabled={disabled}
           value={localValue}
-          onChange={(e) => {
-            if (
-              type === "number" &&
-              +e.target.value < minNumber &&
-              isMinNumber
-            ) {
-              setLocalValue(minNumber.toString());
-              onChange(minNumber.toString());
-            } else {
-              setLocalValue(e.target.value);
-              onChange(e.target.value);
-            }
-          }}
+          onChange={handleChange}
           className={inputClassName}
           {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
           onWheel={type === "number" ? handleWheel : undefined}

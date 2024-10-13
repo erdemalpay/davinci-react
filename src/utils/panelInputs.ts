@@ -3,17 +3,14 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import {
   AccountBrand,
   AccountExpenseType,
-  AccountPackageType,
   AccountPaymentMethod,
   AccountProduct,
   AccountStockLocation,
-  AccountUnit,
   AccountVendor,
   Location,
   NOTPAID,
 } from "../types/index";
 import { AccountService } from "./../types/index";
-import { getItem } from "./getItem";
 
 export function NameInput({ required = true } = {}) {
   const { t } = useTranslation();
@@ -134,80 +131,18 @@ export function ExpenseTypeInput({
   };
 }
 
-export function PackageTypeInput({
-  required = false,
-  isMultiple = false,
-  isDisabled = false,
-  packages,
-}: {
-  required?: boolean;
-  isMultiple?: boolean;
-  isDisabled?: boolean;
-  packages: AccountPackageType[];
-}) {
-  const { t } = useTranslation();
-
-  return {
-    type: InputTypes.SELECT,
-    formKey: "packages",
-    label: t("Package Type"),
-    options: packages
-      .sort((a, b) => a.quantity - b.quantity)
-      .map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      }),
-    placeholder: t("Package Type"),
-    isMultiple: isMultiple,
-    isDisabled: isDisabled,
-    required: required,
-  };
-}
-
-export function UnitInput({
-  required = false,
-  isMultiple = false,
-  units,
-  invalidateKeys = [],
-}: {
-  required?: boolean;
-  isMultiple?: boolean;
-  units: AccountUnit[];
-  invalidateKeys?: { key: string; defaultValue: string }[];
-}) {
-  const { t } = useTranslation();
-  return {
-    type: InputTypes.SELECT,
-    formKey: "unit",
-    label: t("Unit"),
-    options: units.map((unit) => {
-      return {
-        value: unit._id,
-        label: unit.name,
-      };
-    }),
-    invalidateKeys: invalidateKeys,
-    placeholder: t("Unit"),
-    isMultiple: isMultiple,
-    required: required,
-  };
-}
 export function ProductInput({
   required = false,
   isDisabled = false,
   isMultiple = false,
   invalidateKeys = [],
   products,
-  units,
 }: {
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
   invalidateKeys?: { key: string; defaultValue: string }[];
   products: AccountProduct[];
-  units: AccountUnit[];
 }) {
   const { t } = useTranslation();
   return {
@@ -215,10 +150,9 @@ export function ProductInput({
     formKey: "product",
     label: t("Product"),
     options: products.map((product) => {
-      const productUnit = getItem(product.unit, units);
       return {
         value: product._id,
-        label: product.name + `(${productUnit?.name})`,
+        label: product.name,
       };
     }),
     isDisabled: isDisabled,
@@ -275,13 +209,12 @@ export function PaymentMethodInput({
     formKey: "paymentMethod",
     label: t("Payment Method"),
     options: [
-      ...paymentMethods?.map((input) => {
+      ...(paymentMethods?.map((input) => {
         return {
           value: input._id,
           label: t(input.name),
         };
-      }),
-      ,
+      }) || []),
       {
         value: NOTPAID,
         label: t("Not Paid"),

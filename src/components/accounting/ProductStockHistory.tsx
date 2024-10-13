@@ -2,23 +2,17 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { stockHistoryStatuses } from "../../types";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import {
-  PackageTypeInput,
-  ProductInput,
-  StockLocationInput,
-} from "../../utils/panelInputs";
+import { ProductInput, StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -29,15 +23,12 @@ const ProductStockHistory = () => {
   const stockHistories = useGetAccountProductStockHistorys();
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
-  const units = useGetAccountUnits();
-  const packages = useGetAccountPackageTypes();
   const users = useGetUsers();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
-      packages: "",
       location: "",
       status: "",
       before: "",
@@ -53,7 +44,6 @@ const ProductStockHistory = () => {
       return {
         ...stockHistory,
         prdct: getItem(stockHistory.product, products)?.name,
-        pckgTyp: getItem(stockHistory?.packageType, packages)?.name,
         lctn: getItem(stockHistory?.location, locations)?.name,
         usr: getItem(stockHistory?.user, users)?.name,
         newQuantity:
@@ -69,12 +59,10 @@ const ProductStockHistory = () => {
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     ProductInput({
-      units: units,
       products: products,
       required: true,
       isMultiple: true,
     }),
-    PackageTypeInput({ packages: packages, required: true }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -111,7 +99,6 @@ const ProductStockHistory = () => {
     { key: t("Hour"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Product"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("Old Quantity"), isSortable: true },
     { key: t("Changed"), isSortable: true },
@@ -186,10 +173,6 @@ const ProductStockHistory = () => {
           stockHistory.createdAt <= filterPanelFormElements.before) &&
         (filterPanelFormElements.after === "" ||
           stockHistory.createdAt >= filterPanelFormElements.after) &&
-        passesFilter(
-          filterPanelFormElements.packages,
-          stockHistory.packageType
-        ) &&
         (!filterPanelFormElements.product.length ||
           filterPanelFormElements.product?.some((panelProduct: string) =>
             passesFilter(panelProduct, stockHistory.product)
@@ -200,15 +183,7 @@ const ProductStockHistory = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [
-    stockHistories,
-    filterPanelFormElements,
-    units,
-    users,
-    products,
-    packages,
-    locations,
-  ]);
+  }, [stockHistories, filterPanelFormElements, users, products, locations]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,

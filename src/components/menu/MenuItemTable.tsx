@@ -16,13 +16,12 @@ import {
   RoleEnum,
   TURKISHLIRA,
 } from "../../types";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
+import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import {
   useGetMenuItems,
   useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
-import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -34,13 +33,13 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 type Props = {
   singleItemGroup: ItemGroup;
   popularItems: MenuPopular[];
-  products: AccountProduct[];
 };
 
-const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
+const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { i18n } = useTranslation();
+  const products = useGetAllAccountProducts();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const items = useGetMenuItems();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -57,8 +56,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const units = useGetAccountUnits();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
+  console.log({ singleItemGroup });
   const allRows = singleItemGroup.items.map((item) => {
     return {
       ...item,
@@ -66,7 +65,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         collapsibleHeader: t("Ingredients"),
         collapsibleColumns: [
           { key: t("Product"), isSortable: true },
-          { key: t("Unit"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
           ...(!singleItemGroup.category?.isOnlineOrder ||
           user?.role?._id === RoleEnum.MANAGER
@@ -80,13 +78,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
           name: products?.find(
             (product: AccountProduct) => product._id === itemProduction.product
           )?.name,
-          unit: units?.find(
-            (unit) =>
-              unit._id ===
-              products?.find(
-                (product) => product._id === itemProduction.product
-              )?.unit
-          )?.name,
           price: (
             (products?.find((product) => product._id === itemProduction.product)
               ?.unitPrice ?? 0) * itemProduction.quantity
@@ -96,7 +87,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
         })),
         collapsibleRowKeys: [
           { key: "name" },
-          { key: "unit" },
           { key: "quantity" },
           ...(!singleItemGroup.category?.isOnlineOrder ||
           user?.role?._id === RoleEnum.MANAGER
@@ -157,7 +147,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [singleItemGroup.items, products, i18n.language, units, items]);
+  }, [singleItemGroup.items, products, i18n.language, items]);
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
@@ -171,10 +161,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems, products }: Props) => {
             )
         )
         .map((product) => {
-          const productUnit = getItem(product.unit, units);
           return {
             value: product._id,
-            label: product.name + `(${productUnit?.name})`,
+            label: product.name,
           };
         }),
       placeholder: t("Product"),

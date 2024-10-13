@@ -5,11 +5,11 @@ import { LuCircleEqual } from "react-icons/lu";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -22,7 +22,6 @@ import {
 } from "../utils/api/account/count";
 import { useGetAccountCountLists } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountUnits } from "../utils/api/account/unit";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
@@ -33,7 +32,6 @@ const SingleCountArchive = () => {
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
   const countLists = useGetAccountCountLists();
-  const units = useGetAccountUnits();
   const users = useGetUsers();
   const { mutate: updateStockForStockCount } =
     useUpdateStockForStockCountMutation();
@@ -42,7 +40,7 @@ const SingleCountArchive = () => {
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
+  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const foundCount = counts?.find((count) => count._id === archiveId);
   const pageNavigations = [
@@ -74,17 +72,10 @@ const SingleCountArchive = () => {
         currentCountLocationId: currentCount?.location,
         product: products?.find((item) => item._id === option.product)?.name,
         productId: option.product,
-        unit: units?.find(
-          (unit) =>
-            unit._id ===
-            products?.find((item) => item._id === option.product)?.unit
-        )?.name,
         date: `${pad(date.getDate())}-${pad(
           date.getMonth() + 1
         )}-${date.getFullYear()}`,
 
-        packageType: option.packageType, //TODO:this needs to be made name packageTypes eklenip daha sonra oradan bulup adini koy
-        packageTypeId: option.packageType,
         stockQuantity: option.stockQuantity,
         countQuantity: option.countQuantity,
         isStockEqualized: option?.isStockEqualized ?? false,
@@ -95,8 +86,6 @@ const SingleCountArchive = () => {
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Product"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
-    { key: t("Package Type"), isSortable: true },
     { key: t("Stock Quantity"), isSortable: true },
     { key: t("Count Quantity"), isSortable: true },
     { key: t("Stock Equalized"), isSortable: true },
@@ -105,8 +94,6 @@ const SingleCountArchive = () => {
   const rowKeys = [
     { key: "date", className: "min-w-32" },
     { key: "product" },
-    { key: "unit" },
-    { key: "packageType" },
     { key: "stockQuantity" },
     { key: "countQuantity" },
     {
@@ -124,7 +111,6 @@ const SingleCountArchive = () => {
     stockQuantity: number;
     countQuantity: number;
     product: string;
-    unit: string;
   }) {
     if (Number(row.stockQuantity) === Number(row.countQuantity)) {
       return "bg-blue-100";
@@ -189,7 +175,6 @@ const SingleCountArchive = () => {
               updateStockForStockCount({
                 product: row.productId,
                 location: row.currentCountLocationId,
-                packageType: row.packageTypeId,
                 quantity: row.countQuantity,
                 currentCountId: row.currentCountId,
               });
@@ -236,7 +221,7 @@ const SingleCountArchive = () => {
   useEffect(() => {
     setRows(allRows());
     setTableKey((prev) => prev + 1);
-  }, [counts, products, archiveId, units, countLists, users]);
+  }, [counts, products, archiveId, countLists, users]);
   return (
     <>
       <Header />

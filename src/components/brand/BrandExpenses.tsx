@@ -7,10 +7,8 @@ import { AccountExpenseType } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountInvoices } from "../../utils/api/account/invoice";
-import { useGetAccountPackageTypes } from "../../utils/api/account/packageType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
-import { useGetAccountUnits } from "../../utils/api/account/unit";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -36,9 +34,7 @@ const BrandExpenses = () => {
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
   const expenseTypes = useGetAccountExpenseTypes();
-  const packages = useGetAccountPackageTypes();
   const products = useGetAccountProducts();
-  const units = useGetAccountUnits();
   const locations = useGetAccountStockLocations();
   const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -60,25 +56,16 @@ const BrandExpenses = () => {
           ...invoice,
           product: getItem(invoice?.product, products)?.name,
           expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          packageType: getItem(invoice?.packageType, packages)?.name,
           brand: getItem(invoice?.brand, brands)?.name,
           vendor: getItem(invoice?.vendor, vendors)?.name,
           formattedDate: formatAsLocalDate(invoice?.date),
           lctn: getItem(invoice?.location, locations)?.name,
           unitPrice: parseFloat(
-            (
-              invoice?.totalExpense /
-              (invoice?.quantity *
-                (getItem(invoice?.packageType, packages)?.quantity ?? 1))
-            ).toFixed(4)
+            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
           ),
-          unit: units?.find(
-            (unit) => unit._id === getItem(invoice?.product, products)?.unit
-          )?.name,
           expType: getItem(invoice?.expenseType, expenseTypes),
           brnd: getItem(invoice?.brand, brands),
           vndr: getItem(invoice?.vendor, vendors),
-          pckgTyp: getItem(invoice?.packageType, packages),
           prdct: getItem(invoice?.product, products),
         };
       })
@@ -119,7 +106,6 @@ const BrandExpenses = () => {
 
   const filterPanelInputs = [
     ProductInput({
-      units: units,
       products: products.filter((i) => i.brand?.includes(brandId)),
       required: true,
     }),
@@ -167,13 +153,7 @@ const BrandExpenses = () => {
       className: "min-w-32 pr-2",
       isSortable: true,
     },
-    {
-      key: t("Package Type"),
-      className: "min-w-32 ",
-      isSortable: true,
-    },
     { key: t("Quantity"), isSortable: true },
-    { key: t("Unit"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Expense"), isSortable: true },
   ];
@@ -217,14 +197,7 @@ const BrandExpenses = () => {
       key: "product",
       className: "min-w-32 pr-2",
     },
-    {
-      key: "packageType",
-      className: "min-w-32 pr-2",
-    },
     { key: "quantity", className: "min-w-32" },
-    {
-      key: "unit",
-    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -301,25 +274,16 @@ const BrandExpenses = () => {
           ...invoice,
           product: getItem(invoice?.product, products)?.name,
           expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          packageType: getItem(invoice?.packageType, packages)?.name,
           brand: getItem(invoice?.brand, brands)?.name,
           vendor: getItem(invoice?.vendor, vendors)?.name,
           formattedDate: formatAsLocalDate(invoice?.date),
           lctn: getItem(invoice?.location, locations)?.name,
           unitPrice: parseFloat(
-            (
-              invoice?.totalExpense /
-              (invoice?.quantity *
-                (getItem(invoice?.packageType, packages)?.quantity ?? 1))
-            ).toFixed(4)
+            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
           ),
-          unit: units?.find(
-            (unit) => unit._id === getItem(invoice?.product, products)?.unit
-          )?.name,
           expType: getItem(invoice?.expenseType, expenseTypes),
           brnd: getItem(invoice?.brand, brands),
           vndr: getItem(invoice?.vendor, vendors),
-          pckgTyp: getItem(invoice?.packageType, packages),
           prdct: getItem(invoice?.product, products),
         };
       });
@@ -361,10 +325,8 @@ const BrandExpenses = () => {
     brands,
     vendors,
     expenseTypes,
-    packages,
     products,
     locations,
-    units,
   ]);
 
   return (
