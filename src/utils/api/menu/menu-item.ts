@@ -4,6 +4,7 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 export function useMenuItemMutations() {
   return useMutationApi<MenuItem>({
     baseQuery: Paths.MenuItems,
+    isInvalidate: true,
   });
 }
 
