@@ -57,7 +57,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
-  console.log({ singleItemGroup });
   const allRows = singleItemGroup.items.map((item) => {
     return {
       ...item,

@@ -34,6 +34,7 @@ type TextInputProps = {
   isMinNumber?: boolean;
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
+  isDebounce?: boolean;
 };
 
 const TextInput = ({
@@ -53,6 +54,7 @@ const TextInput = ({
   isNumberButtonsActive = false,
   isOnClearActive = true,
   requiredField = false,
+  isDebounce = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -80,13 +82,15 @@ const TextInput = ({
         ? minNumber.toString()
         : e.target.value;
     setLocalValue(newValue);
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
+    if (isDebounce) {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      const timer = setTimeout(() => {
+        onChange(newValue); // Only call onChange after the debounce delay
+      }, 1000); // 1 second delay
+      setDebounceTimer(timer);
     }
-    const timer = setTimeout(() => {
-      onChange(newValue); // Only call onChange after the debounce delay
-    }, 1000); // 1 second delay
-    setDebounceTimer(timer);
   };
 
   const handleIncrement = () => {

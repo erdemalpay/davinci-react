@@ -177,6 +177,7 @@ const Count = () => {
                   },
                 });
               }}
+              isDebounce={true}
               isOnClearActive={true}
               isNumberButtonsActive={true}
               isDateInitiallyOpen={false}
