@@ -127,23 +127,22 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
                   <h5 className="text-xs whitespace-nowrap min-w-8">
                     {orderWaitTime(order)} m
                   </h5>
-
-                  {order.paidQuantity === 0 && (
-                    <HiOutlineTrash
-                      className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                      onClick={() =>
-                        updateOrder({
-                          id: order._id,
-                          updates: {
-                            status: OrderStatus.CANCELLED,
-                            cancelledAt: new Date(),
-                            cancelledBy: user._id,
-                          },
-                        })
-                      }
-                    />
-                  )}
                 </div>
+              )}
+              {order.paidQuantity === 0 && (
+                <HiOutlineTrash
+                  className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
+                  onClick={() =>
+                    updateOrder({
+                      id: order._id,
+                      updates: {
+                        status: OrderStatus.CANCELLED,
+                        cancelledAt: new Date(),
+                        cancelledBy: user._id,
+                      },
+                    })
+                  }
+                />
               )}
             </div>
           </div>
