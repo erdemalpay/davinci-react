@@ -44,17 +44,25 @@ interface Props<T> {
   additionalInvalidates?: QueryKey[];
 }
 
-export function useGet<T>(path: string, queryKey?: QueryKey) {
+export function useGet<T>(
+  path: string,
+  queryKey?: QueryKey,
+  isStaleTimeZero?: boolean
+) {
   // We are using path as a query key if queryKey is not provided
   const fetchQueryKey = queryKey || [path];
   const { data } = useQuery(fetchQueryKey, () => get<T>({ path }), {
-    staleTime: Infinity,
+    staleTime: isStaleTimeZero ? 0 : Infinity,
   });
   return data;
 }
 
-export function useGetList<T>(path: string, queryKey?: QueryKey) {
-  return useGet<T[]>(path, queryKey) || [];
+export function useGetList<T>(
+  path: string,
+  queryKey?: QueryKey,
+  isStaleTimeZero?: boolean
+) {
+  return useGet<T[]>(path, queryKey, isStaleTimeZero) || [];
 }
 
 export function useMutationApi<T extends { _id: number | string }>({
