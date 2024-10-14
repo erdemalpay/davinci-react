@@ -90,6 +90,8 @@ const TextInput = ({
         onChange(newValue); // Only call onChange after the debounce delay
       }, 1000); // 1 second delay
       setDebounceTimer(timer);
+    } else {
+      onChange(newValue);
     }
   };
 
