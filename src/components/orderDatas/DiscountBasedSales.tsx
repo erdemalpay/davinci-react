@@ -2,7 +2,13 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { OrderStatus, Table } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  OrderStatus,
+  Table,
+} from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -13,7 +19,6 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type ItemQuantity = {
   itemId: number;
   itemName: string;
@@ -241,6 +246,34 @@ const DiscountBasedSales = () => {
       }),
       placeholder: t("Discount"),
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
     },
     {
       type: InputTypes.DATE,

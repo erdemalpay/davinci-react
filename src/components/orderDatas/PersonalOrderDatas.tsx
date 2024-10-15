@@ -2,14 +2,20 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Order, OrderStatus, Table } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  Order,
+  OrderStatus,
+  Table,
+} from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 interface PersonalOrderData {
   user: string;
   createdByCount: number;
@@ -194,6 +200,34 @@ const PersonalOrderDatas = () => {
       isMultiple: true,
       placeholder: t("Eliminate Discount"),
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
     },
     {
       type: InputTypes.DATE,

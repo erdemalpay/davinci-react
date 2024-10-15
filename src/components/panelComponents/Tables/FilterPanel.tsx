@@ -73,6 +73,10 @@ const FilterPanel = <T,>({
                 }));
               });
             }
+            if (changedInput?.additionalOnChange) {
+              console.log("additionalOnChange", selectedValue);
+              changedInput.additionalOnChange(selectedValue);
+            }
             setCurrentPage(1);
           };
         if (input.isDisabled) return null;
@@ -97,7 +101,6 @@ const FilterPanel = <T,>({
                 }
               />
             )}
-
             {input.type === InputTypes.SELECT && !input.isDisabled && (
               <SelectInput
                 key={

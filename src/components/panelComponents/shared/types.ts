@@ -88,6 +88,7 @@ export interface GenericInputType {
   isAutoFill?: boolean;
   isMinNumber?: boolean;
   isDebounce?: boolean;
+  additionalOnChange?: (value: any) => void;
   invalidateKeys?: {
     key: string;
     defaultValue: string | boolean | number | undefined;
@@ -110,6 +111,7 @@ export enum InputTypes {
   TIME = "time",
   COLOR = "color",
   CHECKBOX = "checkbox",
+  CUSTOMINPUT = "customInput",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",

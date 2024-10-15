@@ -500,5 +500,10 @@
   "Order is pending.": "Order is pending.",
   "Order is ready to serve.": "Order is ready to serve.",
   "Note Required": "Note Required",
+  "Online Order": "Online Order",
+  "Today": "Today",
+  "Yesterday": "Yesterday",
+  "This Year": "This Year",
+  "Last Year": "Last Year",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

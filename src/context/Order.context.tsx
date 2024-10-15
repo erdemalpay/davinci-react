@@ -1,7 +1,6 @@
+import { format, startOfMonth } from "date-fns";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Order, OrderDiscount } from "../types";
-import { getFirstDayOfCurrentMonth } from "../utils/format";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -82,7 +81,8 @@ const OrderContext = createContext<OrderContextType>({
     user: "",
     status: "",
     before: "",
-    after: getFirstDayOfCurrentMonth(),
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    date: "",
     category: "",
     discount: "",
     paymentMethod: "",
@@ -121,7 +121,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
       user: "",
       status: "",
       before: "",
-      after: getFirstDayOfCurrentMonth(),
+      after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+      date: "",
       category: "",
       discount: "",
       paymentMethod: "",

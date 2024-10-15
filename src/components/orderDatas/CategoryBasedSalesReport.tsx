@@ -2,7 +2,14 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { OrderStatus, Table, TURKISHLIRA } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  OrderStatus,
+  Table,
+  TURKISHLIRA,
+} from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -35,6 +42,7 @@ type OrderWithPaymentInfo = {
   className?: string;
   isSortable?: boolean;
 };
+
 const CategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -301,12 +309,41 @@ const CategoryBasedSalesReport = () => {
       required: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
     {
       type: InputTypes.DATE,
@@ -315,6 +352,7 @@ const CategoryBasedSalesReport = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
   ];
   const filterPanel = {

@@ -2,7 +2,8 @@ import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { Table } from "../../types";
+import { commonDateOptions, DateRangeKey, Table } from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -239,6 +240,34 @@ const OrdersReport = () => {
       required: true,
     },
     LocationInput({ locations: locations, required: true }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
     {
       type: InputTypes.DATE,
       formKey: "after",

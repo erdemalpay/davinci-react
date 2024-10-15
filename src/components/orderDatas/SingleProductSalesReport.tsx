@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { OrderStatus, Table, TURKISHLIRA } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  OrderStatus,
+  Table,
+  TURKISHLIRA,
+} from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -13,7 +20,6 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
@@ -212,6 +218,34 @@ const SingleProductSalesReport = () => {
       isMultiple: true,
       placeholder: t("Category"),
       required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
     },
     {
       type: InputTypes.DATE,

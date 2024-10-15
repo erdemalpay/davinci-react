@@ -921,3 +921,23 @@ export interface SocketEventType {
   event: string;
   invalidateKeys: string[];
 }
+export const commonDateOptions = [
+  { value: "today", label: "Today" },
+  { value: "yesterday", label: "Yesterday" },
+  { value: "thisWeek", label: "This Week" },
+  { value: "lastWeek", label: "Last Week" },
+  { value: "thisMonth", label: "This Month" },
+  { value: "lastMonth", label: "Last Month" },
+  { value: "thisYear", label: "This Year" },
+  { value: "lastYear", label: "Last Year" },
+];
+
+export type DateRangeKey =
+  | "today"
+  | "yesterday"
+  | "thisWeek"
+  | "lastWeek"
+  | "thisMonth"
+  | "lastMonth"
+  | "thisYear"
+  | "lastYear";
