@@ -30,6 +30,46 @@ const OrderStatusContainer = ({
     },
     {}
   );
+  const getEarliestDate = (orders: Order[]): Date | null => {
+    return orders.reduce<Date | null>((earliest, order) => {
+      let date: Date | null = null;
+      switch (order.status) {
+        case OrderStatus.PENDING:
+          date = new Date(order.createdAt);
+          break;
+        case OrderStatus.READYTOSERVE:
+          date = order.preparedAt ? new Date(order.preparedAt) : null;
+          break;
+        case OrderStatus.SERVED:
+          date = order.deliveredAt ? new Date(order.deliveredAt) : null;
+          break;
+      }
+
+      if (date === null) {
+        return earliest;
+      }
+
+      if (!earliest || date > earliest) {
+        return date;
+      }
+      return earliest;
+    }, null);
+  };
+
+  const sortedGroupedOrders = Object.entries(groupedOrders).sort((a, b) => {
+    const earliestA = getEarliestDate(a[1]);
+    const earliestB = getEarliestDate(b[1]);
+    if (earliestA === null && earliestB === null) {
+    }
+    if (earliestA === null) {
+      return 1;
+    }
+    if (earliestB === null) {
+      return -1;
+    }
+    return earliestB.getTime() - earliestA.getTime();
+  });
+
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
 
   return (
@@ -55,7 +95,7 @@ const OrderStatusContainer = ({
         {/* orders */}
         <div className="flex flex-col gap-4 px-2">
           {/* grouped tables  */}
-          {Object.entries(groupedOrders)?.map(([tableId, tableOrders]) => (
+          {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
             <div key={tableId} className=" flex flex-col gap-1 px-1 ">
               <div className="flex justify-between">
                 <h2 className="font-semibold text-blue-800 ">
@@ -101,7 +141,7 @@ const OrderStatusContainer = ({
               </div>
               {/* single order card in a table  */}
               <div className="flex flex-col gap-2">
-                {tableOrders?.map((order) => (
+                {[...tableOrders].reverse().map((order) => (
                   <SingleOrderCard key={order._id} order={order} user={user} />
                 ))}
               </div>
