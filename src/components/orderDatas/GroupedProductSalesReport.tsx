@@ -322,6 +322,7 @@ const GroupedProductSalesReport = () => {
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
     {
       type: InputTypes.DATE,
@@ -330,6 +331,7 @@ const GroupedProductSalesReport = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
   ];
   const filterPanel = {

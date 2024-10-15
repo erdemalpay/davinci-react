@@ -171,6 +171,7 @@ const DailyIncome = () => {
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
     {
       type: InputTypes.DATE,
@@ -179,6 +180,7 @@ const DailyIncome = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
   ];
   const filterPanel = {

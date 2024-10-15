@@ -282,6 +282,7 @@ const DiscountBasedSales = () => {
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
     {
       type: InputTypes.DATE,
@@ -290,6 +291,7 @@ const DiscountBasedSales = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
   ];
   const filterPanel = {

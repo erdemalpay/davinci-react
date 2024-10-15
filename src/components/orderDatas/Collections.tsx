@@ -224,6 +224,7 @@ const Collections = () => {
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
     {
       type: InputTypes.DATE,
@@ -232,6 +233,7 @@ const Collections = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
     },
   ];
   const filterPanel = {
