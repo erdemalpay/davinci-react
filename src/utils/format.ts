@@ -14,7 +14,7 @@ export function convertDateFormat(dateStr: string) {
 
 export function getFirstDayOfCurrentMonth() {
   const now = new Date(); // Gets the current date and time
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 2);
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
   // Formatting the date in 'yyyy-mm-dd' format
   const formattedDate = firstDay.toISOString().slice(0, 10);
   return formattedDate;
