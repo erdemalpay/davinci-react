@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { stockHistoryStatuses } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -24,11 +25,13 @@ const ProductStockHistory = () => {
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const users = useGetUsers();
+  const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
+      expenseType: "",
       location: "",
       status: "",
       before: "",
@@ -58,11 +61,25 @@ const ProductStockHistory = () => {
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: t("Expense Type"),
+      options: expenseTypes?.map((expenseType) => {
+        return {
+          value: expenseType?._id,
+          label: expenseType?.name,
+        };
+      }),
+      placeholder: t("Expense Type"),
+      required: true,
+    },
     ProductInput({
       products: products,
       required: true,
       isMultiple: true,
     }),
+
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -164,6 +181,12 @@ const ProductStockHistory = () => {
       if (!stockHistory?.createdAt) {
         return false;
       }
+      if (filterPanelFormElements.expenseType) {
+        const item = getItem(stockHistory.product, products);
+        if (!item?.expenseType?.includes(filterPanelFormElements.expenseType)) {
+          return false;
+        }
+      }
       return (
         (filterPanelFormElements.before === "" ||
           stockHistory.createdAt <= filterPanelFormElements.before) &&
@@ -179,7 +202,14 @@ const ProductStockHistory = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [stockHistories, filterPanelFormElements, users, products, locations]);
+  }, [
+    stockHistories,
+    filterPanelFormElements,
+    users,
+    products,
+    locations,
+    expenseTypes,
+  ]);
 
   const filterPanel = {
     isFilterPanelActive: showFilters,
