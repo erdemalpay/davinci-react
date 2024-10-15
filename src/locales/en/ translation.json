@@ -497,5 +497,7 @@
   "Discount Note": "Discount Note",
   "Enter discount note": "Enter discount note",
   "Discount Amount": "Discount Amount",
+  "Order is pending.": "Order is pending.",
+  "Order is ready to serve.": "Order is ready to serve.",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
