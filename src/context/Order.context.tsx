@@ -6,6 +6,8 @@ type FormElementsState = {
 };
 
 type OrderContextType = {
+  isTransferProductOpen: boolean;
+  setIsTransferProductOpen: (isTransferProductOpen: boolean) => void;
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
@@ -92,6 +94,8 @@ const OrderContext = createContext<OrderContextType>({
     preparedBy: "",
   },
   setFilterPanelFormElements: () => {},
+  isTransferProductOpen: false,
+  setIsTransferProductOpen: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -103,6 +107,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isDiscountNoteOpen, setIsDiscountNoteOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
+  const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
   const [selectedOrders, setSelectedOrders] = useState<
     {
@@ -143,6 +148,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setSelectedDiscount(null);
     setIsOrderDivisionActive(false);
     setIsDiscountNoteOpen(false);
+    setIsTransferProductOpen(false);
   };
   return (
     <OrderContext.Provider
@@ -172,6 +178,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setIsDiscountNoteOpen,
         isOrderDivisionActive,
         setIsOrderDivisionActive,
+        isTransferProductOpen,
+        setIsTransferProductOpen,
       }}
     >
       {children}

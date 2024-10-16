@@ -46,6 +46,8 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
     setIsOrderDivisionActive,
     isOrderDivisionActive,
     discountNote,
+    setIsTransferProductOpen,
+    isTransferProductOpen,
   } = useOrderContext();
 
   const discountAmount = tableOrders.reduce((acc, order) => {
@@ -61,6 +63,13 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
   const totalAmount = tableOrders.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
+  const mainActiveCase =
+    !(
+      isTransferProductOpen ||
+      isProductSelectionOpen ||
+      isDiscountScreenOpen ||
+      isOrderDivisionActive
+    ) && !isProductDivideOpen;
   const buttons: OrderListButton[] = [
     {
       label: isOrderDivisionActive ? t("Close") : t("Cancel"),
@@ -78,6 +87,12 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       onClick: () => {
         setIsProductSelectionOpen(false);
         setSelectedOrders([]);
+        if (isTransferProductOpen) {
+          setIsTransferProductOpen(false);
+          setSelectedOrders([]);
+          setIsProductSelectionOpen(false);
+          return;
+        }
         if (discountNote) {
           setIsDiscountNoteOpen(true);
         }
@@ -86,7 +101,17 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
           setIsDiscountNoteOpen(false);
         }
       },
-      isActive: isProductSelectionOpen || isDiscountNoteOpen,
+      isActive:
+        isProductSelectionOpen || isDiscountNoteOpen || isTransferProductOpen,
+    },
+    {
+      label: t("Move Order"),
+      onClick: () => {
+        setTemporaryOrders([]);
+        setIsProductSelectionOpen(true);
+        setIsTransferProductOpen(true);
+      },
+      isActive: mainActiveCase,
     },
     {
       label: t("Product Divide"),
@@ -94,12 +119,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
         setTemporaryOrders([]);
         setIsProductDivideOpen(true);
       },
-      isActive:
-        !(
-          isProductSelectionOpen ||
-          isDiscountScreenOpen ||
-          isOrderDivisionActive
-        ) && !isProductDivideOpen,
+      isActive: mainActiveCase,
     },
     {
       label: t("Order Select"),
@@ -119,12 +139,7 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
         setTemporaryOrders([]);
         setIsOrderDivisionActive(true);
       },
-      isActive:
-        !(
-          isProductSelectionOpen ||
-          isDiscountScreenOpen ||
-          isProductDivideOpen
-        ) && !isOrderDivisionActive,
+      isActive: mainActiveCase,
     },
     {
       label: t("Apply"),
