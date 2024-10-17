@@ -293,6 +293,11 @@ export const allRoutes: {
     link: "https://docs.google.com/spreadsheets/d/12I0SfAT97zDFjyLHnujv9pIKCUkCpLUfX36MXPK1Bek/edit",
     isOnSidebar: true,
   },
+  {
+    name: "Oyun Bakımı",
+    link: "https://docs.google.com/spreadsheets/d/1r_8gDsQCBNKUJX4VeQtkkfZqUUQAgkQnm1a_NQg8YUA/edit",
+    isOnSidebar: true,
+  },
 ];
 
 export const NO_IMAGE_URL =
