@@ -58,11 +58,7 @@ const CountListProducts = (props: Props) => {
   }
 
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<any>[] = [
-    {
-      key: "name",
-    },
-  ];
+  const rowKeys: RowKeyType<any>[] = [{ key: "name" }];
 
   // Adding location columns and rowkeys
   for (const countList of countLists) {
@@ -103,18 +99,16 @@ const CountListProducts = (props: Props) => {
       },
     });
   }
-  const nameKeyIndex = rowKeys.findIndex((key) => key.key === "name");
-  if (nameKeyIndex !== -1) {
-    rowKeys[nameKeyIndex] = {
-      ...rowKeys[nameKeyIndex],
-      node: (row: any) => {
+  rowKeys.forEach((rowKey) => {
+    if (rowKey.key === "name") {
+      rowKey.node = (row) => {
         const className = productChecks[row.product]
           ? ""
           : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
         return <div className={className}>{row.name}</div>;
-      },
-    };
-  }
+      };
+    }
+  });
 
   const filters = [
     {
