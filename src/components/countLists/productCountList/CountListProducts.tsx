@@ -15,6 +15,9 @@ import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../../panelComponents/shared/types";
 
 type Props = {};
+interface ProductChecks {
+  [productId: string]: boolean;
+}
 
 const CountListProducts = (props: Props) => {
   const { t } = useTranslation();
@@ -24,6 +27,7 @@ const CountListProducts = (props: Props) => {
   const locations = useGetAccountStockLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
+  const productChecks: ProductChecks = {};
   const allRows = products.map((product) => ({
     product: product._id,
     name: product.name,
@@ -65,27 +69,25 @@ const CountListProducts = (props: Props) => {
     columns.push({ key: countList.name, isSortable: true });
     rowKeys.push({
       key: countList._id,
-      node: (row: any) =>
-        isEnableEdit ? (
+      node: (row: any) => {
+        const isChecked = countList?.products?.some(
+          (item) => item.product === row.product
+        );
+        productChecks[row.product] =
+          productChecks[row.product] || (isChecked ?? false);
+
+        return isEnableEdit ? (
           <div
             className={`${
               countLists?.length === 1 ? "flex justify-center" : ""
             }`}
           >
             <CheckSwitch
-              checked={
-                countList?.products?.find(
-                  (item) => item.product === row.product
-                )
-                  ? true
-                  : false
-              }
+              checked={isChecked ?? false}
               onChange={() => handleCountListUpdate(row, countList)}
             />
           </div>
-        ) : countList?.products?.find(
-            (item) => item.product === row.product
-          ) ? (
+        ) : isChecked ? (
           <IoCheckmark
             className={`text-blue-500 text-2xl ${
               countLists?.length === 1 ? "mx-auto" : ""
@@ -93,12 +95,28 @@ const CountListProducts = (props: Props) => {
           />
         ) : (
           <IoCloseOutline
-            className={`text-red-800 text-2xl  ${
+            className={`text-red-800 text-2xl ${
               countLists?.length === 1 ? "mx-auto" : ""
             }`}
           />
-        ),
+        );
+      },
     });
+  }
+
+  // After your existing loop
+  const nameKeyIndex = rowKeys.findIndex((key) => key.key === "name");
+  if (nameKeyIndex !== -1) {
+    rowKeys[nameKeyIndex] = {
+      ...rowKeys[nameKeyIndex],
+      node: (row: any) => {
+        // Apply conditional className based on whether the product had any true checks
+        const className = productChecks[row.product]
+          ? ""
+          : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
+        return <div className={className}>{row.name}</div>;
+      },
+    };
   }
 
   const filters = [
