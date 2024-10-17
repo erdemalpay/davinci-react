@@ -83,6 +83,10 @@ export function useWebSocket() {
         data.collection.table,
       ]);
     });
+    socket.on("singleTableChanged", (data) => {
+      // queryClient.invalidateQueries([`${Paths.Order}/collection`]);
+      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
+    });
 
     socketEventListeners.forEach((eventConfig) => {
       socket.on(eventConfig.event, (socketUser?: any, payload?: any) => {
