@@ -290,7 +290,7 @@ export const allRoutes: {
   },
   {
     name: "Shift",
-    link: "https://trello.com/b/GeTFa4ak/da-vinci-panel",
+    link: "https://docs.google.com/spreadsheets/d/12I0SfAT97zDFjyLHnujv9pIKCUkCpLUfX36MXPK1Bek/edit",
     isOnSidebar: true,
   },
 ];
