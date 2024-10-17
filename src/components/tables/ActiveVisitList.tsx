@@ -14,6 +14,9 @@ interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: User[];
   visits: Visit[];
 }
+interface SeenUsers {
+  [key: string]: boolean;
+}
 
 export function ActiveVisitList({
   name,
@@ -28,19 +31,29 @@ export function ActiveVisitList({
 
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
 
-  function handleChipClose(visit: Visit) {
-    finishVisit({ id: visit._id });
+  function handleChipClose(userId: string) {
+    if (!isUserActive(userId)) {
+      return;
+    }
+    const visit = visits.find(
+      (visitItem) => visitItem.user === userId && !visitItem?.finishHour
+    );
+    if (visit) finishVisit({ id: visit._id });
     // setItems(items.filter((t) => t._id !== user._id));
   }
 
   function handleSelection(item: User) {
-    if (!item) return;
+    if (!item || isUserActive(item._id)) return;
     createVisit({
       location: selectedLocationId,
     });
     // setItems([...items, item]);
   }
-
+  const isUserActive = (userId: string) => {
+    return visits
+      .filter((visit) => visit.user === userId)
+      .some((visit) => !visit?.finishHour);
+  };
   useEffect(() => {
     setFilteredSuggestions(
       suggestions.filter(
@@ -52,6 +65,17 @@ export function ActiveVisitList({
     );
   }, [suggestions, visits]);
 
+  const uniqueVisits = visits.reduce(
+    (acc: { unique: typeof visits; seenUsers: SeenUsers }, visit) => {
+      acc.seenUsers = acc.seenUsers || {}; // Initialize if not already initialized
+      if (visit?.user && !acc.seenUsers[visit.user]) {
+        acc.seenUsers[visit.user] = true; // Mark this user as seen
+        acc.unique.push(visit);
+      }
+      return acc;
+    },
+    { unique: [], seenUsers: {} }
+  ).unique;
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-col lg:flex-row w-full">
@@ -63,7 +87,7 @@ export function ActiveVisitList({
         />
       </div>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
-        {visits.map((visit) => (
+        {uniqueVisits.map((visit) => (
           <Tooltip
             key={visit?.user}
             content={getItem(visit?.user, users)?.role?.name}
@@ -71,11 +95,13 @@ export function ActiveVisitList({
             <Chip
               value={getItem(visit?.user, users)?.name}
               style={{
-                backgroundColor: getItem(visit?.user, users)?.role?.color,
+                backgroundColor: isUserActive(visit.user)
+                  ? getItem(visit?.user, users)?.role?.color
+                  : "gray",
                 height: "fit-content",
               }}
               color="gray"
-              onClose={() => handleChipClose(visit)}
+              onClose={() => handleChipClose(visit.user)}
             />
           </Tooltip>
         ))}

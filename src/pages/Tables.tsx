@@ -137,6 +137,7 @@ const Tables = () => {
       });
     }
   };
+
   const bgColor = (table: Table) => {
     const tableOrders = todayOrders?.filter(
       (order) => (order.table as Table)?._id === table?._id
@@ -313,7 +314,7 @@ const Tables = () => {
                   suggestions={users}
                   name="employees"
                   label={t("Who's at cafe?")}
-                  visits={visits.filter((visit) => !visit.finishHour)}
+                  visits={visits}
                 />
               ) : (
                 <PreviousVisitList visits={filteredVisits} />
