@@ -103,14 +103,11 @@ const CountListProducts = (props: Props) => {
       },
     });
   }
-
-  // After your existing loop
   const nameKeyIndex = rowKeys.findIndex((key) => key.key === "name");
   if (nameKeyIndex !== -1) {
     rowKeys[nameKeyIndex] = {
       ...rowKeys[nameKeyIndex],
       node: (row: any) => {
-        // Apply conditional className based on whether the product had any true checks
         const className = productChecks[row.product]
           ? ""
           : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
