@@ -15,9 +15,6 @@ import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../../panelComponents/shared/types";
 
 type Props = {};
-interface ProductChecks {
-  [productId: string]: boolean;
-}
 
 const CountListProducts = (props: Props) => {
   const { t } = useTranslation();
@@ -27,11 +24,11 @@ const CountListProducts = (props: Props) => {
   const locations = useGetAccountStockLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
-  const productChecks: ProductChecks = {};
   const allRows = products.map((product) => ({
     product: product._id,
     name: product.name,
   }));
+
   const [rows, setRows] = useState(allRows);
   function handleCountListUpdate(row: any, countList: AccountCountList) {
     if (countList?.products?.find((item) => item.product === row.product)) {
@@ -58,7 +55,23 @@ const CountListProducts = (props: Props) => {
   }
 
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<any>[] = [{ key: "name" }];
+
+  const checkProductIsInCountLists = (product: string) => {
+    return countLists?.some((countList) =>
+      countList?.products?.some((item) => item.product === product)
+    );
+  };
+  const rowKeys: RowKeyType<any>[] = [
+    {
+      key: "name",
+      node: (row) => {
+        const className = checkProductIsInCountLists(row.product)
+          ? ""
+          : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
+        return <div className={className}>{row.name}</div>;
+      },
+    },
+  ];
 
   // Adding location columns and rowkeys
   for (const countList of countLists) {
@@ -69,9 +82,6 @@ const CountListProducts = (props: Props) => {
         const isChecked = countList?.products?.some(
           (item) => item.product === row.product
         );
-        productChecks[row.product] =
-          productChecks[row.product] || (isChecked ?? false);
-
         return isEnableEdit ? (
           <div
             className={`${
@@ -99,17 +109,6 @@ const CountListProducts = (props: Props) => {
       },
     });
   }
-  rowKeys.forEach((rowKey) => {
-    if (rowKey.key === "name") {
-      rowKey.node = (row) => {
-        const className = productChecks[row.product]
-          ? ""
-          : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
-        return <div className={className}>{row.name}</div>;
-      };
-    }
-  });
-
   const filters = [
     {
       label: t("Enable Edit"),
