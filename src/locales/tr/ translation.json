@@ -506,5 +506,8 @@
   "This Year": "Bu Yıl",
   "Last Year": "Geçen Yıl",
   "Table Transfer": "Masa Transferi",
+  "Move Order": "Sipariş Transferi",
+  "Table Select": "Masa Seç",
+  "Forward": "İleri",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

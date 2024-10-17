@@ -15,6 +15,8 @@ type OrderContextType = {
   setDiscountNote: (discountNote: string) => void;
   selectedDiscount: OrderDiscount | null;
   setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
+  selectedTableTransfer: number;
+  setSelectedTableTransfer: (selectedTableTransfer: number) => void;
   isOrderDivisionActive: boolean;
   setIsOrderDivisionActive: (isOrderDivisionActive: boolean) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
@@ -50,12 +52,16 @@ type OrderContextType = {
   ) => void;
   filterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
+  isTableSelectOpen: boolean;
+  setIsTableSelectOpen: (isTableSelectOpen: boolean) => void;
   resetOrderContext: () => void;
 };
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   isOrderDivisionActive: false,
+  isTableSelectOpen: false,
+  setIsTableSelectOpen: () => {},
   discountNote: "",
   setDiscountNote: () => {},
   setIsOrderDivisionActive: () => {},
@@ -96,6 +102,8 @@ const OrderContext = createContext<OrderContextType>({
   setFilterPanelFormElements: () => {},
   isTransferProductOpen: false,
   setIsTransferProductOpen: () => {},
+  selectedTableTransfer: 0,
+  setSelectedTableTransfer: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -108,6 +116,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
+  const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
   const [selectedOrders, setSelectedOrders] = useState<
     {
@@ -118,6 +127,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   >([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [isProductDivideOpen, setIsProductDivideOpen] = useState(false);
+  const [selectedTableTransfer, setSelectedTableTransfer] = useState<number>(0);
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -149,6 +159,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setIsOrderDivisionActive(false);
     setIsDiscountNoteOpen(false);
     setIsTransferProductOpen(false);
+    setIsTableSelectOpen(false);
+    setSelectedTableTransfer(0);
   };
   return (
     <OrderContext.Provider
@@ -180,6 +192,10 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setIsOrderDivisionActive,
         isTransferProductOpen,
         setIsTransferProductOpen,
+        selectedTableTransfer,
+        setSelectedTableTransfer,
+        isTableSelectOpen,
+        setIsTableSelectOpen,
       }}
     >
       {children}

@@ -118,7 +118,6 @@ const GameStock = () => {
 
   const rowKeys = [
     { key: "prdct" },
-    { key: "pckgType", className: "min-w-32 " },
     { key: "lctn" },
     { key: "quantity" },
     {

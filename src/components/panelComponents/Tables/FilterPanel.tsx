@@ -74,7 +74,6 @@ const FilterPanel = <T,>({
               });
             }
             if (changedInput?.additionalOnChange) {
-              console.log("additionalOnChange", selectedValue);
               changedInput.additionalOnChange(selectedValue);
             }
             setCurrentPage(1);

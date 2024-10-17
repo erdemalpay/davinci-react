@@ -145,8 +145,8 @@ const SingleCountArchive = () => {
     },
   ];
   if (user?.role?._id !== RoleEnum.MANAGER) {
-    const splicedColumns = ["Stock Quantity", "Stock Equalized", "Actions"];
-    const splicedRowKeys = ["stockQuantity", "isStockEqualized"];
+    const splicedColumns = ["Stock Equalized", "Actions"];
+    const splicedRowKeys = ["isStockEqualized"];
     splicedColumns.forEach((item) => {
       columns.splice(
         columns.findIndex((column) => column.key === item),

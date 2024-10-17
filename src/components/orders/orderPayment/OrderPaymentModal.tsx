@@ -28,13 +28,20 @@ type Props = {
   table: Table;
   orders?: Order[];
   collections?: OrderCollection[];
+  tables: Table[];
 };
 type ButtonType = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
+const OrderPaymentModal = ({
+  close,
+  table,
+  orders,
+  collections,
+  tables,
+}: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const isMutating = useIsMutating();
@@ -190,6 +197,7 @@ const OrderPaymentModal = ({ close, table, orders, collections }: Props) => {
                   collectionsTotalAmount={collectionsTotalAmount}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
+                  tables={tables}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}

@@ -660,6 +660,7 @@ export function TableCard({
           orders={tableOrders}
           collections={tableCollections ?? []}
           table={table}
+          tables={tables}
           close={() => {
             setExpandedRows({});
             resetOrderContext();

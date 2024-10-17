@@ -506,5 +506,8 @@
   "This Year": "This Year",
   "Last Year": "Last Year",
   "Table Transfer": "Table Transfer",
+  "Move Order": "Move Order",
+  "Table Select": "Table Select",
+  "Forward": "Forward",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

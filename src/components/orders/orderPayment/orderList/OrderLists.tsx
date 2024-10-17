@@ -5,11 +5,13 @@ import { Order, OrderCollection, Table } from "../../../../types";
 import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
+  useSelectedOrderTransferMutation,
 } from "../../../../utils/api/order/order";
 import DiscountNoteScreen from "./DiscountNoteScreen";
 import DiscountScreen from "./DiscountScreen";
 import OrderSelect from "./OrderSelect";
 import PaidOrders from "./PaidOrders";
+import TransferTableScreen from "./TransferTableScreen";
 import UnpaidOrders from "./UnpaidOrders";
 
 type Props = {
@@ -18,17 +20,24 @@ type Props = {
   collectionsTotalAmount: number;
   givenDateOrders?: Order[];
   givenDateCollections?: OrderCollection[];
+  tables: Table[];
 };
 type OrderListButton = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
+const OrderLists = ({
+  tableOrders,
+  collectionsTotalAmount,
+  table,
+  tables,
+}: Props) => {
   const { t } = useTranslation();
   const { mutate: createOrderForDiscount } =
     useCreateOrderForDiscountMutation();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
+  const { mutate: selectedOrderTransfer } = useSelectedOrderTransferMutation();
   const {
     setSelectedOrders,
     setDiscountNote,
@@ -48,6 +57,10 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
     discountNote,
     setIsTransferProductOpen,
     isTransferProductOpen,
+    isTableSelectOpen,
+    setIsTableSelectOpen,
+    setSelectedTableTransfer,
+    selectedTableTransfer,
   } = useOrderContext();
 
   const discountAmount = tableOrders.reduce((acc, order) => {
@@ -85,9 +98,12 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
     {
       label: t("Back"),
       onClick: () => {
-        setIsProductSelectionOpen(false);
-        setSelectedOrders([]);
-        if (isTransferProductOpen) {
+        if (isProductDivideOpen) {
+          setIsProductSelectionOpen(false);
+          setSelectedOrders([]);
+          return;
+        }
+        if (isTransferProductOpen && !isTableSelectOpen) {
           setIsTransferProductOpen(false);
           setSelectedOrders([]);
           setIsProductSelectionOpen(false);
@@ -100,9 +116,25 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
           setDiscountNote("");
           setIsDiscountNoteOpen(false);
         }
+        if (isTableSelectOpen) {
+          setIsTableSelectOpen(false);
+          setSelectedTableTransfer(0);
+          setIsProductSelectionOpen(true);
+        }
       },
       isActive:
         isProductSelectionOpen || isDiscountNoteOpen || isTransferProductOpen,
+    },
+    {
+      label: t("Forward"),
+      onClick: () => {
+        if (selectedOrders.length === 0) {
+          toast.error("Please select an order");
+          return;
+        }
+        setIsTableSelectOpen(true);
+      },
+      isActive: isTransferProductOpen && !isTableSelectOpen,
     },
     {
       label: t("Move Order"),
@@ -145,8 +177,9 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
       label: t("Apply"),
       onClick: () => {
         if (
-          selectedOrders.length === 0 ||
-          (isProductSelectionOpen && !selectedDiscount)
+          !isTableSelectOpen &&
+          (selectedOrders.length === 0 ||
+            (isProductSelectionOpen && !selectedDiscount))
         ) {
           toast.error("Please select an order");
           return;
@@ -181,10 +214,28 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
               discountNote: discountNote,
             }),
           });
+        } else if (isTableSelectOpen) {
+          if (selectedTableTransfer === 0) {
+            toast.error("Please select a table");
+            return;
+          }
+          selectedOrderTransfer({
+            orders: selectedOrders.map((selectedOrder) => {
+              return {
+                totalQuantity: selectedOrder.totalQuantity,
+                selectedQuantity: selectedOrder.selectedQuantity,
+                orderId: selectedOrder.order._id,
+              };
+            }),
+            transferredTableId: selectedTableTransfer,
+          });
         }
         resetOrderContext();
       },
-      isActive: isProductSelectionOpen || isProductDivideOpen,
+      isActive:
+        (isProductSelectionOpen && !isTransferProductOpen) ||
+        isProductDivideOpen ||
+        isTableSelectOpen,
     },
   ];
   return (
@@ -206,8 +257,10 @@ const OrderLists = ({ tableOrders, collectionsTotalAmount, table }: Props) => {
             collectionsTotalAmount={collectionsTotalAmount}
           />
         ))}
-      {(isProductSelectionOpen || isProductDivideOpen) && (
-        <OrderSelect tableOrders={tableOrders} />
+      {((isProductSelectionOpen && !isTableSelectOpen) ||
+        isProductDivideOpen) && <OrderSelect tableOrders={tableOrders} />}
+      {isTableSelectOpen && (
+        <TransferTableScreen tables={tables} table={table} />
       )}
       {isDiscountNoteOpen && <DiscountNoteScreen />}
       <PaidOrders tableOrders={tableOrders} />

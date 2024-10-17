@@ -30,6 +30,14 @@ interface TransferTablePayload {
   oldTableId: number;
   transferredTableId: number;
 }
+interface SelectedOrderTransferPayload {
+  orders: {
+    totalQuantity: number;
+    selectedQuantity: number;
+    orderId: number;
+  }[];
+  transferredTableId: number;
+}
 interface CancelOrderForDiscount {
   orderId: number;
   cancelQuantity: number;
@@ -67,6 +75,7 @@ export function transferTable(payload: TransferTablePayload) {
     payload: payload,
   });
 }
+
 export function useTransferTableMutation() {
   const tableBaseUrl = `${Paths.Tables}`;
   const { selectedLocationId } = useLocationContext();
@@ -132,6 +141,21 @@ export function useTransferTableMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+    },
+  });
+}
+export function selectedOrderTransfer(payload: SelectedOrderTransferPayload) {
+  return post({
+    path: `/order/selected_order_transfer`,
+    payload: payload,
+  });
+}
+export function useSelectedOrderTransferMutation() {
+  return useMutation(selectedOrderTransfer, {
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
     },
   });
 }

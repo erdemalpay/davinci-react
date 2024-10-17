@@ -16,9 +16,9 @@ import { H6 } from "../Typography";
 
 const CustomOption = (
   props: OptionProps<
-    { value: string; label: string },
+    { value: any; label: string },
     boolean,
-    GroupBase<{ value: string; label: string }>
+    GroupBase<{ value: any; label: string }>
   >
 ) => (
   <components.Option {...props}>
@@ -29,7 +29,7 @@ const CustomOption = (
   </components.Option>
 );
 
-type OptionType = { value: string; label: string };
+type OptionType = { value: any; label: string };
 interface SelectInputProps {
   label: string;
   options: OptionType[];
@@ -58,7 +58,7 @@ const normalizeText = (text: string) => {
 };
 
 const customFilterOption = (
-  option: { value: string; label: string },
+  option: { value: any; label: string },
   searchInput: string
 ) => {
   const normalizedLabel = normalizeText(option.label);

@@ -150,7 +150,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
             }}
           >
             {/* item name,quantity part */}
-            <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5">
+            <div className="flex flex-row gap-1 items-center justify-center  text-sm font-medium py-0.5 ">
               <p
                 className="p-1 border border-black  w-5 h-5 items-center justify-center flex text-sm text-red-600 font-medium"
                 onClick={(e) => {
