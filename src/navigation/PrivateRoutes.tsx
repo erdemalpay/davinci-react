@@ -10,9 +10,11 @@ export function PrivateRoutes() {
   const pages = useGetPanelControlPages();
   const location = useLocation();
   const { user } = useUserContext();
-  const currentRoute = allRoutes.find((route) =>
-    matchPath({ path: route.path, end: false }, location.pathname)
-  );
+  const currentRoute = allRoutes
+    .filter((route) => route.path)
+    .find((route) =>
+      matchPath({ path: route.path ?? "", end: false }, location.pathname)
+    );
   if (!user || pages.length === 0 || !allRoutes || !currentRoute) return null;
 
   if (

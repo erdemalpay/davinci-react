@@ -552,6 +552,7 @@ export enum StockHistoryStatusEnum {
   ORDERCANCEL = "ORDERCANCEL",
   ORDERCREATE = "ORDERCREATE",
   STOCKEQUALIZE = "STOCKEQUALIZE",
+  STOCKTRANSFER = "STOCKTRANSFER",
 }
 export enum OrderDataTabEnum {
   DAILYINCOME,
@@ -648,6 +649,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.STOCKEQUALIZE,
     label: "Stock Equalize",
     backgroundColor: "bg-blue-500",
+  },
+  {
+    value: StockHistoryStatusEnum.STOCKTRANSFER,
+    label: "Stock Transfer",
+    backgroundColor: "bg-yellow-800",
   },
 ];
 

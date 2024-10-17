@@ -9,6 +9,12 @@ interface ConsumptStockPayload {
   location: string;
   quantity: number;
 }
+interface StockTransferPayload {
+  currentStockLocation: string;
+  transferredStockLocation: string;
+  product: string;
+  quantity: number;
+}
 
 const baseUrl = `${Paths.Accounting}/stocks`;
 
@@ -34,6 +40,12 @@ export function consumptStock(payload: ConsumptStockPayload) {
     payload,
   });
 }
+export function stockTransfer(payload: StockTransferPayload) {
+  return post<StockTransferPayload, AccountStock>({
+    path: `${Paths.Accounting}/stock_transfer`,
+    payload,
+  });
+}
 export function useConsumptStockMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
@@ -43,6 +55,20 @@ export function useConsumptStockMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function useStockTransferMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(stockTransfer, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
     },
     onError: (_err: any) => {
       const errorMessage =

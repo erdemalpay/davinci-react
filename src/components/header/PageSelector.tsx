@@ -63,16 +63,25 @@ export function PageSelector() {
             <MenuItem
               className={`${
                 route.path === currentRoute ? "bg-gray-100  text-black" : ""
+              } ${
+                route?.link &&
+                "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
               } `}
               key={route.name}
               onClick={() => {
                 if (currentRoute === route.path) return;
-                setCurrentPage(1);
-                // setRowsPerPage(RowPerPageEnum.FIRST);
-                setExpandedRows({});
-                setSearchQuery("");
-                setSortConfigKey(null);
-                navigate(route.path);
+                if (route?.link) {
+                  window.location.href = route.link;
+                  return;
+                }
+                if (route?.path) {
+                  setCurrentPage(1);
+                  // setRowsPerPage(RowPerPageEnum.FIRST);
+                  setExpandedRows({});
+                  setSearchQuery("");
+                  setSortConfigKey(null);
+                  navigate(route.path);
+                }
               }}
             >
               {t(route.name)}

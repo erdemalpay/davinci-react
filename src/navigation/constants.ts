@@ -81,10 +81,11 @@ export enum Routes {
 
 export const allRoutes: {
   name: string;
-  path: string;
+  path?: string;
   isOnSidebar: boolean;
   exceptionalRoles?: number[];
-  element: () => JSX.Element;
+  link?: string;
+  element?: () => JSX.Element;
   tabs?: Tab[];
 }[] = [
   {
@@ -272,6 +273,7 @@ export const allRoutes: {
     element: Users,
     isOnSidebar: true,
   },
+
   {
     name: "Panel Control",
     path: Routes.PanelControl,
@@ -285,6 +287,11 @@ export const allRoutes: {
     element: PageDetails,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Shift",
+    link: "https://trello.com/b/GeTFa4ak/da-vinci-panel",
+    isOnSidebar: true,
   },
 ];
 

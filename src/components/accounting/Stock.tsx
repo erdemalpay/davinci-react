@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { TbTransferIn } from "react-icons/tb";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountStock, RoleEnum, StockHistoryStatusEnum } from "../../types";
@@ -11,6 +13,7 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
+  useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { getItem } from "../../utils/getItem";
@@ -25,7 +28,10 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  GenericInputType,
+} from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -40,10 +46,13 @@ const Stock = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
+    useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks.reduce((acc, stock) => {
       const expense = parseFloat(
@@ -66,6 +75,10 @@ const Stock = () => {
     location: "",
     quantity: 0,
     status: "",
+  });
+  const [stockTransferForm, setStockTransferForm] = useState({
+    location: "",
+    quantity: 0,
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -97,8 +110,20 @@ const Stock = () => {
     StockLocationInput({ locations: locations }),
     QuantityInput(),
   ];
+  const stockTransferInputs = [
+    StockLocationInput({
+      locations: rowToAction
+        ? locations.filter((location) => location._id !== rowToAction.location)
+        : locations,
+    }),
+    QuantityInput(),
+  ];
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const stockTransferFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -149,6 +174,7 @@ const Stock = () => {
   if (isEnableEdit) {
     columns.push({ key: t("Action"), isSortable: false });
   }
+
   const addButton = {
     name: t("Add Stock"),
     isModal: true,
@@ -199,7 +225,10 @@ const Stock = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      className:
+        user?.role?._id === RoleEnum.MANAGER
+          ? "text-blue-500 cursor-pointer text-xl "
+          : "text-blue-500 cursor-pointer text-xl mr-auto",
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
@@ -240,6 +269,43 @@ const Stock = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+    },
+    {
+      name: t("Transfer"),
+      icon: <TbTransferIn />,
+      className: "text-green-500 cursor-pointer text-xl mr-auto",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isStockTransferModalOpen}
+          close={() => setIsStockTransferModalOpen(false)}
+          inputs={stockTransferInputs as GenericInputType[]}
+          setForm={setStockTransferForm}
+          submitFunction={() => {
+            if (
+              stockTransferForm.location === "" ||
+              stockTransferForm.quantity === 0
+            ) {
+              toast.error(t("Please fill all the fields"));
+              return;
+            }
+            stockTransfer({
+              currentStockLocation: rowToAction.location,
+              transferredStockLocation: stockTransferForm.location,
+              product: rowToAction.product,
+              quantity: stockTransferForm.quantity,
+            });
+          }}
+          formKeys={stockTransferFormKeys}
+          submitItem={stockTransfer as any}
+          topClassName="flex flex-col gap-2 "
+        />
+      ) : null,
+      isModalOpen: isStockTransferModalOpen,
+      setIsModal: setIsStockTransferModalOpen,
+      isPath: false,
+      isDisabled: user?.role?._id !== RoleEnum.MANAGER,
     },
   ];
   const filters = [
@@ -331,6 +397,7 @@ const Stock = () => {
     }
     setTableKey((prev) => prev + 1);
   }, [stocks, filterPanelFormElements, searchQuery]);
+
   const filterPanelInputs = [
     ProductInput({
       products: products,
