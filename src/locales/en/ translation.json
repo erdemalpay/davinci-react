@@ -514,5 +514,7 @@
   "Stock Transfer": "Stock Transfer",
   "Shift": "Shift",
   "Stock Equalize": "Stock Equalize",
+  "From": "From",
+  "Where": "Where",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -29,6 +29,7 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
+  InputTypes,
 } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -51,7 +52,8 @@ const GameStock = () => {
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [stockTransferForm, setStockTransferForm] = useState({
-    location: "",
+    currentLocation: "",
+    transferredLocation: "",
     quantity: 0,
   });
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
@@ -85,26 +87,60 @@ const GameStock = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rows, setRows] = useState(
-    stocks
+
+  const [rows, setRows] = useState(() => {
+    const groupedProducts = stocks
       ?.filter((stock) =>
         getItem(stock.product, products)?.expenseType?.includes("oys")
       )
-      ?.map((stock) => {
-        return {
-          ...stock,
-          prdct: getItem(stock.product, products)?.name,
-          lctn: getItem(stock.location, locations)?.name,
-          unitPrice: getItem(stock.product, products)?.unitPrice,
-          totalPrice: parseFloat(
-            (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
-              stock.quantity
-            ).toFixed(1)
-          ),
-        };
-      })
-  );
+      ?.reduce((acc: any, stock) => {
+        const productName = getItem(stock.product, products)?.name;
+        const locationName = getItem(stock.location, locations)?.name;
+        const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+        const quantity = stock.quantity;
+        const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+        if (!productName) {
+          return acc;
+        }
+        if (!acc[productName]) {
+          acc[productName] = {
+            ...stock,
+            prdct: productName,
+            unitPrice,
+            totalGroupPrice: 0,
+            totalQuantity: 0,
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Location"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+                { key: t("Total Price"), isSortable: true },
+              ],
+              collapsibleRowKeys: [
+                { key: "location" },
+                { key: "quantity" },
+                {
+                  key: "totalPrice",
+                  node: (row: any) => <div>{row.totalPrice} ₺</div>,
+                },
+              ],
+              collapsibleRows: [],
+            },
+          };
+        }
+        acc[productName].totalGroupPrice += totalPrice;
+        acc[productName].totalQuantity += quantity;
+
+        acc[productName].collapsible.collapsibleRows.push({
+          location: locationName,
+          quantity: quantity,
+          totalPrice: totalPrice,
+        });
+
+        return acc;
+      }, {});
+    return Object.values(groupedProducts);
+  });
+
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
   const inputs = [
@@ -118,11 +154,33 @@ const GameStock = () => {
     QuantityInput(),
   ];
   const stockTransferInputs = [
-    StockLocationInput({
-      locations: rowToAction
-        ? locations.filter((location) => location._id !== rowToAction.location)
-        : locations,
-    }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "currentLocation",
+      label: t("From"),
+      options: locations.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("From"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "transferredLocation",
+      label: t("Where"),
+      options: locations.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Where"),
+      required: true,
+    },
+
     QuantityInput(),
   ];
   const formKeys = [
@@ -131,12 +189,12 @@ const GameStock = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const stockTransferFormKeys = [
-    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "currentLocation", type: FormKeyTypeEnum.STRING },
+    { key: "transferredLocation", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
     { key: t("Product"), isSortable: true },
-    { key: t("Location"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Price"), isSortable: true },
@@ -144,15 +202,14 @@ const GameStock = () => {
 
   const rowKeys = [
     { key: "prdct" },
-    { key: "lctn" },
-    { key: "quantity" },
+    { key: "totalQuantity" },
     {
       key: "unitPrice",
       node: (row: any) => <div>{row.unitPrice} ₺</div>,
     },
     {
-      key: "totalPrice",
-      node: (row: any) => <div>{row.totalPrice} ₺</div>,
+      key: "totalGroupPrice",
+      node: (row: any) => <div>{row.totalGroupPrice} ₺</div>,
     },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
@@ -283,15 +340,16 @@ const GameStock = () => {
           setForm={setStockTransferForm}
           submitFunction={() => {
             if (
-              stockTransferForm.location === "" ||
+              stockTransferForm.currentLocation === "" ||
+              stockTransferForm.transferredLocation === "" ||
               stockTransferForm.quantity === 0
             ) {
               toast.error(t("Please fill all the fields"));
               return;
             }
             stockTransfer({
-              currentStockLocation: rowToAction.location,
-              transferredStockLocation: stockTransferForm.location,
+              currentStockLocation: stockTransferForm.currentLocation,
+              transferredStockLocation: stockTransferForm.transferredLocation,
               product: rowToAction.product,
               quantity: stockTransferForm.quantity,
             });
@@ -343,31 +401,61 @@ const GameStock = () => {
       )
       ?.filter((stock) => {
         return (
-          passesFilter(
-            filterPanelFormElements?.location,
-            getItem(stock.location, locations)?._id
-          ) &&
+          passesFilter(filterPanelFormElements?.location, stock.location) &&
           (!filterPanelFormElements?.product?.length ||
             filterPanelFormElements?.product?.some((panelProduct: string) =>
               passesFilter(panelProduct, getItem(stock.product, products)?._id)
             ))
         );
       })
-      .map((stock) => {
-        return {
-          ...stock,
-          prdct: getItem(stock.product, products)?.name,
-          lctn: getItem(stock.location, locations)?.name,
-          unitPrice: getItem(stock.product, products)?.unitPrice,
-          totalPrice: parseFloat(
-            (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
-              stock.quantity
-            ).toFixed(1)
-          ),
-        };
-      });
-    const filteredRows = processedRows.filter((row) =>
+      ?.reduce((acc: any, stock) => {
+        const productName = getItem(stock.product, products)?.name;
+        const locationName = getItem(stock.location, locations)?.name;
+        const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+        const quantity = stock.quantity;
+        const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+        if (!productName) {
+          return acc;
+        }
+        if (!acc[productName]) {
+          acc[productName] = {
+            ...stock,
+            prdct: productName,
+            unitPrice,
+            totalGroupPrice: 0,
+            totalQuantity: 0,
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Location"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+                { key: t("Total Price"), isSortable: true },
+              ],
+              collapsibleRowKeys: [
+                { key: "location" },
+                { key: "quantity" },
+                {
+                  key: "totalPrice",
+                  node: (row: any) => (
+                    <div className="text-sm">{row.totalPrice} ₺</div>
+                  ),
+                },
+              ],
+              collapsibleRows: [],
+            },
+          };
+        }
+        acc[productName].totalGroupPrice += totalPrice;
+        acc[productName].totalQuantity += quantity;
+
+        acc[productName].collapsible.collapsibleRows.push({
+          location: locationName,
+          quantity: quantity,
+          totalPrice: totalPrice,
+        });
+
+        return acc;
+      }, {});
+    const filteredRows = Object.values(processedRows).filter((row: any) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
         const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
@@ -381,24 +469,24 @@ const GameStock = () => {
         return false;
       })
     );
-    const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
-      const expense = parseFloat(
-        (
-          (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
-        ).toFixed(1)
-      );
-      return acc + expense;
-    }, 0);
+    const newGeneralTotalExpense = filteredRows.reduce(
+      (acc: any, stock: any) => {
+        const expense = parseFloat(stock.totalGroupPrice.toFixed(1));
+        return acc + expense;
+      },
+      0
+    );
     setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
+    setGeneralTotalExpense(newGeneralTotalExpense as number);
     if (
       searchQuery !== "" ||
       Object.values(filterPanelFormElements)?.some((value) => value !== "")
     ) {
       setCurrentPage(1);
     }
+
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, searchQuery, products, locations]);
+  }, [stocks, filterPanelFormElements, searchQuery, products, locations, user]);
   const filterPanelInputs = [
     ProductInput({
       products: products?.filter((product) =>
@@ -452,7 +540,7 @@ const GameStock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={isEnableEdit ? actions : []}
+          actions={actions}
           filters={filters}
           columns={columns}
           rows={rows}
@@ -462,6 +550,7 @@ const GameStock = () => {
           isSearch={false}
           outsideSearch={outsideSearch}
           isActionsActive={isEnableEdit}
+          isCollapsible={true}
         />
       </div>
     </>
