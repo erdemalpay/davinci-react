@@ -240,7 +240,10 @@ const SingleCountArchive = () => {
               user && user?.role?._id === RoleEnum.MANAGER ? true : false
             }
             rowClassNameFunction={
-              user?.role?._id === RoleEnum.MANAGER ? getBgColor : undefined
+              user?.role?._id &&
+              [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+                ? getBgColor
+                : undefined
             }
             filters={
               foundCount && !foundCount.isCompleted ? filters : archieveFilters
