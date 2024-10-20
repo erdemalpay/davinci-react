@@ -7,7 +7,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountStock, RoleEnum, StockHistoryStatusEnum } from "../../types";
+import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -29,7 +29,6 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
-  InputTypes,
 } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -48,12 +47,11 @@ const GameStock = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const { mutate: stockTransfer } = useStockTransferMutation();
-  const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [stockTransferForm, setStockTransferForm] = useState({
-    currentLocation: "",
-    transferredLocation: "",
+    location: "",
     quantity: 0,
   });
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
@@ -113,16 +111,11 @@ const GameStock = () => {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
                 { key: t("Quantity"), isSortable: true },
-                { key: t("Total Price"), isSortable: true },
-              ],
-              collapsibleRowKeys: [
-                { key: "location" },
-                { key: "quantity" },
-                {
-                  key: "totalPrice",
-                  node: (row: any) => <div>{row.totalPrice} ₺</div>,
-                },
-              ],
+                isEnableEdit
+                  ? { key: t("Actions"), isSortable: false }
+                  : undefined,
+              ].filter(Boolean),
+              collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
               collapsibleRows: [],
             },
           };
@@ -131,6 +124,11 @@ const GameStock = () => {
         acc[productName].totalQuantity += quantity;
 
         acc[productName].collapsible.collapsibleRows.push({
+          stockId: stock?._id,
+          stockProduct: stock?.product,
+          stockLocation: stock?.location,
+          stockQuantity: stock?.quantity,
+          stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
           location: locationName,
           quantity: quantity,
           totalPrice: totalPrice,
@@ -154,33 +152,13 @@ const GameStock = () => {
     QuantityInput(),
   ];
   const stockTransferInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "currentLocation",
-      label: t("From"),
-      options: locations.map((input) => {
-        return {
-          value: input._id,
-          label: input.name,
-        };
-      }),
-      placeholder: t("From"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "transferredLocation",
-      label: t("Where"),
-      options: locations.map((input) => {
-        return {
-          value: input._id,
-          label: input.name,
-        };
-      }),
-      placeholder: t("Where"),
-      required: true,
-    },
-
+    StockLocationInput({
+      locations: rowToAction
+        ? locations.filter(
+            (location) => location._id !== rowToAction.stockLocation
+          )
+        : locations,
+    }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -189,8 +167,7 @@ const GameStock = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const stockTransferFormKeys = [
-    { key: "currentLocation", type: FormKeyTypeEnum.STRING },
-    { key: "transferredLocation", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -228,9 +205,6 @@ const GameStock = () => {
       );
     });
   }
-  if (isEnableEdit) {
-    columns.push({ key: t("Action"), isSortable: false });
-  }
   const addButton = {
     name: t("Add Stock"),
     isModal: true,
@@ -253,7 +227,7 @@ const GameStock = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
-  const actions = [
+  const collapsibleActions = [
     {
       name: t("Delete"),
       icon: <HiOutlineTrash />,
@@ -263,7 +237,7 @@ const GameStock = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountStock(rowToAction?._id);
+            deleteAccountStock(rowToAction?.stockId);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Stock")}
@@ -272,7 +246,7 @@ const GameStock = () => {
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl  ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
@@ -288,10 +262,10 @@ const GameStock = () => {
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
-      onClick: (row: AccountStock) => {
+      onClick: (row: any) => {
         setForm({
           ...form,
-          product: row.product,
+          product: row.stockProduct,
         });
       },
       modal: rowToAction ? (
@@ -305,18 +279,12 @@ const GameStock = () => {
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-visible"
           itemToEdit={{
-            id: rowToAction._id,
+            id: rowToAction.stockId,
             updates: {
-              product: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.product,
-              location: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.location,
-              quantity: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.quantity,
-              unitPrice: getItem(
-                stocks.find((stock) => stock._id === rowToAction._id)?.product,
-                products
-              )?.unitPrice,
+              product: rowToAction.stockProduct,
+              location: rowToAction.stockLocation,
+              quantity: rowToAction.stockQuantity,
+              unitPrice: getItem(rowToAction.stockProduct, products)?.unitPrice,
             },
           }}
         />
@@ -340,16 +308,15 @@ const GameStock = () => {
           setForm={setStockTransferForm}
           submitFunction={() => {
             if (
-              stockTransferForm.currentLocation === "" ||
-              stockTransferForm.transferredLocation === "" ||
+              stockTransferForm.location === "" ||
               stockTransferForm.quantity === 0
             ) {
               toast.error(t("Please fill all the fields"));
               return;
             }
             stockTransfer({
-              currentStockLocation: stockTransferForm.currentLocation,
-              transferredStockLocation: stockTransferForm.transferredLocation,
+              currentStockLocation: rowToAction.location,
+              transferredStockLocation: stockTransferForm.location,
               product: rowToAction.product,
               quantity: stockTransferForm.quantity,
             });
@@ -428,18 +395,11 @@ const GameStock = () => {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
                 { key: t("Quantity"), isSortable: true },
-                { key: t("Total Price"), isSortable: true },
-              ],
-              collapsibleRowKeys: [
-                { key: "location" },
-                { key: "quantity" },
-                {
-                  key: "totalPrice",
-                  node: (row: any) => (
-                    <div className="text-sm">{row.totalPrice} ₺</div>
-                  ),
-                },
-              ],
+                isEnableEdit
+                  ? { key: t("Actions"), isSortable: false }
+                  : undefined,
+              ].filter(Boolean),
+              collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
               collapsibleRows: [],
             },
           };
@@ -448,6 +408,11 @@ const GameStock = () => {
         acc[productName].totalQuantity += quantity;
 
         acc[productName].collapsible.collapsibleRows.push({
+          stockId: stock?._id,
+          stockProduct: stock?.product,
+          stockLocation: stock?.location,
+          stockQuantity: stock?.quantity,
+          stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
           location: locationName,
           quantity: quantity,
           totalPrice: totalPrice,
@@ -486,7 +451,15 @@ const GameStock = () => {
     }
 
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, searchQuery, products, locations, user]);
+  }, [
+    stocks,
+    filterPanelFormElements,
+    searchQuery,
+    products,
+    locations,
+    user,
+    isEnableEdit,
+  ]);
   const filterPanelInputs = [
     ProductInput({
       products: products?.filter((product) =>
@@ -540,7 +513,7 @@ const GameStock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={actions}
+          collapsibleActions={isEnableEdit ? collapsibleActions : []}
           filters={filters}
           columns={columns}
           rows={rows}
@@ -549,7 +522,7 @@ const GameStock = () => {
           filterPanel={filterPanel}
           isSearch={false}
           outsideSearch={outsideSearch}
-          isActionsActive={isEnableEdit}
+          isActionsActive={false}
           isCollapsible={true}
         />
       </div>

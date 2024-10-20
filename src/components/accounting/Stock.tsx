@@ -396,7 +396,7 @@ const Stock = () => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, searchQuery]);
+  }, [stocks, filterPanelFormElements, searchQuery, products, locations, user]);
 
   const filterPanelInputs = [
     ProductInput({

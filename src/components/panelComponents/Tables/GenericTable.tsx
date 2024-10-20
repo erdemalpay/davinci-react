@@ -814,6 +814,11 @@ const GenericTable = <T,>({
               return <div key={index}>{action.modal}</div>;
             }
           })}
+          {collapsibleActions?.map((action, index) => {
+            if (action?.isModal && action?.isModalOpen && action?.modal) {
+              return <div key={index}>{action.modal}</div>;
+            }
+          })}
           {/* addbutton modal if there is  */}
           {addButton?.isModal && addButton?.isModalOpen && addButton?.modal && (
             <div>{addButton.modal}</div>
