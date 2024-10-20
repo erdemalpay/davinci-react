@@ -15,6 +15,7 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
   ProductInput,
@@ -182,11 +183,11 @@ const GameStock = () => {
     { key: "totalQuantity" },
     {
       key: "unitPrice",
-      node: (row: any) => <div>{row.unitPrice} ₺</div>,
+      node: (row: any) => <div>{formatPrice(row.unitPrice)} ₺</div>,
     },
     {
       key: "totalGroupPrice",
-      node: (row: any) => <div>{row.totalGroupPrice} ₺</div>,
+      node: (row: any) => <div>{formatPrice(row.totalGroupPrice)} ₺</div>,
     },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
