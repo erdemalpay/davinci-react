@@ -7,7 +7,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountStock, RoleEnum, StockHistoryStatusEnum } from "../../types";
+import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -16,9 +16,9 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
-  ExpenseTypeInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -51,7 +51,7 @@ const Stock = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const [rowToAction, setRowToAction] = useState<AccountStock>();
+  const [rowToAction, setRowToAction] = useState<any>();
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks.reduce((acc, stock) => {
@@ -84,27 +84,59 @@ const Stock = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rows, setRows] = useState(
-    stocks.map((stock) => {
-      return {
-        ...stock,
-        prdct: getItem(stock.product, products)?.name,
-        lctn: getItem(stock.location, locations)?.name,
-        unitPrice: getItem(stock.product, products)?.unitPrice,
-        totalPrice: parseFloat(
-          (
-            (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
-          ).toFixed(1)
-        ),
-      };
-    })
-  );
+  const [rows, setRows] = useState(() => {
+    const groupedProducts = stocks?.reduce((acc: any, stock) => {
+      const productName = getItem(stock.product, products)?.name;
+      const locationName = getItem(stock.location, locations)?.name;
+      const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+      const quantity = stock.quantity;
+      const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+      if (!productName) {
+        return acc;
+      }
+      if (!acc[productName]) {
+        acc[productName] = {
+          ...stock,
+          prdct: productName,
+          unitPrice,
+          totalGroupPrice: 0,
+          totalQuantity: 0,
+          collapsible: {
+            collapsibleColumns: [
+              { key: t("Location"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+              isEnableEdit
+                ? { key: t("Actions"), isSortable: false }
+                : undefined,
+            ].filter(Boolean),
+            collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
+            collapsibleRows: [],
+          },
+        };
+      }
+      acc[productName].totalGroupPrice += totalPrice;
+      acc[productName].totalQuantity += quantity;
+
+      acc[productName].collapsible.collapsibleRows.push({
+        stockId: stock?._id,
+        stockProduct: stock?.product,
+        stockLocation: stock?.location,
+        stockQuantity: stock?.quantity,
+        stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
+        location: locationName,
+        quantity: quantity,
+        totalPrice: totalPrice,
+      });
+
+      return acc;
+    }, {});
+    return Object.values(groupedProducts);
+  });
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
   const inputs = [
     ProductInput({
       products: products,
-      invalidateKeys: [],
       required: true,
     }),
     StockLocationInput({ locations: locations }),
@@ -113,7 +145,9 @@ const Stock = () => {
   const stockTransferInputs = [
     StockLocationInput({
       locations: rowToAction
-        ? locations.filter((location) => location._id !== rowToAction.location)
+        ? locations.filter(
+            (location) => location._id !== rowToAction.stockLocation
+          )
         : locations,
     }),
     QuantityInput(),
@@ -129,7 +163,6 @@ const Stock = () => {
   ];
   const columns = [
     { key: t("Product"), isSortable: true },
-    { key: t("Location"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Total Price"), isSortable: true },
@@ -137,25 +170,17 @@ const Stock = () => {
 
   const rowKeys = [
     { key: "prdct" },
-    { key: "lctn" },
-    { key: "quantity" },
+    { key: "totalQuantity" },
     {
       key: "unitPrice",
-      node: (row: any) => <div>{row.unitPrice} ₺</div>,
+      node: (row: any) => <div>{formatPrice(row.unitPrice)} ₺</div>,
     },
     {
-      key: "totalPrice",
-      node: (row: any) => <div>{row.totalPrice} ₺</div>,
+      key: "totalGroupPrice",
+      node: (row: any) => <div>{formatPrice(row.totalGroupPrice)} ₺</div>,
     },
   ];
-  if (
-    user &&
-    ![
-      RoleEnum.MANAGER,
-      RoleEnum.CATERINGMANAGER,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
-  ) {
+  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     const splicedColumns = ["Unit Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "totalPrice"];
     splicedColumns.forEach((item) => {
@@ -171,10 +196,6 @@ const Stock = () => {
       );
     });
   }
-  if (isEnableEdit) {
-    columns.push({ key: t("Action"), isSortable: false });
-  }
-
   const addButton = {
     name: t("Add Stock"),
     isModal: true,
@@ -197,7 +218,7 @@ const Stock = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
-  const actions = [
+  const collapsibleActions = [
     {
       name: t("Delete"),
       icon: <HiOutlineTrash />,
@@ -207,7 +228,7 @@ const Stock = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountStock(rowToAction?._id);
+            deleteAccountStock(rowToAction?.stockId);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Stock")}
@@ -216,7 +237,7 @@ const Stock = () => {
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl  ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
@@ -232,10 +253,10 @@ const Stock = () => {
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
-      onClick: (row: AccountStock) => {
+      onClick: (row: any) => {
         setForm({
           ...form,
-          product: row.product,
+          product: row.stockProduct,
         });
       },
       modal: rowToAction ? (
@@ -249,18 +270,12 @@ const Stock = () => {
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-visible"
           itemToEdit={{
-            id: rowToAction._id,
+            id: rowToAction.stockId,
             updates: {
-              product: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.product,
-              location: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.location,
-              quantity: stocks.find((stock) => stock._id === rowToAction._id)
-                ?.quantity,
-              unitPrice: getItem(
-                stocks.find((stock) => stock._id === rowToAction._id)?.product,
-                products
-              )?.unitPrice,
+              product: rowToAction.stockProduct,
+              location: rowToAction.stockLocation,
+              quantity: rowToAction.stockQuantity,
+              unitPrice: getItem(rowToAction.stockProduct, products)?.unitPrice,
             },
           }}
         />
@@ -339,33 +354,61 @@ const Stock = () => {
   ];
   useEffect(() => {
     const processedRows = stocks
-      .filter((stock) => {
+      ?.filter((stock) => {
         return (
-          passesFilter(filterPanelFormElements.location, stock.location) &&
-          getItem(stock.product, products)?.expenseType?.some((type) =>
-            passesFilter(filterPanelFormElements.expenseType, type)
-          ) &&
-          (!filterPanelFormElements.product.length ||
-            filterPanelFormElements.product?.some((panelProduct: string) =>
+          passesFilter(filterPanelFormElements?.location, stock.location) &&
+          (!filterPanelFormElements?.product?.length ||
+            filterPanelFormElements?.product?.some((panelProduct: string) =>
               passesFilter(panelProduct, getItem(stock.product, products)?._id)
             ))
         );
       })
-      .map((stock) => {
-        return {
-          ...stock,
-          prdct: getItem(stock.product, products)?.name,
-          lctn: getItem(stock.location, locations)?.name,
-          unitPrice: getItem(stock.product, products)?.unitPrice,
-          totalPrice: parseFloat(
-            (
-              (getItem(stock.product, products)?.unitPrice ?? 0) *
-              stock.quantity
-            ).toFixed(1)
-          ),
-        };
-      });
-    const filteredRows = processedRows.filter((row) =>
+      ?.reduce((acc: any, stock) => {
+        const productName = getItem(stock.product, products)?.name;
+        const locationName = getItem(stock.location, locations)?.name;
+        const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+        const quantity = stock.quantity;
+        const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+        if (!productName) {
+          return acc;
+        }
+        if (!acc[productName]) {
+          acc[productName] = {
+            ...stock,
+            prdct: productName,
+            unitPrice,
+            totalGroupPrice: 0,
+            totalQuantity: 0,
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Location"), isSortable: true },
+                { key: t("Quantity"), isSortable: true },
+                isEnableEdit
+                  ? { key: t("Actions"), isSortable: false }
+                  : undefined,
+              ].filter(Boolean),
+              collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
+              collapsibleRows: [],
+            },
+          };
+        }
+        acc[productName].totalGroupPrice += totalPrice;
+        acc[productName].totalQuantity += quantity;
+
+        acc[productName].collapsible.collapsibleRows.push({
+          stockId: stock?._id,
+          stockProduct: stock?.product,
+          stockLocation: stock?.location,
+          stockQuantity: stock?.quantity,
+          stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
+          location: locationName,
+          quantity: quantity,
+          totalPrice: totalPrice,
+        });
+
+        return acc;
+      }, {});
+    const filteredRows = Object.values(processedRows).filter((row: any) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
         const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
@@ -379,32 +422,34 @@ const Stock = () => {
         return false;
       })
     );
-    const newGeneralTotalExpense = filteredRows.reduce((acc, stock) => {
-      const expense = parseFloat(
-        (
-          (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
-        ).toFixed(1)
-      );
-      return acc + expense;
-    }, 0);
+    const newGeneralTotalExpense = filteredRows.reduce(
+      (acc: any, stock: any) => {
+        const expense = parseFloat(stock.totalGroupPrice.toFixed(1));
+        return acc + expense;
+      },
+      0
+    );
     setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
+    setGeneralTotalExpense(newGeneralTotalExpense as number);
     if (
       searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
+      Object.values(filterPanelFormElements)?.some((value) => value !== "")
     ) {
       setCurrentPage(1);
     }
-    setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, searchQuery, products, locations, user]);
 
+    setTableKey((prev) => prev + 1);
+  }, [
+    stocks,
+    filterPanelFormElements,
+    searchQuery,
+    products,
+    locations,
+    user,
+    isEnableEdit,
+  ]);
   const filterPanelInputs = [
-    ProductInput({
-      products: products,
-      required: true,
-      isMultiple: true,
-    }),
-    ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    ProductInput({ products: products, required: true, isMultiple: true }),
     StockLocationInput({ locations: locations }),
   ];
   const filterPanel = {
@@ -450,7 +495,7 @@ const Stock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={isEnableEdit ? actions : []}
+          collapsibleActions={isEnableEdit ? collapsibleActions : []}
           filters={filters}
           columns={columns}
           rows={rows}
@@ -459,7 +504,8 @@ const Stock = () => {
           filterPanel={filterPanel}
           isSearch={false}
           outsideSearch={outsideSearch}
-          isActionsActive={isEnableEdit}
+          isActionsActive={false}
+          isCollapsible={true}
         />
       </div>
     </>
