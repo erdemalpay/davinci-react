@@ -29,7 +29,15 @@ export const StockContextProvider = ({ children }: PropsWithChildren) => {
       after: "",
       date: "",
     });
-  const resetStockContext = () => {};
+  const resetStockContext = () => {
+    setFilterPanelFormElements({
+      product: [],
+      location: "",
+      expenseType: "",
+      after: filterPanelFormElements.after,
+      date: "",
+    });
+  };
   return (
     <StockContext.Provider
       value={{

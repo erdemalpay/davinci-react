@@ -6,12 +6,13 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
+import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
-  useGetAccountStocks,
+  useGetFilteredStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -30,6 +31,7 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
+  InputTypes,
 } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -37,7 +39,7 @@ type FormElementsState = {
 };
 const GameStock = () => {
   const { t } = useTranslation();
-  const stocks = useGetAccountStocks();
+  const stocks = useGetFilteredStocks();
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const locations = useGetAccountStockLocations();
@@ -70,11 +72,11 @@ const GameStock = () => {
       }, 0);
   });
   const { setCurrentPage, setSearchQuery, searchQuery } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      location: "",
-    });
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    resetStockContext,
+  } = useStockContext();
   const [form, setForm] = useState({
     product: "",
     location: "",
@@ -363,6 +365,13 @@ const GameStock = () => {
     },
   ];
   useEffect(() => {
+    const isAllFilteredProductsGame = filterPanelFormElements?.product?.every(
+      (panelProduct: string) =>
+        getItem(panelProduct, products)?.expenseType?.includes("oys")
+    );
+    if (!isAllFilteredProductsGame) {
+      resetStockContext();
+    }
     const processedRows = stocks
       ?.filter((stock) =>
         getItem(stock.product, products)?.expenseType?.includes("oys")
@@ -470,6 +479,14 @@ const GameStock = () => {
       isMultiple: true,
     }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showFilters,
