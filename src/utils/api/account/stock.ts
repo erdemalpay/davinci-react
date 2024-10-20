@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { AccountStock } from "../../../types";
 import { Paths, useGetList, useMutationApi } from "../factory";
 import { post } from "../index";
+import { useStockContext } from "./../../../context/Stock.context";
 
 interface ConsumptStockPayload {
   product: string;
@@ -32,6 +33,13 @@ export function useAccountStockMutations() {
     updateAccountStock,
     createAccountStock,
   };
+}
+
+export function useGetFilteredStocks() {
+  const { filterPanelFormElements } = useStockContext();
+  return useGetList<AccountStock>(
+    `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`
+  );
 }
 
 export function consumptStock(payload: ConsumptStockPayload) {

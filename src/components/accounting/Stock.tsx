@@ -6,13 +6,13 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
+import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
-  useGetAccountStocks,
+  useGetFilteredStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -31,17 +31,14 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
+  InputTypes,
 } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Stock = () => {
   const { t } = useTranslation();
-  const stocks = useGetAccountStocks();
+  const stocks = useGetFilteredStocks();
   const { user } = useUserContext();
   const products = useGetAccountProducts();
-  const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -64,12 +61,8 @@ const Stock = () => {
     }, 0);
   });
   const { setCurrentPage, setSearchQuery, searchQuery } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      location: "",
-      expenseType: "",
-    });
+  const { filterPanelFormElements, setFilterPanelFormElements } =
+    useStockContext();
   const [form, setForm] = useState({
     product: "",
     location: "",
@@ -451,6 +444,14 @@ const Stock = () => {
   const filterPanelInputs = [
     ProductInput({ products: products, required: true, isMultiple: true }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showFilters,

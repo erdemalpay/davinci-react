@@ -9,6 +9,7 @@ import { DateContextProvider } from "./context/Date.context";
 import { GeneralContextProvider } from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
+import { StockContextProvider } from "./context/Stock.context";
 import { UserContextProvider } from "./context/User.context";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
@@ -71,7 +72,9 @@ function Wrapper() {
           <UserContextProvider>
             <GeneralContextProvider>
               <OrderContextProvider>
-                <App />
+                <StockContextProvider>
+                  <App />
+                </StockContextProvider>
               </OrderContextProvider>
             </GeneralContextProvider>
           </UserContextProvider>
