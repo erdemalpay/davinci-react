@@ -22,6 +22,8 @@ import {
   useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
+import { formatPrice } from "../../utils/formatPrice";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -60,6 +62,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const allRows = singleItemGroup.items.map((item) => {
     return {
       ...item,
+      matchedProductName: getItem(item.matchedProduct, products)?.name,
       collapsible: {
         collapsibleHeader: t("Ingredients"),
         collapsibleColumns: [
@@ -77,13 +80,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           name: products?.find(
             (product: AccountProduct) => product._id === itemProduction.product
           )?.name,
-          price: (
+          price: formatPrice(
             (products?.find((product) => product._id === itemProduction.product)
               ?.unitPrice ?? 0) * itemProduction.quantity
-          ).toFixed(4),
+          ),
           quantity: itemProduction.quantity,
           isDecrementStock: itemProduction?.isDecrementStock,
         })),
+
         collapsibleRowKeys: [
           { key: "name" },
           { key: "quantity" },
@@ -227,6 +231,19 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       required: false,
       folderName: "menu",
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "matchedProduct",
+      label: t("Matched Product"),
+      options: products.map((product) => {
+        return {
+          value: product._id,
+          label: product.name,
+        };
+      }),
+      placeholder: t("Matched Product"),
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -234,6 +251,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "price", type: FormKeyTypeEnum.NUMBER },
     { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+    { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
   const columns = [
@@ -247,6 +265,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
     { key: t("Cost"), isSortable: false },
+    { key: t("Matched Product"), isSortable: false },
     { key: t("Action"), isSortable: false },
   ];
 
@@ -312,11 +331,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             return acc + unitPrice * curr.quantity;
           }, 0) ?? 0;
 
-        return total === 0
-          ? "-"
-          : `${parseFloat(total.toFixed(3)).toString()} ₺`;
+        return total === 0 ? "-" : `${formatPrice(total)} ₺`;
       },
     },
+    { key: "matchedProductName" },
   ];
   if (!singleItemGroup.category.locations.includes(LocationEnum.BAHCELI)) {
     columns.splice(

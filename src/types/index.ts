@@ -284,6 +284,7 @@ export type MenuItem = {
     date: string;
     price: number;
   }[];
+  matchedProduct?: string;
 };
 export type CheckoutIncome = {
   _id: number;
