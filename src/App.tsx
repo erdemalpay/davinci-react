@@ -2,7 +2,9 @@ import {
   QueryClient,
   QueryClientProvider,
   useIsMutating,
+  useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { DateContextProvider } from "./context/Date.context";
@@ -11,12 +13,22 @@ import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { StockContextProvider } from "./context/Stock.context";
 import { UserContextProvider } from "./context/User.context";
+import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
 import RouterContainer from "./navigation/routes";
 
 function App() {
   const isMutating = useIsMutating();
+  const isVisible = usePageVisibility();
+  const queryClient = useQueryClient();
+  // webSocket connection
   useWebSocket();
+  // when page visibility gone invalidate queries
+  useEffect(() => {
+    if (!isVisible) {
+      queryClient.clear();
+    }
+  }, [isVisible, queryClient]);
   return (
     <div className="App">
       {isMutating ? (
