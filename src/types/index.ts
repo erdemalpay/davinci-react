@@ -81,6 +81,7 @@ export type AccountProduct = {
   vendor?: string[];
   brand?: string[];
   unitPrice: number;
+  matchedMenuItem?: number;
 };
 export type AccountService = {
   _id: string;

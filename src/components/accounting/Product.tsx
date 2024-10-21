@@ -14,7 +14,9 @@ import {
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
@@ -37,6 +39,7 @@ const Product = () => {
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const [tableKey, setTableKey] = useState(0);
+  const items = useGetMenuItems();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const navigate = useNavigate();
@@ -66,6 +69,7 @@ const Product = () => {
     vendor: [],
     expenseType: [],
     name: "",
+    matchedMenuItem: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -126,12 +130,26 @@ const Product = () => {
       required: true,
     }),
     BrandInput({ brands: brands, isMultiple: true }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "matchedMenuItem",
+      label: t("Matched Menu Item"),
+      options: items.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      }),
+      placeholder: t("Matched Menu Item"),
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "expenseType", type: FormKeyTypeEnum.STRING },
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
+    { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
   ];
   const joinProductFormKeys = [
     { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
@@ -143,6 +161,7 @@ const Product = () => {
     { key: t("Brand"), isSortable: true },
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
+    { key: t("Matched Menu Item"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
 
@@ -238,10 +257,20 @@ const Product = () => {
     },
     {
       key: "unitPrice",
-      node: (row: any) => {
+      node: (row: AccountProduct) => {
         return (
           <div className="min-w-32">
             <P1>{row.unitPrice} ₺</P1>
+          </div>
+        );
+      },
+    },
+    {
+      key: "matchedMenuItem",
+      node: (row: AccountProduct) => {
+        return (
+          <div className="min-w-32 ">
+            <P1>{getItem(row?.matchedMenuItem, items)?.name ?? "-"} </P1>
           </div>
         );
       },
@@ -281,12 +310,16 @@ const Product = () => {
         submitItem={createAccountProduct as any}
         generalClassName="overflow-visible"
         submitFunction={() => {
-          createAccountProduct(inputForm);
+          createAccountProduct({
+            ...inputForm,
+            matchedMenuItem: Number(inputForm?.matchedMenuItem),
+          });
           setInputForm({
             brand: [],
             vendor: [],
             expenseType: [],
             name: "",
+            matchedMenuItem: "",
           });
         }}
         topClassName="flex flex-col gap-2 "
@@ -357,11 +390,15 @@ const Product = () => {
             expenseType: rowToAction.expenseType,
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
+            matchedMenuItem: rowToAction.matchedMenuItem,
           }}
           handleUpdate={() => {
             updateAccountProduct({
               id: rowToAction?._id,
-              updates: inputForm,
+              updates: {
+                ...inputForm,
+                matchedMenuItem: Number(inputForm?.matchedMenuItem),
+              },
             });
           }}
         />
@@ -395,7 +432,7 @@ const Product = () => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [products, filterPanelFormElements]);
+  }, [products, filterPanelFormElements, items]);
 
   const filters = [
     {
