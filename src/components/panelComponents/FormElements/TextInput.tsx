@@ -78,7 +78,7 @@ const TextInput = ({
   // Debounce onChange
   const handleChange = (e: { target: { value: string | number } }) => {
     const newValue =
-      type === "number" && +e.target.value < minNumber
+      type === "number" && +e.target.value < minNumber && isMinNumber
         ? minNumber.toString()
         : e.target.value;
     setLocalValue(newValue);
