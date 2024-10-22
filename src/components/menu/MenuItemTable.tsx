@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -16,7 +17,13 @@ import {
   RoleEnum,
   TURKISHLIRA,
 } from "../../types";
-import { useGetAllAccountProducts } from "../../utils/api/account/product";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import {
+  useAccountProductMutations,
+  useGetAllAccountProducts,
+} from "../../utils/api/account/product";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import {
   useGetMenuItems,
   useMenuItemMutations,
@@ -24,6 +31,11 @@ import {
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import {
+  BrandInput,
+  ExpenseTypeInput,
+  VendorInput,
+} from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -44,7 +56,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const products = useGetAllAccountProducts();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const items = useGetMenuItems();
+  const expenseTypes = useGetAccountExpenseTypes();
+  const brands = useGetAccountBrands();
+  const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -59,6 +75,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const [rowToAction, setRowToAction] = useState<MenuItem>();
+  const { createAccountProduct } = useAccountProductMutations();
+  const [productInputForm, setProductInputForm] = useState({
+    brand: [],
+    vendor: [],
+    expenseType: [],
+  });
   const allRows = singleItemGroup.items.map((item) => {
     return {
       ...item,
@@ -147,10 +169,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     });
     toast.success(`${t("Menu Item updated successfully")}`);
   }
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [singleItemGroup.items, products, i18n.language, items]);
+
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
@@ -192,6 +211,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "isDecrementStock", type: FormKeyTypeEnum.BOOLEAN },
+  ];
+  const productInputs = [
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      isMultiple: true,
+      required: true,
+    }),
+    VendorInput({
+      vendors: vendors,
+      isMultiple: true,
+      required: true,
+    }),
+    BrandInput({ brands: brands, isMultiple: true }),
+  ];
+  const productFormKeys = [
+    { key: "expenseType", type: FormKeyTypeEnum.STRING },
+    { key: "vendor", type: FormKeyTypeEnum.STRING },
+    { key: "brand", type: FormKeyTypeEnum.STRING },
   ];
   // these are the inputs for the add item modal
   const inputs = [
@@ -511,6 +548,47 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isPath: false,
     },
     {
+      name: t(`Add Product`),
+      icon: <CiCirclePlus />,
+      isModal: true,
+      className: "text-2xl mt-1  cursor-pointer",
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isProductAddModalOpen}
+          close={() => setIsProductAddModalOpen(false)}
+          inputs={productInputs}
+          formKeys={productFormKeys}
+          setForm={setProductInputForm}
+          submitItem={createAccountProduct as any}
+          generalClassName="overflow-visible"
+          topClassName="flex flex-col gap-2 "
+          submitFunction={() => {
+            createAccountProduct({
+              ...productInputForm,
+              matchedMenuItem: rowToAction._id,
+              name: rowToAction.name,
+            });
+            setProductInputForm({
+              brand: [],
+              vendor: [],
+              expenseType: [],
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isProductAddModalOpen,
+      setIsModal: setIsProductAddModalOpen,
+      isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+    {
       name: t("Popular"),
       isPath: false,
       isModal: false,
@@ -548,6 +626,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [
+    singleItemGroup.items,
+    products,
+    i18n.language,
+    items,
+    expenseTypes,
+    brands,
+    vendors,
+  ]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
