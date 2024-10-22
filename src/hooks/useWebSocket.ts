@@ -25,6 +25,17 @@ export function useWebSocket() {
     const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
     // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
     orderCreatedSound.volume = 1;
+    const audioContext = new window.AudioContext();
+    const gainNode = audioContext.createGain();
+
+    // Set the gain to 2 (double the volume)
+    gainNode.gain.value = 2;
+    const source = audioContext.createMediaElementSource(orderCreatedSound);
+
+    // Connect the source to the gain node, and the gain node to the destination
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["websocket"],
