@@ -14,6 +14,7 @@ import { useUserContext } from "../../context/User.context";
 import {
   Game,
   Gameplay,
+  MenuItem,
   Order,
   OrderCollection,
   OrderStatus,
@@ -22,6 +23,7 @@ import {
   TableStatus,
   User,
 } from "../../types";
+import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -95,6 +97,7 @@ export function TableCard({
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts();
   const locations = useGetAccountStockLocations();
+  const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
@@ -116,6 +119,18 @@ export function TableCard({
   });
   const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
+  const menuItemStockQuantity = (item: MenuItem) => {
+    if (item?.matchedProduct) {
+      const stock = stocks?.find((stock) => {
+        return (
+          stock.product === item.matchedProduct &&
+          stock.location === (selectedLocationId === 1 ? "bahceli" : "neorama")
+        );
+      });
+      return stock?.quantity ?? 0;
+    }
+    return 0;
+  };
   const menuItemOptions = menuItems
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
@@ -126,9 +141,18 @@ export function TableCard({
     ?.map((menuItem) => {
       return {
         value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+        label:
+          menuItem?.name +
+          " (" +
+          menuItem.price +
+          TURKISHLIRA +
+          ")" +
+          (menuItemStockQuantity(menuItem) > 0
+            ? " (" + menuItemStockQuantity(menuItem) + `${t("piece")})`
+            : ""),
       };
     });
+
   const filteredDiscounts = discounts.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
   );
@@ -144,7 +168,7 @@ export function TableCard({
       type: InputTypes.SELECT,
       formKey: "item",
       label: t("Product"),
-      options: menuItemOptions.map((option) => {
+      options: menuItemOptions?.map((option) => {
         return {
           value: option.value,
           label: option.label,
@@ -218,7 +242,7 @@ export function TableCard({
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Location"),
-      options: locations.map((input) => {
+      options: locations?.map((input) => {
         return {
           value: input._id,
           label: input.name,
