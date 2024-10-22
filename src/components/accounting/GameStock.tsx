@@ -316,7 +316,7 @@ const GameStock = () => {
               return;
             }
             stockTransfer({
-              currentStockLocation: rowToAction.location,
+              currentStockLocation: rowToAction.stockLocation,
               transferredStockLocation: stockTransferForm.location,
               product: rowToAction.product,
               quantity: stockTransferForm.quantity,

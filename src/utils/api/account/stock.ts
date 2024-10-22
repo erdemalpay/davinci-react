@@ -38,7 +38,8 @@ export function useAccountStockMutations() {
 export function useGetFilteredStocks() {
   const { filterPanelFormElements } = useStockContext();
   return useGetList<AccountStock>(
-    `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`
+    `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`,
+    [`${Paths.Accounting}/stocks/query`, filterPanelFormElements.after]
   );
 }
 
@@ -74,10 +75,15 @@ export function useConsumptStockMutation() {
 export function useStockTransferMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
+  const { filterPanelFormElements } = useStockContext();
   return useMutation(stockTransfer, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
+      await queryClient.cancelQueries([
+        `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`,
+      ]);
     },
+
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";

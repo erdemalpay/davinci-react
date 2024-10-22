@@ -76,16 +76,18 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
     });
     socket.on("collectionChanged", (data) => {
-      // queryClient.invalidateQueries([`${Paths.Order}/collection`]);
-
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
         data.collection.table,
       ]);
     });
     socket.on("singleTableChanged", (data) => {
-      // queryClient.invalidateQueries([`${Paths.Order}/collection`]);
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
+    });
+
+    socket.on("stockChanged", (data) => {
+      queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
+      queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
 
     socketEventListeners.forEach((eventConfig) => {
