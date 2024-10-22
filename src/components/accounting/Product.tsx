@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +15,11 @@ import {
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetCategories } from "../../utils/api/menu/category";
+import {
+  useGetMenuItems,
+  useMenuItemMutations,
+} from "../../utils/api/menu/menu-item";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import {
@@ -42,15 +47,18 @@ const Product = () => {
   const items = useGetMenuItems();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
+  const categories = useGetCategories();
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isMenuItemAddModalOpen, setIsMenuItemAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const pages = useGetPanelControlPages();
   const [showFilters, setShowFilters] = useState(false);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
+  const { createItem } = useMenuItemMutations();
   const { mutate: joinProducts } = useJoinProductsMutation();
   const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -150,6 +158,56 @@ const Product = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
+  ];
+  const menuItemInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "description",
+      label: t("Description"),
+      placeholder: t("Description"),
+      required: false,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "price",
+      label: `${t("Price")}`,
+      placeholder: `${t("Price")}`,
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "onlinePrice",
+      label: `${t("Online Price")}`,
+      placeholder: `${t("Online Price")}`,
+      required: false,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: "Image",
+      required: false,
+      folderName: "menu",
+    },
+  ];
+  const menuItemFormKeys = [
+    { key: "category", type: FormKeyTypeEnum.STRING },
+    { key: "description", type: FormKeyTypeEnum.STRING },
+    { key: "price", type: FormKeyTypeEnum.NUMBER },
+    { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const joinProductFormKeys = [
     { key: "stayedProduct", type: FormKeyTypeEnum.STRING },
@@ -369,6 +427,31 @@ const Product = () => {
         : true,
     },
     {
+      name: t(`Add Item`),
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isMenuItemAddModalOpen}
+          close={() => setIsMenuItemAddModalOpen(false)}
+          inputs={menuItemInputs}
+          formKeys={menuItemFormKeys}
+          submitItem={createItem as any}
+          constantValues={{
+            name: rowToAction.name,
+            locations: [1, 2],
+            matchedProduct: rowToAction._id,
+          }}
+          folderName="menu"
+        />
+      ) : null,
+      isModalOpen: isMenuItemAddModalOpen,
+      setIsModal: setIsMenuItemAddModalOpen,
+      isPath: false,
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1  cursor-pointer",
+    },
+    {
       name: t("Edit"),
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
@@ -432,7 +515,7 @@ const Product = () => {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [products, filterPanelFormElements, items]);
+  }, [products, filterPanelFormElements, items, categories]);
 
   const filters = [
     {
