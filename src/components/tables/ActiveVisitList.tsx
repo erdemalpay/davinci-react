@@ -101,7 +101,9 @@ export function ActiveVisitList({
                 height: "fit-content",
               }}
               color="gray"
-              onClose={() => handleChipClose(visit.user)}
+              {...(isUserActive(visit.user)
+                ? { onClose: () => handleChipClose(visit.user) }
+                : {})}
             />
           </Tooltip>
         ))}
