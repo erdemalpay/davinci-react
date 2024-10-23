@@ -141,7 +141,7 @@ const OrdersSummary = () => {
                 </div>
               );
             }
-            return null; // In case there are input types that are neither TEXT nor SELECT
+            return null;
           })}
         </div>
 
@@ -156,7 +156,7 @@ const OrdersSummary = () => {
             firstSubHeaderValue={
               totalIncome
                 ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
-                : ""
+                : "0 " + TURKISHLIRA
             }
             sideColor={"#1D4ED8"}
           />
