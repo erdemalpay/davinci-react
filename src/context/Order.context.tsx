@@ -87,7 +87,8 @@ const OrderContext = createContext<OrderContextType>({
   setSelectedDiscount: () => {},
   resetOrderContext: () => {},
   filterSummaryFormElements: {
-    before: "",
+    location: "",
+    before: format(new Date(), "yyyy-MM-dd"),
     after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
   },
   setFilterSummaryFormElements: () => {},
@@ -155,7 +156,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     });
   const [filterSummaryFormElements, setFilterSummaryFormElements] =
     useState<FormElementsState>({
-      before: "",
+      location: "",
+      before: format(new Date(), "yyyy-MM-dd"),
       after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
     });
   const resetOrderContext = () => {

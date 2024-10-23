@@ -88,6 +88,7 @@ export interface GenericInputType {
   isAutoFill?: boolean;
   isMinNumber?: boolean;
   isDebounce?: boolean;
+  isDatePickerLabel?: boolean;
   additionalOnChange?: (value: any) => void;
   invalidateKeys?: {
     key: string;

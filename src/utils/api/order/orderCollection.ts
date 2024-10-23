@@ -42,7 +42,11 @@ export function useGetAllOrderCollections() {
 export function useGetSummaryCollectionTotal() {
   const { filterSummaryFormElements } = useOrderContext();
   return useGet<number>(
-    `${Paths.Order}/collection/summary/query?after=${filterSummaryFormElements.after}`
+    `${Paths.Order}/collection/summary/query?after=${
+      filterSummaryFormElements.after
+    }&before=${filterSummaryFormElements.before}&location=${Number(
+      filterSummaryFormElements.location
+    )}`
   );
 }
 

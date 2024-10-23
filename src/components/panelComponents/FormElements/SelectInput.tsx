@@ -31,7 +31,7 @@ const CustomOption = (
 
 type OptionType = { value: any; label: string };
 interface SelectInputProps {
-  label: string;
+  label?: string;
   options: OptionType[];
   value: PropsValue<OptionType>;
   onChange: (
