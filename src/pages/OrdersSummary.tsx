@@ -57,7 +57,7 @@ const OrdersSummary = () => {
       <Header showLocationSelector={true} />
       <div className="w-full px-4 flex flex-col gap-4 my-10">
         {/* filter */}
-        <div className="w-1/3 ml-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="w-full sm:w-1/3 ml-auto grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-2">
           {filterInputs.map((input) => (
             <TextInput
               key={input.formKey}
