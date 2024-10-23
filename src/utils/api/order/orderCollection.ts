@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { UpdatePayload, patch, post } from "..";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order, OrderCollection, OrderCollectionStatus } from "../../../types";
-import { Paths, useGetList, useMutationApi } from "../factory";
+import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
 const collectionBaseUrl = `${Paths.Order}/collection/table`;
 const orderBaseUrl = `${Paths.Order}/table`;
@@ -37,6 +37,12 @@ export function useGetAllOrderCollections() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<OrderCollection>(
     `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`
+  );
+}
+export function useGetSummaryCollectionTotal() {
+  const { filterSummaryFormElements } = useOrderContext();
+  return useGet<number>(
+    `${Paths.Order}/collection/summary/query?after=${filterSummaryFormElements.after}`
   );
 }
 

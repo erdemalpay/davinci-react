@@ -4,8 +4,8 @@ import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
 type Props = {
   header: string;
   firstSubHeader: string;
-  firstSubHeaderValue?: number;
-  secondSubHeader: string;
+  firstSubHeaderValue?: string;
+  secondSubHeader?: string;
   secondSubHeaderValue?: number;
   percentage?: number;
   sideColor?: string;
@@ -35,10 +35,12 @@ const SummaryCard = ({
               {firstSubHeader + ":  "}{" "}
               <span className="font-semibold">{firstSubHeaderValue}</span>
             </p>
-            <p>
-              {secondSubHeader + ":  "}
-              <span className="font-semibold">{secondSubHeaderValue}</span>
-            </p>
+            {secondSubHeader && (
+              <p>
+                {secondSubHeader + ":  "}
+                <span className="font-semibold">{secondSubHeaderValue}</span>
+              </p>
+            )}
           </div>
           {percentage && (
             <div className="flex flex-col gap-1">

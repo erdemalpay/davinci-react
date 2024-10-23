@@ -31,9 +31,7 @@ const DailyIncome = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const allRows = collections
-    ?.filter(
-      (collection) => collection.status !== OrderCollectionStatus.CANCELLED
-    )
+    ?.filter((collection) => collection.status === OrderCollectionStatus.PAID)
     ?.reduce((acc, collection) => {
       const tableDate = (collection.table as Table)?.date;
       if (!collection || !tableDate) return acc;

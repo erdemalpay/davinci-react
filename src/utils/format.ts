@@ -4,7 +4,7 @@ export function formatAsLocalDate(dateString: string) {
   const date = new Date(dateString);
   const offset = date.getTimezoneOffset();
   const adjustedDate = new Date(date.getTime() + offset * 60 * 1000);
-  return format(adjustedDate, "dd-MM-yyyy");
+  return format(adjustedDate, "dd/MM/yyyy");
 }
 
 export function convertDateFormat(dateStr: string) {

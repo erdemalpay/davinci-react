@@ -52,6 +52,8 @@ type OrderContextType = {
   ) => void;
   filterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
+  filterSummaryFormElements: FormElementsState;
+  setFilterSummaryFormElements: (state: FormElementsState) => void;
   isTableSelectOpen: boolean;
   setIsTableSelectOpen: (isTableSelectOpen: boolean) => void;
   resetOrderContext: () => void;
@@ -84,6 +86,11 @@ const OrderContext = createContext<OrderContextType>({
   selectedDiscount: null,
   setSelectedDiscount: () => {},
   resetOrderContext: () => {},
+  filterSummaryFormElements: {
+    before: "",
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+  },
+  setFilterSummaryFormElements: () => {},
   filterPanelFormElements: {
     location: "",
     user: "",
@@ -146,6 +153,11 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
       deliveredBy: "",
       preparedBy: "",
     });
+  const [filterSummaryFormElements, setFilterSummaryFormElements] =
+    useState<FormElementsState>({
+      before: "",
+      after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    });
   const resetOrderContext = () => {
     setPaymentAmount("");
     setDiscountNote("");
@@ -196,6 +208,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setSelectedTableTransfer,
         isTableSelectOpen,
         setIsTableSelectOpen,
+        filterSummaryFormElements,
+        setFilterSummaryFormElements,
       }}
     >
       {children}
