@@ -35,7 +35,9 @@ const OrdersSummary = () => {
               "-" + format(new Date(), "dd/MM/yyyy"))
           }
           firstSubHeaderValue={
-            totalIncome ? totalIncome.toString() + " " + TURKISHLIRA : ""
+            totalIncome
+              ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
+              : ""
           }
           sideColor={"#1D4ED8"}
         />
