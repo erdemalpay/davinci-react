@@ -17,7 +17,7 @@ import { IoIosClose } from "react-icons/io";
 import { H6 } from "../Typography";
 
 type TextInputProps = {
-  label: string;
+  label?: string;
   placeholder?: string;
   type: string;
   value: any;
@@ -35,6 +35,7 @@ type TextInputProps = {
   isNumberButtonsActive?: boolean;
   isOnClearActive?: boolean;
   isDebounce?: boolean;
+  isDatePickerLabel?: boolean;
 };
 
 const TextInput = ({
@@ -55,6 +56,7 @@ const TextInput = ({
   isOnClearActive = true,
   requiredField = false,
   isDebounce = false,
+  isDatePickerLabel = true,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -167,17 +169,19 @@ const TextInput = ({
           isTopFlexRow ? "flex-row" : "flex-col"
         } gap-2  w-full `}
       >
-        <H6 className=" min-w-10">
-          {label}
-          {requiredField && (
-            <>
-              <span className="text-red-400">* </span>
-              <span className="text-xs  text-gray-400">
-                {"("} {t("required")} {")"}
-              </span>
-            </>
-          )}
-        </H6>
+        {isDatePickerLabel && (
+          <H6 className=" min-w-10">
+            {label}
+            {requiredField && (
+              <>
+                <span className="text-red-400">* </span>
+                <span className="text-xs  text-gray-400">
+                  {"("} {t("required")} {")"}
+                </span>
+              </>
+            )}
+          </H6>
+        )}
         <div className="flex flex-row gap-2">
           <Popover placement="bottom">
             <PopoverHandler>
