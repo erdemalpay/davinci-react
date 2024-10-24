@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AccountStock } from "../../../types";
-import { Paths, useGetList, useMutationApi } from "../factory";
+import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { post } from "../index";
+import { useOrderContext } from "./../../../context/Order.context";
 import { useStockContext } from "./../../../context/Stock.context";
 
 interface ConsumptStockPayload {
@@ -43,6 +44,19 @@ export function useGetFilteredStocks() {
   );
 }
 
+export function useGetSummaryStockTotal() {
+  const { filterSummaryFormElements } = useOrderContext();
+  return useGet<{
+    afterTotalValue: number;
+    beforeTotalValue: number;
+  }>(
+    `${Paths.Accounting}/stocks/summary/query?after=${
+      filterSummaryFormElements.after
+    }&before=${filterSummaryFormElements.before}&location=${Number(
+      filterSummaryFormElements.location
+    )}`
+  );
+}
 export function consumptStock(payload: ConsumptStockPayload) {
   return post<ConsumptStockPayload, AccountStock>({
     path: `${Paths.Accounting}/stocks/consumpt`,

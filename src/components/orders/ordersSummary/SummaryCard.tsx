@@ -6,9 +6,10 @@ type Props = {
   firstSubHeader: string;
   firstSubHeaderValue?: string;
   secondSubHeader?: string;
-  secondSubHeaderValue?: number;
+  secondSubHeaderValue?: string;
   percentage?: number;
   sideColor?: string;
+  difference?: string;
 };
 
 const SummaryCard = ({
@@ -19,6 +20,7 @@ const SummaryCard = ({
   secondSubHeaderValue,
   percentage,
   sideColor,
+  difference,
 }: Props) => {
   const { t } = useTranslation();
 
@@ -42,23 +44,41 @@ const SummaryCard = ({
               </p>
             )}
           </div>
-          {percentage && (
+          {(percentage || difference) && (
             <div className="flex flex-col gap-1">
               <p className="text-sm font-semibold">{t("Difference")}</p>
-              <p
-                className={`px-2 py-1 bg-opacity-50 font-bold rounded-2xl flex items-center ${
-                  percentage > 0
-                    ? "bg-green-500 text-green-600"
-                    : "bg-red-500 text-red-800"
-                }`}
-              >
-                {percentage > 0 ? (
-                  <IoIosArrowRoundUp className="text-xl mr-1 " />
-                ) : (
-                  <IoIosArrowRoundDown className="text-xl mr-1" />
-                )}
-                {percentage} %
-              </p>
+              {difference && (
+                <p
+                  className={`px-2 py-1 bg-opacity-50 font-bold rounded-2xl flex items-center ${
+                    Number(difference) > 0
+                      ? "bg-green-500 text-green-600"
+                      : "bg-red-500 text-red-800"
+                  }`}
+                >
+                  {Number(difference) > 0 ? (
+                    <IoIosArrowRoundUp className="text-xl mr-1" />
+                  ) : (
+                    <IoIosArrowRoundDown className="text-xl mr-1" />
+                  )}
+                  {difference}
+                </p>
+              )}
+              {percentage && (
+                <p
+                  className={`px-2 py-0.2 bg-opacity-50 font-bold rounded-2xl flex items-center ${
+                    percentage > 0
+                      ? "bg-green-500 text-green-600"
+                      : "bg-red-500 text-red-800"
+                  }`}
+                >
+                  {percentage > 0 ? (
+                    <IoIosArrowRoundUp className="text-xl mr-1" />
+                  ) : (
+                    <IoIosArrowRoundDown className="text-xl mr-1" />
+                  )}
+                  {percentage} %
+                </p>
+              )}
             </div>
           )}
         </div>

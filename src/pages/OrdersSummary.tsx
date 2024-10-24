@@ -9,9 +9,11 @@ import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
 import { TURKISHLIRA } from "../types";
+import { useGetSummaryStockTotal } from "../utils/api/account/stock";
 import { useGetLocations } from "../utils/api/location";
 import { useGetSummaryCollectionTotal } from "../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../utils/format";
+import { formatPrice } from "../utils/formatPrice";
 
 type OptionType = { value: number; label: string };
 
@@ -19,6 +21,8 @@ const OrdersSummary = () => {
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
   const locations = useGetLocations();
+  const stockData = useGetSummaryStockTotal();
+
   const { filterSummaryFormElements, setFilterSummaryFormElements } =
     useOrderContext();
   const totalIncome = useGetSummaryCollectionTotal();
@@ -101,10 +105,10 @@ const OrdersSummary = () => {
 
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
-  }, [totalIncome, filterSummaryFormElements, locations]);
+  }, [totalIncome, filterSummaryFormElements, locations, stockData]);
   return (
     <>
-      <Header showLocationSelector={true} />
+      <Header showLocationSelector={false} />
       <div className="w-full px-4 flex flex-col gap-4 my-10">
         {/* filter */}
         <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
@@ -148,7 +152,7 @@ const OrdersSummary = () => {
         {/* summary cards*/}
         <div
           key={componentKey}
-          className="w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 "
+          className="w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 "
         >
           <SummaryCard
             header={t("Total Income")}
@@ -159,6 +163,24 @@ const OrdersSummary = () => {
                 : "0 " + TURKISHLIRA
             }
             sideColor={"#1D4ED8"}
+          />
+          <SummaryCard
+            header={t("Total Stock Value")}
+            firstSubHeader={formatAsLocalDate(filterSummaryFormElements?.after)}
+            firstSubHeaderValue={
+              formatPrice(stockData?.afterTotalValue ?? 0) + " " + TURKISHLIRA
+            }
+            secondSubHeader={formatAsLocalDate(
+              filterSummaryFormElements?.before
+            )}
+            secondSubHeaderValue={
+              formatPrice(stockData?.beforeTotalValue ?? 0) + " " + TURKISHLIRA
+            }
+            difference={formatPrice(
+              (stockData?.beforeTotalValue ?? 0) -
+                (stockData?.afterTotalValue ?? 0)
+            )}
+            sideColor={"#d8521d"}
           />
         </div>
       </div>
