@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
@@ -47,6 +48,9 @@ const Count = () => {
   const [form, setForm] = useState({
     product: [],
   });
+  const countListProducts = countLists?.find(
+    (cl) => cl?._id === countListId
+  )?.products;
   const [rows, setRows] = useState(
     countLists
       ?.find((cl) => cl?._id === countListId)
@@ -299,6 +303,12 @@ const Count = () => {
                 );
               });
               if (!currentCount) {
+                return;
+              }
+              if (
+                currentCount?.products?.length !== countListProducts?.length
+              ) {
+                toast.error(t("Please complete all product counts."));
                 return;
               }
               updateAccountCount({
