@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
@@ -10,6 +11,7 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
+import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
@@ -38,6 +40,7 @@ const Count = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [tableKey, setTableKey] = useState(0);
+
   const {
     setCurrentPage,
     setSearchQuery,
@@ -48,6 +51,14 @@ const Count = () => {
   const [form, setForm] = useState({
     product: [],
   });
+  const currentCount = counts?.find((item) => {
+    return (
+      item.isCompleted === false &&
+      item.location === location &&
+      item.user === user?._id &&
+      item.countList === countListId
+    );
+  });
   const countListProducts = countLists?.find(
     (cl) => cl?._id === countListId
   )?.products;
@@ -55,14 +66,6 @@ const Count = () => {
     countLists
       ?.find((cl) => cl?._id === countListId)
       ?.products?.map((countListProduct) => {
-        const currentCount = counts?.find((item) => {
-          return (
-            item.isCompleted === false &&
-            item.location === location &&
-            item.user === user?._id &&
-            item.countList === countListId
-          );
-        });
         if (location && countListProduct.locations.includes(location)) {
           return {
             products: currentCount?.products,
@@ -122,7 +125,8 @@ const Count = () => {
 
   const columns = [
     { key: t("Product"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
+    { key: t("Quantity"), isSortable: true, className: "mx-auto" },
+    { key: t("Actions"), isSortable: false },
   ];
   const addButton = {
     name: t("Add Product"),
@@ -169,13 +173,78 @@ const Count = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
   };
+  const actions = [
+    {
+      name: t("Not Found"),
+      icon: <IoIosCloseCircleOutline />,
+      node: (row: any) => {
+        return (
+          <div
+            className="text-red-500 cursor-pointer text-2xl"
+            onClick={() => {
+              const rowProduct = products.find((p) => p.name === row?.product);
+              if (!currentCount || !rowProduct) {
+                return;
+              }
+              const productStock = stocks?.find(
+                (s) =>
+                  s?.product === rowProduct?._id && s?.location === location
+              );
+              const newProducts = [
+                ...(currentCount?.products?.filter(
+                  (p) => p.product !== rowProduct?._id
+                ) || []),
+                {
+                  product: rowProduct?._id,
+                  countQuantity: 0,
+                  stockQuantity: productStock?.quantity || 0,
+                },
+              ];
+              updateAccountCount({
+                id: currentCount?._id,
+                updates: {
+                  products: newProducts,
+                },
+              });
+            }}
+          >
+            <ButtonTooltip content={t("Product count: 0")}>
+              <IoIosCloseCircleOutline />
+            </ButtonTooltip>
+          </div>
+        );
+      },
+      className: "text-2xl mt-1  cursor-pointer",
+      isModal: false,
+      isPath: false,
+    },
+  ];
   const rowKeys = [
-    { key: "product" },
+    {
+      key: "product",
+      node: (row: any) => {
+        return (
+          <div
+            className={`${
+              currentCount?.products?.some(
+                (curentCountProduct) =>
+                  curentCountProduct.product === row.productId &&
+                  curentCountProduct.countQuantity === 0
+              )
+                ? "bg-red-200 w-fit px-2 py-1 rounded-md text-white"
+                : ""
+            }`}
+          >
+            {row.product}
+          </div>
+        );
+      },
+    },
     {
       key: "countQuantity",
       node: (row: any) => {
         return (
-          <div className="flex text-center justify-center">
+          <div className={`flex text-center justify-center `}>
             <TextInput
               key={row.productId}
               type={"number"}
@@ -190,14 +259,7 @@ const Count = () => {
                 const rowProduct = products.find(
                   (p) => p.name === row?.product
                 );
-                const currentCount = counts?.find((item) => {
-                  return (
-                    item.isCompleted === false &&
-                    item.location === location &&
-                    item.user === user?._id &&
-                    item.countList === countListId
-                  );
-                });
+
                 if (!currentCount || !rowProduct) {
                   return;
                 }
@@ -241,14 +303,6 @@ const Count = () => {
       countLists
         .find((cl) => cl._id === countListId)
         ?.products?.map((countListProduct) => {
-          const currentCount = counts?.find((item) => {
-            return (
-              item.isCompleted === false &&
-              item.location === location &&
-              item.user === user?._id &&
-              item.countList === countListId
-            );
-          });
           if (location && countListProduct.locations.includes(location)) {
             return {
               products: currentCount?.products,
@@ -287,21 +341,14 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
-          isActionsActive={false}
+          isActionsActive={true}
           addButton={addButton}
+          actions={actions}
         />
         <div className="flex justify-end mt-4">
           <button
             className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
             onClick={() => {
-              const currentCount = counts?.find((item) => {
-                return (
-                  item.isCompleted === false &&
-                  item.location === location &&
-                  item.user === user?._id &&
-                  item.countList === countListId
-                );
-              });
               if (!currentCount) {
                 return;
               }
