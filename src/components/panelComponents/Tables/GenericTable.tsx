@@ -1,10 +1,12 @@
 import "pdfmake/build/pdfmake";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaRegFilePdf } from "react-icons/fa";
+import { BsFilePdf } from "react-icons/bs";
+import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { GoPlusCircle } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
 import { RowPerPageEnum } from "../../../types";
 import ImageModal from "../Modals/ImageModal";
@@ -46,6 +48,7 @@ type Props<T> = {
   isPagination?: boolean;
   isActionsAtFront?: boolean;
   isCollapsibleCheckActive?: boolean;
+  isExcel?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -66,6 +69,7 @@ const GenericTable = <T,>({
   outsideSearch,
   isSearch = true,
   isPdf = false,
+  isExcel = false,
   isCollapsible = false,
   isPagination = true,
   isRowsPerPage = true,
@@ -282,6 +286,23 @@ const GenericTable = <T,>({
       },
     };
     pdfMake.createPdf(documentDefinition).open();
+  };
+  const generateExcel = () => {
+    const workbook = XLSX.utils.book_new();
+    const excelRows = [];
+    const headers = columns
+      .filter((column) => column.correspondingKey)
+      .map((column) => column.key);
+    excelRows.push(headers);
+    rows.forEach((row) => {
+      const rowData = columns
+        .filter((column) => column.correspondingKey)
+        .map((column) => String(row[column?.correspondingKey as keyof T]));
+      excelRows.push(rowData);
+    });
+    const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    XLSX.writeFile(workbook, "ExportedData.xlsx");
   };
 
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
@@ -629,9 +650,19 @@ const GenericTable = <T,>({
                 {isPdf && (
                   <div className="my-auto">
                     <ButtonTooltip content="Pdf">
-                      <FaRegFilePdf
-                        className="w-6 h-6 my-auto cursor-pointer"
+                      <BsFilePdf
+                        className="text-3xl my-auto cursor-pointer "
                         onClick={generatePDF}
+                      />
+                    </ButtonTooltip>
+                  </div>
+                )}
+                {isExcel && (
+                  <div className="my-auto">
+                    <ButtonTooltip content="Excel">
+                      <FaFileExcel
+                        className="text-3xl my-auto cursor-pointer "
+                        onClick={generateExcel}
                       />
                     </ButtonTooltip>
                   </div>

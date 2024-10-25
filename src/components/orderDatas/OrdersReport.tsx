@@ -47,27 +47,27 @@ const OrdersReport = () => {
         _id: order._id,
         date: format(order.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
-        createdBy: getItem(order.createdBy, users)?.name,
-        createdByUserId: order.createdBy,
-        createdAt: format(order.createdAt, "HH:mm"),
+        createdBy: getItem(order.createdBy, users)?.name ?? "",
+        createdByUserId: order.createdBy ?? "",
+        createdAt: format(order.createdAt, "HH:mm") ?? "",
         preparedBy: getItem(order.preparedBy, users)?.name ?? "",
         preparedByUserId: order?.preparedBy ?? "",
         preparationTime: order.preparedAt
           ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
-          : null,
-        cancelledBy: getItem(order.cancelledBy, users)?.name,
-        cancelledByUserId: order.cancelledBy,
+          : "",
+        cancelledBy: getItem(order.cancelledBy, users)?.name ?? "",
+        cancelledByUserId: order.cancelledBy ?? "",
         cancelledAt: order.cancelledAt
           ? format(order.cancelledAt, "HH:mm")
           : "",
-        deliveredBy: getItem(order.deliveredBy, users)?.name,
-        deliveredByUserId: order.deliveredBy,
+        deliveredBy: getItem(order.deliveredBy, users)?.name ?? "",
+        deliveredByUserId: order.deliveredBy ?? "",
         deliveryTime:
           order.deliveredAt && order.preparedAt
             ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
-            : null,
-        discountId: order?.discount,
-        discountNote: order?.discountNote,
+            : "",
+        discountId: order?.discount ?? "",
+        discountNote: order?.discountNote ?? "",
         discountAmount: order?.discountAmount
           ? order?.discountAmount
           : parseFloat(
@@ -82,14 +82,14 @@ const OrdersReport = () => {
         discountName:
           discounts?.find((discount) => discount?._id === order?.discount)
             ?.name ?? "",
-        item: getItem(order.item, items)?.name,
-        location: getItem(order.location, locations)?.name,
-        locationId: order.location,
-        quantity: order.quantity,
-        tableId: (order?.table as Table)?._id,
-        tableName: (order?.table as Table)?.name,
+        item: getItem(order.item, items)?.name ?? "",
+        location: getItem(order.location, locations)?.name ?? "",
+        locationId: order.location ?? "",
+        quantity: order.quantity ?? "",
+        tableId: (order?.table as Table)?._id ?? "",
+        tableName: (order?.table as Table)?.name ?? "",
         amount: order.unitPrice * order.quantity,
-        note: order.note,
+        note: order.note ?? "",
         status: t(order.status),
         statusLabel: statusOptions.find(
           (status) => status.value === order.status
@@ -99,25 +99,53 @@ const OrdersReport = () => {
     ?.filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Date"), isSortable: true },
-    { key: t("Table Id"), isSortable: true },
-    { key: t("Table Name"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
-    { key: t("Amount"), isSortable: true },
-    { key: t("Discount Amount"), isSortable: true },
-    { key: t("Discount Note"), isSortable: true },
-    { key: t("Note"), isSortable: true },
-    { key: t("Created At"), isSortable: true },
-    { key: t("Created By"), isSortable: true },
-    { key: t("Prepared In"), isSortable: true },
-    { key: t("Prepared By"), isSortable: true },
-    { key: t("Delivered In"), isSortable: true },
-    { key: t("Delivered By"), isSortable: true },
-    { key: t("Cancelled At"), isSortable: true },
-    { key: t("Cancelled By"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Status"), isSortable: true },
+    { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+    { key: t("Table Id"), isSortable: true, correspondingKey: "tableId" },
+    { key: t("Table Name"), isSortable: true, correspondingKey: "tableName" },
+    { key: t("Product"), isSortable: true, correspondingKey: "item" },
+    { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
+    { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
+    {
+      key: t("Discount Amount"),
+      isSortable: true,
+      correspondingKey: "discountAmount",
+    },
+    {
+      key: t("Discount Note"),
+      isSortable: true,
+      correspondingKey: "discountNote",
+    },
+    { key: t("Note"), isSortable: true, correspondingKey: "note" },
+    { key: t("Created At"), isSortable: true, correspondingKey: "createdAt" },
+    { key: t("Created By"), isSortable: true, correspondingKey: "createdBy" },
+    {
+      key: t("Prepared In"),
+      isSortable: true,
+      correspondingKey: "preparationTime",
+    },
+    { key: t("Prepared By"), isSortable: true, correspondingKey: "preparedBy" },
+    {
+      key: t("Delivered In"),
+      isSortable: true,
+      correspondingKey: "deliveryTime",
+    },
+    {
+      key: t("Delivered By"),
+      isSortable: true,
+      correspondingKey: "deliveredBy",
+    },
+    {
+      key: t("Cancelled At"),
+      isSortable: true,
+      correspondingKey: "cancelledAt",
+    },
+    {
+      key: t("Cancelled By"),
+      isSortable: true,
+      correspondingKey: "cancelledBy",
+    },
+    { key: t("Location"), isSortable: true, correspondingKey: "location" },
+    { key: t("Status"), isSortable: true, correspondingKey: "status" },
   ];
   const rowKeys = [
     {
@@ -341,6 +369,7 @@ const OrdersReport = () => {
           isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
+          isExcel={true}
         />
       </div>
     </>
