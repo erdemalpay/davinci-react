@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -40,6 +40,7 @@ const Count = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [tableKey, setTableKey] = useState(0);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
 
   const {
     setCurrentPage,
@@ -77,6 +78,10 @@ const Count = () => {
               (countProduct) =>
                 countProduct.product === countListProduct.product
             )?.countQuantity,
+            productDeleteRequest: currentCount?.products?.find(
+              (countProduct) =>
+                countProduct.product === countListProduct.product
+            )?.productDeleteRequest,
           };
         }
         return { product: "", countQuantity: 0 };
@@ -126,8 +131,10 @@ const Count = () => {
   const columns = [
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true, className: "mx-auto" },
-    { key: t("Actions"), isSortable: false },
   ];
+  if (isEnableEdit) {
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const addButton = {
     name: t("Add Product"),
     icon: "",
@@ -183,7 +190,7 @@ const Count = () => {
             className="text-red-500 cursor-pointer text-2xl"
             onClick={() => {
               const rowProduct = products.find((p) => p.name === row?.product);
-              if (!currentCount || !rowProduct) {
+              if (!currentCount || !rowProduct || !user) {
                 return;
               }
               const productStock = stocks?.find(
@@ -196,8 +203,11 @@ const Count = () => {
                 ) || []),
                 {
                   product: rowProduct?._id,
-                  countQuantity: 0,
+                  countQuantity: row?.countQuantity ?? 0,
                   stockQuantity: productStock?.quantity || 0,
+                  productDeleteRequest: row?.productDeleteRequest
+                    ? ""
+                    : user._id,
                 },
               ];
               updateAccountCount({
@@ -208,7 +218,7 @@ const Count = () => {
               });
             }}
           >
-            <ButtonTooltip content={t("Product count: 0")}>
+            <ButtonTooltip content={t("Product should be removed.")}>
               <IoIosCloseCircleOutline />
             </ButtonTooltip>
           </div>
@@ -226,11 +236,7 @@ const Count = () => {
         return (
           <div
             className={`${
-              currentCount?.products?.some(
-                (curentCountProduct) =>
-                  curentCountProduct.product === row.productId &&
-                  curentCountProduct.countQuantity === 0
-              )
+              row?.productDeleteRequest
                 ? "bg-red-200 w-fit px-2 py-1 rounded-md text-white"
                 : ""
             }`}
@@ -298,6 +304,13 @@ const Count = () => {
       },
     },
   ];
+  const filters = [
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+    },
+  ];
   useEffect(() => {
     setRows(
       countLists
@@ -314,6 +327,10 @@ const Count = () => {
                 (countProduct) =>
                   countProduct.product === countListProduct.product
               )?.countQuantity,
+              productDeleteRequest: currentCount?.products?.find(
+                (countProduct) =>
+                  countProduct.product === countListProduct.product
+              )?.productDeleteRequest,
             };
           }
           return { product: "", countQuantity: 0 };
@@ -341,30 +358,66 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
-          isActionsActive={true}
+          isActionsActive={isEnableEdit}
           addButton={addButton}
-          actions={actions}
+          filters={filters}
+          actions={isEnableEdit ? actions : []}
         />
         <div className="flex justify-end mt-4">
           <button
             className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
             onClick={() => {
-              if (!currentCount) {
+              if (!currentCount && !countListProducts) {
                 return;
               }
               if (
-                currentCount?.products?.length !== countListProducts?.length
+                currentCount?.products?.length !== countListProducts?.length &&
+                currentCount?.products &&
+                countListProducts
               ) {
-                toast.error(t("Please complete all product counts."));
-                return;
+                let newProducts = currentCount?.products;
+                for (const currentProductItem of countListProducts) {
+                  if (
+                    !currentCount.products.find(
+                      (clp) => clp.product === currentProductItem.product
+                    )
+                  ) {
+                    const productStock = stocks?.find(
+                      (s) =>
+                        s?.product === currentProductItem.product &&
+                        s?.location === location
+                    );
+                    newProducts = [
+                      ...(newProducts?.filter(
+                        (p) => p.product !== currentProductItem.product
+                      ) || []),
+                      {
+                        product: currentProductItem.product,
+                        countQuantity: 0,
+                        stockQuantity: productStock?.quantity || 0,
+                      },
+                    ];
+                  }
+                }
+
+                updateAccountCount({
+                  id: currentCount?._id,
+                  updates: {
+                    products: newProducts,
+                    isCompleted: true,
+                    completedAt: new Date(),
+                  },
+                });
+              } else if (currentCount) {
+                updateAccountCount({
+                  id: currentCount?._id,
+                  updates: {
+                    isCompleted: true,
+                    completedAt: new Date(),
+                  },
+                });
               }
-              updateAccountCount({
-                id: currentCount?._id,
-                updates: {
-                  isCompleted: true,
-                  completedAt: new Date(),
-                },
-              });
+
               setCountListActiveTab(countLists.length);
               setCurrentPage(1);
               // setRowsPerPage(RowPerPageEnum.FIRST);

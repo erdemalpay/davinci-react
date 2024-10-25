@@ -112,6 +112,7 @@ export type AccountCount = {
     stockQuantity: number;
     countQuantity: number;
     isStockEqualized?: boolean;
+    productDeleteRequest?: string;
   }[];
   countList: string;
 };

@@ -522,5 +522,8 @@
   "Total Income": "Toplam Gelir",
   "All Locations": "Tüm Lokasyonlar",
   "Product count: 0": "Ürün sayısı: 0",
+  "Product should be removed.": "Ürün çıkarılmalıdır",
+  "Delete Request": "Silme İsteği",
+  "Product already deleted from the list!": "Ürün zaten listeden silindi!",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

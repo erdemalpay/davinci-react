@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { LuCircleEqual } from "react-icons/lu";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
@@ -20,7 +22,10 @@ import {
   useUpdateStockForStockCountBulkMutation,
   useUpdateStockForStockCountMutation,
 } from "../utils/api/account/count";
-import { useGetAccountCountLists } from "../utils/api/account/countList";
+import {
+  useAccountCountListMutations,
+  useGetAccountCountLists,
+} from "../utils/api/account/countList";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
@@ -37,11 +42,17 @@ const SingleCountArchive = () => {
     useUpdateStockForStockCountMutation();
   const { mutate: updateStockForStockCountBulk } =
     useUpdateStockForStockCountBulkMutation();
+  const { updateAccountCountList } = useAccountCountListMutations();
   const { updateAccountCount } = useAccountCountMutations();
   const products = useGetAllAccountProducts();
+  const [rowToAction, setRowToAction] = useState<any>();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const foundCount = counts?.find((count) => count._id === archiveId);
   const pageNavigations = [
     {
@@ -62,8 +73,12 @@ const SingleCountArchive = () => {
       canBeClicked: false,
     },
   ];
+  const currentCount = counts?.find((count) => count._id === archiveId);
+  const currentCountList = countLists?.find(
+    (countList) => countList._id === currentCount?.countList
+  );
+
   const allRows = () => {
-    const currentCount = counts?.find((count) => count._id === archiveId);
     if (!currentCount) return [];
     const date = new Date(currentCount.createdAt);
     return (
@@ -78,6 +93,9 @@ const SingleCountArchive = () => {
 
         stockQuantity: option.stockQuantity,
         countQuantity: option.countQuantity,
+        productDeleteRequest: option?.productDeleteRequest
+          ? getItem(option.productDeleteRequest, users)?.name
+          : "",
         isStockEqualized: option?.isStockEqualized ?? false,
       })) || []
     );
@@ -88,6 +106,7 @@ const SingleCountArchive = () => {
     { key: t("Product"), isSortable: true },
     { key: t("Stock Quantity"), isSortable: true },
     { key: t("Count Quantity"), isSortable: true },
+    { key: t("Delete Request"), isSortable: true },
     { key: t("Stock Equalized"), isSortable: true },
     { key: t("Actions"), isSortable: true },
   ];
@@ -96,6 +115,7 @@ const SingleCountArchive = () => {
     { key: "product" },
     { key: "stockQuantity" },
     { key: "countQuantity" },
+    { key: "productDeleteRequest" },
     {
       key: "isStockEqualized",
       node: (row: any) => {
@@ -161,6 +181,48 @@ const SingleCountArchive = () => {
     });
   }
   const actions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            if (currentCountList && rowToAction) {
+              if (
+                !currentCountList?.products?.some(
+                  (item) => item.product === rowToAction.productId
+                )
+              ) {
+                toast.error(t("Product already deleted from the list!"));
+                return;
+              }
+              const newProducts = currentCountList?.products?.filter(
+                (item) => item.product !== rowToAction.productId
+              );
+              updateAccountCountList({
+                id: currentCountList?._id,
+                updates: {
+                  products: newProducts,
+                },
+              });
+            }
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Count List Item")}
+          text={`${rowToAction.product} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : (
+        ""
+      ),
+      className: "text-red-500 cursor-pointer text-2xl   ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
     {
       name: t("Equalize"),
       icon: <LuCircleEqual />,

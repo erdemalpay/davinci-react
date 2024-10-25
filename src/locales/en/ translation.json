@@ -522,5 +522,8 @@
   "Total Income": "Total Income",
   "All Locations": "All Locations",
   "Product count: 0": "Product count: 0",
+  "Product should be removed.": "Product should be removed.",
+  "Delete Request": "Delete Request",
+  "Product already deleted from the list!": "Product already deleted from the list!",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
