@@ -1,3 +1,4 @@
+import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,12 +13,12 @@ import {
   Table,
   TURKISHLIRA,
 } from "../../../types";
-
-import { useIsMutating } from "@tanstack/react-query";
+import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
+import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
@@ -45,6 +46,7 @@ const OrderPaymentModal = ({
   const { t } = useTranslation();
   const { user } = useUserContext();
   const isMutating = useIsMutating();
+  const items = useGetMenuItems();
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
@@ -81,6 +83,78 @@ const OrderPaymentModal = ({
   const isAllItemsPaid =
     tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
+  const handlePrint = () => {
+    const printFrame = document.createElement("iframe");
+    printFrame.style.visibility = "hidden";
+    printFrame.style.position = "absolute";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    document.body.appendChild(printFrame);
+
+    let totalAmount = 0;
+    const content = orders
+      .map((order) => {
+        const discountValue =
+          (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
+            100 +
+          (order.discountAmount ?? 0) * order.quantity;
+        const orderAmount = order.unitPrice * order.quantity - discountValue;
+        totalAmount += orderAmount;
+
+        const originalPriceText =
+          (order?.discountPercentage && order?.discountPercentage > 0) ||
+          (order?.discountAmount && order?.discountAmount > 0)
+            ? `<span class="original-price">${
+                (order.unitPrice * order.quantity).toFixed(2) + TURKISHLIRA
+              }</span>`
+            : "";
+
+        return `<div class="receipt-item">
+                <span class="item-name">(${order.quantity})${
+          getItem(order.item, items)?.name
+        }</span>
+                ${originalPriceText}
+                <span class="discounted-price">${
+                  orderAmount.toFixed(2) + " " + TURKISHLIRA
+                }</span>
+              </div>`;
+      })
+      .join("");
+
+    const totalSection = `<div class="total-section">
+                          <span>Toplam:</span>
+                          <span>${
+                            totalAmount.toFixed(2) + " " + TURKISHLIRA
+                          }</span>
+                        </div>`;
+
+    const doc = printFrame.contentWindow?.document;
+    doc?.open();
+    doc?.write(`
+    <html>
+      <head>
+        <title>Print Receipt</title>
+          <style>
+          body { font-family: 'Courier New', Courier, monospace; margin: 20px; background-color: #f9f9f9; }
+          .receipt-item, .total-section { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; }
+          .total-section { font-weight: bold; margin-top: 10px; }
+          .item-name { text-align: left; }
+          .original-price { text-decoration: line-through;margin-left:auto ; margin-right: 10px; }
+          .discounted-price { text-align: right; }
+          h1 { text-align: left; border-bottom: 2px solid black; padding-bottom: 10px; }
+          .receipt-item { border-bottom: 1px dashed #ccc; }
+        </style>
+      </head>
+      <body onload="window.print(); window.close();">
+        <h1>Siparişler</h1>
+        ${content}
+        ${totalSection}
+      </body>
+    </html>
+  `);
+    doc?.close();
+  };
+
   const buttons: ButtonType[] = [
     {
       label: t("Close Table"),
@@ -107,6 +181,11 @@ const OrderPaymentModal = ({
       },
       isActive: table?.finishHour ? true : false,
     },
+    {
+      label: t("Print"),
+      onClick: handlePrint,
+      isActive: true, // Adjust based on whether you want it always active or conditionally
+    },
   ];
 
   function finishTable() {
@@ -117,6 +196,7 @@ const OrderPaymentModal = ({
     setIsCloseConfirmationDialogOpen(false);
     toast.success(t("Table {{tableName}} closed", { tableName: table.name }));
   }
+
   return (
     <div
       id="popup"

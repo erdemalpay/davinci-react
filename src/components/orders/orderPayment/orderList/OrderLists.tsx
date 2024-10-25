@@ -116,6 +116,10 @@ const OrderLists = ({
           setDiscountNote("");
           setIsDiscountNoteOpen(false);
         }
+        if (setIsProductSelectionOpen && isDiscountScreenOpen) {
+          setIsProductSelectionOpen(false);
+          setSelectedOrders([]);
+        }
         if (isTableSelectOpen) {
           setIsTableSelectOpen(false);
           setSelectedTableTransfer(0);
