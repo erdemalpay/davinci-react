@@ -57,6 +57,7 @@ export interface GameplayFilter {
   limit: number;
   sort?: string;
   asc?: number;
+  location?: number;
 }
 export interface GameplayGroupFilter {
   groupBy: string;
@@ -145,7 +146,8 @@ export function useGetMentorGamePlays(mentorId: string) {
   };
 }
 export function useGetGameplays(filter: GameplayFilter) {
-  const { startDate, endDate, game, mentor, limit, page, sort, asc } = filter;
+  const { startDate, endDate, game, mentor, limit, page, sort, asc, location } =
+    filter;
   let query = `${BASE_URL_GAMEPLAYS}/query?page=${page}&limit=${limit}`;
   if (startDate) {
     query += `&startDate=${startDate}`;
@@ -158,6 +160,9 @@ export function useGetGameplays(filter: GameplayFilter) {
   }
   if (mentor) {
     query += `&mentor=${mentor}`;
+  }
+  if (location) {
+    query += `&location=${location}`;
   }
   if (sort) {
     query += `&sort=${sort}`;
@@ -174,6 +179,7 @@ export function useGetGameplays(filter: GameplayFilter) {
     endDate,
     game,
     mentor,
+    location,
     sort,
     asc,
   ];

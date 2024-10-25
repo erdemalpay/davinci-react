@@ -6,9 +6,10 @@ import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
-import { Game, RowPerPageEnum, User } from "../types";
+import { Game, Location, RowPerPageEnum, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
+import { useGetLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 
@@ -17,6 +18,7 @@ interface GameplayRow {
   game: string;
   mentor: string;
   playerCount: number;
+  locationName: string;
   date: string;
 }
 
@@ -31,6 +33,7 @@ export default function NewGameplays() {
   const [tableKey, setTableKey] = useState(0);
   const { data } = useGetGameplays(filterData);
   const games = useGetGames();
+  const locations = useGetLocations();
   const users = useGetUsers();
   const columns = [
     {
@@ -97,6 +100,27 @@ export default function NewGameplays() {
       ),
     },
     {
+      key: t("Location"),
+      isSortable: false,
+      node: () => (
+        <th
+          key="location"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("location")}
+        >
+          <div className="flex gap-x-2 pl-3  items-center py-3  min-w-8">
+            <H5>{t("Location")}</H5>
+            {filterData.sort === "location" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
+    },
+    {
       key: t("Date"),
       isSortable: false,
       node: () => (
@@ -128,6 +152,8 @@ export default function NewGameplays() {
       className: "min-w-20 pr-1",
     },
     { key: "playerCount" },
+    { key: "locationName" },
+
     {
       key: "date",
       className: "min-w-32",
@@ -147,6 +173,9 @@ export default function NewGameplays() {
 
   function handleGameSelection(game: Game) {
     setFilterData({ ...filterData, game: game?._id, page: 1 });
+  }
+  function handleLocationSelection(location: Location) {
+    setFilterData({ ...filterData, location: location?._id, page: 1 });
   }
 
   function handleStartDateSelection(event: React.FormEvent<HTMLInputElement>) {
@@ -216,6 +245,7 @@ export default function NewGameplays() {
           game: (gameplay?.game as Game)?.name,
           mentor: gameplay?.mentor?.name,
           playerCount: gameplay?.playerCount,
+          locationName: gameplay?.location === 1 ? "Bahceli" : "Neorama",
           date: gameplay?.date,
         }))
       );
@@ -245,6 +275,13 @@ export default function NewGameplays() {
             />
           </div>
           <div className="flex flex-col lg:flex-row gap-2 mt-4">
+            <Autocomplete
+              name="location"
+              label={t("Location")}
+              suggestions={locations}
+              handleSelection={handleLocationSelection}
+              showSelected
+            />
             <Input
               variant="standard"
               name="startDay"
