@@ -214,12 +214,12 @@ const CountLists = () => {
       node: (row: any) => (
         <div className="mt-2">
           <CheckSwitch
-            checked={row.active}
+            checked={row?.active}
             onChange={() =>
               updateAccountCountList({
                 id: row._id,
                 updates: {
-                  active: !(row?.active ?? false),
+                  active: !(row?.active ? row.active : false),
                 },
               })
             }
