@@ -141,11 +141,15 @@ export function TableCard({
     ?.map((menuItem) => {
       return {
         value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        // +
-        // (menuItemStockQuantity(menuItem) > 0
-        //   ? " (" + menuItemStockQuantity(menuItem) + `${t("piece")})`
-        //   : ""),
+        label:
+          menuItem?.name +
+          " (" +
+          menuItem.price +
+          TURKISHLIRA +
+          ")" +
+          (menuItemStockQuantity(menuItem) > 0
+            ? " (" + menuItemStockQuantity(menuItem) + `${t("piece")})`
+            : ""),
       };
     });
 
