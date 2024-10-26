@@ -36,7 +36,8 @@ export function useGetTableCollections(tableId: number) {
 export function useGetAllOrderCollections() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<OrderCollection>(
-    `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`
+    `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`,
+    [`${Paths.Order}/collection/query`, filterPanelFormElements.after]
   );
 }
 export function useGetSummaryCollectionTotal() {

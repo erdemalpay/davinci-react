@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -10,11 +11,13 @@ import {
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
@@ -23,6 +26,7 @@ const DailyIncome = () => {
   const collections = useGetAllOrderCollections();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetLocations();
+  const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   if (!collections || !locations || !paymentMethods) {
     return null;
@@ -170,6 +174,7 @@ const DailyIncome = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -179,6 +184,7 @@ const DailyIncome = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const filterPanel = {
@@ -189,6 +195,18 @@ const DailyIncome = () => {
     closeFilters: () => setShowFilters(false),
   };
   const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Refresh Data")}
+          onclick={() => {
+            queryClient.invalidateQueries([`${Paths.Order}/query`]);
+            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+          }}
+        />
+      ),
+    },
     {
       label: t("Show Filters"),
       isUpperSide: true,

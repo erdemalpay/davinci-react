@@ -95,6 +95,7 @@ const FilterPanel = <T,>({
                 placeholder={input.placeholder ?? ""}
                 onChange={handleChange(input.formKey)}
                 isDatePicker={input.isDatePicker ?? false}
+                isOnClearActive={input?.isOnClearActive}
                 onClear={() =>
                   setFormElements((prev) => ({ ...prev, [input.formKey]: "" }))
                 }

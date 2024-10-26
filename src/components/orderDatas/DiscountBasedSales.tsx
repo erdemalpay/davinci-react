@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +10,7 @@ import {
   Table,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -17,8 +19,10 @@ import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type ItemQuantity = {
   itemId: number;
   itemName: string;
@@ -44,6 +48,7 @@ const DiscountBasedSales = () => {
   const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
   const locations = useGetLocations();
+  const queryClient = useQueryClient();
   const items = useGetMenuItems();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !locations || !discounts || !items) {
@@ -283,6 +288,7 @@ const DiscountBasedSales = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -292,6 +298,7 @@ const DiscountBasedSales = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const filterPanel = {
@@ -302,6 +309,18 @@ const DiscountBasedSales = () => {
     closeFilters: () => setShowFilters(false),
   };
   const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Refresh Data")}
+          onclick={() => {
+            queryClient.invalidateQueries([`${Paths.Order}/query`]);
+            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+          }}
+        />
+      ),
+    },
     {
       label: t("Show Filters"),
       isUpperSide: true,

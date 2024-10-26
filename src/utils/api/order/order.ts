@@ -209,7 +209,8 @@ export function useUpdateMultipleOrderMutation() {
 export function useGetOrders() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<Order>(
-    `${baseUrl}/query?after=${filterPanelFormElements.after}`
+    `${baseUrl}/query?after=${filterPanelFormElements.after}`,
+    [`${Paths.Order}/query`, filterPanelFormElements.after]
   );
 }
 

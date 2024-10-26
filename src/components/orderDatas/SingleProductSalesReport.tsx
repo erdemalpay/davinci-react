@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -9,6 +10,7 @@ import {
   TURKISHLIRA,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -18,8 +20,10 @@ import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type OrderWithPaymentInfo = {
   item: number;
   itemName: string;
@@ -42,6 +46,7 @@ const SingleProductSalesReport = () => {
   const categories = useGetCategories();
   const locations = useGetLocations();
   const items = useGetMenuItems();
+  const queryClient = useQueryClient();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {
     return null;
@@ -255,6 +260,7 @@ const SingleProductSalesReport = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -264,6 +270,7 @@ const SingleProductSalesReport = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const filterPanel = {
@@ -274,6 +281,18 @@ const SingleProductSalesReport = () => {
     closeFilters: () => setShowFilters(false),
   };
   const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Refresh Data")}
+          onclick={() => {
+            queryClient.invalidateQueries([`${Paths.Order}/query`]);
+            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+          }}
+        />
+      ),
+    },
     {
       label: t("Show Filters"),
       isUpperSide: true,

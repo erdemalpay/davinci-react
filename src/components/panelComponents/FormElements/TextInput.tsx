@@ -246,7 +246,7 @@ const TextInput = ({
               />
             </PopoverContent>
           </Popover>
-          {onClear && value && (
+          {onClear && value && isOnClearActive && (
             <button
               onClick={() => {
                 setLocalValue("");

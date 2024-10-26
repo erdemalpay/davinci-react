@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,12 +11,15 @@ import {
   Table,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { Paths } from "../../utils/api/factory";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 interface PersonalOrderData {
   user: string;
   createdByCount: number;
@@ -62,6 +66,7 @@ const PersonalOrderDatas = () => {
   const orders = useGetOrders();
   const users = useGetUsers();
   const discounts = useGetOrderDiscounts();
+  const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const { filterPanelFormElements, setFilterPanelFormElements } =
@@ -237,6 +242,7 @@ const PersonalOrderDatas = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -246,6 +252,7 @@ const PersonalOrderDatas = () => {
       required: true,
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const filterPanel = {
@@ -256,6 +263,18 @@ const PersonalOrderDatas = () => {
     closeFilters: () => setShowFilters(false),
   };
   const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Refresh Data")}
+          onclick={() => {
+            queryClient.invalidateQueries([`${Paths.Order}/query`]);
+            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+          }}
+        />
+      ),
+    },
     {
       label: t("Show Filters"),
       isUpperSide: true,
