@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import { Order, OrderStatus, Table } from "../../types";
 import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
 import SingleOrderCard from "./SingleOrderCard";
+
 type Props = {
   status: string;
   orders: Order[];
@@ -19,12 +21,22 @@ const OrderStatusContainer = ({
   const { t } = useTranslation();
   const { user } = useUserContext();
   if (!user) return <></>;
+  const [expandedTables, setExpandedTables] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const toggleTable = (tableId: string) => {
+    setExpandedTables((prev) => ({
+      ...prev,
+      [tableId]: !prev[tableId],
+    }));
+  };
   const groupedOrders = orders.reduce<{ [key: string]: Order[] }>(
     (acc, order) => {
       const tableId = (order?.table as Table)?._id;
       if (!acc[tableId]) {
         acc[tableId] = [];
       }
+
       acc[tableId].push(order);
       return acc;
     },
@@ -69,6 +81,17 @@ const OrderStatusContainer = ({
     }
     return earliestB.getTime() - earliestA.getTime();
   });
+  useEffect(() => {
+    for (const [tableId, tableOrders] of sortedGroupedOrders) {
+      const isTableOpen = !(tableOrders[0]?.table as Table)?.finishHour;
+      if (isTableOpen) {
+        setExpandedTables((prev) => ({
+          ...prev,
+          [tableId]: status !== "Served",
+        }));
+      }
+    }
+  }, [orders]);
 
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
 
@@ -98,8 +121,16 @@ const OrderStatusContainer = ({
           {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
             <div key={tableId} className=" flex flex-col gap-1 px-1 ">
               <div className="flex justify-between">
-                <h2 className="font-semibold text-blue-800 ">
+                <h2
+                  onClick={() => toggleTable(tableId)}
+                  className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
+                >
                   {t("Table")} {(tableOrders[0]?.table as Table)?.name}
+                  <span // Toggle icon
+                    className="inline-flex  cursor-pointer"
+                  >
+                    {expandedTables[tableId] ? "▲" : "▼"}
+                  </span>
                 </h2>
                 {/* pending case all ready button */}
                 {status === "Pending" && (
@@ -114,7 +145,7 @@ const OrderStatusContainer = ({
                         },
                       });
                     }}
-                    className="bg-green-500 text-white px-2 py-0.5 rounded-lg"
+                    className="bg-green-500 text-white px-2  rounded-lg"
                   >
                     {t("All Ready")}
                   </button>
@@ -140,11 +171,17 @@ const OrderStatusContainer = ({
                 )}
               </div>
               {/* single order card in a table  */}
-              <div className="flex flex-col gap-2">
-                {[...tableOrders].reverse().map((order) => (
-                  <SingleOrderCard key={order._id} order={order} user={user} />
-                ))}
-              </div>
+              {expandedTables[tableId] && (
+                <div className="flex flex-col gap-2">
+                  {[...tableOrders].reverse().map((order) => (
+                    <SingleOrderCard
+                      key={order._id}
+                      order={order}
+                      user={user}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

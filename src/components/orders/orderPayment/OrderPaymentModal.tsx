@@ -255,19 +255,21 @@ const OrderPaymentModal = ({
                   <h1 className="font-medium">{user.name}</h1>
                 </div>
                 {/* buttons */}
-                {buttons?.map((button) => {
-                  if (button.isActive) {
-                    return (
-                      <button
-                        key={button.label}
-                        onClick={button.onClick}
-                        className="w-fit ml-auto bg-gray-200 px-4 py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold mr-6"
-                      >
-                        {button.label}
-                      </button>
-                    );
-                  }
-                })}
+                <div className="flex flex-row gap-1">
+                  {buttons?.map((button) => {
+                    if (button.isActive) {
+                      return (
+                        <button
+                          key={button.label}
+                          onClick={button.onClick}
+                          className="w-fit ml-auto bg-gray-200 px-4 py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold mr-6"
+                        >
+                          {button.label}
+                        </button>
+                      );
+                    }
+                  })}
+                </div>
               </div>
               {/* payment part */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2">
