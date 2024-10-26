@@ -31,6 +31,7 @@ const CountLists = () => {
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();
+  const [showInactiveCountLists, setShowInactiveCountLists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -198,15 +199,59 @@ const CountLists = () => {
         user &&
         ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
     },
+    {
+      name: t("Toggle Active"),
+      isDisabled:
+        !showInactiveCountLists ||
+        (user &&
+          ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+            user.role._id
+          )),
+      isModal: false,
+      isPath: false,
+      icon: null,
+
+      node: (row: any) => (
+        <div className="mt-2">
+          <CheckSwitch
+            checked={row.active}
+            onChange={() =>
+              updateAccountCountList({
+                id: row._id,
+                updates: {
+                  active: !(row?.active ?? false),
+                },
+              })
+            }
+          ></CheckSwitch>
+        </div>
+      ),
+    },
   ];
   const filters = [
+    {
+      label: t("Show Inactive CountLists"),
+      isDisabled:
+        user &&
+        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={showInactiveCountLists}
+          onChange={setShowInactiveCountLists}
+        />
+      ),
+    },
     {
       label: t("Location Edit"),
       isUpperSide: false,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [countLists, locations]);
+  useEffect(
+    () => setTableKey((prev) => prev + 1),
+    [countLists, locations, showInactiveCountLists]
+  );
 
   return (
     <>
@@ -229,7 +274,11 @@ const CountLists = () => {
               ? filters
               : []
           }
-          rows={countLists}
+          rows={
+            showInactiveCountLists
+              ? countLists
+              : countLists?.filter((countList) => countList.active)
+          }
           title={t("Count Lists")}
           addButton={
             user &&

@@ -99,6 +99,7 @@ export type AccountCountList = {
     product: string;
     locations: string[];
   }[];
+  active: boolean;
 };
 export type AccountCount = {
   _id: string;

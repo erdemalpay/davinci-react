@@ -525,5 +525,7 @@
   "Product should be removed.": "Product should be removed.",
   "Delete Request": "Delete Request",
   "Product already deleted from the list!": "Product already deleted from the list!",
+  "Show Inactive CountLists": "Show Inactive CountLists",
+  "Refresh Data": "Refresh Data",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

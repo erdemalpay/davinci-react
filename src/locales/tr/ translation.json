@@ -525,5 +525,7 @@
   "Product should be removed.": "Ürün çıkarılmalıdır",
   "Delete Request": "Silme İsteği",
   "Product already deleted from the list!": "Ürün zaten listeden silindi!",
+  "Show Inactive CountLists": "Aktif Olmayan Sayım Listelerini Göster",
+  "Refresh Data": "Verileri Yenile",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }
