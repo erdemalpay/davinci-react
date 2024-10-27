@@ -49,6 +49,7 @@ type Props<T> = {
   isActionsAtFront?: boolean;
   isCollapsibleCheckActive?: boolean;
   isExcel?: boolean;
+  excelFileName?: string;
 };
 
 const GenericTable = <T,>({
@@ -77,6 +78,7 @@ const GenericTable = <T,>({
   isCollapsibleCheckActive = true,
   tooltipLimit = 40,
   rowClassNameFunction,
+  excelFileName,
   rowsPerPageOptions = [
     RowPerPageEnum.FIRST,
     RowPerPageEnum.SECOND,
@@ -302,7 +304,7 @@ const GenericTable = <T,>({
     });
     const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-    XLSX.writeFile(workbook, "ExportedData.xlsx");
+    XLSX.writeFile(workbook, excelFileName ?? "ExportedData.xlsx");
   };
 
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
