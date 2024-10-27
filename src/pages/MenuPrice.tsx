@@ -14,18 +14,25 @@ const MenuPrice = () => {
   const allRows = items.map((item) => ({
     ...item,
     category: getItem(item.category, categories)?.name,
+    onlinePrice: item?.onlinePrice ?? "",
   }));
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: "ID", isSortable: false, correspondingKey: "_id" },
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
     { key: t("Price"), isSortable: true, correspondingKey: "price" },
+    {
+      key: t("Online Price"),
+      isSortable: true,
+      correspondingKey: "onlinePrice",
+    },
     { key: t("Category"), isSortable: true, correspondingKey: "category" },
   ];
   const rowKeys = [
     { key: "_id" },
     { key: "name" },
     { key: "price" },
+    { key: "onlinePrice" },
     { key: "category" },
   ];
 
@@ -45,7 +52,7 @@ const MenuPrice = () => {
           columns={columns}
           isExcel={true}
           title={t("Menu Price")}
-          excelFileName={t("Menu Price")}
+          excelFileName={t("MenuPrice.xlsx")}
         />
       </div>
     </>
