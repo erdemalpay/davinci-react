@@ -607,7 +607,7 @@ export function TableCard({
             stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
           }}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="h-full flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar  "
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar  "
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems?.find(
