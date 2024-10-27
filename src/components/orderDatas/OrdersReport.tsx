@@ -388,6 +388,7 @@ const OrdersReport = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}
+          excelFileName={t("Orders.xlsx")}
         />
       </div>
     </>
