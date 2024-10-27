@@ -112,6 +112,7 @@ export function TableCard({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
+    category: "",
     stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
   });
   const [tableTransferForm, setTableTransferForm] = useState({
@@ -132,6 +133,11 @@ export function TableCard({
     return 0;
   };
   const menuItemOptions = menuItems
+    ?.filter((menuItem) => {
+      return (
+        !orderForm.category || menuItem.category === Number(orderForm.category)
+      );
+    })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
       table?.isOnlineSale
@@ -164,6 +170,20 @@ export function TableCard({
     return false;
   };
   const orderInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      placeholder: t("Category"),
+      required: false,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "item",
@@ -271,6 +291,7 @@ export function TableCard({
   ];
 
   const orderFormKeys = [
+    { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
@@ -586,7 +607,7 @@ export function TableCard({
             stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
           }}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2  "
+          anotherPanelTopClassName="h-full flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar  "
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
             const selectedMenuItem = menuItems?.find(
@@ -644,6 +665,7 @@ export function TableCard({
               item: 0,
               quantity: 0,
               note: "",
+              category: "",
               discount: undefined,
               discountNote: "",
               isOnlinePrice: false,
