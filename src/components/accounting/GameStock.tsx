@@ -15,6 +15,7 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
@@ -40,6 +41,7 @@ const GameStock = () => {
   const stocks = useGetAccountStocks();
   const { user } = useUserContext();
   const products = useGetAccountProducts();
+  const items = useGetMenuItems();
   const locations = useGetAccountStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -93,9 +95,11 @@ const GameStock = () => {
         getItem(stock.product, products)?.expenseType?.includes("oys")
       )
       ?.reduce((acc: any, stock) => {
-        const productName = getItem(stock.product, products)?.name;
+        const rowProduct = getItem(stock.product, products);
+        const rowItem = getItem(rowProduct?.matchedMenuItem, items);
+        const productName = rowProduct?.name;
         const locationName = getItem(stock.location, locations)?.name;
-        const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+        const unitPrice = rowProduct?.unitPrice ?? 0;
         const quantity = stock.quantity;
         const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
         if (!productName) {
@@ -108,6 +112,7 @@ const GameStock = () => {
             unitPrice,
             totalGroupPrice: 0,
             totalQuantity: 0,
+            menuPrice: rowItem?.price,
             collapsible: {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
@@ -129,7 +134,7 @@ const GameStock = () => {
           stockProduct: stock?.product,
           stockLocation: stock?.location,
           stockQuantity: stock?.quantity,
-          stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
+          stockUnitPrice: rowProduct?.unitPrice ?? 0,
           location: locationName,
           quantity: quantity,
           totalPrice: totalPrice,
@@ -175,6 +180,7 @@ const GameStock = () => {
     { key: t("Product"), isSortable: true },
     { key: t("Quantity"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
+    { key: t("Menu Price"), isSortable: true },
     { key: t("Total Price"), isSortable: true },
   ];
 
@@ -186,13 +192,22 @@ const GameStock = () => {
       node: (row: any) => <div>{formatPrice(row.unitPrice)} ₺</div>,
     },
     {
+      key: "menuPrice",
+      node: (row: any) => {
+        if (row?.menuPrice) {
+          return <div>{formatPrice(row.menuPrice)} ₺</div>;
+        }
+        return <></>;
+      },
+    },
+    {
       key: "totalGroupPrice",
       node: (row: any) => <div>{formatPrice(row.totalGroupPrice)} ₺</div>,
     },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
-    const splicedColumns = ["Unit Price", "Total Price"];
-    const splicedRowKeys = ["unitPrice", "totalPrice"];
+    const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
+    const splicedRowKeys = ["unitPrice", "menuPrice", "totalPrice"];
     splicedColumns.forEach((item) => {
       columns.splice(
         columns.findIndex((column) => column.key === item),
@@ -372,14 +387,16 @@ const GameStock = () => {
           passesFilter(filterPanelFormElements?.location, stock.location) &&
           (!filterPanelFormElements?.product?.length ||
             filterPanelFormElements?.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, getItem(stock.product, products)?._id)
+              passesFilter(panelProduct, stock.product)
             ))
         );
       })
       ?.reduce((acc: any, stock) => {
-        const productName = getItem(stock.product, products)?.name;
+        const rowProduct = getItem(stock.product, products);
+        const rowItem = getItem(rowProduct?.matchedMenuItem, items);
+        const productName = rowProduct?.name;
         const locationName = getItem(stock.location, locations)?.name;
-        const unitPrice = getItem(stock.product, products)?.unitPrice ?? 0;
+        const unitPrice = rowProduct?.unitPrice ?? 0;
         const quantity = stock.quantity;
         const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
         if (!productName) {
@@ -390,6 +407,7 @@ const GameStock = () => {
             ...stock,
             prdct: productName,
             unitPrice,
+            menuPrice: rowItem?.price,
             totalGroupPrice: 0,
             totalQuantity: 0,
             collapsible: {
@@ -413,7 +431,7 @@ const GameStock = () => {
           stockProduct: stock?.product,
           stockLocation: stock?.location,
           stockQuantity: stock?.quantity,
-          stockUnitPrice: getItem(stock.product, products)?.unitPrice ?? 0,
+          stockUnitPrice: rowProduct?.unitPrice ?? 0,
           location: locationName,
           quantity: quantity,
           totalPrice: totalPrice,
@@ -460,6 +478,7 @@ const GameStock = () => {
     locations,
     user,
     isEnableEdit,
+    items,
   ]);
   const filterPanelInputs = [
     ProductInput({
