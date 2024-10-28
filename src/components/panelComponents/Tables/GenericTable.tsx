@@ -593,6 +593,26 @@ const GenericTable = <T,>({
       sortRows(sortConfigKey?.key, sortConfigKey?.direction);
     }
   }, []);
+  const renderFilters = (isUpper: boolean) => {
+    if (!filters) {
+      return null;
+    }
+    if (filters) {
+      return filters.map(
+        (filter, index) =>
+          filter.isUpperSide === isUpper &&
+          !filter.isDisabled && (
+            <div
+              key={index}
+              className="flex flex-row gap-2 justify-between items-center"
+            >
+              {filter.label && <H5 className="w-fit">{filter.label}</H5>}
+              {filter.node}
+            </div>
+          )
+      );
+    }
+  };
   return (
     <div
       className={` ${
@@ -622,22 +642,7 @@ const GenericTable = <T,>({
 
           {/* filters  for upperside*/}
           <div className="flex flex-row flex-wrap gap-4 ml-auto ">
-            {filters &&
-              filters.map(
-                (filter, index) =>
-                  filter.isUpperSide &&
-                  !filter.isDisabled && (
-                    <div
-                      key={index}
-                      className="flex flex-row gap-2 justify-between items-center"
-                    >
-                      {filter.label && (
-                        <H5 className="w-fit">{filter.label}</H5>
-                      )}
-                      {filter.node}
-                    </div>
-                  )
-              )}
+            {renderFilters(true)}
           </div>
         </div>
 
@@ -670,20 +675,7 @@ const GenericTable = <T,>({
                   </div>
                 )}
                 {/* filters for lowerside */}
-                {filters &&
-                  filters.map(
-                    (filter, index) =>
-                      !filter.isUpperSide &&
-                      !filter.isDisabled && (
-                        <div
-                          key={index}
-                          className="flex flex-row gap-2 justify-between items-center"
-                        >
-                          {filter.label && <H5>{filter.label}</H5>}
-                          {filter.node}
-                        </div>
-                      )
-                  )}
+                {renderFilters(false)}
               </div>
               {/* add button */}
               {addButton && !addButton.isDisabled && (
