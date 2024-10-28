@@ -160,10 +160,10 @@ const Stock = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
-    { key: t("Product"), isSortable: true },
-    { key: t("Quantity"), isSortable: true },
+    { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
+    { key: t("Quantity"), isSortable: true, correspondingKey: "totalQuantity" },
     { key: t("Unit Price"), isSortable: true },
-    { key: t("Menu Price"), isSortable: true },
+    { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
     { key: t("Total Price"), isSortable: true },
   ];
 
@@ -526,6 +526,8 @@ const Stock = () => {
           outsideSearch={outsideSearch}
           isActionsActive={false}
           isCollapsible={true}
+          isExcel={true}
+          excelFileName={t("OyunStok.xlsx")}
         />
       </div>
     </>
