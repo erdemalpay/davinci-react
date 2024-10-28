@@ -99,7 +99,6 @@ export function useWebSocket() {
     socket.on("singleTableChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
     });
-
     socket.on("stockChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
@@ -114,6 +113,7 @@ export function useWebSocket() {
     });
 
     socket.on("disconnect", () => {
+      queryClient.invalidateQueries([`${Paths.MenuItems}`]); //TODO: this improves performance a bit but not a great way to do. when creating a new item the websocket disconnects and reconnects.To not to loose the item data i added here. Need to find a better way .
       console.log("Disconnected from WebSocket");
     });
 

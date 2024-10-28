@@ -23,6 +23,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Users}`],
   },
   {
+    event: "itemChanged",
+    invalidateKeys: [`${Paths.MenuItems}`],
+  },
+  {
     event: "categoryChanged",
     invalidateKeys: [
       `${Paths.MenuCategories}`,
