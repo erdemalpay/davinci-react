@@ -18,6 +18,8 @@ interface GameplayRow {
   game: string;
   mentor: string;
   playerCount: number;
+  startHour: string;
+  finishHour: string;
   locationName: string;
   date: string;
 }
@@ -121,6 +123,48 @@ export default function NewGameplays() {
       ),
     },
     {
+      key: t("Start Hour"),
+      isSortable: false,
+      node: () => (
+        <th
+          key="startHour"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("startHour")}
+        >
+          <div className="flex gap-x-2   items-center py-3  min-w-8">
+            <H5>{t("Start Hour")}</H5>
+            {filterData.sort === "startHour" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
+    },
+    {
+      key: t("Finish Hour"),
+      isSortable: false,
+      node: () => (
+        <th
+          key="finishHour"
+          className="font-bold text-left cursor-pointer"
+          onClick={() => handleSort("finishHour")}
+        >
+          <div className="flex gap-x-2   items-center py-3  min-w-8">
+            <H5>{t("Finish Hour")}</H5>
+            {filterData.sort === "finishHour" &&
+              (filterData.asc === 1 ? (
+                <ArrowUpIcon className="h-4 w-4 my-auto" />
+              ) : (
+                <ArrowDownIcon className="h-4 w-4 my-auto" />
+              ))}
+          </div>
+        </th>
+      ),
+    },
+    {
       key: t("Date"),
       isSortable: false,
       node: () => (
@@ -153,7 +197,8 @@ export default function NewGameplays() {
     },
     { key: "playerCount" },
     { key: "locationName" },
-
+    { key: "startHour" },
+    { key: "finishHour" },
     {
       key: "date",
       className: "min-w-32",
@@ -246,6 +291,8 @@ export default function NewGameplays() {
           mentor: gameplay?.mentor?.name,
           playerCount: gameplay?.playerCount,
           locationName: gameplay?.location === 1 ? "Bahceli" : "Neorama",
+          startHour: gameplay?.startHour || "",
+          finishHour: gameplay?.finishHour || "",
           date: gameplay?.date,
         }))
       );
