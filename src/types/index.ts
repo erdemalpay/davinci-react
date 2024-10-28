@@ -82,6 +82,7 @@ export type AccountProduct = {
   brand?: string[];
   unitPrice: number;
   matchedMenuItem?: number;
+  deleted?: boolean;
 };
 export type AccountService = {
   _id: string;

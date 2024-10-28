@@ -7,7 +7,7 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useLocationContext } from "./../context/Location.context";
 import { useUserContext } from "./../context/User.context";
-import { OrderStatus } from "./../types/index";
+import { MenuItem, OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
 import { socketEventListeners } from "./socketConstant";
 
@@ -56,9 +56,13 @@ export function useWebSocket() {
       }
 
       // Play order created sound
-      const foundCategory = categories?.find(
-        (c) => c._id === getItem(order?.item, items)?.category
-      );
+      const itemId =
+        typeof order?.item === "number"
+          ? order?.item
+          : (order?.item as MenuItem)?._id;
+      const item = getItem(itemId, items);
+      const foundCategory = categories?.find((c) => c._id === item?.category);
+
       if (
         !foundCategory?.isAutoServed &&
         order?.status !== OrderStatus.CANCELLED &&
