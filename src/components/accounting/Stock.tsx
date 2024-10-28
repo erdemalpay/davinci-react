@@ -97,7 +97,7 @@ const Stock = () => {
           prdct: productName,
           unitPrice,
           totalGroupPrice: 0,
-          menuPrice: rowItem?.price,
+          menuPrice: rowItem?.price ?? "",
           totalQuantity: 0,
           collapsible: {
             collapsibleColumns: [
@@ -387,7 +387,7 @@ const Stock = () => {
             ...stock,
             prdct: productName,
             unitPrice,
-            menuPrice: rowItem?.price,
+            menuPrice: rowItem?.price ?? "",
             totalGroupPrice: 0,
             totalQuantity: 0,
             collapsible: {
@@ -526,8 +526,8 @@ const Stock = () => {
           outsideSearch={outsideSearch}
           isActionsActive={false}
           isCollapsible={true}
-          isExcel={true}
-          excelFileName={t("OyunStok.xlsx")}
+          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          excelFileName={t("GenelStok.xlsx")}
         />
       </div>
     </>
