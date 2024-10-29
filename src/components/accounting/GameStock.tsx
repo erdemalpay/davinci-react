@@ -112,7 +112,7 @@ const GameStock = () => {
             unitPrice,
             totalGroupPrice: 0,
             totalQuantity: 0,
-            menuPrice: rowItem?.price,
+            menuPrice: rowItem?.price ?? "",
             collapsible: {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
@@ -406,7 +406,7 @@ const GameStock = () => {
             ...stock,
             prdct: productName,
             unitPrice,
-            menuPrice: rowItem?.price,
+            menuPrice: rowItem?.price ?? "",
             totalGroupPrice: 0,
             totalQuantity: 0,
             collapsible: {
