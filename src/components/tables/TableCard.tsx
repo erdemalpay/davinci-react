@@ -170,7 +170,7 @@ export function TableCard({
     return false;
   };
   const orderInputs = [
-    {
+    /* {
       type: InputTypes.SELECT,
       formKey: "category",
       label: t("Category"),
@@ -183,7 +183,7 @@ export function TableCard({
       invalidateKeys: [{ key: "item", defaultValue: 0 }],
       placeholder: t("Category"),
       required: false,
-    },
+    }, */
     {
       type: InputTypes.SELECT,
       formKey: "item",
