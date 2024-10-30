@@ -170,7 +170,7 @@ export function TableCard({
     return false;
   };
   const orderInputs = [
-    /* {
+    {
       type: InputTypes.SELECT,
       formKey: "category",
       label: t("Category"),
@@ -183,7 +183,8 @@ export function TableCard({
       invalidateKeys: [{ key: "item", defaultValue: 0 }],
       placeholder: t("Category"),
       required: false,
-    }, */
+      isDisabled: true, // remove this line and make category selection visible again
+    },
     {
       type: InputTypes.SELECT,
       formKey: "item",
@@ -381,7 +382,7 @@ export function TableCard({
   function handleTableCancel() {
     if (!table._id) return;
     if (tableOrders) {
-      const hasActiveOrders = tableOrders.some((order) => {
+      const hasActiveOrders = tableOrders?.some((order) => {
         return (order as Order)?.status !== OrderStatus.CANCELLED;
       });
 

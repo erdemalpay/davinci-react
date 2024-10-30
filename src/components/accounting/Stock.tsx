@@ -9,6 +9,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -20,6 +21,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
+  ExpenseTypeInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -45,6 +47,7 @@ const Stock = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -70,6 +73,7 @@ const Stock = () => {
     location: "",
     quantity: 0,
     status: "",
+    expenseType: "",
   });
   const [stockTransferForm, setStockTransferForm] = useState({
     location: "",
@@ -363,12 +367,17 @@ const Stock = () => {
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) => {
+        const rowProduct = getItem(stock.product, products);
         return (
-          passesFilter(filterPanelFormElements?.location, stock.location) &&
-          (!filterPanelFormElements?.product?.length ||
-            filterPanelFormElements?.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, stock.product)
-            ))
+          (passesFilter(filterPanelFormElements?.location, stock.location) &&
+            !filterPanelFormElements?.expenseType) ||
+          (rowProduct?.expenseType.includes(
+            filterPanelFormElements?.expenseType
+          ) &&
+            (!filterPanelFormElements?.product?.length ||
+              filterPanelFormElements?.product?.some((panelProduct: string) =>
+                passesFilter(panelProduct, stock.product)
+              )))
         );
       })
       ?.reduce((acc: any, stock) => {
@@ -459,8 +468,10 @@ const Stock = () => {
     user,
     isEnableEdit,
     items,
+    expenseTypes,
   ]);
   const filterPanelInputs = [
+    ExpenseTypeInput({ expenseTypes: expenseTypes }),
     ProductInput({ products: products, required: true, isMultiple: true }),
     StockLocationInput({ locations: locations }),
     {

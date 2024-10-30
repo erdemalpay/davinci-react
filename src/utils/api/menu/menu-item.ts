@@ -37,5 +37,5 @@ export function useUpdateItemsMutation() {
 
 export function useGetMenuItems() {
   // return useGetList<MenuItem>(Paths.MenuItems, [Paths.MenuItems], true);
-  return useGetList<MenuItem>(Paths.MenuItems, [Paths.MenuItems]);
+  return useGetList<MenuItem>(Paths.MenuItems);
 }
