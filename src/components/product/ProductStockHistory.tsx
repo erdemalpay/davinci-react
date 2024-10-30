@@ -124,10 +124,6 @@ const ProductStockHistory = () => {
       className: "min-w-32 pr-1",
     },
     {
-      key: "pckgTyp",
-      className: "min-w-32 pr-1",
-    },
-    {
       key: "lctn",
       className: "min-w-32 pr-1",
     },
