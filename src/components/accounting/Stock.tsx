@@ -21,7 +21,6 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
-  ExpenseTypeInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
@@ -369,15 +368,15 @@ const Stock = () => {
       ?.filter((stock) => {
         const rowProduct = getItem(stock.product, products);
         return (
-          (passesFilter(filterPanelFormElements?.location, stock.location) &&
-            !filterPanelFormElements?.expenseType) ||
-          (rowProduct?.expenseType.includes(
-            filterPanelFormElements?.expenseType
-          ) &&
-            (!filterPanelFormElements?.product?.length ||
-              filterPanelFormElements?.product?.some((panelProduct: string) =>
-                passesFilter(panelProduct, stock.product)
-              )))
+          passesFilter(filterPanelFormElements?.location, stock.location) &&
+          (!filterPanelFormElements?.expenseType ||
+            rowProduct?.expenseType.includes(
+              filterPanelFormElements?.expenseType
+            )) &&
+          (!filterPanelFormElements?.product?.length ||
+            filterPanelFormElements?.product?.some((panelProduct: string) =>
+              passesFilter(panelProduct, stock.product)
+            ))
         );
       })
       ?.reduce((acc: any, stock) => {
@@ -471,7 +470,34 @@ const Stock = () => {
     expenseTypes,
   ]);
   const filterPanelInputs = [
-    ExpenseTypeInput({ expenseTypes: expenseTypes }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: t("Expense Type"),
+      options: expenseTypes.map((expenseType) => {
+        return {
+          value: expenseType._id,
+          label: expenseType.name,
+        };
+      }),
+      placeholder: t("Expense Type"),
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        if (value) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            expenseType: value,
+            product: [],
+          });
+        }
+      }, //invalidate keys did not work that is why i did it like this
+      required: true,
+    },
     ProductInput({
       products: !filterPanelFormElements?.expenseType
         ? products

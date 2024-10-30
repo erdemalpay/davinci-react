@@ -108,10 +108,12 @@ export function VendorInput({
 export function ExpenseTypeInput({
   required = false,
   isMultiple = false,
+  invalidateKeys = [],
   expenseTypes,
 }: {
   required?: boolean;
   isMultiple?: boolean;
+  invalidateKeys?: { key: string; defaultValue: any }[];
   expenseTypes: AccountExpenseType[];
 }) {
   const { t } = useTranslation();
@@ -126,6 +128,7 @@ export function ExpenseTypeInput({
       };
     }),
     placeholder: t("Expense Type"),
+    invalidateKeys: invalidateKeys,
     isMultiple: isMultiple,
     required: required,
   };

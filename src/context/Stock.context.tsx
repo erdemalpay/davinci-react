@@ -16,6 +16,7 @@ const StockContext = createContext<StockContextType>({
     location: "",
     expenseType: "",
     after: "",
+    date: "",
   },
   setFilterPanelFormElements: () => {},
   resetStockContext: () => {},
