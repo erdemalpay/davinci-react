@@ -472,7 +472,15 @@ const Stock = () => {
   ]);
   const filterPanelInputs = [
     ExpenseTypeInput({ expenseTypes: expenseTypes }),
-    ProductInput({ products: products, required: true, isMultiple: true }),
+    ProductInput({
+      products: !filterPanelFormElements?.expenseType
+        ? products
+        : products?.filter((product) =>
+            product?.expenseType?.includes(filterPanelFormElements.expenseType)
+          ),
+      required: true,
+      isMultiple: true,
+    }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.DATE,
