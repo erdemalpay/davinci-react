@@ -54,7 +54,6 @@ export function useWebSocket() {
       if (order?.createdBy === user?._id) {
         return;
       }
-
       // Play order created sound
       const itemId =
         typeof order?.item === "number"

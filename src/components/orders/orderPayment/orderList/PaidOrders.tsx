@@ -37,54 +37,56 @@ const PaidOrders = ({ tableOrders }: Props) => {
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar ">
       <OrderScreenHeader header="Paid Orders" />
-      {tableOrders?.map((order) => {
-        const isOrderPaid = order.paidQuantity > 1e-6;
-        if (!order || !isOrderPaid) return null;
-        return (
-          <div
-            key={order._id}
-            className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 ${
-              order.status !== OrderStatus.SERVED && orderBgColor(order, "")
-            }`}
-          >
-            {/* item name,quantity part */}
+      {tableOrders
+        ?.sort((a, b) => a.item - b.item)
+        ?.map((order) => {
+          const isOrderPaid = order.paidQuantity > 1e-6;
+          if (!order || !isOrderPaid) return null;
+          return (
+            <div
+              key={order._id}
+              className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 ${
+                order.status !== OrderStatus.SERVED && orderBgColor(order, "")
+              }`}
+            >
+              {/* item name,quantity part */}
 
-            <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
-              <p>
-                {"("}
-                {(() => {
-                  return Number.isInteger(order.paidQuantity)
-                    ? order.paidQuantity
-                    : order.paidQuantity.toFixed(2);
-                })()}
-                {")"}-
-              </p>
-              <p>{getItem(order?.item, items)?.name}</p>
-              {order?.isOnlinePrice && (
-                <Tooltip
-                  content={"online"}
-                  placement="top"
-                  className={"!z-[999999999999999999999]"}
-                >
-                  <div className="relative">
-                    <MdOutlineOnlinePrediction className="w-6 h-6" />
-                  </div>
-                </Tooltip>
-              )}
-            </div>
-            {order.discount && (
-              <div className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center">
-                <p>{getItem(order.discount, discounts)?.name}</p>
+              <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
+                <p>
+                  {"("}
+                  {(() => {
+                    return Number.isInteger(order.paidQuantity)
+                      ? order.paidQuantity
+                      : order.paidQuantity.toFixed(2);
+                  })()}
+                  {")"}-
+                </p>
+                <p>{getItem(order?.item, items)?.name}</p>
+                {order?.isOnlinePrice && (
+                  <Tooltip
+                    content={"online"}
+                    placement="top"
+                    className={"!z-[999999999999999999999]"}
+                  >
+                    <div className="relative">
+                      <MdOutlineOnlinePrediction className="w-6 h-6" />
+                    </div>
+                  </Tooltip>
+                )}
               </div>
-            )}
+              {order.discount && (
+                <div className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center">
+                  <p>{getItem(order.discount, discounts)?.name}</p>
+                </div>
+              )}
 
-            {/* buttons */}
-            <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {renderPayment(order)}
+              {/* buttons */}
+              <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
+                {renderPayment(order)}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };
