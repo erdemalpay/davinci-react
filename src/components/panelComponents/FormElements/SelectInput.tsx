@@ -159,6 +159,10 @@ const SelectInput = ({
               placeholder={placeholder}
               styles={customStyles}
               filterOption={customFilterOption}
+
+              // onFocus={() => {
+              //   console.log("focus");
+              // }}
             />
           )}
         </div>

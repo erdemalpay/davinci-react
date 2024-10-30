@@ -102,6 +102,13 @@ const TextInput = ({
       const newValue = Math.max(minNumber, +localValue + 1);
       setLocalValue(newValue.toString());
       onChange(newValue.toString());
+
+      if (inputRef.current) {
+        inputRef.current.readOnly = true;
+        setTimeout(() => {
+          if (inputRef.current) inputRef.current.readOnly = false;
+        }, 0);
+      }
     }
   };
 
@@ -110,6 +117,12 @@ const TextInput = ({
       const newValue = Math.max(minNumber, +localValue - 1);
       setLocalValue(newValue.toString());
       onChange(newValue.toString());
+      if (inputRef.current) {
+        inputRef.current.readOnly = true;
+        setTimeout(() => {
+          if (inputRef.current) inputRef.current.readOnly = false;
+        }, 0);
+      }
     }
   };
   const inputClassName = `${className} ${
