@@ -341,6 +341,8 @@ export type Order = {
   unitPrice: number;
   createdAt: Date;
   createdBy: string;
+  confirmedAt?: Date;
+  confirmedBy?: string;
   preparedAt?: Date;
   preparedBy?: string;
   deliveredAt?: Date;
