@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 
@@ -24,7 +24,7 @@ const CustomOption = (
   <components.Option {...props}>
     {props.label}
     {props.isSelected && (
-      <MdOutlineDone className="text-blue-700 font-bold text-xl" />
+      <MdOutlineDone className="text-blue-700 font-bold text-xl " />
     )}
   </components.Option>
 );
@@ -59,11 +59,11 @@ const normalizeText = (text: string) => {
 
 const customFilterOption = (
   option: { value: any; label: string },
+
   searchInput: string
 ) => {
   const normalizedLabel = normalizeText(option.label);
   const normalizedSearch = normalizeText(searchInput);
-
   return normalizedLabel.includes(normalizedSearch);
 };
 
@@ -78,8 +78,8 @@ const SelectInput = ({
   isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
-  const selectRef = useRef<any>(null);
-  const [isSearchable, setIsSearchable] = useState(true);
+  const [isSearchable, setIsSearchable] = useState(false);
+  const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -120,10 +120,7 @@ const SelectInput = ({
           onMouseDown={(e) => {
             e.preventDefault();
             setIsSearchable(false);
-            if (selectRef.current?.inputRef) {
-              selectRef.current.inputRef.readOnly = true;
-              selectRef.current.inputRef.blur();
-            }
+            setIsDownIconClicked(true);
           }}
         />
       </components.DropdownIndicator>
@@ -171,11 +168,11 @@ const SelectInput = ({
             />
           ) : (
             <Select
-              ref={selectRef}
               options={options}
               onChange={(value, actionMeta) => {
                 onChange(value, actionMeta);
-                setIsSearchable(true);
+                setIsSearchable(false);
+                setIsDownIconClicked(false);
               }}
               value={value}
               components={{ Option: CustomOption, DropdownIndicator }}
@@ -184,7 +181,13 @@ const SelectInput = ({
               filterOption={customFilterOption}
               isSearchable={isSearchable}
               onMenuClose={() => {
-                setIsSearchable(true);
+                setIsSearchable(false);
+                setIsDownIconClicked(false);
+              }}
+              onMenuOpen={() => {
+                if (!isDownIconClicked) {
+                  setIsSearchable(true);
+                }
               }}
             />
           )}
