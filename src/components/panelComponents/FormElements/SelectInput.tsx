@@ -122,10 +122,7 @@ const SelectInput = ({
             setIsSearchable(false);
             if (selectRef.current?.inputRef) {
               selectRef.current.inputRef.readOnly = true;
-              setTimeout(() => {
-                selectRef.current.inputRef.readOnly = false;
-                setIsSearchable(true);
-              }, 100);
+              selectRef.current.inputRef.blur();
             }
           }}
         />
@@ -159,7 +156,7 @@ const SelectInput = ({
         )}
       </H6>
       <div className="flex flex-row gap-2 w-full ">
-        <div className="w-full" ref={selectRef}>
+        <div className="w-full">
           {isMultiple ? (
             <Select
               isMulti
@@ -174,6 +171,7 @@ const SelectInput = ({
             />
           ) : (
             <Select
+              ref={selectRef}
               options={options}
               onChange={(value, actionMeta) => {
                 onChange(value, actionMeta);
