@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 
@@ -78,6 +78,7 @@ const SelectInput = ({
   isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
+  const selectRef = useRef<any>(null);
   const [isSearchable, setIsSearchable] = useState(true);
   const customStyles = {
     control: (base: any) => ({
@@ -116,11 +117,15 @@ const SelectInput = ({
       <components.DropdownIndicator {...props}>
         <MdArrowDropDown
           className="text-gray-500 text-2xl"
-          onClick={() => {
+          onMouseDown={(e) => {
+            // Prevent keyboard from showing up on mobile
+            e.preventDefault();
             setIsSearchable(false);
+            if (selectRef.current) {
+              selectRef.current.blur(); // Remove focus from the input
+            }
           }}
-        />{" "}
-        {/* Customize size and color here */}
+        />
       </components.DropdownIndicator>
     );
   };
@@ -151,7 +156,7 @@ const SelectInput = ({
         )}
       </H6>
       <div className="flex flex-row gap-2 w-full ">
-        <div className="w-full">
+        <div className="w-full" ref={selectRef}>
           {isMultiple ? (
             <Select
               isMulti
@@ -180,9 +185,6 @@ const SelectInput = ({
               onMenuClose={() => {
                 setIsSearchable(true);
               }}
-              // onFocus={() => {
-              //   console.log("focus");
-              // }}
             />
           )}
         </div>
