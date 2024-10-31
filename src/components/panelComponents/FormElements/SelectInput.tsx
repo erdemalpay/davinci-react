@@ -118,11 +118,14 @@ const SelectInput = ({
         <MdArrowDropDown
           className="text-gray-500 text-2xl"
           onMouseDown={(e) => {
-            // Prevent keyboard from showing up on mobile
             e.preventDefault();
             setIsSearchable(false);
-            if (selectRef.current) {
-              selectRef.current.blur(); // Remove focus from the input
+            if (selectRef.current?.inputRef) {
+              selectRef.current.inputRef.readOnly = true;
+              setTimeout(() => {
+                selectRef.current.inputRef.readOnly = false;
+                setIsSearchable(true);
+              }, 100);
             }
           }}
         />
