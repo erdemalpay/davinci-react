@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 
-import { MdOutlineDone } from "react-icons/md";
+import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
   GroupBase,
@@ -78,6 +78,7 @@ const SelectInput = ({
   isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
+  const [isSearchable, setIsSearchable] = useState(true);
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -109,6 +110,19 @@ const SelectInput = ({
       ...base,
       fontSize: "16px",
     }),
+  };
+  const DropdownIndicator = (props: any) => {
+    return (
+      <components.DropdownIndicator {...props}>
+        <MdArrowDropDown
+          className="text-gray-500 text-2xl"
+          onClick={() => {
+            setIsSearchable(false);
+          }}
+        />{" "}
+        {/* Customize size and color here */}
+      </components.DropdownIndicator>
+    );
   };
 
   useEffect(() => {
@@ -153,13 +167,19 @@ const SelectInput = ({
           ) : (
             <Select
               options={options}
-              onChange={(value, actionMeta) => onChange(value, actionMeta)}
+              onChange={(value, actionMeta) => {
+                onChange(value, actionMeta);
+                setIsSearchable(true);
+              }}
               value={value}
-              components={{ Option: CustomOption }}
+              components={{ Option: CustomOption, DropdownIndicator }}
               placeholder={placeholder}
               styles={customStyles}
               filterOption={customFilterOption}
-
+              isSearchable={isSearchable}
+              onMenuClose={() => {
+                setIsSearchable(true);
+              }}
               // onFocus={() => {
               //   console.log("focus");
               // }}
