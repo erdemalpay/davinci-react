@@ -122,6 +122,11 @@ const SelectInput = ({
             setIsSearchable(false);
             setIsDownIconClicked(true);
           }}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            setIsSearchable(false);
+            setIsDownIconClicked(true);
+          }}
         />
       </components.DropdownIndicator>
     );
@@ -179,15 +184,10 @@ const SelectInput = ({
               placeholder={placeholder}
               styles={customStyles}
               filterOption={customFilterOption}
-              isSearchable={isSearchable}
+              isSearchable={!isSearchable && !isDownIconClicked}
               onMenuClose={() => {
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
-              }}
-              onMenuOpen={() => {
-                if (!isDownIconClicked) {
-                  setIsSearchable(true);
-                }
               }}
             />
           )}
