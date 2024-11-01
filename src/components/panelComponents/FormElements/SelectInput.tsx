@@ -86,7 +86,7 @@ const SelectInput = ({
       border: "1px solid #E2E8F0",
       borderRadius: "4px",
       fontSize: "16px",
-      zIndex: 999999999999999999999999999999999999,
+      height: "auto",
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -146,7 +146,7 @@ const SelectInput = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-2 __className_a182b8">
+    <div className="flex flex-col gap-2 __className_a182b8 ">
       <H6>
         {label}
         {requiredField && (
@@ -171,6 +171,7 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
+              menuPosition="fixed"
             />
           ) : (
             <Select
@@ -190,6 +191,7 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
+              menuPosition="fixed"
             />
           )}
         </div>
