@@ -81,6 +81,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     vendor: [],
     expenseType: [],
   });
+
   const allRows = singleItemGroup.items.map((item) => {
     return {
       ...item,
@@ -628,6 +629,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   ];
   useEffect(() => {
     setRows(allRows);
+    console.log("page reset");
     setTableKey((prev) => prev + 1);
   }, [
     singleItemGroup.items,

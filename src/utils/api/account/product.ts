@@ -56,9 +56,5 @@ export function useGetAccountProducts() {
 }
 
 export function useGetAllAccountProducts() {
-  return useGetList<AccountProduct>(
-    allProductsBaseUrl,
-    [allProductsBaseUrl],
-    true
-  );
+  return useGetList<AccountProduct>(allProductsBaseUrl);
 }
