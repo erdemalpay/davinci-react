@@ -24,7 +24,7 @@ function Orders() {
   const orderTabs = kitchens?.map((kitchen, index) => ({
     number: index,
     label: kitchen.name,
-    content: <SingleOrdersPage kitchen={kitchen._id} />,
+    content: <SingleOrdersPage kitchen={kitchen} />,
     isDisabled: false,
   }));
   const tabs = orderTabs?.map((tab) => {

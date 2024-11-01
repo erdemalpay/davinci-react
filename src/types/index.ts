@@ -267,6 +267,7 @@ export type MenuPopular = {
 export type Kitchen = {
   _id: string;
   name: string;
+  isConfirmationRequired: boolean;
 };
 
 export type MenuItem = {

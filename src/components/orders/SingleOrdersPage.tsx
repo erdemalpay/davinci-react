@@ -1,6 +1,6 @@
 import { FaRegClock } from "react-icons/fa6";
 import { useLocationContext } from "../../context/Location.context";
-import { OrderStatus } from "../../types";
+import { Kitchen, OrderStatus } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetTodayOrders } from "../../utils/api/order/order";
@@ -8,7 +8,7 @@ import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
 
 type Props = {
-  kitchen: string;
+  kitchen: Kitchen;
 };
 const SingleOrdersPage = ({ kitchen }: Props) => {
   const { selectedLocationId } = useLocationContext();
@@ -20,7 +20,7 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
     (order) =>
       categories?.find(
         (category) => category?._id === getItem(order?.item, items)?.category
-      )?.kitchen === kitchen
+      )?.kitchen === kitchen._id
   );
   const orderStatusArray = [
     {
