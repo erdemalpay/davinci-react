@@ -670,6 +670,7 @@ export enum ExpenseTypes {
   SERVICE = "Service Expense",
 }
 export enum OrderStatus {
+  CONFIRMATIONREQ = "confirmation_req",
   PENDING = "pending",
   READYTOSERVE = "ready_to_serve",
   SERVED = "served",

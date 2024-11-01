@@ -24,6 +24,15 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
   );
   const orderStatusArray = [
     {
+      status: "Confirmation Waiting",
+      orders: filteredOrders.filter(
+        (order) => order.status === OrderStatus.CONFIRMATIONREQ
+      ),
+      icon: <FaRegClock size={20} color="white" />,
+      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
+      isDisabled: !kitchen?.isConfirmationRequired,
+    },
+    {
       status: "Pending",
       orders: filteredOrders.filter(
         (order) => order.status === OrderStatus.PENDING
@@ -32,7 +41,7 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
       iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
     },
     {
-      status: "Ready to Serve",
+      status: kitchen?.isConfirmationRequired ? "On the Way" : "Ready to Serve",
       orders: filteredOrders.filter(
         (order) => order.status === OrderStatus.READYTOSERVE
       ),
@@ -53,21 +62,24 @@ const SingleOrdersPage = ({ kitchen }: Props) => {
     <>
       <div className="flex flex-col gap-6 mt-3">
         <div className="flex flex-col sm:flex-row gap-8 sm:gap-2 w-[95%] mx-auto">
-          {orderStatusArray.map((orderStatus, index) => (
-            <div
-              key={orderStatus.status + index}
-              className="flex flex-col items-center w-full sm:w-1/3"
-            >
-              <OrderStatusContainer
-                status={orderStatus.status}
-                orders={orderStatus.orders.filter(
-                  (order) => order.location === selectedLocationId
-                )}
-                icon={orderStatus.icon}
-                iconBackgroundColor={orderStatus.iconBackgroundColor}
-              />
-            </div>
-          ))}
+          {orderStatusArray
+            .filter((orderStatus) => !orderStatus?.isDisabled)
+            .map((orderStatus, index) => (
+              <div
+                key={orderStatus.status + index}
+                className="flex flex-col items-center w-full sm:w-1/3"
+              >
+                <OrderStatusContainer
+                  status={orderStatus.status}
+                  orders={orderStatus.orders.filter(
+                    (order) => order.location === selectedLocationId
+                  )}
+                  icon={orderStatus.icon}
+                  iconBackgroundColor={orderStatus.iconBackgroundColor}
+                  kitchen={kitchen}
+                />
+              </div>
+            ))}
         </div>
       </div>
     </>

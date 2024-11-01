@@ -19,6 +19,8 @@ export const orderBgColor = (order: Order, defaultBgColor?: string) => {
       return "bg-orange-200";
     case OrderStatus.SERVED:
       return "bg-green-200";
+    case OrderStatus.CONFIRMATIONREQ:
+      return "bg-purple-200";
     default:
       return defaultBgColor ?? "bg-gray-100";
   }

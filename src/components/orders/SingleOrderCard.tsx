@@ -114,6 +114,56 @@ const SingleOrderCard = ({ order, user }: Props) => {
               {t("Cancel")}
             </button>
           )}
+          {/* confirmation  button */}
+          {order?.status === OrderStatus.CONFIRMATIONREQ && (
+            <button
+              onClick={() => {
+                updateOrder({
+                  id: order?._id,
+                  updates: {
+                    status: OrderStatus.PENDING,
+                    confirmedAt: new Date(),
+                    confirmedBy: user._id,
+                  },
+                });
+              }}
+              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+            >
+              {t("Confirm")}
+            </button>
+          )}
+
+          {/* back to pending  button */}
+          {(order?.status === OrderStatus.READYTOSERVE ||
+            (order?.confirmedAt && order?.status === OrderStatus.PENDING)) && (
+            <div className="flex flex-row gap-2  ">
+              {user._id === order?.preparedBy && (
+                <button
+                  onClick={() => {
+                    if (order?.status === OrderStatus.PENDING) {
+                      updateOrder({
+                        id: order?._id,
+                        updates: {
+                          status: OrderStatus.CONFIRMATIONREQ,
+                        },
+                      });
+                    }
+                    if (order?.status === OrderStatus.READYTOSERVE) {
+                      updateOrder({
+                        id: order?._id,
+                        updates: {
+                          status: OrderStatus.PENDING,
+                        },
+                      });
+                    }
+                  }}
+                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                >
+                  {t("Back")}
+                </button>
+              )}
+            </div>
+          )}
           {/* pending ready button */}
           {order?.status === OrderStatus.PENDING && (
             <button
@@ -132,24 +182,8 @@ const SingleOrderCard = ({ order, user }: Props) => {
               {t("Ready")}
             </button>
           )}
-          {/* ready to serve back to pending  button */}
           {order?.status === OrderStatus.READYTOSERVE && (
-            <div className="flex flex-row gap-2  ">
-              {user._id === order?.preparedBy && (
-                <button
-                  onClick={() => {
-                    updateOrder({
-                      id: order?._id,
-                      updates: {
-                        status: OrderStatus.PENDING,
-                      },
-                    });
-                  }}
-                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
-                >
-                  {t("Back")}
-                </button>
-              )}
+            <div className="flex flex-row ">
               <button
                 onClick={() => {
                   updateOrder({

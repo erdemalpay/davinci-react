@@ -532,5 +532,8 @@
   "Print": "Print",
   "Finish Hour": "Finish Hour",
   "Confirmation Required": "Confirmation Required",
+  "On the Way": "On the Way",
+  "Confirmation Waiting": "Confirmation Waiting",
+  "Order is waiting for confirmation": "Order is waiting for confirmation",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

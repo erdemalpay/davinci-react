@@ -26,6 +26,7 @@ import {
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetTableOrders,
@@ -53,7 +54,6 @@ import { EditGameplayDialog } from "./EditGameplayDialog";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
-
 export interface TableCardProps {
   table: Table;
   mentors: User[];
@@ -99,6 +99,7 @@ export function TableCard({
   const locations = useGetAccountStockLocations();
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
+  const kitchens = useGetKitchens();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { resetOrderContext } = useOrderContext();
@@ -611,15 +612,23 @@ export function TableCard({
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderListForPanel table={table} />}
           submitFunction={() => {
-            const selectedMenuItem = menuItems?.find(
-              (item) => item._id === orderForm.item
+            const selectedMenuItem = getItem(orderForm?.item, menuItems);
+            const selectedMenuItemCategory = getItem(
+              selectedMenuItem?.category,
+              categories
             );
+            const selectedItemKitchen = getItem(
+              selectedMenuItemCategory?.kitchen,
+              kitchens
+            );
+            const isOrderConfirmationRequired =
+              selectedItemKitchen?.isConfirmationRequired;
             if (
               (
                 user &&
                 selectedMenuItem &&
                 selectedTable &&
-                getItem(selectedMenuItem.category, categories)
+                selectedMenuItemCategory
               )?.isAutoServed
             ) {
               createOrder({
@@ -651,6 +660,9 @@ export function TableCard({
                 ...orderForm,
                 location: selectedLocationId,
                 table: selectedTable._id,
+                status: isOrderConfirmationRequired
+                  ? OrderStatus.CONFIRMATIONREQ
+                  : OrderStatus.PENDING,
                 unitPrice: orderForm?.isOnlinePrice
                   ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
                   : selectedMenuItem.price,

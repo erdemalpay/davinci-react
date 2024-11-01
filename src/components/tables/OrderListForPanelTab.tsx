@@ -4,6 +4,8 @@ import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { Order, OrderStatus, User } from "../../types";
+import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useOrderMutations } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
@@ -20,16 +22,23 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
-
     return Math.floor((currentTime - orderTime) / 60000);
   };
   const items = useGetMenuItems();
-  if (!items) {
+  const categories = useGetCategories();
+  const kitchens = useGetKitchens();
+  if (!items || !kitchens || !categories) {
     return <></>;
   }
   return (
     <div className="  px-2   ">
       {orders?.map((order) => {
+        const orderItem = getItem(order?.item, items);
+        const orderItemCategory = getItem(orderItem?.category, categories);
+        const isOrderConfirmationRequired = getItem(
+          orderItemCategory?.kitchen,
+          kitchens
+        )?.isConfirmationRequired;
         if (!order || order.status === OrderStatus.CANCELLED) return null;
         return (
           <div
@@ -87,7 +96,7 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
               />
               {/* name and quantity */}
               <div className="flex w-5/6 gap-1 items-center">
-                <p>{getItem(order?.item, items)?.name}</p>
+                <p>{orderItem?.name}</p>
                 <h1 className="text-xs">({order.quantity})</h1>
               </div>
               {/* increment */}
@@ -109,7 +118,9 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
                   } else {
                     createOrder({
                       ...order,
-                      status: OrderStatus.PENDING,
+                      status: isOrderConfirmationRequired
+                        ? OrderStatus.CONFIRMATIONREQ
+                        : OrderStatus.PENDING,
                       quantity: 1,
                       paidQuantity: 0,
                       createdAt: new Date(),

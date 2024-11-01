@@ -532,5 +532,8 @@
   "Print": "Yazdır",
   "Finish Hour": "Bitiş Saati",
   "Confirmation Required": "Onay Gerekli",
+  "On the Way": "Yolda",
+  "Confirmation Waiting": "Onay Bekliyor",
+  "Order is waiting for confirmation": "Sipariş onay bekliyor.",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

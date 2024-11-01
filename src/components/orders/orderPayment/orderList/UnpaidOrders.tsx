@@ -52,7 +52,18 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
     isOrderDivisionActive,
     setIsOrderDivisionActive,
   } = useOrderContext();
-
+  const tooltipContent = (order: Order) => {
+    switch (order?.status) {
+      case OrderStatus.PENDING:
+        return "Order is pending.";
+      case OrderStatus.READYTOSERVE:
+        return "Order is ready to serve.";
+      case OrderStatus.CONFIRMATIONREQ:
+        return "Order is waiting for confirmation";
+      default:
+        return "Order is served";
+    }
+  };
   return (
     <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Unpaid Orders" />
@@ -455,15 +466,13 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
               </div>
             );
           };
-          return [OrderStatus.PENDING, OrderStatus.READYTOSERVE].includes(
-            order?.status as OrderStatus
-          ) ? (
+          return [
+            OrderStatus.PENDING,
+            OrderStatus.READYTOSERVE,
+            OrderStatus.CONFIRMATIONREQ,
+          ].includes(order?.status as OrderStatus) ? (
             <Tooltip
-              content={
-                order?.status === OrderStatus.PENDING
-                  ? t("Order is pending.")
-                  : t("Order is ready to serve.")
-              }
+              content={t(tooltipContent(order))}
               placement={"top"}
               className={"!z-[999999999999999999999]"}
             >

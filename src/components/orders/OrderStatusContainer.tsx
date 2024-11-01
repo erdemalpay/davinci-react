@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
-import { Order, OrderStatus, Table } from "../../types";
+import { Kitchen, Order, OrderStatus, Table } from "../../types";
 import { useUpdateMultipleOrderMutation } from "../../utils/api/order/order";
 import SingleOrderCard from "./SingleOrderCard";
 
@@ -10,6 +10,7 @@ type Props = {
   orders: Order[];
   icon: React.ReactNode;
   iconBackgroundColor: string;
+  kitchen: Kitchen;
 };
 
 const OrderStatusContainer = ({
@@ -17,6 +18,7 @@ const OrderStatusContainer = ({
   orders,
   icon,
   iconBackgroundColor,
+  kitchen,
 }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -97,94 +99,87 @@ const OrderStatusContainer = ({
 
   return (
     <div className="w-full min-h-screen relative border border-gray-200 rounded-lg bg-white shadow-lg __className_a182b8 mx-auto h-full pb-4 mb-4">
-      {/* icon */}
-      <div
-        className={`absolute left-3 top-[-1.5rem] px-4 py-4 border ${iconBackgroundColor}`}
-      >
-        {icon}
-      </div>
-      <div className="flex flex-col gap-12 mt-2">
-        {/* status */}
-        <div className=" w-5/6 flex ml-auto">
-          <div className="flex gap-0.5 ml-2 sm:ml-0">
-            <h1 className="font-medium ">{t(status)}</h1>
-            <h1 className="font-medium">
-              {"("}
-              {orders.length}
-              {")"}
-            </h1>
+      <div className="relative flex items-center mt-2 mb-4">
+        {/* Icon - positioned absolutely within the container */}
+        <div
+          className={`absolute left-1 -top-6 px-4 py-4 rounded-md border ${iconBackgroundColor}`}
+        >
+          {icon}
+        </div>
+
+        {/* Status and Orders Count - padded to avoid overlap */}
+        <div className="flex flex-col justify-center w-full ml-16 space-y-1">
+          <div className="flex items-center space-x-2 text-lg sm:text-base font-medium">
+            <h1>{t(status)}</h1>
+            <h1>({orders.length})</h1>
           </div>
         </div>
-        {/* orders */}
-        <div className="flex flex-col gap-4 px-2">
-          {/* grouped tables  */}
-          {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
-            <div key={tableId} className=" flex flex-col gap-1 px-1 ">
-              <div className="flex justify-between">
-                <h2
-                  onClick={() => toggleTable(tableId)}
-                  className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
+      </div>
+      {/* orders */}
+      <div className="flex flex-col gap-4 px-2">
+        {/* grouped tables  */}
+        {sortedGroupedOrders?.map(([tableId, tableOrders]) => (
+          <div key={tableId} className=" flex flex-col gap-1 px-1 ">
+            <div className="flex justify-between">
+              <h2
+                onClick={() => toggleTable(tableId)}
+                className="font-semibold text-blue-800  flex gap-2  cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-100"
+              >
+                {t("Table")} {(tableOrders[0]?.table as Table)?.name}
+                <span // Toggle icon
+                  className="inline-flex  cursor-pointer"
                 >
-                  {t("Table")} {(tableOrders[0]?.table as Table)?.name}
-                  <span // Toggle icon
-                    className="inline-flex  cursor-pointer"
-                  >
-                    {expandedTables[tableId] ? "▲" : "▼"}
-                  </span>
-                </h2>
-                {/* pending case all ready button */}
-                {status === "Pending" && (
-                  <button
-                    onClick={() => {
-                      updateMultipleOrders({
-                        ids: tableOrders.map((order) => order._id),
-                        updates: {
-                          status: OrderStatus.READYTOSERVE,
-                          preparedAt: new Date(),
-                          preparedBy: user._id,
-                        },
-                      });
-                    }}
-                    className="bg-green-500 text-white px-2  rounded-lg"
-                  >
-                    {t("All Ready")}
-                  </button>
-                )}
-                {/* TODO:Fix here  */}
-                {/* ready to serve case all served button */}
-                {status === "Ready to Serve" && (
-                  <button
-                    onClick={() => {
-                      updateMultipleOrders({
-                        ids: tableOrders.map((order) => order._id),
-                        updates: {
-                          status: OrderStatus.SERVED,
-                          deliveredAt: new Date(),
-                          deliveredBy: user._id,
-                        },
-                      });
-                    }}
-                    className="bg-green-500 text-white px-2  rounded-lg"
-                  >
-                    {t("All Served")}
-                  </button>
-                )}
-              </div>
-              {/* single order card in a table  */}
-              {expandedTables[tableId] && (
-                <div className="flex flex-col gap-2">
-                  {[...tableOrders].reverse().map((order) => (
-                    <SingleOrderCard
-                      key={order._id}
-                      order={order}
-                      user={user}
-                    />
-                  ))}
-                </div>
+                  {expandedTables[tableId] ? "▲" : "▼"}
+                </span>
+              </h2>
+              {/* pending case all ready button */}
+              {status === "Pending" && (
+                <button
+                  onClick={() => {
+                    updateMultipleOrders({
+                      ids: tableOrders.map((order) => order._id),
+                      updates: {
+                        status: OrderStatus.READYTOSERVE,
+                        preparedAt: new Date(),
+                        preparedBy: user._id,
+                      },
+                    });
+                  }}
+                  className="bg-green-500 text-white px-2  rounded-lg"
+                >
+                  {t("All Ready")}
+                </button>
+              )}
+              {/* TODO:Fix here  */}
+              {/* ready to serve case all served button */}
+              {status === "Ready to Serve" && (
+                <button
+                  onClick={() => {
+                    updateMultipleOrders({
+                      ids: tableOrders.map((order) => order._id),
+                      updates: {
+                        status: OrderStatus.SERVED,
+                        deliveredAt: new Date(),
+                        deliveredBy: user._id,
+                      },
+                    });
+                  }}
+                  className="bg-green-500 text-white px-2  rounded-lg"
+                >
+                  {t("All Served")}
+                </button>
               )}
             </div>
-          ))}
-        </div>
+            {/* single order card in a table  */}
+            {expandedTables[tableId] && (
+              <div className="flex flex-col gap-2">
+                {[...tableOrders].reverse().map((order) => (
+                  <SingleOrderCard key={order._id} order={order} user={user} />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
