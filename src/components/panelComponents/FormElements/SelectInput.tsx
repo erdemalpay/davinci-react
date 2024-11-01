@@ -86,6 +86,7 @@ const SelectInput = ({
       border: "1px solid #E2E8F0",
       borderRadius: "4px",
       fontSize: "16px",
+      zIndex: 999999999999999999999999999999999999,
     }),
     option: (base: any, state: any) => ({
       ...base,

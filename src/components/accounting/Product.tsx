@@ -366,7 +366,7 @@ const Product = () => {
         formKeys={formKeys}
         setForm={setInputForm}
         submitItem={createAccountProduct as any}
-        generalClassName="overflow-visible"
+        generalClassName="overflow-visible "
         submitFunction={() => {
           createAccountProduct({
             ...inputForm,
