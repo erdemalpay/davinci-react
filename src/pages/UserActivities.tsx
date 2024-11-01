@@ -120,11 +120,12 @@ const UserActivities = () => {
         const foundActivity = activityTypeDetails.find(
           (activity) => activity.value === row.type
         );
+        if (!foundActivity) return null;
         return (
           <p
             className={`${foundActivity?.bgColor} w-fit px-2 py-0.5 rounded-md text-white text-sm font-semibold`}
           >
-            {foundActivity?.label}
+            {t(foundActivity?.label)}
           </p>
         );
       },

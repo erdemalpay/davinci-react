@@ -738,6 +738,7 @@ export enum ActivityType {
   TAKE_PAYMENT = "TAKE_PAYMENT",
   GAME_LEARNED_ADD = "GAME_LEARNED_ADD",
   GAME_LEARNED_REMOVE = "GAME_LEARNED_REMOVE",
+  UPDATE_MENU_ITEM = "UPDATE_MENU_ITEM",
 }
 export const activityTypeDetails = [
   {
@@ -929,6 +930,11 @@ export const activityTypeDetails = [
     value: ActivityType.GAME_LEARNED_REMOVE,
     label: "Remove Learned Game",
     bgColor: "bg-orange-500",
+  },
+  {
+    value: ActivityType.UPDATE_MENU_ITEM,
+    label: "Update Menu Item",
+    bgColor: "bg-purple-200",
   },
 ];
 
