@@ -171,6 +171,9 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
+              menuPosition="fixed"
+              menuShouldScrollIntoView={true}
+              menuPlacement="bottom"
             />
           ) : (
             <Select
@@ -190,9 +193,9 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
-              {...(isSearchable || isDownIconClicked
-                ? {}
-                : { menuPosition: "fixed" })}
+              menuPosition="fixed"
+              menuShouldScrollIntoView={true}
+              menuPlacement="bottom"
             />
           )}
         </div>
