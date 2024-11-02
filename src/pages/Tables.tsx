@@ -95,12 +95,14 @@ const Tables = () => {
   useEffect(() => {
     const newMentors = defaultUser ? [defaultUser] : [];
     if (visits) {
-      visits.forEach(
-        (visit) =>
-          !visit.finishHour &&
-          newMentors.push(getItem(visit.user, users) as User)
-      );
+      visits.forEach((visit) => {
+        const user = getItem(visit.user, users) as User;
+        if (user && !visit?.finishHour && !newMentors.includes(user)) {
+          newMentors.push(user);
+        }
+      });
     }
+
     setMentors((mentors) => {
       if (isEqual(mentors, newMentors)) {
         return mentors;
