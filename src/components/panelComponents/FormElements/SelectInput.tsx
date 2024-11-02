@@ -88,6 +88,7 @@ const SelectInput = ({
       fontSize: "16px",
       height: "auto",
     }),
+
     option: (base: any, state: any) => ({
       ...base,
       borderRadius: "6px",
@@ -168,7 +169,10 @@ const SelectInput = ({
               value={value}
               components={{ Option: CustomOption, DropdownIndicator }}
               placeholder={placeholder}
-              styles={customStyles}
+              styles={{
+                ...customStyles,
+                menuPortal: (base) => ({ ...base, position: "fixed" }),
+              }}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
               menuPosition="fixed"
@@ -186,7 +190,10 @@ const SelectInput = ({
               value={value}
               components={{ Option: CustomOption, DropdownIndicator }}
               placeholder={placeholder}
-              styles={customStyles}
+              styles={{
+                ...customStyles,
+                menuPortal: (base) => ({ ...base, position: "fixed" }),
+              }}
               filterOption={customFilterOption}
               isSearchable={!isSearchable && !isDownIconClicked}
               onMenuClose={() => {
