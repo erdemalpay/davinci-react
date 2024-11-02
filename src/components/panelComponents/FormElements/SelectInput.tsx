@@ -6,7 +6,6 @@ import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
   GroupBase,
-  MenuPlacement,
   MultiValue,
   OptionProps,
   PropsValue,
@@ -81,22 +80,6 @@ const SelectInput = ({
 }: SelectInputProps) => {
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
-  const [menuPlacement, setMenuPlacement] = useState("bottom");
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 600) {
-        setMenuPlacement("auto");
-      } else {
-        setMenuPlacement("bottom");
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const customStyles = {
     control: (base: any) => ({
@@ -190,8 +173,9 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
-              menuPosition="fixed"
-              menuPlacement={menuPlacement as MenuPlacement}
+              menuPosition="absolute"
+              menuShouldScrollIntoView
+              menuShouldBlockScroll={false}
             />
           ) : (
             <Select
@@ -211,8 +195,9 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
-              menuPosition="fixed"
-              menuPlacement={menuPlacement as MenuPlacement}
+              menuPosition="absolute"
+              menuShouldScrollIntoView
+              menuShouldBlockScroll={false}
             />
           )}
         </div>
