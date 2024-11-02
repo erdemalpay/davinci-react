@@ -166,12 +166,11 @@ const SelectInput = ({
               options={options}
               onChange={onChange}
               value={value}
-              components={{ Option: CustomOption }}
+              components={{ Option: CustomOption, DropdownIndicator }}
               placeholder={placeholder}
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
-              menuPosition="fixed"
             />
           ) : (
             <Select
@@ -191,7 +190,9 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
-              menuPosition="fixed"
+              {...(isSearchable || isDownIconClicked
+                ? {}
+                : { menuPosition: "fixed" })}
             />
           )}
         </div>
