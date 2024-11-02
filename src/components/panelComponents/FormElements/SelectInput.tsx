@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 
@@ -80,7 +80,16 @@ const SelectInput = ({
 }: SelectInputProps) => {
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
+  const selectRef = useRef<HTMLDivElement>(null);
+  const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
 
+  const handleMenuOpen = () => {
+    if (selectRef.current) {
+      const selectRect = selectRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - selectRect.bottom;
+      setMaxHeight(spaceBelow > 300 ? "300px" : `${spaceBelow - 20}px`);
+    }
+  };
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -91,8 +100,8 @@ const SelectInput = ({
     }),
     menu: (base: any) => ({
       ...base,
-      position: "sticky",
-      top: "0",
+      maxHeight: maxHeight,
+      overflowY: "auto",
     }),
 
     option: (base: any, state: any) => ({
@@ -153,7 +162,7 @@ const SelectInput = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-2 __className_a182b8 ">
+    <div ref={selectRef} className="flex flex-col gap-2 __className_a182b8 ">
       <H6>
         {label}
         {requiredField && (
@@ -178,7 +187,7 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
-              menuPosition="fixed"
+              onMenuOpen={handleMenuOpen}
             />
           ) : (
             <Select
@@ -198,7 +207,7 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
-              menuPosition="fixed"
+              onMenuOpen={handleMenuOpen}
             />
           )}
         </div>
