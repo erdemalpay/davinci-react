@@ -89,6 +89,11 @@ const SelectInput = ({
       fontSize: "16px",
       height: "auto",
     }),
+    menu: (base: any) => ({
+      ...base,
+      position: "sticky",
+      top: "0",
+    }),
 
     option: (base: any, state: any) => ({
       ...base,
@@ -161,7 +166,7 @@ const SelectInput = ({
         )}
       </H6>
       <div className="flex flex-row gap-2 w-full ">
-        <div className="w-full">
+        <div className="w-full ">
           {isMultiple ? (
             <Select
               isMulti
@@ -173,9 +178,7 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
-              menuPosition="absolute"
-              menuShouldScrollIntoView
-              menuShouldBlockScroll={false}
+              menuPosition="fixed"
             />
           ) : (
             <Select
@@ -195,9 +198,7 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
-              menuPosition="absolute"
-              menuShouldScrollIntoView
-              menuShouldBlockScroll={false}
+              menuPosition="fixed"
             />
           )}
         </div>
