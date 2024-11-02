@@ -188,6 +188,11 @@ const SelectInput = ({
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
               onMenuOpen={handleMenuOpen}
+              isSearchable={!isSearchable && !isDownIconClicked}
+              onMenuClose={() => {
+                setIsSearchable(false);
+                setIsDownIconClicked(false);
+              }}
             />
           ) : (
             <Select
