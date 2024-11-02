@@ -328,12 +328,12 @@ const TextInput = ({
       </H6>
       <div
         className={`flex items-center ${
-          isNumberButtonsActive ? "gap-1" : "gap-2"
+          isNumberButtonsActive ? "gap-4" : "gap-2"
         } ${inputWidth ? inputWidth : "w-full"}`}
       >
         {isNumberButtonsActive && (
           <FiMinusCircle
-            className="w-5 h-5 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
+            className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
             onClick={handleDecrement}
           />
         )}
@@ -351,7 +351,7 @@ const TextInput = ({
         />
         {isNumberButtonsActive && (
           <GoPlusCircle
-            className="w-5 h-5 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
+            className="w-8 h-8 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"
             onClick={handleIncrement}
           />
         )}
