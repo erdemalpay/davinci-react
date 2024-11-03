@@ -16,7 +16,6 @@ import {
   Gameplay,
   MenuItem,
   Order,
-  OrderCollection,
   OrderStatus,
   TURKISHLIRA,
   Table,
@@ -34,7 +33,6 @@ import {
   useTransferTableMutation,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
-import { useGetTableCollections } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import {
   useReopenTableMutation,
@@ -79,10 +77,8 @@ export function TableCard({
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
-  let tableCollections: OrderCollection[] = [];
   let tableOrders: Order[] = [];
   if (table?._id) {
-    tableCollections = useGetTableCollections(table?._id);
     tableOrders = useGetTableOrders(table?._id);
   }
 
@@ -716,9 +712,7 @@ export function TableCard({
 
       {isOrderPaymentModalOpen && (
         <OrderPaymentModal
-          orders={tableOrders}
-          collections={tableCollections ?? []}
-          table={table}
+          tableId={table._id}
           tables={tables}
           close={() => {
             setExpandedRows({});

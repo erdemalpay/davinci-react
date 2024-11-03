@@ -6,14 +6,14 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/User.context";
 import {
-  Order,
-  OrderCollection,
   OrderCollectionStatus,
   OrderStatus,
   Table,
   TURKISHLIRA,
 } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
+import { useGetTableOrders } from "../../../utils/api/order/order";
+import { useGetTableCollections } from "../../../utils/api/order/orderCollection";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
@@ -26,9 +26,7 @@ import OrderTotal from "./OrderTotal";
 
 type Props = {
   close: () => void;
-  table: Table;
-  orders?: Order[];
-  collections?: OrderCollection[];
+  tableId: number;
   tables: Table[];
 };
 type ButtonType = {
@@ -36,30 +34,27 @@ type ButtonType = {
   onClick: () => void;
   isActive: boolean;
 };
-const OrderPaymentModal = ({
-  close,
-  table,
-  orders,
-  collections,
-  tables,
-}: Props) => {
+const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
+  const orders = useGetTableOrders(tableId);
+  const table = orders[0]?.table as Table;
+  const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
-  if (!user || !orders || !collections) return null;
+  if (!user || !orders || !collections || !table) return null;
   const tableOrders = orders?.filter(
     (order) =>
-      (order?.table as Table)?._id === table?._id &&
+      (order?.table as Table)?._id === tableId &&
       order.status !== OrderStatus.CANCELLED
   );
   const collectionsTotalAmount = Number(
     collections
-      .filter((collection) => (collection?.table as Table)?._id === table._id)
+      .filter((collection) => (collection?.table as Table)?._id === tableId)
       ?.reduce((acc, collection) => {
         if (collection?.status === OrderCollectionStatus.CANCELLED) {
           return acc;
@@ -177,7 +172,7 @@ const OrderPaymentModal = ({
     {
       label: t("Open Table"),
       onClick: () => {
-        reopenTable({ id: table._id });
+        reopenTable({ id: tableId });
       },
       isActive: table?.finishHour ? true : false,
     },
@@ -189,8 +184,9 @@ const OrderPaymentModal = ({
   ];
 
   function finishTable() {
+    if (!table) return;
     closeTable({
-      id: table._id,
+      id: tableId,
       updates: { finishHour: format(new Date(), "HH:mm") },
     });
     setIsCloseConfirmationDialogOpen(false);

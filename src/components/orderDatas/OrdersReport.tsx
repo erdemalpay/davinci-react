@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import { commonDateOptions, DateRangeKey, Table } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -10,11 +11,13 @@ import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -27,7 +30,12 @@ const OrdersReport = () => {
   const queryClient = useQueryClient();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
+  const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
+  const { setExpandedRows } = useGeneralContext();
+  const { resetOrderContext } = useOrderContext();
+  const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const { filterPanelFormElements, setFilterPanelFormElements } =
@@ -110,6 +118,12 @@ const OrdersReport = () => {
     { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
     { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
     {
+      key: t("Discount"),
+      isSortable: true,
+      correspondingKey: "discountName",
+    },
+
+    {
       key: t("Discount Amount"),
       isSortable: true,
       correspondingKey: "discountAmount",
@@ -162,7 +176,22 @@ const OrdersReport = () => {
         );
       },
     },
-    { key: "tableId" },
+    {
+      key: "tableId",
+      node: (row: any) => {
+        return (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setRowToAction(row);
+              setIsOrderPaymentModalOpen(true);
+            }}
+          >
+            {row.tableId}
+          </p>
+        );
+      },
+    },
     { key: "tableName", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
     { key: "quantity" },
@@ -174,6 +203,7 @@ const OrdersReport = () => {
         </p>
       ),
     },
+    { key: "discountName" },
     {
       key: "discountAmount",
       node: (row: any) => (
@@ -390,6 +420,17 @@ const OrdersReport = () => {
           isExcel={true}
           excelFileName={t("Orders.xlsx")}
         />
+        {isOrderPaymentModalOpen && rowToAction && (
+          <OrderPaymentModal
+            tableId={rowToAction.tableId}
+            tables={tables}
+            close={() => {
+              setExpandedRows({});
+              resetOrderContext();
+              setIsOrderPaymentModalOpen(false);
+            }}
+          />
+        )}
       </div>
     </>
   );
