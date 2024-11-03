@@ -26,6 +26,7 @@ export type Table = {
   gameplays: Gameplay[];
   status?: string;
   isOnlineSale?: boolean;
+  isAutoEntryAdded: boolean;
 };
 
 export type Role = {
@@ -323,6 +324,10 @@ export type PanelControlPage = {
   }[];
   permissionRoles: number[];
 };
+export type PanelSettings = {
+  _id: number;
+  isHoliday: boolean;
+};
 export type PanelControlCheckoutCash = {
   _id: number;
   description?: string;
@@ -493,6 +498,7 @@ export enum CountListPageTabEnum {
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,
+  PANELSETTINGS,
   USERACTIVITIES,
 }
 export enum PageDetailsPageTabEnum {

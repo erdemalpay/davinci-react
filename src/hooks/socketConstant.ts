@@ -27,6 +27,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.MenuItems}`],
   },
   {
+    event: "panelSettingsChanged",
+    invalidateKeys: [`${Paths.PanelControl}/panel-settings`],
+  },
+  {
     event: "categoryChanged",
     invalidateKeys: [
       `${Paths.MenuCategories}`,

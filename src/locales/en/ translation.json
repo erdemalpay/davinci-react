@@ -536,5 +536,9 @@
   "Confirmation Waiting": "Confirmation Waiting",
   "Order is waiting for confirmation": "Order is waiting for confirmation",
   "Update Menu Item": "Update Menu Item",
+  "Create Without Entry": "Create Without Entry",
+  "Create With Entry": "Create With Entry",
+  "Today is Holiday": "Today is Holiday",
+  "Panel Settings": "Panel Settings",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

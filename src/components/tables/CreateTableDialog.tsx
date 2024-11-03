@@ -2,6 +2,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Input } from "@material-tailwind/react";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useForm } from "../../hooks/useForm";
 import { Table } from "../../types";
@@ -16,6 +17,7 @@ export function CreateTableDialog({
   close: () => void;
   isOnlineSale?: boolean;
 }) {
+  const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
   const date = format(new Date(), "yyyy-MM-dd");
   const startHour = format(new Date(), "HH:mm");
@@ -30,10 +32,11 @@ export function CreateTableDialog({
   const { data, handleUpdate } = useForm(initialTable);
   const { createTable } = useTableMutations();
 
-  async function handleCreate() {
+  async function handleCreate(isAddEntryOrder: boolean) {
     createTable({
       ...data,
       ...(isOnlineSale && { isOnlineSale: true }),
+      isAutoEntryAdded: isAddEntryOrder,
     });
     close();
   }
@@ -103,19 +106,26 @@ export function CreateTableDialog({
                       onChange={handleUpdate}
                     />
                   </div>
-                  <div className="flex items-center justify-between mt-9">
+                  <div className="flex items-center justify-end gap-2 mt-9">
                     <button
                       onClick={close}
                       className="px-6 py-3 bg-gray-400 hover:bg-gray-500 shadow rounded text-sm text-white"
                     >
-                      Cancel
+                      {t("Cancel")}
                     </button>
                     <button
                       disabled={!data.name}
                       className="px-6 py-3 bg-gray-800 hover:bg-opacity-80 shadow rounded text-sm text-white disabled:bg-gray-300"
-                      onClick={handleCreate}
+                      onClick={() => handleCreate(false)}
                     >
-                      Create Table
+                      {t("Create Without Entry")}
+                    </button>
+                    <button
+                      disabled={!data.name}
+                      className="px-6 py-3 bg-gray-800 hover:bg-opacity-80 shadow rounded text-sm text-white disabled:bg-gray-300"
+                      onClick={() => handleCreate(true)}
+                    >
+                      {t("Create With Entry")}
                     </button>
                   </div>
                 </div>

@@ -536,5 +536,9 @@
   "Confirmation Waiting": "Onay Bekliyor",
   "Order is waiting for confirmation": "Sipariş onay bekliyor.",
   "Update Menu Item": "Menü Ürünü Güncelle",
+  "Create Without Entry": "Girişsiz Oluştur",
+  "Create With Entry": "Girişli Oluştur",
+  "Today is Holiday": "Bugün Tatil",
+  "Panel Settings": "Panel Ayarları",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }
