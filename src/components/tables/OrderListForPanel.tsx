@@ -22,9 +22,11 @@ const OrderListForPanel = ({ table }: Props) => {
         <OrderListForPanelTab
           orders={
             (tableOrders as Order[])?.filter((order) =>
-              [OrderStatus.PENDING, OrderStatus.READYTOSERVE].includes(
-                order.status as OrderStatus
-              )
+              [
+                OrderStatus.PENDING,
+                OrderStatus.READYTOSERVE,
+                OrderStatus.CONFIRMATIONREQ,
+              ].includes(order.status as OrderStatus)
             ) ?? []
           }
           user={user}
@@ -40,9 +42,11 @@ const OrderListForPanel = ({ table }: Props) => {
           orders={
             (tableOrders as Order[])?.filter(
               (order) =>
-                ![OrderStatus.PENDING, OrderStatus.READYTOSERVE].includes(
-                  order.status as OrderStatus
-                )
+                ![
+                  OrderStatus.PENDING,
+                  OrderStatus.READYTOSERVE,
+                  OrderStatus.CONFIRMATIONREQ,
+                ].includes(order.status as OrderStatus)
             ) ?? []
           }
           user={user}

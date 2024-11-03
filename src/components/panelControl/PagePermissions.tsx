@@ -67,7 +67,7 @@ const PagePermissions = () => {
   ];
   // Adding roles columns and rowkeys
   for (const role of roles) {
-    columns.push({ key: role.name + role._id, isSortable: true });
+    columns.push({ key: role.name, isSortable: true });
     rowKeys.push({
       key: role._id.toString(),
       node: (row: any) => {
