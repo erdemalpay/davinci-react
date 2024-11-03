@@ -269,6 +269,7 @@ export type Kitchen = {
   _id: string;
   name: string;
   isConfirmationRequired: boolean;
+  locations: number[];
 };
 
 export type MenuItem = {

@@ -60,8 +60,7 @@ export function useWebSocket() {
           ? order?.item
           : (order?.item as MenuItem)?._id;
       const item = getItem(itemId, items);
-      const foundCategory = categories?.find((c) => c._id === item?.category);
-
+      const foundCategory = getItem(item?.category, categories);
       if (
         !foundCategory?.isAutoServed &&
         order?.status !== OrderStatus.CANCELLED &&

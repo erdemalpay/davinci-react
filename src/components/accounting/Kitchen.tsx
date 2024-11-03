@@ -3,16 +3,20 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { Kitchen, RoleEnum } from "../../types";
+import { useGetLocations } from "../../utils/api/location";
 import {
   useGetKitchens,
   useKitchenMutations,
 } from "../../utils/api/menu/kitchen";
 import { NameInput } from "../../utils/panelInputs";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const KitchenPage = () => {
@@ -20,26 +24,37 @@ const KitchenPage = () => {
   const kitchens = useGetKitchens();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
+  const locations = useGetLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Kitchen>();
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const { createKitchen, deleteKitchen, updateKitchen } = useKitchenMutations();
+  function handleLocationUpdate(row: any, changedLocationId: number) {
+    let newLocations: number[] = row.locations;
+    if (newLocations.includes(changedLocationId)) {
+      newLocations = newLocations.filter(
+        (item) => item !== changedLocationId && item !== null
+      );
+    } else {
+      newLocations.push(changedLocationId);
+    }
+    updateKitchen({
+      id: row._id,
+      updates: { locations: newLocations },
+    });
+    toast.success(`${t("Kitchen location updated successfully")}`);
+  }
+
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Confirmation Required"), isSortable: true },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
-  ) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
+
   const rowKeys = [
     {
       key: "name",
@@ -55,6 +70,32 @@ const KitchenPage = () => {
         ),
     },
   ];
+
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
+      user?.role?._id
+    )
+  ) {
+    locations.forEach((item) => {
+      columns.push({ key: item.name, isSortable: true });
+      rowKeys.push({
+        key: String(item._id),
+        node: (row: any) =>
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row.locations.includes(item._id)}
+              onChange={() => handleLocationUpdate(row, item._id)}
+            />
+          ) : row.locations.includes(item._id) ? (
+            <IoCheckmark className="text-blue-500 text-2xl " />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl" />
+          ),
+      });
+    });
+    columns.push({ key: t("Actions"), isSortable: false });
+  }
   const inputs = [
     NameInput(),
     {
@@ -159,7 +200,21 @@ const KitchenPage = () => {
         : true,
     },
   ];
-  useEffect(() => setTableKey((prev) => prev + 1), [kitchens]);
+  const filters = [
+    {
+      label: t("Location Edit"),
+      isUpperSide: false,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled:
+        user &&
+        ![
+          RoleEnum.MANAGER,
+          RoleEnum.CATERINGMANAGER,
+          RoleEnum.GAMEMANAGER,
+        ].includes(user?.role?._id),
+    },
+  ];
+  useEffect(() => setTableKey((prev) => prev + 1), [kitchens, locations]);
 
   return (
     <>
@@ -172,6 +227,7 @@ const KitchenPage = () => {
           rows={kitchens}
           title={t("Kitchens")}
           addButton={addButton}
+          filters={filters}
           isActionsActive={
             user
               ? [
