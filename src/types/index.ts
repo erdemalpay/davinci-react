@@ -365,6 +365,7 @@ export type Order = {
   discountNote?: string;
   stockLocation?: string;
   [key: string]: any;
+  kitchen: string;
 };
 
 export type OrderCollection = {

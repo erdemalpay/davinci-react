@@ -640,6 +640,7 @@ export function TableCard({
                 preparedAt: new Date(),
                 preparedBy: user?._id,
                 status: OrderStatus.AUTOSERVED,
+                kitchen: selectedMenuItemCategory?.kitchen,
                 stockLocation: isOrderLocationSelection
                   ? orderForm?.stockLocation
                   : selectedLocationId === 1
@@ -663,6 +664,7 @@ export function TableCard({
                   ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
                   : selectedMenuItem.price,
                 paidQuantity: 0,
+                kitchen: selectedMenuItemCategory?.kitchen,
                 stockLocation: isOrderLocationSelection
                   ? orderForm?.stockLocation
                   : selectedLocationId === 1

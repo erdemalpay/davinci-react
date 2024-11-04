@@ -67,13 +67,12 @@ export function useWebSocket() {
         ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
           user?.role?._id as RoleEnum
         ) &&
-          !["flora", "farm"].includes(foundCategory?.kitchen as string) &&
+          !["flora", "farm"].includes(order?.kitchen) &&
           selectedLocationId &&
           order?.location === selectedLocationId) ||
           (user?.role?._id === RoleEnum.KITCHEN &&
-            foundCategory?.kitchen === "flora") ||
-          (user?.role?._id === RoleEnum.KITCHEN2 &&
-            foundCategory?.kitchen === "farm"))
+            order?.kitchen === "flora") ||
+          (user?.role?._id === RoleEnum.KITCHEN2 && order?.kitchen === "farm"))
       ) {
         orderCreatedSound
           .play()
