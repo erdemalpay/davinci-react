@@ -27,6 +27,7 @@ export type Table = {
   status?: string;
   isOnlineSale?: boolean;
   isAutoEntryAdded: boolean;
+  createdBy: string;
 };
 
 export type Role = {
