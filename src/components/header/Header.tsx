@@ -8,9 +8,13 @@ import logo from "./logo.svg";
 
 interface HeaderProps {
   showLocationSelector?: boolean;
+  allowedLocations?: number[];
 }
 
-export function Header({ showLocationSelector = true }: HeaderProps) {
+export function Header({
+  showLocationSelector = true,
+  allowedLocations,
+}: HeaderProps) {
   const user = useGetUser();
   const handleScrollToTop = () => {
     if (location.pathname === Routes.Tables) {
@@ -43,7 +47,9 @@ export function Header({ showLocationSelector = true }: HeaderProps) {
                 className="w-10 h-10 rounded-full"
               />
             </Link>
-            {showLocationSelector && <LocationSelector />}
+            {showLocationSelector && (
+              <LocationSelector allowedLocations={allowedLocations} />
+            )}
             <span className="text-white ml-2">{user?.name}</span>
             <PageSelector />
           </div>

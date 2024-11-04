@@ -26,6 +26,7 @@ function Orders() {
     label: kitchen.name,
     content: <SingleOrdersPage kitchen={kitchen} />,
     isDisabled: false,
+    kitchen: kitchen,
   }));
   const tabs = orderTabs?.map((tab) => {
     return {
@@ -40,7 +41,12 @@ function Orders() {
 
   return (
     <>
-      <Header showLocationSelector={true} />
+      <Header
+        showLocationSelector={true}
+        allowedLocations={
+          tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen.locations
+        }
+      />
       <TabPanel
         tabs={tabs ?? []}
         activeTab={ordersActiveTab}

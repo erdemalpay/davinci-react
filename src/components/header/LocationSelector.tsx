@@ -1,6 +1,9 @@
 import { useLocationContext } from "../../context/Location.context";
 
-export function LocationSelector() {
+interface Props {
+  allowedLocations?: number[];
+}
+export function LocationSelector({ allowedLocations }: Props) {
   const { selectedLocationId } = useLocationContext();
   const { locations, setSelectedLocationId } = useLocationContext();
 
@@ -8,9 +11,15 @@ export function LocationSelector() {
   const selectedLocation = locations?.find(
     (location) => location._id === selectedLocationId
   );
+  const showedLocations = allowedLocations
+    ? locations?.filter((location) => allowedLocations.includes(location._id))
+    : locations;
+  if (showedLocations.length === 1) {
+    setSelectedLocationId(showedLocations[0]._id);
+  }
   return (
     <>
-      {locations.map((location) => (
+      {showedLocations?.map((location) => (
         <button
           key={location._id}
           onClick={() => setSelectedLocationId(location._id)}
