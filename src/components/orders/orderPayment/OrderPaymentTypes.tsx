@@ -67,8 +67,8 @@ const OrderPaymentTypes = ({
 
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
-      ((collection.table as Table)?._id === table._id ||
-        collection.table === table._id) &&
+      ((collection.table as Table)?._id === table?._id ||
+        collection.table === table?._id) &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
 
@@ -87,7 +87,7 @@ const OrderPaymentTypes = ({
     }
   };
   const { createOrderCollection, updateOrderCollection } =
-    useOrderCollectionMutations(table._id);
+    useOrderCollectionMutations(table?._id);
 
   const inputs = [
     {
@@ -100,7 +100,7 @@ const OrderPaymentTypes = ({
   ];
   const formKeys = [{ key: "note", type: FormKeyTypeEnum.STRING }];
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
-  const discountAmount = tableOrders.reduce((acc, order) => {
+  const discountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -110,14 +110,13 @@ const OrderPaymentTypes = ({
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-  const totalAmount = tableOrders.reduce((acc, order) => {
+  const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
   const isAllItemsPaid =
     tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
   const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
-
   const filteredPaymentTypes = paymentTypes.filter((paymentType) =>
     table?.isOnlineSale
       ? paymentType?.isOnlineOrder
@@ -181,7 +180,7 @@ const OrderPaymentTypes = ({
                 }
               }
               const createdCollection = {
-                table: table._id,
+                table: table?._id,
                 location: selectedLocationId,
                 paymentMethod: paymentType._id,
                 amount:
@@ -229,10 +228,10 @@ const OrderPaymentTypes = ({
             }}
           />
           <p className="font-semibold">{t("Collection History")}</p>
-          {isCollectionModalOpen && (
+          {isCollectionModalOpen && table && (
             <CollectionModal
               setIsCollectionModalOpen={setIsCollectionModalOpen}
-              table={table._id}
+              table={table?._id}
               orders={givenDateOrders}
               collections={givenDateCollections}
             />
@@ -299,7 +298,7 @@ const OrderPaymentTypes = ({
                       cancelledBy: user._id,
                       status: OrderCollectionStatus.CANCELLED,
                       ...(newOrders && { newOrders: newOrders }),
-                      table: table._id,
+                      table: table?._id,
                     } as Partial<OrderCollection>,
                   });
                   resetOrderContext();

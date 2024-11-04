@@ -63,7 +63,7 @@ const OrderLists = ({
     selectedTableTransfer,
   } = useOrderContext();
 
-  const discountAmount = tableOrders.reduce((acc, order) => {
+  const discountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -73,7 +73,7 @@ const OrderLists = ({
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-  const totalAmount = tableOrders.reduce((acc, order) => {
+  const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
   const mainActiveCase =

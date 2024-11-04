@@ -17,7 +17,7 @@ const TransferTableScreen = ({ tables, table }: Props) => {
   const tableOptions = tables
     ?.filter(
       (filteredTable) =>
-        filteredTable._id !== table._id && !filteredTable?.finishHour
+        filteredTable._id !== table?._id && !filteredTable?.finishHour
     )
     ?.map((tableMap) => {
       return {

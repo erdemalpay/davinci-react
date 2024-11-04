@@ -40,13 +40,14 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
+  if (!orders) return null;
   const table = orders[0]?.table as Table;
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
-  if (!user || !orders || !collections || !table) return null;
+  if (!user || !orders || !collections) return null;
   const tableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
@@ -54,7 +55,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   );
   const collectionsTotalAmount = Number(
     collections
-      .filter((collection) => (collection?.table as Table)?._id === tableId)
+      ?.filter((collection) => (collection?.table as Table)?._id === tableId)
       ?.reduce((acc, collection) => {
         if (collection?.status === OrderCollectionStatus.CANCELLED) {
           return acc;
@@ -62,7 +63,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
         return acc + (collection?.amount ?? 0);
       }, 0)
   );
-  const discountAmount = tableOrders.reduce((acc, order) => {
+  const discountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -72,7 +73,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-  const totalAmount = tableOrders.reduce((acc, order) => {
+  const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
   const isAllItemsPaid =
@@ -88,7 +89,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
 
     let totalAmount = 0;
     const content = orders
-      .map((order) => {
+      ?.map((order) => {
         const discountValue =
           (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
             100 +
@@ -184,13 +185,12 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   ];
 
   function finishTable() {
-    if (!table) return;
     closeTable({
       id: tableId,
       updates: { finishHour: format(new Date(), "HH:mm") },
     });
     setIsCloseConfirmationDialogOpen(false);
-    toast.success(t("Table {{tableName}} closed", { tableName: table.name }));
+    toast.success(t("Table {{tableName}} closed", { tableName: table?.name }));
   }
 
   return (
@@ -246,7 +246,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
                 <div className="flex flex-col gap-1">
                   <h1 className="font-medium">
                     <span className="font-semibold">{t("Table")}</span>:{" "}
-                    {table.name}
+                    {table?.name}
                   </h1>
                   <h1 className="font-medium">{user.name}</h1>
                 </div>
