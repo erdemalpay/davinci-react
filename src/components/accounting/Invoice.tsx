@@ -10,6 +10,8 @@ import {
   AccountExpenseType,
   AccountInvoice,
   AccountProduct,
+  commonDateOptions,
+  DateRangeKey,
   NOTPAID,
 } from "../../types";
 import {
@@ -38,6 +40,7 @@ import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import {
@@ -124,6 +127,7 @@ const Invoice = () => {
       brand: "",
       expenseType: "",
       location: "",
+      date: "",
       before: "",
       after: "",
     });
@@ -186,12 +190,42 @@ const Invoice = () => {
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
     {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -200,6 +234,8 @@ const Invoice = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const productInputs = [

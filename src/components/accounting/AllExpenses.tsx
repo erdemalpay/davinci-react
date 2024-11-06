@@ -4,7 +4,13 @@ import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType, ExpenseTypes, NOTPAID } from "../../types";
+import {
+  AccountExpenseType,
+  commonDateOptions,
+  DateRangeKey,
+  ExpenseTypes,
+  NOTPAID,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -20,6 +26,7 @@ import {
 } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import {
@@ -76,6 +83,7 @@ const AllExpenses = () => {
       brand: "",
       expenseType: "",
       location: "",
+      date: "",
       before: "",
       after: "",
       type: "",
@@ -157,12 +165,42 @@ const AllExpenses = () => {
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
     {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -171,6 +209,8 @@ const AllExpenses = () => {
       placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const expenseTypeInputOptions = () => {
