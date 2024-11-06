@@ -6,11 +6,12 @@ interface Props {
   allowedLocations?: number[];
 }
 export function LocationSelector({ allowedLocations }: Props) {
+  console.log(allowedLocations, "allowedLocations");
   const { selectedLocationId } = useLocationContext();
   const { locations, setSelectedLocationId } = useLocationContext();
   const [showedLocations, setShowedLocations] = useState<Location[]>([]);
   if (!locations) return null;
-
+  console.log(locations, "locations");
   useEffect(() => {
     if (allowedLocations) {
       setShowedLocations(
