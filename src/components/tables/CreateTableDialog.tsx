@@ -7,6 +7,7 @@ import { useLocationContext } from "../../context/Location.context";
 import { useForm } from "../../hooks/useForm";
 import { Table } from "../../types";
 import { useTableMutations } from "../../utils/api/table";
+import TextInput from "../panelComponents/FormElements/TextInput";
 
 export function CreateTableDialog({
   isOpen,
@@ -25,7 +26,7 @@ export function CreateTableDialog({
     name: "",
     date,
     location: selectedLocationId,
-    playerCount: 0,
+    playerCount: 2,
     startHour,
     gameplays: [],
   };
@@ -79,7 +80,24 @@ export function CreateTableDialog({
                       type="text"
                       onChange={handleUpdate}
                     />
-                    <Input
+                    <TextInput
+                      label={t("Player Count")}
+                      placeholder={t("Player Count")}
+                      type="number"
+                      value={data.playerCount}
+                      isNumberButtonsActive={true}
+                      isOnClearActive={false}
+                      minNumber={0}
+                      onChange={(value) => {
+                        handleUpdate({
+                          target: {
+                            name: "playerCount",
+                            value,
+                          },
+                        } as any);
+                      }}
+                    />
+                    {/* <Input
                       name="playerCount"
                       variant="standard"
                       label="Player Count"
@@ -87,7 +105,7 @@ export function CreateTableDialog({
                       min={0}
                       value={data.playerCount}
                       onChange={handleUpdate}
-                    />
+                    /> */}
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Input
