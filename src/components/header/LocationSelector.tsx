@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
+import { Location } from "../../types";
 
 interface Props {
   allowedLocations?: number[];
@@ -6,17 +8,22 @@ interface Props {
 export function LocationSelector({ allowedLocations }: Props) {
   const { selectedLocationId } = useLocationContext();
   const { locations, setSelectedLocationId } = useLocationContext();
-
+  const [showedLocations, setShowedLocations] = useState<Location[]>([]);
   if (!locations) return null;
-  const selectedLocation = locations?.find(
-    (location) => location._id === selectedLocationId
-  );
-  const showedLocations = allowedLocations
-    ? locations?.filter((location) => allowedLocations.includes(location._id))
-    : locations;
-  if (showedLocations.length === 1) {
-    setSelectedLocationId(showedLocations[0]._id);
-  }
+
+  useEffect(() => {
+    if (allowedLocations) {
+      setShowedLocations(
+        locations?.filter((location) => allowedLocations.includes(location._id))
+      );
+    } else {
+      setShowedLocations(locations);
+    }
+    if (allowedLocations?.length === 1) {
+      setSelectedLocationId(allowedLocations[0]);
+    }
+  }, [locations, allowedLocations]);
+
   return (
     <>
       {showedLocations?.map((location) => (
@@ -24,7 +31,7 @@ export function LocationSelector({ allowedLocations }: Props) {
           key={location._id}
           onClick={() => setSelectedLocationId(location._id)}
           className={`text-sm ${
-            selectedLocation?._id === location._id ? "border-2" : "border-0"
+            selectedLocationId === location._id ? "border-2" : "border-0"
           }  px-2 py-1 rounded-lg  text-white`}
         >
           {location.name}
