@@ -35,8 +35,8 @@ const KitchenPage = () => {
   ] = useState(false);
   const { createKitchen, deleteKitchen, updateKitchen } = useKitchenMutations();
   function handleLocationUpdate(row: any, changedLocationId: number) {
-    let newLocations: number[] = row.locations;
-    if (newLocations.includes(changedLocationId)) {
+    let newLocations: number[] = row?.locations;
+    if (newLocations?.includes(changedLocationId)) {
       newLocations = newLocations.filter(
         (item) => item !== changedLocationId && item !== null
       );
@@ -44,7 +44,7 @@ const KitchenPage = () => {
       newLocations.push(changedLocationId);
     }
     updateKitchen({
-      id: row._id,
+      id: row?._id,
       updates: { locations: newLocations },
     });
     toast.success(`${t("Kitchen location updated successfully")}`);
@@ -77,17 +77,17 @@ const KitchenPage = () => {
       user?.role?._id
     )
   ) {
-    locations.forEach((item) => {
+    locations?.forEach((item) => {
       columns.push({ key: item.name, isSortable: true });
       rowKeys.push({
         key: String(item._id),
         node: (row: any) =>
           isEnableEdit ? (
             <CheckSwitch
-              checked={row.locations.includes(item._id)}
+              checked={row?.locations?.includes(item._id)}
               onChange={() => handleLocationUpdate(row, item._id)}
             />
-          ) : row.locations.includes(item._id) ? (
+          ) : row?.locations?.includes(item._id) ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl" />

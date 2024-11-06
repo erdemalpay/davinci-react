@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Header } from "../components/header/Header";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -38,15 +39,15 @@ function Orders() {
         : true,
     };
   });
-
+  const allowedLocations = useMemo(() => {
+    return (
+      tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
+      []
+    );
+  }, [ordersActiveTab, tabs]);
   return (
     <>
-      <Header
-        showLocationSelector={true}
-        allowedLocations={
-          tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen.locations
-        }
-      />
+      <Header showLocationSelector={true} allowedLocations={allowedLocations} />
       <TabPanel
         tabs={tabs ?? []}
         activeTab={ordersActiveTab}
