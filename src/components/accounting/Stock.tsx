@@ -8,7 +8,12 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, StockHistoryStatusEnum } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  RoleEnum,
+  StockHistoryStatusEnum,
+} from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -17,6 +22,7 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
@@ -509,12 +515,42 @@ const Stock = () => {
     }),
     StockLocationInput({ locations: locations }),
     {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
       placeholder: t("Start Date"),
       required: true,
       isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
     },
   ];
   const filterPanel = {
