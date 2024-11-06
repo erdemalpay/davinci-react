@@ -7,7 +7,10 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory } from "../../types";
-import { useCategoryMutations } from "../../utils/api/menu/category";
+import {
+  useCategoryMutations,
+  useUpdateCategoriesOrderMutation,
+} from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { getItem } from "../../utils/getItem";
@@ -36,6 +39,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const kitchens = useGetKitchens();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
+  const { mutate: updateCategoriesOrder } = useUpdateCategoriesOrderMutation();
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<MenuCategory>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -253,13 +257,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   };
 
   const handleDrag = (DragRow: MenuCategory, DropRow: MenuCategory) => {
-    updateCategory({
+    updateCategoriesOrder({
       id: DragRow._id,
-      updates: { order: DropRow.order },
-    });
-    updateCategory({
-      id: DropRow._id,
-      updates: { order: DragRow.order },
+      newOrder: DropRow.order,
     });
   };
   const actions = [

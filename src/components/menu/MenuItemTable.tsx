@@ -27,6 +27,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import {
   useGetMenuItems,
   useMenuItemMutations,
+  useUpdateItemsOrderMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { formatPrice } from "../../utils/formatPrice";
@@ -61,6 +62,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
+  const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -433,13 +435,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
   const handleDrag = (DragRow: MenuItem, DropRow: MenuItem) => {
-    updateItem({
+    updateItemsOrder({
       id: DragRow._id,
-      updates: { order: DropRow.order },
-    });
-    updateItem({
-      id: DropRow._id,
-      updates: { order: DragRow.order },
+      newOrder: DropRow.order,
     });
   };
   const addCollapsible = {

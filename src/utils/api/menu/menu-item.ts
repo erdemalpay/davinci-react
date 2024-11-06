@@ -35,6 +35,35 @@ export function useUpdateItemsMutation() {
   });
 }
 
+export function updateItemsOrder({
+  id,
+  newOrder,
+}: {
+  id: number;
+  newOrder: number;
+}) {
+  return patch({
+    path: `${Paths.Menu}/items_order/${id}`,
+    payload: { newOrder },
+  });
+}
+export function useUpdateItemsOrderMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation(updateItemsOrder, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries(queryKey);
+    },
+  });
+}
+
 export function useGetMenuItems() {
   // return useGetList<MenuItem>(Paths.MenuItems, [Paths.MenuItems], true);
   return useGetList<MenuItem>(Paths.MenuItems);
