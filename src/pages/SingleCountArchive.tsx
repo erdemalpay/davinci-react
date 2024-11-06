@@ -80,26 +80,36 @@ const SingleCountArchive = () => {
 
   const allRows = () => {
     if (!currentCount) return [];
-    const date = new Date(currentCount.createdAt);
-    return (
-      currentCount?.products?.map((option) => ({
-        currentCountId: currentCount._id,
-        currentCountLocationId: currentCount?.location,
-        product: products?.find((item) => item._id === option.product)?.name,
-        productId: option.product,
-        date: `${pad(date.getDate())}-${pad(
-          date.getMonth() + 1
-        )}-${date.getFullYear()}`,
 
-        stockQuantity: option.stockQuantity,
-        countQuantity: option.countQuantity,
-        productDeleteRequest: option?.productDeleteRequest
-          ? getItem(option.productDeleteRequest, users)?.name
-          : "",
-        isStockEqualized: option?.isStockEqualized ?? false,
-      })) || []
+    const date = new Date(currentCount.createdAt);
+    const formattedDate = `${pad(date.getDate())}-${pad(
+      date.getMonth() + 1
+    )}-${date.getFullYear()}`;
+
+    return (
+      currentCount.products
+        ?.map((option) => {
+          const foundProduct = getItem(option.product, products);
+          if (!foundProduct || foundProduct.deleted) return null;
+
+          return {
+            currentCountId: currentCount._id,
+            currentCountLocationId: currentCount.location,
+            product: foundProduct.name,
+            productId: option.product,
+            date: formattedDate,
+            stockQuantity: option.stockQuantity,
+            countQuantity: option.countQuantity,
+            productDeleteRequest: option.productDeleteRequest
+              ? getItem(option.productDeleteRequest, users)?.name
+              : "",
+            isStockEqualized: option.isStockEqualized ?? false,
+          };
+        })
+        .filter((row) => row !== null) ?? []
     );
   };
+
   const [rows, setRows] = useState(allRows());
   const columns = [
     { key: t("Date"), isSortable: true },
