@@ -29,22 +29,19 @@ function Orders() {
     isDisabled: false,
     kitchen: kitchen,
   }));
-  const tabs = orderTabs?.map((tab) => {
-    return {
-      ...tab,
-      isDisabled: currentPageTabs
+  const tabs = orderTabs
+    ?.filter((tab) =>
+      currentPageTabs
         ?.find((item) => item.name === tab.label)
         ?.permissionRoles?.includes(user.role._id)
-        ? false
-        : true,
-    };
-  });
+    )
+    ?.map((tab, index) => {
+      return {
+        ...tab,
+        number: index,
+      };
+    });
   const allowedLocations = useMemo(() => {
-    console.log(
-      tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
-        []
-    );
-    console.log(tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen);
     return (
       tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
       []
