@@ -40,6 +40,11 @@ function Orders() {
     };
   });
   const allowedLocations = useMemo(() => {
+    console.log(
+      tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
+        []
+    );
+    console.log(tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen);
     return (
       tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
       []
