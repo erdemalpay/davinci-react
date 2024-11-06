@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
@@ -90,6 +90,7 @@ const GenericAddEditPanel = <T,>({
     useState(false);
   const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
     (input) => input.type !== InputTypes.IMAGE
@@ -129,6 +130,30 @@ const GenericAddEditPanel = <T,>({
     return mergedInitialState;
   });
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isBlurFieldClickCloseEnabled &&
+        !isCancelConfirmationDialogExist &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        close?.();
+        if (isEditMode) additionalCancelFunction?.();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [
+    isBlurFieldClickCloseEnabled,
+    isCancelConfirmationDialogExist,
+    close,
+    additionalCancelFunction,
+    isEditMode,
+  ]);
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
@@ -262,6 +287,7 @@ const GenericAddEditPanel = <T,>({
     return (
       <div
         onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
         className={`bg-white rounded-md shadow-lg ${
           anotherPanelTopClassName
             ? ""
@@ -373,7 +399,11 @@ const GenericAddEditPanel = <T,>({
                 }
                 if (!input?.isDisabled) {
                   return (
-                    <div key={input.formKey} className="flex flex-col gap-2">
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      key={input.formKey}
+                      className="flex flex-col gap-2"
+                    >
                       {(input.type === InputTypes.TEXT ||
                         input.type === InputTypes.NUMBER ||
                         input.type === InputTypes.DATE ||
@@ -514,14 +544,6 @@ const GenericAddEditPanel = <T,>({
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
         !isOpen && "hidden"
       }`}
-      onClick={
-        isBlurFieldClickCloseEnabled && !isCancelConfirmationDialogOpen
-          ? () => {
-              close?.();
-              isEditMode ? additionalCancelFunction?.() : undefined;
-            }
-          : undefined
-      }
     >
       {anotherPanel ? (
         <div className={`${anotherPanelTopClassName}`}>
