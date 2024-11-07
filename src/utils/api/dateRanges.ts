@@ -51,11 +51,17 @@ export const dateRanges: {
     after: formatDate(startOfMonth(subMonths(new Date(), 1))),
     date: "lastMonth",
   }),
-  lastMonthToToday: () => ({
-    before: formatDate(new Date()),
-    after: formatDate(startOfMonth(subMonths(new Date(), 1))),
-    date: "lastMonthToToday",
-  }),
+  sameDayLastMonthToToday: () => {
+    const today = new Date();
+    const beforeDate = subMonths(today, 1);
+    beforeDate.setDate(today.getDate());
+
+    return {
+      before: formatDate(beforeDate),
+      after: formatDate(startOfMonth(beforeDate)),
+      date: "sameDayLastMonthToToday",
+    };
+  },
   thisYear: () => ({
     before: formatDate(new Date()),
     after: formatDate(startOfYear(new Date())),

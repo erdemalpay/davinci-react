@@ -142,7 +142,6 @@ export default function Vendor() {
             />
           </div>
         </div>
-
         <TabPanel
           key={tabPanelKey}
           tabs={tabs}
