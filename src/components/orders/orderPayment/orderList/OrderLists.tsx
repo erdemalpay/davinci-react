@@ -246,8 +246,19 @@ const OrderLists = ({
     <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
-        <h1>{t("Total")}</h1>
-        <p>{parseFloat(String(totalAmount - discountAmount)).toFixed(2)}₺</p>
+        <div className="flex flex-row gap-2">
+          <h1>{t("Total")}</h1>
+          <p>{parseFloat(String(totalAmount - discountAmount)).toFixed(2)}₺</p>
+        </div>
+        <div className="flex flex-row gap-2 text-red-300">
+          <h1>{t("Not Paid")}</h1>
+          <p>
+            {parseFloat(
+              String(totalAmount - discountAmount - collectionsTotalAmount)
+            ).toFixed(2)}
+            ₺
+          </p>
+        </div>
       </div>
       {/* orders */}
       {!isProductDivideOpen &&
