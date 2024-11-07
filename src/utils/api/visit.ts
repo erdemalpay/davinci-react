@@ -32,6 +32,13 @@ export function useGetVisits() {
     [Paths.Visits, selectedLocationId, selectedDate]
   );
 }
+export function useGetGivenDateVisits(date: string) {
+  const { selectedLocationId } = useLocationContext();
+  return useGetList<Visit>(
+    `${Paths.Visits}?location=${selectedLocationId}&date=${date}`,
+    [Paths.Visits, selectedLocationId, date]
+  );
+}
 
 export function useGetMonthlyVisits(location: number, date: string) {
   const query = `${Paths.Visits}/monthly?location=${location}&date=${date}`;
