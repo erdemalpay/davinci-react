@@ -958,6 +958,7 @@ export const commonDateOptions = [
   { value: "lastWeek", label: "Last Week" },
   { value: "thisMonth", label: "This Month" },
   { value: "lastMonth", label: "Last Month" },
+  { value: "lastMonthToToday", label: "Last Month to Today" },
   { value: "thisYear", label: "This Year" },
   { value: "lastYear", label: "Last Year" },
 ];
@@ -969,5 +970,6 @@ export type DateRangeKey =
   | "lastWeek"
   | "thisMonth"
   | "lastMonth"
+  | "lastMonthToToday"
   | "thisYear"
   | "lastYear";
