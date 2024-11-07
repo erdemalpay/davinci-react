@@ -4,6 +4,7 @@ import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
+
 // active tab is required to be outside so that when the item added into the tab and tabpanel is rerendered, the active tab will not be reset.
 type Props = {
   tabs: Tab[];
@@ -12,6 +13,7 @@ type Props = {
   additionalClickAction?: () => void;
   additionalOpenAction?: () => void;
   topClassName?: string;
+  filters?: React.ReactNode[];
 };
 
 const TabPanel: React.FC<Props> = ({
@@ -21,6 +23,7 @@ const TabPanel: React.FC<Props> = ({
   setActiveTab,
   additionalOpenAction,
   topClassName,
+  filters,
 }) => {
   const { t } = useTranslation();
   const adjustedTabs = tabs
@@ -77,34 +80,37 @@ const TabPanel: React.FC<Props> = ({
         topClassName ? topClassName : "my-6"
       }`}
     >
-      <div
-        ref={containerRef}
-        className={`flex flex-row  border-b relative overflow-x-auto scroll-auto scrollbar-hide ${
-          topClassName ? "py-5" : "py-6"
-        }`}
-      >
-        {adjustedTabs
-          .filter((tab) => !tab.isDisabled)
-          .map((tab, index) => (
-            <div
-              key={index}
-              ref={(el) => (tabsRef.current[index] = el)}
-              className={`px-4  flex flex-row items-center gap-2 cursor-pointer ${
-                activeTab === tab.number ? "text-blue-500" : ""
-              }`}
-              onClick={() => handleTabChange(tab)}
-            >
-              {tab.icon}
-              <P1 className="w-max">{t(tab.label)}</P1>
-            </div>
-          ))}
+      <div className="flex flex-row  border-b ">
         <div
-          className="absolute bottom-0 h-0.5 bg-blue-500 transition-all duration-300"
-          style={{
-            width: `${indicatorStyle.width}px`,
-            transform: `translateX(${indicatorStyle.left}px)`,
-          }}
-        />
+          ref={containerRef}
+          className={`flex  flex-row relative overflow-x-auto scroll-auto scrollbar-hide ${
+            topClassName ? "py-5" : "py-6"
+          }`}
+        >
+          {adjustedTabs
+            .filter((tab) => !tab.isDisabled)
+            .map((tab, index) => (
+              <div
+                key={index}
+                ref={(el) => (tabsRef.current[index] = el)}
+                className={`px-4  flex flex-row items-center gap-2 cursor-pointer ${
+                  activeTab === tab.number ? "text-blue-500" : ""
+                }`}
+                onClick={() => handleTabChange(tab)}
+              >
+                {tab.icon}
+                <P1 className="w-max">{t(tab.label)}</P1>
+              </div>
+            ))}
+          <div
+            className="absolute bottom-0 h-0.5 bg-blue-500 transition-all duration-300"
+            style={{
+              width: `${indicatorStyle.width}px`,
+              transform: `translateX(${indicatorStyle.left}px)`,
+            }}
+          />
+        </div>
+        {filters && filters.map((filter) => filter)}
       </div>
       {adjustedTabs.find((tab) => tab.number === activeTab)?.content &&
         !adjustedTabs.find((tab) => tab.number === activeTab)?.isDisabled && (

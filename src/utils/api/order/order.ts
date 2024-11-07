@@ -262,7 +262,18 @@ export function useCancelOrderForDiscountMutation() {
 }
 
 export function useGetTodayOrders() {
-  return useGetList<Order>(`${baseUrl}/today`, [`${baseUrl}/today`]);
+  const { selectedDate } = useDateContext();
+  return useGetList<Order>(`${baseUrl}/today?after=${selectedDate}`, [
+    `${baseUrl}/today`,
+    selectedDate,
+  ]);
+}
+export function useGetGivenDateOrders() {
+  const { todaysOrderDate } = useOrderContext();
+  return useGetList<Order>(`${baseUrl}/today?after=${todaysOrderDate}`, [
+    `${baseUrl}/today`,
+    todaysOrderDate,
+  ]);
 }
 
 export function createOrderForDivide(payload: CreateOrderForDivide) {

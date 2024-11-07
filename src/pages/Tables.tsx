@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
@@ -35,7 +34,6 @@ const Tables = () => {
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();

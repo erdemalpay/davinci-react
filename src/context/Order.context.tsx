@@ -20,6 +20,8 @@ type OrderContextType = {
   isOrderDivisionActive: boolean;
   setIsOrderDivisionActive: (isOrderDivisionActive: boolean) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
+  todaysOrderDate: string;
+  setTodaysOrderDate: (todaysOrderDate: string) => void;
   selectedOrders: {
     order: Order;
     totalQuantity: number;
@@ -63,6 +65,8 @@ const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   isOrderDivisionActive: false,
   isTableSelectOpen: false,
+  todaysOrderDate: format(new Date(), "yyyy-MM-dd"),
+  setTodaysOrderDate: () => {},
   setIsTableSelectOpen: () => {},
   discountNote: "",
   setDiscountNote: () => {},
@@ -126,6 +130,9 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
+  const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
+    format(new Date(), "yyyy-MM-dd")
+  );
   const [selectedOrders, setSelectedOrders] = useState<
     {
       order: Order;
@@ -181,6 +188,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
       value={{
         discountNote,
         setDiscountNote,
+        todaysOrderDate,
+        setTodaysOrderDate,
         paymentAmount,
         setPaymentAmount,
         temporaryOrders,

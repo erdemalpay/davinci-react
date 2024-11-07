@@ -18,7 +18,6 @@ export default function DailyVisit() {
     format(new Date(), "yyyy-MM-dd")
   );
   const givenDateVisits = useGetGivenDateVisits(selectedDate);
-
   const allRows = givenDateVisits?.reduce((acc, visit) => {
     const foundUser = getItem(visit.user, users);
     if (!foundUser) return acc;
