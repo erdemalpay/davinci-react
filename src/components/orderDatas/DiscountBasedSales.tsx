@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
   commonDateOptions,
@@ -15,9 +16,11 @@ import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetTables } from "../../utils/api/table";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -27,6 +30,7 @@ type ItemQuantity = {
   itemId: number;
   itemName: string;
   quantity: number;
+  tables: Partial<Table[]>;
 };
 type OrderWithPaymentInfo = {
   item: number;
@@ -50,8 +54,14 @@ const DiscountBasedSales = () => {
   const locations = useGetLocations();
   const queryClient = useQueryClient();
   const items = useGetMenuItems();
+  const { setExpandedRows } = useGeneralContext();
+  const { resetOrderContext } = useOrderContext();
+  const [selectedTableId, setSelectedTableId] = useState<number>(0);
+  const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
+  const tables = useGetTables();
+
   const [showFilters, setShowFilters] = useState(false);
-  if (!orders || !locations || !discounts || !items) {
+  if (!orders || !locations || !discounts || !items || !tables) {
     return null;
   }
   const { filterPanelFormElements, setFilterPanelFormElements } =
@@ -118,14 +128,23 @@ const DiscountBasedSales = () => {
                     ...itemQuantityIteration,
                     quantity:
                       itemQuantityIteration.quantity + order?.paidQuantity,
+                    tables: Array.from(
+                      new Map(
+                        [...itemQuantityIteration.tables, order?.table].map(
+                          (table) => [(table as Table)?._id, table]
+                        )
+                      ).values()
+                    ) as any,
                   }
                 : itemQuantityIteration
           );
+          existingEntry.itemQuantity;
         } else {
           existingEntry.itemQuantity.push({
             itemId: order?.item,
             itemName: getItem(order?.item, items)?.name ?? "",
             quantity: order?.paidQuantity,
+            tables: [order?.table as Table],
           });
         }
 
@@ -134,14 +153,36 @@ const DiscountBasedSales = () => {
           collapsibleColumns: [
             { key: t("Product"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
+            { key: t("Tables"), isSortable: false },
           ],
           collapsibleRows: existingEntry.itemQuantity.map(
             (itemQuantityIteration) => ({
               product: itemQuantityIteration.itemName,
               quantity: itemQuantityIteration.quantity,
+              tables: itemQuantityIteration.tables,
             })
           ),
-          collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+          collapsibleRowKeys: [
+            { key: "product" },
+            { key: "quantity" },
+            {
+              key: "tables",
+              node: (row: any) => {
+                return row.tables?.map((table: Table) => (
+                  <p
+                    key={table._id} // Unique key for each item in the list
+                    className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+                    onClick={() => {
+                      setSelectedTableId(table._id);
+                      setIsOrderPaymentModalOpen(true);
+                    }}
+                  >
+                    {table._id}
+                  </p>
+                ));
+              },
+            },
+          ],
         };
       } else {
         acc.push({
@@ -160,6 +201,7 @@ const DiscountBasedSales = () => {
               itemId: order?.item,
               itemName: getItem(order?.item, items)?.name ?? "",
               quantity: order?.paidQuantity,
+              tables: [order?.table as Table],
             },
           ],
           collapsible: {
@@ -172,9 +214,30 @@ const DiscountBasedSales = () => {
               {
                 product: getItem(order?.item, items)?.name,
                 quantity: order?.paidQuantity,
+                tables: [order.table],
               },
             ],
-            collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
+            collapsibleRowKeys: [
+              { key: "product" },
+              { key: "quantity" },
+              {
+                key: "tables",
+                node: (row: any) => {
+                  return row.tables?.map((table: Table) => (
+                    <p
+                      key={table._id} // Unique key for each item in the list
+                      className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+                      onClick={() => {
+                        setSelectedTableId(table._id);
+                        setIsOrderPaymentModalOpen(true);
+                      }}
+                    >
+                      {table._id}
+                    </p>
+                  ));
+                },
+              },
+            ],
           },
           totalAmountWithDiscount:
             order?.paidQuantity * order?.unitPrice -
@@ -329,8 +392,9 @@ const DiscountBasedSales = () => {
   ];
   useEffect(() => {
     setRows(allRows);
+    console.log(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, filterPanelFormElements, discounts, items, locations]);
+  }, [orders, filterPanelFormElements, discounts, items, locations, tables]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -345,6 +409,17 @@ const DiscountBasedSales = () => {
           isActionsActive={false}
           isCollapsible={true}
         />
+        {isOrderPaymentModalOpen && selectedTableId && (
+          <OrderPaymentModal
+            tableId={selectedTableId}
+            tables={tables}
+            close={() => {
+              setExpandedRows({});
+              resetOrderContext();
+              setIsOrderPaymentModalOpen(false);
+            }}
+          />
+        )}
       </div>
     </>
   );
