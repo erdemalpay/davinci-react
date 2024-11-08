@@ -5,7 +5,7 @@ import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
-import { Order, Table } from "./../../../types/index";
+import { Order, PersonalOrderDataType, Table } from "./../../../types/index";
 
 interface CreateOrderForDiscount {
   orders: {
@@ -180,6 +180,18 @@ export function useGetTableOrders(tableId: number) {
     `${Paths.Order}/table`,
     tableId,
   ]);
+}
+
+export function useGetPersonalOrderDatas() {
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<PersonalOrderDataType>(
+    `${baseUrl}/personal?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    [
+      `${Paths.Order}/personal`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ]
+  );
 }
 
 export function updateMultipleOrders(payload: UpdateMultipleOrder) {

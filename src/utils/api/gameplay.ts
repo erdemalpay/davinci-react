@@ -4,6 +4,8 @@ import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Gameplay, Table } from "../../types/index";
 import { sortTable } from "../sort";
+import { useOrderContext } from "./../../context/Order.context";
+import { useGetList } from "./factory";
 import { get, patch, post, remove } from "./index";
 
 const BASE_URL_GAMEPLAYS = "/gameplays";
@@ -46,6 +48,11 @@ export interface GameplayGroupQueryResult {
   secondary: GameplaySecondaryGroupResult[];
   _id: string;
   location?: number;
+}
+
+interface GameplayPersonalCreatePayload {
+  gameplayCount: number;
+  mentor: string;
 }
 
 export interface GameplayFilter {
@@ -415,4 +422,18 @@ export function useDeleteGameplayMutation() {
       queryClient.invalidateQueries(queryKey);
     },
   });
+}
+
+export function useGetPersonalGameplayCreateData() {
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<GameplayPersonalCreatePayload>(
+    `${{ BASE_URL_GAMEPLAYS }}/create_count?after=${
+      filterPanelFormElements.after
+    }&before=${filterPanelFormElements.before}`,
+    [
+      `${{ BASE_URL_GAMEPLAYS }}/create_count`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ]
+  );
 }

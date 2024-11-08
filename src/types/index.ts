@@ -973,3 +973,20 @@ export type DateRangeKey =
   | "sameDayLastMonthToToday"
   | "thisYear"
   | "lastYear";
+
+export type PersonalOrderDataType = {
+  _id: string;
+  user: string;
+  createdByCount: number;
+  preparedByCount: number;
+  cancelledByCount: number;
+  deliveredByCount: number;
+  createdByTableCount: number;
+  preparedByTableCount: number;
+  cancelledByTableCount: number;
+  deliveredByTableCount: number;
+  createdByTables: number[];
+  preparedByTables: number[];
+  cancelledByTables: number[];
+  deliveredByTables: number[];
+};

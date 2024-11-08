@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useOrderContext } from "../../context/Order.context";
 import { Table } from "../../types/index";
 import { sortTable } from "../sort";
 import { Paths, useGetList, useMutationApi } from "./factory";
@@ -19,7 +20,10 @@ interface CloseAllTablePayload {
 interface TablePayloadWithId {
   id: number;
 }
-
+interface TablePersonalCreatePayload {
+  tableCount: number;
+  createdBy: string | null;
+}
 const BASE_URL = `/tables`;
 
 export function closeTable({
@@ -104,7 +108,6 @@ export function useCloseAllTableMutation() {
   return useMutation(closeAllTable, {
     onMutate: async ({ ids, finishHour }: CloseAllTablePayload) => {
       await queryClient.cancelQueries(queryKey);
-
       const previousTables = queryClient.getQueryData<Table[]>(queryKey) || [];
 
       // Optimistically update tables to reflect they're closed
@@ -197,6 +200,18 @@ export function useTableMutations() {
     queryKey: [Paths.Tables, selectedLocationId, selectedDate],
   });
   return { deleteTable, updateTable, createTable };
+}
+
+export function useGetPersonalTableCreateData() {
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<TablePersonalCreatePayload>(
+    `${Paths.Tables}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    [
+      `${Paths.Tables}/create_count`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ]
+  );
 }
 
 export function useGetTables() {
