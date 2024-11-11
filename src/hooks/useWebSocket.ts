@@ -45,6 +45,18 @@ export function useWebSocket() {
     socket.on("connect", () => {
       console.log("Connected to WebSocket.");
     });
+    // WhatsApp Event Listeners
+    socket.on("qr", (qrCode: string) => {
+      // Display QR code to the user for initial WhatsApp connection setup
+      console.log("QR Code for WhatsApp:", qrCode);
+      // Optionally, you could update some state to show the QR in the UI
+    });
+
+    socket.on("messageStatus", (status) => {
+      // Handle WhatsApp message status updates
+      console.log("WhatsApp message status:", status);
+      // Optionally, trigger notifications or update the UI based on the status
+    });
 
     socket.on("orderCreated", (order: Order) => {
       const tableId =
