@@ -547,5 +547,7 @@
   "Total Stock Value": "Total Stock Value",
   "Same day Last Month": "Same day Last Month",
   "Not Paid": "Not Paid",
+  "Created Table Count": "Created Table Count",
+  "Created Gameplay Count": "Created Gameplay Count",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }
