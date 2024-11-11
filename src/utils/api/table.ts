@@ -205,11 +205,11 @@ export function useTableMutations() {
 export function useGetPersonalTableCreateData() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<TablePersonalCreatePayload>(
-    `${Paths.Tables}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    `${Paths.Tables}/create_count?after=${filterPanelFormElements?.after}&before=${filterPanelFormElements?.before}`,
     [
       `${Paths.Tables}/create_count`,
-      filterPanelFormElements.after,
-      filterPanelFormElements.before,
+      filterPanelFormElements?.after,
+      filterPanelFormElements?.before,
     ]
   );
 }

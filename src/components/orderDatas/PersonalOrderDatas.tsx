@@ -1,19 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import {
-  commonDateOptions,
-  DateRangeKey,
-  Order,
-  OrderStatus,
-  Table,
-} from "../../types";
+import { commonDateOptions, DateRangeKey, Order } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetOrders } from "../../utils/api/order/order";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
+import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
+import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -34,6 +28,8 @@ interface PersonalOrderData {
   preparedByTables: Set<number>;
   cancelledByTables: Set<number>;
   deliveredByTables: Set<number>;
+  tableCount: number;
+  gameplayCount: number;
 }
 interface RoleDetail {
   key: keyof Order;
@@ -63,104 +59,34 @@ type PersonalOrderDataTables = Pick<
 
 const PersonalOrderDatas = () => {
   const { t } = useTranslation();
-  const orders = useGetOrders();
   const users = useGetUsers();
-  const discounts = useGetOrderDiscounts();
+  const personalOrderDatas = useGetPersonalOrderDatas();
+  const tableCreateDatas = useGetPersonalTableCreateData();
+  const gameplayDatas = useGetPersonalGameplayCreateData();
   const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
-  if (!orders || !users || !discounts) {
+  if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
     return null;
   }
 
-  const roles: RoleDetail[] = [
-    {
-      key: "createdBy",
-      countProp: "createdByCount",
-      tableProp: "createdByTables",
-      tableCountProp: "createdByTableCount",
-    },
-    {
-      key: "preparedBy",
-      countProp: "preparedByCount",
-      tableProp: "preparedByTables",
-      tableCountProp: "preparedByTableCount",
-    },
-    {
-      key: "cancelledBy",
-      countProp: "cancelledByCount",
-      tableProp: "cancelledByTables",
-      tableCountProp: "cancelledByTableCount",
-    },
-    {
-      key: "deliveredBy",
-      countProp: "deliveredByCount",
-      tableProp: "deliveredByTables",
-      tableCountProp: "deliveredByTableCount",
-    },
-  ];
-  const allRows: PersonalOrderData[] = orders.reduce<PersonalOrderData[]>(
-    (acc, order) => {
-      if (!order || !order.createdAt) {
-        return acc;
-      }
-      if (
-        !(
-          filterPanelFormElements.before === "" ||
-          format(order.createdAt, "yyyy-MM-dd") <=
-            filterPanelFormElements.before
-        ) ||
-        filterPanelFormElements.discount.includes(order.discount)
-      ) {
-        return acc;
-      }
-
-      roles.forEach(({ key, countProp, tableProp, tableCountProp }) => {
-        const userId = order[key as keyof Order];
-        const tableId = (order.table as Table)._id;
-        if (userId && tableId) {
-          let userRecord = acc.find((item) => item.user === userId);
-          if (!userRecord) {
-            userRecord = {
-              user: userId,
-              createdByCount: 0,
-              preparedByCount: 0,
-              cancelledByCount: 0,
-              deliveredByCount: 0,
-              createdByTableCount: 0,
-              preparedByTableCount: 0,
-              cancelledByTableCount: 0,
-              deliveredByTableCount: 0,
-              createdByTables: new Set<number>(),
-              preparedByTables: new Set<number>(),
-              cancelledByTables: new Set<number>(),
-              deliveredByTables: new Set<number>(),
-            };
-            acc.push(userRecord);
-          }
-          if (order.status === OrderStatus.CANCELLED) {
-            if (countProp === "cancelledByCount") {
-              userRecord[countProp]++;
-              if (userRecord[tableProp] instanceof Set) {
-                userRecord[tableProp].add(tableId as number);
-                userRecord[tableCountProp] = userRecord[tableProp].size;
-              }
-            }
-          } else {
-            userRecord[countProp]++;
-            if (userRecord[tableProp] instanceof Set) {
-              userRecord[tableProp].add(tableId as number);
-              userRecord[tableCountProp] = userRecord[tableProp].size;
-            }
-          }
-        }
-      });
-      return acc;
-    },
-    []
-  );
+  const allRows = personalOrderDatas.map((personalOrderData) => {
+    const foundTableData = tableCreateDatas.find(
+      (tableData) => tableData.createdBy === personalOrderData.user
+    );
+    const foundGameplayData = gameplayDatas.find(
+      (gameplayData) => gameplayData.mentor === personalOrderData.user
+    );
+    console.log(foundGameplayData);
+    console.log(personalOrderData.user);
+    return {
+      ...personalOrderData,
+      tableCount: foundTableData?.tableCount || 0,
+      gameplayCount: foundGameplayData?.gameplayCount || 0,
+    };
+  });
 
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -173,6 +99,8 @@ const PersonalOrderDatas = () => {
     { key: t("Table Count"), isSortable: true },
     { key: t("Cancelled By Count"), isSortable: true },
     { key: t("Table Count"), isSortable: true },
+    { key: t("Created Table Count"), isSortable: true },
+    { key: t("Created Gameplay Count"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -190,22 +118,10 @@ const PersonalOrderDatas = () => {
     { key: "deliveredByTableCount" },
     { key: "cancelledByCount" },
     { key: "cancelledByTableCount" },
+    { key: "tableCount" },
+    { key: "gameplayCount" },
   ];
   const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "discount",
-      label: t("Eliminate Discount"),
-      options: discounts.map((discount) => {
-        return {
-          value: discount._id,
-          label: discount.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Eliminate Discount"),
-      required: true,
-    },
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -282,9 +198,16 @@ const PersonalOrderDatas = () => {
     },
   ];
   useEffect(() => {
+    console.log(gameplayDatas);
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, users, filterPanelFormElements, discounts]);
+  }, [
+    users,
+    filterPanelFormElements,
+    personalOrderDatas,
+    tableCreateDatas,
+    gameplayDatas,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
