@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
 import { Location } from "../../types";
+import { useGetLocations } from "../../utils/api/location";
 
 interface Props {
   allowedLocations?: number[];
 }
 export function LocationSelector({ allowedLocations }: Props) {
   const { selectedLocationId } = useLocationContext();
-  const { locations, setSelectedLocationId } = useLocationContext();
+  const { setSelectedLocationId } = useLocationContext();
+  const locations = useGetLocations();
   const [showedLocations, setShowedLocations] = useState<Location[]>([]);
-  if (!locations) return null;
+
   useEffect(() => {
     if (allowedLocations) {
       setShowedLocations(

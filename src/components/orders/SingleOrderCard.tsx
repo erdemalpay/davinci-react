@@ -51,7 +51,6 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
   useEffect(() => {
     let intervalId: NodeJS.Timeout | number;
-
     if (
       order?.status === OrderStatus.CONFIRMATIONREQ &&
       user?.role?._id === RoleEnum.KITCHEN2
