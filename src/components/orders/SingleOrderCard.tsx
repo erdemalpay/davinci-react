@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { Order, OrderStatus, User } from "../../types";
+import { Order, OrderStatus, RoleEnum, User } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCreateOrderForDivideMutation,
@@ -20,21 +21,52 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const { updateOrder } = useOrderMutations();
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
+
   const users = useGetUsers();
   const items = useGetMenuItems();
+  const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
+  // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
+  orderCreatedSound.volume = 1;
+  const audioContext = new window.AudioContext();
+  const gainNode = audioContext.createGain();
+
+  // Set the gain to 2 (double the volume)
+  gainNode.gain.value = 2;
+  const source = audioContext.createMediaElementSource(orderCreatedSound);
+
+  // Connect the source to the gain node, and the gain node to the destination
+  source.connect(gainNode);
+  gainNode.connect(audioContext.destination);
   if (!items || !users) {
     return null;
   }
   const timerSetter = () => {
-    switch (order?.status) {
-      case OrderStatus.PENDING:
-        return order?.createdAt;
-      case OrderStatus.READYTOSERVE:
-        return order?.preparedAt;
-      default:
-        return order?.createdAt;
+    if (order?.status === OrderStatus.PENDING) {
+      return order?.createdAt;
+    } else if (order?.status === OrderStatus.READYTOSERVE) {
+      return order?.preparedAt;
+    } else {
+      return order?.createdAt;
     }
   };
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | number;
+
+    if (
+      order?.status === OrderStatus.CONFIRMATIONREQ &&
+      user?.role?._id === RoleEnum.KITCHEN2
+    ) {
+      intervalId = setInterval(() => {
+        orderCreatedSound
+          .play()
+          .catch((error) => console.error("Error playing sound:", error));
+      }, 10000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [order?.status, user?.role?._id]);
 
   return (
     <div className="flex flex-col justify-between border border-gray-200 rounded-lg bg-white shadow-sm  max-h-28 __className_a182b8  overflow-scroll no-scrollbar">
@@ -137,31 +169,29 @@ const SingleOrderCard = ({ order, user }: Props) => {
           {(order?.status === OrderStatus.READYTOSERVE ||
             (order?.confirmedAt && order?.status === OrderStatus.PENDING)) && (
             <div className="flex flex-row gap-2  ">
-              {user._id === order?.preparedBy && (
-                <button
-                  onClick={() => {
-                    if (order?.status === OrderStatus.PENDING) {
-                      updateOrder({
-                        id: order?._id,
-                        updates: {
-                          status: OrderStatus.CONFIRMATIONREQ,
-                        },
-                      });
-                    }
-                    if (order?.status === OrderStatus.READYTOSERVE) {
-                      updateOrder({
-                        id: order?._id,
-                        updates: {
-                          status: OrderStatus.PENDING,
-                        },
-                      });
-                    }
-                  }}
-                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
-                >
-                  {t("Back")}
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  if (order?.status === OrderStatus.PENDING) {
+                    updateOrder({
+                      id: order?._id,
+                      updates: {
+                        status: OrderStatus.CONFIRMATIONREQ,
+                      },
+                    });
+                  }
+                  if (order?.status === OrderStatus.READYTOSERVE) {
+                    updateOrder({
+                      id: order?._id,
+                      updates: {
+                        status: OrderStatus.PENDING,
+                      },
+                    });
+                  }
+                }}
+                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+              >
+                {t("Back")}
+              </button>
             </div>
           )}
           {/* pending ready button */}

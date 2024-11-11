@@ -427,9 +427,7 @@ export function useDeleteGameplayMutation() {
 export function useGetPersonalGameplayCreateData() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<GameplayPersonalCreatePayload>(
-    `${{ BASE_URL_GAMEPLAYS }}/create_count?after=${
-      filterPanelFormElements.after
-    }&before=${filterPanelFormElements.before}`,
+    `${BASE_URL_GAMEPLAYS}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
     [
       `${{ BASE_URL_GAMEPLAYS }}/create_count`,
       filterPanelFormElements.after,
