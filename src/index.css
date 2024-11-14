@@ -3,17 +3,15 @@
 @tailwind utilities;
 
 @layer utilities {
-  @variants responsive {
-    /* Hide scrollbar for Chrome, Safari, and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-
+  /* Utility to hide scrollbars across browsers */
+  .no-scrollbar {
     /* Hide scrollbar for IE, Edge, and Firefox */
-    .no-scrollbar {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
   }
 }
 
@@ -23,12 +21,20 @@
   margin: 0;
 }
 
+/* Apply the `no-scrollbar` utility only when you need to hide scrollbars */
+.scrollbar-hide {
+  overflow: auto; /* Maintain scrolling functionality */
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Additional styling for specific elements */
 body {
   overflow-x: hidden;
 }
+
 .react-datepicker__input-container input {
   @apply block w-full text-base md:text-sm bg-white border-0 border-b-[1px] rounded focus:outline-none;
 }
