@@ -20,12 +20,23 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { useLocationContext } from "../context/Location.context";
+import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { Game, Order, OrderStatus, Table, TableStatus, User } from "../types";
+import {
+  Game,
+  Order,
+  OrderStatus,
+  Table,
+  TableStatus,
+  TURKISHLIRA,
+  User,
+} from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetGames } from "../utils/api/game";
-import { useGetTodayOrders } from "../utils/api/order/order";
+import { useGetCategories } from "../utils/api/menu/category";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -41,7 +52,9 @@ const Tables = () => {
   const { setSelectedDate, selectedDate } = useDateContext();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
+  const { user } = useUserContext();
   const [showAllOrders, setShowAllOrders] = useState(true);
+  const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
@@ -51,10 +64,19 @@ const Tables = () => {
   const games = useGetGames();
   const visits = useGetVisits();
   const products = useGetAllAccountProducts();
+  const categories = useGetCategories();
+  const { createOrder } = useOrderMutations();
+  const menuItems = useGetMenuItems();
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
   const users = useGetUsers();
+  const [orderForm, setOrderForm] = useState({
+    item: 0,
+    quantity: 0,
+    note: "",
+    category: "",
+  });
   const consumptInputs = [
     {
       type: InputTypes.SELECT,
@@ -75,6 +97,79 @@ const Tables = () => {
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const menuItemOptions = menuItems
+    ?.filter((menuItem) => {
+      return (
+        !orderForm.category || menuItem.category === Number(orderForm.category)
+      );
+    })
+    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+    ?.map((menuItem) => {
+      return {
+        value: menuItem?._id,
+        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+      };
+    });
+
+  const orderInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      placeholder: t("Category"),
+      required: false,
+      isDisabled: true, // remove this line and make category selection visible again
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Product"),
+      options: menuItemOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: option.label,
+        };
+      }),
+      invalidateKeys: [
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+      ],
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: true,
+    },
+  ];
+
+  const orderFormKeys = [
+    { key: "category", type: FormKeyTypeEnum.STRING },
+    { key: "item", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
   // Sort users by name
@@ -196,6 +291,12 @@ const Tables = () => {
     return false;
   });
   const buttons: { label: string; onClick: () => void }[] = [
+    {
+      label: t("Loss Product"),
+      onClick: () => {
+        setIsLossProductModalOpen(true);
+      },
+    },
     {
       label: t("Product Consumption"),
       onClick: () => {
@@ -319,7 +420,7 @@ const Tables = () => {
               <div className="relative w-80 h-28 border border-gray-400 rounded-md ">
                 <div className="absolute inset-0 grid grid-cols-2 grid-rows-2   ">
                   <InfoBox
-                    title={t("Open Table")}
+                    title={t("Active Table")}
                     count={activeTableCount}
                     className="rounded-tl-2xl"
                   />
@@ -438,6 +539,53 @@ const Tables = () => {
           submitItem={consumptStock as any}
           buttonName={t("Submit")}
           topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {isLossProductModalOpen && (
+        <GenericAddEditPanel
+          isOpen={isLossProductModalOpen}
+          close={() => setIsLossProductModalOpen(false)}
+          inputs={orderInputs}
+          formKeys={orderFormKeys}
+          submitItem={createOrder as any}
+          isBlurFieldClickCloseEnabled={false}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+          }}
+          cancelButtonLabel="Close"
+          submitFunction={() => {
+            const selectedMenuItem = getItem(orderForm?.item, menuItems);
+            const selectedMenuItemCategory = getItem(
+              selectedMenuItem?.category,
+              categories
+            );
+            if (selectedMenuItem && user) {
+              createOrder({
+                ...orderForm,
+                location: selectedLocationId,
+                unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
+                deliveredAt: new Date(),
+                deliveredBy: user?._id,
+                preparedAt: new Date(),
+                preparedBy: user?._id,
+                status: OrderStatus.WASTED,
+                kitchen: selectedMenuItemCategory?.kitchen,
+                stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+              });
+            }
+            setOrderForm({
+              item: 0,
+              quantity: 0,
+              note: "",
+              category: "",
+            });
+          }}
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          topClassName="flex flex-col gap-2   "
         />
       )}
     </>

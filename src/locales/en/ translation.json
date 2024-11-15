@@ -550,5 +550,7 @@
   "Created Table Count": "Created Table Count",
   "Created Gameplay Count": "Created Gameplay Count",
   "Product Consumption": "Product Consumption",
+  "Loss Product": "Loss Product",
+  "Active Table": "Active Table",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

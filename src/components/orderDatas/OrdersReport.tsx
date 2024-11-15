@@ -49,6 +49,7 @@ const OrdersReport = () => {
     { value: "served", label: t("Served") },
     { value: "cancelled", label: t("Cancelled") },
     { value: "autoserved", label: t("Auto served") },
+    { value: "wasted", label: t("Loss Product") },
   ];
   const allRows = orders
     .map((order) => {

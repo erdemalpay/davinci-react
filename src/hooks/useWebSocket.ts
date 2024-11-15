@@ -48,10 +48,15 @@ export function useWebSocket() {
 
     socket.on("orderCreated", (order: Order) => {
       const tableId =
-        typeof order.table === "number" ? order.table : order.table._id;
+        typeof order?.table === "number" ? order?.table : order?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
-      if (order?.createdBy === user?._id) {
+      if (
+        order?.createdBy === user?._id ||
+        [OrderStatus.WASTED, OrderStatus.CANCELLED].includes(
+          order?.status as OrderStatus
+        )
+      ) {
         return;
       }
       // Play order created sound
@@ -81,9 +86,9 @@ export function useWebSocket() {
     });
     socket.on("orderUpdated", (data) => {
       const tableId =
-        typeof data?.order.table === "number"
-          ? data?.order.table
-          : data?.order.table._id;
+        typeof data?.order?.table === "number"
+          ? data?.order?.table
+          : data?.order?.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
     });

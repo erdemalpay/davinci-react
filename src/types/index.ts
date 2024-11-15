@@ -342,7 +342,7 @@ export type Order = {
   _id: number;
   location: number;
   item: number;
-  table: Table | number;
+  table?: Table | number;
   quantity: number;
   status: string;
   note?: string;
@@ -685,6 +685,7 @@ export enum OrderStatus {
   SERVED = "served",
   CANCELLED = "cancelled",
   AUTOSERVED = "autoserved",
+  WASTED = "wasted",
 }
 
 export enum OrderCollectionStatus {
