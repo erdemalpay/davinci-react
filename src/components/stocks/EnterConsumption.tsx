@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocationContext } from "../../context/Location.context";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -12,9 +13,17 @@ const EnterConsumption = () => {
   const { mutate: consumptStock } = useConsumptStockMutation();
   const products = useGetAccountProducts();
   const locations = useGetAccountStockLocations();
+  const { selectedLocationId } = useLocationContext();
+  const getLocation = (locationId: number) => {
+    if (locationId === 1) {
+      return "bahceli";
+    } else if (locationId === 2) {
+      return "neorama";
+    }
+  };
   const [form, setForm] = useState({
     product: "",
-    location: "",
+    location: selectedLocationId ? getLocation(selectedLocationId) : "",
     quantity: 0,
   });
   const consumptInputs = [
@@ -43,6 +52,9 @@ const EnterConsumption = () => {
   return (
     <GenericAddComponent
       inputs={consumptInputs}
+      constantValues={{
+        location: selectedLocationId ? getLocation(selectedLocationId) : "",
+      }}
       header={t("Enter Product Consumption")}
       formKeys={consumptFormKeys}
       setForm={setForm}
