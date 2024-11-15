@@ -1,5 +1,11 @@
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderDiscount, Table, TURKISHLIRA } from "../../../../types";
+import {
+  Order,
+  OrderDiscount,
+  OrderDiscountStatus,
+  Table,
+  TURKISHLIRA,
+} from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import OrderScreenHeader from "./OrderScreenHeader";
 
@@ -9,7 +15,9 @@ type Props = {
 };
 
 const DiscountScreen = ({ tableOrders, table }: Props) => {
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const {
     setIsProductSelectionOpen,
     setSelectedDiscount,

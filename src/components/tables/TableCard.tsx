@@ -16,6 +16,7 @@ import {
   Gameplay,
   MenuItem,
   Order,
+  OrderDiscountStatus,
   OrderStatus,
   TURKISHLIRA,
   Table,
@@ -91,7 +92,9 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutation();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const locations = useGetAccountStockLocations();
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();

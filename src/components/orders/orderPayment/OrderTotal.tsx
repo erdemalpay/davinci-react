@@ -1,7 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderCollection, Table } from "../../../types";
+import {
+  Order,
+  OrderCollection,
+  OrderDiscountStatus,
+  Table,
+} from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../utils/getItem";
@@ -23,7 +28,9 @@ const OrderTotal = ({
   givenDateOrders,
 }: Props) => {
   const { t } = useTranslation();
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const items = useGetMenuItems();
   if (!tableOrders || !discounts || !items) {
     return null;

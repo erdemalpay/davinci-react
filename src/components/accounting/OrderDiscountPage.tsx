@@ -4,15 +4,17 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
-import { OrderDiscount, RoleEnum } from "../../types";
+import { OrderDiscount, OrderDiscountStatus, RoleEnum } from "../../types";
 import {
   useGetOrderDiscounts,
   useOrderDiscountMutations,
 } from "../../utils/api/order/orderDiscount";
 import { NameInput } from "../../utils/panelInputs";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
@@ -27,9 +29,18 @@ const OrderDiscountPage = () => {
   const orderDiscounts = useGetOrderDiscounts();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
+  const [showInactiveDiscounts, setShowInactiveDiscounts] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<OrderDiscount>();
+  const userCondition =
+    (user &&
+      [
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)) ??
+    false;
   const [form, setForm] = useState<FormElementsState>({
     name: "",
     type: "",
@@ -52,12 +63,7 @@ const OrderDiscountPage = () => {
     { key: t("Online Order"), isSortable: false },
     { key: t("Note Required"), isSortable: false },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
-  ) {
+  if (userCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
   const rowKeys = [
@@ -211,7 +217,12 @@ const OrderDiscountPage = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteOrderDiscount(rowToAction?._id);
+            updateOrderDiscount({
+              id: rowToAction._id,
+              updates: {
+                status: OrderDiscountStatus.DELETED,
+              },
+            });
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Discount")}
@@ -234,7 +245,9 @@ const OrderDiscountPage = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: `text-blue-500 cursor-pointer text-xl ${
+        !showInactiveDiscounts ? "mr-auto" : ""
+      }`,
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -261,10 +274,47 @@ const OrderDiscountPage = () => {
           ].includes(user?.role?._id)
         : true,
     },
+    {
+      name: t("Toggle Active"),
+      isDisabled: !showInactiveDiscounts,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2 mr-auto">
+          <CheckSwitch
+            checked={row.status !== OrderDiscountStatus.DELETED}
+            onChange={() => {
+              updateOrderDiscount({
+                id: row._id,
+                updates: {
+                  status:
+                    row.status === OrderDiscountStatus.DELETED
+                      ? ""
+                      : OrderDiscountStatus.DELETED,
+                },
+              });
+            }}
+          ></CheckSwitch>
+        </div>
+      ),
+    },
+  ];
+  const filters = [
+    {
+      label: t("Show Inactive Discounts"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={showInactiveDiscounts}
+          onChange={setShowInactiveDiscounts}
+        />
+      ),
+    },
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [orderDiscounts]);
+  }, [orderDiscounts, showInactiveDiscounts, user]);
 
   return (
     <>
@@ -274,18 +324,18 @@ const OrderDiscountPage = () => {
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
-          rows={orderDiscounts}
+          rows={
+            showInactiveDiscounts
+              ? orderDiscounts
+              : orderDiscounts.filter(
+                  (orderDiscount) =>
+                    orderDiscount.status !== OrderDiscountStatus.DELETED
+                )
+          }
           title={t("Discounts")}
           addButton={addButton}
-          isActionsActive={
-            user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
-              : false
-          }
+          filters={userCondition ? filters : []}
+          isActionsActive={userCondition}
         />
       </div>
     </>

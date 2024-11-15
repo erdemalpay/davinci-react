@@ -1,6 +1,6 @@
 import { Tooltip } from "@material-tailwind/react";
 import { MdOutlineOnlinePrediction } from "react-icons/md";
-import { Order, OrderStatus } from "../../../../types";
+import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
 import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
@@ -11,7 +11,9 @@ type Props = {
   tableOrders: Order[];
 };
 const PaidOrders = ({ tableOrders }: Props) => {
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const items = useGetMenuItems();
   if (!discounts || !items) return null;
   const renderPayment = (order: Order) => {

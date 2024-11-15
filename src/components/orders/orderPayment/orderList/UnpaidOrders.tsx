@@ -7,7 +7,7 @@ import {
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderStatus } from "../../../../types";
+import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
 import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
 import {
   useCancelOrderForDiscountMutation,
@@ -30,7 +30,9 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
     useCancelOrderForDiscountMutation();
   const { updateOrder } = useOrderMutations();
   const items = useGetMenuItems();
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const discountAmount = tableOrders.reduce((acc, order) => {
     if (!order?.discount) {
       return acc;

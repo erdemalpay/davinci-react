@@ -6,7 +6,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuCategory } from "../../types";
+import { MenuCategory, OrderDiscountStatus } from "../../types";
 import {
   useCategoryMutations,
   useUpdateCategoriesOrderMutation,
@@ -35,7 +35,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isCategoryTableEditOpen,
     setIsCategoryTableEditOpen,
   } = useGeneralContext();
-  const discounts = useGetOrderDiscounts();
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
   const kitchens = useGetKitchens();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();

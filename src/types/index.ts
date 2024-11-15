@@ -399,7 +399,11 @@ export type OrderDiscount = {
   amount?: number;
   isNoteRequired?: boolean;
   isOnlineOrder?: boolean;
+  status?: string;
 };
+export enum OrderDiscountStatus {
+  DELETED = "deleted",
+}
 
 export type Activity = {
   _id: number;
