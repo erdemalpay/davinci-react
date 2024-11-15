@@ -113,6 +113,7 @@ const GameStock = () => {
             totalGroupPrice: 0,
             totalQuantity: 0,
             menuPrice: rowItem?.price ?? "",
+            onlineMenuPrice: rowItem?.onlinePrice ?? "",
             collapsible: {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
@@ -181,6 +182,7 @@ const GameStock = () => {
     { key: t("Quantity"), isSortable: true, correspondingKey: "totalQuantity" },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
+    { key: t("Online Price"), isSortable: true, correspondingKey: "menuPrice" },
     { key: t("Total Price"), isSortable: true },
   ];
   const rowKeys = [
@@ -195,6 +197,15 @@ const GameStock = () => {
       node: (row: any) => {
         if (row?.menuPrice) {
           return <div>{formatPrice(row.menuPrice)} ₺</div>;
+        }
+        return <></>;
+      },
+    },
+    {
+      key: "onlineMenuPrice",
+      node: (row: any) => {
+        if (row?.onlineMenuPrice) {
+          return <div>{formatPrice(row.onlineMenuPrice)} ₺</div>;
         }
         return <></>;
       },
@@ -407,6 +418,7 @@ const GameStock = () => {
             prdct: productName,
             unitPrice,
             menuPrice: rowItem?.price ?? "",
+            onlineMenuPrice: rowItem?.onlinePrice ?? "",
             totalGroupPrice: 0,
             totalQuantity: 0,
             collapsible: {
