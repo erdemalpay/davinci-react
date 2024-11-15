@@ -26,6 +26,7 @@ import {
   Game,
   Order,
   OrderStatus,
+  StockHistoryStatusEnum,
   Table,
   TableStatus,
   TURKISHLIRA,
@@ -571,6 +572,7 @@ const Tables = () => {
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
                 stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+                stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
               });
             }
             setOrderForm({

@@ -367,6 +367,7 @@ export type Order = {
   stockLocation?: string;
   [key: string]: any;
   kitchen: string;
+  stockNote?: string;
 };
 
 export type OrderCollection = {
@@ -570,6 +571,7 @@ export enum StockHistoryStatusEnum {
   ORDERCREATE = "ORDERCREATE",
   STOCKEQUALIZE = "STOCKEQUALIZE",
   STOCKTRANSFER = "STOCKTRANSFER",
+  LOSSPRODUCT = "LOSSPRODUCT",
 }
 export enum OrderDataTabEnum {
   DAILYINCOME,
@@ -671,6 +673,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.STOCKTRANSFER,
     label: "Stock Transfer",
     backgroundColor: "bg-yellow-800",
+  },
+  {
+    value: StockHistoryStatusEnum.LOSSPRODUCT,
+    label: "Loss Product",
+    backgroundColor: "bg-red-800",
   },
 ];
 
