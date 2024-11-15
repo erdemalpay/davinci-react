@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { getStockLocation } from "../../utils/getStockLocation";
 import { QuantityInput, StockLocationInput } from "../../utils/panelInputs";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -14,18 +14,6 @@ const EnterConsumption = () => {
   const products = useGetAccountProducts();
   const locations = useGetAccountStockLocations();
   const { selectedLocationId } = useLocationContext();
-  const getLocation = (locationId: number) => {
-    if (locationId === 1) {
-      return "bahceli";
-    } else if (locationId === 2) {
-      return "neorama";
-    }
-  };
-  const [form, setForm] = useState({
-    product: "",
-    location: selectedLocationId ? getLocation(selectedLocationId) : "",
-    quantity: 0,
-  });
   const consumptInputs = [
     {
       type: InputTypes.SELECT,
@@ -53,11 +41,12 @@ const EnterConsumption = () => {
     <GenericAddComponent
       inputs={consumptInputs}
       constantValues={{
-        location: selectedLocationId ? getLocation(selectedLocationId) : "",
+        location: selectedLocationId
+          ? getStockLocation(selectedLocationId)
+          : "",
       }}
       header={t("Enter Product Consumption")}
       formKeys={consumptFormKeys}
-      setForm={setForm}
       submitItem={consumptStock as any}
       buttonName={t("Submit")}
       topClassName="flex flex-col gap-2 "

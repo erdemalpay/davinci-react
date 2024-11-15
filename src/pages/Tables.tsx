@@ -6,16 +6,24 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import InfoBox from "../components/panelComponents/FormElements/InfoBox";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
+import { useLocationContext } from "../context/Location.context";
 import { Routes } from "../navigation/constants";
 import { Game, Order, OrderStatus, Table, TableStatus, User } from "../types";
+import { useGetAllAccountProducts } from "../utils/api/account/product";
+import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetGames } from "../utils/api/game";
 import { useGetTodayOrders } from "../utils/api/order/order";
 import { useGetTables } from "../utils/api/table";
@@ -23,6 +31,8 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
+import { getStockLocation } from "../utils/getStockLocation";
+import { QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 
 const Tables = () => {
@@ -34,14 +44,38 @@ const Tables = () => {
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
+  const { selectedLocationId } = useLocationContext();
+  const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
+  const { mutate: consumptStock } = useConsumptStockMutation();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
+  const products = useGetAllAccountProducts();
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
   const users = useGetUsers();
-
+  const consumptInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products?.map((product) => {
+        return {
+          value: product._id,
+          label: product.name,
+        };
+      }),
+      placeholder: t("Product"),
+      required: true,
+    },
+    QuantityInput({ required: true }),
+  ];
+  const consumptFormKeys = [
+    { key: "product", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   tables.sort(sortTable);
   // Sort users by name
   users.sort((a: User, b: User) => {
@@ -162,6 +196,12 @@ const Tables = () => {
     return false;
   });
   const buttons: { label: string; onClick: () => void }[] = [
+    {
+      label: t("Product Consumption"),
+      onClick: () => {
+        setIsConsumptModalOpen(true);
+      },
+    },
     {
       label: t("Open Reservations"),
       onClick: () => {
@@ -382,6 +422,22 @@ const Tables = () => {
         <CreateTableDialog
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
+        />
+      )}
+      {isConsumptModalOpen && (
+        <GenericAddEditPanel
+          close={() => setIsConsumptModalOpen(false)}
+          inputs={consumptInputs}
+          constantValues={{
+            location: selectedLocationId
+              ? getStockLocation(selectedLocationId)
+              : "",
+          }}
+          isOpen={isConsumptModalOpen}
+          formKeys={consumptFormKeys}
+          submitItem={consumptStock as any}
+          buttonName={t("Submit")}
+          topClassName="flex flex-col gap-2 "
         />
       )}
     </>
