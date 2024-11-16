@@ -27,9 +27,9 @@ import {
   Order,
   OrderStatus,
   StockHistoryStatusEnum,
+  TURKISHLIRA,
   Table,
   TableStatus,
-  TURKISHLIRA,
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
@@ -291,18 +291,24 @@ const Tables = () => {
 
     return false;
   });
-  const buttons: { label: string; onClick: () => void }[] = [
+  const buttons: {
+    label: string;
+    onClick: () => void;
+    hideOnMobile?: boolean;
+  }[] = [
     {
       label: t("Loss Product"),
       onClick: () => {
         setIsLossProductModalOpen(true);
       },
+      hideOnMobile: true,
     },
     {
       label: t("Product Consumption"),
       onClick: () => {
         setIsConsumptModalOpen(true);
       },
+      hideOnMobile: true,
     },
     {
       label: t("Open Reservations"),
@@ -389,7 +395,9 @@ const Tables = () => {
                 <button
                   key={index}
                   onClick={button.onClick}
-                  className="min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm"
+                  className={`min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm md:block ${
+                    button.hideOnMobile ? "hidden" : ""
+                  }`}
                 >
                   {button.label}
                 </button>
