@@ -52,7 +52,7 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (
-        order?.createdBy === user?._id ||
+        // order?.createdBy === user?._id ||
         [
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
@@ -118,12 +118,11 @@ export function useWebSocket() {
     });
 
     socket.on("disconnect", () => {
-      queryClient.invalidateQueries([`${Paths.MenuItems}`]); //TODO: this improves performance a bit but not a great way to do. when creating a new item the websocket disconnects and reconnects.To not to loose the item data i added here. Need to find a better way .
       console.log("Disconnected from WebSocket");
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [queryClient, categories, user, selectedLocationId, items]);
+  }, [queryClient, categories, user, selectedLocationId]);
 }

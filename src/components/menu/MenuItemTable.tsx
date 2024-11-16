@@ -25,7 +25,6 @@ import {
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import {
-  useGetMenuItems,
   useMenuItemMutations,
   useUpdateItemsOrderMutation,
 } from "../../utils/api/menu/menu-item";
@@ -56,7 +55,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { i18n } = useTranslation();
   const products = useGetAllAccountProducts();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
-  const items = useGetMenuItems();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
@@ -627,13 +625,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   ];
   useEffect(() => {
     setRows(allRows);
-    console.log("page reset");
     setTableKey((prev) => prev + 1);
   }, [
     singleItemGroup.items,
     products,
     i18n.language,
-    items,
     expenseTypes,
     brands,
     vendors,

@@ -14,6 +14,7 @@ type Props = {
   additionalOpenAction?: () => void;
   topClassName?: string;
   filters?: React.ReactNode[];
+  isLanguageChange?: boolean;
 };
 
 const TabPanel: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const TabPanel: React.FC<Props> = ({
   additionalOpenAction,
   topClassName,
   filters,
+  isLanguageChange = true,
 }) => {
   const { t } = useTranslation();
   const adjustedTabs = tabs
@@ -99,7 +101,9 @@ const TabPanel: React.FC<Props> = ({
                 onClick={() => handleTabChange(tab)}
               >
                 {tab.icon}
-                <P1 className="w-max">{t(tab.label)}</P1>
+                <P1 className="w-max">
+                  {isLanguageChange ? t(tab.label) : tab.label}
+                </P1>
               </div>
             ))}
           <div
