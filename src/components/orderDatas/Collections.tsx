@@ -48,32 +48,32 @@ const Collections = () => {
         return null;
       }
       const paymentMethod = paymentMethods.find(
-        (method) => method._id === collection.paymentMethod
+        (method) => method._id === collection?.paymentMethod
       );
       return {
-        _id: collection._id,
-        cashier: getItem(collection.createdBy, users)?.name,
-        orders: collection.orders,
+        _id: collection?._id,
+        cashier: getItem(collection?.createdBy, users)?.name,
+        orders: collection?.orders,
         cancelledBy: getItem(collection?.cancelledBy, users)?.name,
         cancelledById: collection?.cancelledBy,
-        date: format(collection.createdAt, "yyyy-MM-dd"),
+        date: format(collection?.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(
-          format(collection.createdAt, "yyyy-MM-dd")
+          format(collection?.createdAt, "yyyy-MM-dd")
         ),
         cancelledAt: collection?.cancelledAt
-          ? format(collection.cancelledAt, "HH:mm")
+          ? format(collection?.cancelledAt, "HH:mm")
           : "",
-        hour: format(collection.createdAt, "HH:mm"),
+        hour: format(collection?.createdAt, "HH:mm"),
         paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
-        paymentMethodId: collection.paymentMethod,
-        tableId: (collection.table as Table)._id,
-        tableName: (collection.table as Table).name,
-        location: collection.location,
+        paymentMethodId: collection?.paymentMethod,
+        tableId: (collection?.table as Table)?._id,
+        tableName: (collection?.table as Table)?.name,
+        location: collection?.location,
         createdBy: collection?.createdBy,
-        amount: collection.amount.toFixed(2),
-        cancelNote: collection.cancelNote ?? "",
-        locationName: getItem(collection.location, locations)?.name,
-        status: collection.status,
+        amount: collection?.amount.toFixed(2),
+        cancelNote: collection?.cancelNote ?? "",
+        locationName: getItem(collection?.location, locations)?.name,
+        status: collection?.status,
         collapsible: {
           collapsibleHeader: t("Orders"),
           collapsibleColumns: [

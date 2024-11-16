@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -35,9 +36,13 @@ const DailyIncome = () => {
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   const allRows = collections
-    ?.filter((collection) => collection.status === OrderCollectionStatus.PAID)
+    ?.filter(
+      (collection) => collection.status !== OrderCollectionStatus.CANCELLED
+    )
     ?.reduce((acc, collection) => {
-      const tableDate = (collection.table as Table)?.date;
+      const tableDate =
+        (collection?.table as Table)?.date ??
+        format(collection.createdAt, "yyyy-MM-dd");
       if (!collection || !tableDate) return acc;
       if (
         filterPanelFormElements.location !== "" &&
@@ -89,7 +94,7 @@ const DailyIncome = () => {
       acc[method._id] = allRows.reduce((sum, row) => sum + row[method._id], 0);
       return acc;
     }, {} as any),
-    total: allRows.reduce((acc, row) => acc + row.total, 0),
+    total: allRows.reduce((acc, row) => acc + row?.total, 0),
     className: "font-semibold",
     isSortable: false,
   });
@@ -110,8 +115,8 @@ const DailyIncome = () => {
     node: (row: any) => {
       return (
         <p className={`${row?.className}`}>
-          {row[method._id] > 0 &&
-            row[method._id].toFixed(2) + " " + TURKISHLIRA}
+          {row[method._id] !== 0 &&
+            row[method._id]?.toFixed(2) + " " + TURKISHLIRA}
         </p>
       );
     },
@@ -121,7 +126,7 @@ const DailyIncome = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.formattedDate}</p>;
+        return <p className={`${row?.className}`}>{row?.formattedDate}</p>;
       },
     },
     ...paymentMethodRowKeys,
@@ -130,7 +135,7 @@ const DailyIncome = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row.total > 0 && row.total.toFixed(2) + " " + TURKISHLIRA}
+            {row?.total !== 0 && row?.total?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
       },

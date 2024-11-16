@@ -2,25 +2,36 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PiArrowArcLeftBold } from "react-icons/pi";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
-import { commonDateOptions, DateRangeKey, Table } from "../../types";
+import {
+  commonDateOptions,
+  DateRangeKey,
+  OrderStatus,
+  Table,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrders } from "../../utils/api/order/order";
+import {
+  useGetOrders,
+  useReturnOrdersMutation,
+} from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { LocationInput } from "../../utils/panelInputs";
+import { LocationInput, QuantityInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const OrdersReport = () => {
@@ -38,18 +49,28 @@ const OrdersReport = () => {
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
+  const [isReturnOrderModalOpen, setIsReturnOrderModalOpen] = useState(false);
+  const { mutate: returnOrder } = useReturnOrdersMutation();
+  const [returnOrderForm, setReturnOrderForm] = useState<any>({
+    quantity: 0,
+  });
+  const returnOrderInputs = [QuantityInput()];
+  const returnOrderFormElements = [
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useOrderContext();
   if (!orders || !locations || !users || !discounts) {
     return null;
   }
   const statusOptions = [
-    { value: "pending", label: t("Pending") },
-    { value: "ready_to_server", label: t("Ready to Serve") },
-    { value: "served", label: t("Served") },
-    { value: "cancelled", label: t("Cancelled") },
-    { value: "autoserved", label: t("Auto served") },
-    { value: "wasted", label: t("Loss Product") },
+    { value: OrderStatus.PENDING, label: t("Pending") },
+    { value: OrderStatus.READYTOSERVE, label: t("Ready to Serve") },
+    { value: OrderStatus.SERVED, label: t("Served") },
+    { value: OrderStatus.CANCELLED, label: t("Cancelled") },
+    { value: OrderStatus.AUTOSERVED, label: t("Auto served") },
+    { value: OrderStatus.WASTED, label: t("Loss Product") },
+    { value: OrderStatus.RETURNED, label: t("Returned") },
   ];
   const allRows = orders
     .map((order) => {
@@ -58,6 +79,7 @@ const OrdersReport = () => {
       }
       return {
         _id: order._id,
+        isReturned: order?.isReturned,
         date: format(order.createdAt, "yyyy-MM-dd"),
         formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
         createdBy: getItem(order.createdBy, users)?.name ?? "",
@@ -165,6 +187,7 @@ const OrdersReport = () => {
     },
     { key: t("Location"), isSortable: true, correspondingKey: "location" },
     { key: t("Status"), isSortable: true, correspondingKey: "status" },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -378,6 +401,52 @@ const OrdersReport = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const actions = [
+    {
+      name: t("Return"),
+      icon: <PiArrowArcLeftBold />,
+      className: "text-blue-500 cursor-pointer text-xl mx-auto",
+      isModal: true,
+      setRow: setRowToAction,
+      setForm: setReturnOrderForm,
+      onClick: (row: any) => {
+        setReturnOrderForm({
+          quantity: row.quantity,
+        });
+      },
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isReturnOrderModalOpen}
+          close={() => setIsReturnOrderModalOpen(false)}
+          inputs={returnOrderInputs}
+          formKeys={returnOrderFormElements}
+          submitItem={returnOrder as any}
+          submitFunction={() => {
+            if (
+              returnOrderForm.quantity <= 0 ||
+              returnOrderForm.quantity > rowToAction.quantity
+            ) {
+              toast.error("Invalid Quantity");
+              return;
+            }
+            returnOrder({
+              orderId: rowToAction._id,
+              returnQuantity: returnOrderForm.quantity,
+            });
+          }}
+          constantValues={{
+            quantity: rowToAction.quantity,
+          }}
+          topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-visible"
+        />
+      ) : null,
+
+      isModalOpen: isReturnOrderModalOpen,
+      setIsModal: setIsReturnOrderModalOpen,
+      isPath: false,
+    },
+  ];
   useEffect(() => {
     const filteredRows = allRows.filter((row: any) => {
       return (
@@ -415,11 +484,18 @@ const OrdersReport = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
-          isActionsActive={false}
+          isActionsActive={true}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}
+          actions={actions}
           excelFileName={t("Orders.xlsx")}
+          rowClassNameFunction={(row: any) => {
+            if (row?.isReturned) {
+              return "bg-red-200";
+            }
+            return "";
+          }}
         />
         {isOrderPaymentModalOpen && rowToAction && (
           <OrderPaymentModal

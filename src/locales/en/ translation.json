@@ -553,5 +553,8 @@
   "Loss Product": "Loss Product",
   "Active Table": "Active Table",
   "Show Inactive Discounts": "Show Inactive Discounts",
+  "Order Return": "Order Return",
+  "Returned": "Returned",
+  "Return": "Return",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

@@ -366,7 +366,7 @@ export type Order = {
   discountNote?: string;
   stockLocation?: string;
   [key: string]: any;
-  kitchen: string;
+  kitchen?: string;
   stockNote?: string;
 };
 
@@ -383,7 +383,7 @@ export type OrderCollection = {
   paymentMethod: string;
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
-  table: Table | number;
+  table?: Table | number;
   stockLocation?: string;
 };
 
@@ -576,6 +576,7 @@ export enum StockHistoryStatusEnum {
   STOCKEQUALIZE = "STOCKEQUALIZE",
   STOCKTRANSFER = "STOCKTRANSFER",
   LOSSPRODUCT = "LOSSPRODUCT",
+  ORDERRETURN = "ORDERRETURN",
 }
 export enum OrderDataTabEnum {
   DAILYINCOME,
@@ -683,6 +684,11 @@ export const stockHistoryStatuses = [
     label: "Loss Product",
     backgroundColor: "bg-red-800",
   },
+  {
+    value: StockHistoryStatusEnum.ORDERRETURN,
+    label: "Order Return",
+    backgroundColor: "bg-purple-800",
+  },
 ];
 
 export enum ExpenseTypes {
@@ -697,11 +703,13 @@ export enum OrderStatus {
   CANCELLED = "cancelled",
   AUTOSERVED = "autoserved",
   WASTED = "wasted",
+  RETURNED = "returned",
 }
 
 export enum OrderCollectionStatus {
   PAID = "paid",
   CANCELLED = "cancelled",
+  RETURNED = "returned",
 }
 export enum TableStatus {
   CANCELLED = "cancelled",

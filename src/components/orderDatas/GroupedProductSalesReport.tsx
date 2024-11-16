@@ -70,9 +70,9 @@ const GroupedProductSalesReport = () => {
       }
       if (
         (filterPanelFormElements?.before !== "" &&
-          (order?.table as Table).date > filterPanelFormElements.before) ||
+          (order?.table as Table)?.date > filterPanelFormElements.before) ||
         (filterPanelFormElements?.after !== "" &&
-          (order?.table as Table).date < filterPanelFormElements.after) ||
+          (order?.table as Table)?.date < filterPanelFormElements.after) ||
         (filterPanelFormElements?.category?.length > 0 &&
           !filterPanelFormElements.category.some((category: any) =>
             passesFilter(category, getItem(order?.item, items)?.category)
@@ -132,7 +132,7 @@ const GroupedProductSalesReport = () => {
             : (order?.discountAmount ?? 0) * order?.paidQuantity,
           amount: order?.paidQuantity * order?.unitPrice,
           location: order?.location,
-          date: (order?.table as Table).date,
+          date: (order?.table as Table)?.date,
           category:
             categories?.find(
               (category) =>

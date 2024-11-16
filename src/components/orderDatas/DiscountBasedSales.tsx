@@ -68,7 +68,12 @@ const DiscountBasedSales = () => {
     useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
-    ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+    ?.filter(
+      (order) =>
+        ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
+          order.status as OrderStatus
+        )
+    )
     ?.reduce((acc, order) => {
       if (!order?.discount || order?.paidQuantity === 0) {
         return acc;
@@ -83,7 +88,9 @@ const DiscountBasedSales = () => {
       }
 
       // Date filters
-      const orderDate = new Date((order?.table as Table).date);
+      const orderDate = (order?.table as Table)?.date
+        ? new Date((order?.table as Table)?.date)
+        : order.createdAt;
       const beforeDate = filterPanelFormElements.before
         ? new Date(filterPanelFormElements.before)
         : null;
@@ -168,16 +175,16 @@ const DiscountBasedSales = () => {
             {
               key: "tables",
               node: (row: any) => {
-                return row.tables?.map((table: Table) => (
+                return row?.tables?.map((table: Table) => (
                   <p
-                    key={table._id} // Unique key for each item in the list
+                    key={table?._id} // Unique key for each item in the list
                     className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
                     onClick={() => {
-                      setSelectedTableId(table._id);
+                      setSelectedTableId(table?._id);
                       setIsOrderPaymentModalOpen(true);
                     }}
                   >
-                    {table._id}
+                    {table?._id}
                   </p>
                 ));
               },
@@ -223,16 +230,16 @@ const DiscountBasedSales = () => {
               {
                 key: "tables",
                 node: (row: any) => {
-                  return row.tables?.map((table: Table) => (
+                  return row?.tables?.map((table: Table) => (
                     <p
-                      key={table._id} // Unique key for each item in the list
+                      key={table?._id} // Unique key for each item in the list
                       className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
                       onClick={() => {
-                        setSelectedTableId(table._id);
+                        setSelectedTableId(table?._id);
                         setIsOrderPaymentModalOpen(true);
                       }}
                     >
-                      {table._id}
+                      {table?._id}
                     </p>
                   ));
                 },
@@ -288,14 +295,16 @@ const DiscountBasedSales = () => {
     {
       key: "discountName",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.discountName}</p>;
+        return <p className={`${row?.className}`}>{row?.discountName}</p>;
       },
     },
     {
       key: "paidQuantity",
       node: (row: any) => {
         return (
-          <p className={`${row?.className} text-center `}>{row.paidQuantity}</p>
+          <p className={`${row?.className} text-center `}>
+            {row?.paidQuantity}
+          </p>
         );
       },
     },

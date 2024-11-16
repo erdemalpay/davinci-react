@@ -92,7 +92,9 @@ const SingleProductSalesReport = () => {
         amount: order?.paidQuantity * order?.unitPrice,
         location: order?.location,
         date: (order?.table as Table)?.date,
-        formattedDate: formatAsLocalDate((order?.table as Table)?.date),
+        formattedDate: (order?.table as Table)?.date
+          ? formatAsLocalDate((order?.table as Table)?.date)
+          : "",
         category:
           categories?.find(
             (category) =>

@@ -53,9 +53,11 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (
         order?.createdBy === user?._id ||
-        [OrderStatus.WASTED, OrderStatus.CANCELLED].includes(
-          order?.status as OrderStatus
-        )
+        [
+          OrderStatus.WASTED,
+          OrderStatus.CANCELLED,
+          OrderStatus.RETURNED,
+        ].includes(order?.status as OrderStatus)
       ) {
         return;
       }
@@ -72,6 +74,7 @@ export function useWebSocket() {
         ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
           user?.role?._id as RoleEnum
         ) &&
+          order?.kitchen &&
           !["flora", "farm"].includes(order?.kitchen) &&
           selectedLocationId &&
           order?.location === selectedLocationId) ||

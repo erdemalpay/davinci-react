@@ -53,14 +53,14 @@ const CollectionModal = ({
     return null;
   }
   const allRows = collections
-    .filter((collection) => (collection.table as Table)._id === table)
+    .filter((collection) => (collection?.table as Table)?._id === table)
     .map((collection) => {
       const paymentMethod = paymentMethods.find(
         (method) => method._id === collection.paymentMethod
       );
       return {
         _id: collection._id,
-        table: (collection.table as Table)._id,
+        table: (collection?.table as Table)?._id,
         cashier: getItem(collection?.createdBy, users)?.name,
         orders: collection.orders,
         cancelledBy: getItem(collection?.cancelledBy, users)?.name,

@@ -30,6 +30,10 @@ interface TransferTablePayload {
   oldTableId: number;
   transferredTableId: number;
 }
+interface ReturnOrderPayload {
+  orderId: number;
+  returnQuantity: number;
+}
 interface SelectedOrderTransferPayload {
   orders: {
     totalQuantity: number;
@@ -72,6 +76,13 @@ export function updateOrders(orders: Order[]) {
 export function transferTable(payload: TransferTablePayload) {
   return post({
     path: `/order/table_transfer`,
+    payload: payload,
+  });
+}
+
+export function returnOrder(payload: ReturnOrderPayload) {
+  return post({
+    path: `/order/return_order`,
     payload: payload,
   });
 }
@@ -168,6 +179,24 @@ export function useUpdateOrdersMutation() {
       await queryClient.cancelQueries(queryKey);
     },
 
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function useReturnOrdersMutation() {
+  const queryClient = useQueryClient();
+  return useMutation(returnOrder, {
+    onMutate: async () => {
+      queryClient.invalidateQueries([`${Paths.Order}/query`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`${Paths.Order}/query`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+    },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
