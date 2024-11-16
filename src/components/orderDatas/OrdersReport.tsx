@@ -25,7 +25,7 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { LocationInput, QuantityInput } from "../../utils/panelInputs";
+import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -54,7 +54,18 @@ const OrdersReport = () => {
   const [returnOrderForm, setReturnOrderForm] = useState<any>({
     quantity: 0,
   });
-  const returnOrderInputs = [QuantityInput()];
+  const returnOrderInputs = [
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+  ];
   const returnOrderFormElements = [
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -420,6 +431,7 @@ const OrdersReport = () => {
           close={() => setIsReturnOrderModalOpen(false)}
           inputs={returnOrderInputs}
           formKeys={returnOrderFormElements}
+          setForm={setReturnOrderForm}
           submitItem={returnOrder as any}
           submitFunction={() => {
             if (

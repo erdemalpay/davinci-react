@@ -203,7 +203,6 @@ export function TableCard({
       placeholder: t("Product"),
       required: true,
     },
-
     {
       type: InputTypes.NUMBER,
       formKey: "quantity",
@@ -214,7 +213,6 @@ export function TableCard({
       isNumberButtonsActive: true,
       isOnClearActive: false,
     },
-
     {
       type: InputTypes.SELECT,
       formKey: "discount",
