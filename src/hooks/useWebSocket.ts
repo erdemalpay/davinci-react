@@ -52,7 +52,7 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (
-        // order?.createdBy === user?._id ||
+        order?.createdBy === user?._id ||
         [
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
