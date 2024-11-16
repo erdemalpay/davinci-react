@@ -124,5 +124,5 @@ export function useWebSocket() {
     return () => {
       socket.disconnect();
     };
-  }, [queryClient, categories, user, selectedLocationId]);
+  }, [queryClient, user, selectedLocationId]);
 }
