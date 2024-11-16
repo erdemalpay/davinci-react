@@ -40,8 +40,7 @@ export default function Menu() {
   const handleCategoryChange = () => {
     setIsCategoryTabChanged(true);
   };
-
-  useEffect(() => {
+  const handleTabChange = () => {
     const itemCategories = items
       .map((item) => item.category)
       .filter((category) => {
@@ -148,6 +147,10 @@ export default function Menu() {
       ].sort((a, b) => a.number - b.number)
     );
     setTableKeys(tableKeys + 1);
+  };
+
+  useEffect(() => {
+    handleTabChange();
   }, [
     items,
     currentPage,

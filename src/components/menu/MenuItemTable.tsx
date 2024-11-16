@@ -82,16 +82,16 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     expenseType: [],
   });
 
-  const allRows = singleItemGroup.items.map((item) => {
+  const allRows = singleItemGroup?.items.map((item) => {
     return {
       ...item,
-      matchedProductName: getItem(item.matchedProduct, products)?.name,
+      matchedProductName: getItem(item?.matchedProduct, products)?.name,
       collapsible: {
         collapsibleHeader: t("Ingredients"),
         collapsibleColumns: [
           { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
-          ...(!singleItemGroup.category?.isOnlineOrder ||
+          ...(!singleItemGroup?.category?.isOnlineOrder ||
           user?.role?._id === RoleEnum.MANAGER
             ? [{ key: t("Cost"), isSortable: true }]
             : []),
@@ -114,7 +114,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         collapsibleRowKeys: [
           { key: "name" },
           { key: "quantity" },
-          ...(!singleItemGroup.category?.isOnlineOrder ||
+          ...(!singleItemGroup?.category?.isOnlineOrder ||
           user?.role?._id === RoleEnum.MANAGER
             ? [{ key: "price" }]
             : []),
@@ -127,11 +127,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                     checked={row?.isDecrementStock}
                     onChange={() => {
                       updateItem({
-                        id: item._id,
+                        id: item?._id,
                         updates: {
-                          itemProduction: item.itemProduction?.map(
+                          itemProduction: item?.itemProduction?.map(
                             (itemProduction) => {
-                              if (itemProduction.product === row.product) {
+                              if (itemProduction.product === row?.product) {
                                 return {
                                   ...itemProduction,
                                   isDecrementStock:
@@ -156,7 +156,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   });
   const [rows, setRows] = useState(allRows);
   function handleLocationUpdate(item: MenuItem, location: number) {
-    const newLocations = item.locations || [];
+    const newLocations = item?.locations || [];
     // Add if it doesn't exist, remove otherwise
     const index = newLocations.indexOf(location);
     if (index === -1) {
@@ -165,7 +165,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       newLocations.splice(index, 1);
     }
     updateItem({
-      id: item._id,
+      id: item?._id,
       updates: { locations: newLocations },
     });
     toast.success(`${t("Menu Item updated successfully")}`);
@@ -180,7 +180,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         .filter(
           (product) =>
             !rowToAction?.itemProduction?.find(
-              (item) => item.product === product._id
+              (item) => item?.product === product._id
             )
         )
         .map((product) => {
@@ -259,8 +259,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       formKey: "onlinePrice",
       label: `${t("Online Price")}`,
       placeholder: `${t("Online Price")}`,
-      required: singleItemGroup.category?.isOnlineOrder ?? false,
-      isDisabled: !singleItemGroup.category?.isOnlineOrder,
+      required: singleItemGroup?.category?.isOnlineOrder ?? false,
+      isDisabled: !singleItemGroup?.category?.isOnlineOrder,
     },
     {
       type: InputTypes.IMAGE,
@@ -299,7 +299,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
-    ...(singleItemGroup.category?.isOnlineOrder
+    ...(singleItemGroup?.category?.isOnlineOrder
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
     { key: t("Cost"), isSortable: false },
@@ -316,7 +316,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       node: (row: MenuItem) =>
         isEnableEdit ? (
           <CheckSwitch
-            checked={row.locations?.includes(1)}
+            checked={row?.locations?.includes(1)}
             onChange={() => handleLocationUpdate(row, 1)}
           />
         ) : row?.locations?.includes(1) ? (
@@ -330,7 +330,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       node: (row: MenuItem) =>
         isEnableEdit ? (
           <CheckSwitch
-            checked={row.locations?.includes(2)}
+            checked={row?.locations?.includes(2)}
             onChange={() => handleLocationUpdate(row, 2)}
           />
         ) : row?.locations?.includes(2) ? (
@@ -342,16 +342,16 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     {
       key: "price",
       node: (item: MenuItem) => {
-        return `${item.price} ₺`;
+        return `${item?.price} ₺`;
       },
     },
-    ...(singleItemGroup.category?.isOnlineOrder
+    ...(singleItemGroup?.category?.isOnlineOrder
       ? [
           {
             key: "onlinePrice",
             node: (item: MenuItem) => {
               return `${
-                item?.onlinePrice ? item.onlinePrice + TURKISHLIRA : "-"
+                item?.onlinePrice ? item?.onlinePrice + TURKISHLIRA : "-"
               } `;
             },
           },
@@ -361,7 +361,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       key: "cost",
       node: (item: MenuItem) => {
         const total =
-          item.itemProduction?.reduce((acc, curr) => {
+          item?.itemProduction?.reduce((acc, curr) => {
             const product = products?.find(
               (product) => product._id === curr.product
             );
@@ -374,7 +374,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     },
     { key: "matchedProductName" },
   ];
-  if (!singleItemGroup.category.locations.includes(LocationEnum.BAHCELI)) {
+  if (!singleItemGroup?.category?.locations?.includes(LocationEnum.BAHCELI)) {
     columns.splice(
       columns.findIndex((column) => column.key === "Bahçeli"),
       1
@@ -384,7 +384,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       1
     );
   }
-  if (!singleItemGroup.category.locations.includes(LocationEnum.NEORAMA)) {
+  if (!singleItemGroup?.category?.locations?.includes(LocationEnum.NEORAMA)) {
     columns.splice(
       columns.findIndex((column) => column.key === "Neorama"),
       1
@@ -398,7 +398,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   if (
     user &&
     ![RoleEnum.MANAGER].includes(user?.role?._id) &&
-    singleItemGroup.category?.isOnlineOrder
+    singleItemGroup?.category?.isOnlineOrder
   ) {
     columns.splice(
       columns.findIndex((column) => column.key === "Cost"),
@@ -420,7 +420,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         formKeys={formKeys}
         submitItem={createItem as any}
         constantValues={{
-          category: singleItemGroup.category,
+          category: singleItemGroup?.category,
           locations: [1, 2],
         }}
         folderName="menu"
@@ -482,7 +482,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                 id: row?._id,
                 updates: {
                   itemProduction: row?.itemProduction?.filter(
-                    (item: any) => item.product !== row.product
+                    (item: any) => item?.product !== row?.product
                   ),
                 },
               });
@@ -512,7 +512,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => deleteItem(rowToAction?._id)}
           title={t("Delete Item")}
-          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
+          text={`${rowToAction?.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl",
@@ -534,9 +534,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           inputs={inputs}
           formKeys={formKeys}
           submitItem={updateItem as any}
-          constantValues={{ category: singleItemGroup.category }}
+          constantValues={{ category: singleItemGroup?.category }}
           isEditMode={true}
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}
         />
       ) : null,
 
@@ -563,8 +563,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           submitFunction={() => {
             createAccountProduct({
               ...productInputForm,
-              matchedMenuItem: rowToAction._id,
-              name: rowToAction.name,
+              matchedMenuItem: rowToAction?._id,
+              name: rowToAction?.name,
             });
             setProductInputForm({
               brand: [],
@@ -592,12 +592,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       icon: null,
       node: (row: MenuItem) => {
         const isPopular = popularItems?.some(
-          (popularItem) => popularItem.item === row?._id
+          (popularItem) => popularItem?.item === row?._id
         );
         return isPopular ? (
           <button
             className="text-blue-500 cursor-pointer text-xl mt-1"
-            onClick={() => deletePopular(row._id)}
+            onClick={() => deletePopular(row?._id)}
           >
             <ButtonTooltip content={t("Unpopular")}>
               <FaStar className="text-yellow-700" />
@@ -606,7 +606,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         ) : (
           <button
             className="text-gray-500 cursor-pointer text-xl mt-1"
-            onClick={() => createPopular({ item: row._id })}
+            onClick={() => createPopular({ item: row?._id })}
           >
             <ButtonTooltip content={t("Popular")}>
               <FaRegStar />
@@ -627,7 +627,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [
-    singleItemGroup.items,
+    singleItemGroup?.items,
     products,
     i18n.language,
     expenseTypes,
@@ -644,7 +644,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         columns={columns}
         rows={rows}
         filters={filters}
-        title={singleItemGroup.category.name}
+        title={singleItemGroup?.category?.name}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
         isCollapsibleCheckActive={false}
