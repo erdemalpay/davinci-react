@@ -273,16 +273,12 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
-                  givenDateOrders={orders ?? []}
-                  givenDateCollections={collections ?? []}
                   tables={tables}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}
                   table={table}
                   collectionsTotalAmount={collectionsTotalAmount}
-                  givenDateOrders={orders ?? []}
-                  givenDateCollections={collections ?? []}
                 />
                 <OrderPaymentTypes
                   table={table}

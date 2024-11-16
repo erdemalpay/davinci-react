@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Order, OrderCollection, Table } from "../../../../types";
+import { Order, Table } from "../../../../types";
 import {
   useCreateOrderForDiscountMutation,
   useCreateOrderForDivideMutation,
@@ -18,8 +18,6 @@ type Props = {
   table: Table;
   tableOrders: Order[];
   collectionsTotalAmount: number;
-  givenDateOrders?: Order[];
-  givenDateCollections?: OrderCollection[];
   tables: Table[];
 };
 type OrderListButton = {

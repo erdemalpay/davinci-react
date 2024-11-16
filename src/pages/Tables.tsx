@@ -562,7 +562,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           constantValues={{
             quantity: 1,
-            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+            stockLocation: getStockLocation(selectedLocationId),
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {
@@ -579,7 +579,7 @@ const Tables = () => {
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+                stockLocation: getStockLocation(selectedLocationId),
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
               });
             }

@@ -1,12 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import {
-  Order,
-  OrderCollection,
-  OrderDiscountStatus,
-  Table,
-} from "../../../types";
+import { Order, OrderDiscountStatus, Table } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../utils/getItem";
@@ -16,17 +11,9 @@ type Props = {
   tableOrders: Order[];
   table: Table;
   collectionsTotalAmount: number;
-  givenDateOrders?: Order[];
-  givenDateCollections?: OrderCollection[];
 };
 
-const OrderTotal = ({
-  tableOrders,
-  collectionsTotalAmount,
-  table,
-  givenDateCollections,
-  givenDateOrders,
-}: Props) => {
+const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
