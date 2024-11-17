@@ -146,4 +146,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "activityChanged",
     invalidateKeys: [`${Paths.Activity}`],
   },
+  {
+    event: "todayOrdersChanged",
+    invalidateKeys: [`${Paths.Order}/today`],
+  },
 ];

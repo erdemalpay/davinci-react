@@ -13,7 +13,6 @@ type Props = {
 const SingleOrdersPage = ({ kitchen, orders }: Props) => {
   const { selectedLocationId } = useLocationContext();
   const categories = useGetCategories();
-
   const items = useGetMenuItems();
   if (!orders || !categories || !items) return <></>;
   const filteredOrders = orders?.filter(
@@ -57,7 +56,6 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
       iconBackgroundColor: "bg-gradient-to-b from-purple-900 to-purple-500",
     },
   ];
-
   return (
     <>
       <div className="flex flex-col gap-6 mt-3">
