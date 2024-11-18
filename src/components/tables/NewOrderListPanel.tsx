@@ -1,21 +1,16 @@
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { useOrderContext } from "../../context/Order.context";
-import { Order } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 
-type Props = {
-  orders: Partial<Order>[];
-};
-
-const NewOrderListPanel = ({ orders }: Props) => {
+const NewOrderListPanel = () => {
   const items = useGetMenuItems();
   if (!items) return null;
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   return (
     <div className="flex flex-col gap-1 px-2 text-sm ">
-      {orders?.map((order, index) => {
+      {orderCreateBulk?.map((order, index) => {
         const orderItem = getItem(order.item, items);
         return (
           <div key={index} className="rounded-lg px-2 py-1 bg-yellow-200">

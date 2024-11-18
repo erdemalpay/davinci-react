@@ -21,7 +21,7 @@ const OrderListForPanel = ({ table }: Props) => {
     {
       number: 0,
       label: "New Orders",
-      content: <NewOrderListPanel orders={orderCreateBulk} />,
+      content: <NewOrderListPanel />,
       isDisabled: false,
     },
     {
