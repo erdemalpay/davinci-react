@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order, RoleEnum } from "../types";
+import { Order } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -71,16 +71,7 @@ export function useWebSocket() {
       if (
         !foundCategory?.isAutoServed &&
         order?.status !== OrderStatus.CANCELLED &&
-        ((![RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
-          user?.role?._id as RoleEnum
-        ) &&
-          order?.kitchen &&
-          !["flora", "farm"].includes(order?.kitchen) &&
-          selectedLocationId &&
-          order?.location === selectedLocationId) ||
-          (user?.role?._id === RoleEnum.KITCHEN &&
-            order?.kitchen === "flora") ||
-          (user?.role?._id === RoleEnum.KITCHEN2 && order?.kitchen === "farm"))
+        (order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
       ) {
         orderCreatedSound
           .play()
