@@ -83,17 +83,9 @@ const KitchenPage = () => {
       key: "isConfirmationRequired",
       node: (row: any) =>
         row?.isConfirmationRequired ? (
-          <IoCheckmark
-            className={`text-blue-500 text-2xl ${
-              !isLocationEdit && "mx-auto"
-            } `}
-          />
+          <IoCheckmark className={`text-blue-500 text-2xl  `} />
         ) : (
-          <IoCloseOutline
-            className={`text-red-800 text-2xl ${
-              !isLocationEdit && "mx-auto"
-            }  `}
-          />
+          <IoCloseOutline className={`text-red-800 text-2xl   `} />
         ),
     },
   ];
@@ -122,7 +114,6 @@ const KitchenPage = () => {
             ),
         });
       });
-      columns.push({ key: t("Actions"), isSortable: false });
     } else if (isEnableSoundRole && pages) {
       const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
       if (!kitchenTabs) return;
@@ -151,6 +142,8 @@ const KitchenPage = () => {
       }
     }
   }
+  columns.push({ key: t("Actions"), isSortable: false });
+
   const inputs = [
     NameInput(),
     {
@@ -294,13 +287,13 @@ const KitchenPage = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          actions={isLocationEdit ? actions : []}
+          actions={actions}
           columns={columns}
           rows={kitchens}
           title={t("Kitchens")}
           addButton={addButton}
           filters={filters}
-          isActionsActive={isLocationEdit}
+          isActionsActive={!filterDisableCondition}
         />
       </div>
     </>
