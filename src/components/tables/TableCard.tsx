@@ -95,6 +95,16 @@ export function TableCard({
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const initialOrderForm = {
+    item: 0,
+    quantity: 0,
+    note: "",
+    category: "",
+    discount: undefined,
+    discountNote: "",
+    isOnlinePrice: false,
+    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+  };
   const locations = useGetAccountStockLocations();
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
@@ -105,16 +115,7 @@ export function TableCard({
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
-  const [orderForm, setOrderForm] = useState({
-    item: 0,
-    quantity: 0,
-    note: "",
-    discount: undefined,
-    discountNote: "",
-    isOnlinePrice: false,
-    category: "",
-    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
-  });
+  const [orderForm, setOrderForm] = useState(initialOrderForm);
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
   });
@@ -673,16 +674,7 @@ export function TableCard({
                   : "neorama",
               });
             }
-            setOrderForm({
-              item: 0,
-              quantity: 0,
-              note: "",
-              category: "",
-              discount: undefined,
-              discountNote: "",
-              isOnlinePrice: false,
-              stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
-            });
+            setOrderForm(initialOrderForm);
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "

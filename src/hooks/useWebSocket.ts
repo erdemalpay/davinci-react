@@ -4,10 +4,9 @@ import { io, Socket } from "socket.io-client";
 import { Order } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
-import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useLocationContext } from "./../context/Location.context";
 import { useUserContext } from "./../context/User.context";
-import { MenuItem, OrderStatus } from "./../types/index";
+import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
 import { socketEventListeners } from "./socketConstant";
 
@@ -18,8 +17,6 @@ export function useWebSocket() {
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const categories = useGetCategories();
-  const items = useGetMenuItems();
-
   useEffect(() => {
     // Load the audio files
     const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
@@ -62,12 +59,8 @@ export function useWebSocket() {
         return;
       }
       // Play order created sound
-      const itemId =
-        typeof order?.item === "number"
-          ? order?.item
-          : (order?.item as MenuItem)?._id;
-      const item = getItem(itemId, items);
-      const foundCategory = getItem(item?.category, categories);
+
+      const foundCategory = getItem((order?.item as any)?.category, categories);
       if (
         !foundCategory?.isAutoServed &&
         order?.status !== OrderStatus.CANCELLED &&
