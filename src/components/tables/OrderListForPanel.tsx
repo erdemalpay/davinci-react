@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { Order, OrderStatus, Table } from "../../types";
 import { useGetTableOrders } from "../../utils/api/order/order";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
 
 type Props = { table: Table };
@@ -12,11 +14,18 @@ const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState(0);
   const tableOrders = useGetTableOrders(table?._id);
+  const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
   const tabs = [
     {
       number: 0,
+      label: "New Orders",
+      content: <NewOrderListPanel orders={orderCreateBulk} />,
+      isDisabled: false,
+    },
+    {
+      number: 1,
       label: "Waiting",
       content: (
         <OrderListForPanelTab
@@ -35,7 +44,7 @@ const OrderListForPanel = ({ table }: Props) => {
       isDisabled: false,
     },
     {
-      number: 1,
+      number: 2,
       label: "Served",
       content: (
         <OrderListForPanelTab

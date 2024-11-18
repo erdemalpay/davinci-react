@@ -20,6 +20,8 @@ type OrderContextType = {
   isOrderDivisionActive: boolean;
   setIsOrderDivisionActive: (isOrderDivisionActive: boolean) => void;
   setIsSelectAll: (isSelectAll: boolean) => void;
+  orderCreateBulk: Partial<Order>[];
+  setOrderCreateBulk: (orderCreateBulk: Partial<Order>[]) => void;
   todaysOrderDate: string;
   setTodaysOrderDate: (todaysOrderDate: string) => void;
   selectedOrders: {
@@ -116,6 +118,8 @@ const OrderContext = createContext<OrderContextType>({
   setIsTransferProductOpen: () => {},
   selectedTableTransfer: 0,
   setSelectedTableTransfer: () => {},
+  orderCreateBulk: [],
+  setOrderCreateBulk: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -130,6 +134,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
+  const [orderCreateBulk, setOrderCreateBulk] = useState<Partial<Order>[]>([]);
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -221,6 +226,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setIsTableSelectOpen,
         filterSummaryFormElements,
         setFilterSummaryFormElements,
+        orderCreateBulk,
+        setOrderCreateBulk,
       }}
     >
       {children}

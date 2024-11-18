@@ -33,18 +33,14 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
   const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
-  function roundToNearestHalf(num: number) {
-    return Math.round(num * 2) / 2;
-  }
 
   const handleKeyPress = useCallback(
     (key: string) => {
       if (isNumberSelection) {
         const number = parseInt(key, 10);
         if (!isNaN(number) && number > 0) {
-          const rawResult =
+          const resultAmount =
             (totalAmount - discountAmount - collectionsTotalAmount) / number;
-          const resultAmount = roundToNearestHalf(rawResult);
           setPaymentAmount(resultAmount.toFixed(2));
           if (
             totalAmount -

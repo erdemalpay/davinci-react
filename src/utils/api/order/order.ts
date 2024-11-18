@@ -34,6 +34,10 @@ interface ReturnOrderPayload {
   orderId: number;
   returnQuantity: number;
 }
+interface CreateMultipleOrderPayload {
+  orders: Partial<Order>[];
+  tableId: number;
+}
 interface SelectedOrderTransferPayload {
   orders: {
     totalQuantity: number;
@@ -229,6 +233,30 @@ export function updateMultipleOrders(payload: UpdateMultipleOrder) {
     payload,
   });
 }
+export function createMultipleOrder(payload: CreateMultipleOrderPayload) {
+  return post({
+    path: `/order/create_multiple`,
+    payload,
+  });
+}
+export function useCreateMultipleOrderMutation() {
+  const queryKey = [`${Paths.Order}/today`];
+  const queryClient = useQueryClient();
+  return useMutation(createMultipleOrder, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    // onSettled: () => {
+    //   queryClient.invalidateQueries(queryKey);
+    // },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useUpdateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();

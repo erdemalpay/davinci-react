@@ -35,6 +35,7 @@ type Props<T> = {
   isCancelConfirmationDialogExist?: boolean;
   isCreateConfirmationDialogExist?: boolean;
   isCreateCloseActive?: boolean;
+  optionalCreateButtonActive?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
@@ -43,6 +44,7 @@ type Props<T> = {
   anotherPanelTopClassName?: string;
   createConfirmationDialogText?: string;
   createConfirmationDialogHeader?: string;
+  additionalButtons?: AdditionalButtonProps[];
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -54,11 +56,18 @@ type FormElementsState = {
   [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.
 };
 
+type AdditionalButtonProps = {
+  onClick: () => void;
+  label: string;
+  isInputRequirementCheck?: boolean;
+  isInputNeedToBeReset?: boolean;
+};
 const GenericAddEditPanel = <T,>({
   isOpen,
   close,
   inputs,
   formKeys,
+  additionalButtons,
   topClassName,
   generalClassName,
   buttonName,
@@ -68,6 +77,7 @@ const GenericAddEditPanel = <T,>({
   folderName,
   handleUpdate,
   anotherPanel,
+  optionalCreateButtonActive,
   isBlurFieldClickCloseEnabled = true,
   cancelButtonLabel = "Cancel",
   submitFunction,
@@ -520,6 +530,33 @@ const GenericAddEditPanel = <T,>({
             >
               {t(cancelButtonLabel)}
             </button>
+            {additionalButtons &&
+              additionalButtons.map((button, index) => {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      button.onClick();
+                      if (button?.isInputNeedToBeReset) {
+                        constantValues
+                          ? setFormElements({
+                              ...initialState,
+                              ...constantValues,
+                            })
+                          : setFormElements(initialState);
+                        setResetTextInput((prev) => !prev);
+                      }
+                    }}
+                    className={`inline-block ${
+                      button.isInputRequirementCheck && !allRequiredFilled
+                        ? "bg-gray-500"
+                        : "bg-blue-500 hover:bg-blue-600"
+                    } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
+                  >
+                    {t(button.label)}
+                  </button>
+                );
+              })}
             <button
               onClick={() => {
                 isCreateConfirmationDialogExist
@@ -527,7 +564,7 @@ const GenericAddEditPanel = <T,>({
                   : handleCreateButtonClick();
               }}
               className={`inline-block ${
-                !allRequiredFilled
+                !allRequiredFilled || !optionalCreateButtonActive
                   ? "bg-gray-500"
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}

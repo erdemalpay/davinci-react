@@ -29,6 +29,7 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
+  useCreateMultipleOrderMutation,
   useGetTableOrders,
   useOrderMutations,
   useTransferTableMutation,
@@ -87,6 +88,7 @@ export function TableCard({
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
+  const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { updateTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
   const { mutate: transferTable } = useTransferTableMutation();
@@ -111,6 +113,7 @@ export function TableCard({
   const kitchens = useGetKitchens();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
+  const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext } = useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
@@ -384,7 +387,6 @@ export function TableCard({
       const hasActiveOrders = tableOrders?.some((order) => {
         return (order as Order)?.status !== OrderStatus.CANCELLED;
       });
-
       if (hasActiveOrders) {
         toast.error(t("Table has active orders"));
         setIsDeleteConfirmationDialogOpen(false);
@@ -404,6 +406,7 @@ export function TableCard({
       stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
     });
   }, [selectedLocationId]);
+
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
@@ -602,6 +605,7 @@ export function TableCard({
           isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
+          optionalCreateButtonActive={orderCreateBulk?.length > 0}
           constantValues={{
             quantity: 1,
             stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
@@ -609,7 +613,97 @@ export function TableCard({
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderListForPanel table={table} />}
+          additionalButtons={[
+            {
+              label: "Add",
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: true,
+
+              onClick: () => {
+                const selectedMenuItem = getItem(orderForm?.item, menuItems);
+                const selectedMenuItemCategory = getItem(
+                  selectedMenuItem?.category,
+                  categories
+                );
+                const selectedItemKitchen = getItem(
+                  selectedMenuItemCategory?.kitchen,
+                  kitchens
+                );
+                const isOrderConfirmationRequired =
+                  selectedItemKitchen?.isConfirmationRequired;
+                if (
+                  (
+                    user &&
+                    selectedMenuItem &&
+                    selectedTable &&
+                    selectedMenuItemCategory
+                  )?.isAutoServed
+                ) {
+                  setOrderCreateBulk([
+                    ...orderCreateBulk,
+                    {
+                      ...orderForm,
+                      location: selectedLocationId,
+                      table: selectedTable._id,
+                      unitPrice: orderForm?.isOnlinePrice
+                        ? selectedMenuItem?.onlinePrice ??
+                          selectedMenuItem.price
+                        : selectedMenuItem.price,
+                      paidQuantity: 0,
+                      deliveredAt: new Date(),
+                      deliveredBy: user?._id,
+                      preparedAt: new Date(),
+                      preparedBy: user?._id,
+                      status: OrderStatus.AUTOSERVED,
+                      kitchen: selectedMenuItemCategory?.kitchen,
+                      stockLocation: isOrderLocationSelection
+                        ? orderForm?.stockLocation
+                        : selectedLocationId === 1
+                        ? "bahceli"
+                        : "neorama",
+                    },
+                  ]);
+                }
+                if (
+                  selectedMenuItem &&
+                  selectedTable &&
+                  !getItem(selectedMenuItem?.category, categories)?.isAutoServed
+                ) {
+                  setOrderCreateBulk([
+                    ...orderCreateBulk,
+                    {
+                      ...orderForm,
+                      location: selectedLocationId,
+                      table: selectedTable._id,
+                      status: isOrderConfirmationRequired
+                        ? OrderStatus.CONFIRMATIONREQ
+                        : OrderStatus.PENDING,
+                      unitPrice: orderForm?.isOnlinePrice
+                        ? selectedMenuItem?.onlinePrice ??
+                          selectedMenuItem.price
+                        : selectedMenuItem.price,
+                      paidQuantity: 0,
+                      kitchen: selectedMenuItemCategory?.kitchen,
+                      stockLocation: isOrderLocationSelection
+                        ? orderForm?.stockLocation
+                        : selectedLocationId === 1
+                        ? "bahceli"
+                        : "neorama",
+                    },
+                  ]);
+                }
+                setOrderForm(initialOrderForm);
+              },
+            },
+          ]}
           submitFunction={() => {
+            if (orderCreateBulk.length > 0) {
+              createMultipleOrder({
+                orders: orderCreateBulk,
+                tableId: selectedTable._id,
+              });
+              setOrderCreateBulk([]);
+            }
             const selectedMenuItem = getItem(orderForm?.item, menuItems);
             const selectedMenuItemCategory = getItem(
               selectedMenuItem?.category,
