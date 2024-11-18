@@ -271,6 +271,7 @@ export type Kitchen = {
   name: string;
   isConfirmationRequired: boolean;
   locations: number[];
+  soundRoles: number[];
 };
 
 export type MenuItem = {
