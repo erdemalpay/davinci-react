@@ -1,6 +1,8 @@
+import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
+import ClosedItems from "../components/menu/ClosedItems";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -133,7 +135,14 @@ export default function Menu() {
         },
         {
           number: itemCategories?.length + emptyCategories?.length + 1,
-          label: "Categories",
+          label: t("Closed Items"),
+          icon: null,
+          content: <ClosedItems />,
+          isDisabled: false,
+        },
+        {
+          number: itemCategories?.length + emptyCategories?.length + 2,
+          label: t("Categories"),
           icon: null,
           content: (
             <CategoryTable
