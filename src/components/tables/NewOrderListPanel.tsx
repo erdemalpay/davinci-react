@@ -22,14 +22,14 @@ const NewOrderListPanel = () => {
                   className="w-5 h-5 flex-shrink-0  text-red-500  hover:text-red-800 cursor-pointer focus:outline-none"
                   onClick={() => {
                     if (!order.quantity) return;
-                    if (order.quantity === 1) {
+                    if (Number(order.quantity) === 1) {
                       const newOrders = [...orderCreateBulk];
                       newOrders.splice(index, 1);
                       setOrderCreateBulk(newOrders);
                       return;
                     } else {
                       const newOrders = [...orderCreateBulk];
-                      newOrders[index].quantity = order.quantity - 1;
+                      newOrders[index].quantity = Number(order.quantity) - 1;
                       setOrderCreateBulk(newOrders);
                     }
                   }}
@@ -44,7 +44,7 @@ const NewOrderListPanel = () => {
                   onClick={() => {
                     if (!order.quantity) return;
                     const newOrders = [...orderCreateBulk];
-                    newOrders[index].quantity = order.quantity + 1;
+                    newOrders[index].quantity = Number(order.quantity) + 1;
                     setOrderCreateBulk(newOrders);
                   }}
                 />
