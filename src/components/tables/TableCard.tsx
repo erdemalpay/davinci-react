@@ -421,10 +421,8 @@ export function TableCard({
 
     // Check if the menu item is automatically served
     if (
-      user &&
-      selectedMenuItem &&
-      selectedTable &&
-      selectedMenuItemCategory?.isAutoServed
+      (user && selectedMenuItem && selectedTable && selectedMenuItemCategory)
+        ?.isAutoServed
     ) {
       return {
         ...orderForm,
