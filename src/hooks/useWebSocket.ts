@@ -92,6 +92,19 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
+    socket.on("createMultipleOrder", (data) => {
+      queryClient.invalidateQueries([`${Paths.Order}/table`, data.tableId]);
+      queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      if (data.socketUser._id === user?._id) {
+        return;
+      }
+
+      if (data?.soundRoles?.includes(user?.role?._id)) {
+        orderCreatedSound
+          .play()
+          .catch((error) => console.error("Error playing sound:", error));
+      }
+    });
 
     socketEventListeners.forEach((eventConfig) => {
       socket.on(eventConfig.event, (socketUser?: any, payload?: any) => {
