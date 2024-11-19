@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosHeaders } from "axios";
+import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
@@ -273,9 +274,10 @@ const GenericAddEditPanel = <T,>({
     close?.();
   };
   const handleCreateButtonClick = () => {
-    if (!allRequiredFilled) {
+    if (!allRequiredFilled && !optionalCreateButtonActive) {
       toast.error(t("Please fill all required fields"));
-    } else {
+      return;
+    } else if (allRequiredFilled) {
       const phoneValidationFailed = inputs
         .filter((input) => input.additionalType === "phone")
         .some((input) => {
@@ -290,6 +292,12 @@ const GenericAddEditPanel = <T,>({
       if (!phoneValidationFailed) {
         handleSubmit();
       }
+    } else if (optionalCreateButtonActive) {
+      if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
+        toast.error(t("Please fill all required fields"));
+        return;
+      }
+      handleSubmit();
     }
   };
 
@@ -564,7 +572,7 @@ const GenericAddEditPanel = <T,>({
                   : handleCreateButtonClick();
               }}
               className={`inline-block ${
-                !allRequiredFilled || !optionalCreateButtonActive
+                !allRequiredFilled && !optionalCreateButtonActive
                   ? "bg-gray-500"
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}

@@ -400,6 +400,82 @@ export function TableCard({
 
     setIsDeleteConfirmationDialogOpen(false);
   }
+  const handleOrderObject = () => {
+    const selectedMenuItem = getItem(orderForm?.item, menuItems);
+    if (!selectedMenuItem) return null;
+
+    const selectedMenuItemCategory = getItem(
+      selectedMenuItem?.category,
+      categories
+    );
+    if (!selectedMenuItemCategory) return null;
+
+    const selectedItemKitchen = getItem(
+      selectedMenuItemCategory?.kitchen,
+      kitchens
+    );
+    if (!selectedItemKitchen) return null;
+
+    const isOrderConfirmationRequired =
+      selectedItemKitchen?.isConfirmationRequired;
+
+    // Check if the menu item is automatically served
+    if (
+      user &&
+      selectedMenuItem &&
+      selectedTable &&
+      selectedMenuItemCategory?.isAutoServed
+    ) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        table: selectedTable._id,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        deliveredAt: new Date(),
+        deliveredBy: user?._id,
+        preparedAt: new Date(),
+        preparedBy: user?._id,
+        status: OrderStatus.AUTOSERVED,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: isOrderLocationSelection
+          ? orderForm?.stockLocation
+          : selectedLocationId === 1
+          ? "bahceli"
+          : "neorama",
+      };
+    }
+
+    // Check if the menu item is not automatically served
+    if (
+      selectedMenuItem &&
+      selectedTable &&
+      !selectedMenuItemCategory?.isAutoServed
+    ) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        table: selectedTable._id,
+        status: isOrderConfirmationRequired
+          ? OrderStatus.CONFIRMATIONREQ
+          : OrderStatus.PENDING,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: isOrderLocationSelection
+          ? orderForm?.stockLocation
+          : selectedLocationId === 1
+          ? "bahceli"
+          : "neorama",
+      };
+    }
+    return null;
+  };
+
   useEffect(() => {
     setOrderForm({
       ...orderForm,
@@ -598,7 +674,10 @@ export function TableCard({
       {isCreateOrderDialogOpen && selectedTable && (
         <GenericAddEditPanel
           isOpen={isCreateOrderDialogOpen}
-          close={() => setIsCreateOrderDialogOpen(false)}
+          close={() => {
+            setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
+            setIsCreateOrderDialogOpen(false);
+          }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
@@ -618,92 +697,16 @@ export function TableCard({
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
-
               onClick: () => {
-                const selectedMenuItem = getItem(orderForm?.item, menuItems);
-                const selectedMenuItemCategory = getItem(
-                  selectedMenuItem?.category,
-                  categories
-                );
-                const selectedItemKitchen = getItem(
-                  selectedMenuItemCategory?.kitchen,
-                  kitchens
-                );
-                const isOrderConfirmationRequired =
-                  selectedItemKitchen?.isConfirmationRequired;
-                if (
-                  (
-                    user &&
-                    selectedMenuItem &&
-                    selectedTable &&
-                    selectedMenuItemCategory
-                  )?.isAutoServed
-                ) {
-                  setOrderCreateBulk([
-                    ...orderCreateBulk,
-                    {
-                      ...orderForm,
-                      location: selectedLocationId,
-                      table: selectedTable._id,
-                      unitPrice: orderForm?.isOnlinePrice
-                        ? selectedMenuItem?.onlinePrice ??
-                          selectedMenuItem.price
-                        : selectedMenuItem.price,
-                      paidQuantity: 0,
-                      deliveredAt: new Date(),
-                      deliveredBy: user?._id,
-                      preparedAt: new Date(),
-                      preparedBy: user?._id,
-                      status: OrderStatus.AUTOSERVED,
-                      kitchen: selectedMenuItemCategory?.kitchen,
-                      stockLocation: isOrderLocationSelection
-                        ? orderForm?.stockLocation
-                        : selectedLocationId === 1
-                        ? "bahceli"
-                        : "neorama",
-                    },
-                  ]);
-                }
-                if (
-                  selectedMenuItem &&
-                  selectedTable &&
-                  !getItem(selectedMenuItem?.category, categories)?.isAutoServed
-                ) {
-                  setOrderCreateBulk([
-                    ...orderCreateBulk,
-                    {
-                      ...orderForm,
-                      location: selectedLocationId,
-                      table: selectedTable._id,
-                      status: isOrderConfirmationRequired
-                        ? OrderStatus.CONFIRMATIONREQ
-                        : OrderStatus.PENDING,
-                      unitPrice: orderForm?.isOnlinePrice
-                        ? selectedMenuItem?.onlinePrice ??
-                          selectedMenuItem.price
-                        : selectedMenuItem.price,
-                      paidQuantity: 0,
-                      kitchen: selectedMenuItemCategory?.kitchen,
-                      stockLocation: isOrderLocationSelection
-                        ? orderForm?.stockLocation
-                        : selectedLocationId === 1
-                        ? "bahceli"
-                        : "neorama",
-                    },
-                  ]);
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  setOrderCreateBulk([...orderCreateBulk, orderObject]);
                 }
                 setOrderForm(initialOrderForm);
               },
             },
           ]}
           submitFunction={() => {
-            if (orderCreateBulk.length > 0) {
-              createMultipleOrder({
-                orders: orderCreateBulk,
-                tableId: selectedTable._id,
-              });
-              setOrderCreateBulk([]);
-            }
             const selectedMenuItem = getItem(orderForm?.item, menuItems);
             const selectedMenuItemCategory = getItem(
               selectedMenuItem?.category,
@@ -715,60 +718,32 @@ export function TableCard({
             );
             const isOrderConfirmationRequired =
               selectedItemKitchen?.isConfirmationRequired;
-            if (
-              (
-                user &&
-                selectedMenuItem &&
-                selectedTable &&
-                selectedMenuItemCategory
-              )?.isAutoServed
-            ) {
-              createOrder({
-                ...orderForm,
-                location: selectedLocationId,
-                table: selectedTable._id,
-                unitPrice: orderForm?.isOnlinePrice
-                  ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
-                  : selectedMenuItem.price,
-                paidQuantity: 0,
-                deliveredAt: new Date(),
-                deliveredBy: user?._id,
-                preparedAt: new Date(),
-                preparedBy: user?._id,
-                status: OrderStatus.AUTOSERVED,
-                kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: isOrderLocationSelection
-                  ? orderForm?.stockLocation
-                  : selectedLocationId === 1
-                  ? "bahceli"
-                  : "neorama",
-              });
-            }
-            if (
-              selectedMenuItem &&
-              selectedTable &&
-              !getItem(selectedMenuItem?.category, categories)?.isAutoServed
-            ) {
-              createOrder({
-                ...orderForm,
-                location: selectedLocationId,
-                table: selectedTable._id,
-                status: isOrderConfirmationRequired
-                  ? OrderStatus.CONFIRMATIONREQ
-                  : OrderStatus.PENDING,
-                unitPrice: orderForm?.isOnlinePrice
-                  ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
-                  : selectedMenuItem.price,
-                paidQuantity: 0,
-                kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: isOrderLocationSelection
-                  ? orderForm?.stockLocation
-                  : selectedLocationId === 1
-                  ? "bahceli"
-                  : "neorama",
+            // creating single order
+            if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                createOrder(orderObject);
+              }
+            } else {
+              if (selectedMenuItem) {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  createMultipleOrder({
+                    orders: [...orderCreateBulk, orderObject],
+                    tableId: selectedTable._id,
+                  });
+                  setOrderForm(initialOrderForm);
+                  setOrderCreateBulk([]);
+                  return;
+                }
+              }
+              createMultipleOrder({
+                orders: orderCreateBulk,
+                tableId: selectedTable._id,
               });
             }
             setOrderForm(initialOrderForm);
+            setOrderCreateBulk([]);
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
