@@ -402,24 +402,16 @@ export function TableCard({
   }
   const handleOrderObject = () => {
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
-    if (!selectedMenuItem) return null;
-
     const selectedMenuItemCategory = getItem(
       selectedMenuItem?.category,
       categories
     );
-    if (!selectedMenuItemCategory) return null;
-
     const selectedItemKitchen = getItem(
       selectedMenuItemCategory?.kitchen,
       kitchens
     );
-    if (!selectedItemKitchen) return null;
-
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
-
-    // Check if the menu item is automatically served
     if (
       (user && selectedMenuItem && selectedTable && selectedMenuItemCategory)
         ?.isAutoServed
