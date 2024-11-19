@@ -18,7 +18,7 @@ import { AddReservationDialog } from "../components/reservations/AddReservationD
 import { ReservationCallDialog } from "../components/reservations/ReservationCallDialog";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { Routes } from "../navigation/constants";
-import { Reservation, ReservationStatusEnum } from "../types/index";
+import { Reservation, ReservationStatusEnum, TableTypes } from "../types/index";
 import {
   useGetReservations,
   useReservationCallMutations,
@@ -347,6 +347,7 @@ export default function Reservations() {
           <CreateTableDialog
             isOpen={isCreateTableDialogOpen}
             close={() => setIsCreateTableDialogOpen(false)}
+            type={TableTypes.NORMAL}
           />
         )}
       </div>

@@ -17,6 +17,7 @@ export type Location = {
 export type Table = {
   _id: number;
   name: string;
+  type?: string;
   date: string;
   playerCount: number;
   location?: number;
@@ -705,6 +706,11 @@ export enum OrderStatus {
   AUTOSERVED = "autoserved",
   WASTED = "wasted",
   RETURNED = "returned",
+}
+export enum TableTypes {
+  NORMAL = "normal",
+  TAKEOUT = "takeout",
+  ONLINE = "online",
 }
 
 export enum OrderCollectionStatus {

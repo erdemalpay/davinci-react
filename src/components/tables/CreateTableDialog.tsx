@@ -13,10 +13,12 @@ export function CreateTableDialog({
   isOpen,
   close,
   isOnlineSale = false,
+  type,
 }: {
   isOpen: boolean;
   close: () => void;
   isOnlineSale?: boolean;
+  type: string;
 }) {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
@@ -38,6 +40,7 @@ export function CreateTableDialog({
       ...data,
       ...(isOnlineSale && { isOnlineSale: true }),
       isAutoEntryAdded: isAddEntryOrder,
+      type: type,
     });
     close();
   }
@@ -97,15 +100,6 @@ export function CreateTableDialog({
                         } as any);
                       }}
                     />
-                    {/* <Input
-                      name="playerCount"
-                      variant="standard"
-                      label="Player Count"
-                      type="number"
-                      min={0}
-                      value={data.playerCount}
-                      onChange={handleUpdate}
-                    /> */}
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Input

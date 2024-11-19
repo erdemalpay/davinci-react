@@ -30,6 +30,7 @@ import {
   TURKISHLIRA,
   Table,
   TableStatus,
+  TableTypes,
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
@@ -532,6 +533,7 @@ const Tables = () => {
         <CreateTableDialog
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
+          type={TableTypes.NORMAL}
         />
       )}
       {isConsumptModalOpen && (

@@ -13,7 +13,7 @@ import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
-import { Game, Table, TableStatus, User } from "../types";
+import { Game, Table, TableStatus, TableTypes, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetTables } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
@@ -327,6 +327,7 @@ const OnlineSales = () => {
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
           isOnlineSale={true}
+          type={TableTypes.ONLINE}
         />
       )}
     </>
