@@ -90,6 +90,50 @@ export function returnOrder(payload: ReturnOrderPayload) {
     payload: payload,
   });
 }
+export function updateOrderForCancel(payload: {
+  id: number;
+  updates: Partial<Order>;
+  tableId: number;
+}) {
+  return patch({
+    path: `/order/${payload.id}`,
+    payload: payload.updates,
+  });
+}
+export function useUpdateOrderForCancelMutation() {
+  const queryClient = useQueryClient();
+  return useMutation(updateOrderForCancel, {
+    onMutate: async (payload) => {
+      const queryKey = [`${baseUrl}/table/${payload.tableId}`];
+      // Cancel any outgoing refetches to prevent overwriting the optimistic update
+      await queryClient.cancelQueries(queryKey);
+      // Snapshot the previous value
+      const previousTableOrders =
+        queryClient.getQueryData<Order[]>(queryKey) || [];
+      //remove the order from the table
+      const updatedTableOrders = previousTableOrders.filter(
+        (order) => order._id !== payload.id
+      );
+      //update the table orders
+      queryClient.setQueryData<Order[]>(queryKey, updatedTableOrders);
+
+      // Return the previous state in case of rollback
+      return { previousTableOrders, tableId: payload.tableId };
+    },
+    onError: (_err: any, _newTable, context) => {
+      if (context?.previousTableOrders) {
+        queryClient.setQueryData<Order[]>(
+          [`${baseUrl}/table/${context.tableId}`],
+          context.previousTableOrders
+        );
+      }
+
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 
 export function useTransferTableMutation() {
   const tableBaseUrl = `${Paths.Tables}`;

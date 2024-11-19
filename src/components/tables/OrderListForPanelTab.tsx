@@ -7,7 +7,10 @@ import { Order, OrderStatus, User } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useOrderMutations } from "../../utils/api/order/order";
+import {
+  useOrderMutations,
+  useUpdateOrderForCancelMutation,
+} from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
 
@@ -19,6 +22,7 @@ type Props = {
 const OrderListForPanelTab = ({ orders, user }: Props) => {
   const { t } = useTranslation();
   const { updateOrder, createOrder } = useOrderMutations();
+  const { mutate: updateOrderCancel } = useUpdateOrderForCancelMutation();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
     const currentTime = new Date().getTime();
@@ -144,13 +148,14 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
                 <HiOutlineTrash
                   className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
                   onClick={() =>
-                    updateOrder({
+                    updateOrderCancel({
                       id: order._id,
                       updates: {
                         status: OrderStatus.CANCELLED,
                         cancelledAt: new Date(),
                         cancelledBy: user._id,
                       },
+                      tableId: order?.table as number,
                     })
                   }
                 />
