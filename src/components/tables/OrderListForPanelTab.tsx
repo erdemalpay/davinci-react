@@ -45,7 +45,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   }
   useEffect(() => {
     setKey((prev) => prev + 1);
-  }, [orders, items, categories, kitchens, user]);
+  }, [tableOrders, items, categories, kitchens, user]);
 
   return (
     <div key={key} className="  px-2   ">
