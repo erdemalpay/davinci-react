@@ -45,6 +45,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   }
   useEffect(() => {
     setKey((prev) => prev + 1);
+    console.log("tableOrders", tableOrders);
   }, [tableOrders, items, categories, kitchens, user]);
 
   return (
@@ -168,7 +169,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
                         cancelledAt: new Date(),
                         cancelledBy: user._id,
                       },
-                      tableId: order?.table as number,
+                      tableId: tableId,
                     })
                   }
                 />

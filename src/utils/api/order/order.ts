@@ -104,7 +104,7 @@ export function useUpdateOrderForCancelMutation() {
   const queryClient = useQueryClient();
   return useMutation(updateOrderForCancel, {
     onMutate: async (payload) => {
-      const queryKey = [`${baseUrl}/table/${payload.tableId}`];
+      const queryKey = [`${Paths.Order}/table`, payload.tableId];
       // Cancel any outgoing refetches to prevent overwriting the optimistic update
       await queryClient.cancelQueries(queryKey);
       // Snapshot the previous value
