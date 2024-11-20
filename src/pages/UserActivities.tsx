@@ -26,92 +26,35 @@ const UserActivities = () => {
   const typeSuggestions = activityTypeDetails.map((activity) => {
     return { _id: activity.value, name: activity.label };
   });
+
+  const createColumn = (key: string, title: string) => ({
+    key: t(title),
+    isSortable: true,
+    node: () => (
+      <th
+        key={key}
+        className="font-bold text-left cursor-pointer"
+        onClick={() => handleSort(key)}
+      >
+        <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
+          <H5>{t(title)}</H5>
+          {filterData.sort === key &&
+            (filterData.asc === 1 ? (
+              <ArrowUpIcon className="h-4 w-4 my-auto" />
+            ) : (
+              <ArrowDownIcon className="h-4 w-4 my-auto" />
+            ))}
+        </div>
+      </th>
+    ),
+  });
   const columns = [
-    {
-      key: t("User"),
-      isSortable: true,
-      node: () => (
-        <th
-          key="user"
-          className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("user")}
-        >
-          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-            <H5>{t("User")}</H5>
-            {filterData.sort === "user" &&
-              (filterData.asc === 1 ? (
-                <ArrowUpIcon className="h-4 w-4 my-auto" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 my-auto" />
-              ))}
-          </div>
-        </th>
-      ),
-    },
-    {
-      key: t("Type"),
-      isSortable: true,
-      node: () => (
-        <th
-          key="type"
-          className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("type")}
-        >
-          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-            <H5>{t("Type")}</H5>
-            {filterData.sort === "type" &&
-              (filterData.asc === 1 ? (
-                <ArrowUpIcon className="h-4 w-4 my-auto" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 my-auto" />
-              ))}
-          </div>
-        </th>
-      ),
-    },
-    {
-      key: t("Date"),
-      isSortable: true,
-      node: () => (
-        <th
-          key="date"
-          className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("date")}
-        >
-          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-            <H5>{t("Date")}</H5>
-            {filterData.sort === "date" &&
-              (filterData.asc === 1 ? (
-                <ArrowUpIcon className="h-4 w-4 my-auto" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 my-auto" />
-              ))}
-          </div>
-        </th>
-      ),
-    },
-    {
-      key: t("Hour"),
-      isSortable: true,
-      node: () => (
-        <th
-          key="hour"
-          className="font-bold text-left cursor-pointer"
-          onClick={() => handleSort("hour")}
-        >
-          <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-            <H5>{t("Hour")}</H5>
-            {filterData.sort === "hour" &&
-              (filterData.asc === 1 ? (
-                <ArrowUpIcon className="h-4 w-4 my-auto" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 my-auto" />
-              ))}
-          </div>
-        </th>
-      ),
-    },
+    createColumn("user", "User"),
+    createColumn("type", "Type"),
+    createColumn("date", "Date"),
+    createColumn("hour", "Hour"),
   ];
+
   const rowKeys = [
     { key: "userName" },
     {

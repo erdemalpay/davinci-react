@@ -1,33 +1,29 @@
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { stockHistoryStatuses } from "../../types";
+import { useGeneralContext } from "../../context/General.context";
+import { FormElementsState, stockHistoryStatuses } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
+import {
+  StockHistoryPayload,
+  useGetAccountProductStockHistorys,
+} from "../../utils/api/account/productStockHistory";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ProductInput, StockLocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { H5 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
-type FormElementsState = {
-  [key: string]: any;
-};
-
 const ProductStockHistory = () => {
   const { t } = useTranslation();
-  const stockHistories = useGetAccountProductStockHistorys();
-  const [tableKey, setTableKey] = useState(0);
-  const products = useGetAccountProducts();
-  const users = useGetUsers();
-  const expenseTypes = useGetAccountExpenseTypes();
-  const locations = useGetAccountStockLocations();
-  const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { rowsPerPage } = useGeneralContext();
+  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -36,10 +32,24 @@ const ProductStockHistory = () => {
       status: "",
       before: "",
       after: "",
+      sort: "",
+      asc: 1,
     });
+  const stockHistoriesPayload = useGetAccountProductStockHistorys(
+    currentPage,
+    usedRowsPerPage,
+    filterPanelFormElements
+  );
+  stockHistoriesPayload as StockHistoryPayload;
+  const [tableKey, setTableKey] = useState(0);
+  const products = useGetAccountProducts();
+  const users = useGetUsers();
+  const expenseTypes = useGetAccountExpenseTypes();
+  const locations = useGetAccountStockLocations();
+  const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const allRows = stockHistories
-    .map((stockHistory) => {
+  const allRows = stockHistoriesPayload?.data
+    ?.map((stockHistory) => {
       if (!stockHistory?.createdAt) {
         return null;
       }
@@ -60,6 +70,20 @@ const ProductStockHistory = () => {
     })
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
+  function handleSort(value: string) {
+    if (filterPanelFormElements.sort === value) {
+      setFilterPanelFormElements({
+        ...filterPanelFormElements,
+        asc: filterPanelFormElements.asc === 1 ? -1 : 1,
+      });
+    } else {
+      setFilterPanelFormElements({
+        ...filterPanelFormElements,
+        asc: value === "createdAt" ? 1 : -1,
+        sort: value,
+      });
+    }
+  }
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -111,16 +135,37 @@ const ProductStockHistory = () => {
       isDatePicker: true,
     },
   ];
+  const createColumn = (key: string, title: string) => ({
+    key: t(title),
+    isSortable: true,
+    node: () => (
+      <th
+        key={key}
+        className="font-bold text-left cursor-pointer"
+        onClick={() => handleSort(key)}
+      >
+        <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
+          <H5>{t(title)}</H5>
+          {filterPanelFormElements.sort === key &&
+            (filterPanelFormElements.asc === 1 ? (
+              <ArrowUpIcon className="h-4 w-4 my-auto" />
+            ) : (
+              <ArrowDownIcon className="h-4 w-4 my-auto" />
+            ))}
+        </div>
+      </th>
+    ),
+  });
   const columns = [
-    { key: t("Date"), isSortable: true },
-    { key: t("Hour"), isSortable: true },
-    { key: t("User"), isSortable: true },
-    { key: t("Product"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("Old Quantity"), isSortable: true },
-    { key: t("Changed"), isSortable: true },
-    { key: t("New Quantity"), isSortable: true },
-    { key: t("Status"), isSortable: true },
+    createColumn("createdAt", "Date"),
+    { key: t("Hour"), isSortable: false },
+    createColumn("user", "User"),
+    createColumn("product", "Product"),
+    createColumn("location", "Location"),
+    { key: t("Old Quantity"), isSortable: false },
+    { key: t("Changed"), isSortable: false },
+    { key: t("New Quantity"), isSortable: false },
+    createColumn("status", "Status"),
   ];
   const rowKeys = [
     {
@@ -176,48 +221,6 @@ const ProductStockHistory = () => {
       },
     },
   ];
-  useEffect(() => {
-    const filteredRows = allRows.filter((stockHistory) => {
-      if (!stockHistory?.createdAt) {
-        return false;
-      }
-      if (filterPanelFormElements.expenseType) {
-        const item = getItem(stockHistory.product, products);
-        if (!item?.expenseType?.includes(filterPanelFormElements.expenseType)) {
-          return false;
-        }
-      }
-      return (
-        (filterPanelFormElements.before === "" ||
-          stockHistory.createdAt <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          stockHistory.createdAt >= filterPanelFormElements.after) &&
-        (!filterPanelFormElements.product.length ||
-          filterPanelFormElements.product?.some((panelProduct: string) =>
-            passesFilter(panelProduct, stockHistory.product)
-          )) &&
-        passesFilter(filterPanelFormElements.location, stockHistory.location) &&
-        passesFilter(filterPanelFormElements.status, stockHistory.status)
-      );
-    });
-    setRows(filteredRows);
-    setTableKey((prev) => prev + 1);
-  }, [
-    stockHistories,
-    filterPanelFormElements,
-    users,
-    products,
-    locations,
-    expenseTypes,
-  ]);
-
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
   const filters = [
     {
       label: t("Show Filters"),
@@ -225,6 +228,32 @@ const ProductStockHistory = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const pagination = stockHistoriesPayload
+    ? {
+        currentPage: stockHistoriesPayload.page,
+        totalPages: stockHistoriesPayload.totalPages,
+        setCurrentPage: setCurrentPage,
+        rowsPerPage: usedRowsPerPage,
+        setRowsPerPage: setUsedRowsPerPage,
+        totalRows: stockHistoriesPayload.totalNumber,
+      }
+    : null;
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [stockHistoriesPayload, users, products, locations, expenseTypes]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -232,11 +261,12 @@ const ProductStockHistory = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
-          rows={rows}
+          rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}
           title={t("Product Stock History")}
           isActionsActive={false}
+          {...(pagination && { pagination })}
         />
       </div>
     </>

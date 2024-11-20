@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useGeneralContext } from "../../../context/General.context";
+import { FormElementsState } from "../../../types";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
 import { InputTypes, PanelFilterType } from "../shared/types";
@@ -17,6 +19,32 @@ const FilterPanel = <T,>({
 }: PanelFilterType<T>) => {
   const { t } = useTranslation();
   const { setCurrentPage } = useGeneralContext();
+  const [tempFormElements, setTempFormElements] =
+    useState<FormElementsState>(formElements);
+  const applyFilters = () => {
+    setFormElements(tempFormElements);
+    setCurrentPage(1); // Reset to the first page after applying filters
+  };
+  const handleClearAllFilters = () => {
+    setFormElements((prev) => {
+      const newFormElements = { ...prev };
+      inputs.forEach((input) => {
+        newFormElements[input.formKey] = "";
+      });
+      return newFormElements;
+    });
+  };
+  const buttons = [
+    {
+      label: "Apply",
+      onClick: applyFilters,
+    },
+    {
+      label: "Clear All Filters",
+      onClick: handleClearAllFilters,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-3 __className_a182b8 bg-white min-w-full sm:min-w-[20rem] border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
       <div className="flex flex-row justify-between">
@@ -26,18 +54,18 @@ const FilterPanel = <T,>({
         </button>
       </div>
       {inputs.map((input) => {
-        const value = formElements[input.formKey];
+        const value = tempFormElements[input.formKey];
         const handleChange = (key: string) => (value: string) => {
           const changedInput = inputs.find((input) => input.formKey === key);
           if (changedInput?.invalidateKeys) {
             changedInput.invalidateKeys.forEach((key) => {
-              setFormElements((prev) => ({
+              setTempFormElements((prev) => ({
                 ...prev,
                 [key.key]: key.defaultValue,
               }));
             });
           }
-          setFormElements((prev) => ({ ...prev, [key]: value }));
+          setTempFormElements((prev) => ({ ...prev, [key]: value }));
           setCurrentPage(1);
         };
 
@@ -54,20 +82,20 @@ const FilterPanel = <T,>({
             ) {
               if (Array.isArray(selectedValue)) {
                 const values = selectedValue.map((option) => option.value);
-                setFormElements((prev) => ({ ...prev, [key]: values }));
+                setTempFormElements((prev) => ({ ...prev, [key]: values }));
               } else if (selectedValue) {
-                setFormElements((prev) => ({
+                setTempFormElements((prev) => ({
                   ...prev,
                   [key]: (selectedValue as OptionType)?.value,
                 }));
               } else {
-                setFormElements((prev) => ({ ...prev, [key]: "" }));
+                setTempFormElements((prev) => ({ ...prev, [key]: "" }));
               }
             }
             const changedInput = inputs.find((input) => input.formKey === key);
             if (changedInput?.invalidateKeys) {
               changedInput.invalidateKeys.forEach((key) => {
-                setFormElements((prev) => ({
+                setTempFormElements((prev) => ({
                   ...prev,
                   [key.key]: key.defaultValue,
                 }));
@@ -97,7 +125,10 @@ const FilterPanel = <T,>({
                 isDatePicker={input.isDatePicker ?? false}
                 isOnClearActive={input?.isOnClearActive}
                 onClear={() =>
-                  setFormElements((prev) => ({ ...prev, [input.formKey]: "" }))
+                  setTempFormElements((prev) => ({
+                    ...prev,
+                    [input.formKey]: "",
+                  }))
                 }
               />
             )}
@@ -106,15 +137,16 @@ const FilterPanel = <T,>({
                 key={
                   input.isMultiple
                     ? input.formKey
-                    : input.formKey + formElements[input.formKey]
+                    : input.formKey + tempFormElements[input.formKey]
                 }
                 value={
                   input.isMultiple
                     ? input.options?.filter((option) =>
-                        formElements[input.formKey]?.includes(option.value)
+                        tempFormElements[input.formKey]?.includes(option.value)
                       )
                     : input.options?.find(
-                        (option) => option.value === formElements[input.formKey]
+                        (option) =>
+                          option.value === tempFormElements[input.formKey]
                       )
                 }
                 label={input.label ?? ""}
@@ -123,7 +155,7 @@ const FilterPanel = <T,>({
                 isMultiple={input.isMultiple ?? false}
                 onChange={handleChangeForSelect(input.formKey)}
                 onClear={() => {
-                  setFormElements((prev) => ({
+                  setTempFormElements((prev) => ({
                     ...prev,
                     [input.formKey]: input.isMultiple ? [] : "",
                   }));
@@ -147,20 +179,19 @@ const FilterPanel = <T,>({
           </div>
         );
       })}
-      <button
-        className="ml-auto mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
-        onClick={() => {
-          setFormElements((prev) => {
-            const newFormElements = { ...prev };
-            inputs.forEach((input) => {
-              newFormElements[input.formKey] = "";
-            });
-            return newFormElements;
-          });
-        }}
-      >
-        {t("Clear All Filters")}
-      </button>
+      <div className="flex flex-row w-fit gap-2 ml-auto">
+        {buttons.map((button) => {
+          return (
+            <button
+              key={button.label}
+              className=" mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
+              onClick={button.onClick}
+            >
+              {t(button.label)}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

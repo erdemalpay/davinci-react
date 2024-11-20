@@ -130,7 +130,6 @@ const GenericTable = <T,>({
       return tableRows;
     }
   };
-
   const filteredRows = !isSearch
     ? initialRows()
     : initialRows().filter((row) =>
@@ -152,13 +151,13 @@ const GenericTable = <T,>({
   const totalPages = Math.ceil(usedTotalRows / usedRowsPerPage);
 
   const usedTotalPages = pagination ? pagination.totalPages : totalPages;
-  const currentRows = isRowsPerPage
-    ? filteredRows.slice(
-        (usedCurrentPage - 1) * usedRowsPerPage,
-        usedCurrentPage * usedRowsPerPage
-      )
-    : filteredRows;
-
+  const currentRows =
+    isRowsPerPage && !pagination
+      ? filteredRows.slice(
+          (usedCurrentPage - 1) * usedRowsPerPage,
+          usedCurrentPage * usedRowsPerPage
+        )
+      : filteredRows;
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending";
@@ -808,7 +807,7 @@ const GenericTable = <T,>({
                         usedTotalRows / Number(e.target.value)
                       );
                       if (usedCurrentPage > totalNewPages) {
-                        usedSetCurrentPage(totalNewPages);
+                        usedSetCurrentPage(Number(totalNewPages));
                       }
                     }}
                   >
@@ -837,14 +836,18 @@ const GenericTable = <T,>({
                     </Caption>
                     <div className="flex flex-row gap-4">
                       <button
-                        onClick={() => usedSetCurrentPage(usedCurrentPage - 1)}
+                        onClick={() =>
+                          usedSetCurrentPage(Number(usedCurrentPage) - 1)
+                        }
                         className="cursor-pointer"
                         disabled={usedCurrentPage === 1}
                       >
                         {"<"}
                       </button>
                       <button
-                        onClick={() => usedSetCurrentPage(usedCurrentPage + 1)}
+                        onClick={() =>
+                          usedSetCurrentPage(Number(usedCurrentPage) + 1)
+                        }
                         className="cursor-pointer"
                         disabled={usedCurrentPage === usedTotalPages}
                       >

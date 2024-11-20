@@ -1017,3 +1017,6 @@ export type PersonalOrderDataType = {
   cancelledByTables: number[];
   deliveredByTables: number[];
 };
+export type FormElementsState = {
+  [key: string]: any;
+};
