@@ -22,6 +22,16 @@ import ButtonTooltip from "./ButtonTooltip";
 import FilterPanel from "./FilterPanel";
 import Tooltip from "./Tooltip";
 import "./table.css";
+
+type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: (page: number) => void;
+  rowsPerPage: number;
+  setRowsPerPage: (rowPerPage: number) => void;
+  totalRows: number;
+};
+
 type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
@@ -50,6 +60,7 @@ type Props<T> = {
   isCollapsibleCheckActive?: boolean;
   isExcel?: boolean;
   excelFileName?: string;
+  pagination?: PaginationProps;
 };
 
 const GenericTable = <T,>({
@@ -84,6 +95,7 @@ const GenericTable = <T,>({
     RowPerPageEnum.SECOND,
     RowPerPageEnum.THIRD,
   ],
+  pagination,
 }: Props<T>) => {
   const { t } = useTranslation();
   const {
@@ -99,6 +111,14 @@ const GenericTable = <T,>({
     sortConfigKey,
   } = useGeneralContext();
   const navigate = useNavigate();
+  const usedCurrentPage = pagination ? pagination.currentPage : currentPage;
+  const usedRowsPerPage = pagination ? pagination.rowsPerPage : rowsPerPage;
+  const usedSetCurrentPage = pagination
+    ? pagination.setCurrentPage
+    : setCurrentPage;
+  const usedSetRowsPerPage = pagination
+    ? pagination.setRowsPerPage
+    : setRowsPerPage;
   const [tableRows, setTableRows] = useState(rows);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
@@ -127,13 +147,15 @@ const GenericTable = <T,>({
           return false;
         })
       );
-
   const totalRows = filteredRows.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
+  const usedTotalRows = pagination ? pagination.totalRows : totalRows;
+  const totalPages = Math.ceil(usedTotalRows / usedRowsPerPage);
+
+  const usedTotalPages = pagination ? pagination.totalPages : totalPages;
   const currentRows = isRowsPerPage
     ? filteredRows.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
+        (usedCurrentPage - 1) * usedRowsPerPage,
+        usedCurrentPage * usedRowsPerPage
       )
     : filteredRows;
 
@@ -631,7 +653,7 @@ const GenericTable = <T,>({
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                setCurrentPage(1);
+                usedSetCurrentPage(1);
               }}
               placeholder={t("Search")}
               className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
@@ -639,19 +661,15 @@ const GenericTable = <T,>({
           )}
           {/* outside search button */}
           {outsideSearch?.()}
-
           {/* filters  for upperside*/}
           <div className="flex flex-row flex-wrap gap-4 ml-auto ">
             {renderFilters(true)}
           </div>
         </div>
-
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
           {/* header part */}
-
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             {title && <H4 className="mr-auto">{title}</H4>}
-
             <div className="ml-auto flex flex-row gap-4">
               <div className="flex flex-row flex-wrap gap-4  ">
                 {isPdf && (
@@ -783,18 +801,18 @@ const GenericTable = <T,>({
                   <Caption>{t("Rows per page")}:</Caption>
                   <select
                     className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
-                    value={rowsPerPage}
+                    value={usedRowsPerPage}
                     onChange={(e) => {
-                      setRowsPerPage(Number(e.target.value));
+                      usedSetRowsPerPage(Number(e.target.value));
                       const totalNewPages = Math.ceil(
-                        totalRows / Number(e.target.value)
+                        usedTotalRows / Number(e.target.value)
                       );
-                      if (currentPage > totalNewPages) {
-                        setCurrentPage(totalNewPages);
+                      if (usedCurrentPage > totalNewPages) {
+                        usedSetCurrentPage(totalNewPages);
                       }
                     }}
                   >
-                    {rowsPerPageOptions.map((option, index) => (
+                    {rowsPerPageOptions?.map((option, index) => (
                       <option key={index} value={option}>
                         {option}
                       </option>
@@ -802,28 +820,33 @@ const GenericTable = <T,>({
                     <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
                   </select>
                 </div>
-
                 {/* Pagination */}
-
                 {isPagination && (
                   <div className=" flex flex-row gap-2 items-center">
                     <Caption>
-                      {Math.min((currentPage - 1) * rowsPerPage + 1, totalRows)}
-                      –{Math.min(currentPage * rowsPerPage, totalRows)} of{" "}
-                      {totalRows}
+                      {Math.min(
+                        (usedCurrentPage - 1) * usedRowsPerPage + 1,
+                        usedTotalRows
+                      )}
+                      –
+                      {Math.min(
+                        usedCurrentPage * usedRowsPerPage,
+                        usedTotalRows
+                      )}{" "}
+                      of {usedTotalRows}
                     </Caption>
                     <div className="flex flex-row gap-4">
                       <button
-                        onClick={() => setCurrentPage(currentPage - 1)}
+                        onClick={() => usedSetCurrentPage(usedCurrentPage - 1)}
                         className="cursor-pointer"
-                        disabled={currentPage === 1}
+                        disabled={usedCurrentPage === 1}
                       >
                         {"<"}
                       </button>
                       <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
+                        onClick={() => usedSetCurrentPage(usedCurrentPage + 1)}
                         className="cursor-pointer"
-                        disabled={currentPage === totalPages}
+                        disabled={usedCurrentPage === usedTotalPages}
                       >
                         {">"}
                       </button>
