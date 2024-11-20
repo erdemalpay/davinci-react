@@ -89,6 +89,7 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
 
     let totalAmount = 0;
     const content = orders
+      ?.filter((order) => order.status !== OrderStatus.CANCELLED)
       ?.map((order) => {
         const discountValue =
           (order.unitPrice * order.quantity * (order.discountPercentage ?? 0)) /
