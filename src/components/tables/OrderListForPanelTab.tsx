@@ -45,7 +45,6 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   }
   useEffect(() => {
     setKey((prev) => prev + 1);
-    console.log("tableOrders", tableOrders);
   }, [tableOrders, items, categories, kitchens, user]);
 
   return (
