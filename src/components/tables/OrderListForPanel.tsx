@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
-import { Order, OrderStatus, Table } from "../../types";
+import { OrderStatus, Table } from "../../types";
 import { useGetTableOrders } from "../../utils/api/order/order";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import NewOrderListPanel from "./NewOrderListPanel";
@@ -29,16 +29,12 @@ const OrderListForPanel = ({ table }: Props) => {
       label: "Waiting",
       content: (
         <OrderListForPanelTab
-          orders={
-            (tableOrders as Order[])?.filter((order) =>
-              [
-                OrderStatus.PENDING,
-                OrderStatus.READYTOSERVE,
-                OrderStatus.CONFIRMATIONREQ,
-              ].includes(order.status as OrderStatus)
-            ) ?? []
-          }
-          user={user}
+          tableId={table._id}
+          orderStatus={[
+            OrderStatus.PENDING,
+            OrderStatus.READYTOSERVE,
+            OrderStatus.CONFIRMATIONREQ,
+          ]}
         />
       ),
       isDisabled: false,
@@ -48,17 +44,8 @@ const OrderListForPanel = ({ table }: Props) => {
       label: "Served",
       content: (
         <OrderListForPanelTab
-          orders={
-            (tableOrders as Order[])?.filter(
-              (order) =>
-                ![
-                  OrderStatus.PENDING,
-                  OrderStatus.READYTOSERVE,
-                  OrderStatus.CONFIRMATIONREQ,
-                ].includes(order.status as OrderStatus)
-            ) ?? []
-          }
-          user={user}
+          orderStatus={[OrderStatus.SERVED, OrderStatus.AUTOSERVED]}
+          tableId={table._id}
         />
       ),
       isDisabled: false,

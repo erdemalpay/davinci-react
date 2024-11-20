@@ -1,13 +1,16 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
-import { Order, OrderStatus, User } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { Order, OrderStatus } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
+  useGetTableOrders,
   useOrderMutations,
   useUpdateOrderForCancelMutation,
 } from "../../utils/api/order/order";
@@ -15,13 +18,19 @@ import { getItem } from "../../utils/getItem";
 import { orderBgColor } from "./OrderCard";
 
 type Props = {
-  orders: Order[];
-  user: User;
+  orderStatus: Partial<OrderStatus>[];
+  tableId: number;
 };
 
-const OrderListForPanelTab = ({ orders, user }: Props) => {
+const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const { updateOrder, createOrder } = useOrderMutations();
+  const tableOrders = useGetTableOrders(tableId);
+  const [key, setKey] = useState(0);
+  const orders = tableOrders?.filter((order) =>
+    orderStatus.includes(order.status as OrderStatus)
+  );
   const { mutate: updateOrderCancel } = useUpdateOrderForCancelMutation();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
@@ -31,11 +40,15 @@ const OrderListForPanelTab = ({ orders, user }: Props) => {
   const items = useGetMenuItems();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
-  if (!items || !kitchens || !categories) {
+  if (!items || !kitchens || !categories || !user || !orders) {
     return <></>;
   }
+  useEffect(() => {
+    setKey((prev) => prev + 1);
+  }, [orders, items, categories, kitchens, user]);
+
   return (
-    <div className="  px-2   ">
+    <div key={key} className="  px-2   ">
       {orders?.map((order) => {
         const orderItem = getItem(order?.item, items);
         const orderItemCategory = getItem(orderItem?.category, categories);
