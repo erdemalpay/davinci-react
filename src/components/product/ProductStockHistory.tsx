@@ -28,7 +28,6 @@ const ProductStockHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { rowsPerPage } = useGeneralContext();
   const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
-
   const selectedProduct = products?.find(
     (product) => product._id === productId
   );
@@ -64,7 +63,6 @@ const ProductStockHistory = () => {
     usedRowsPerPage,
     filterPanelFormElements
   );
-  // const stockHistories = useGetAccountProductStockHistorys();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetAccountStockLocations();
   const [showFilters, setShowFilters] = useState(false);
@@ -210,15 +208,6 @@ const ProductStockHistory = () => {
       },
     },
   ];
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements]);
-
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [stockHistoriesPayload, users, products, locations]);
-
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -244,6 +233,15 @@ const ProductStockHistory = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [stockHistoriesPayload, users, products, locations]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -253,6 +251,7 @@ const ProductStockHistory = () => {
           columns={columns}
           rows={rows ?? []}
           filterPanel={filterPanel}
+          isSearch={false}
           filters={filters}
           title={t("Product Stock History")}
           isActionsActive={false}

@@ -265,6 +265,7 @@ const ProductStockHistory = () => {
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}
+          isSearch={false}
           title={t("Product Stock History")}
           isActionsActive={false}
           {...(pagination && { pagination })}
