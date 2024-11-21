@@ -83,6 +83,14 @@ export function useServiceInvoiceTransferInvoiceMutation() {
 export function useGetAccountInvoices() {
   return useGetList<AccountInvoice>(baseUrl);
 }
+export function useGetAccountProductInvoices(product: string) {
+  const url = `${Paths.Accounting}/product_invoice`;
+  return useGetList<AccountInvoice>(
+    `${url}?product=${product}`,
+    [url, product],
+    false
+  );
+}
 
 export function useGetAccountInvoice(
   page: number,

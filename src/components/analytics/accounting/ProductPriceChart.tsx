@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccountProduct } from "../../../types";
-import { useGetAccountInvoices } from "../../../utils/api/account/invoice";
+import { useGetAccountProductInvoices } from "../../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
 import { formatAsLocalDate } from "../../../utils/format";
 import SelectInput from "../../common/SelectInput";
@@ -10,7 +10,12 @@ import PriceChart from "./PriceChart";
 export default function ProductPriceChart() {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
-  const invoices = useGetAccountInvoices();
+  const [selectedProduct, setSelectedProduct] = useState<
+    AccountProduct | undefined
+  >(products ? products[0] : undefined);
+  const invoices = selectedProduct
+    ? useGetAccountProductInvoices(selectedProduct?._id)
+    : [];
   const [chartKey, setChartKey] = useState(0);
   const productOptions = products?.map((product) => {
     return {
@@ -18,9 +23,7 @@ export default function ProductPriceChart() {
       label: product.name,
     };
   });
-  const [selectedProduct, setSelectedProduct] = useState<
-    AccountProduct | undefined
-  >(products ? products[0] : undefined);
+
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -99,19 +102,16 @@ export default function ProductPriceChart() {
   });
 
   useEffect(() => {
-    const invoicesForProduct = invoices?.filter(
-      (invoice) => invoice.product === selectedProduct?._id
-    );
-    const prices = invoicesForProduct
+    const prices = invoices
       ?.map((invoice) =>
         parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
       )
       .reverse();
-    const dates = invoicesForProduct?.map((invoice) => invoice.date).reverse();
+    const dates = invoices?.map((invoice) => invoice.date).reverse();
 
     setChartConfig({
       ...chartConfig,
-      type: invoicesForProduct?.length > 1 ? "line" : "bar",
+      type: invoices?.length > 1 ? "line" : "bar",
       series: [
         {
           name: "Price",
@@ -187,7 +187,7 @@ export default function ProductPriceChart() {
       },
     });
     setChartKey((prev) => prev + 1);
-  }, [selectedProduct]);
+  }, [invoices]);
 
   return (
     <div className="flex flex-col gap-4  mx-auto">
