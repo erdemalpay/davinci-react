@@ -253,7 +253,7 @@ const Invoice = () => {
     { key: "brand", type: FormKeyTypeEnum.STRING },
   ];
 
-  const nameInput = [NameInput()]; // same for brand and location inputs
+  const nameInput = [NameInput()];
   const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const expenseTypeInputs = [NameInput(), BackgroundColorInput()];
   const expenseTypeFormKeys = [
@@ -855,7 +855,6 @@ const Invoice = () => {
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(allRows);
-    // setGeneralTotalExpense(newGeneralTotalExpense);
   }, [
     invoicesPayload,
     products,
