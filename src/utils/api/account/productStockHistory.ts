@@ -16,7 +16,7 @@ export function useGetAccountProductStockHistorys(
   filterPanelElements: FormElementsState
 ) {
   return useGet<StockHistoryPayload>(
-    `${baseUrl}?page=${page}&limit=${limit}&&product=${filterPanelElements.product}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&status=${filterPanelElements.status}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}`,
+    `${baseUrl}?page=${page}&limit=${limit}&product=${filterPanelElements.product}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&status=${filterPanelElements.status}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}`,
     [baseUrl, page, limit, filterPanelElements],
     false
   );

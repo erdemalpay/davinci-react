@@ -19,7 +19,6 @@ import { InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
-
 const ProductStockHistory = () => {
   const { t } = useTranslation();
   const { productId } = useParams();
@@ -73,7 +72,6 @@ const ProductStockHistory = () => {
       };
     })
     .filter((item) => item !== null);
-
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     StockLocationInput({ locations: locations }),
@@ -107,7 +105,6 @@ const ProductStockHistory = () => {
       isDatePicker: true,
     },
   ];
-
   const columns = [
     {
       key: t("Date"),
@@ -236,12 +233,10 @@ const ProductStockHistory = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
-
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [stockHistoriesPayload, users, products, locations]);
-
   return (
     <>
       <div className="w-[95%] mx-auto ">

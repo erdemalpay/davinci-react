@@ -1,9 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AccountInvoice } from "../../../types";
+import { AccountInvoice, FormElementsState } from "../../../types";
 import { patch } from ".././index";
-import { Paths, useGetList, useMutationApi } from "../factory";
+import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
+export interface AccountInvoicePayload {
+  data: AccountInvoice[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  generalTotalExpense: number;
+}
 const baseUrl = `${Paths.Accounting}/invoices`;
 
 export function useAccountInvoiceMutations() {
@@ -74,4 +82,16 @@ export function useServiceInvoiceTransferInvoiceMutation() {
 
 export function useGetAccountInvoices() {
   return useGetList<AccountInvoice>(baseUrl);
+}
+
+export function useGetAccountInvoice(
+  page: number,
+  limit: number,
+  filterPanelElements: FormElementsState
+) {
+  return useGet<AccountInvoicePayload>(
+    `${Paths.Accounting}/invoice?page=${page}&limit=${limit}&product=${filterPanelElements.product}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}`,
+    [baseUrl, page, limit, filterPanelElements],
+    false
+  );
 }
