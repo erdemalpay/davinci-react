@@ -1,4 +1,3 @@
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,9 +10,9 @@ import { useGetAccountStockLocations } from "../../utils/api/account/stockLocati
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { outsideSort } from "../../utils/outsideSort";
 import { StockLocationInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { H5 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
@@ -31,20 +30,6 @@ const ProductStockHistory = () => {
   const selectedProduct = products?.find(
     (product) => product._id === productId
   );
-  function handleSort(value: string) {
-    if (filterPanelFormElements.sort === value) {
-      setFilterPanelFormElements({
-        ...filterPanelFormElements,
-        asc: filterPanelFormElements.asc === 1 ? -1 : 1,
-      });
-    } else {
-      setFilterPanelFormElements({
-        ...filterPanelFormElements,
-        asc: value === "createdAt" ? 1 : -1,
-        sort: value,
-      });
-    }
-  }
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: selectedProduct?._id,
@@ -122,37 +107,52 @@ const ProductStockHistory = () => {
       isDatePicker: true,
     },
   ];
-  const createColumn = (key: string, title: string) => ({
-    key: t(title),
-    isSortable: true,
-    node: () => (
-      <th
-        key={key}
-        className="font-bold text-left cursor-pointer"
-        onClick={() => handleSort(key)}
-      >
-        <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-          <H5>{t(title)}</H5>
-          {filterPanelFormElements.sort === key &&
-            (filterPanelFormElements.asc === 1 ? (
-              <ArrowUpIcon className="h-4 w-4 my-auto" />
-            ) : (
-              <ArrowDownIcon className="h-4 w-4 my-auto" />
-            ))}
-        </div>
-      </th>
-    ),
-  });
+
   const columns = [
-    createColumn("createdAt", "Date"),
+    {
+      key: t("Date"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "createdAt",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     { key: t("Hour"), isSortable: false },
-    createColumn("user", "User"),
-    { key: t("Product"), isSortable: false },
-    createColumn("location", "Location"),
+    {
+      key: t("User"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "user",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Product"),
+      isSortable: false,
+    },
+    {
+      key: t("Location"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "location",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     { key: t("Old Quantity"), isSortable: false },
     { key: t("Changed"), isSortable: false },
     { key: t("New Quantity"), isSortable: false },
-    createColumn("status", "Status"),
+    {
+      key: t("Status"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "status",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
   ];
   const rowKeys = [
     {

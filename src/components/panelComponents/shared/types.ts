@@ -53,6 +53,7 @@ export interface ColumnType<T> {
   isAddable?: boolean;
   className?: string;
   correspondingKey?: string;
+  outsideSort?: React.ReactNode;
   node?: () => React.ReactNode;
   onClick?: () => void;
 }

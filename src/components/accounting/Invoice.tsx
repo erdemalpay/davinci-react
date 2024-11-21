@@ -138,29 +138,28 @@ const Invoice = () => {
 
   const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
     useAccountInvoiceMutations();
-  const [rows, setRows] = useState(
-    invoices?.map((invoice) => {
-      return {
-        ...invoice,
-        product: getItem(invoice?.product, products)?.name,
-        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-        brand: getItem(invoice?.brand, brands)?.name,
-        vendor: getItem(invoice?.vendor, vendors)?.name,
-        lctn: getItem(invoice?.location, locations)?.name,
-        formattedDate: formatAsLocalDate(invoice?.date),
-        unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-        ),
-        expType: getItem(invoice?.expenseType, expenseTypes),
-        brnd: getItem(invoice?.brand, brands),
-        vndr: getItem(invoice?.vendor, vendors),
-        prdct: getItem(invoice?.product, products),
-        paymentMethodName: t(
-          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-        ),
-      };
-    })
-  );
+  const allRows = invoices?.map((invoice) => {
+    return {
+      ...invoice,
+      product: getItem(invoice?.product, products)?.name,
+      expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+      brand: getItem(invoice?.brand, brands)?.name,
+      vendor: getItem(invoice?.vendor, vendors)?.name,
+      lctn: getItem(invoice?.location, locations)?.name,
+      formattedDate: formatAsLocalDate(invoice?.date),
+      unitPrice: parseFloat(
+        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+      ),
+      expType: getItem(invoice?.expenseType, expenseTypes),
+      brnd: getItem(invoice?.brand, brands),
+      vndr: getItem(invoice?.vendor, vendors),
+      prdct: getItem(invoice?.product, products),
+      paymentMethodName: t(
+        getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+      ),
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(
     invoices?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
   );

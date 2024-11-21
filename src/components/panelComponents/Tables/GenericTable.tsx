@@ -747,12 +747,14 @@ const GenericTable = <T,>({
                               )}
                               {column.key}
                             </span>
-                            {column.isSortable && (
-                              <div
-                                className="sort-buttons"
-                                style={{ display: "inline-block" }}
-                              >
-                                {sortConfig?.key === rowKeys[index]?.key &&
+                            <div
+                              className="sort-buttons"
+                              style={{ display: "inline-block" }}
+                            >
+                              {column?.outsideSort}
+                              {column.isSortable &&
+                                !column?.outsideSort &&
+                                (sortConfig?.key === rowKeys[index]?.key &&
                                 sortConfig?.direction === "ascending" ? (
                                   <button
                                     onClick={() =>
@@ -781,9 +783,8 @@ const GenericTable = <T,>({
                                   >
                                     ↓
                                   </button>
-                                )}
-                              </div>
-                            )}
+                                ))}
+                            </div>
                           </H5>
                         </th>
                       );
