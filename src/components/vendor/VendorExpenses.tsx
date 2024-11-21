@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountExpenseType } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountInvoice } from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { outsideSort } from "../../utils/outsideSort";
 import {
   BrandInput,
   ProductInput,
   StockLocationInput,
 } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -30,88 +29,63 @@ const VendorExpenses = () => {
   const { t } = useTranslation();
   const { vendorId } = useParams();
   const vendors = useGetAccountVendors();
-  const selectedVendor = vendors?.find((item) => item._id === vendorId);
-  if (!selectedVendor) return <></>;
-  const invoices = useGetAccountInvoices();
+  if (!vendorId) return <></>;
+  const [currentPage, setCurrentPage] = useState(1);
+  const { rowsPerPage } = useGeneralContext();
+  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      product: "",
+      vendor: vendorId,
+      brand: "",
+      expenseType: "",
+      location: "",
+      date: "",
+      before: "",
+      after: "",
+      sort: "",
+      asc: 1,
+    });
+  const invoicesPayload = useGetAccountInvoice(
+    currentPage,
+    usedRowsPerPage,
+    filterPanelFormElements
+  );
+  const invoices = invoicesPayload?.data;
   const brands = useGetAccountBrands();
   const products = useGetAccountProducts();
   const expenseTypes = useGetAccountExpenseTypes();
   const paymentMethods = useGetAccountPaymentMethods();
   const locations = useGetAccountStockLocations();
-  const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      before: "",
-      after: "",
-      location: "",
-      product: "",
-      brand: "",
-    });
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const [rows, setRows] = useState(
-    invoices
-      ?.filter((invoice) => invoice?.vendor === selectedVendor?._id)
-      ?.map((invoice) => {
-        return {
-          ...invoice,
-          product: getItem(invoice?.product, products)?.name,
-          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          brand: getItem(invoice?.brand, brands)?.name,
-          vendor: getItem(invoice?.vendor, vendors)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          lctn: getItem(invoice?.location, locations)?.name,
-          unitPrice: parseFloat(
-            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-          ),
-          expType: getItem(invoice?.expenseType, expenseTypes),
-          brnd: getItem(invoice?.brand, brands),
-          vndr: getItem(invoice?.vendor, vendors),
-          prdct: getItem(invoice?.product, products),
-          paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-          ),
-        };
-      })
-  );
-  const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    rows?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
-  );
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative min-w-32">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
+  const allRows = invoices?.map((invoice) => {
+    return {
+      ...invoice,
+      product: getItem(invoice?.product, products)?.name,
+      expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+      brand: getItem(invoice?.brand, brands)?.name,
+      vendor: getItem(invoice?.vendor, vendors)?.name,
+      lctn: getItem(invoice?.location, locations)?.name,
+      formattedDate: formatAsLocalDate(invoice?.date),
+      unitPrice: parseFloat(
+        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+      ),
+      expType: getItem(invoice?.expenseType, expenseTypes),
+      brnd: getItem(invoice?.brand, brands),
+      vndr: getItem(invoice?.vendor, vendors),
+      prdct: getItem(invoice?.product, products),
+      paymentMethodName: t(
+        getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+      ),
+    };
+  });
+  const [rows, setRows] = useState(allRows);
 
   const filterPanelInputs = [
     ProductInput({
-      products: products.filter((i) => i.vendor?.includes(selectedVendor?._id)),
+      products: products.filter((i) => i.vendor?.includes(vendorId)),
       required: true,
     }),
     BrandInput({ brands: brands, required: true }),
@@ -134,33 +108,114 @@ const VendorExpenses = () => {
     },
   ];
   const columns = [
-    { key: "ID", isSortable: true },
-    { key: t("Date"), isSortable: true, className: "min-w-32 pr-2" },
-    { key: t("Note"), isSortable: true },
+    {
+      key: "ID",
+      isSortable: false,
+      outsideSort: outsideSort(
+        "_id",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Date"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "date",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+      className: "min-w-32 pr-2",
+    },
+    {
+      key: t("Note"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "note",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     {
       key: t("Brand"),
       className: "min-w-32 pr-2",
-      isSortable: true,
+      isSortable: false,
+      outsideSort: outsideSort(
+        "brand",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
-    { key: t("Location"), isSortable: true },
+    {
+      key: t("Vendor"),
+      className: "min-w-32 pr-2",
+      isSortable: false,
+      outsideSort: outsideSort(
+        "vendor",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Location"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "location",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     {
       key: t("Expense Type"),
       className: "min-w-32 ",
-      isSortable: true,
+      isSortable: false,
+      outsideSort: outsideSort(
+        "expenseType",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
     {
       key: t("Product"),
       className: "min-w-32 pr-2",
-      isSortable: true,
+      isSortable: false,
+      outsideSort: outsideSort(
+        "product",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
     {
       key: t("Payment Method"),
-      className: "min-w-32 ",
-      isSortable: true,
+      isSortable: false,
+      outsideSort: outsideSort(
+        "paymentMethod",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
-    { key: t("Quantity"), isSortable: true },
-    { key: t("Unit Price"), isSortable: true },
-    { key: t("Total Expense"), isSortable: true },
+    {
+      key: t("Quantity"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "quantity",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Unit Price"),
+      isSortable: false,
+    },
+    {
+      key: t("Total Expense"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "totalExpense",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
   ];
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
@@ -171,6 +226,10 @@ const VendorExpenses = () => {
     { key: "note", className: "min-w-40 pr-2" },
     {
       key: "brand",
+      className: "min-w-32 pr-2",
+    },
+    {
+      key: "vendor",
       className: "min-w-32 pr-2",
     },
     {
@@ -226,74 +285,6 @@ const VendorExpenses = () => {
       },
     },
   ];
-  useEffect(() => {
-    const processedRows = invoices
-      ?.filter((invoice) => invoice?.vendor === selectedVendor?._id)
-      ?.filter((invoice) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            invoice?.date <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            invoice?.date >= filterPanelFormElements.after) &&
-          passesFilter(filterPanelFormElements.product, invoice?.product) &&
-          passesFilter(filterPanelFormElements.brand, invoice?.brand) &&
-          passesFilter(filterPanelFormElements.location, invoice?.location)
-        );
-      })
-      .map((invoice) => {
-        return {
-          ...invoice,
-          product: getItem(invoice?.product, products)?.name,
-          expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-          brand: getItem(invoice?.brand, brands)?.name,
-          vendor: getItem(invoice?.vendor, vendors)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          lctn: getItem(invoice?.location, locations)?.name,
-          unitPrice: parseFloat(
-            (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-          ),
-          expType: getItem(invoice?.expenseType, expenseTypes),
-          brnd: getItem(invoice?.brand, brands),
-          vndr: getItem(invoice?.vendor, vendors),
-          prdct: getItem(invoice?.product, products),
-          paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-          ),
-        };
-      });
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice?.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
-    setTableKey((prev) => prev + 1);
-  }, [invoices, filterPanelFormElements, searchQuery]);
-
   const filters = [
     {
       label: t("Total") + " :",
@@ -305,7 +296,7 @@ const VendorExpenses = () => {
               style: "decimal",
               minimumFractionDigits: 3,
               maximumFractionDigits: 3,
-            }).format(generalTotalExpense)}{" "}
+            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
             ₺
           </p>
         </div>
@@ -323,19 +314,45 @@ const VendorExpenses = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
   };
+  const pagination = invoicesPayload
+    ? {
+        currentPage: invoicesPayload.page,
+        totalPages: invoicesPayload.totalPages,
+        setCurrentPage: setCurrentPage,
+        rowsPerPage: usedRowsPerPage,
+        setRowsPerPage: setUsedRowsPerPage,
+        totalRows: invoicesPayload.totalNumber,
+      }
+    : null;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+    setRows(allRows);
+  }, [
+    invoicesPayload,
+    products,
+    expenseTypes,
+    brands,
+    vendors,
+    locations,
+    paymentMethods,
+  ]);
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={selectedVendor?._id + tableKey}
+        key={vendorId + tableKey}
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
         filterPanel={filterPanel}
-        rows={rows}
+        rows={rows ?? []}
         title={t("Vendor Expenses")}
         isSearch={false}
-        outsideSearch={outsideSearch}
+        {...(pagination && { pagination })}
         isActionsActive={false}
       />
     </div>

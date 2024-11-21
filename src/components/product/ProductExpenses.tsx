@@ -28,7 +28,6 @@ type FormElementsState = {
 };
 const ProductExpenses = () => {
   const { t } = useTranslation();
-
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
   const { productId } = useParams();
@@ -341,7 +340,6 @@ const ProductExpenses = () => {
     locations,
     paymentMethods,
   ]);
-
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable

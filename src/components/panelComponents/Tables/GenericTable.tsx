@@ -848,9 +848,11 @@ const GenericTable = <T,>({
                         {"<"}
                       </button>
                       <button
-                        onClick={() =>
-                          usedSetCurrentPage(Number(usedCurrentPage) + 1)
-                        }
+                        onClick={() => {
+                          if (usedCurrentPage < usedTotalPages) {
+                            usedSetCurrentPage(Number(usedCurrentPage) + 1);
+                          }
+                        }}
                         className="cursor-pointer"
                         disabled={usedCurrentPage === usedTotalPages}
                       >
