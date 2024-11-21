@@ -16,6 +16,7 @@ const FilterPanel = <T,>({
   formElements,
   setFormElements,
   closeFilters,
+  isApplyButtonActive = false,
 }: PanelFilterType<T>) => {
   const { t } = useTranslation();
   const { setCurrentPage } = useGeneralContext();
@@ -38,10 +39,12 @@ const FilterPanel = <T,>({
     {
       label: "Apply",
       onClick: applyFilters,
+      isDisabled: !isApplyButtonActive,
     },
     {
       label: "Clear All Filters",
       onClick: handleClearAllFilters,
+      isDisabled: false,
     },
   ];
 
@@ -59,13 +62,23 @@ const FilterPanel = <T,>({
           const changedInput = inputs.find((input) => input.formKey === key);
           if (changedInput?.invalidateKeys) {
             changedInput.invalidateKeys.forEach((key) => {
-              setTempFormElements((prev) => ({
-                ...prev,
-                [key.key]: key.defaultValue,
-              }));
+              if (isApplyButtonActive) {
+                setTempFormElements((prev) => ({
+                  ...prev,
+                  [key.key]: key.defaultValue,
+                }));
+              } else {
+                setFormElements((prev) => ({
+                  ...prev,
+                  [key.key]: key.defaultValue,
+                }));
+              }
             });
           }
-          setTempFormElements((prev) => ({ ...prev, [key]: value }));
+
+          isApplyButtonActive
+            ? setTempFormElements((prev) => ({ ...prev, [key]: value }))
+            : setFormElements((prev) => ({ ...prev, [key]: value }));
           setCurrentPage(1);
         };
 
@@ -82,23 +95,43 @@ const FilterPanel = <T,>({
             ) {
               if (Array.isArray(selectedValue)) {
                 const values = selectedValue.map((option) => option.value);
-                setTempFormElements((prev) => ({ ...prev, [key]: values }));
+                isApplyButtonActive
+                  ? setTempFormElements((prev) => ({ ...prev, [key]: values }))
+                  : setFormElements((prev) => ({ ...prev, [key]: values }));
               } else if (selectedValue) {
-                setTempFormElements((prev) => ({
-                  ...prev,
-                  [key]: (selectedValue as OptionType)?.value,
-                }));
+                isApplyButtonActive
+                  ? setTempFormElements((prev) => ({
+                      ...prev,
+                      [key]: (selectedValue as OptionType)?.value,
+                    }))
+                  : setFormElements((prev) => ({
+                      ...prev,
+                      [key]: (selectedValue as OptionType)?.value,
+                    }));
               } else {
-                setTempFormElements((prev) => ({ ...prev, [key]: "" }));
+                isApplyButtonActive
+                  ? setTempFormElements((prev) => ({
+                      ...prev,
+                      [key]: "",
+                    }))
+                  : setFormElements((prev) => ({
+                      ...prev,
+                      [key]: "",
+                    }));
               }
             }
             const changedInput = inputs.find((input) => input.formKey === key);
             if (changedInput?.invalidateKeys) {
               changedInput.invalidateKeys.forEach((key) => {
-                setTempFormElements((prev) => ({
-                  ...prev,
-                  [key.key]: key.defaultValue,
-                }));
+                isApplyButtonActive
+                  ? setTempFormElements((prev) => ({
+                      ...prev,
+                      [key.key]: key.defaultValue,
+                    }))
+                  : setFormElements((prev) => ({
+                      ...prev,
+                      [key.key]: key.defaultValue,
+                    }));
               });
             }
             if (changedInput?.additionalOnChange) {
@@ -125,10 +158,15 @@ const FilterPanel = <T,>({
                 isDatePicker={input.isDatePicker ?? false}
                 isOnClearActive={input?.isOnClearActive}
                 onClear={() =>
-                  setTempFormElements((prev) => ({
-                    ...prev,
-                    [input.formKey]: "",
-                  }))
+                  isApplyButtonActive
+                    ? setTempFormElements((prev) => ({
+                        ...prev,
+                        [input.formKey]: "",
+                      }))
+                    : setFormElements((prev) => ({
+                        ...prev,
+                        [input.formKey]: "",
+                      }))
                 }
               />
             )}
@@ -155,10 +193,15 @@ const FilterPanel = <T,>({
                 isMultiple={input.isMultiple ?? false}
                 onChange={handleChangeForSelect(input.formKey)}
                 onClear={() => {
-                  setTempFormElements((prev) => ({
-                    ...prev,
-                    [input.formKey]: input.isMultiple ? [] : "",
-                  }));
+                  isApplyButtonActive
+                    ? setTempFormElements((prev) => ({
+                        ...prev,
+                        [input.formKey]: input.isMultiple ? [] : "",
+                      }))
+                    : setFormElements((prev) => ({
+                        ...prev,
+                        [input.formKey]: input.isMultiple ? [] : "",
+                      }));
                 }}
               />
             )}
@@ -180,17 +223,19 @@ const FilterPanel = <T,>({
         );
       })}
       <div className="flex flex-row w-fit gap-2 ml-auto">
-        {buttons.map((button) => {
-          return (
-            <button
-              key={button.label}
-              className=" mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
-              onClick={button.onClick}
-            >
-              {t(button.label)}
-            </button>
-          );
-        })}
+        {buttons
+          .filter((button) => !button.isDisabled)
+          .map((button) => {
+            return (
+              <button
+                key={button.label}
+                className=" mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
+                onClick={button.onClick}
+              >
+                {t(button.label)}
+              </button>
+            );
+          })}
       </div>
     </div>
   );
