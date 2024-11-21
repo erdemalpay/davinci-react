@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetAccountInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountProductInvoices } from "../../utils/api/account/invoice";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { formatAsLocalDate } from "../../utils/format";
 import PriceChart from "../analytics/accounting/PriceChart";
@@ -12,7 +12,9 @@ const ProductPrice = () => {
     (product) => product._id === productId
   );
   if (!selectedProduct) return <></>;
-  const invoices = useGetAccountInvoices();
+  const invoices = selectedProduct
+    ? useGetAccountProductInvoices(selectedProduct?._id)
+    : [];
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -90,19 +92,16 @@ const ProductPrice = () => {
     },
   });
   useEffect(() => {
-    const invoicesForProduct = invoices?.filter(
-      (invoice) => invoice.product === selectedProduct?._id
-    );
-    const prices = invoicesForProduct
+    const prices = invoices
       ?.map((invoice) =>
         parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
       )
       .reverse();
-    const dates = invoicesForProduct?.map((invoice) => invoice.date).reverse();
+    const dates = invoices?.map((invoice) => invoice.date).reverse();
 
     setChartConfig({
       ...chartConfig,
-      type: invoicesForProduct?.length > 1 ? "line" : "bar",
+      type: invoices?.length > 1 ? "line" : "bar",
       series: [
         {
           name: "Price",
@@ -177,7 +176,7 @@ const ProductPrice = () => {
         },
       },
     });
-  }, [selectedProduct, invoices]);
+  }, [invoices]);
   return (
     <PriceChart
       key={selectedProduct._id}
