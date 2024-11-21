@@ -109,7 +109,7 @@ const ProductStockHistory = () => {
       type: InputTypes.SELECT,
       formKey: "status",
       label: t("Status"),
-      options: stockHistoryStatuses.map((item) => {
+      options: stockHistoryStatuses?.map((item) => {
         return {
           value: item.value,
           label: t(item.label),
