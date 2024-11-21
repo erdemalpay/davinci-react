@@ -837,9 +837,11 @@ const GenericTable = <T,>({
                     </Caption>
                     <div className="flex flex-row gap-4">
                       <button
-                        onClick={() =>
-                          usedSetCurrentPage(Number(usedCurrentPage) - 1)
-                        }
+                        onClick={() => {
+                          if (usedCurrentPage > 1) {
+                            usedSetCurrentPage(Number(usedCurrentPage) - 1);
+                          }
+                        }}
                         className="cursor-pointer"
                         disabled={usedCurrentPage === 1}
                       >

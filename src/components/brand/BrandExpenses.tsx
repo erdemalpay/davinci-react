@@ -60,7 +60,6 @@ const BrandExpenses = () => {
   const paymentMethods = useGetAccountPaymentMethods();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const allRows = invoices?.map((invoice) => {
     return {
       ...invoice,
@@ -83,7 +82,6 @@ const BrandExpenses = () => {
     };
   });
   const [rows, setRows] = useState(allRows);
-
   const filterPanelInputs = [
     ProductInput({
       products: products.filter((i) => i.brand?.includes(brandId)),
@@ -187,6 +185,15 @@ const BrandExpenses = () => {
       ),
     },
     {
+      key: t("Payment Method"),
+      isSortable: false,
+      outsideSort: outsideSort(
+        "paymentMethod",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
       key: t("Quantity"),
       isSortable: false,
       outsideSort: outsideSort(
@@ -249,6 +256,7 @@ const BrandExpenses = () => {
       key: "product",
       className: "min-w-32 pr-2",
     },
+    { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
       key: "unitPrice",
