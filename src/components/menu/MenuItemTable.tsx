@@ -60,9 +60,17 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)
+    : true;
   const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLocationEdit, setIsLocationEdit] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
   const [form, setForm] = useState({
@@ -81,7 +89,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     vendor: [],
     expenseType: [],
   });
-
   const allRows = singleItemGroup?.items.map((item) => {
     return {
       ...item,
@@ -91,65 +98,79 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         collapsibleColumns: [
           { key: t("Product"), isSortable: true },
           { key: t("Quantity"), isSortable: true },
-          ...(!singleItemGroup?.category?.isOnlineOrder ||
-          user?.role?._id === RoleEnum.MANAGER
+          ...(!isDisabledCondition
             ? [{ key: t("Cost"), isSortable: true }]
             : []),
-          { key: t("Decrement Stock"), isSortable: false },
-          { key: t("Action"), isSortable: false, className: "text-center" },
+          ...(!isDisabledCondition
+            ? [{ key: t("Decrement Stock"), isSortable: false }]
+            : []),
+          {
+            ...(!isDisabledCondition && {
+              key: t("Action"),
+              isSortable: false,
+              className: "text-center",
+            }),
+          },
         ],
         collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
           product: itemProduction.product,
           name: products?.find(
             (product: AccountProduct) => product._id === itemProduction.product
           )?.name,
-          price: formatPrice(
-            (products?.find((product) => product._id === itemProduction.product)
-              ?.unitPrice ?? 0) * itemProduction.quantity
-          ),
+          ...(!isDisabledCondition && {
+            price: formatPrice(
+              (products?.find(
+                (product) => product._id === itemProduction.product
+              )?.unitPrice ?? 0) * itemProduction.quantity
+            ),
+          }),
           quantity: itemProduction.quantity,
-          isDecrementStock: itemProduction?.isDecrementStock,
+          ...(!isDisabledCondition && {
+            isDecrementStock: itemProduction?.isDecrementStock,
+          }),
         })),
-
         collapsibleRowKeys: [
           { key: "name" },
           { key: "quantity" },
-          ...(!singleItemGroup?.category?.isOnlineOrder ||
-          user?.role?._id === RoleEnum.MANAGER
-            ? [{ key: "price" }]
+          ...(!isDisabledCondition ? [{ key: "price" }] : []),
+          ...(!isDisabledCondition
+            ? [
+                {
+                  key: "isDecrementStock",
+                  node: (row: any) => {
+                    return (
+                      <div className="ml-6">
+                        <CheckSwitch
+                          checked={row?.isDecrementStock}
+                          onChange={() => {
+                            updateItem({
+                              id: item?._id,
+                              updates: {
+                                itemProduction: item?.itemProduction?.map(
+                                  (itemProduction) => {
+                                    if (
+                                      itemProduction.product === row?.product
+                                    ) {
+                                      return {
+                                        ...itemProduction,
+                                        isDecrementStock:
+                                          !itemProduction.isDecrementStock,
+                                      };
+                                    } else {
+                                      return itemProduction;
+                                    }
+                                  }
+                                ),
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+                    );
+                  },
+                },
+              ]
             : []),
-          {
-            key: "isDecrementStock",
-            node: (row: any) => {
-              return (
-                <div className="ml-6">
-                  <CheckSwitch
-                    checked={row?.isDecrementStock}
-                    onChange={() => {
-                      updateItem({
-                        id: item?._id,
-                        updates: {
-                          itemProduction: item?.itemProduction?.map(
-                            (itemProduction) => {
-                              if (itemProduction.product === row?.product) {
-                                return {
-                                  ...itemProduction,
-                                  isDecrementStock:
-                                    !itemProduction.isDecrementStock,
-                                };
-                              } else {
-                                return itemProduction;
-                              }
-                            }
-                          ),
-                        },
-                      });
-                    }}
-                  />
-                </div>
-              );
-            },
-          },
         ],
       },
     };
@@ -170,7 +191,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     });
     toast.success(`${t("Menu Item updated successfully")}`);
   }
-
   const collapsibleInputs = [
     {
       type: InputTypes.SELECT,
@@ -302,11 +322,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ...(singleItemGroup?.category?.isOnlineOrder
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
-    { key: t("Cost"), isSortable: false },
+    ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     { key: t("Matched Product"), isSortable: false },
-    { key: t("Action"), isSortable: false },
+    ...(!isDisabledCondition && isEnableEdit
+      ? [{ key: t("Action"), isSortable: false }]
+      : []),
   ];
-
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     { key: "name" },
@@ -314,7 +335,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     {
       key: "bahceli",
       node: (row: MenuItem) =>
-        isEnableEdit ? (
+        isLocationEdit ? (
           <CheckSwitch
             checked={row?.locations?.includes(1)}
             onChange={() => handleLocationUpdate(row, 1)}
@@ -328,7 +349,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     {
       key: "neorama",
       node: (row: MenuItem) =>
-        isEnableEdit ? (
+        isLocationEdit ? (
           <CheckSwitch
             checked={row?.locations?.includes(2)}
             onChange={() => handleLocationUpdate(row, 2)}
@@ -357,21 +378,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           },
         ]
       : []),
-    {
-      key: "cost",
-      node: (item: MenuItem) => {
-        const total =
-          item?.itemProduction?.reduce((acc, curr) => {
-            const product = products?.find(
-              (product) => product._id === curr.product
-            );
-            const unitPrice = product?.unitPrice ?? 0;
-            return acc + unitPrice * curr.quantity;
-          }, 0) ?? 0;
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "cost",
+            node: (item: MenuItem) => {
+              const total =
+                item?.itemProduction?.reduce((acc, curr) => {
+                  const product = products?.find(
+                    (product) => product._id === curr.product
+                  );
+                  const unitPrice = product?.unitPrice ?? 0;
+                  return acc + unitPrice * curr.quantity;
+                }, 0) ?? 0;
 
-        return total === 0 ? "-" : `${formatPrice(total)} ₺`;
-      },
-    },
+              return total === 0 ? "-" : `${formatPrice(total)} ₺`;
+            },
+          },
+        ]
+      : []),
+
     { key: "matchedProductName" },
   ];
   if (!singleItemGroup?.category?.locations?.includes(LocationEnum.BAHCELI)) {
@@ -431,6 +457,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+    isDisabled: isDisabledCondition,
   };
   const handleDrag = (DragRow: MenuItem, DropRow: MenuItem) => {
     updateItemsOrder({
@@ -577,13 +604,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isModalOpen: isProductAddModalOpen,
       setIsModal: setIsProductAddModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Popular"),
@@ -620,9 +641,19 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
+      node: (
+        <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
+      ),
+      // isDisabled: isDisabledCondition,
+    },
+    {
+      label: t("Enable Edit"),
+      isUpperSide: false,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled: isDisabledCondition,
     },
   ];
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -633,14 +664,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     expenseTypes,
     brands,
     vendors,
+    isEnableEdit,
   ]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
         key={tableKey}
         rowKeys={rowKeys}
-        actions={actions}
-        isActionsActive={true}
+        actions={!isDisabledCondition && isEnableEdit ? actions : []}
+        isActionsActive={isEnableEdit && !isDisabledCondition}
         columns={columns}
         rows={rows}
         filters={filters}
@@ -648,10 +680,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
         isCollapsibleCheckActive={false}
-        addCollapsible={addCollapsible}
-        isDraggable={true}
+        {...(!isDisabledCondition && { addCollapsible })}
+        isDraggable={!isDisabledCondition}
         isCollapsible={products.length > 0}
-        collapsibleActions={collapsibleActions}
+        {...(!isDisabledCondition && { collapsibleActions })}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>

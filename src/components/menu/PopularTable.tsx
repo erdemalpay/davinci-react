@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuItem, MenuPopular } from "../../types";
+import { MenuItem, MenuPopular, RoleEnum } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
@@ -20,7 +21,15 @@ const PopularTable = ({ popularItems }: Props) => {
   const categories = useGetCategories();
   const items = useGetMenuItems();
   const { deletePopular, updatePopular } = usePopularMutations();
+  const { user } = useUserContext();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
+  const isDisabledCondition = user
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)
+    : true;
   const rows = popularItems.map((popItem) => {
     const popularItem = getItem(popItem.item, items);
     return {
@@ -42,7 +51,7 @@ const PopularTable = ({ popularItems }: Props) => {
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
-    { key: t("Action"), isSortable: false },
+    ...(!isDisabledCondition ? [{ key: t("Action"), isSortable: false }] : []),
   ];
 
   const rowKeys = [
@@ -124,13 +133,13 @@ const PopularTable = ({ popularItems }: Props) => {
     <div className="w-[95%] mx-auto">
       <GenericTable
         rowKeys={rowKeys}
-        actions={actions}
+        actions={isDisabledCondition ? [] : actions}
         columns={columns}
-        isActionsActive={true}
+        isActionsActive={!isDisabledCondition}
         rows={rows}
         title={t("Popular Items")}
         imageHolder={NO_IMAGE_URL}
-        isDraggable={true}
+        isDraggable={!isDisabledCondition}
         onDragEnter={(DragRow: MenuItem, DropRow) =>
           handleDrag(DragRow, DropRow)
         }

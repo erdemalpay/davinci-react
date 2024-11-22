@@ -59,6 +59,9 @@ const Stock = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<any>();
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    : true;
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks?.reduce((acc, stock) => {
@@ -338,7 +341,7 @@ const Stock = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: user?.role?._id !== RoleEnum.MANAGER,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filters = [
@@ -357,12 +360,13 @@ const Stock = () => {
           </p>
         </div>
       ),
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isDisabledCondition,
     },
     {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled: isDisabledCondition,
     },
     {
       label: t("Show Filters"),

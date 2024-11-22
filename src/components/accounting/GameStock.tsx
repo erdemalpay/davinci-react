@@ -57,6 +57,9 @@ const GameStock = () => {
     location: "",
     quantity: 0,
   });
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    : true;
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) =>
@@ -367,7 +370,7 @@ const GameStock = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: user?.role?._id !== RoleEnum.MANAGER,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filters = [
@@ -386,12 +389,13 @@ const GameStock = () => {
           </p>
         </div>
       ),
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isDisabledCondition,
     },
     {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled: isDisabledCondition,
     },
     {
       label: t("Show Filters"),

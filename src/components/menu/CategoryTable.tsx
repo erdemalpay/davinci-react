@@ -5,8 +5,9 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { MenuCategory, OrderDiscountStatus } from "../../types";
+import { MenuCategory, OrderDiscountStatus, RoleEnum } from "../../types";
 import {
   useCategoryMutations,
   useUpdateCategoriesOrderMutation,
@@ -38,6 +39,14 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const { user } = useUserContext();
+  const isDisabledCondition = user
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)
+    : true;
   const kitchens = useGetKitchens();
   const { deleteCategory, updateCategory, createCategory } =
     useCategoryMutations();
@@ -141,9 +150,13 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: t("Discounts"), isSortable: false },
     { key: "Bahçeli", isSortable: false },
     { key: "Neorama", isSortable: false },
-    { key: t("Auto served"), isSortable: false },
-    { key: t("Online Order"), isSortable: false },
-    { key: t("Action"), isSortable: false },
+    ...(!isDisabledCondition
+      ? [
+          { key: t("Auto served"), isSortable: false },
+          { key: t("Online Order"), isSortable: false },
+          { key: t("Action"), isSortable: false },
+        ]
+      : []),
   ];
 
   const rowKeys = [
@@ -153,10 +166,10 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       node: (row: MenuCategory) => (
         <p
           onClick={() => {
-            setMenuActiveTab(row.order - 1);
+            setMenuActiveTab(row.order - 2);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform sm:pl-4"
         >
           {row.name}
         </p>
@@ -214,24 +227,28 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
-    {
-      key: "isAutoServed",
-      node: (row: MenuCategory) =>
-        row.isAutoServed ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl " />
-        ),
-    },
-    {
-      key: "isOnlineOrder",
-      node: (row: MenuCategory) =>
-        row?.isOnlineOrder ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl " />
-        ),
-    },
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "isAutoServed",
+            node: (row: MenuCategory) =>
+              row.isAutoServed ? (
+                <IoCheckmark className="text-blue-500 text-2xl " />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl " />
+              ),
+          },
+          {
+            key: "isOnlineOrder",
+            node: (row: MenuCategory) =>
+              row?.isOnlineOrder ? (
+                <IoCheckmark className="text-blue-500 text-2xl " />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl " />
+              ),
+          },
+        ]
+      : []),
   ];
   const addButton = {
     name: t("Add Category"),
@@ -256,6 +273,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+    isDisabled: isDisabledCondition,
   };
 
   const handleDrag = (DragRow: MenuCategory, DropRow: MenuCategory) => {
@@ -335,15 +353,15 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       <GenericTable
         key={tableKey}
         rowKeys={rowKeys}
-        actions={actions}
+        actions={isDisabledCondition ? [] : actions}
         columns={columns}
-        isActionsActive={true}
+        isActionsActive={!isDisabledCondition}
         rows={rows}
         filters={filters}
         title={t("Categories")}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
-        isDraggable={true}
+        isDraggable={!isDisabledCondition}
         onDragEnter={(DragRow: MenuCategory, DropRow) =>
           handleDrag(DragRow, DropRow)
         }
