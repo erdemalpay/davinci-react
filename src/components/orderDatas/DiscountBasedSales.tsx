@@ -59,7 +59,6 @@ const DiscountBasedSales = () => {
   const [selectedTableId, setSelectedTableId] = useState<number>(0);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const tables = useGetTables();
-
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !locations || !discounts || !items || !tables) {
     return null;
@@ -69,16 +68,12 @@ const DiscountBasedSales = () => {
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
     ?.filter(
-      (order) =>
-        ![OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(
-          order.status as OrderStatus
-        )
+      (order) => ![OrderStatus.CANCELLED].includes(order.status as OrderStatus)
     )
     ?.reduce((acc, order) => {
       if (!order?.discount || order?.paidQuantity === 0) {
         return acc;
       }
-
       // Location filter
       if (
         filterPanelFormElements.location !== "" &&
@@ -86,7 +81,6 @@ const DiscountBasedSales = () => {
       ) {
         return acc;
       }
-
       // Date filters
       const orderDate = (order?.table as Table)?.date
         ? new Date((order?.table as Table)?.date)
@@ -105,13 +99,14 @@ const DiscountBasedSales = () => {
       ) {
         return acc;
       }
-
       const existingEntry = acc.find(
         (item) => item.discountId === order?.discount
       );
-
       if (existingEntry) {
-        existingEntry.paidQuantity += order?.paidQuantity;
+        existingEntry.paidQuantity +=
+          order?.status !== OrderStatus.RETURNED
+            ? order?.paidQuantity
+            : -order?.quantity;
         existingEntry.amount += order?.paidQuantity * order?.unitPrice;
         existingEntry.totalAmountWithDiscount =
           existingEntry.totalAmountWithDiscount +
@@ -122,7 +117,6 @@ const DiscountBasedSales = () => {
               order?.unitPrice *
               (1 / 100)
             : (order?.discountAmount ?? 0) * order?.paidQuantity);
-
         const existingItem = existingEntry.itemQuantity.find(
           (itemQuantityIteration) =>
             itemQuantityIteration.itemId === order?.item
@@ -134,7 +128,10 @@ const DiscountBasedSales = () => {
                 ? {
                     ...itemQuantityIteration,
                     quantity:
-                      itemQuantityIteration.quantity + order?.paidQuantity,
+                      itemQuantityIteration.quantity +
+                      (order?.status !== OrderStatus.RETURNED
+                        ? order?.paidQuantity
+                        : -order?.quantity),
                     tables: Array.from(
                       new Map(
                         [...itemQuantityIteration.tables, order?.table].map(
@@ -150,11 +147,13 @@ const DiscountBasedSales = () => {
           existingEntry.itemQuantity.push({
             itemId: order?.item,
             itemName: getItem(order?.item, items)?.name ?? "",
-            quantity: order?.paidQuantity,
+            quantity:
+              order?.status !== OrderStatus.RETURNED
+                ? order?.paidQuantity
+                : -order?.quantity,
             tables: [order?.table as Table],
           });
         }
-
         existingEntry.collapsible = {
           collapsibleHeader: t("Products"),
           collapsibleColumns: [
@@ -195,7 +194,10 @@ const DiscountBasedSales = () => {
         acc.push({
           item: order?.item,
           itemName: getItem(order?.item, items)?.name ?? "",
-          paidQuantity: order?.paidQuantity,
+          paidQuantity:
+            order?.status !== OrderStatus.RETURNED
+              ? order?.paidQuantity
+              : -order?.quantity,
           discountId: order?.discount,
           discountName:
             discounts?.find((discount) => discount._id === order?.discount)
@@ -207,7 +209,10 @@ const DiscountBasedSales = () => {
             {
               itemId: order?.item,
               itemName: getItem(order?.item, items)?.name ?? "",
-              quantity: order?.paidQuantity,
+              quantity:
+                order?.status !== OrderStatus.RETURNED
+                  ? order?.paidQuantity
+                  : -order?.quantity,
               tables: [order?.table as Table],
             },
           ],
@@ -220,7 +225,10 @@ const DiscountBasedSales = () => {
             collapsibleRows: [
               {
                 product: getItem(order?.item, items)?.name,
-                quantity: order?.paidQuantity,
+                quantity:
+                  order?.status !== OrderStatus.RETURNED
+                    ? order?.paidQuantity
+                    : -order?.quantity,
                 tables: [order.table],
               },
             ],
@@ -256,7 +264,6 @@ const DiscountBasedSales = () => {
               : (order?.discountAmount ?? 0) * order?.paidQuantity),
         });
       }
-
       return acc;
     }, [] as OrderWithPaymentInfo[]);
   allRows.length > 0 &&

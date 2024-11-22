@@ -82,7 +82,10 @@ const SingleProductSalesReport = () => {
         item: order?.item,
         itemName: getItem(order?.item, items)?.name ?? "",
         unitPrice: order?.unitPrice,
-        paidQuantity: order?.paidQuantity,
+        paidQuantity:
+          order?.status !== OrderStatus.RETURNED
+            ? order?.paidQuantity
+            : -order?.quantity,
         discount: order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
             order?.paidQuantity *

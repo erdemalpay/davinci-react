@@ -100,7 +100,10 @@ const CategoryBasedSalesReport = () => {
       );
 
       if (existingEntry) {
-        existingEntry.paidQuantity += order.paidQuantity;
+        existingEntry.paidQuantity +=
+          order.status !== OrderStatus.RETURNED
+            ? order.paidQuantity
+            : -order.quantity;
         existingEntry.discount += order?.discountPercentage
           ? (order?.discountPercentage ?? 0) *
             order.paidQuantity *
@@ -128,7 +131,10 @@ const CategoryBasedSalesReport = () => {
                 ? {
                     ...itemQuantityIteration,
                     quantity:
-                      itemQuantityIteration.quantity + order.paidQuantity,
+                      itemQuantityIteration.quantity +
+                      (order.status !== OrderStatus.RETURNED
+                        ? order.paidQuantity
+                        : -order.quantity),
                   }
                 : itemQuantityIteration
           );
@@ -136,7 +142,10 @@ const CategoryBasedSalesReport = () => {
           existingEntry.itemQuantity.push({
             itemId: order?.item,
             itemName: getItem(order?.item, items)?.name ?? "",
-            quantity: order.paidQuantity,
+            quantity:
+              order.status !== OrderStatus.RETURNED
+                ? order.paidQuantity
+                : -order.quantity,
           });
         }
 
@@ -158,7 +167,10 @@ const CategoryBasedSalesReport = () => {
         acc.push({
           item: order?.item,
           itemName: getItem(order?.item, items)?.name ?? "",
-          paidQuantity: order.paidQuantity,
+          paidQuantity:
+            order.status !== OrderStatus.RETURNED
+              ? order.paidQuantity
+              : -order.quantity,
           location: order.location,
           discount: order?.discountPercentage
             ? (order?.discountPercentage ?? 0) *
@@ -178,7 +190,10 @@ const CategoryBasedSalesReport = () => {
             {
               itemId: order?.item,
               itemName: getItem(order?.item, items)?.name ?? "",
-              quantity: order.paidQuantity,
+              quantity:
+                order.status !== OrderStatus.RETURNED
+                  ? order.paidQuantity
+                  : -order.quantity,
             },
           ],
           collapsible: {
@@ -190,7 +205,10 @@ const CategoryBasedSalesReport = () => {
             collapsibleRows: [
               {
                 product: getItem(order?.item, items)?.name,
-                quantity: order.paidQuantity,
+                quantity:
+                  order.status !== OrderStatus.RETURNED
+                    ? order.paidQuantity
+                    : -order.quantity,
               },
             ],
             collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],

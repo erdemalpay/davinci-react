@@ -83,13 +83,16 @@ const GroupedProductSalesReport = () => {
 
       const existingEntry = acc.find((entry) => entry.item === order?.item);
       if (existingEntry) {
-        existingEntry.paidQuantity += order?.paidQuantity;
-        existingEntry.discount += order?.discountPercentage
-          ? order?.discountPercentage *
-            order?.paidQuantity *
-            order?.unitPrice *
-            0.01
-          : (order?.discountAmount ?? 0) * order?.paidQuantity;
+        (existingEntry.paidQuantity +=
+          order?.status !== OrderStatus.RETURNED
+            ? order?.paidQuantity
+            : -order?.quantity),
+          (existingEntry.discount += order?.discountPercentage
+            ? order?.discountPercentage *
+              order?.paidQuantity *
+              order?.unitPrice *
+              0.01
+            : (order?.discountAmount ?? 0) * order?.paidQuantity);
         existingEntry.amount += order?.paidQuantity * order?.unitPrice;
         existingEntry.totalAmountWithDiscount +=
           order?.paidQuantity * order?.unitPrice -
@@ -103,11 +106,17 @@ const GroupedProductSalesReport = () => {
           (item) => item.unitPrice === order?.unitPrice
         );
         if (existingUnitPrice) {
-          existingUnitPrice.quantity += order?.paidQuantity;
+          existingUnitPrice.quantity +=
+            order?.status !== OrderStatus.RETURNED
+              ? order?.paidQuantity
+              : -order?.quantity;
         } else {
           existingEntry.unitPriceQuantity.push({
             unitPrice: order?.unitPrice,
-            quantity: order?.paidQuantity,
+            quantity:
+              order?.status !== OrderStatus.RETURNED
+                ? order?.paidQuantity
+                : -order?.quantity,
           });
         }
         if (existingEntry.unitPriceQuantity.length > 1) {
@@ -123,7 +132,10 @@ const GroupedProductSalesReport = () => {
           item: order?.item,
           itemName: getItem(order?.item, items)?.name ?? "",
           unitPrice: order?.unitPrice,
-          paidQuantity: order?.paidQuantity,
+          paidQuantity:
+            order?.status !== OrderStatus.RETURNED
+              ? order?.paidQuantity
+              : -order?.quantity,
           discount: order?.discountPercentage
             ? order?.discountPercentage *
               order?.paidQuantity *
@@ -142,7 +154,10 @@ const GroupedProductSalesReport = () => {
           unitPriceQuantity: [
             {
               unitPrice: order?.unitPrice,
-              quantity: order?.paidQuantity,
+              quantity:
+                order?.status !== OrderStatus.RETURNED
+                  ? order?.paidQuantity
+                  : -order?.quantity,
             },
           ],
           collapsible: {
