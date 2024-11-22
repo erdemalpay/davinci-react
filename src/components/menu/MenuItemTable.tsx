@@ -100,15 +100,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           ...(!isDisabledCondition
             ? [{ key: t("Cost"), isSortable: true }]
             : []),
-          ...(!isDisabledCondition
-            ? [{ key: t("Decrement Stock"), isSortable: false }]
-            : []),
+          { key: t("Decrement Stock"), isSortable: false },
           {
-            ...(!isDisabledCondition && {
-              key: t("Action"),
-              isSortable: false,
-              className: "text-center",
-            }),
+            key: t("Action"),
+            isSortable: false,
+            className: "text-center",
           },
         ],
         collapsibleRows: item?.itemProduction?.map((itemProduction) => ({
@@ -132,44 +128,39 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           { key: "name" },
           { key: "quantity" },
           ...(!isDisabledCondition ? [{ key: "price" }] : []),
-          ...(!isDisabledCondition
-            ? [
-                {
-                  key: "isDecrementStock",
-                  node: (row: any) => {
-                    return (
-                      <div className="ml-6">
-                        <CheckSwitch
-                          checked={row?.isDecrementStock}
-                          onChange={() => {
-                            updateItem({
-                              id: item?._id,
-                              updates: {
-                                itemProduction: item?.itemProduction?.map(
-                                  (itemProduction) => {
-                                    if (
-                                      itemProduction.product === row?.product
-                                    ) {
-                                      return {
-                                        ...itemProduction,
-                                        isDecrementStock:
-                                          !itemProduction.isDecrementStock,
-                                      };
-                                    } else {
-                                      return itemProduction;
-                                    }
-                                  }
-                                ),
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                    );
-                  },
-                },
-              ]
-            : []),
+
+          {
+            key: "isDecrementStock",
+            node: (row: any) => {
+              return (
+                <div className="ml-6">
+                  <CheckSwitch
+                    checked={row?.isDecrementStock}
+                    onChange={() => {
+                      updateItem({
+                        id: item?._id,
+                        updates: {
+                          itemProduction: item?.itemProduction?.map(
+                            (itemProduction) => {
+                              if (itemProduction.product === row?.product) {
+                                return {
+                                  ...itemProduction,
+                                  isDecrementStock:
+                                    !itemProduction.isDecrementStock,
+                                };
+                              } else {
+                                return itemProduction;
+                              }
+                            }
+                          ),
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              );
+            },
+          },
         ],
       },
     };
@@ -323,7 +314,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     { key: t("Matched Product"), isSortable: false },
-    ...(!isDisabledCondition ? [{ key: t("Action"), isSortable: false }] : []),
+    { key: t("Action"), isSortable: false },
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
@@ -601,7 +592,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isModalOpen: isProductAddModalOpen,
       setIsModal: setIsProductAddModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
     },
     {
       name: t("Popular"),
@@ -661,8 +651,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       <GenericTable
         key={tableKey}
         rowKeys={rowKeys}
-        actions={!isDisabledCondition ? actions : []}
-        isActionsActive={!isDisabledCondition}
+        actions={actions}
+        isActionsActive={true}
         columns={columns}
         rows={rows}
         filters={filters}
@@ -670,10 +660,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
         isCollapsibleCheckActive={false}
-        {...(!isDisabledCondition && { addCollapsible })}
-        isDraggable={!isDisabledCondition}
+        addCollapsible={addCollapsible}
+        isDraggable={true}
         isCollapsible={products.length > 0}
-        {...(!isDisabledCondition && { collapsibleActions })}
+        collapsibleActions={collapsibleActions}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>

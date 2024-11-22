@@ -154,9 +154,9 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       ? [
           { key: t("Auto served"), isSortable: false },
           { key: t("Online Order"), isSortable: false },
-          { key: t("Action"), isSortable: false },
         ]
       : []),
+    { key: t("Action"), isSortable: false },
   ];
 
   const rowKeys = [
@@ -353,15 +353,15 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       <GenericTable
         key={tableKey}
         rowKeys={rowKeys}
-        actions={isDisabledCondition ? [] : actions}
+        actions={actions}
         columns={columns}
-        isActionsActive={!isDisabledCondition}
+        isActionsActive={true}
         rows={rows}
         filters={filters}
         title={t("Categories")}
         imageHolder={NO_IMAGE_URL}
         addButton={addButton}
-        isDraggable={!isDisabledCondition}
+        isDraggable={true}
         onDragEnter={(DragRow: MenuCategory, DropRow) =>
           handleDrag(DragRow, DropRow)
         }
