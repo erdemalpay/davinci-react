@@ -61,11 +61,11 @@ const Stock = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
-    return stocks.reduce((acc, stock) => {
+    return stocks?.reduce((acc, stock) => {
       const expense = parseFloat(
         (
-          (getItem(stock.product, products)?.unitPrice ?? 0) * stock.quantity
-        ).toFixed(1)
+          (getItem(stock?.product, products)?.unitPrice ?? 0) * stock?.quantity
+        )?.toFixed(1)
       );
       return acc + expense;
     }, 0);
@@ -90,13 +90,13 @@ const Stock = () => {
   ] = useState(false);
   const [rows, setRows] = useState(() => {
     const groupedProducts = stocks?.reduce((acc: any, stock) => {
-      const rowProduct = getItem(stock.product, products);
+      const rowProduct = getItem(stock?.product, products);
       const rowItem = getItem(rowProduct?.matchedMenuItem, items);
       const productName = rowProduct?.name;
-      const locationName = getItem(stock.location, locations)?.name;
+      const locationName = getItem(stock?.location, locations)?.name;
       const unitPrice = rowProduct?.unitPrice ?? 0;
-      const quantity = stock.quantity;
-      const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+      const quantity = stock?.quantity;
+      const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
       if (!productName) {
         return acc;
       }
@@ -153,7 +153,7 @@ const Stock = () => {
     StockLocationInput({
       locations: rowToAction
         ? locations.filter(
-            (location) => location._id !== rowToAction.stockLocation
+            (location) => location?._id !== rowToAction?.stockLocation
           )
         : locations,
     }),
@@ -181,25 +181,25 @@ const Stock = () => {
     { key: "totalQuantity" },
     {
       key: "unitPrice",
-      node: (row: any) => <div>{formatPrice(row.unitPrice)} ₺</div>,
+      node: (row: any) => <div>{formatPrice(row?.unitPrice)} ₺</div>,
     },
     {
       key: "menuPrice",
       node: (row: any) => {
         if (row?.menuPrice) {
-          return <div>{formatPrice(row.menuPrice)} ₺</div>;
+          return <div>{formatPrice(row?.menuPrice)} ₺</div>;
         }
         return <></>;
       },
     },
     {
       key: "totalGroupPrice",
-      node: (row: any) => <div>{formatPrice(row.totalGroupPrice)} ₺</div>,
+      node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
     },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
-    const splicedRowKeys = ["unitPrice", "menuPrice", "totalPrice"];
+    const splicedRowKeys = ["unitPrice", "menuPrice", "totalGroupPrice"];
     splicedColumns.forEach((item) => {
       columns.splice(
         columns.findIndex((column) => column.key === item),
@@ -250,7 +250,7 @@ const Stock = () => {
           }}
           title={t("Delete Stock")}
           text={`${
-            getItem(rowToAction.product, products)?.name
+            getItem(rowToAction?.product, products)?.name
           } stock will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
@@ -273,7 +273,7 @@ const Stock = () => {
       onClick: (row: any) => {
         setForm({
           ...form,
-          product: row.stockProduct,
+          product: row?.stockProduct,
         });
       },
       modal: rowToAction ? (
@@ -287,12 +287,13 @@ const Stock = () => {
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-visible"
           itemToEdit={{
-            id: rowToAction.stockId,
+            id: rowToAction?.stockId,
             updates: {
-              product: rowToAction.stockProduct,
-              location: rowToAction.stockLocation,
-              quantity: rowToAction.stockQuantity,
-              unitPrice: getItem(rowToAction.stockProduct, products)?.unitPrice,
+              product: rowToAction?.stockProduct,
+              location: rowToAction?.stockLocation,
+              quantity: rowToAction?.stockQuantity,
+              unitPrice: getItem(rowToAction?.stockProduct, products)
+                ?.unitPrice,
             },
           }}
         />
@@ -323,9 +324,9 @@ const Stock = () => {
               return;
             }
             stockTransfer({
-              currentStockLocation: rowToAction.stockLocation,
+              currentStockLocation: rowToAction?.stockLocation,
               transferredStockLocation: stockTransferForm.location,
-              product: rowToAction.product,
+              product: rowToAction?.product,
               quantity: stockTransferForm.quantity,
             });
           }}
@@ -351,7 +352,7 @@ const Stock = () => {
               style: "decimal",
               minimumFractionDigits: 3,
               maximumFractionDigits: 3,
-            }).format(generalTotalExpense)}{" "}
+            })?.format(generalTotalExpense)}{" "}
             ₺
           </p>
         </div>
@@ -372,27 +373,27 @@ const Stock = () => {
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) => {
-        const rowProduct = getItem(stock.product, products);
+        const rowProduct = getItem(stock?.product, products);
         return (
-          passesFilter(filterPanelFormElements?.location, stock.location) &&
+          passesFilter(filterPanelFormElements?.location, stock?.location) &&
           (!filterPanelFormElements?.expenseType ||
             rowProduct?.expenseType.includes(
               filterPanelFormElements?.expenseType
             )) &&
           (!filterPanelFormElements?.product?.length ||
             filterPanelFormElements?.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, stock.product)
+              passesFilter(panelProduct, stock?.product)
             ))
         );
       })
       ?.reduce((acc: any, stock) => {
-        const rowProduct = getItem(stock.product, products);
+        const rowProduct = getItem(stock?.product, products);
         const rowItem = getItem(rowProduct?.matchedMenuItem, items);
         const productName = rowProduct?.name;
-        const locationName = getItem(stock.location, locations)?.name;
+        const locationName = getItem(stock?.location, locations)?.name;
         const unitPrice = rowProduct?.unitPrice ?? 0;
-        const quantity = stock.quantity;
-        const totalPrice = parseFloat((unitPrice * quantity).toFixed(1));
+        const quantity = stock?.quantity;
+        const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
         if (!productName) {
           return acc;
         }
@@ -433,23 +434,23 @@ const Stock = () => {
 
         return acc;
       }, {});
-    const filteredRows = Object.values(processedRows).filter((row: any) =>
+    const filteredRows = Object.values(processedRows)?.filter((row: any) =>
       rowKeys.some((rowKey) => {
         const value = row[rowKey.key as keyof typeof row];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
+        const query = searchQuery.trimStart()?.toLocaleLowerCase("tr-TR");
         if (typeof value === "string") {
-          return value.toLocaleLowerCase("tr-TR").includes(query);
+          return value.toLocaleLowerCase("tr-TR")?.includes(query);
         } else if (typeof value === "number") {
-          return value.toString().includes(query);
+          return value.toString()?.includes(query);
         } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
+          return (value ? "true" : "false")?.includes(query);
         }
         return false;
       })
     );
     const newGeneralTotalExpense = filteredRows.reduce(
       (acc: any, stock: any) => {
-        const expense = parseFloat(stock.totalGroupPrice.toFixed(1));
+        const expense = parseFloat(stock?.totalGroupPrice.toFixed(1));
         return acc + expense;
       },
       0
@@ -480,7 +481,7 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "expenseType",
       label: t("Expense Type"),
-      options: expenseTypes.map((expenseType) => {
+      options: expenseTypes?.map((expenseType) => {
         return {
           value: expenseType._id,
           label: expenseType.name,
@@ -518,7 +519,7 @@ const Stock = () => {
       type: InputTypes.SELECT,
       formKey: "date",
       label: t("Date"),
-      options: commonDateOptions.map((option) => {
+      options: commonDateOptions?.map((option) => {
         return {
           value: option.value,
           label: t(option.label),
