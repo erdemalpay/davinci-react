@@ -71,7 +71,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLocationEdit, setIsLocationEdit] = useState(false);
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
   const [form, setForm] = useState({
     product: "",
@@ -324,9 +323,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     { key: t("Matched Product"), isSortable: false },
-    ...(!isDisabledCondition && isEnableEdit
-      ? [{ key: t("Action"), isSortable: false }]
-      : []),
+    ...(!isDisabledCondition ? [{ key: t("Action"), isSortable: false }] : []),
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
@@ -646,12 +643,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ),
       // isDisabled: isDisabledCondition,
     },
-    {
-      label: t("Enable Edit"),
-      isUpperSide: false,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-      isDisabled: isDisabledCondition,
-    },
   ];
 
   useEffect(() => {
@@ -664,15 +655,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     expenseTypes,
     brands,
     vendors,
-    isEnableEdit,
   ]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
         key={tableKey}
         rowKeys={rowKeys}
-        actions={!isDisabledCondition && isEnableEdit ? actions : []}
-        isActionsActive={isEnableEdit && !isDisabledCondition}
+        actions={!isDisabledCondition ? actions : []}
+        isActionsActive={!isDisabledCondition}
         columns={columns}
         rows={rows}
         filters={filters}
