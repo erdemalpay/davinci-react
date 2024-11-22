@@ -166,7 +166,7 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       node: (row: MenuCategory) => (
         <p
           onClick={() => {
-            setMenuActiveTab(row.order - 2);
+            setMenuActiveTab(row.order - 1);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform sm:pl-4"
