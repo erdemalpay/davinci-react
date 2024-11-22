@@ -115,7 +115,8 @@ const SingleProductSalesReport = () => {
       });
       return acc;
     }, [] as OrderWithPaymentInfo[]);
-  allRows.length > 0 &&
+  if (allRows.length > 0) {
+    allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
     allRows.push({
       item: 0,
       itemName: t("Total"),
@@ -135,6 +136,7 @@ const SingleProductSalesReport = () => {
       category: " ",
       categoryId: 0,
     });
+  }
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Product"), isSortable: true },

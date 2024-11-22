@@ -266,7 +266,8 @@ const DiscountBasedSales = () => {
       }
       return acc;
     }, [] as OrderWithPaymentInfo[]);
-  allRows.length > 0 &&
+  if (allRows.length > 0) {
+    allRows.sort((a, b) => b.paidQuantity - a.paidQuantity);
     allRows.push({
       item: 0,
       itemName: "",
@@ -293,6 +294,7 @@ const DiscountBasedSales = () => {
         collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
       },
     });
+  }
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Discount"), isSortable: true },
