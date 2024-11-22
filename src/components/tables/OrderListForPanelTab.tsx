@@ -21,6 +21,9 @@ type Props = {
   orderStatus: Partial<OrderStatus>[];
   tableId: number;
 };
+type DisabledButtons = {
+  [key: string]: boolean;
+};
 
 const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   const { t } = useTranslation();
@@ -31,6 +34,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   const orders = tableOrders?.filter((order) =>
     orderStatus.includes(order.status as OrderStatus)
   );
+  const [disabledButtons, setDisabledButtons] = useState<DisabledButtons>({});
   const { mutate: updateOrderCancel } = useUpdateOrderForCancelMutation();
   const orderWaitTime = (order: Order) => {
     const orderTime = new Date(order.createdAt).getTime();
@@ -43,6 +47,23 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
   if (!items || !kitchens || !categories || !user || !orders) {
     return <></>;
   }
+  const handleCancel = (order: Order) => {
+    if (disabledButtons[order._id]) {
+      toast.info(t("Action already processed."));
+      return;
+    }
+    setDisabledButtons((prev) => ({ ...prev, [order._id]: true }));
+
+    updateOrderCancel({
+      id: order._id,
+      updates: {
+        status: OrderStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancelledBy: user._id,
+      },
+      tableId: tableId,
+    });
+  };
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, [tableOrders, items, categories, kitchens, user]);
@@ -160,17 +181,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
               {order.paidQuantity === 0 && (
                 <HiOutlineTrash
                   className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                  onClick={() =>
-                    updateOrderCancel({
-                      id: order._id,
-                      updates: {
-                        status: OrderStatus.CANCELLED,
-                        cancelledAt: new Date(),
-                        cancelledBy: user._id,
-                      },
-                      tableId: tableId,
-                    })
-                  }
+                  onClick={() => handleCancel(order)}
                 />
               )}
             </div>
