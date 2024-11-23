@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order } from "../types";
+import { Order, TableTypes } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
+import { useOrderContext } from "./../context/Order.context";
 import { useUserContext } from "./../context/User.context";
 import { OrderStatus } from "./../types/index";
 import { getItem } from "./../utils/getItem";
@@ -16,6 +17,12 @@ export function useWebSocket() {
   const queryClient = useQueryClient();
   const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
+  const {
+    setIsTakeAwayPaymentModalOpen,
+    setIsTakeAwayOrderModalOpen,
+    setOrderCreateBulk,
+    setTakeawayTableId,
+  } = useOrderContext();
   const categories = useGetCategories();
   useEffect(() => {
     // Load the audio files
@@ -93,8 +100,14 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
     socket.on("createMultipleOrder", (data) => {
-      queryClient.invalidateQueries([`${Paths.Order}/table`, data.tableId]);
+      queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
+      if (data?.table?.type === TableTypes.TAKEOUT) {
+        setIsTakeAwayPaymentModalOpen(true);
+        setIsTakeAwayOrderModalOpen(false);
+        setTakeawayTableId(data.table._id);
+        setOrderCreateBulk([]);
+      }
       if (data.socketUser._id === user?._id) {
         return;
       }

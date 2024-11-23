@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus, Table } from "../../types";
-import { useGetTableOrders } from "../../utils/api/order/order";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
@@ -13,8 +11,6 @@ type Props = { table: Table };
 const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState(0);
-  const tableOrders = useGetTableOrders(table?._id);
-  const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
   const tabs = [
@@ -63,7 +59,7 @@ const OrderListForPanel = ({ table }: Props) => {
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          topClassName="min-h-64 max-h-64 overflow-scroll no-scrollbar   "
+          topClassName="min-h-64 max-h-64 sm:max-h-80 sm:min-h-80 overflow-scroll no-scrollbar   "
         />
       </div>
     </div>

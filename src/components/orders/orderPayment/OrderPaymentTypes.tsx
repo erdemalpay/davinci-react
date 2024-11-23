@@ -308,57 +308,6 @@ const OrderPaymentTypes = ({
           </div>
         ))}
       </div>
-      {/* {isCancelModalOpen && selectedCollection !== undefined && (
-        <GenericAddEditPanel
-          isOpen={isCancelModalOpen}
-          generalClassName="overflow-visible"
-          topClassName="flex flex-col gap-2 "
-          setForm={setInputForm}
-          close={() => setIsCancelModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          submitItem={updateOrderCollection as any}
-          isEditMode={false}
-          submitFunction={() => {
-            if (
-              selectedCollection?.orders?.length &&
-              selectedCollection?.orders?.length > 0
-            ) {
-              const newOrders = selectedCollection?.orders
-                ?.map((orderCollectionItem: OrderCollectionItem) => {
-                  const order = orders?.find(
-                    (orderItem) => orderItem._id === orderCollectionItem.order
-                  );
-                  if (order) {
-                    return {
-                      ...order,
-                      paidQuantity:
-                        order.paidQuantity - orderCollectionItem.paidQuantity <
-                        1e-6
-                          ? 0
-                          : order.paidQuantity -
-                            orderCollectionItem.paidQuantity,
-                    };
-                  }
-                  return null;
-                })
-                ?.filter((item: any) => item !== null);
-              updateOrders(newOrders as Order[]);
-            }
-            updateOrderCollection({
-              id: selectedCollection._id,
-              updates: {
-                cancelNote: inputForm.note,
-                cancelledAt: new Date(),
-                cancelledBy: user._id,
-                status: OrderCollectionStatus.CANCELLED,
-              },
-            });
-            resetOrderContext();
-            setSelectedCollection(undefined);
-          }}
-        />
-      )} */}
     </div>
   );
 };

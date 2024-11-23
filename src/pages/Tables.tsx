@@ -6,6 +6,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
+import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import InfoBox from "../components/panelComponents/FormElements/InfoBox";
 import { H5 } from "../components/panelComponents/Typography";
@@ -16,15 +17,18 @@ import {
 } from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
+import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { useLocationContext } from "../context/Location.context";
+import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
   Game,
   Order,
+  OrderDiscountStatus,
   OrderStatus,
   StockHistoryStatusEnum,
   TURKISHLIRA,
@@ -35,11 +39,14 @@ import {
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
+import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
 import { useGetGames } from "../utils/api/game";
 import { useGetCategories } from "../utils/api/menu/category";
+import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
-import { useGetTables } from "../utils/api/table";
+import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
+import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
@@ -47,7 +54,6 @@ import { getItem } from "../utils/getItem";
 import { getStockLocation } from "../utils/getStockLocation";
 import { QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
-
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -59,26 +65,48 @@ const Tables = () => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
+  const locations = useGetAccountStockLocations();
   const { selectedLocationId } = useLocationContext();
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const { mutate: consumptStock } = useConsumptStockMutation();
+  const { createTable } = useTableMutations();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
   const products = useGetAllAccountProducts();
+  const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+  const {
+    orderCreateBulk,
+    setOrderCreateBulk,
+    isTakeAwayOrderModalOpen,
+    setIsTakeAwayOrderModalOpen,
+    isTakeAwayPaymentModalOpen,
+    setIsTakeAwayPaymentModalOpen,
+    takeawayTableId,
+    setTakeawayTableId,
+  } = useOrderContext();
   const menuItems = useGetMenuItems();
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
   const users = useGetUsers();
-  const [orderForm, setOrderForm] = useState({
+  const initialOrderForm = {
     item: 0,
     quantity: 0,
     note: "",
     category: "",
-  });
+    discount: undefined,
+    discountNote: "",
+    isOnlinePrice: false,
+    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+  };
+  const discounts = useGetOrderDiscounts()?.filter(
+    (discount) => discount?.status !== OrderDiscountStatus.DELETED
+  );
+  const [orderForm, setOrderForm] = useState(initialOrderForm);
+
   const consumptInputs = [
     {
       type: InputTypes.SELECT,
@@ -113,7 +141,9 @@ const Tables = () => {
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
-
+  useEffect(() => {
+    console.log(takeawayTableId, isTakeAwayPaymentModalOpen);
+  }, [takeawayTableId, isTakeAwayPaymentModalOpen]);
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -166,11 +196,133 @@ const Tables = () => {
       required: true,
     },
   ];
-
   const orderFormKeys = [
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "note", type: FormKeyTypeEnum.STRING },
+  ];
+  const isOnlinePrice = () => {
+    const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+    if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
+      return true;
+    }
+    return false;
+  };
+  const orderInputsForTakeAway = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      placeholder: t("Category"),
+      required: false,
+      isDisabled: true, // remove this line and make category selection visible again
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Product"),
+      options: menuItemOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: option.label,
+        };
+      }),
+      invalidateKeys: [
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+      ],
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: orderForm?.item
+        ? discounts
+            .filter((discount) => {
+              const menuItem = menuItems?.find(
+                (item) => item._id === orderForm.item
+              );
+              return getItem(
+                menuItem?.category,
+                categories
+              )?.discounts?.includes(discount._id);
+            })
+            ?.map((option) => {
+              return {
+                value: option?._id,
+                label: option?.name,
+              };
+            })
+        : [],
+      invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+      placeholder: t("Discount"),
+      isAutoFill: false,
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: t("Discount Note"),
+      required:
+        (orderForm?.discount &&
+          discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        false,
+      isDisabled:
+        (orderForm?.discount &&
+          !discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        true,
+      isOnClearActive: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlinePrice",
+      label: t("Online Price"),
+      placeholder: t("Online Price"),
+      required: isOnlinePrice(),
+      isDisabled: !isOnlinePrice(),
+      isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: false,
+    },
+  ];
+
+  const orderFormKeysForTakeAway = [
+    { key: "category", type: FormKeyTypeEnum.STRING },
+    { key: "item", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discount", type: FormKeyTypeEnum.NUMBER },
+    { key: "discountNote", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
@@ -253,6 +405,54 @@ const Tables = () => {
     newDate.setDate(date.getDate() + 1);
     setSelectedDate(formatDate(newDate));
   };
+  const handleOrderObject = () => {
+    const selectedMenuItem = getItem(orderForm?.item, menuItems);
+    const selectedMenuItemCategory = getItem(
+      selectedMenuItem?.category,
+      categories
+    );
+    const selectedItemKitchen = getItem(
+      selectedMenuItemCategory?.kitchen,
+      kitchens
+    );
+    const isOrderConfirmationRequired =
+      selectedItemKitchen?.isConfirmationRequired;
+    if ((user && selectedMenuItem && selectedMenuItemCategory)?.isAutoServed) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        deliveredAt: new Date(),
+        deliveredBy: user?._id,
+        preparedAt: new Date(),
+        preparedBy: user?._id,
+        status: OrderStatus.AUTOSERVED,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+      };
+    }
+
+    // Check if the menu item is not automatically served
+    if (selectedMenuItem && !selectedMenuItemCategory?.isAutoServed) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        status: isOrderConfirmationRequired
+          ? OrderStatus.CONFIRMATIONREQ
+          : OrderStatus.PENDING,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+      };
+    }
+    return null;
+  };
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
 
@@ -297,6 +497,13 @@ const Tables = () => {
     onClick: () => void;
     hideOnMobile?: boolean;
   }[] = [
+    {
+      label: t("Take Away"),
+      onClick: () => {
+        setIsTakeAwayOrderModalOpen(true);
+      },
+      hideOnMobile: true,
+    },
     {
       label: t("Loss Product"),
       onClick: () => {
@@ -585,15 +792,86 @@ const Tables = () => {
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
               });
             }
-            setOrderForm({
-              item: 0,
-              quantity: 0,
-              note: "",
-              category: "",
-            });
+            setOrderForm(initialOrderForm);
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
+        />
+      )}
+      {isTakeAwayOrderModalOpen && (
+        <GenericAddEditPanel
+          isOpen={isTakeAwayOrderModalOpen}
+          close={() => {
+            setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
+            setIsTakeAwayOrderModalOpen(false);
+          }}
+          inputs={orderInputsForTakeAway}
+          formKeys={orderFormKeysForTakeAway}
+          submitItem={createTable as any}
+          isBlurFieldClickCloseEnabled={false}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+          }}
+          buttonName={t("Payment")}
+          cancelButtonLabel="Close"
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
+          anotherPanel={<OrderTakeawayPanel />}
+          additionalButtons={[
+            {
+              label: "Add",
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: true,
+              onClick: () => {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  setOrderCreateBulk([...orderCreateBulk, orderObject]);
+                }
+                setOrderForm(initialOrderForm);
+              },
+            },
+          ]}
+          submitFunction={() => {
+            const currentDate = new Date();
+            const hours = currentDate.getHours().toString().padStart(2, "0");
+            const minutes = currentDate
+              .getMinutes()
+              .toString()
+              .padStart(2, "0");
+            const formattedTime = `${hours}:${minutes}`;
+            const orderObject = handleOrderObject();
+            const tableData = {
+              name: "Takeaway",
+              date: selectedDate,
+              location: selectedLocationId,
+              playerCount: 2,
+              startHour: formattedTime,
+              gameplays: [],
+              type: TableTypes.TAKEOUT,
+            };
+            const ordersData = orderObject
+              ? [...orderCreateBulk, orderObject]
+              : orderCreateBulk;
+            createTable({
+              tableDto: tableData,
+              orders: ordersData,
+            } as any);
+          }}
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          topClassName="flex flex-col gap-2   "
+        />
+      )}
+      {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (
+        <OrderPaymentModal
+          tableId={takeawayTableId}
+          tables={tables}
+          close={() => {
+            setIsTakeAwayPaymentModalOpen(false);
+            setTakeawayTableId(0);
+          }}
         />
       )}
     </>

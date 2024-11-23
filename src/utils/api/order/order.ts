@@ -36,7 +36,7 @@ interface ReturnOrderPayload {
 }
 interface CreateMultipleOrderPayload {
   orders: Partial<Order>[];
-  tableId: number;
+  table: Table;
 }
 interface SelectedOrderTransferPayload {
   orders: {

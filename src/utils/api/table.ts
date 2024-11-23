@@ -213,7 +213,6 @@ export function useGetPersonalTableCreateData() {
     ]
   );
 }
-
 export function useGetTables() {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();

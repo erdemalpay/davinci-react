@@ -8,6 +8,10 @@ type FormElementsState = {
 type OrderContextType = {
   isTransferProductOpen: boolean;
   setIsTransferProductOpen: (isTransferProductOpen: boolean) => void;
+  takeawayTableId: number;
+  setTakeawayTableId: (takeawayTableId: number) => void;
+  isTakeAwayPaymentModalOpen: boolean;
+  setIsTakeAwayPaymentModalOpen: (isTakeAwayPaymentModalOpen: boolean) => void;
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
@@ -36,6 +40,8 @@ type OrderContextType = {
       selectedQuantity: number;
     }[]
   ) => void;
+  isTakeAwayOrderModalOpen: boolean;
+  setIsTakeAwayOrderModalOpen: (isTakeAwayOrderModalOpen: boolean) => void;
   isProductSelectionOpen: boolean;
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
   isDiscountNoteOpen: boolean;
@@ -65,8 +71,14 @@ type OrderContextType = {
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  takeawayTableId: 0,
+  setTakeawayTableId: () => {},
   isOrderDivisionActive: false,
   isTableSelectOpen: false,
+  isTakeAwayOrderModalOpen: false,
+  setIsTakeAwayOrderModalOpen: () => {},
+  isTakeAwayPaymentModalOpen: false,
+  setIsTakeAwayPaymentModalOpen: () => {},
   todaysOrderDate: format(new Date(), "yyyy-MM-dd"),
   setTodaysOrderDate: () => {},
   setIsTableSelectOpen: () => {},
@@ -128,11 +140,16 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     { order: Order; quantity: number }[]
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
+  const [takeawayTableId, setTakeawayTableId] = useState<number>(0);
+  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
+    useState(false);
   const [isDiscountNoteOpen, setIsDiscountNoteOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
+  const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
+    useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
   const [orderCreateBulk, setOrderCreateBulk] = useState<Partial<Order>[]>([]);
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
@@ -187,10 +204,17 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setIsTransferProductOpen(false);
     setIsTableSelectOpen(false);
     setSelectedTableTransfer(0);
+    setIsTakeAwayOrderModalOpen(false);
   };
   return (
     <OrderContext.Provider
       value={{
+        takeawayTableId,
+        setTakeawayTableId,
+        isTakeAwayOrderModalOpen,
+        setIsTakeAwayOrderModalOpen,
+        isTakeAwayPaymentModalOpen,
+        setIsTakeAwayPaymentModalOpen,
         discountNote,
         setDiscountNote,
         todaysOrderDate,

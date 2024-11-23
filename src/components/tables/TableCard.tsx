@@ -697,17 +697,6 @@ export function TableCard({
             },
           ]}
           submitFunction={() => {
-            const selectedMenuItem = getItem(orderForm?.item, menuItems);
-            const selectedMenuItemCategory = getItem(
-              selectedMenuItem?.category,
-              categories
-            );
-            const selectedItemKitchen = getItem(
-              selectedMenuItemCategory?.kitchen,
-              kitchens
-            );
-            const isOrderConfirmationRequired =
-              selectedItemKitchen?.isConfirmationRequired;
             // creating single order
             if (orderCreateBulk === null || orderCreateBulk.length === 0) {
               const orderObject = handleOrderObject();
@@ -715,12 +704,12 @@ export function TableCard({
                 createOrder(orderObject);
               }
             } else {
-              if (selectedMenuItem) {
+              if (orderForm?.item) {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
                   createMultipleOrder({
                     orders: [...orderCreateBulk, orderObject],
-                    tableId: selectedTable._id,
+                    table: selectedTable,
                   });
                   setOrderForm(initialOrderForm);
                   setOrderCreateBulk([]);
@@ -729,7 +718,7 @@ export function TableCard({
               }
               createMultipleOrder({
                 orders: orderCreateBulk,
-                tableId: selectedTable._id,
+                table: selectedTable,
               });
             }
             setOrderForm(initialOrderForm);

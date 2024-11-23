@@ -36,14 +36,17 @@ export function CreateTableDialog({
   const { createTable } = useTableMutations();
 
   async function handleCreate(isAddEntryOrder: boolean) {
-    createTable({
+    const tableData = {
       ...data,
       ...(isOnlineSale && { isOnlineSale: true }),
       isAutoEntryAdded: isAddEntryOrder,
       type: type,
-    });
+    };
+    createTable({
+      tableDto: tableData,
+    } as any);
     close();
-  }
+  } // this will be set with proper payload but for now it is any
 
   return (
     <Transition
