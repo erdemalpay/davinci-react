@@ -19,7 +19,6 @@ export function useWebSocket() {
   const { selectedLocationId } = useLocationContext();
   const {
     setIsTakeAwayPaymentModalOpen,
-    setIsTakeAwayOrderModalOpen,
     setOrderCreateBulk,
     setTakeawayTableId,
   } = useOrderContext();
@@ -104,7 +103,6 @@ export function useWebSocket() {
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (data?.table?.type === TableTypes.TAKEOUT) {
         setIsTakeAwayPaymentModalOpen(true);
-        setIsTakeAwayOrderModalOpen(false);
         setTakeawayTableId(data.table._id);
         setOrderCreateBulk([]);
       }

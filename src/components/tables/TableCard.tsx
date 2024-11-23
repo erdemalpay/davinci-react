@@ -21,6 +21,7 @@ import {
   TURKISHLIRA,
   Table,
   TableStatus,
+  TableTypes,
   User,
 } from "../../types";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -723,6 +724,9 @@ export function TableCard({
             }
             setOrderForm(initialOrderForm);
             setOrderCreateBulk([]);
+            if (selectedTable.type === TableTypes.TAKEOUT) {
+              setIsCreateOrderDialogOpen(false);
+            }
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "

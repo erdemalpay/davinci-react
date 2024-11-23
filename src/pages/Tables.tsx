@@ -77,11 +77,11 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
+    useState(false);
   const {
     orderCreateBulk,
     setOrderCreateBulk,
-    isTakeAwayOrderModalOpen,
-    setIsTakeAwayOrderModalOpen,
     isTakeAwayPaymentModalOpen,
     setIsTakeAwayPaymentModalOpen,
     takeawayTableId,
@@ -859,6 +859,7 @@ const Tables = () => {
               tableDto: tableData,
               orders: ordersData,
             } as any);
+            setIsTakeAwayOrderModalOpen(false);
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
