@@ -40,6 +40,8 @@ type OrderContextType = {
       selectedQuantity: number;
     }[]
   ) => void;
+  isTakeAwayOrderModalOpen: boolean;
+  setIsTakeAwayOrderModalOpen: (isTakeAwayOrderModalOpen: boolean) => void;
   isProductSelectionOpen: boolean;
   setIsProductSelectionOpen: (isDiscountSelectionOpen: boolean) => void;
   isDiscountNoteOpen: boolean;
@@ -73,6 +75,8 @@ const OrderContext = createContext<OrderContextType>({
   setTakeawayTableId: () => {},
   isOrderDivisionActive: false,
   isTableSelectOpen: false,
+  isTakeAwayOrderModalOpen: false,
+  setIsTakeAwayOrderModalOpen: () => {},
   isTakeAwayPaymentModalOpen: false,
   setIsTakeAwayPaymentModalOpen: () => {},
   todaysOrderDate: format(new Date(), "yyyy-MM-dd"),
@@ -137,8 +141,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [takeawayTableId, setTakeawayTableId] = useState<number>(0);
-
-  useState(false);
+  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
+    useState(false);
   const [isDiscountNoteOpen, setIsDiscountNoteOpen] = useState(false);
   const [isDiscountScreenOpen, setIsDiscountScreenOpen] = useState(false);
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
@@ -200,12 +204,15 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     setIsTransferProductOpen(false);
     setIsTableSelectOpen(false);
     setSelectedTableTransfer(0);
+    setIsTakeAwayOrderModalOpen(false);
   };
   return (
     <OrderContext.Provider
       value={{
         takeawayTableId,
         setTakeawayTableId,
+        isTakeAwayOrderModalOpen,
+        setIsTakeAwayOrderModalOpen,
         isTakeAwayPaymentModalOpen,
         setIsTakeAwayPaymentModalOpen,
         discountNote,

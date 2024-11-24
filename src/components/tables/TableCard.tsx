@@ -84,7 +84,6 @@ export function TableCard({
   if (table?._id) {
     tableOrders = useGetTableOrders(table?._id);
   }
-
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
@@ -123,7 +122,6 @@ export function TableCard({
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
   });
-  const [selectedTable, setSelectedTable] = useState<Table>();
   const menuItems = useGetMenuItems();
   const menuItemStockQuantity = (item: MenuItem) => {
     if (item?.matchedProduct) {
@@ -414,13 +412,13 @@ export function TableCard({
     const isOrderConfirmationRequired =
       selectedItemKitchen?.isConfirmationRequired;
     if (
-      (user && selectedMenuItem && selectedTable && selectedMenuItemCategory)
+      (user && selectedMenuItem && table && selectedMenuItemCategory)
         ?.isAutoServed
     ) {
       return {
         ...orderForm,
         location: selectedLocationId,
-        table: selectedTable._id,
+        table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
           : selectedMenuItem.price,
@@ -440,15 +438,11 @@ export function TableCard({
     }
 
     // Check if the menu item is not automatically served
-    if (
-      selectedMenuItem &&
-      selectedTable &&
-      !selectedMenuItemCategory?.isAutoServed
-    ) {
+    if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
         location: selectedLocationId,
-        table: selectedTable._id,
+        table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
           : OrderStatus.PENDING,
@@ -499,7 +493,6 @@ export function TableCard({
               <span className="text-{8px}">
                 <CardAction
                   onClick={() => {
-                    setSelectedTable(table);
                     setIsCreateOrderDialogOpen(true);
                   }}
                   IconComponent={MdBorderColor}
@@ -662,11 +655,11 @@ export function TableCard({
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
-      {isCreateOrderDialogOpen && selectedTable && (
+      {isCreateOrderDialogOpen && (
         <GenericAddEditPanel
           isOpen={isCreateOrderDialogOpen}
           close={() => {
-            setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
+            setOrderCreateBulk([]);
             setIsCreateOrderDialogOpen(false);
           }}
           inputs={orderInputs}
@@ -710,7 +703,7 @@ export function TableCard({
                 if (orderObject) {
                   createMultipleOrder({
                     orders: [...orderCreateBulk, orderObject],
-                    table: selectedTable,
+                    table: table,
                   });
                   setOrderForm(initialOrderForm);
                   setOrderCreateBulk([]);
@@ -719,12 +712,12 @@ export function TableCard({
               }
               createMultipleOrder({
                 orders: orderCreateBulk,
-                table: selectedTable,
+                table: table,
               });
             }
             setOrderForm(initialOrderForm);
             setOrderCreateBulk([]);
-            if (selectedTable.type === TableTypes.TAKEOUT) {
+            if (table.type === TableTypes.TAKEOUT) {
               setIsCreateOrderDialogOpen(false);
             }
           }}

@@ -513,6 +513,7 @@ const OrdersReport = () => {
           <OrderPaymentModal
             tableId={rowToAction.tableId}
             tables={tables}
+            isAddOrderActive={false}
             close={() => {
               setExpandedRows({});
               resetOrderContext();

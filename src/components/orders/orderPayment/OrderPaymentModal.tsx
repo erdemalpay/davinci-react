@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useLocationContext } from "../../../context/Location.context";
+import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
   OrderCollectionStatus,
@@ -11,15 +13,29 @@ import {
   Table,
   TURKISHLIRA,
 } from "../../../types";
+import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { useGetCategories } from "../../../utils/api/menu/category";
+import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
-import { useGetTableOrders } from "../../../utils/api/order/order";
+import {
+  useCreateMultipleOrderMutation,
+  useGetTableOrders,
+  useOrderMutations,
+} from "../../../utils/api/order/order";
 import { useGetTableCollections } from "../../../utils/api/order/orderCollection";
+import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
+import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+} from "../../panelComponents/shared/types";
+import OrderListForPanel from "../../tables/OrderListForPanel";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
@@ -28,13 +44,19 @@ type Props = {
   close: () => void;
   tableId: number;
   tables: Table[];
+  isAddOrderActive?: boolean;
 };
 type ButtonType = {
   label: string;
   onClick: () => void;
   isActive: boolean;
 };
-const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
+const OrderPaymentModal = ({
+  close,
+  tableId,
+  tables,
+  isAddOrderActive = true,
+}: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const isMutating = useIsMutating();
@@ -42,8 +64,28 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   const orders = useGetTableOrders(tableId);
   if (!orders) return null;
   const table = orders[0]?.table as Table;
+  const locations = useGetAccountStockLocations();
+  const categories = useGetCategories();
+  const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
+  const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const discounts = useGetOrderDiscounts();
+  const kitchens = useGetKitchens();
+  const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
+  const { createOrder } = useOrderMutations();
+  const initialOrderForm = {
+    item: 0,
+    quantity: 0,
+    note: "",
+    category: "",
+    discount: undefined,
+    discountNote: "",
+    isOnlinePrice: false,
+    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+  };
+  const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
@@ -117,7 +159,6 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
               </div>`;
       })
       .join("");
-
     const totalSection = `<div class="total-section">
                           <span>Toplam:</span>
                           <span>${
@@ -151,8 +192,14 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
   `);
     doc?.close();
   };
-
   const buttons: ButtonType[] = [
+    {
+      label: t("Add Order"),
+      onClick: () => {
+        setIsCreateOrderDialogOpen(true);
+      },
+      isActive: isAddOrderActive,
+    },
     {
       label: t("Close Table"),
       onClick: () => {
@@ -181,10 +228,30 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
     {
       label: t("Print"),
       onClick: handlePrint,
-      isActive: true, // Adjust based on whether you want it always active or conditionally
+      isActive: true,
     },
   ];
-
+  const filteredDiscounts = discounts?.filter((discount) =>
+    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+  );
+  const menuItemOptions = items
+    ?.filter((menuItem) => {
+      return (
+        !orderForm.category || menuItem.category === Number(orderForm.category)
+      );
+    })
+    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+    ?.filter((menuItem) =>
+      table?.isOnlineSale
+        ? getItem(menuItem.category, categories)?.isOnlineOrder
+        : true
+    )
+    ?.map((menuItem) => {
+      return {
+        value: menuItem?._id,
+        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+      };
+    });
   function finishTable() {
     closeTable({
       id: tableId,
@@ -193,7 +260,235 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
     setIsCloseConfirmationDialogOpen(false);
     toast.success(t("Table {{tableName}} closed", { tableName: table?.name }));
   }
+  const orderInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      placeholder: t("Category"),
+      required: false,
+      isDisabled: true, // remove this line and make category selection visible again
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Product"),
+      options: menuItemOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: option.label,
+        };
+      }),
+      invalidateKeys: [
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+      ],
+      placeholder: t("Product"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: orderForm?.item
+        ? filteredDiscounts
+            .filter((discount) => {
+              const menuItem = items?.find(
+                (item) => item._id === orderForm.item
+              );
+              return getItem(
+                menuItem?.category,
+                categories
+              )?.discounts?.includes(discount._id);
+            })
+            ?.map((option) => {
+              return {
+                value: option?._id,
+                label: option?.name,
+              };
+            })
+        : [],
+      invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+      placeholder: t("Discount"),
+      isAutoFill: false,
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: t("Discount Note"),
+      required:
+        (orderForm?.discount &&
+          discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        false,
+      isDisabled:
+        (orderForm?.discount &&
+          !discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        true,
+      isOnClearActive: true,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: false,
+    },
+  ];
 
+  const orderFormKeys = [
+    { key: "category", type: FormKeyTypeEnum.STRING },
+    { key: "item", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "discount", type: FormKeyTypeEnum.NUMBER },
+    { key: "discountNote", type: FormKeyTypeEnum.STRING },
+    { key: "note", type: FormKeyTypeEnum.STRING },
+  ];
+  const handleOrderObject = () => {
+    const selectedMenuItem = getItem(orderForm?.item, items);
+    const selectedMenuItemCategory = getItem(
+      selectedMenuItem?.category,
+      categories
+    );
+    const selectedItemKitchen = getItem(
+      selectedMenuItemCategory?.kitchen,
+      kitchens
+    );
+    const isOrderConfirmationRequired =
+      selectedItemKitchen?.isConfirmationRequired;
+    if (
+      (user && selectedMenuItem && table && selectedMenuItemCategory)
+        ?.isAutoServed
+    ) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        table: table._id,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        deliveredAt: new Date(),
+        deliveredBy: user?._id,
+        preparedAt: new Date(),
+        preparedBy: user?._id,
+        status: OrderStatus.AUTOSERVED,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+      };
+    }
+
+    if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
+      return {
+        ...orderForm,
+        location: selectedLocationId,
+        table: table._id,
+        status: isOrderConfirmationRequired
+          ? OrderStatus.CONFIRMATIONREQ
+          : OrderStatus.PENDING,
+        unitPrice: orderForm?.isOnlinePrice
+          ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
+          : selectedMenuItem.price,
+        paidQuantity: 0,
+        kitchen: selectedMenuItemCategory?.kitchen,
+        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+      };
+    }
+    return null;
+  };
+
+  if (isCreateOrderDialogOpen) {
+    return (
+      <GenericAddEditPanel
+        isOpen={isCreateOrderDialogOpen}
+        close={() => {
+          setOrderCreateBulk([]);
+          setIsCreateOrderDialogOpen(false);
+        }}
+        inputs={orderInputs}
+        formKeys={orderFormKeys}
+        submitItem={createOrder as any}
+        isBlurFieldClickCloseEnabled={false}
+        setForm={setOrderForm}
+        isCreateCloseActive={false}
+        optionalCreateButtonActive={orderCreateBulk?.length > 0}
+        constantValues={{
+          quantity: 1,
+          stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+        }}
+        cancelButtonLabel="Close"
+        anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
+        anotherPanel={<OrderListForPanel table={table} />}
+        additionalButtons={[
+          {
+            label: "Add",
+            isInputRequirementCheck: true,
+            isInputNeedToBeReset: true,
+            onClick: () => {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                setOrderCreateBulk([...orderCreateBulk, orderObject]);
+              }
+              setOrderForm(initialOrderForm);
+            },
+          },
+        ]}
+        submitFunction={() => {
+          // creating single order
+          if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+            const orderObject = handleOrderObject();
+            if (orderObject) {
+              createOrder(orderObject);
+            }
+          } else {
+            if (orderForm?.item) {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                createMultipleOrder({
+                  orders: [...orderCreateBulk, orderObject],
+                  table: table,
+                });
+                setOrderForm(initialOrderForm);
+                setOrderCreateBulk([]);
+                return;
+              }
+            }
+            createMultipleOrder({
+              orders: orderCreateBulk,
+              table: table,
+            });
+          }
+          setOrderForm(initialOrderForm);
+          setOrderCreateBulk([]);
+
+          setIsCreateOrderDialogOpen(false);
+        }}
+        generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+        topClassName="flex flex-col gap-2   "
+      />
+    );
+  }
   return (
     <div
       id="popup"
@@ -308,5 +603,4 @@ const OrderPaymentModal = ({ close, tableId, tables }: Props) => {
     </div>
   );
 };
-
 export default OrderPaymentModal;

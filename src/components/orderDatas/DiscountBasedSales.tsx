@@ -431,6 +431,7 @@ const DiscountBasedSales = () => {
           <OrderPaymentModal
             tableId={selectedTableId}
             tables={tables}
+            isAddOrderActive={false}
             close={() => {
               setExpandedRows({});
               resetOrderContext();

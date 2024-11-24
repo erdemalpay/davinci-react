@@ -29,7 +29,7 @@ const NewOrderListPanel = () => {
                 : "bg-green-200"
             } `}
           >
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-2  items-center  ">
                 {/* decrement */}
                 <FiMinusCircle
@@ -53,42 +53,44 @@ const NewOrderListPanel = () => {
                   <p>{orderItem?.name}</p>
                   <h1 className="text-xs">({order.quantity})</h1>
                 </div>
-                <div className="flex flex-row gap-2">
-                  <GoPlusCircle
-                    className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
-                    onClick={() => {
-                      if (!order.quantity) return;
-                      const newOrders = [...orderCreateBulk];
-                      newOrders[index].quantity = Number(order.quantity) + 1;
-                      setOrderCreateBulk(newOrders);
-                    }}
-                  />
-                  {orderCreateBulk[index].status !== OrderStatus.SERVED && (
-                    <ButtonTooltip content={t("Served")}>
-                      <PiBellSimpleRingingFill
-                        className="text-green-500 cursor-pointer text-lg px-[0.5px]"
-                        onClick={() => {
-                          orderCreateBulk[index] = {
-                            ...orderCreateBulk[index],
-                            status: OrderStatus.SERVED,
-                            deliveredAt: new Date(),
-                            deliveredBy: user?._id,
-                          };
-                          setOrderCreateBulk([...orderCreateBulk]);
-                        }}
-                      />
-                    </ButtonTooltip>
-                  )}
-                </div>
+
+                <GoPlusCircle
+                  className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
+                  onClick={() => {
+                    if (!order.quantity) return;
+                    const newOrders = [...orderCreateBulk];
+                    newOrders[index].quantity = Number(order.quantity) + 1;
+                    setOrderCreateBulk(newOrders);
+                  }}
+                />
               </div>
-              <HiOutlineTrash
-                className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
-                onClick={() =>
-                  setOrderCreateBulk(
-                    orderCreateBulk.filter((_, i) => i !== index)
-                  )
-                }
-              />
+
+              <div className="flex flex-row gap-2">
+                {orderCreateBulk[index].status !== OrderStatus.SERVED && (
+                  <ButtonTooltip content={t("Served")}>
+                    <PiBellSimpleRingingFill
+                      className="text-green-500 cursor-pointer text-lg px-[0.5px]"
+                      onClick={() => {
+                        orderCreateBulk[index] = {
+                          ...orderCreateBulk[index],
+                          status: OrderStatus.SERVED,
+                          deliveredAt: new Date(),
+                          deliveredBy: user?._id,
+                        };
+                        setOrderCreateBulk([...orderCreateBulk]);
+                      }}
+                    />
+                  </ButtonTooltip>
+                )}
+                <HiOutlineTrash
+                  className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
+                  onClick={() =>
+                    setOrderCreateBulk(
+                      orderCreateBulk.filter((_, i) => i !== index)
+                    )
+                  }
+                />
+              </div>
             </div>
           </div>
         );
