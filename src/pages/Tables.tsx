@@ -794,7 +794,7 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName="  shadow-none mt-[-4rem] md:mt-0"
           topClassName="flex flex-col gap-2   "
         />
       )}
