@@ -141,9 +141,7 @@ const Tables = () => {
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
-  useEffect(() => {
-    console.log(takeawayTableId, isTakeAwayPaymentModalOpen);
-  }, [takeawayTableId, isTakeAwayPaymentModalOpen]);
+
   const orderInputs = [
     {
       type: InputTypes.SELECT,

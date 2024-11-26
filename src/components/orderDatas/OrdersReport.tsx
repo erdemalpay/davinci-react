@@ -85,32 +85,34 @@ const OrdersReport = () => {
   ];
   const allRows = orders
     .map((order) => {
-      if (!order || !order.createdAt) {
+      if (!order || !order?.createdAt) {
         return null;
       }
       return {
-        _id: order._id,
+        _id: order?._id,
         isReturned: order?.isReturned,
-        date: format(order.createdAt, "yyyy-MM-dd"),
-        formattedDate: formatAsLocalDate(format(order.createdAt, "yyyy-MM-dd")),
-        createdBy: getItem(order.createdBy, users)?.name ?? "",
-        createdByUserId: order.createdBy ?? "",
-        createdAt: format(order.createdAt, "HH:mm") ?? "",
-        preparedBy: getItem(order.preparedBy, users)?.name ?? "",
+        date: format(order?.createdAt, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(
+          format(order?.createdAt, "yyyy-MM-dd")
+        ),
+        createdBy: getItem(order?.createdBy, users)?.name ?? "",
+        createdByUserId: order?.createdBy ?? "",
+        createdAt: format(order?.createdAt, "HH:mm") ?? "",
+        preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
         preparedByUserId: order?.preparedBy ?? "",
-        preparationTime: order.preparedAt
-          ? differenceInMinutes(order.preparedAt, order.createdAt) + " dk"
+        preparationTime: order?.preparedAt
+          ? differenceInMinutes(order?.preparedAt, order?.createdAt) + " dk"
           : "",
-        cancelledBy: getItem(order.cancelledBy, users)?.name ?? "",
-        cancelledByUserId: order.cancelledBy ?? "",
-        cancelledAt: order.cancelledAt
-          ? format(order.cancelledAt, "HH:mm")
+        cancelledBy: getItem(order?.cancelledBy, users)?.name ?? "",
+        cancelledByUserId: order?.cancelledBy ?? "",
+        cancelledAt: order?.cancelledAt
+          ? format(order?.cancelledAt, "HH:mm")
           : "",
-        deliveredBy: getItem(order.deliveredBy, users)?.name ?? "",
-        deliveredByUserId: order.deliveredBy ?? "",
+        deliveredBy: getItem(order?.deliveredBy, users)?.name ?? "",
+        deliveredByUserId: order?.deliveredBy ?? "",
         deliveryTime:
-          order.deliveredAt && order.preparedAt
-            ? differenceInMinutes(order.deliveredAt, order.preparedAt) + " dk"
+          order?.deliveredAt && order?.preparedAt
+            ? differenceInMinutes(order?.deliveredAt, order?.preparedAt) + " dk"
             : "",
         discountId: order?.discount ?? "",
         discountNote: order?.discountNote ?? "",
@@ -118,8 +120,8 @@ const OrdersReport = () => {
           ? order?.discountAmount
           : parseFloat(
               (
-                (order.unitPrice *
-                  order.quantity *
+                (order?.unitPrice *
+                  order?.quantity *
                   (order?.discountPercentage ?? 0)) /
                 100
               ).toFixed(2)
@@ -128,17 +130,18 @@ const OrdersReport = () => {
         discountName:
           discounts?.find((discount) => discount?._id === order?.discount)
             ?.name ?? "",
-        item: getItem(order.item, items)?.name ?? "",
-        location: getItem(order.location, locations)?.name ?? "",
-        locationId: order.location ?? "",
-        quantity: order.quantity ?? "",
+        item: getItem(order?.item, items)?.name ?? "",
+        location: getItem(order?.location, locations)?.name ?? "",
+        locationId: order?.location ?? "",
+        quantity: order?.quantity ?? "",
         tableId: (order?.table as Table)?._id ?? "",
         tableName: (order?.table as Table)?.name ?? "",
-        amount: order.unitPrice * order.quantity,
-        note: order.note ?? "",
-        status: t(order.status),
+        amount: order?.unitPrice * order?.quantity,
+        note: order?.note ?? "",
+        status: t(order?.status),
+        paymentMethod: order?.paymentMethod,
         statusLabel: statusOptions.find(
-          (status) => status.value === order.status
+          (status) => status.value === order?.status
         )?.label,
       };
     })
@@ -444,6 +447,7 @@ const OrdersReport = () => {
             returnOrder({
               orderId: rowToAction._id,
               returnQuantity: returnOrderForm.quantity,
+              paymentMethod: rowToAction.paymentMethod,
             });
           }}
           constantValues={{

@@ -33,6 +33,7 @@ interface TransferTablePayload {
 interface ReturnOrderPayload {
   orderId: number;
   returnQuantity: number;
+  paymentMethod: string;
 }
 interface CreateMultipleOrderPayload {
   orders: Partial<Order>[];

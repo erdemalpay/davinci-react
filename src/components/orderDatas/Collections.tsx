@@ -42,6 +42,23 @@ const Collections = () => {
   if (!collections || !orders || !locations || !users || !paymentMethods) {
     return null;
   }
+  const collectionStatus = [
+    {
+      value: OrderCollectionStatus.CANCELLED,
+      label: t("Cancelled Status"),
+      bgColor: "bg-red-500",
+    },
+    {
+      value: OrderCollectionStatus.RETURNED,
+      label: t("Returned"),
+      bgColor: "bg-purple-500",
+    },
+    {
+      value: OrderCollectionStatus.PAID,
+      label: t("Paid Status"),
+      bgColor: "bg-blue-500",
+    },
+  ];
   const allRows = collections
     .map((collection) => {
       if (!collection?.createdAt) {
@@ -131,16 +148,21 @@ const Collections = () => {
     { key: "cancelNote" },
     {
       key: "status",
-      node: (row: any) =>
-        row.status === OrderCollectionStatus.PAID ? (
-          <p className="text-white bg-blue-500 p-0.5 text-sm rounded-md text-center font-semibold">
-            {t("Paid Status")}
+      node: (row: any) => {
+        const status = collectionStatus.find(
+          (status) => status.value === row.status
+        );
+        if (!status) {
+          return null;
+        }
+        return (
+          <p
+            className={`text-white p-0.5 text-sm rounded-md text-center font-semibold ${status.bgColor}`}
+          >
+            {status.label}
           </p>
-        ) : (
-          <p className="text-white bg-red-500 p-0.5 text-sm rounded-md text-center font-semibold">
-            {t("Cancelled Status")}
-          </p>
-        ),
+        );
+      },
     },
   ];
   const filterPanelInputs = [
@@ -188,6 +210,7 @@ const Collections = () => {
       label: t("Status"),
       options: [
         { value: OrderCollectionStatus.PAID, label: t("Paid") },
+        { value: OrderCollectionStatus.RETURNED, label: t("Returned") },
         { value: OrderCollectionStatus.CANCELLED, label: t("Cancelled") },
       ],
       placeholder: t("Status"),
