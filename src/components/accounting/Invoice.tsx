@@ -6,8 +6,8 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
+  AccountExpense,
   AccountExpenseType,
-  AccountInvoice,
   AccountProduct,
   commonDateOptions,
   DateRangeKey,
@@ -73,8 +73,8 @@ const Invoice = () => {
     productExpenseForm,
     rowsPerPage,
     currentPage,
-    setProductExpenseForm,
     setCurrentPage,
+    setProductExpenseForm,
   } = useGeneralContext();
   const locations = useGetAccountStockLocations();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -121,7 +121,7 @@ const Invoice = () => {
   const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountInvoice>();
+  const [rowToAction, setRowToAction] = useState<AccountExpense>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
@@ -689,7 +689,7 @@ const Invoice = () => {
       isDisabled: !isTransferEdit,
       icon: <TbTransferIn />,
       setRow: setRowToAction,
-      node: (row: AccountInvoice) => {
+      node: (row: AccountExpense) => {
         return (
           <ButtonTooltip content={t("Transfer to Service")}>
             <TbTransferIn

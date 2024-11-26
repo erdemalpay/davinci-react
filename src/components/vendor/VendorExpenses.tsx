@@ -30,7 +30,6 @@ const VendorExpenses = () => {
   const { vendorId } = useParams();
   const vendors = useGetAccountVendors();
   if (!vendorId) return <></>;
-
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({

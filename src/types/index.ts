@@ -193,6 +193,26 @@ export type AccountInvoice = {
   isStockIncrement?: boolean;
 };
 
+export type AccountExpense = {
+  _id: number;
+  product?: string;
+  type: string;
+  service?: string;
+  expenseType: string;
+  quantity: number;
+  totalExpense: number;
+  date: string;
+  brand?: string;
+  vendor?: string;
+  note?: string;
+  location: string;
+  price?: number;
+  kdv?: number;
+  paymentMethod: string;
+  isPaid: boolean;
+  isStockIncrement?: boolean;
+};
+
 export type AccountServiceInvoice = {
   _id: number;
   service: string;

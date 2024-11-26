@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransfer } from "react-icons/tb";
@@ -9,24 +8,25 @@ import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
   AccountServiceInvoice,
-  DateRangeKey,
-  NOTPAID,
   commonDateOptions,
+  DateRangeKey,
+  ExpenseTypes,
+  NOTPAID,
 } from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
-import { useServiceInvoiceTransferInvoiceMutation } from "../../utils/api/account/invoice";
+import {
+  useGetAccountExpense,
+  useServiceInvoiceTransferInvoiceMutation,
+} from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
 } from "../../utils/api/account/service";
-import {
-  useAccountServiceInvoiceMutations,
-  useGetAccountServiceInvoices,
-} from "../../utils/api/account/serviceInvoice";
+import { useAccountServiceInvoiceMutations } from "../../utils/api/account/serviceInvoice";
 import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
@@ -48,7 +48,6 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -63,15 +62,37 @@ type FormElementsState = {
 
 const ServiceInvoice = () => {
   const { t } = useTranslation();
-  const invoices = useGetAccountServiceInvoices();
   const {
     searchQuery,
-    setCurrentPage,
     setSearchQuery,
     serviceExpenseForm,
     setServiceExpenseForm,
+    rowsPerPage,
+    currentPage,
+    setCurrentPage,
   } = useGeneralContext();
   const locations = useGetAccountStockLocations();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      product: [],
+      service: [],
+      type: ExpenseTypes.NONSTOCKABLE,
+      vendor: "",
+      brand: "",
+      expenseType: "",
+      location: "",
+      date: "",
+      before: "",
+      after: "",
+      sort: "",
+      asc: 1,
+    });
+  const invoicesPayload = useGetAccountExpense(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
+  const invoices = invoicesPayload?.data;
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
@@ -82,7 +103,7 @@ const ServiceInvoice = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountServiceInvoice>();
+  const [rowToAction, setRowToAction] = useState<any>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>();
@@ -107,16 +128,6 @@ const ServiceInvoice = () => {
     vendor: [],
     expenseType: [],
   });
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      service: [],
-      vendor: "",
-      expenseType: "",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-    });
 
   const [
     isCloseAllConfirmationDialogOpen,
@@ -130,30 +141,26 @@ const ServiceInvoice = () => {
   } = useAccountServiceInvoiceMutations();
   const { createAccountService, updateAccountService } =
     useAccountServiceMutations();
-  const [rows, setRows] = useState(
-    invoices.map((invoice) => {
-      return {
-        ...invoice,
-        service: getItem(invoice.service, services)?.name,
-        expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-        vendor: getItem(invoice.vendor, vendors)?.name,
-        lctn: getItem(invoice.location, locations)?.name,
-        formattedDate: formatAsLocalDate(invoice.date),
-        unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(4)
-        ),
-        expType: getItem(invoice.expenseType, expenseTypes),
-        vndr: getItem(invoice.vendor, vendors),
-        srvc: getItem(invoice.service, services),
-        paymentMethodName: t(
-          getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-        ),
-      };
-    })
-  );
-  const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
-  );
+  const allRows = invoices?.map((invoice) => {
+    return {
+      ...invoice,
+      service: getItem(invoice.service, services)?.name,
+      expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
+      vendor: getItem(invoice.vendor, vendors)?.name,
+      lctn: getItem(invoice.location, locations)?.name,
+      formattedDate: formatAsLocalDate(invoice.date),
+      unitPrice: parseFloat(
+        (invoice.totalExpense / invoice.quantity).toFixed(4)
+      ),
+      expType: getItem(invoice.expenseType, expenseTypes),
+      vndr: getItem(invoice.vendor, vendors),
+      srvc: getItem(invoice.service, services),
+      paymentMethodName: t(
+        getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
+      ),
+    };
+  });
+  const [rows, setRows] = useState(allRows);
   // open add modal on ` key press
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -599,72 +606,65 @@ const ServiceInvoice = () => {
       className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
       setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          additionalCancelFunction={() => {
-            setServiceExpenseForm({});
-          }}
-          additionalSubmitFunction={() => {
-            setServiceExpenseForm({});
-          }}
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={[
-            ...inputs,
-            {
-              type: InputTypes.NUMBER,
-              formKey: "totalExpense",
-              label: t("Total Expense"),
-              placeholder: t("Total Expense"),
-              required: true,
-            },
-            {
-              type: InputTypes.TEXTAREA,
-              formKey: "note",
-              label: t("Note"),
-              placeholder: t("Note"),
-              required: false,
-            },
-          ]}
-          formKeys={[
-            ...formKeys,
-            { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
-          ]}
-          setForm={setServiceExpenseForm}
-          submitItem={updateAccountServiceInvoice as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          generalClassName="overflow-scroll"
-          itemToEdit={{
-            id: rowToAction._id,
-            updates: {
-              ...rowToAction,
-              date: rowToAction.date,
-              service: invoices.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.service,
-              expenseType: invoices?.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.expenseType,
-              quantity: rowToAction.quantity,
-              totalExpense: rowToAction.totalExpense,
-              vendor: invoices?.find(
-                (invoice) => invoice._id === rowToAction._id
-              )?.vendor,
-              note: rowToAction.note,
-              location: rowToAction.location,
-              paymentMethod: rowToAction?.paymentMethod,
-            },
-          }}
-        />
-      ) : null,
-
+      modal:
+        rowToAction && invoices ? (
+          <GenericAddEditPanel
+            additionalCancelFunction={() => {
+              setServiceExpenseForm({});
+            }}
+            additionalSubmitFunction={() => {
+              setServiceExpenseForm({});
+            }}
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            inputs={[
+              ...inputs,
+              {
+                type: InputTypes.NUMBER,
+                formKey: "totalExpense",
+                label: t("Total Expense"),
+                placeholder: t("Total Expense"),
+                required: true,
+              },
+              {
+                type: InputTypes.TEXTAREA,
+                formKey: "note",
+                label: t("Note"),
+                placeholder: t("Note"),
+                required: false,
+              },
+            ]}
+            formKeys={[
+              ...formKeys,
+              { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
+            ]}
+            setForm={setServiceExpenseForm}
+            submitItem={updateAccountServiceInvoice as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            generalClassName="overflow-scroll"
+            itemToEdit={{
+              id: rowToAction._id,
+              updates: {
+                ...rowToAction,
+                date: rowToAction.date,
+                service: rowToAction.srvc._id,
+                expenseType: rowToAction.expType._id,
+                quantity: rowToAction.quantity,
+                totalExpense: rowToAction.totalExpense,
+                vendor: rowToAction.vndr._id,
+                note: rowToAction.note,
+                location: rowToAction.location,
+                paymentMethod: rowToAction?.paymentMethod,
+              },
+            }}
+          />
+        ) : null,
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
     },
   ];
-
   const tableFilters = [
     {
       label: t("Total") + " :",
@@ -676,7 +676,7 @@ const ServiceInvoice = () => {
               style: "decimal",
               minimumFractionDigits: 3,
               maximumFractionDigits: 3,
-            }).format(generalTotalExpense)}{" "}
+            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
             ₺
           </p>
         </div>
@@ -700,78 +700,28 @@ const ServiceInvoice = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
+  };
+  const pagination = invoicesPayload
+    ? {
+        totalPages: invoicesPayload.totalPages,
+        totalRows: invoicesPayload.totalNumber,
+      }
+    : null;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-    const processedRows = invoices
-      .filter((invoice) => {
-        return (
-          (filterPanelFormElements.before === "" ||
-            invoice.date <= filterPanelFormElements.before) &&
-          (filterPanelFormElements.after === "" ||
-            invoice.date >= filterPanelFormElements.after) &&
-          (!filterPanelFormElements.service.length ||
-            filterPanelFormElements.service?.some((panelService: string) =>
-              passesFilter(panelService, invoice.service)
-            )) &&
-          passesFilter(filterPanelFormElements.vendor, invoice.vendor) &&
-          passesFilter(
-            filterPanelFormElements.expenseType,
-            invoice.expenseType
-          ) &&
-          passesFilter(filterPanelFormElements.location, invoice.location)
-        );
-      })
-      .map((invoice) => {
-        return {
-          ...invoice,
-          service: getItem(invoice.service, services)?.name,
-          expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-          vendor: getItem(invoice.vendor, vendors)?.name,
-          lctn: getItem(invoice.location, locations)?.name,
-          formattedDate: formatAsLocalDate(invoice.date),
-          unitPrice: parseFloat(
-            (invoice.totalExpense / invoice.quantity).toFixed(4)
-          ),
-          expType: getItem(invoice.expenseType, expenseTypes),
-          vndr: getItem(invoice.vendor, vendors),
-          srvc: getItem(invoice.service, services),
-          paymentMethodName: t(
-            getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-          ),
-        };
-      });
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
+    setRows(allRows);
   }, [
-    invoices,
+    invoicesPayload,
     filterPanelFormElements,
     searchQuery,
     locations,
@@ -779,45 +729,6 @@ const ServiceInvoice = () => {
     expenseTypes,
     paymentMethods,
   ]);
-
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
-
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -833,12 +744,12 @@ const ServiceInvoice = () => {
               ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }
-          rows={rows}
+          rows={rows ?? []}
           title={t("Service Expenses")}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}
-          outsideSearch={outsideSearch}
+          {...(pagination && { pagination })}
         />
         {isAddServiceModalOpen && (
           <GenericAddEditPanel

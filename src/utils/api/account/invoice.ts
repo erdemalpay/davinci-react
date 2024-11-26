@@ -1,11 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AccountInvoice, FormElementsState } from "../../../types";
+import {
+  AccountExpense,
+  AccountInvoice,
+  FormElementsState,
+} from "../../../types";
 import { patch } from ".././index";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
 export interface AccountInvoicePayload {
-  data: AccountInvoice[];
+  data: AccountExpense[];
   totalNumber: number;
   totalPages: number;
   page: number;
