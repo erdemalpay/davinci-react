@@ -1,8 +1,6 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
-import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
@@ -12,18 +10,14 @@ import {
   NOTPAID,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
-  useAccountInvoiceMutations,
-  useGetAccountInvoices,
-} from "../../utils/api/account/invoice";
+  useAccountExpenseMutations,
+  useGetAccountExpenses,
+} from "../../utils/api/account/expense";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
-import {
-  useAccountServiceInvoiceMutations,
-  useGetAccountServiceInvoices,
-} from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -39,7 +33,6 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
@@ -52,16 +45,37 @@ type FormElementsState = {
 
 const AllExpenses = () => {
   const { t } = useTranslation();
-  const invoices = useGetAccountInvoices();
-  const serviceInvoices = useGetAccountServiceInvoices();
   const paymentMethods = useGetAccountPaymentMethods();
   const {
     searchQuery,
+    rowsPerPage,
+    currentPage,
     setCurrentPage,
     setSearchQuery,
     allExpenseForm,
     setAllExpenseForm,
   } = useGeneralContext();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      product: [],
+      service: [],
+      type: "",
+      vendor: "",
+      brand: "",
+      expenseType: "",
+      location: "",
+      date: "",
+      before: "",
+      after: "",
+      sort: "",
+      asc: 1,
+    });
+  const invoicesPayload = useGetAccountExpenses(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
+  const invoices = invoicesPayload?.data;
   const locations = useGetAccountStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -72,64 +86,28 @@ const AllExpenses = () => {
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const { createAccountInvoice } = useAccountInvoiceMutations();
-  const { createAccountServiceInvoice } = useAccountServiceInvoiceMutations();
-
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: "",
-      service: "",
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      type: "",
+  const { createAccountExpense } = useAccountExpenseMutations();
+  const allRows = invoices
+    ?.map((invoice) => {
+      return {
+        ...invoice,
+        product: getItem(invoice?.product, products)?.name,
+        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+        brand: getItem(invoice?.brand, brands)?.name,
+        vendor: getItem(invoice?.vendor, vendors)?.name,
+        lctn: getItem(invoice?.location, locations)?.name,
+        formattedDate: formatAsLocalDate(invoice?.date),
+        unitPrice: parseFloat(
+          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+        ),
+        expType: getItem(invoice?.expenseType, expenseTypes),
+        service: getItem(invoice?.service, services)?.name,
+      };
+    })
+    ?.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
-
-  const allInvoices = [
-    ...invoices.map((invoice) => {
-      return {
-        ...invoice,
-        product: getItem(invoice.product, products)?.name,
-        expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-        brand: getItem(invoice.brand, brands)?.name,
-        vendor: getItem(invoice.vendor, vendors)?.name,
-        lctn: getItem(invoice.location, locations)?.name,
-        formattedDate: formatAsLocalDate(invoice.date),
-        type: ExpenseTypes.INVOICE,
-        unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(4)
-        ),
-        expType: getItem(invoice.expenseType, expenseTypes),
-      };
-    }),
-    ...serviceInvoices.map((invoice) => {
-      return {
-        ...invoice,
-        product: getItem(invoice.service, services)?.name,
-        expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-        brand: null,
-        vendor: getItem(invoice.vendor, vendors)?.name,
-        type: ExpenseTypes.SERVICE,
-        lctn: getItem(invoice.location, locations)?.name,
-        formattedDate: formatAsLocalDate(invoice.date),
-        unitPrice: parseFloat(
-          (invoice.totalExpense / invoice.quantity).toFixed(4)
-        ),
-        expType: getItem(invoice.expenseType, expenseTypes),
-      };
-    }),
-  ].sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-  const [rows, setRows] = useState(allInvoices);
-  const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    invoices.reduce((acc, invoice) => acc + invoice.totalExpense, 0)
-  );
-
+  const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -152,13 +130,13 @@ const AllExpenses = () => {
     ProductInput({
       products: products,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.INVOICE,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
     }),
 
     ServiceInput({
       services: services,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.SERVICE,
+      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
     }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
@@ -214,7 +192,7 @@ const AllExpenses = () => {
     },
   ];
   const expenseTypeInputOptions = () => {
-    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+    if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
         expenseTypes.filter((exp) =>
           products
@@ -222,7 +200,7 @@ const AllExpenses = () => {
             ?.expenseType.includes(exp._id)
         ) ?? []
       );
-    } else if (allExpenseForm?.type === ExpenseTypes.SERVICE) {
+    } else if (allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE) {
       return (
         expenseTypes.filter((exp) =>
           services
@@ -235,7 +213,7 @@ const AllExpenses = () => {
     }
   };
   const brandInputOptions = () => {
-    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+    if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
         brands?.filter((brnd) =>
           products
@@ -248,7 +226,7 @@ const AllExpenses = () => {
     }
   };
   const vendorInputOptions = () => {
-    if (allExpenseForm?.type === ExpenseTypes.INVOICE) {
+    if (allExpenseForm?.type === ExpenseTypes.STOCKABLE) {
       return (
         vendors?.filter((vndr) =>
           products
@@ -256,7 +234,7 @@ const AllExpenses = () => {
             ?.vendor?.includes(vndr._id)
         ) ?? []
       );
-    } else if (allExpenseForm?.type === ExpenseTypes.SERVICE) {
+    } else if (allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE) {
       return (
         vendors?.filter((vndr) =>
           services
@@ -300,8 +278,8 @@ const AllExpenses = () => {
     },
     ProductInput({
       products: products,
-      required: allExpenseForm?.type === ExpenseTypes.INVOICE,
-      isDisabled: allExpenseForm?.type !== ExpenseTypes.INVOICE,
+      required: allExpenseForm?.type === ExpenseTypes.STOCKABLE,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
       invalidateKeys: [
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
@@ -310,8 +288,8 @@ const AllExpenses = () => {
     }),
     ServiceInput({
       services: services,
-      required: allExpenseForm?.type === ExpenseTypes.SERVICE,
-      isDisabled: allExpenseForm?.type !== ExpenseTypes.SERVICE,
+      required: allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.NONSTOCKABLE,
       invalidateKeys: [
         { key: "expenseType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
@@ -324,7 +302,7 @@ const AllExpenses = () => {
     }),
     StockLocationInput({ locations }),
     BrandInput({
-      isDisabled: allExpenseForm?.type === ExpenseTypes.SERVICE,
+      isDisabled: allExpenseForm?.type === ExpenseTypes.NONSTOCKABLE,
       brands: brandInputOptions() ?? [],
     }),
     VendorInput({
@@ -385,14 +363,14 @@ const AllExpenses = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return row.formattedDate;
+        return row?.formattedDate;
       },
     },
     {
       key: "type",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return t(row.type);
+        return t(row?.type);
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -401,7 +379,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32 pr-2">{row.brand ?? "-"}</p>
+            <p className="min-w-32 pr-2">{row?.brand ?? "-"}</p>
           </div>
         );
       },
@@ -411,7 +389,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32 pr-2">{row.vendor ?? "-"}</p>
+            <p className="min-w-32 pr-2">{row?.vendor ?? "-"}</p>
           </div>
         );
       },
@@ -421,7 +399,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32 pr-4">{row.lctn ?? "-"}</p>
+            <p className="min-w-32 pr-4">{row?.lctn ?? "-"}</p>
           </div>
         );
       },
@@ -448,7 +426,11 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className="min-w-32 pr-2">{row.product}</p>
+            <p className="min-w-32 pr-2">
+              {row?.type === ExpenseTypes.STOCKABLE
+                ? row?.product
+                : row?.service}
+            </p>
           </div>
         );
       },
@@ -459,7 +441,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
+            <P1>{row?.unitPrice} ₺</P1>
           </div>
         );
       },
@@ -470,7 +452,7 @@ const AllExpenses = () => {
         return (
           <div className="min-w-32">
             <P1>
-              {parseFloat(row.totalExpense)
+              {parseFloat(row?.totalExpense)
                 .toFixed(4)
                 .replace(/\.?0*$/, "")}{" "}
               ₺
@@ -480,145 +462,6 @@ const AllExpenses = () => {
       },
     },
   ];
-  const tableFilters = [
-    {
-      label: t("Total") + " :",
-      isUpperSide: false,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(generalTotalExpense)}{" "}
-            ₺
-          </p>
-        </div>
-      ),
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-    const processedRows = allInvoices.filter((invoice) => {
-      return (
-        (filterPanelFormElements.before === "" ||
-          invoice.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          invoice.date >= filterPanelFormElements.after) &&
-        passesFilter(
-          filterPanelFormElements.product,
-          products.find((item) => item.name === invoice.product)?._id
-        ) &&
-        passesFilter(
-          filterPanelFormElements.service,
-          services.find((item) => item.name === invoice.product)?._id
-        ) &&
-        passesFilter(
-          filterPanelFormElements.vendor,
-          vendors.find((item) => item.name === invoice.vendor)?._id
-        ) &&
-        passesFilter(filterPanelFormElements.type, invoice.type) &&
-        passesFilter(
-          filterPanelFormElements.brand,
-          brands.find((item) => item.name === invoice.brand)?._id
-        ) &&
-        passesFilter(
-          filterPanelFormElements.expenseType,
-          expenseTypes.find((item) => item.name === invoice.expenseType)?._id
-        ) &&
-        passesFilter(filterPanelFormElements.location, invoice.location)
-      );
-    });
-
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
-  }, [
-    invoices,
-    filterPanelFormElements,
-    searchQuery,
-    products,
-    serviceInvoices,
-    products,
-    expenseTypes,
-    brands,
-    vendors,
-    services,
-    locations,
-    paymentMethods,
-  ]);
-
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative min-w-32">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
   const addButton = {
     name: t(`Add Invoice`),
     isModal: true,
@@ -659,49 +502,28 @@ const AllExpenses = () => {
         ]}
         generalClassName="overflow-scroll"
         submitFunction={() => {
-          if (allExpenseForm.type === ExpenseTypes.INVOICE) {
-            allExpenseForm.price &&
-              allExpenseForm.kdv &&
-              allExpenseForm.quantity &&
-              createAccountInvoice({
-                ...allExpenseForm,
-                paymentMethod:
-                  allExpenseForm.paymentMethod === NOTPAID
-                    ? ""
-                    : allExpenseForm.paymentMethod,
-                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
-                quantity: Number(allExpenseForm.quantity),
-                totalExpense:
-                  Number(allExpenseForm.price) +
-                  Number(allExpenseForm.kdv) *
-                    (Number(allExpenseForm.price) / 100),
-              });
-            setAllExpenseForm({});
-          } else if (allExpenseForm.type === ExpenseTypes.SERVICE) {
-            allExpenseForm.price &&
-              allExpenseForm.kdv &&
-              allExpenseForm.quantity &&
-              createAccountServiceInvoice({
-                ...allExpenseForm,
-                paymentMethod:
-                  allExpenseForm.paymentMethod === NOTPAID
-                    ? ""
-                    : allExpenseForm.paymentMethod,
-                isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
-                totalExpense:
-                  Number(allExpenseForm.price) +
-                  Number(allExpenseForm.kdv) *
-                    (Number(allExpenseForm.price) / 100),
-              });
-            setAllExpenseForm({});
-          } else {
-            toast.error("Please select a type");
-          }
+          allExpenseForm.price &&
+            allExpenseForm.kdv &&
+            allExpenseForm.quantity &&
+            createAccountExpense({
+              ...allExpenseForm,
+              paymentMethod:
+                allExpenseForm.paymentMethod === NOTPAID
+                  ? ""
+                  : allExpenseForm.paymentMethod,
+              isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
+              quantity: Number(allExpenseForm.quantity),
+              totalExpense:
+                Number(allExpenseForm.price) +
+                Number(allExpenseForm.kdv) *
+                  (Number(allExpenseForm.price) / 100),
+            });
+          setAllExpenseForm({});
         }}
         additionalCancelFunction={() => {
           setAllExpenseForm({});
         }}
-        submitItem={createAccountInvoice as any}
+        submitItem={createAccountExpense as any}
         topClassName="flex flex-col gap-2 "
         setForm={setAllExpenseForm}
         constantValues={{
@@ -721,6 +543,63 @@ const AllExpenses = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
+  const tableFilters = [
+    {
+      label: t("Total") + " :",
+      isUpperSide: false,
+      node: (
+        <div className="flex flex-row gap-2">
+          <p>
+            {new Intl.NumberFormat("en-US", {
+              style: "decimal",
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3,
+            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
+            ₺
+          </p>
+        </div>
+      ),
+    },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
+  };
+  const pagination = invoicesPayload
+    ? {
+        totalPages: invoicesPayload.totalPages,
+        totalRows: invoicesPayload.totalNumber,
+      }
+    : null;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+    setRows(allRows);
+  }, [
+    invoicesPayload,
+    filterPanelFormElements,
+    searchQuery,
+    products,
+    products,
+    expenseTypes,
+    brands,
+    vendors,
+    services,
+    locations,
+    paymentMethods,
+  ]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -729,11 +608,11 @@ const AllExpenses = () => {
           rowKeys={rowKeys}
           filters={tableFilters}
           columns={columns}
-          rows={rows}
+          rows={rows ?? []}
           title={t("All Expenses")}
           filterPanel={filterPanel}
           isSearch={false}
-          outsideSearch={outsideSearch}
+          {...(pagination && { pagination })}
           addButton={addButton}
           isActionsActive={false}
         />

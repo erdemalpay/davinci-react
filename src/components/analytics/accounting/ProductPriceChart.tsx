@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccountProduct } from "../../../types";
-import { useGetAccountProductInvoices } from "../../../utils/api/account/invoice";
+import { useGetAccountProductExpenses } from "../../../utils/api/account/expense";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
 import { formatAsLocalDate } from "../../../utils/format";
 import SelectInput from "../../common/SelectInput";
@@ -14,7 +14,7 @@ export default function ProductPriceChart() {
     AccountProduct | undefined
   >(products ? products[0] : undefined);
   const invoices = selectedProduct
-    ? useGetAccountProductInvoices(selectedProduct?._id)
+    ? useGetAccountProductExpenses(selectedProduct?._id)
     : [];
   const [chartKey, setChartKey] = useState(0);
   const productOptions = products?.map((product) => {

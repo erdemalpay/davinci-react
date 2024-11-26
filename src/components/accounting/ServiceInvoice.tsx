@@ -3,30 +3,27 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbTransfer } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
-  AccountServiceInvoice,
   commonDateOptions,
   DateRangeKey,
   ExpenseTypes,
   NOTPAID,
 } from "../../types";
 import {
+  useAccountExpenseMutations,
+  useGetAccountExpenses,
+} from "../../utils/api/account/expense";
+import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
-import {
-  useGetAccountExpense,
-  useServiceInvoiceTransferInvoiceMutation,
-} from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
 } from "../../utils/api/account/service";
-import { useAccountServiceInvoiceMutations } from "../../utils/api/account/serviceInvoice";
 import {
   useAccountStockLocationMutations,
   useGetAccountStockLocations,
@@ -50,7 +47,6 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -87,7 +83,7 @@ const ServiceInvoice = () => {
       sort: "",
       asc: 1,
     });
-  const invoicesPayload = useGetAccountExpense(
+  const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
@@ -96,8 +92,6 @@ const ServiceInvoice = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
-  const { mutate: transferServiceInvoiceToInvoice } =
-    useServiceInvoiceTransferInvoiceMutation();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -133,12 +127,8 @@ const ServiceInvoice = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-
-  const {
-    createAccountServiceInvoice,
-    deleteAccountServiceInvoice,
-    updateAccountServiceInvoice,
-  } = useAccountServiceInvoiceMutations();
+  const { createAccountExpense, deleteAccountExpense, updateAccountExpense } =
+    useAccountExpenseMutations();
   const { createAccountService, updateAccountService } =
     useAccountServiceMutations();
   const allRows = invoices?.map((invoice) => {
@@ -523,8 +513,9 @@ const ServiceInvoice = () => {
         submitFunction={() => {
           serviceExpenseForm.price &&
             serviceExpenseForm.kdv &&
-            createAccountServiceInvoice({
+            createAccountExpense({
               ...serviceExpenseForm,
+              type: ExpenseTypes.NONSTOCKABLE,
               paymentMethod:
                 serviceExpenseForm.paymentMethod === NOTPAID
                   ? ""
@@ -538,7 +529,7 @@ const ServiceInvoice = () => {
             });
           setServiceExpenseForm({});
         }}
-        submitItem={createAccountServiceInvoice as any}
+        submitItem={createAccountExpense as any}
         topClassName="flex flex-col gap-2 "
         setForm={setServiceExpenseForm}
         constantValues={{
@@ -557,25 +548,25 @@ const ServiceInvoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
-    {
-      name: "Transfer",
-      isDisabled: !isTransferEdit,
-      icon: <TbTransfer />,
-      setRow: setRowToAction,
-      node: (row: AccountServiceInvoice) => {
-        return (
-          <ButtonTooltip content={t("Transfer to Product Expense")}>
-            <TbTransfer
-              className="text-red-500 cursor-pointer text-2xl"
-              onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}
-            />
-          </ButtonTooltip>
-        );
-      },
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: false,
-      isPath: false,
-    },
+    // {
+    //   name: "Transfer",
+    //   isDisabled: !isTransferEdit,
+    //   icon: <TbTransfer />,
+    //   setRow: setRowToAction,
+    //   node: (row: AccountServiceInvoice) => {
+    //     return (
+    //       <ButtonTooltip content={t("Transfer to Product Expense")}>
+    //         <TbTransfer
+    //           className="text-red-500 cursor-pointer text-2xl"
+    //           onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}
+    //         />
+    //       </ButtonTooltip>
+    //     );
+    //   },
+    //   className: "text-red-500 cursor-pointer text-2xl  ",
+    //   isModal: false,
+    //   isPath: false,
+    // },
     {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
@@ -586,7 +577,7 @@ const ServiceInvoice = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountServiceInvoice(rowToAction?._id);
+            deleteAccountExpense(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Invoice"
@@ -639,7 +630,7 @@ const ServiceInvoice = () => {
               { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
             ]}
             setForm={setServiceExpenseForm}
-            submitItem={updateAccountServiceInvoice as any}
+            submitItem={updateAccountExpense as any}
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             generalClassName="overflow-scroll"

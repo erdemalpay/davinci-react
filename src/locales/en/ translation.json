@@ -562,5 +562,7 @@
   "Closed Items": "Closed Items",
   "Payment": "Payment",
   "Take Away": "Take Away",
+  "STOCKABLE": "Stockable",
+  "NONSTOCKABLE": "Nonstockable",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

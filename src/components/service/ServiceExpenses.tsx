@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType, AccountService } from "../../types";
+import { AccountExpenseType, AccountService, ExpenseTypes } from "../../types";
+import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountServices } from "../../utils/api/account/service";
-import { useGetAccountServiceInvoices } from "../../utils/api/account/serviceInvoice";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -25,76 +23,59 @@ type FormElementsState = {
 };
 const ServiceExpenses = ({ selectedService }: Props) => {
   const { t } = useTranslation();
-  const invoices = useGetAccountServiceInvoices();
   const vendors = useGetAccountVendors();
   const locations = useGetAccountStockLocations();
   const services = useGetAccountServices();
   const expenseTypes = useGetAccountExpenseTypes();
-  const { searchQuery, setSearchQuery, setCurrentPage } = useGeneralContext();
+  const {
+    searchQuery,
+    rowsPerPage,
+    currentPage,
+    setCurrentPage,
+    setSearchQuery,
+  } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
+      product: [],
+      service: selectedService?._id,
+      type: ExpenseTypes.NONSTOCKABLE,
+      vendor: "",
+      brand: "",
+      expenseType: "",
+      location: "",
+      date: "",
       before: "",
       after: "",
-      location: "",
-      vendor: "",
+      sort: "",
+      asc: 1,
     });
+  const invoicesPayload = useGetAccountExpenses(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
+  const invoices = invoicesPayload?.data;
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
-  const allRows = invoices
-    ?.filter((invoice) => invoice?.service === selectedService?._id)
-    ?.map((invoice) => {
-      return {
-        ...invoice,
-        service: getItem(invoice?.service, services)?.name,
-        expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-        vendor: getItem(invoice?.vendor, vendors)?.name,
-        vendorId: invoice?.vendor,
-        formattedDate: formatAsLocalDate(invoice?.date),
-        lctn: getItem(invoice?.location, locations)?.name,
-        unitPrice: parseFloat(
-          (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-        ),
-        expType: getItem(invoice?.expenseType, expenseTypes),
-        vndr: getItem(invoice?.vendor, vendors),
-        srvc: getItem(invoice?.service, services),
-      };
-    });
+  const allRows = invoices?.map((invoice) => {
+    return {
+      ...invoice,
+      service: getItem(invoice?.service, services)?.name,
+      expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+      vendor: getItem(invoice?.vendor, vendors)?.name,
+      vendorId: invoice?.vendor,
+      formattedDate: formatAsLocalDate(invoice?.date),
+      lctn: getItem(invoice?.location, locations)?.name,
+      unitPrice: parseFloat(
+        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+      ),
+      expType: getItem(invoice?.expenseType, expenseTypes),
+      vndr: getItem(invoice?.vendor, vendors),
+      srvc: getItem(invoice?.service, services),
+    };
+  });
   const [rows, setRows] = useState(allRows);
-  const [generalTotalExpense, setGeneralTotalExpense] = useState(
-    rows?.reduce((acc, invoice) => acc + invoice?.totalExpense, 0)
-  );
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative min-w-32">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
-
   const filterPanelInputs = [
     VendorInput({ vendors: vendors, required: true }),
     StockLocationInput({ locations: locations }),
@@ -216,7 +197,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
               style: "decimal",
               minimumFractionDigits: 3,
               maximumFractionDigits: 3,
-            }).format(generalTotalExpense)}{" "}
+            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
             ₺
           </p>
         </div>
@@ -234,51 +215,22 @@ const ServiceExpenses = ({ selectedService }: Props) => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
   };
+  const pagination = invoicesPayload
+    ? {
+        totalPages: invoicesPayload.totalPages,
+        totalRows: invoicesPayload.totalNumber,
+      }
+    : null;
   useEffect(() => {
-    const processedRows = allRows?.filter((invoice) => {
-      return (
-        (filterPanelFormElements.before === "" ||
-          invoice?.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          invoice?.date >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.vendor, invoice?.vendorId) &&
-        passesFilter(filterPanelFormElements.location, invoice?.location)
-      );
-    });
-    const filteredRows = processedRows.filter((row) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const timeValue = row["formattedDate"];
-        const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return (
-            value.toLocaleLowerCase("tr-TR").includes(query) ||
-            timeValue.toLowerCase().includes(query)
-          );
-        } else if (typeof value === "number") {
-          return value.toString().includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false").includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
-      (acc, invoice) => acc + invoice?.totalExpense,
-      0
-    );
-    setRows(filteredRows);
-    setGeneralTotalExpense(newGeneralTotalExpense);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements).some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+  useEffect(() => {
     setTableKey((prev) => prev + 1);
+    setRows(allRows);
   }, [
-    invoices,
+    invoicesPayload,
     filterPanelFormElements,
     searchQuery,
     expenseTypes,
@@ -295,10 +247,10 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         columns={columns}
         filters={filters}
         filterPanel={filterPanel}
-        rows={rows}
+        rows={rows ?? []}
         title={t("Service Expenses")}
         isSearch={false}
-        outsideSearch={outsideSearch}
+        {...(pagination && { pagination })}
         isActionsActive={false}
       />
     </div>

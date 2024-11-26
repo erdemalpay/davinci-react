@@ -713,10 +713,6 @@ export const stockHistoryStatuses = [
   },
 ];
 
-export enum ExpenseTypes {
-  INVOICE = "Product Expense",
-  SERVICE = "Service Expense",
-}
 export enum OrderStatus {
   CONFIRMATIONREQ = "confirmation_req",
   PENDING = "pending",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetAccountProductInvoices } from "../../utils/api/account/invoice";
+import { useGetAccountProductExpenses } from "../../utils/api/account/expense";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { formatAsLocalDate } from "../../utils/format";
 import PriceChart from "../analytics/accounting/PriceChart";
@@ -13,7 +13,7 @@ const ProductPrice = () => {
   );
   if (!selectedProduct) return <></>;
   const invoices = selectedProduct
-    ? useGetAccountProductInvoices(selectedProduct?._id)
+    ? useGetAccountProductExpenses(selectedProduct?._id)
     : [];
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,

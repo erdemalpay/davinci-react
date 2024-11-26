@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { TbTransferIn } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpense,
@@ -19,14 +18,13 @@ import {
   useGetAccountBrands,
 } from "../../utils/api/account/brand";
 import {
+  useAccountExpenseMutations,
+  useGetAccountExpenses,
+} from "../../utils/api/account/expense";
+import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
 } from "../../utils/api/account/expenseType";
-import {
-  useAccountInvoiceMutations,
-  useGetAccountExpense,
-  useTransferServiceInvoiceMutation,
-} from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import {
   useAccountProductMutations,
@@ -57,7 +55,6 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -92,7 +89,7 @@ const Invoice = () => {
       sort: "",
       asc: 1,
     });
-  const invoicesPayload = useGetAccountExpense(
+  const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
@@ -109,8 +106,6 @@ const Invoice = () => {
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
   const products = useGetAccountProducts();
-  const { mutate: transferToServiceInvoice } =
-    useTransferServiceInvoiceMutation();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -144,9 +139,8 @@ const Invoice = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-
-  const { createAccountInvoice, deleteAccountInvoice, updateAccountInvoice } =
-    useAccountInvoiceMutations();
+  const { createAccountExpense, deleteAccountExpense, updateAccountExpense } =
+    useAccountExpenseMutations();
   const allRows = invoices?.map((invoice) => {
     return {
       ...invoice,
@@ -652,7 +646,7 @@ const Invoice = () => {
         submitFunction={() => {
           productExpenseForm.price &&
             productExpenseForm.kdv &&
-            createAccountInvoice({
+            createAccountExpense({
               ...productExpenseForm,
               paymentMethod:
                 productExpenseForm.paymentMethod === NOTPAID
@@ -660,6 +654,7 @@ const Invoice = () => {
                   : productExpenseForm.paymentMethod,
               isPaid:
                 productExpenseForm.paymentMethod === NOTPAID ? false : true,
+              type: ExpenseTypes.STOCKABLE,
               totalExpense:
                 Number(productExpenseForm.price) +
                 Number(productExpenseForm.kdv) *
@@ -667,7 +662,7 @@ const Invoice = () => {
             });
           setProductExpenseForm({});
         }}
-        submitItem={createAccountInvoice as any}
+        submitItem={createAccountExpense as any}
         topClassName="flex flex-col gap-2 "
         setForm={setProductExpenseForm}
         constantValues={{
@@ -684,25 +679,25 @@ const Invoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
-    {
-      name: "Transfer Service",
-      isDisabled: !isTransferEdit,
-      icon: <TbTransferIn />,
-      setRow: setRowToAction,
-      node: (row: AccountExpense) => {
-        return (
-          <ButtonTooltip content={t("Transfer to Service")}>
-            <TbTransferIn
-              className="text-green-500 cursor-pointer text-2xl"
-              onClick={() => transferToServiceInvoice({ id: row._id })}
-            />
-          </ButtonTooltip>
-        );
-      },
-      className: "text-green-500 cursor-pointer text-2xl  ",
-      isModal: false,
-      isPath: false,
-    },
+    // {
+    //   name: "Transfer Service",
+    //   isDisabled: !isTransferEdit,
+    //   icon: <TbTransferIn />,
+    //   setRow: setRowToAction,
+    //   node: (row: AccountExpense) => {
+    //     return (
+    //       <ButtonTooltip content={t("Transfer to Service")}>
+    //         <TbTransferIn
+    //           className="text-green-500 cursor-pointer text-2xl"
+    //           onClick={() => transferToServiceInvoice({ id: row._id })}
+    //         />
+    //       </ButtonTooltip>
+    //     );
+    //   },
+    //   className: "text-green-500 cursor-pointer text-2xl  ",
+    //   isModal: false,
+    //   isPath: false,
+    // },
     {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
@@ -713,7 +708,7 @@ const Invoice = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountInvoice(rowToAction?._id);
+            deleteAccountExpense(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Invoice"
@@ -765,7 +760,7 @@ const Invoice = () => {
             { key: "totalExpense", type: FormKeyTypeEnum.NUMBER },
           ]}
           setForm={setProductExpenseForm}
-          submitItem={updateAccountInvoice as any}
+          submitItem={updateAccountExpense as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
           generalClassName="overflow-scroll"
@@ -801,7 +796,6 @@ const Invoice = () => {
       isPath: false,
     },
   ];
-
   const tableFilters = [
     {
       label: t("Total") + " :",

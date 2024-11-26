@@ -562,5 +562,7 @@
   "Closed Items": "Kapalı Ürünler",
   "Payment": "Ödeme",
   "Take Away": "Gel Al",
+  "STOCKABLE": "Stok Giderleri",
+  "NONSTOCKABLE": "Stok Dışı Giderler",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

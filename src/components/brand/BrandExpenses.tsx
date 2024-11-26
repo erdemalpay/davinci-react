@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountExpenseType, ExpenseTypes } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
+import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountExpense } from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -22,7 +22,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -46,7 +45,7 @@ const BrandExpenses = () => {
       sort: "",
       asc: 1,
     });
-  const invoicesPayload = useGetAccountExpense(
+  const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
     filterPanelFormElements
