@@ -1020,3 +1020,7 @@ export type PersonalOrderDataType = {
 export type FormElementsState = {
   [key: string]: any;
 };
+export enum ExpenseTypes {
+  STOCKABLE = "STOCKABLE",
+  NONSTOCKABLE = "NONSTOCKABLE",
+}

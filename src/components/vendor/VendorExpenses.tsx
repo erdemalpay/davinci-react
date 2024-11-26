@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType } from "../../types";
+import { AccountExpenseType, ExpenseTypes } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountInvoice } from "../../utils/api/account/invoice";
+import { useGetAccountExpense } from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
@@ -36,6 +36,8 @@ const VendorExpenses = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: "",
+      service: "",
+      type: ExpenseTypes.STOCKABLE,
       vendor: vendorId,
       brand: "",
       expenseType: "",
@@ -46,7 +48,7 @@ const VendorExpenses = () => {
       sort: "",
       asc: 1,
     });
-  const invoicesPayload = useGetAccountInvoice(
+  const invoicesPayload = useGetAccountExpense(
     currentPage,
     usedRowsPerPage,
     filterPanelFormElements

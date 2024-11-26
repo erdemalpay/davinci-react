@@ -11,6 +11,7 @@ import {
   AccountProduct,
   commonDateOptions,
   DateRangeKey,
+  ExpenseTypes,
   NOTPAID,
 } from "../../types";
 import {
@@ -23,7 +24,7 @@ import {
 } from "../../utils/api/account/expenseType";
 import {
   useAccountInvoiceMutations,
-  useGetAccountInvoice,
+  useGetAccountExpense,
   useTransferServiceInvoiceMutation,
 } from "../../utils/api/account/invoice";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -76,6 +77,8 @@ const Invoice = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
+      service: [],
+      type: ExpenseTypes.STOCKABLE,
       vendor: "",
       brand: "",
       expenseType: "",
@@ -86,7 +89,7 @@ const Invoice = () => {
       sort: "",
       asc: 1,
     });
-  const invoicesPayload = useGetAccountInvoice(
+  const invoicesPayload = useGetAccountExpense(
     currentPage,
     usedRowsPerPage,
     filterPanelFormElements
