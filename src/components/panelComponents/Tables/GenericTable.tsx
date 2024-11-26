@@ -24,11 +24,7 @@ import Tooltip from "./Tooltip";
 import "./table.css";
 
 type PaginationProps = {
-  currentPage: number;
   totalPages: number;
-  setCurrentPage: (page: number) => void;
-  rowsPerPage: number;
-  setRowsPerPage: (rowPerPage: number) => void;
   totalRows: number;
 };
 
@@ -111,14 +107,6 @@ const GenericTable = <T,>({
     sortConfigKey,
   } = useGeneralContext();
   const navigate = useNavigate();
-  const usedCurrentPage = pagination ? pagination.currentPage : currentPage;
-  const usedRowsPerPage = pagination ? pagination.rowsPerPage : rowsPerPage;
-  const usedSetCurrentPage = pagination
-    ? pagination.setCurrentPage
-    : setCurrentPage;
-  const usedSetRowsPerPage = pagination
-    ? pagination.setRowsPerPage
-    : setRowsPerPage;
   const [tableRows, setTableRows] = useState(rows);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
@@ -148,14 +136,14 @@ const GenericTable = <T,>({
       );
   const totalRows = filteredRows.length;
   const usedTotalRows = pagination ? pagination.totalRows : totalRows;
-  const totalPages = Math.ceil(usedTotalRows / usedRowsPerPage);
+  const totalPages = Math.ceil(usedTotalRows / rowsPerPage);
 
   const usedTotalPages = pagination ? pagination.totalPages : totalPages;
   const currentRows =
     isRowsPerPage && !pagination
       ? filteredRows.slice(
-          (usedCurrentPage - 1) * usedRowsPerPage,
-          usedCurrentPage * usedRowsPerPage
+          (currentPage - 1) * rowsPerPage,
+          currentPage * rowsPerPage
         )
       : filteredRows;
   const [sortConfig, setSortConfig] = useState<{
@@ -652,7 +640,7 @@ const GenericTable = <T,>({
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                usedSetCurrentPage(1);
+                setCurrentPage(1);
               }}
               placeholder={t("Search")}
               className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
@@ -801,14 +789,14 @@ const GenericTable = <T,>({
                   <Caption>{t("Rows per page")}:</Caption>
                   <select
                     className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
-                    value={usedRowsPerPage}
+                    value={rowsPerPage}
                     onChange={(e) => {
-                      usedSetRowsPerPage(Number(e.target.value));
+                      setRowsPerPage(Number(e.target.value));
                       const totalNewPages = Math.ceil(
                         usedTotalRows / Number(e.target.value)
                       );
-                      if (usedCurrentPage > totalNewPages) {
-                        usedSetCurrentPage(Number(totalNewPages));
+                      if (currentPage > totalNewPages) {
+                        setCurrentPage(Number(totalNewPages));
                       }
                     }}
                   >
@@ -825,36 +813,32 @@ const GenericTable = <T,>({
                   <div className=" flex flex-row gap-2 items-center">
                     <Caption>
                       {Math.min(
-                        (usedCurrentPage - 1) * usedRowsPerPage + 1,
+                        (currentPage - 1) * rowsPerPage + 1,
                         usedTotalRows
                       )}
-                      –
-                      {Math.min(
-                        usedCurrentPage * usedRowsPerPage,
-                        usedTotalRows
-                      )}{" "}
-                      of {usedTotalRows}
+                      –{Math.min(currentPage * rowsPerPage, usedTotalRows)} of{" "}
+                      {usedTotalRows}
                     </Caption>
                     <div className="flex flex-row gap-4">
                       <button
                         onClick={() => {
-                          if (usedCurrentPage > 1) {
-                            usedSetCurrentPage(Number(usedCurrentPage) - 1);
+                          if (currentPage > 1) {
+                            setCurrentPage(Number(currentPage) - 1);
                           }
                         }}
                         className="cursor-pointer"
-                        disabled={usedCurrentPage === 1}
+                        disabled={currentPage === 1}
                       >
                         {"<"}
                       </button>
                       <button
                         onClick={() => {
-                          if (usedCurrentPage < usedTotalPages) {
-                            usedSetCurrentPage(Number(usedCurrentPage) + 1);
+                          if (currentPage < usedTotalPages) {
+                            setCurrentPage(Number(currentPage) + 1);
                           }
                         }}
                         className="cursor-pointer"
-                        disabled={usedCurrentPage === usedTotalPages}
+                        disabled={currentPage === usedTotalPages}
                       >
                         {">"}
                       </button>

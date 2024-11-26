@@ -69,11 +69,14 @@ type FormElementsState = {
 
 const Invoice = () => {
   const { t } = useTranslation();
-  const { productExpenseForm, rowsPerPage, setProductExpenseForm } =
-    useGeneralContext();
+  const {
+    productExpenseForm,
+    rowsPerPage,
+    currentPage,
+    setProductExpenseForm,
+    setCurrentPage,
+  } = useGeneralContext();
   const locations = useGetAccountStockLocations();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -91,7 +94,7 @@ const Invoice = () => {
     });
   const invoicesPayload = useGetAccountExpense(
     currentPage,
-    usedRowsPerPage,
+    rowsPerPage,
     filterPanelFormElements
   );
   const invoices = invoicesPayload?.data;
@@ -844,11 +847,7 @@ const Invoice = () => {
   };
   const pagination = invoicesPayload
     ? {
-        currentPage: invoicesPayload.page,
         totalPages: invoicesPayload.totalPages,
-        setCurrentPage: setCurrentPage,
-        rowsPerPage: usedRowsPerPage,
-        setRowsPerPage: setUsedRowsPerPage,
         totalRows: invoicesPayload.totalNumber,
       }
     : null;

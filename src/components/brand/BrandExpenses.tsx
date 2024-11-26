@@ -30,9 +30,7 @@ const BrandExpenses = () => {
   const { t } = useTranslation();
   const { brandId } = useParams();
   if (!brandId) return <></>;
-  const [currentPage, setCurrentPage] = useState(1);
-  const { rowsPerPage } = useGeneralContext();
-  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -50,7 +48,7 @@ const BrandExpenses = () => {
     });
   const invoicesPayload = useGetAccountExpense(
     currentPage,
-    usedRowsPerPage,
+    rowsPerPage,
     filterPanelFormElements
   );
   const invoices = invoicesPayload?.data;
@@ -319,11 +317,7 @@ const BrandExpenses = () => {
   };
   const pagination = invoicesPayload
     ? {
-        currentPage: invoicesPayload.page,
         totalPages: invoicesPayload.totalPages,
-        setCurrentPage: setCurrentPage,
-        rowsPerPage: usedRowsPerPage,
-        setRowsPerPage: setUsedRowsPerPage,
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
