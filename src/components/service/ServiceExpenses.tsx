@@ -9,12 +9,12 @@ import { useGetAccountStockLocations } from "../../utils/api/account/stockLocati
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
+import { outsideSort } from "../../utils/outsideSort";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 type Props = {
   selectedService: AccountService;
 };
@@ -96,29 +96,94 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       isDatePicker: true,
     },
   ];
+
   const columns = [
-    { key: "ID", isSortable: true },
-    { key: t("Date"), isSortable: true, className: "min-w-32 pr-2" },
-    { key: t("Note"), isSortable: true },
+    {
+      key: "ID",
+      isSortable: true,
+      outsideSort: outsideSort(
+        "_id",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Date"),
+      isSortable: true,
+      className: "min-w-32 pr-2",
+      outsideSort: outsideSort(
+        "date",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    {
+      key: t("Note"),
+      isSortable: true,
+      outsideSort: outsideSort(
+        "note",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     {
       key: t("Vendor"),
       className: "min-w-32 pr-2",
       isSortable: true,
+      outsideSort: outsideSort(
+        "vendor",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
-    { key: t("Location"), isSortable: true },
+    {
+      key: t("Location"),
+      isSortable: true,
+      outsideSort: outsideSort(
+        "location",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     {
       key: t("Expense Type"),
       className: "min-w-32 ",
       isSortable: true,
+      outsideSort: outsideSort(
+        "expenseType",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
     {
       key: t("Service"),
       className: "min-w-32 pr-2",
       isSortable: true,
+      outsideSort: outsideSort(
+        "service",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
     },
-    { key: t("Quantity"), isSortable: true },
-    { key: t("Unit Price"), isSortable: true },
-    { key: t("Total Expense"), isSortable: true },
+    {
+      key: t("Quantity"),
+      isSortable: true,
+      outsideSort: outsideSort(
+        "quantity",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
+    { key: t("Unit Price"), isSortable: false },
+    {
+      key: t("Total Expense"),
+      isSortable: true,
+      outsideSort: outsideSort(
+        "totalExpense",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
   ];
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },

@@ -332,7 +332,16 @@ const Invoice = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
-    { key: "ID", isSortable: true, className: "pl-2" },
+    {
+      key: "ID",
+      isSortable: true,
+      className: "pl-2",
+      outsideSort: outsideSort(
+        "_id",
+        filterPanelFormElements,
+        setFilterPanelFormElements
+      ),
+    },
     {
       key: t("Date"),
       isSortable: false,
