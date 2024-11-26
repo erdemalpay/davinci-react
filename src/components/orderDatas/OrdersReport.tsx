@@ -447,7 +447,7 @@ const OrdersReport = () => {
             returnOrder({
               orderId: rowToAction._id,
               returnQuantity: returnOrderForm.quantity,
-              paymentMethod: rowToAction.paymentMethod,
+              paymentMethod: rowToAction?.paymentMethod ?? "cash",
             });
           }}
           constantValues={{
