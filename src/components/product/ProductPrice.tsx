@@ -92,12 +92,10 @@ const ProductPrice = () => {
     },
   });
   useEffect(() => {
-    const prices = invoices
-      ?.map((invoice) =>
-        parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
-      )
-      .reverse();
-    const dates = invoices?.map((invoice) => invoice.date).reverse();
+    const prices = invoices?.map((invoice) =>
+      parseFloat((invoice.totalExpense / invoice.quantity).toFixed(4))
+    );
+    const dates = invoices?.map((invoice) => invoice.date);
 
     setChartConfig({
       ...chartConfig,
