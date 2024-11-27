@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType, ExpenseTypes } from "../../types";
+import {
+  AccountExpenseType,
+  commonDateOptions,
+  ExpenseTypes,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -22,6 +26,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type FormElementsState = {
   [key: string]: any;
 };
@@ -88,6 +93,19 @@ const BrandExpenses = () => {
     }),
     VendorInput({ vendors: vendors, required: true }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+    },
     {
       type: InputTypes.DATE,
       formKey: "after",

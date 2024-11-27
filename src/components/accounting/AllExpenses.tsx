@@ -5,7 +5,6 @@ import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
   commonDateOptions,
-  DateRangeKey,
   ExpenseTypes,
   NOTPAID,
 } from "../../types";
@@ -20,7 +19,6 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { dateRanges } from "../../utils/api/dateRanges";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -155,21 +153,6 @@ const AllExpenses = () => {
       }),
       placeholder: t("Date"),
       required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
-      },
     },
     {
       type: InputTypes.DATE,

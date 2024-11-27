@@ -9,7 +9,6 @@ import {
   AccountExpenseType,
   AccountProduct,
   commonDateOptions,
-  DateRangeKey,
   ExpenseTypes,
   NOTPAID,
 } from "../../types";
@@ -38,7 +37,6 @@ import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
-import { dateRanges } from "../../utils/api/dateRanges";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -199,21 +197,6 @@ const Invoice = () => {
       }),
       placeholder: t("Date"),
       required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
-      },
     },
     {
       type: InputTypes.DATE,

@@ -6,6 +6,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
   AccountExpenseType,
+  commonDateOptions,
   ConstantPaymentMethodsIds,
   ExpenseTypes,
   NOTPAID,
@@ -149,6 +150,19 @@ const Expenses = () => {
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+    },
     {
       type: InputTypes.DATE,
       formKey: "after",

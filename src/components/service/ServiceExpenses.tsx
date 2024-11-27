@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
-import { AccountExpenseType, AccountService, ExpenseTypes } from "../../types";
+import {
+  AccountExpenseType,
+  AccountService,
+  commonDateOptions,
+  ExpenseTypes,
+} from "../../types";
 import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountServices } from "../../utils/api/account/service";
@@ -80,6 +85,19 @@ const ServiceExpenses = ({ selectedService }: Props) => {
     VendorInput({ vendors: vendors, required: true }),
     StockLocationInput({ locations: locations }),
     {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
       type: InputTypes.DATE,
       formKey: "after",
       label: t("Start Date"),
@@ -96,7 +114,6 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       isDatePicker: true,
     },
   ];
-
   const columns = [
     {
       key: "ID",
