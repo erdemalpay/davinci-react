@@ -413,3 +413,14 @@ export function useCreateOrderForDivideMutation() {
     },
   });
 }
+export function useGetCategorySummary(category: number, location?: number) {
+  let url = `${Paths.Order}/category_summary?category=${category}`;
+  if (location) {
+    url = url.concat(`&location=${location}`);
+  }
+  return useGetList<{ month: string; total: number }>(
+    url,
+    [url, category, location],
+    false
+  );
+}

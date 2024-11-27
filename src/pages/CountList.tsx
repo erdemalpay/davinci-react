@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import SelectInput from "../components/common/SelectInput";
+import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -365,7 +365,7 @@ const CountList = () => {
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
-            <SelectInput
+            <CommonSelectInput
               options={countListOption}
               value={
                 selectedCountList

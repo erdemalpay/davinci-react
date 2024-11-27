@@ -9,7 +9,7 @@ import {
 } from "../../utils/api/order/order";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import SelectInput from "../common/SelectInput";
+import CommonSelectInput from "../common/SelectInput";
 import Timer from "../common/Timer";
 
 type Props = {
@@ -91,7 +91,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
               </p>
             )}
             {order?.quantity > 1 && (
-              <SelectInput
+              <CommonSelectInput
                 options={[...Array(order?.quantity - 1)].map((_, index) => ({
                   value: (index + 1).toString(),
                   label: `${index + 1}`,

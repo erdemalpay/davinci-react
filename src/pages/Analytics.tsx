@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import AccountingAnalytics from "../components/analytics/AccountingAnalytics";
 import GameplayAnalytics from "../components/analytics/GameplayAnalytics";
-import SelectInput from "../components/common/SelectInput";
+import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import { useUserContext } from "../context/User.context";
 import { Role, RoleEnum } from "../types";
@@ -50,7 +50,7 @@ export default function Analytics() {
           1 && (
           <div className="w-[95%] mx-auto">
             <div className="sm:w-1/5 ">
-              <SelectInput
+              <CommonSelectInput
                 options={analyticOptions
                   .filter((option) => option.isDisabled === false)
                   .map((option) => {

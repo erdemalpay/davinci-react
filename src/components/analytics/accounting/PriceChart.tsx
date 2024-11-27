@@ -6,14 +6,19 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { AccountProduct } from "../../../types";
+import { AccountProduct, MenuCategory } from "../../../types";
 
 type Props = {
   chartConfig: any;
-  selectedProduct: AccountProduct;
+  selectedProduct?: AccountProduct;
+  selectedCategory?: MenuCategory;
 };
 
-const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
+const PriceChart = ({
+  chartConfig,
+  selectedProduct,
+  selectedCategory,
+}: Props) => {
   return (
     <Card className="shadow-none">
       <CardHeader
@@ -28,6 +33,7 @@ const PriceChart = ({ chartConfig, selectedProduct }: Props) => {
         <div>
           <Typography variant="h6" color="blue-gray">
             {selectedProduct && selectedProduct?.name}
+            {selectedCategory && selectedCategory?.name}
           </Typography>
         </div>
       </CardHeader>

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import { languageOptions, RowPerPageEnum } from "../../../types";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
-import SelectInput from "../../common/SelectInput";
+import CommonSelectInput from "../../common/SelectInput";
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
@@ -15,7 +15,7 @@ const Settings = () => {
   }
   return (
     <div className="w-5/6 sm:w-1/2 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">
-      <SelectInput
+      <CommonSelectInput
         label={t("Language")}
         value={{
           value: user.language ?? languageOptions[0].code,
@@ -41,7 +41,7 @@ const Settings = () => {
           i18n.changeLanguage(selectedOption?.value ?? languageOptions[0].code);
         }}
       />
-      <SelectInput
+      <CommonSelectInput
         label={t("Rows Per Page")}
         value={{
           value:

@@ -1,32 +1,21 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccountProduct } from "../../../types";
-import { useGetAccountProductExpenses } from "../../../utils/api/account/expense";
-import { useGetAccountProducts } from "../../../utils/api/account/product";
-import { formatAsLocalDate } from "../../../utils/format";
-import CommonSelectInput from "../../common/SelectInput";
-import PriceChart from "./PriceChart";
+import { MenuCategory } from "../../types";
+import { useGetCategorySummary } from "../../utils/api/order/order";
+import PriceChart from "../analytics/accounting/PriceChart";
 
-export default function ProductPriceChart() {
+type Props = {
+  location?: number;
+  category: MenuCategory;
+};
+export default function CategorySummaryChart({ location, category }: Props) {
   const { t } = useTranslation();
-  const products = useGetAccountProducts();
-  if (!products) return <></>;
-  const [selectedProduct, setSelectedProduct] = useState<AccountProduct>(
-    products[0]
-  );
-  const invoices = useGetAccountProductExpenses(selectedProduct?._id);
-  const [chartKey, setChartKey] = useState(0);
-  const productOptions = products?.map((product) => {
-    return {
-      value: product._id,
-      label: product.name,
-    };
-  });
+  const categorySummary = useGetCategorySummary(category?._id, location);
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
       {
-        name: "Price",
+        name: "Total",
         data: [],
       },
     ],
@@ -100,18 +89,18 @@ export default function ProductPriceChart() {
   });
 
   useEffect(() => {
-    const prices = invoices?.map((invoice) =>
-      parseFloat((invoice?.totalExpense / invoice?.quantity).toFixed(4))
+    const totals = categorySummary?.map((category) =>
+      parseFloat((category?.total).toFixed(4))
     );
-    const dates = invoices?.map((invoice) => invoice?.date);
-    if (invoices?.length > 1) {
+    const months = categorySummary?.map((category) => t(category?.month));
+    if (categorySummary?.length > 1) {
       setChartConfig({
         ...chartConfig,
-        type: invoices?.length > 1 ? "line" : "bar",
+        type: categorySummary?.length > 1 ? "line" : "bar",
         series: [
           {
-            name: "Price",
-            data: prices,
+            name: "Total",
+            data: totals,
           },
         ],
         options: {
@@ -148,7 +137,7 @@ export default function ProductPriceChart() {
                 fontWeight: 400,
               },
             },
-            categories: dates.map((date) => formatAsLocalDate(date)),
+            categories: months,
           },
           yaxis: {
             labels: {
@@ -183,42 +172,11 @@ export default function ProductPriceChart() {
         },
       });
     }
-    setChartKey((prevKey) => prevKey + 1);
-  }, [invoices, products]);
+  }, [categorySummary]);
 
   return (
-    <div className="flex flex-col gap-4  mx-auto">
-      <div className="sm:w-1/4 px-4">
-        <CommonSelectInput
-          label={t("Product")}
-          options={productOptions}
-          value={
-            selectedProduct
-              ? {
-                  value: selectedProduct._id,
-                  label: selectedProduct.name,
-                }
-              : null
-          }
-          onChange={(selectedOption) => {
-            if (products) {
-              setSelectedProduct(
-                products?.find(
-                  (product) => product._id === selectedOption?.value
-                ) ?? products[0]
-              );
-            }
-          }}
-          placeholder={t("Select a product")}
-        />
-      </div>
-      {selectedProduct && (
-        <PriceChart
-          key={chartKey}
-          chartConfig={chartConfig}
-          selectedProduct={selectedProduct}
-        />
-      )}
+    <div className="flex flex-col gap-4  mx-auto w-full">
+      <PriceChart chartConfig={chartConfig} selectedCategory={category} />
     </div>
   );
 }

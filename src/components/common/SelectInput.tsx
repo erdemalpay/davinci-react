@@ -37,7 +37,7 @@ type Props = {
   className?: string;
 };
 
-const SelectInput = ({
+const CommonSelectInput = ({
   label,
   options,
   value,
@@ -100,4 +100,4 @@ const SelectInput = ({
   );
 };
 
-export default SelectInput;
+export default CommonSelectInput;

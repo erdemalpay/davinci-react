@@ -2,15 +2,18 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
+import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
+import CategorySummaryChart from "../components/orderSummary/CategorySummaryChart";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
-import { TURKISHLIRA } from "../types";
+import { MenuCategory, TURKISHLIRA } from "../types";
 import { useGetSummaryStockTotal } from "../utils/api/account/stock";
 import { useGetLocations } from "../utils/api/location";
+import { useGetCategories } from "../utils/api/menu/category";
 import { useGetSummaryCollectionTotal } from "../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../utils/format";
 import { formatPrice } from "../utils/formatPrice";
@@ -22,7 +25,17 @@ const OrdersSummary = () => {
   const [componentKey, setComponentKey] = useState(0);
   const locations = useGetLocations();
   const stockData = useGetSummaryStockTotal();
-
+  const categories = useGetCategories();
+  if (!categories) return <></>;
+  const [selectedCategory, setSelectedCategory] = useState<MenuCategory>(
+    categories[0]
+  );
+  const categoryOptions = categories?.map((category) => {
+    return {
+      value: String(category._id),
+      label: category.name,
+    };
+  });
   const { filterSummaryFormElements, setFilterSummaryFormElements } =
     useOrderContext();
   const totalIncome = useGetSummaryCollectionTotal();
@@ -105,7 +118,13 @@ const OrdersSummary = () => {
 
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
-  }, [totalIncome, filterSummaryFormElements, locations, stockData]);
+  }, [
+    totalIncome,
+    filterSummaryFormElements,
+    locations,
+    stockData,
+    categories,
+  ]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -148,40 +167,76 @@ const OrdersSummary = () => {
             return null;
           })}
         </div>
-
-        {/* summary cards*/}
-        <div
-          key={componentKey}
-          className="w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 "
-        >
-          <SummaryCard
-            header={t("Total Income")}
-            firstSubHeader={getDateRange()}
-            firstSubHeaderValue={
-              totalIncome
-                ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
-                : "0 " + TURKISHLIRA
-            }
-            sideColor={"#1D4ED8"}
-          />
-          <SummaryCard
-            header={t("Total Stock Value")}
-            firstSubHeader={formatAsLocalDate(filterSummaryFormElements?.after)}
-            firstSubHeaderValue={
-              formatPrice(stockData?.afterTotalValue ?? 0) + " " + TURKISHLIRA
-            }
-            secondSubHeader={formatAsLocalDate(
-              filterSummaryFormElements?.before
-            )}
-            secondSubHeaderValue={
-              formatPrice(stockData?.beforeTotalValue ?? 0) + " " + TURKISHLIRA
-            }
-            difference={formatPrice(
-              (stockData?.beforeTotalValue ?? 0) -
-                (stockData?.afterTotalValue ?? 0)
-            )}
-            sideColor={"#d8521d"}
-          />
+        <div key={componentKey} className="flex flex-col gap-4">
+          {/* summary cards*/}
+          <div className="w-full  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 ">
+            <SummaryCard
+              header={t("Total Income")}
+              firstSubHeader={getDateRange()}
+              firstSubHeaderValue={
+                totalIncome
+                  ? totalIncome.toLocaleString("tr-TR") + " " + TURKISHLIRA
+                  : "0 " + TURKISHLIRA
+              }
+              sideColor={"#1D4ED8"}
+            />
+            <SummaryCard
+              header={t("Total Stock Value")}
+              firstSubHeader={formatAsLocalDate(
+                filterSummaryFormElements?.after
+              )}
+              firstSubHeaderValue={
+                formatPrice(stockData?.afterTotalValue ?? 0) + " " + TURKISHLIRA
+              }
+              secondSubHeader={formatAsLocalDate(
+                filterSummaryFormElements?.before
+              )}
+              secondSubHeaderValue={
+                formatPrice(stockData?.beforeTotalValue ?? 0) +
+                " " +
+                TURKISHLIRA
+              }
+              difference={formatPrice(
+                (stockData?.beforeTotalValue ?? 0) -
+                  (stockData?.afterTotalValue ?? 0)
+              )}
+              sideColor={"#d8521d"}
+            />
+          </div>
+          {/* category summary chart */}
+          <div className="w-full">
+            <div className="w-full flex flex-col gap-4">
+              <div className="sm:w-1/4 px-4">
+                <CommonSelectInput
+                  label={t("Category")}
+                  options={categoryOptions}
+                  value={
+                    selectedCategory
+                      ? {
+                          value: String(selectedCategory._id),
+                          label: selectedCategory.name,
+                        }
+                      : null
+                  }
+                  onChange={(selectedOption) => {
+                    if (categories) {
+                      setSelectedCategory(
+                        categories?.find(
+                          (category) =>
+                            category._id === Number(selectedOption?.value)
+                        ) ?? categories[0]
+                      );
+                    }
+                  }}
+                  placeholder={t("Select a category")}
+                />
+              </div>
+              <CategorySummaryChart
+                location={filterSummaryFormElements.location}
+                category={selectedCategory}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>

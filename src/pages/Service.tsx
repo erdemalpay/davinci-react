@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { useNavigate, useParams } from "react-router-dom";
-import SelectInput from "../components/common/SelectInput";
+import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -65,7 +65,7 @@ export default function Service() {
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
-            <SelectInput
+            <CommonSelectInput
               options={serviceOption}
               value={
                 selectedService

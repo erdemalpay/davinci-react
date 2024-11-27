@@ -4,7 +4,7 @@ import { GiArchiveResearch, GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
-import SelectInput from "../components/common/SelectInput";
+import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -110,7 +110,7 @@ export default function Product() {
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
-            <SelectInput
+            <CommonSelectInput
               options={productOption}
               value={
                 selectedProduct

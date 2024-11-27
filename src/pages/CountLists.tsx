@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import SelectInput from "../components/common/SelectInput";
+import CommonSelectInput from "../components/common/SelectInput";
 import CountListMenu from "../components/countLists/productCountList/CountListMenu";
 import { Header } from "../components/header/Header";
 import { useGeneralContext } from "../context/General.context";
@@ -31,7 +31,7 @@ export default function CountLists() {
           .length > 1 && (
           <div className="w-[95%] mx-auto">
             <div className="sm:w-1/5 ">
-              <SelectInput
+              <CommonSelectInput
                 options={countListOptions
                   .filter((option) => option.isDisabled === false)
                   .map((option) => {

@@ -9,7 +9,7 @@ import {
 } from "../../../utils/api/gameplay";
 import { useGetAllUsers } from "../../../utils/api/user";
 import { Autocomplete } from "../../common/Autocomplete";
-import SelectInput from "../../common/SelectInput";
+import CommonSelectInput from "../../common/SelectInput";
 
 interface SecondGroupRow {
   field: string;
@@ -179,7 +179,7 @@ export default function GameplaysByGames() {
                   showSelected
                 />
               </div>
-              <SelectInput
+              <CommonSelectInput
                 label={t("Location")}
                 options={locationOptions}
                 value={

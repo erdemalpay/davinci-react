@@ -15,7 +15,7 @@ import {
 } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
-import SelectInput from "../../../common/SelectInput";
+import CommonSelectInput from "../../../common/SelectInput";
 import { orderBgColor } from "../../../tables/OrderCard";
 import OrderScreenHeader from "./OrderScreenHeader";
 
@@ -254,7 +254,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                             e.stopPropagation();
                           }}
                         >
-                          <SelectInput
+                          <CommonSelectInput
                             options={[...Array(10)].map((_, index) => ({
                               value: (index + 1).toString(),
                               label: index === 0 ? t("Cancel") : `${index + 1}`,

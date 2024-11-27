@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { MenuItem } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { formatAsLocalDate } from "../../../utils/format";
-import SelectInput from "../../common/SelectInput";
+import CommonSelectInput from "../../common/SelectInput";
 
 type PriceHistory = {
   date: string;
@@ -212,7 +212,7 @@ export default function MenuItemPriceChart({}: Props) {
   return (
     <div className="flex flex-col gap-4  mx-auto">
       <div className="sm:w-1/4 px-4">
-        <SelectInput
+        <CommonSelectInput
           label={t("Product")}
           options={itemOptions}
           value={
