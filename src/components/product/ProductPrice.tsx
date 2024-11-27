@@ -174,7 +174,7 @@ const ProductPrice = () => {
         },
       },
     });
-  }, [invoices]);
+  }, [invoices, products]);
   return (
     <PriceChart
       key={selectedProduct._id}
