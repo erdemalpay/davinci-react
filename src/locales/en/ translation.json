@@ -564,5 +564,6 @@
   "Take Away": "Take Away",
   "STOCKABLE": "Stockable",
   "NONSTOCKABLE": "Nonstockable",
+  "Stock": "Stock",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

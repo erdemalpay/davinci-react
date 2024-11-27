@@ -157,7 +157,7 @@ export function TableCard({
           TURKISHLIRA +
           ")" +
           (menuItemStockQuantity(menuItem) > 0
-            ? " (" + menuItemStockQuantity(menuItem) + `${t("piece")})`
+            ? " (" + `${t("Stock")}:` + menuItemStockQuantity(menuItem) + ")"
             : ""),
       };
     });
