@@ -8,6 +8,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory, OrderDiscountStatus, RoleEnum } from "../../types";
+import { useGetLocations } from "../../utils/api/location";
 import {
   useCategoryMutations,
   useUpdateCategoriesOrderMutation,
@@ -30,12 +31,9 @@ type Props = {
 
 const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
   const { t } = useTranslation();
-  const {
-    menuActiveTab,
-    setMenuActiveTab,
-    isCategoryTableEditOpen,
-    setIsCategoryTableEditOpen,
-  } = useGeneralContext();
+  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
+  const [isLocationEdit, setIsLocationEdit] = useState(false);
+  const locations = useGetLocations();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -148,17 +146,13 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     { key: t("Name"), isSortable: true },
     { key: t("Kitchen"), isSortable: true },
     { key: t("Discounts"), isSortable: false },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
     ...(!isDisabledCondition
       ? [
           { key: t("Auto served"), isSortable: false },
           { key: t("Online Order"), isSortable: false },
         ]
       : []),
-    { key: t("Action"), isSortable: false },
   ];
-
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     {
@@ -199,34 +193,6 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         });
       },
     },
-    {
-      key: "bahceli",
-      node: (row: MenuCategory) =>
-        isCategoryTableEditOpen ? (
-          <CheckSwitch
-            checked={row.locations?.includes(1)}
-            onChange={() => handleLocationUpdate(row, 1)}
-          />
-        ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl " />
-        ),
-    },
-    {
-      key: "neorama",
-      node: (row: MenuCategory) =>
-        isCategoryTableEditOpen ? (
-          <CheckSwitch
-            checked={row.locations?.includes(2)}
-            onChange={() => handleLocationUpdate(row, 2)}
-          />
-        ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl " />
-        ),
-    },
     ...(!isDisabledCondition
       ? [
           {
@@ -250,6 +216,33 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         ]
       : []),
   ];
+  const insertIndex = 4;
+  for (const location of locations) {
+    columns.splice(insertIndex, 0, {
+      key: location.name,
+      isSortable: false,
+    });
+    (rowKeys as any).splice(insertIndex, 0, {
+      key: location.name,
+      node: (row: any) => {
+        const isExist = row?.locations?.includes(location._id);
+        if (isLocationEdit) {
+          return (
+            <CheckSwitch
+              checked={isExist}
+              onChange={() => handleLocationUpdate(row, location._id)}
+            />
+          );
+        }
+        return isExist ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    });
+  }
+  columns.push({ key: t("Action"), isSortable: false });
   const addButton = {
     name: t("Add Category"),
     isModal: true,
@@ -336,18 +329,14 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       label: t("Location Edit"),
       isUpperSide: false,
       node: (
-        <SwitchButton
-          checked={isCategoryTableEditOpen}
-          onChange={setIsCategoryTableEditOpen}
-        />
+        <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
       ),
     },
   ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [kitchens, categories]);
-
+  }, [kitchens, categories, locations]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

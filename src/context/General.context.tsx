@@ -24,8 +24,6 @@ type GeneralContextType = {
   ) => void;
   productExpenseForm: Partial<AccountInvoice>;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
-  isCategoryTableEditOpen: boolean;
-  setIsCategoryTableEditOpen: (value: (prev: boolean) => boolean) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
   serviceExpenseForm: Partial<AccountServiceInvoice>;
@@ -66,8 +64,6 @@ const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   sortConfigKey: null,
   setSortConfigKey: () => {},
-  isCategoryTableEditOpen: false,
-  setIsCategoryTableEditOpen: () => {},
   countListOption: countListOptions[0],
   setCountListOption: () => {},
   setAccountingActiveTab: () => {},
@@ -151,8 +147,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
-  const [isCategoryTableEditOpen, setIsCategoryTableEditOpen] =
-    useState<boolean>(false);
+  useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
     countListOptions[0]
   );
@@ -195,8 +190,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
       value={{
         sortConfigKey,
         setSortConfigKey,
-        isCategoryTableEditOpen,
-        setIsCategoryTableEditOpen,
         countListOption,
         setCountListOption,
         checkoutActiveTab,

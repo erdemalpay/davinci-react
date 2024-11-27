@@ -5,6 +5,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, MenuPopular } from "../../types";
+import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
@@ -20,6 +21,7 @@ const PopularTable = ({ popularItems }: Props) => {
   const { t } = useTranslation();
   const categories = useGetCategories();
   const items = useGetMenuItems();
+  const locations = useGetLocations();
   const { deletePopular, updatePopular } = usePopularMutations();
   const { user } = useUserContext();
   const [rowToAction, setRowToAction] = useState<MenuItem>();
@@ -48,12 +50,8 @@ const PopularTable = ({ popularItems }: Props) => {
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: true },
     { key: t("Category"), isSortable: true },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
-    { key: t("Action"), isSortable: false },
   ];
-
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     { key: "name", className: "pr-2" },
@@ -63,31 +61,28 @@ const PopularTable = ({ popularItems }: Props) => {
       className: "min-w-32 pr-2",
     },
     {
-      key: "bahceli",
-      node: (row: MenuItem) =>
-        row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
-    {
-      key: "neorama",
-      node: (row: MenuItem) =>
-        row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
-    {
       key: "price",
       node: (item: MenuItem) => {
         return `${item.price} ₺`;
       },
     },
   ];
-
+  const insertIndex = 3;
+  for (const location of locations) {
+    columns.splice(insertIndex, 0, { key: location.name, isSortable: false });
+    (rowKeys as any).splice(insertIndex, 0, {
+      key: location.name,
+      node: (row: any) => {
+        const isExist = row?.locations?.includes(location._id);
+        return isExist ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    });
+  }
+  columns.push({ key: t("Action"), isSortable: false });
   const handleDrag = (DragRow: MenuItem, DropRow: MenuItem) => {
     updatePopular({
       id: DragRow._id,
@@ -128,7 +123,6 @@ const PopularTable = ({ popularItems }: Props) => {
       isPath: false,
     },
   ];
-
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

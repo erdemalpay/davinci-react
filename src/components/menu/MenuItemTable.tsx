@@ -11,7 +11,6 @@ import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
 import {
   AccountProduct,
-  LocationEnum,
   MenuItem,
   MenuPopular,
   RoleEnum,
@@ -24,6 +23,7 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetLocations } from "../../utils/api/location";
 import {
   useMenuItemMutations,
   useUpdateItemsOrderMutation,
@@ -57,6 +57,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
+  const locations = useGetLocations();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
@@ -306,48 +307,17 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
     { key: t("Description"), isSortable: true },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
     { key: `${t("Price")}`, isSortable: true },
     ...(singleItemGroup?.category?.isOnlineOrder
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     { key: t("Matched Product"), isSortable: false },
-    { key: t("Action"), isSortable: false },
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
     { key: "name" },
     { key: "description" },
-    {
-      key: "bahceli",
-      node: (row: MenuItem) =>
-        isLocationEdit ? (
-          <CheckSwitch
-            checked={row?.locations?.includes(1)}
-            onChange={() => handleLocationUpdate(row, 1)}
-          />
-        ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
-    {
-      key: "neorama",
-      node: (row: MenuItem) =>
-        isLocationEdit ? (
-          <CheckSwitch
-            checked={row?.locations?.includes(2)}
-            onChange={() => handleLocationUpdate(row, 2)}
-          />
-        ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
     {
       key: "price",
       node: (item: MenuItem) => {
@@ -388,26 +358,32 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
 
     { key: "matchedProductName" },
   ];
-  if (!singleItemGroup?.category?.locations?.includes(LocationEnum.BAHCELI)) {
-    columns.splice(
-      columns.findIndex((column) => column.key === "Bahçeli"),
-      1
-    );
-    rowKeys.splice(
-      rowKeys.findIndex((rowKey) => rowKey.key === "bahceli"),
-      1
-    );
+  const insertIndex = 3;
+  for (const location of locations) {
+    if (singleItemGroup?.category?.locations?.includes(location._id)) {
+      columns.splice(insertIndex, 0, { key: location.name, isSortable: false });
+      (rowKeys as any).splice(insertIndex, 0, {
+        key: location.name,
+        node: (row: any) => {
+          const isExist = row?.locations?.includes(location._id);
+          if (isLocationEdit) {
+            return (
+              <CheckSwitch
+                checked={isExist}
+                onChange={() => handleLocationUpdate(row, location._id)}
+              />
+            );
+          }
+          return isExist ? (
+            <IoCheckmark className="text-blue-500 text-2xl" />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl" />
+          );
+        },
+      });
+    }
   }
-  if (!singleItemGroup?.category?.locations?.includes(LocationEnum.NEORAMA)) {
-    columns.splice(
-      columns.findIndex((column) => column.key === "Neorama"),
-      1
-    );
-    rowKeys.splice(
-      rowKeys.findIndex((rowKey) => rowKey.key === "neorama"),
-      1
-    );
-  }
+  columns.push({ key: t("Action"), isSortable: false });
   // for online orders cost field is removed
   if (
     user &&
@@ -645,6 +621,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     expenseTypes,
     brands,
     vendors,
+    locations,
   ]);
   return (
     <div className="w-[95%] mx-auto">
