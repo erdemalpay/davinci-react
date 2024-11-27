@@ -18,6 +18,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
+import { useGetLocations } from "../utils/api/location";
 
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 export default function Games() {
@@ -26,6 +27,7 @@ export default function Games() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
+  const locations = useGetLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
@@ -61,8 +63,6 @@ export default function Games() {
   const columns = [
     { key: "", isSortable: false },
     { key: t("Name"), isSortable: true },
-    { key: "Bahçeli", isSortable: false },
-    { key: "Neorama", isSortable: false },
   ];
 
   const rowKeys = [
@@ -74,35 +74,32 @@ export default function Games() {
       key: "name",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "bahceli",
-      node: (row: Game) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.locations?.includes(1)}
-            onChange={() => handleLocationUpdate(row, 1)}
-          />
-        ) : row?.locations?.includes(1) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
-    {
-      key: "neorama",
-      node: (row: Game) =>
-        isEnableEdit ? (
-          <CheckSwitch
-            checked={row.locations?.includes(2)}
-            onChange={() => handleLocationUpdate(row, 2)}
-          />
-        ) : row?.locations?.includes(2) ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        ),
-    },
   ];
+  for (const location of locations) {
+    columns.push({
+      key: location.name,
+      isSortable: false,
+    });
+    (rowKeys as any).push({
+      key: location.name,
+      node: (row: any) => {
+        const isExist = row?.locations?.includes(location._id);
+        if (isEnableEdit) {
+          return (
+            <CheckSwitch
+              checked={isExist}
+              onChange={() => handleLocationUpdate(row, location._id)}
+            />
+          );
+        }
+        return isExist ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    });
+  }
   const actions = [
     {
       name: t("Delete"),
@@ -130,7 +127,6 @@ export default function Games() {
     {
       name: t("Edit"),
       isDisabled: !isEnableEdit,
-
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -147,14 +143,11 @@ export default function Games() {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
     },
   ];
-
   const filters = [
     {
       label: t("Enable Edit"),
@@ -180,8 +173,7 @@ export default function Games() {
   };
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [games, isEnableEdit]);
-
+  }, [games, isEnableEdit, locations]);
   return (
     <>
       <Header showLocationSelector={false} />
