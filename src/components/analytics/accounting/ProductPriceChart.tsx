@@ -23,7 +23,6 @@ export default function ProductPriceChart() {
       label: product.name,
     };
   });
-
   const [chartConfig, setChartConfig] = useState<any>({
     height: 240,
     series: [
@@ -100,7 +99,6 @@ export default function ProductPriceChart() {
       },
     },
   });
-
   useEffect(() => {
     const prices = invoices?.map((invoice) =>
       parseFloat((invoice?.totalExpense / invoice?.quantity).toFixed(4))
@@ -188,8 +186,7 @@ export default function ProductPriceChart() {
   }, [selectedProduct]);
   useEffect(() => {
     setChartKey((prevKey) => prevKey + 1);
-  }, [invoices]);
-
+  }, [invoices, products]);
   return (
     <div className="flex flex-col gap-4  mx-auto">
       <div className="sm:w-1/4 px-4">
@@ -212,7 +209,6 @@ export default function ProductPriceChart() {
           placeholder={t("Select a product")}
         />
       </div>
-
       {selectedProduct && (
         <PriceChart
           key={chartKey}
