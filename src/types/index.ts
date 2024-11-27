@@ -504,10 +504,6 @@ export enum RoleNameEnum {
   SERVICE = "Service",
   CLEANING = "Cleaning",
 }
-export enum LocationEnum {
-  BAHCELI = 1,
-  NEORAMA,
-}
 export enum ExpensesPageTabEnum {
   INVOICE,
   SERVICEINVOICE,
