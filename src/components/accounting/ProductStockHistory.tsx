@@ -9,7 +9,7 @@ import {
   StockHistoryPayload,
   useGetAccountProductStockHistorys,
 } from "../../utils/api/account/productStockHistory";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -45,7 +45,7 @@ const ProductStockHistory = () => {
   const products = useGetAccountProducts();
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data

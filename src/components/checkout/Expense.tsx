@@ -19,8 +19,8 @@ import {
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -77,7 +77,7 @@ const Expenses = () => {
     filterPanelFormElements
   );
   const invoices = invoicesPayload?.data;
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const brands = useGetAccountBrands();
@@ -593,7 +593,7 @@ const Expenses = () => {
             allExpenseForm.quantity &&
             createAccountExpense({
               ...allExpenseForm,
-              location: selectedLocationId === 1 ? "bahceli" : "neorama",
+              location: selectedLocationId,
               paymentMethod: ConstantPaymentMethodsIds.CASH,
               isPaid: true,
               quantity: Number(allExpenseForm.quantity),

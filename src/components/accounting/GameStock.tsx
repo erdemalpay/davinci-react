@@ -14,7 +14,7 @@ import {
   useGetAccountStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
@@ -42,7 +42,7 @@ const GameStock = () => {
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

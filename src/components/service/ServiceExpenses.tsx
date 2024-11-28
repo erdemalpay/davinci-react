@@ -10,8 +10,8 @@ import {
 import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountServices } from "../../utils/api/account/service";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -29,7 +29,7 @@ type FormElementsState = {
 const ServiceExpenses = ({ selectedService }: Props) => {
   const { t } = useTranslation();
   const vendors = useGetAccountVendors();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const services = useGetAccountServices();
   const expenseTypes = useGetAccountExpenseTypes();
   const {

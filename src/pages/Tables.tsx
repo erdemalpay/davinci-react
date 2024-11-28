@@ -39,8 +39,8 @@ import {
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
-import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
 import { useGetGames } from "../utils/api/game";
+import { useGetStockLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -65,7 +65,7 @@ const Tables = () => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const { mutate: consumptStock } = useConsumptStockMutation();
@@ -100,7 +100,7 @@ const Tables = () => {
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+    stockLocation: selectedLocationId,
   };
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -429,7 +429,7 @@ const Tables = () => {
         preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+        stockLocation: selectedLocationId,
       };
     }
 
@@ -446,7 +446,7 @@ const Tables = () => {
           : selectedMenuItem.price,
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+        stockLocation: selectedLocationId,
       };
     }
     return null;
@@ -769,7 +769,7 @@ const Tables = () => {
           isCreateCloseActive={false}
           constantValues={{
             quantity: 1,
-            stockLocation: getStockLocation(selectedLocationId),
+            stockLocation: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {
@@ -786,7 +786,7 @@ const Tables = () => {
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: getStockLocation(selectedLocationId),
+                stockLocation: selectedLocationId,
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
               });
             }
@@ -812,7 +812,7 @@ const Tables = () => {
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           constantValues={{
             quantity: 1,
-            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+            stockLocation: selectedLocationId,
           }}
           buttonName={t("Payment")}
           cancelButtonLabel="Close"

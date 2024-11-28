@@ -24,13 +24,10 @@ import {
   useGetAccountServices,
 } from "../../utils/api/account/service";
 import {
-  useAccountStockLocationMutations,
-  useGetAccountStockLocations,
-} from "../../utils/api/account/stockLocation";
-import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -66,7 +63,7 @@ const ServiceInvoice = () => {
     currentPage,
     setCurrentPage,
   } = useGeneralContext();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -103,14 +100,10 @@ const ServiceInvoice = () => {
   const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
     useState(false);
   const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
-  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
-  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
-  const { createAccountStockLocation, updateAccountStockLocation } =
-    useAccountStockLocationMutations();
   const { createAccountVendor, updateAccountVendor } =
     useAccountVendorMutations();
   const { createAccountExpenseType, updateAccountExpenseType } =
@@ -323,7 +316,6 @@ const ServiceInvoice = () => {
       key: t("Location"),
       isSortable: true,
       isAddable: isEnableEdit,
-      onClick: () => setIsAddLocationOpen(true),
       outsideSort: outsideSort(
         "location",
         filterPanelFormElements,
@@ -421,22 +413,8 @@ const ServiceInvoice = () => {
       key: "lctn",
       node: (row: any) => {
         return (
-          <div
-            onClick={() => {
-              if (!isEnableEdit) return;
-              setIsLocationEditModalOpen(true);
-              setCurrentRow(row);
-            }}
-          >
-            <p
-              className={` min-w-32 pr-4 ${
-                isEnableEdit
-                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-                  : ""
-              }`}
-            >
-              {row.lctn ?? "-"}
-            </p>
+          <div>
+            <p className={` min-w-32 pr-4 `}>{row.lctn ?? "-"}</p>
           </div>
         );
       },
@@ -840,16 +818,6 @@ const ServiceInvoice = () => {
             }}
           />
         )}
-        {isAddLocationOpen && (
-          <GenericAddEditPanel
-            isOpen={isAddLocationOpen}
-            close={() => setIsAddLocationOpen(false)}
-            inputs={nameInput}
-            formKeys={nameFormKey}
-            submitItem={createAccountStockLocation as any}
-            topClassName="flex flex-col gap-2 "
-          />
-        )}
         {isAddVendorOpen && (
           <GenericAddEditPanel
             isOpen={isAddVendorOpen}
@@ -880,21 +848,6 @@ const ServiceInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
-          />
-        )}
-        {isLocationEditModalOpen && currentRow && (
-          <GenericAddEditPanel
-            isOpen={isLocationEditModalOpen}
-            close={() => setIsLocationEditModalOpen(false)}
-            inputs={nameInput}
-            formKeys={nameFormKey}
-            submitItem={updateAccountStockLocation as any}
-            isEditMode={true}
-            topClassName="flex flex-col gap-2 "
-            itemToEdit={{
-              id: currentRow.location._id,
-              updates: currentRow.location,
-            }}
           />
         )}
 

@@ -13,7 +13,7 @@ import {
   Table,
   TURKISHLIRA,
 } from "../../../types";
-import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -64,7 +64,7 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   if (!orders) return null;
   const table = orders[0]?.table as Table;
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const categories = useGetCategories();
   const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
@@ -82,7 +82,7 @@ const OrderPaymentModal = ({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+    stockLocation: selectedLocationId,
   };
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -395,7 +395,7 @@ const OrderPaymentModal = ({
         preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+        stockLocation: selectedLocationId,
       };
     }
 
@@ -412,7 +412,7 @@ const OrderPaymentModal = ({
           : selectedMenuItem.price,
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+        stockLocation: selectedLocationId,
       };
     }
     return null;
@@ -435,7 +435,7 @@ const OrderPaymentModal = ({
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
         constantValues={{
           quantity: 1,
-          stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+          stockLocation: selectedLocationId,
         }}
         cancelButtonLabel="Close"
         anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "

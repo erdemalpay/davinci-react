@@ -12,7 +12,7 @@ import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../../utils/api/account/countList";
-import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { NameInput } from "../../../utils/panelInputs";
 import { CheckSwitch } from "../../common/CheckSwitch";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -30,7 +30,7 @@ const CountLists = () => {
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [showInactiveCountLists, setShowInactiveCountLists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -48,7 +48,7 @@ const CountLists = () => {
     updateAccountCountList,
   } = useAccountCountListMutations();
 
-  function handleLocationUpdate(item: AccountCountList, location: string) {
+  function handleLocationUpdate(item: AccountCountList, location: number) {
     const newLocations = item.locations || [];
     const index = newLocations.indexOf(location);
     if (index === -1) {
@@ -87,7 +87,7 @@ const CountLists = () => {
   for (const location of locations) {
     columns.push({ key: location?.name, isSortable: true });
     rowKeys.push({
-      key: location._id,
+      key: String(location._id),
       node: (row: AccountCountList) =>
         isEnableEdit ? (
           <CheckSwitch

@@ -5,7 +5,6 @@ import {
   AccountExpenseType,
   AccountPaymentMethod,
   AccountProduct,
-  AccountStockLocation,
   AccountVendor,
   Location,
   NOTPAID,
@@ -174,7 +173,7 @@ export function StockLocationInput({
 }: {
   required?: boolean;
   isMultiple?: boolean;
-  locations: AccountStockLocation[];
+  locations: Location[];
   isDisabled?: boolean;
 }) {
   const { t } = useTranslation();

@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useAccountPaymentMutations } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { StockLocationInput } from "../../utils/panelInputs";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -12,7 +12,7 @@ const AddVendorPayment = () => {
   const { createAccountPayment } = useAccountPaymentMutations();
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
 
   const inputs = [
     {
