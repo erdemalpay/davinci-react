@@ -134,6 +134,8 @@ const PagePermissions = () => {
   };
   useEffect(() => {
     fillMissingPages();
+  }, []);
+  useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [pages, roles]);
 

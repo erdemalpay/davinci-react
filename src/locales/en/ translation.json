@@ -565,5 +565,8 @@
   "STOCKABLE": "Stockable",
   "NONSTOCKABLE": "Nonstockable",
   "Stock": "Stock",
+  "Upper Categories": "Upper Categories",
+  "Upper Category": "Upper Category",
+  "Add Upper Category": "Add Upper Category",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

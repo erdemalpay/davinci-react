@@ -278,6 +278,16 @@ export type MenuCategory = {
   isOnlineOrder?: boolean;
   discounts?: number[];
 };
+
+export type UpperCategory = {
+  _id: number;
+  name: string;
+  categoryGroup: {
+    category: number;
+    percentage: number;
+  }[];
+};
+
 export type MenuPopular = {
   _id: number;
   order: number;
@@ -529,6 +539,7 @@ export enum AccountingPageTabEnum {
   DISCOUNTS,
   PAYMENTMETHODS,
   KITCHENS,
+  UPPERCATEGORIES,
 }
 export enum CheckoutPageTabEnum {
   INCOME,

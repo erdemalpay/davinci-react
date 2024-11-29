@@ -4,7 +4,7 @@ import { FaKitchenSet } from "react-icons/fa6";
 import { MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
-import { TbBrandBlogger, TbZoomMoney } from "react-icons/tb";
+import { TbBrandBlogger, TbCategoryPlus, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
@@ -12,6 +12,7 @@ import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import Service from "../components/accounting/Service";
+import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -75,6 +76,13 @@ export const AccountingPageTabs = [
     label: "Kitchens",
     icon: <FaKitchenSet className="text-lg font-thin" />,
     content: <KitchenPage />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.UPPERCATEGORIES,
+    label: "Upper Categories",
+    icon: <TbCategoryPlus className="text-lg font-thin" />,
+    content: <UpperCategories />,
     isDisabled: false,
   },
 ];
