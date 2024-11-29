@@ -19,6 +19,7 @@ export const Paths = {
   MenuCategories: "/menu/categories",
   MenuPopular: "/menu/popular",
   MenuItems: "/menu/items",
+  MenuUpperCategories: "/menu/upper_categories",
   Menu: "/menu",
   Categories: "/categories",
   Kitchen: "/menu/kitchens",

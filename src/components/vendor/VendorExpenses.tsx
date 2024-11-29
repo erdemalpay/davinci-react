@@ -12,8 +12,8 @@ import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -61,7 +61,7 @@ const VendorExpenses = () => {
   const products = useGetAccountProducts();
   const expenseTypes = useGetAccountExpenseTypes();
   const paymentMethods = useGetAccountPaymentMethods();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");

@@ -361,10 +361,7 @@ const GenericTable = <T,>({
             (isCollapsible &&
               row?.collapsible?.collapsibleRows?.length > 0)) && (
             <td onClick={() => toggleRowExpansion(rowId)}>
-              {!isCollapsibleCheckActive &&
-              row?.collapsible?.collapsibleRows?.length === 0 ? (
-                <td className="w-6 h-6 mx-auto p-1 "></td>
-              ) : isRowExpanded ? (
+              {isRowExpanded ? (
                 <FaChevronUp className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full   " />
               ) : (
                 <FaChevronDown className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full  " />

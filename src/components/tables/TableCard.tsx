@@ -25,7 +25,7 @@ import {
   User,
 } from "../../types";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -105,9 +105,9 @@ export function TableCard({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+    stockLocation: selectedLocationId,
   };
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
@@ -128,7 +128,7 @@ export function TableCard({
       const stock = stocks?.find((stock) => {
         return (
           stock.product === item.matchedProduct &&
-          stock.location === (selectedLocationId === 1 ? "bahceli" : "neorama")
+          stock.location === selectedLocationId
         );
       });
       return stock?.quantity ?? 0;
@@ -431,9 +431,7 @@ export function TableCard({
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: isOrderLocationSelection
           ? orderForm?.stockLocation
-          : selectedLocationId === 1
-          ? "bahceli"
-          : "neorama",
+          : selectedLocationId,
       };
     }
 
@@ -453,9 +451,7 @@ export function TableCard({
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: isOrderLocationSelection
           ? orderForm?.stockLocation
-          : selectedLocationId === 1
-          ? "bahceli"
-          : "neorama",
+          : selectedLocationId,
       };
     }
     return null;
@@ -464,7 +460,7 @@ export function TableCard({
   useEffect(() => {
     setOrderForm({
       ...orderForm,
-      stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+      stockLocation: selectedLocationId,
     });
   }, [selectedLocationId]);
 
@@ -671,7 +667,7 @@ export function TableCard({
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           constantValues={{
             quantity: 1,
-            stockLocation: selectedLocationId === 1 ? "bahceli" : "neorama",
+            stockLocation: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "

@@ -98,10 +98,10 @@ export type AccountService = {
 export type AccountCountList = {
   _id: string;
   name: string;
-  locations: string[];
+  locations: number[];
   products?: {
     product: string;
-    locations: string[];
+    locations: number[];
   }[];
   active: boolean;
 };
@@ -110,7 +110,7 @@ export type AccountCount = {
   isCompleted: boolean;
   createdAt: Date;
   completedAt?: Date;
-  location: string;
+  location: number;
   user: string;
   products?: {
     product: string;
@@ -136,10 +136,6 @@ export type AccountVendor = {
   name: string;
 };
 
-export type AccountStockLocation = {
-  _id: string;
-  name: string;
-};
 export type AccountPaymentMethod = {
   _id: string;
   name: string;
@@ -152,7 +148,7 @@ export type AccountPayment = {
   invoice?: number;
   serviceInvoice?: number;
   paymentMethod: string;
-  location: string;
+  location: number;
   user: string;
   date: string;
   amount: number;
@@ -167,7 +163,7 @@ export type AccountOverallExpense = {
   brand?: string;
   vendor?: string;
   note?: string;
-  location: string;
+  location: number;
   price?: number;
   kdv?: number;
   service: string;
@@ -185,7 +181,7 @@ export type AccountInvoice = {
   brand?: string;
   vendor?: string;
   note?: string;
-  location: string;
+  location: number;
   price?: number;
   kdv?: number;
   paymentMethod: string;
@@ -205,7 +201,7 @@ export type AccountExpense = {
   brand?: string;
   vendor?: string;
   note?: string;
-  location: string;
+  location: number;
   price?: number;
   kdv?: number;
   paymentMethod: string;
@@ -222,7 +218,7 @@ export type AccountServiceInvoice = {
   date: string;
   vendor?: string;
   note?: string;
-  location: string;
+  location: number;
   price?: number;
   kdv?: number;
   paymentMethod: string;
@@ -233,13 +229,13 @@ export type AccountServiceInvoice = {
 export type AccountStock = {
   _id: string;
   product: string;
-  location: string;
+  location: number;
   quantity: number;
 };
 export type AccountProductStockHistory = {
   _id: number;
   product: string;
-  location: string;
+  location: number;
   change: number;
   currentAmount: number;
   status: string;
@@ -282,6 +278,16 @@ export type MenuCategory = {
   isOnlineOrder?: boolean;
   discounts?: number[];
 };
+
+export type UpperCategory = {
+  _id: number;
+  name: string;
+  categoryGroup: {
+    category: number;
+    percentage: number;
+  }[];
+};
+
 export type MenuPopular = {
   _id: number;
   order: number;
@@ -319,14 +325,14 @@ export type MenuItem = {
 export type CheckoutIncome = {
   _id: number;
   user: string;
-  location: string;
+  location: number;
   date: string;
   amount: number;
 };
 export type CheckoutControl = {
   _id: number;
   user: string;
-  location: string;
+  location: number;
   date: string;
   amount: number;
 };
@@ -334,7 +340,7 @@ export type CheckoutControl = {
 export type CheckoutCashout = {
   _id: number;
   user: string;
-  location: string;
+  location: number;
   date: string;
   amount: number;
   description: string;
@@ -358,7 +364,7 @@ export type PanelControlCheckoutCash = {
   amount: number;
   date: string;
   user: User;
-  location: string;
+  location: number;
 };
 export type Order = {
   _id: number;
@@ -386,7 +392,7 @@ export type Order = {
   division?: number;
   isOnlinePrice?: boolean;
   discountNote?: string;
-  stockLocation?: string;
+  stockLocation?: number;
   [key: string]: any;
   kitchen?: string;
   stockNote?: string;
@@ -406,7 +412,7 @@ export type OrderCollection = {
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
   table?: Table | number;
-  stockLocation?: string;
+  stockLocation?: number;
 };
 
 export type OrderCollectionItem = {
@@ -532,8 +538,8 @@ export enum AccountingPageTabEnum {
   SERVICES,
   DISCOUNTS,
   PAYMENTMETHODS,
-  STOCKLOCATION,
   KITCHENS,
+  UPPERCATEGORIES,
 }
 export enum CheckoutPageTabEnum {
   INCOME,

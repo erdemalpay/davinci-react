@@ -30,13 +30,10 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import {
-  useAccountStockLocationMutations,
-  useGetAccountStockLocations,
-} from "../../utils/api/account/stockLocation";
-import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
@@ -71,7 +68,7 @@ const Invoice = () => {
     setCurrentPage,
     setProductExpenseForm,
   } = useGeneralContext();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -97,7 +94,6 @@ const Invoice = () => {
   const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
   const [isBrandEditModalOpen, setIsBrandEditModalOpen] = useState(false);
   const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
-  const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
   const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
     useState(false);
   const brands = useGetAccountBrands();
@@ -111,7 +107,6 @@ const Invoice = () => {
   const [currentRow, setCurrentRow] = useState<any>();
   const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
-  const [isAddLocationOpen, setIsAddLocationOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountExpense>();
@@ -120,8 +115,6 @@ const Invoice = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
-  const { createAccountStockLocation, updateAccountStockLocation } =
-    useAccountStockLocationMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
   const { createAccountVendor, updateAccountVendor } =
     useAccountVendorMutations();
@@ -371,7 +364,6 @@ const Invoice = () => {
       key: t("Location"),
       isSortable: false,
       isAddable: isEnableEdit,
-      onClick: () => setIsAddLocationOpen(true),
       outsideSort: outsideSort(
         "location",
         filterPanelFormElements,
@@ -493,22 +485,8 @@ const Invoice = () => {
       key: "lctn",
       node: (row: any) => {
         return (
-          <div
-            onClick={() => {
-              if (!isEnableEdit) return;
-              setIsLocationEditModalOpen(true);
-              setCurrentRow(row);
-            }}
-          >
-            <p
-              className={` min-w-32 pr-4 ${
-                isEnableEdit
-                  ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-                  : ""
-              }`}
-            >
-              {row.lctn ?? "-"}
-            </p>
+          <div>
+            <p className={` min-w-32 pr-4`}>{row.lctn ?? "-"}</p>
           </div>
         );
       },
@@ -895,16 +873,6 @@ const Invoice = () => {
             topClassName="flex flex-col gap-2 "
           />
         )}
-        {isAddLocationOpen && (
-          <GenericAddEditPanel
-            isOpen={isAddLocationOpen}
-            close={() => setIsAddLocationOpen(false)}
-            inputs={nameInput}
-            formKeys={nameFormKey}
-            submitItem={createAccountStockLocation as any}
-            topClassName="flex flex-col gap-2 "
-          />
-        )}
         {isAddBrandOpen && (
           <GenericAddEditPanel
             isOpen={isAddBrandOpen}
@@ -986,21 +954,7 @@ const Invoice = () => {
             itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
           />
         )}
-        {isLocationEditModalOpen && currentRow && (
-          <GenericAddEditPanel
-            isOpen={isLocationEditModalOpen}
-            close={() => setIsLocationEditModalOpen(false)}
-            inputs={nameInput}
-            formKeys={nameFormKey}
-            submitItem={updateAccountStockLocation as any}
-            isEditMode={true}
-            topClassName="flex flex-col gap-2 "
-            itemToEdit={{
-              id: currentRow.location._id,
-              updates: currentRow.location,
-            }}
-          />
-        )}
+
         {isExpenseTypeEditModalOpen && currentRow && (
           <GenericAddEditPanel
             isOpen={isExpenseTypeEditModalOpen}

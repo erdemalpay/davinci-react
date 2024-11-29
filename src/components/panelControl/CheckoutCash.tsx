@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { PanelControlCheckoutCash } from "../../types";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import {
   useGetPanelControlCheckoutCashs,
   usePanelControlCheckoutCashMutations,
@@ -20,7 +20,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const CheckoutCash = () => {
   const { t } = useTranslation();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

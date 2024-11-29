@@ -8,7 +8,7 @@ import {
   useGetAccountCountLists,
 } from "../../../utils/api/account/countList";
 import { useGetAccountProducts } from "../../../utils/api/account/product";
-import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { CheckSwitch } from "../../common/CheckSwitch";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
@@ -21,7 +21,7 @@ const CountListProducts = (props: Props) => {
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
   const allRows = products.map((product) => ({

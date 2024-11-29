@@ -11,7 +11,7 @@ import {
   useGetAccountCounts,
 } from "../../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../../utils/api/account/countList";
-import { useGetAccountStockLocations } from "../../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
 import { getItem } from "../../../utils/getItem";
@@ -38,7 +38,7 @@ const CountArchive = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);

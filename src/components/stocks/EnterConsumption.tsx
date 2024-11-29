@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import { getStockLocation } from "../../utils/getStockLocation";
 import { QuantityInput, StockLocationInput } from "../../utils/panelInputs";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
@@ -12,7 +12,7 @@ const EnterConsumption = () => {
   const { t } = useTranslation();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const products = useGetAccountProducts();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
   const consumptInputs = [
     {

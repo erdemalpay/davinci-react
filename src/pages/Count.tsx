@@ -55,7 +55,7 @@ const Count = () => {
   const currentCount = counts?.find((item) => {
     return (
       item.isCompleted === false &&
-      item.location === location &&
+      item.location === Number(location) &&
       item.user === user?._id &&
       item.countList === countListId
     );
@@ -67,7 +67,7 @@ const Count = () => {
     countLists
       ?.find((cl) => cl?._id === countListId)
       ?.products?.map((countListProduct) => {
-        if (location && countListProduct.locations.includes(location)) {
+        if (location && countListProduct.locations.includes(Number(location))) {
           return {
             products: currentCount?.products,
             productId: countListProduct.product,
@@ -195,7 +195,8 @@ const Count = () => {
               }
               const productStock = stocks?.find(
                 (s) =>
-                  s?.product === rowProduct?._id && s?.location === location
+                  s?.product === rowProduct?._id &&
+                  s?.location === Number(location)
               );
               const newProducts = [
                 ...(currentCount?.products?.filter(
@@ -271,7 +272,8 @@ const Count = () => {
                 }
                 const productStock = stocks?.find(
                   (s) =>
-                    s?.product === rowProduct?._id && s?.location === location
+                    s?.product === rowProduct?._id &&
+                    s?.location === Number(location)
                 );
                 const newProducts = [
                   ...(currentCount?.products?.filter(
@@ -316,7 +318,10 @@ const Count = () => {
       countLists
         .find((cl) => cl._id === countListId)
         ?.products?.map((countListProduct) => {
-          if (location && countListProduct.locations.includes(location)) {
+          if (
+            location &&
+            countListProduct.locations.includes(Number(location))
+          ) {
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
@@ -385,7 +390,7 @@ const Count = () => {
                     const productStock = stocks?.find(
                       (s) =>
                         s?.product === currentProductItem.product &&
-                        s?.location === location
+                        s?.location === Number(location)
                     );
                     newProducts = [
                       ...(newProducts?.filter(

@@ -29,7 +29,7 @@ import {
   useGetAccountCountLists,
 } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountStockLocations } from "../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../utils/api/location";
 import { StockLocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
@@ -41,7 +41,7 @@ const CountList = () => {
   const navigate = useNavigate();
   const { countListId } = useParams();
   const { user } = useUserContext();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const countLists = useGetAccountCountLists();
   const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
@@ -77,7 +77,7 @@ const CountList = () => {
     return <></>;
   }
   const [countLocationForm, setCountLocationForm] = useState({
-    location: "",
+    location: 0,
   });
   const counts = useGetAccountCounts();
 
@@ -93,7 +93,7 @@ const CountList = () => {
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  function handleLocationUpdate(row: any, changedLocationId: string) {
+  function handleLocationUpdate(row: any, changedLocationId: number) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId
     );
@@ -108,7 +108,7 @@ const CountList = () => {
       {
         product: products.find((it) => it.name === row.product)?._id ?? "",
         locations: Object.entries(row).reduce((acc, [key, value]) => {
-          if (key === "product" || typeof key !== "string") return acc;
+          if (key === "product" || typeof key !== "number") return acc;
           if (key === changedLocationId) {
             if (!value) {
               acc.push(key);
@@ -117,7 +117,7 @@ const CountList = () => {
             acc.push(key);
           }
           return acc;
-        }, [] as string[]),
+        }, [] as number[]),
       },
     ];
 
@@ -190,7 +190,7 @@ const CountList = () => {
   locations.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
-      key: item._id,
+      key: String(item._id),
       node: (row: any) =>
         isEnableEdit ? (
           <CheckSwitch
@@ -350,7 +350,7 @@ const CountList = () => {
         columns.splice(columnIndex, 1);
       }
       const rowKeyIndex = rowKeys.findIndex(
-        (rKey) => rKey.key === location._id
+        (rKey) => rKey.key === String(location._id)
       );
       if (rowKeyIndex !== -1) {
         rowKeys.splice(rowKeyIndex, 1);
@@ -424,7 +424,7 @@ const CountList = () => {
               formKeys={countLocationFormKeys}
               submitItem={() => {}}
               submitFunction={async () => {
-                if (countLocationForm.location === "" || !user) return;
+                if (countLocationForm.location === 0 || !user) return;
                 if (
                   counts?.filter((item) => {
                     return (

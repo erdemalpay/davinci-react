@@ -6,7 +6,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { stockHistoryStatuses } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -48,7 +48,7 @@ const ProductStockHistory = () => {
     filterPanelFormElements
   );
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data

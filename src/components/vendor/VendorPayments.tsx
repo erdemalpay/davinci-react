@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGetAccountPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -20,7 +20,7 @@ const VendorPayments = () => {
   const { t } = useTranslation();
   const { vendorId } = useParams();
   const vendors = useGetAccountVendors();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const users = useGetUsers();
   const paymentMethods = useGetAccountPaymentMethods();
   const selectedVendor = vendors?.find((item) => item._id === vendorId);

@@ -5,11 +5,11 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutCashout } from "../../types";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutCashoutMutations,
   useGetCheckoutCashouts,
 } from "../../utils/api/checkout/cashout";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -27,7 +27,7 @@ type FormElementsState = {
 const Cashout = () => {
   const { t } = useTranslation();
   const cashouts = useGetCheckoutCashouts();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);

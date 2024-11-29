@@ -6,11 +6,11 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { CheckoutIncome, OrderCollectionStatus, RoleEnum } from "../../types";
-import { useGetAccountStockLocations } from "../../utils/api/account/stockLocation";
 import {
   useCheckoutIncomeMutations,
   useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
+import { useGetLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -30,7 +30,7 @@ const Income = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
   const { user } = useUserContext();
-  const locations = useGetAccountStockLocations();
+  const locations = useGetLocations();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const { selectedLocationId } = useLocationContext();
@@ -82,8 +82,7 @@ const Income = () => {
                 : false) &&
               collection?.paymentMethod === "cash" &&
               collection.status === OrderCollectionStatus.PAID &&
-              getCollectionLocationIdAsString(collection.location) ===
-                income.location
+              collection.location === income.location
           )
           ?.map((collection) => collection.amount)
           ?.reduce((a, b) => a + b, 0),
@@ -180,7 +179,7 @@ const Income = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
-          location: selectedLocationId === 1 ? "bahceli" : "neorama",
+          location: selectedLocationId,
         }}
         formKeys={formKeys}
         submitItem={createCheckoutIncome as any}
