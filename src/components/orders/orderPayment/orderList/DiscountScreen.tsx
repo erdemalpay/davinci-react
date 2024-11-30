@@ -36,7 +36,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
   );
   return (
-    <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
+    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Discounts" />
       {/* discounts */}
       <div className="grid grid-cols-3 gap-4">

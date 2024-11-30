@@ -35,7 +35,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
     );
   }
   return (
-    <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
+    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar  ">
       <OrderScreenHeader header="Select Order" />
       {/* select all */}
       {!isProductDivideOpen && (

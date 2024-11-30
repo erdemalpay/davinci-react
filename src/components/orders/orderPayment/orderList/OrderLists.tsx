@@ -241,7 +241,7 @@ const OrderLists = ({
     },
   ];
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
+    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8  ">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <div className="flex flex-row gap-2">
@@ -278,14 +278,14 @@ const OrderLists = ({
       {isDiscountNoteOpen && <DiscountNoteScreen />}
       <PaidOrders tableOrders={tableOrders} />
       {/* buttons */}
-      <div className="flex flex-row gap-2 justify-end ml-auto items-center">
+      <div className="flex flex-row gap-2 justify-end ml-auto items-center mb-2">
         {buttons.map((button) => {
           if (button.isActive) {
             return (
               <button
                 key={button.label}
                 onClick={button.onClick}
-                className=" w-fit ml-auto bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold "
+                className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
               >
                 {button.label}
               </button>

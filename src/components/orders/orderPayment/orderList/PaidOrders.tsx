@@ -37,7 +37,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
     }
   };
   return (
-    <div className="flex flex-col h-52 overflow-scroll no-scrollbar ">
+    <div className="flex flex-col h-[39%] overflow-scroll no-scrollbar ">
       <OrderScreenHeader header="Paid Orders" />
       {tableOrders
         ?.sort((a, b) => a.item - b.item)
@@ -53,7 +53,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
             >
               {/* item name,quantity part */}
 
-              <div className="flex flex-row gap-1 text-sm font-medium py-0.5">
+              <div className="flex flex-row gap-1 text-sm font-medium py-0.2">
                 <p>
                   {"("}
                   {(() => {
