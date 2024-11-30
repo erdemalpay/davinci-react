@@ -9,7 +9,7 @@ const DiscountNoteScreen = (props: Props) => {
   const { discountNote, setDiscountNote } = useOrderContext();
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col h-52 overflow-scroll no-scrollbar  ">
+    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar  ">
       <div className="px-2 ">
         <OrderScreenHeader header="Discounts" />
         {/* note */}

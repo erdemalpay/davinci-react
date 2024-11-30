@@ -112,7 +112,7 @@ const OrderPaymentTypes = ({
   );
 
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8 ">
+    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Payment Types")}</h1>
@@ -223,7 +223,7 @@ const OrderPaymentTypes = ({
         ))}
       </div>
       {/*collection history */}
-      <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-2 mt-4">
+      <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-2 mt-4 ">
         <div className="flex flex-row gap-1 justify-center items-center">
           <FaHistory
             className="text-red-600 font-semibold cursor-pointer relative"
@@ -246,7 +246,7 @@ const OrderPaymentTypes = ({
         </p>
       </div>
       {/* collection summary */}
-      <div className="flex flex-col h-52 gap-1 overflow-scroll no-scrollbar ">
+      <div className="flex flex-col h-80 gap-1 overflow-scroll no-scrollbar ">
         {tableNotCancelledCollections?.map((collection) => (
           <div
             key={collection._id + "collection summary"}
