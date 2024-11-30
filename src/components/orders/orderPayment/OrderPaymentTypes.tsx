@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
@@ -15,13 +16,11 @@ import {
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
+  TableTypes,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
-import {
-  FormKeyTypeEnum,
-  InputTypes,
-} from "../../panelComponents/shared/types";
+import { closeTable } from "../../../utils/api/table";
 import CollectionModal from "./CollectionModal";
 
 type Props = {
@@ -88,17 +87,6 @@ const OrderPaymentTypes = ({
   };
   const { createOrderCollection, updateOrderCollection } =
     useOrderCollectionMutations(table?._id);
-
-  const inputs = [
-    {
-      type: InputTypes.TEXT,
-      formKey: "note",
-      label: t("Note"),
-      placeholder: t("Note"),
-      required: true,
-    },
-  ];
-  const formKeys = [{ key: "note", type: FormKeyTypeEnum.STRING }];
   const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
   const discountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
@@ -205,6 +193,22 @@ const OrderPaymentTypes = ({
                 ...(newOrders && { newOrders: newOrders }),
               };
               createOrderCollection(createdCollection);
+              const totalMoney =
+                collectionsTotalAmount +
+                Number(paymentAmount) -
+                (refundAmount > 0 ? refundAmount : 0);
+              if (
+                table &&
+                !table?.finishHour &&
+                table.type === TableTypes.TAKEOUT
+              ) {
+                if (totalMoney === totalAmount - discountAmount) {
+                  closeTable({
+                    id: table._id,
+                    updates: { finishHour: format(new Date(), "HH:mm") },
+                  });
+                }
+              }
               resetOrderContext();
             }}
             className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
@@ -243,9 +247,9 @@ const OrderPaymentTypes = ({
       </div>
       {/* collection summary */}
       <div className="flex flex-col h-52 gap-1 overflow-scroll no-scrollbar ">
-        {tableNotCancelledCollections.map((collection) => (
+        {tableNotCancelledCollections?.map((collection) => (
           <div
-            key={collection._id}
+            key={collection._id + "collection summary"}
             className="flex flex-row justify-between px-4 border-b text-sm font-medium pb-1"
           >
             {/* left part */}

@@ -13,7 +13,6 @@ import {
   Table,
   TURKISHLIRA,
 } from "../../../types";
-import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -64,10 +63,10 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   if (!orders) return null;
   const table = orders[0]?.table as Table;
-  const locations = useGetStockLocations();
   const categories = useGetCategories();
   const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
+  const [buttonsKey, setButtonsKey] = useState(0);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const discounts = useGetOrderDiscounts();
@@ -128,7 +127,6 @@ const OrderPaymentModal = ({
     printFrame.style.width = "0";
     printFrame.style.height = "0";
     document.body.appendChild(printFrame);
-
     let totalAmount = 0;
     const content = orders
       ?.filter((order) => order.status !== OrderStatus.CANCELLED)
@@ -552,7 +550,7 @@ const OrderPaymentModal = ({
                     if (button.isActive) {
                       return (
                         <button
-                          key={button.label}
+                          key={button.label + String(buttonsKey)}
                           onClick={button.onClick}
                           className="w-fit ml-auto bg-gray-200 px-4 py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold mr-6"
                         >
