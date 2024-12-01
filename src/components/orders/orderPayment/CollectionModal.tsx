@@ -24,7 +24,7 @@ import {
 } from "../../panelComponents/shared/types";
 
 type Props = {
-  table: number;
+  table: Table;
   setIsCollectionModalOpen: (isOpen: boolean) => void;
   orders: Order[];
   collections: OrderCollection[];
@@ -45,7 +45,7 @@ const CollectionModal = ({
   const items = useGetMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
-  const { updateOrderCollection } = useOrderCollectionMutations(table);
+  const { updateOrderCollection } = useOrderCollectionMutations(table._id);
   const [inputForm, setInputForm] = useState({
     note: "",
   });
@@ -53,7 +53,7 @@ const CollectionModal = ({
     return null;
   }
   const allRows = collections
-    .filter((collection) => (collection?.table as Table)?._id === table)
+    .filter((collection) => (collection?.table as Table)?._id === table._id)
     .map((collection) => {
       const paymentMethod = paymentMethods.find(
         (method) => method._id === collection.paymentMethod
@@ -231,20 +231,41 @@ const CollectionModal = ({
   ];
 
   return (
-    <div className="flex  flex-row  justify-start items-center absolute top-[3.8rem] left-0 right-0 bottom-0 bg-white shadow-lg p-2 gap-2  overflow-scroll no-scrollbar z-40">
-      <div className="w-[95%] mx-auto mb-auto ">
-        <GenericTable
-          key={tableKey}
-          title={t("Collection History")}
-          columns={columns}
-          rowKeys={rowKeys}
-          rows={rows}
-          isActionsActive={true}
-          isSearch={false}
-          filters={filters}
-          isCollapsible={true}
-          actions={actions}
-        />
+    <div
+      id="popup"
+      className="z-[99999] fixed w-full h-full inset-0 flex justify-center items-center"
+    >
+      <div
+        onClick={close}
+        className="w-full h-full bg-gray-900 bg-opacity-50 absolute inset-0 "
+      />
+
+      <div className="relative w-[95%] h-[98%]  overflow-y-auto">
+        <div className="flex flex-row justify-between items-center px-4 bg-blue-gray-50 rounded-t-lg py-1">
+          {/* header */}
+          <div className="flex flex-col gap-1">
+            <h1 className="font-medium">
+              <span className="font-semibold">{t("Table")}</span>: {table?.name}
+            </h1>
+            <h1 className="font-medium">{user.name}</h1>
+          </div>
+        </div>
+        <div className="bg-white rounded-b-md shadow overflow-y-auto sm:h-full items-center ">
+          <div className="w-[95%] mx-auto mb-auto ">
+            <GenericTable
+              key={tableKey}
+              title={t("Collection History")}
+              columns={columns}
+              rowKeys={rowKeys}
+              rows={rows}
+              isActionsActive={true}
+              isSearch={false}
+              filters={filters}
+              isCollapsible={true}
+              actions={actions}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
