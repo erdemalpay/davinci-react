@@ -79,6 +79,9 @@ const SelectInput = ({
 }: SelectInputProps) => {
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
+  const [sortedOptions, setSortedOptions] = useState<OptionType[]>(
+    options.sort((a, b) => a.label.localeCompare(b.label))
+  );
   const selectRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
   const handleMenuOpen = () => {
@@ -194,7 +197,7 @@ const SelectInput = ({
             />
           ) : (
             <Select
-              options={options.sort((a, b) => a.label.localeCompare(b.label))}
+              options={sortedOptions}
               onChange={(value, actionMeta) => {
                 onChange(value, actionMeta);
                 setIsSearchable(false);
@@ -207,6 +210,27 @@ const SelectInput = ({
               filterOption={customFilterOption}
               hideSelectedOptions={true}
               isSearchable={!isSearchable && !isDownIconClicked}
+              onInputChange={(inputValue) => {
+                if (inputValue) {
+                  setSortedOptions(
+                    options.sort((a, b) => {
+                      const aStartsWith = a.label
+                        .toLowerCase()
+                        .startsWith(inputValue);
+                      const bStartsWith = b.label
+                        .toLowerCase()
+                        .startsWith(inputValue);
+                      if (aStartsWith && !bStartsWith) return -1;
+                      if (bStartsWith && !aStartsWith) return 1;
+                      return a.label.localeCompare(b.label);
+                    })
+                  );
+                } else {
+                  setSortedOptions(
+                    options.sort((a, b) => a.label.localeCompare(b.label))
+                  );
+                }
+              }}
               onMenuClose={() => {
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
