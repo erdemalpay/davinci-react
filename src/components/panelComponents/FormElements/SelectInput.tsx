@@ -4,12 +4,13 @@ import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
+  components,
   GroupBase,
+  InputActionMeta,
   MultiValue,
   OptionProps,
   PropsValue,
   SingleValue,
-  components,
 } from "react-select";
 import { H6 } from "../Typography";
 
@@ -77,6 +78,7 @@ const SelectInput = ({
   isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
+  const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const [sortedOptions, setSortedOptions] = useState<OptionType[]>(
@@ -130,6 +132,28 @@ const SelectInput = ({
       fontSize: "16px",
     }),
   };
+  useEffect(() => {
+    const sorted = options.sort((a, b) => {
+      const aStartsWith = normalizeText(a.label).startsWith(
+        normalizeText(searchInput)
+      );
+      const bStartsWith = normalizeText(b.label).startsWith(
+        normalizeText(searchInput)
+      );
+      if (aStartsWith && !bStartsWith) return -1;
+      if (bStartsWith && !aStartsWith) return 1;
+      return a.label.localeCompare(b.label);
+    });
+    setSortedOptions([...sorted]);
+  }, [options, searchInput]);
+
+  const handleInputChange = (newValue: string, actionMeta: InputActionMeta) => {
+    if (actionMeta.action === "input-change") {
+      setSearchInput(newValue);
+      return newValue;
+    }
+  };
+
   const DropdownIndicator = (props: any) => {
     return (
       <components.DropdownIndicator {...props}>
@@ -210,27 +234,7 @@ const SelectInput = ({
               filterOption={customFilterOption}
               hideSelectedOptions={true}
               isSearchable={!isSearchable && !isDownIconClicked}
-              onInputChange={(inputValue) => {
-                if (inputValue) {
-                  setSortedOptions(
-                    options.sort((a, b) => {
-                      const aStartsWith = a.label
-                        .toLowerCase()
-                        .startsWith(inputValue);
-                      const bStartsWith = b.label
-                        .toLowerCase()
-                        .startsWith(inputValue);
-                      if (aStartsWith && !bStartsWith) return -1;
-                      if (bStartsWith && !aStartsWith) return 1;
-                      return a.label.localeCompare(b.label);
-                    })
-                  );
-                } else {
-                  setSortedOptions(
-                    options.sort((a, b) => a.label.localeCompare(b.label))
-                  );
-                }
-              }}
+              onInputChange={handleInputChange}
               onMenuClose={() => {
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
