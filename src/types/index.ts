@@ -277,6 +277,7 @@ export type MenuCategory = {
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
   discounts?: number[];
+  active: boolean;
 };
 
 export type UpperCategory = {

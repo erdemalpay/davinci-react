@@ -11,6 +11,7 @@ import { MenuCategory, OrderDiscountStatus, RoleEnum } from "../../types";
 import { useGetLocations } from "../../utils/api/location";
 import {
   useCategoryMutations,
+  useGetAllCategories,
   useUpdateCategoriesOrderMutation,
 } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
@@ -25,15 +26,16 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type Props = {
-  categories: MenuCategory[];
   handleCategoryChange: () => void;
 };
 
-const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
+const CategoryTable = ({ handleCategoryChange }: Props) => {
   const { t } = useTranslation();
   const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
   const [isLocationEdit, setIsLocationEdit] = useState(false);
   const locations = useGetLocations();
+  const allCategories = useGetAllCategories();
+  const [showInactiveCategories, setShowInactiveCategories] = useState(false);
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -57,14 +59,20 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const allRows = categories.map((category) => {
-    const categoryKitchen = getItem(category.kitchen, kitchens);
-    return {
-      ...category,
-
-      kitchenName: categoryKitchen?.name,
-    };
-  });
+  const allRows = allCategories
+    ?.filter((category) => {
+      if (showInactiveCategories) {
+        return true;
+      }
+      return category?.active;
+    })
+    ?.map((category) => {
+      const categoryKitchen = getItem(category.kitchen, kitchens);
+      return {
+        ...category,
+        kitchenName: categoryKitchen?.name,
+      };
+    });
   const [rows, setRows] = useState(allRows);
   const inputs = [
     NameInput(),
@@ -130,6 +138,13 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
     updateCategory({
       id: item._id,
       updates: { locations: newLocations },
+    });
+    toast.success(`${t("Category updated successfully")}`);
+  }
+  function handleCategoryActive(row: any) {
+    updateCategory({
+      id: row._id,
+      updates: { active: !row.active },
     });
     toast.success(`${t("Category updated successfully")}`);
   }
@@ -323,6 +338,21 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
       setIsModal: setIsEditModalOpen,
       isPath: false,
     },
+    {
+      name: t("Toggle Active"),
+      isDisabled: !showInactiveCategories,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2">
+          <CheckSwitch
+            checked={row.active}
+            onChange={() => handleCategoryActive(row)}
+          ></CheckSwitch>
+        </div>
+      ),
+    },
   ];
   const filters = [
     {
@@ -332,11 +362,22 @@ const CategoryTable = ({ categories, handleCategoryChange }: Props) => {
         <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
       ),
     },
+    {
+      label: t("Show Inactive Categories"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={showInactiveCategories}
+          onChange={setShowInactiveCategories}
+        />
+      ),
+    },
   ];
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [kitchens, categories, locations]);
+  }, [kitchens, locations, allCategories, showInactiveCategories]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

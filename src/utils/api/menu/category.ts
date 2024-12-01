@@ -19,6 +19,9 @@ export function useCategoryMutations() {
 export function useGetCategories() {
   return useGetList<MenuCategory>(Paths.MenuCategories);
 }
+export function useGetAllCategories() {
+  return useGetList<MenuCategory>(`${Paths.Menu}/categories-all`);
+}
 
 export function updateCategoriesOrder({
   id,

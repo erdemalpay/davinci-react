@@ -20,7 +20,6 @@ export interface ItemGroup {
   order: number;
   items: MenuItem[];
 }
-
 export default function Menu() {
   const items = useGetMenuItems();
   const products = useGetAccountProducts();
@@ -147,7 +146,6 @@ export default function Menu() {
           content: (
             <CategoryTable
               key={"categories" + tableKeys}
-              categories={categories as MenuCategory[]}
               handleCategoryChange={handleCategoryChange}
             />
           ),
@@ -157,7 +155,6 @@ export default function Menu() {
     );
     setTableKeys(tableKeys + 1);
   };
-
   useEffect(() => {
     handleTabChange();
   }, [
