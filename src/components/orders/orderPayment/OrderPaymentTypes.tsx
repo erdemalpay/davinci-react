@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -21,7 +20,6 @@ import {
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { closeTable } from "../../../utils/api/table";
-import CollectionModal from "./CollectionModal";
 
 type Props = {
   tableOrders: Order[];
@@ -41,7 +39,7 @@ const OrderPaymentTypes = ({
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
   const paymentMethods = useGetAccountPaymentMethods();
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
+  const { setIsCollectionModalOpen } = useOrderContext();
   // this are for collection cancel note if it is activated this will be used
   // const [selectedCollection, setSelectedCollection] =
   //   useState<OrderCollection>();
@@ -232,14 +230,6 @@ const OrderPaymentTypes = ({
             }}
           />
           <p className="font-semibold">{t("Collection History")}</p>
-          {isCollectionModalOpen && table && (
-            <CollectionModal
-              setIsCollectionModalOpen={setIsCollectionModalOpen}
-              table={table?._id}
-              orders={givenDateOrders}
-              collections={givenDateCollections}
-            />
-          )}
         </div>
         <p className="text-sm font-semibold">
           {collectionsTotalAmount.toFixed(2) ?? "0.00"} ₺

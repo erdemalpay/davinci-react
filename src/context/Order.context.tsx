@@ -6,6 +6,8 @@ type FormElementsState = {
 };
 
 type OrderContextType = {
+  isCollectionModalOpen: boolean;
+  setIsCollectionModalOpen: (isCollectionModalOpen: boolean) => void;
   isTransferProductOpen: boolean;
   setIsTransferProductOpen: (isTransferProductOpen: boolean) => void;
   takeawayTableId: number;
@@ -71,6 +73,8 @@ type OrderContextType = {
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isCollectionModalOpen: false,
+  setIsCollectionModalOpen: () => {},
   takeawayTableId: 0,
   setTakeawayTableId: () => {},
   isOrderDivisionActive: false,
@@ -140,6 +144,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     { order: Order; quantity: number }[]
   >([]);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [takeawayTableId, setTakeawayTableId] = useState<number>(0);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
     useState(false);
@@ -209,6 +214,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <OrderContext.Provider
       value={{
+        isCollectionModalOpen,
+        setIsCollectionModalOpen,
         takeawayTableId,
         setTakeawayTableId,
         isTakeAwayOrderModalOpen,

@@ -285,7 +285,7 @@ const OrderLists = ({
               <button
                 key={button.label}
                 onClick={button.onClick}
-                className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
+                className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
               >
                 {button.label}
               </button>

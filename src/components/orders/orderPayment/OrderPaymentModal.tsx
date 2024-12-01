@@ -35,6 +35,7 @@ import {
   InputTypes,
 } from "../../panelComponents/shared/types";
 import OrderListForPanel from "../../tables/OrderListForPanel";
+import CollectionModal from "./CollectionModal";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
@@ -61,6 +62,7 @@ const OrderPaymentModal = ({
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
+  const { isCollectionModalOpen, setIsCollectionModalOpen } = useOrderContext();
   if (!orders) return null;
   const table = orders[0]?.table as Table;
   const categories = useGetCategories();
@@ -487,6 +489,16 @@ const OrderPaymentModal = ({
       />
     );
   }
+  if (isCollectionModalOpen) {
+    return (
+      <CollectionModal
+        setIsCollectionModalOpen={setIsCollectionModalOpen}
+        table={table}
+        orders={orders}
+        collections={collections}
+      />
+    );
+  }
   return (
     <div
       id="popup"
@@ -552,7 +564,7 @@ const OrderPaymentModal = ({
                         <button
                           key={button.label + String(buttonsKey)}
                           onClick={button.onClick}
-                          className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
+                          className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
                         >
                           {button.label}
                         </button>
