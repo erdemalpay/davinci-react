@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
-
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
@@ -82,7 +81,6 @@ const SelectInput = ({
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
-
   const handleMenuOpen = () => {
     if (selectRef.current) {
       const selectRect = selectRef.current.getBoundingClientRect();
@@ -196,7 +194,7 @@ const SelectInput = ({
             />
           ) : (
             <Select
-              options={options}
+              options={options.sort((a, b) => a.label.localeCompare(b.label))}
               onChange={(value, actionMeta) => {
                 onChange(value, actionMeta);
                 setIsSearchable(false);
@@ -207,6 +205,7 @@ const SelectInput = ({
               placeholder={placeholder}
               styles={customStyles}
               filterOption={customFilterOption}
+              hideSelectedOptions={true}
               isSearchable={!isSearchable && !isDownIconClicked}
               onMenuClose={() => {
                 setIsSearchable(false);
