@@ -44,6 +44,7 @@ const ProductExpenses = () => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

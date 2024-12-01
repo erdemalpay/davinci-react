@@ -62,6 +62,7 @@ const AllExpenses = () => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

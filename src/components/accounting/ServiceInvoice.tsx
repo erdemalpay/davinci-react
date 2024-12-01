@@ -72,6 +72,7 @@ const ServiceInvoice = () => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

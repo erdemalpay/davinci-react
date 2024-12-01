@@ -47,6 +47,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

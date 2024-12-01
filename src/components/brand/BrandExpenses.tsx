@@ -43,6 +43,7 @@ const BrandExpenses = () => {
       vendor: "",
       brand: brandId,
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

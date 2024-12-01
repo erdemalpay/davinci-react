@@ -44,6 +44,7 @@ const VendorExpenses = () => {
       vendor: vendorId,
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

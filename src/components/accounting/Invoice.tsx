@@ -77,6 +77,7 @@ const Invoice = () => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "",
       location: "",
       date: "",
       before: "",

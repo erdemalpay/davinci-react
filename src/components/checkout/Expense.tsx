@@ -64,6 +64,7 @@ const Expenses = () => {
       vendor: "",
       brand: "",
       expenseType: "",
+      paymentMethod: "cash",
       location: "",
       date: "",
       before: "",
