@@ -437,7 +437,6 @@ const CheckoutControlPage = () => {
     closeFilters: () => setShowFilters(false),
   };
   useEffect(() => {
-    console.log(invoicesPayload, checkoutControls);
     setRows(arrangedAllRows);
     setTableKey((prev) => prev + 1);
   }, [
