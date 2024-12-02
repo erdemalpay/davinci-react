@@ -43,6 +43,7 @@ interface SelectInputProps {
   isMultiple?: boolean;
   requiredField?: boolean;
   isAutoFill?: boolean;
+  isOnClearActive?: boolean;
 }
 
 const normalizeText = (text: string) => {
@@ -75,6 +76,7 @@ const SelectInput = ({
   isMultiple,
   placeholder,
   onClear,
+  isOnClearActive = true,
   isAutoFill = true,
   requiredField = false,
 }: SelectInputProps) => {
@@ -243,7 +245,7 @@ const SelectInput = ({
             />
           )}
         </div>
-        {!isMultiple && value && onClear && (
+        {!isMultiple && isOnClearActive && value && onClear && (
           <button
             onClick={onClear}
             className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"

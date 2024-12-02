@@ -88,7 +88,7 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Checkout}/income`],
   },
   {
-    event: " checkoutControlChanged",
+    event: "checkoutControlChanged",
     invalidateKeys: [`${Paths.Checkout}/checkout-control`],
   },
   {

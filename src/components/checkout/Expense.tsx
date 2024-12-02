@@ -614,7 +614,7 @@ const Expenses = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           ...allExpenseForm,
-          location: selectedLocationId === 1 ? "bahceli" : "neorama",
+          location: selectedLocationId,
           paymentMethod:
             allExpenseForm.paymentMethod === NOTPAID
               ? ""

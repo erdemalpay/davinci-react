@@ -27,7 +27,7 @@ export function useGetAccountProductExpenses(product: string) {
   return useGetList<AccountExpense>(
     `${url}?product=${product}`,
     [url, product],
-    false
+    true
   );
 }
 
@@ -39,6 +39,16 @@ export function useGetAccountExpenses(
   return useGet<AccountExpensePayload>(
     `${Paths.Accounting}/expenses?page=${page}&limit=${limit}&product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`,
     [baseUrl, page, limit, filterPanelElements],
-    false
+    true
+  );
+}
+
+export function useGetAccountExpensesWithoutPagination(
+  filterPanelElements: FormElementsState
+) {
+  return useGet<AccountExpense[]>(
+    `${Paths.Accounting}/expenses-without-pagination?product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`,
+    [baseUrl, filterPanelElements],
+    true
   );
 }

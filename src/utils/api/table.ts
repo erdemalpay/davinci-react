@@ -210,7 +210,8 @@ export function useGetPersonalTableCreateData() {
       `${Paths.Tables}/create_count`,
       filterPanelFormElements?.after,
       filterPanelFormElements?.before,
-    ]
+    ],
+    true
   );
 }
 export function useGetTables() {

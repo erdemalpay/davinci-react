@@ -53,16 +53,6 @@ const Income = () => {
   if (!users || !locations || !incomes) {
     return <></>;
   }
-  const getCollectionLocationIdAsString = (collection: number) => {
-    switch (collection) {
-      case 1:
-        return "bahceli";
-      case 2:
-        return "neorama";
-      default:
-        return "bahceli";
-    }
-  };
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =

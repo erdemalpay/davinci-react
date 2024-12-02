@@ -432,6 +432,7 @@ export function useGetPersonalGameplayCreateData() {
       `${{ BASE_URL_GAMEPLAYS }}/create_count`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
-    ]
+    ],
+    true
   );
 }

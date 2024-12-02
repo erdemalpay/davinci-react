@@ -489,6 +489,7 @@ const GenericAddEditPanel = <T,>({
                           isMultiple={input.isMultiple ?? false}
                           requiredField={input.required}
                           onChange={handleChangeForSelect(input.formKey)}
+                          isOnClearActive={input?.isOnClearActive ?? true}
                           onClear={() => {
                             handleInputClear(input);
                           }}

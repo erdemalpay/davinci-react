@@ -152,7 +152,7 @@ const Cashout = () => {
         inputs={inputs}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
-          location: selectedLocationId === 1 ? "bahceli" : "neorama",
+          location: selectedLocationId,
         }}
         formKeys={formKeys}
         submitItem={createCheckoutCashout as any}

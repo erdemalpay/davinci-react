@@ -192,6 +192,7 @@ const FilterPanel = <T,>({
                 placeholder={input.placeholder ?? ""}
                 isMultiple={input.isMultiple ?? false}
                 onChange={handleChangeForSelect(input.formKey)}
+                isOnClearActive={input?.isOnClearActive ?? true}
                 onClear={() => {
                   isApplyButtonActive
                     ? setTempFormElements((prev) => ({

@@ -51,7 +51,6 @@ import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
-import { getStockLocation } from "../utils/getStockLocation";
 import { QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 const Tables = () => {
@@ -746,9 +745,7 @@ const Tables = () => {
           close={() => setIsConsumptModalOpen(false)}
           inputs={consumptInputs}
           constantValues={{
-            location: selectedLocationId
-              ? getStockLocation(selectedLocationId)
-              : "",
+            location: selectedLocationId,
           }}
           isOpen={isConsumptModalOpen}
           formKeys={consumptFormKeys}

@@ -3,7 +3,6 @@ import { useLocationContext } from "../../context/Location.context";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
-import { getStockLocation } from "../../utils/getStockLocation";
 import { QuantityInput, StockLocationInput } from "../../utils/panelInputs";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -41,9 +40,7 @@ const EnterConsumption = () => {
     <GenericAddComponent
       inputs={consumptInputs}
       constantValues={{
-        location: selectedLocationId
-          ? getStockLocation(selectedLocationId)
-          : "",
+        location: selectedLocationId,
       }}
       header={t("Enter Product Consumption")}
       formKeys={consumptFormKeys}
