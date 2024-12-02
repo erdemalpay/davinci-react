@@ -133,7 +133,7 @@ const Cashout = () => {
       formKey: "description",
       label: t("Description"),
       placeholder: t("Description"),
-      required: false,
+      required: true,
     },
   ];
   const formKeys = [
