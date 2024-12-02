@@ -413,14 +413,21 @@ export function useCreateOrderForDivideMutation() {
     },
   });
 }
-export function useGetCategorySummary(category: number, location?: number) {
+export function useGetCategorySummary(
+  category?: number,
+  location?: number,
+  upperCategory?: number
+) {
   let url = `${Paths.Order}/category_summary?category=${category}`;
   if (location) {
     url = url.concat(`&location=${location}`);
   }
+  if (upperCategory) {
+    url = url.concat(`&upperCategory=${upperCategory}`);
+  }
   return useGetList<{ month: string; total: number }>(
     url,
-    [url, category, location],
-    false
+    [url, category, location, upperCategory],
+    true
   );
 }

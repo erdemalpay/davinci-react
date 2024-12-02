@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
-import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
 import CategorySummaryChart from "../components/orderSummary/CategorySummaryChart";
@@ -10,30 +9,37 @@ import SelectInput from "../components/panelComponents/FormElements/SelectInput"
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
-import { MenuCategory, TURKISHLIRA } from "../types";
+import { MenuCategory, TURKISHLIRA, UpperCategory } from "../types";
 import { useGetSummaryStockTotal } from "../utils/api/account/stock";
 import { useGetLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
+import { useGetUpperCategories } from "../utils/api/menu/upperCategory";
 import { useGetSummaryCollectionTotal } from "../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../utils/format";
 import { formatPrice } from "../utils/formatPrice";
-
 type OptionType = { value: number; label: string };
-
 const OrdersSummary = () => {
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
   const locations = useGetLocations();
   const stockData = useGetSummaryStockTotal();
   const categories = useGetCategories();
-  if (!categories) return <></>;
-  const [selectedCategory, setSelectedCategory] = useState<MenuCategory>(
-    categories[0]
-  );
+  const upperCategories = useGetUpperCategories();
+  if (!categories || !upperCategories) return <></>;
+  const [selectedCategory, setSelectedCategory] =
+    useState<MenuCategory | null>();
+  const [selectedUpperCategory, setSelectedUpperCategory] =
+    useState<UpperCategory | null>(upperCategories[0]);
   const categoryOptions = categories?.map((category) => {
     return {
       value: String(category._id),
       label: category.name,
+    };
+  });
+  const upperCategoryOptions = upperCategories?.map((upperCategory) => {
+    return {
+      value: String(upperCategory._id),
+      label: upperCategory.name,
     };
   });
   const { filterSummaryFormElements, setFilterSummaryFormElements } =
@@ -76,7 +82,6 @@ const OrdersSummary = () => {
       isDatePicker: true,
     },
   ];
-
   const handleChange = (key: string) => (value: string) => {
     setFilterSummaryFormElements((prev: any) => ({ ...prev, [key]: value }));
   };
@@ -115,7 +120,6 @@ const OrdersSummary = () => {
       ? `${afterDate} - ${beforeDate}`
       : `${afterDate} - ${currentDate}`;
   }
-
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
   }, [
@@ -206,35 +210,82 @@ const OrdersSummary = () => {
           {/* category summary chart */}
           <div className="w-full">
             <div className="w-full flex flex-col gap-4">
-              <div className="sm:w-1/4 px-4">
-                <CommonSelectInput
-                  label={t("Category")}
-                  options={categoryOptions}
-                  value={
-                    selectedCategory
-                      ? {
-                          value: String(selectedCategory._id),
-                          label: selectedCategory.name,
-                        }
-                      : null
-                  }
-                  onChange={(selectedOption) => {
-                    if (categories) {
-                      setSelectedCategory(
-                        categories?.find(
-                          (category) =>
-                            category._id === Number(selectedOption?.value)
-                        ) ?? categories[0]
-                      );
+              {/* selections */}
+              <div className="flex flex-col sm:flex-row gap-2 ">
+                {/* upper category  selection*/}
+                <div className="sm:w-1/4 px-4 ">
+                  <SelectInput
+                    label={t("Upper Category")}
+                    options={upperCategoryOptions}
+                    isMultiple={false}
+                    value={
+                      selectedUpperCategory
+                        ? {
+                            value: String(selectedUpperCategory._id),
+                            label: selectedUpperCategory.name,
+                          }
+                        : null
                     }
-                  }}
-                  placeholder={t("Select a category")}
-                />
+                    isOnClearActive={false}
+                    onChange={(selectedOption) => {
+                      if (categories) {
+                        setSelectedUpperCategory(
+                          upperCategories?.find(
+                            (category) =>
+                              category._id ===
+                              Number((selectedOption as OptionType)?.value)
+                          ) ?? upperCategories[0]
+                        );
+                      }
+                      setSelectedCategory(null);
+                    }}
+                    placeholder={t("Select a upper category")}
+                  />
+                </div>
+                {/* category selection */}
+                <div className="sm:w-1/4 px-4">
+                  <SelectInput
+                    label={t("Category")}
+                    options={categoryOptions}
+                    isMultiple={false}
+                    value={
+                      selectedCategory
+                        ? {
+                            value: String(selectedCategory._id),
+                            label: selectedCategory.name,
+                          }
+                        : null
+                    }
+                    isOnClearActive={false}
+                    onChange={(selectedOption) => {
+                      if (categories) {
+                        setSelectedCategory(
+                          categories?.find(
+                            (category) =>
+                              category._id ===
+                              Number((selectedOption as OptionType)?.value)
+                          ) ?? categories[0]
+                        );
+                        setSelectedUpperCategory(null);
+                      }
+                    }}
+                    placeholder={t("Select a category")}
+                  />
+                </div>
               </div>
-              <CategorySummaryChart
-                location={filterSummaryFormElements.location}
-                category={selectedCategory}
-              />
+
+              {selectedCategory && (
+                <CategorySummaryChart
+                  location={filterSummaryFormElements.location}
+                  category={selectedCategory}
+                />
+              )}
+              {selectedUpperCategory && (
+                <CategorySummaryChart
+                  location={filterSummaryFormElements.location}
+                  upperCategory={selectedUpperCategory}
+                />
+              )}
             </div>
           </div>
         </div>
