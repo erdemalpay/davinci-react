@@ -572,5 +572,6 @@
   "Select a upper category": "Select a upper category",
   "Select a category": "Select a category",
   "Discounted orders cannot be increased.": "Discounted orders cannot be increased.",
+  "The status of an inactive count cannot be changed.": "The status of an inactive count cannot be changed.",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

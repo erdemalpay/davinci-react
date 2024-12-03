@@ -572,5 +572,6 @@
   "Select a upper category": "Bir üst kategori seçin",
   "Select a category": "Bir kategori seçin",
   "Discounted orders cannot be increased.": "İndirimli siparişler artırılamaz.",
+  "The status of an inactive count cannot be changed.": "Aktif olmayan sayımın durumu değiştirilemez.",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

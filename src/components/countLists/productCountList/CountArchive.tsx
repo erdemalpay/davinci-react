@@ -17,6 +17,7 @@ import { formatAsLocalDate } from "../../../utils/format";
 import { getItem } from "../../../utils/getItem";
 import { StockLocationInput } from "../../../utils/panelInputs";
 import { passesFilter } from "../../../utils/passesFilter";
+import { CheckSwitch } from "../../common/CheckSwitch";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
@@ -32,7 +33,7 @@ const CountArchive = () => {
   const counts = useGetAccountCounts();
   const countLists = useGetAccountCountLists();
   const users = useGetUsers();
-  const { deleteAccountCount } = useAccountCountMutations();
+  const { deleteAccountCount, updateAccountCount } = useAccountCountMutations();
   const [rowToAction, setRowToAction] = useState<Partial<AccountCount>>();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -44,6 +45,12 @@ const CountArchive = () => {
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
+  const isDisabledCondition = !(
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
+      user.role._id
+    )
+  );
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       createdBy: "",
@@ -54,15 +61,7 @@ const CountArchive = () => {
     });
   const allRows = counts
     .filter((count) => {
-      if (
-        count?.user === user?._id ||
-        (user &&
-          [
-            RoleEnum.MANAGER,
-            RoleEnum.GAMEMANAGER,
-            RoleEnum.CATERINGMANAGER,
-          ].includes(user.role._id))
-      ) {
+      if (count?.user === user?._id || !isDisabledCondition) {
         return count;
       }
     })
@@ -110,12 +109,7 @@ const CountArchive = () => {
     { key: t("User"), isSortable: true },
     { key: t("Status"), isSortable: false },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
-  ) {
+  if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
   const rowKeys = [
@@ -266,13 +260,35 @@ const CountArchive = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
+    },
+    {
+      name: t("Toggle Active"),
+      isDisabled: isDisabledCondition,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2">
+          <CheckSwitch
+            checked={row.isCompleted}
+            onChange={() => {
+              // if (!row.isCompleted) {
+              //   toast.error(
+              //     t("The status of an inactive count cannot be changed.")
+              //   );
+              //   return;
+              // }
+              updateAccountCount({
+                id: row._id,
+                updates: {
+                  isCompleted: !row.isCompleted,
+                },
+              });
+            }}
+          ></CheckSwitch>
+        </div>
+      ),
     },
   ];
   useEffect(() => {
@@ -304,15 +320,7 @@ const CountArchive = () => {
           filterPanel={filterPanel}
           filters={filters}
           actions={actions}
-          isActionsActive={
-            user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
-              : false
-          }
+          isActionsActive={!isDisabledCondition}
         />
       </div>
     </>
