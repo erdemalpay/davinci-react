@@ -574,5 +574,7 @@
   "Discounted orders cannot be increased.": "İndirimli siparişler artırılamaz.",
   "The status of an inactive count cannot be changed.": "Aktif olmayan sayımın durumu değiştirilemez.",
   "Cafe ID": "Cafe ID",
+  "Complete Count": "Sayımı Tamamla",
+  "Are you sure you want to complete the count?": "Sayımı tamamlamak istediğinizden emin misiniz?",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

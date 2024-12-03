@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -38,6 +39,8 @@ const Count = () => {
   const { updateAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -313,6 +316,65 @@ const Count = () => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
+  const completeCount = () => {
+    if (!currentCount && !countListProducts) {
+      return;
+    }
+    if (
+      currentCount?.products?.length !== countListProducts?.length &&
+      currentCount?.products &&
+      countListProducts
+    ) {
+      let newProducts = currentCount?.products;
+      for (const currentProductItem of countListProducts) {
+        if (
+          !currentCount.products.find(
+            (clp) => clp.product === currentProductItem.product
+          )
+        ) {
+          const productStock = stocks?.find(
+            (s) =>
+              s?.product === currentProductItem.product &&
+              s?.location === Number(location)
+          );
+          newProducts = [
+            ...(newProducts?.filter(
+              (p) => p.product !== currentProductItem.product
+            ) || []),
+            {
+              product: currentProductItem.product,
+              countQuantity: 0,
+              stockQuantity: productStock?.quantity || 0,
+            },
+          ];
+        }
+      }
+
+      updateAccountCount({
+        id: currentCount?._id,
+        updates: {
+          products: newProducts,
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+      });
+    } else if (currentCount) {
+      updateAccountCount({
+        id: currentCount?._id,
+        updates: {
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+      });
+    }
+
+    setCountListActiveTab(countLists.length);
+    setCurrentPage(1);
+    // setRowsPerPage(RowPerPageEnum.FIRST);
+    setSearchQuery("");
+    setSortConfigKey(null);
+    navigate(Routes.CountLists);
+  };
   useEffect(() => {
     setRows(
       countLists
@@ -372,68 +434,24 @@ const Count = () => {
           <button
             className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
             onClick={() => {
-              if (!currentCount && !countListProducts) {
-                return;
-              }
-              if (
-                currentCount?.products?.length !== countListProducts?.length &&
-                currentCount?.products &&
-                countListProducts
-              ) {
-                let newProducts = currentCount?.products;
-                for (const currentProductItem of countListProducts) {
-                  if (
-                    !currentCount.products.find(
-                      (clp) => clp.product === currentProductItem.product
-                    )
-                  ) {
-                    const productStock = stocks?.find(
-                      (s) =>
-                        s?.product === currentProductItem.product &&
-                        s?.location === Number(location)
-                    );
-                    newProducts = [
-                      ...(newProducts?.filter(
-                        (p) => p.product !== currentProductItem.product
-                      ) || []),
-                      {
-                        product: currentProductItem.product,
-                        countQuantity: 0,
-                        stockQuantity: productStock?.quantity || 0,
-                      },
-                    ];
-                  }
-                }
-
-                updateAccountCount({
-                  id: currentCount?._id,
-                  updates: {
-                    products: newProducts,
-                    isCompleted: true,
-                    completedAt: new Date(),
-                  },
-                });
-              } else if (currentCount) {
-                updateAccountCount({
-                  id: currentCount?._id,
-                  updates: {
-                    isCompleted: true,
-                    completedAt: new Date(),
-                  },
-                });
-              }
-
-              setCountListActiveTab(countLists.length);
-              setCurrentPage(1);
-              // setRowsPerPage(RowPerPageEnum.FIRST);
-              setSearchQuery("");
-              setSortConfigKey(null);
-              navigate(Routes.CountLists);
+              setIsConfirmationDialogOpen(true);
             }}
           >
             <H5> {t("Complete")}</H5>
           </button>
         </div>
+        {isConfirmationDialogOpen && (
+          <ConfirmationDialog
+            isOpen={isConfirmationDialogOpen}
+            close={() => setIsConfirmationDialogOpen(false)}
+            confirm={() => {
+              completeCount();
+              setIsConfirmationDialogOpen(false);
+            }}
+            title={t("Complete Count")}
+            text={`${t("Are you sure you want to complete the count?")}`}
+          />
+        )}
       </div>
     </>
   );
