@@ -128,7 +128,11 @@ const OrdersSummary = () => {
     locations,
     stockData,
     categories,
+    upperCategories,
   ]);
+  useEffect(() => {
+    setSelectedUpperCategory(upperCategories[0]);
+  }, [upperCategories]);
   return (
     <>
       <Header showLocationSelector={false} />
