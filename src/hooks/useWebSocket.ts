@@ -101,7 +101,10 @@ export function useWebSocket() {
     socket.on("createMultipleOrder", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
-      if (data?.table?.type === TableTypes.TAKEOUT) {
+      if (
+        data?.table?.type === TableTypes.TAKEOUT &&
+        data?.socketUser._id === user?._id
+      ) {
         setIsTakeAwayPaymentModalOpen(true);
         setTakeawayTableId(data.table._id);
         setOrderCreateBulk([]);
