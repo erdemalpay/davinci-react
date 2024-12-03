@@ -99,6 +99,13 @@ export default function Users() {
       required: false,
     },
     {
+      type: InputTypes.TEXT,
+      formKey: "cafeId",
+      label: t("Cafe ID"),
+      placeholder: t("Full Name"),
+      required: false,
+    },
+    {
       type: InputTypes.SELECT,
       formKey: "role",
       label: t("Role"),
@@ -123,14 +130,17 @@ export default function Users() {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "fullName", type: FormKeyTypeEnum.STRING },
+    { key: "cafeId", type: FormKeyTypeEnum.STRING },
     { key: "role", type: FormKeyTypeEnum.STRING },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
     { key: "", isSortable: false },
     { key: "ID", isSortable: true },
+    { key: t("Cafe ID"), isSortable: true },
     { key: t("Display Name"), isSortable: true },
     { key: t("Full Name"), isSortable: true },
+
     { key: t("Role"), isSortable: true },
     { key: t("Action"), isSortable: false },
   ];
@@ -154,12 +164,9 @@ export default function Users() {
         </p>
       ),
     },
-    {
-      key: "name",
-    },
-    {
-      key: "fullName",
-    },
+    { key: "cafeId" },
+    { key: "name" },
+    { key: "fullName" },
     {
       key: "role",
       isOptional: true,
