@@ -131,7 +131,9 @@ const OrdersSummary = () => {
     upperCategories,
   ]);
   useEffect(() => {
-    setSelectedUpperCategory(upperCategories[0]);
+    if (!selectedCategory) {
+      setSelectedUpperCategory(upperCategories[0]);
+    }
   }, [upperCategories]);
   return (
     <>

@@ -14,8 +14,9 @@ import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const UpperCategories = () => {
   const { t } = useTranslation();
@@ -31,11 +32,15 @@ const UpperCategories = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const [isCategoryDeleteModalOpen, setIsCategoryDeleteModalOpen] =
+    useState(false);
+  const [isCategoryEditModalOpen, setIsCategoryEditModalOpen] = useState(false);
   const initialForm = {
     category: 0,
     percentage: 100,
   };
   const [form, setForm] = useState(initialForm);
+  const [editCategoryForm, setEditCategoryForm] = useState({ percentage: 0 });
   const { createUpperCategory, deleteUpperCategory, updateUpperCategory } =
     useUpperCategoryMutations();
   const collapsibleInputs = [
@@ -72,6 +77,18 @@ const UpperCategories = () => {
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "percentage", type: FormKeyTypeEnum.NUMBER },
   ];
+  const editCategoryInputs = [
+    {
+      type: InputTypes.NUMBER,
+      formKey: "percentage",
+      label: t("Percentage"),
+      placeholder: t("Percentage"),
+      required: true,
+    },
+  ];
+  const editCategoryFormKeys = [
+    { key: "percentage", type: FormKeyTypeEnum.NUMBER },
+  ];
   const allRows = upperCategories?.map((upperCategory) => {
     return {
       ...upperCategory,
@@ -80,6 +97,7 @@ const UpperCategories = () => {
         collapsibleColumns: [
           { key: t("Category"), isSortable: true },
           { key: t("Percentage"), isSortable: true },
+          { key: t("Actions"), isSortable: false, className: "text-center" },
         ],
         collapsibleRows: upperCategory?.categoryGroup?.map((categoryGroup) => {
           return {
@@ -111,7 +129,7 @@ const UpperCategories = () => {
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const addCollapsible = {
-    name: "+",
+    name: t(`Add Category`),
     isModal: true,
     setRow: setRowToAction,
     modal: rowToAction ? (
@@ -217,7 +235,7 @@ const UpperCategories = () => {
           inputs={inputs}
           formKeys={formKeys}
           submitItem={updateUpperCategory as any}
-          isEditMode={true}
+          isEditMode={false}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
@@ -225,6 +243,83 @@ const UpperCategories = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+      isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+  ];
+  const collapsibleActions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      node: (row: any) => {
+        return (
+          <div
+            className="text-red-500 cursor-pointer text-xl "
+            onClick={() => {
+              updateUpperCategory({
+                id: row?._id,
+                updates: {
+                  categoryGroup: row?.categoryGroup.filter(
+                    (category: any) => category.category !== row?.category
+                  ),
+                },
+              });
+            }}
+          >
+            <ButtonTooltip content={t("Delete")}>
+              <HiOutlineTrash />
+            </ButtonTooltip>
+          </div>
+        );
+      },
+      className: "text-red-500 cursor-pointer text-2xl",
+      isModal: false,
+      isModalOpen: isCategoryDeleteModalOpen,
+      setIsModal: setIsCategoryDeleteModalOpen,
+      isPath: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isCategoryEditModalOpen}
+          setForm={setEditCategoryForm}
+          close={() => setIsCategoryEditModalOpen(false)}
+          inputs={editCategoryInputs}
+          formKeys={editCategoryFormKeys}
+          submitItem={updateUpperCategory as any}
+          constantValues={{ percentage: (rowToAction as any).percentage }}
+          isEditMode={true}
+          submitFunction={() => {
+            updateUpperCategory({
+              id: rowToAction?._id,
+              updates: {
+                categoryGroup: rowToAction?.categoryGroup.map((category: any) =>
+                  category.category === (rowToAction as any)?.category
+                    ? {
+                        category: category.category,
+                        percentage: editCategoryForm.percentage,
+                      }
+                    : category
+                ),
+              },
+            });
+          }}
+          topClassName="flex flex-col gap-2 "
+        />
+      ) : null,
+      isModalOpen: isCategoryEditModalOpen,
+      setIsModal: setIsCategoryEditModalOpen,
       isPath: false,
       isDisabled: user
         ? ![
@@ -253,6 +348,7 @@ const UpperCategories = () => {
           isCollapsibleCheckActive={false}
           isCollapsible={true}
           addCollapsible={addCollapsible}
+          collapsibleActions={collapsibleActions}
           isActionsActive={
             user
               ? [
