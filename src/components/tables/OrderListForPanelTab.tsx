@@ -94,28 +94,49 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
                     toast.error(t("Order quantity cannot be less than 1"));
                     return;
                   }
-                  if (order.paidQuantity > 0) {
+                  if (
+                    order.paidQuantity > 0 &&
+                    !(
+                      order.discount &&
+                      ((order?.discountAmount &&
+                        order?.discountAmount >= order.unitPrice) ||
+                        (order?.discountPercentage &&
+                          order?.discountPercentage >= 100))
+                    )
+                  ) {
                     toast.error(t("Paid orders cannot be changed"));
                     return;
+                  }
+                  let updates = {
+                    quantity: order.quantity - 1,
+                    paidQuantity: order.paidQuantity,
+                  };
+                  if (
+                    order.discount &&
+                    ((order?.discountAmount &&
+                      order?.discountAmount >= order.unitPrice) ||
+                      (order?.discountPercentage &&
+                        order?.discountPercentage >= 100))
+                  ) {
+                    updates = {
+                      quantity: order.quantity - 1,
+                      paidQuantity: order.paidQuantity - 1,
+                    };
                   }
                   if (
                     ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
                       order.status as OrderStatus
-                    ) &&
-                    !order.discount
+                    )
                   ) {
                     updateOrder({
                       id: order._id,
-                      updates: {
-                        quantity: order.quantity - 1,
-                      },
+                      updates: updates,
                     });
                   }
                   if (
                     [OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
                       order.status as OrderStatus
-                    ) &&
-                    !order.discount
+                    )
                   ) {
                     createOrder({
                       ...order,
@@ -125,9 +146,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
                     });
                     updateOrder({
                       id: order._id,
-                      updates: {
-                        quantity: order.quantity - 1,
-                      },
+                      updates: updates,
                     });
                   }
                 }}
@@ -141,6 +160,10 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
               <GoPlusCircle
                 className="w-5 h-5 flex-shrink-0  text-green-500  hover:text-green-800 cursor-pointer focus:outline-none"
                 onClick={() => {
+                  if (order.discount) {
+                    toast.error(t("Discounted orders cannot be increased."));
+                    return;
+                  }
                   if (
                     ![OrderStatus.READYTOSERVE, OrderStatus.SERVED].includes(
                       order.status as OrderStatus
@@ -178,7 +201,12 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
                   </h5>
                 </div>
               )}
-              {order.paidQuantity === 0 && (
+              {(order.paidQuantity === 0 ||
+                (order.discount &&
+                  ((order?.discountAmount &&
+                    order?.discountAmount >= order.unitPrice) ||
+                    (order?.discountPercentage &&
+                      order?.discountPercentage >= 100)))) && (
                 <HiOutlineTrash
                   className="text-red-400 hover:text-red-700 cursor-pointer text-lg px-[0.5px]"
                   onClick={() => handleCancel(order)}
