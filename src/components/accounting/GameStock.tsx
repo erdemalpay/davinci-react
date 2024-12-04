@@ -8,20 +8,24 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
+  BrandInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
+  VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -42,6 +46,8 @@ const GameStock = () => {
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
+  const vendors = useGetAccountVendors();
+  const brands = useGetAccountBrands();
   const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -409,12 +415,17 @@ const GameStock = () => {
         getItem(stock?.product, products)?.expenseType?.includes("oys")
       )
       ?.filter((stock) => {
+        const rowProduct = getItem(stock?.product, products);
         return (
           passesFilter(filterPanelFormElements?.location, stock?.location) &&
           (!filterPanelFormElements?.product?.length ||
             filterPanelFormElements?.product?.some((panelProduct: string) =>
               passesFilter(panelProduct, stock?.product)
-            ))
+            )) &&
+          (!filterPanelFormElements?.vendor ||
+            rowProduct?.vendor?.includes(filterPanelFormElements?.vendor)) &&
+          (!filterPanelFormElements?.brand ||
+            rowProduct?.brand?.includes(filterPanelFormElements?.brand))
         );
       })
       ?.reduce((acc: any, stock) => {
@@ -515,6 +526,8 @@ const GameStock = () => {
       required: true,
       isMultiple: true,
     }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
     StockLocationInput({ locations: locations }),
   ];
   const filterPanel = {

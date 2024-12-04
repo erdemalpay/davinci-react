@@ -4,14 +4,20 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { stockHistoryStatuses } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
-import { StockLocationInput } from "../../utils/panelInputs";
+import {
+  BrandInput,
+  StockLocationInput,
+  VendorInput,
+} from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -23,9 +29,7 @@ const ProductStockHistory = () => {
   const { t } = useTranslation();
   const { productId } = useParams();
   const products = useGetAccountProducts();
-  const [currentPage, setCurrentPage] = useState(1);
-  const { rowsPerPage } = useGeneralContext();
-  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const selectedProduct = products?.find(
     (product) => product._id === productId
   );
@@ -39,12 +43,16 @@ const ProductStockHistory = () => {
       after: "",
       sort: "",
       asc: 1,
+      vendor: "",
+      brand: "",
     });
   const users = useGetUsers();
+  const vendors = useGetAccountVendors();
+  const brands = useGetAccountBrands();
   if (!selectedProduct) return <></>;
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
-    usedRowsPerPage,
+    rowsPerPage,
     filterPanelFormElements
   );
   const [tableKey, setTableKey] = useState(0);
@@ -75,6 +83,8 @@ const ProductStockHistory = () => {
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     StockLocationInput({ locations: locations }),
+    VendorInput({ vendors: vendors }),
+    BrandInput({ brands: brands }),
     {
       type: InputTypes.SELECT,
       formKey: "status",
@@ -214,11 +224,7 @@ const ProductStockHistory = () => {
   };
   const pagination = stockHistoriesPayload
     ? {
-        currentPage: stockHistoriesPayload.page,
         totalPages: stockHistoriesPayload.totalPages,
-        setCurrentPage: setCurrentPage,
-        rowsPerPage: usedRowsPerPage,
-        setRowsPerPage: setUsedRowsPerPage,
         totalRows: stockHistoriesPayload.totalNumber,
       }
     : null;
@@ -235,7 +241,7 @@ const ProductStockHistory = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [stockHistoriesPayload, users, products, locations]);
+  }, [stockHistoriesPayload, users, products, locations, brands, vendors]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

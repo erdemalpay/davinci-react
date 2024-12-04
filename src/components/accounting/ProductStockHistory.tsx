@@ -3,27 +3,32 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { FormElementsState, stockHistoryStatuses } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   StockHistoryPayload,
   useGetAccountProductStockHistorys,
 } from "../../utils/api/account/productStockHistory";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
-import { ProductInput, StockLocationInput } from "../../utils/panelInputs";
+import {
+  BrandInput,
+  ProductInput,
+  StockLocationInput,
+  VendorInput,
+} from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
 const ProductStockHistory = () => {
   const { t } = useTranslation();
-  const [currentPage, setCurrentPage] = useState(1);
-  const { rowsPerPage } = useGeneralContext();
-  const [usedRowsPerPage, setUsedRowsPerPage] = useState(rowsPerPage);
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -34,12 +39,16 @@ const ProductStockHistory = () => {
       after: "",
       sort: "",
       asc: 1,
+      vendor: "",
+      brand: "",
     });
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
-    usedRowsPerPage,
+    rowsPerPage,
     filterPanelFormElements
   );
+  const vendors = useGetAccountVendors();
+  const brands = useGetAccountBrands();
   stockHistoriesPayload as StockHistoryPayload;
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
@@ -90,7 +99,8 @@ const ProductStockHistory = () => {
       required: true,
       isMultiple: true,
     }),
-
+    VendorInput({ vendors: vendors }),
+    BrandInput({ brands: brands }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -237,11 +247,7 @@ const ProductStockHistory = () => {
   ];
   const pagination = stockHistoriesPayload
     ? {
-        currentPage: stockHistoriesPayload.page,
         totalPages: stockHistoriesPayload.totalPages,
-        setCurrentPage: setCurrentPage,
-        rowsPerPage: usedRowsPerPage,
-        setRowsPerPage: setUsedRowsPerPage,
         totalRows: stockHistoriesPayload.totalNumber,
       }
     : null;
@@ -259,7 +265,15 @@ const ProductStockHistory = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [stockHistoriesPayload, users, products, locations, expenseTypes]);
+  }, [
+    stockHistoriesPayload,
+    users,
+    products,
+    locations,
+    expenseTypes,
+    vendors,
+    brands,
+  ]);
 
   return (
     <>

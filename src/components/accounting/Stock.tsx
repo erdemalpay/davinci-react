@@ -14,6 +14,7 @@ import {
   RoleEnum,
   StockHistoryStatusEnum,
 } from "../../types";
+import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -21,15 +22,18 @@ import {
   useGetFilteredStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
+  BrandInput,
   ProductInput,
   QuantityInput,
   StockLocationInput,
+  VendorInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -49,6 +53,8 @@ const Stock = () => {
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
   const locations = useGetStockLocations();
+  const vendors = useGetAccountVendors();
+  const brands = useGetAccountBrands();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -82,6 +88,8 @@ const Stock = () => {
     quantity: 0,
     status: "",
     expenseType: "",
+    vendor: "",
+    brand: "",
   });
   const [stockTransferForm, setStockTransferForm] = useState({
     location: "",
@@ -374,6 +382,123 @@ const Stock = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const outsideSearch = () => {
+    return (
+      <div className="flex flex-row relative min-w-32">
+        <input
+          type="text"
+          value={temporarySearch}
+          onChange={(e) => {
+            setTemporarySearch(e.target.value);
+            if (e.target.value === "") {
+              setSearchQuery(e.target.value);
+            }
+          }}
+          autoFocus={true}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSearchQuery(temporarySearch);
+            }
+          }}
+          placeholder={t("Search")}
+          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
+        />
+        <CiSearch
+          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
+          onClick={() => {
+            setSearchQuery(temporarySearch);
+          }}
+        />
+      </div>
+    );
+  };
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "expenseType",
+      label: t("Expense Type"),
+      options: expenseTypes?.map((expenseType) => {
+        return {
+          value: expenseType._id,
+          label: expenseType.name,
+        };
+      }),
+      placeholder: t("Expense Type"),
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        if (value) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            expenseType: value,
+            product: [],
+          });
+        }
+      }, //invalidate keys did not work that is why i did it like this
+      required: true,
+    },
+    ProductInput({
+      products: !filterPanelFormElements?.expenseType
+        ? products
+        : products?.filter((product) =>
+            product?.expenseType?.includes(filterPanelFormElements.expenseType)
+          ),
+      required: true,
+      isMultiple: true,
+    }),
+    VendorInput({ vendors: vendors, required: true }),
+    BrandInput({ brands: brands, required: true }),
+    StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) => {
@@ -384,6 +509,10 @@ const Stock = () => {
             rowProduct?.expenseType.includes(
               filterPanelFormElements?.expenseType
             )) &&
+          (!filterPanelFormElements?.vendor ||
+            rowProduct?.vendor?.includes(filterPanelFormElements?.vendor)) &&
+          (!filterPanelFormElements?.brand ||
+            rowProduct?.brand?.includes(filterPanelFormElements?.brand)) &&
           (!filterPanelFormElements?.product?.length ||
             filterPanelFormElements?.product?.some((panelProduct: string) =>
               passesFilter(panelProduct, stock?.product)
@@ -424,7 +553,6 @@ const Stock = () => {
         }
         acc[productName].totalGroupPrice += totalPrice;
         acc[productName].totalQuantity += quantity;
-
         acc[productName].collapsible.collapsibleRows.push({
           stockId: stock?._id,
           stockProduct: stock?.product,
@@ -479,122 +607,9 @@ const Stock = () => {
     isEnableEdit,
     items,
     expenseTypes,
+    vendors,
+    brands,
   ]);
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes?.map((expenseType) => {
-        return {
-          value: expenseType._id,
-          label: expenseType.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        if (value) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            expenseType: value,
-            product: [],
-          });
-        }
-      }, //invalidate keys did not work that is why i did it like this
-      required: true,
-    },
-    ProductInput({
-      products: !filterPanelFormElements?.expenseType
-        ? products
-        : products?.filter((product) =>
-            product?.expenseType?.includes(filterPanelFormElements.expenseType)
-          ),
-      required: true,
-      isMultiple: true,
-    }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions?.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
-      required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
-      },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative min-w-32">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
   return (
     <>
       <div className="w-[95%] mx-auto ">
