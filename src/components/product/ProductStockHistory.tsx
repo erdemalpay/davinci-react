@@ -211,7 +211,6 @@ const ProductStockHistory = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
-    isApplyButtonActive: true,
   };
   const pagination = stockHistoriesPayload
     ? {

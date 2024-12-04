@@ -251,7 +251,6 @@ const ProductStockHistory = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
-    isApplyButtonActive: true,
   };
   useEffect(() => {
     setCurrentPage(1);
