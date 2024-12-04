@@ -128,6 +128,7 @@ const OrderContext = createContext<OrderContextType>({
     cancelledBy: "",
     deliveredBy: "",
     preparedBy: "",
+    role: [],
   },
   setFilterPanelFormElements: () => {},
   isTransferProductOpen: false,
@@ -187,6 +188,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
       cancelledBy: "",
       deliveredBy: "",
       preparedBy: "",
+      role: [],
     });
   const [filterSummaryFormElements, setFilterSummaryFormElements] =
     useState<FormElementsState>({

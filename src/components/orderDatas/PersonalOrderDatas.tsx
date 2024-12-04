@@ -2,13 +2,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { commonDateOptions, DateRangeKey, Order } from "../../types";
+import { commonDateOptions, DateRangeKey, Order, User } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -16,6 +17,7 @@ import { InputTypes } from "../panelComponents/shared/types";
 
 interface PersonalOrderData {
   user: string;
+  userInfo: User;
   createdByCount: number;
   createdByTableCount: number;
   preparedByCount: number;
@@ -63,6 +65,7 @@ const PersonalOrderDatas = () => {
   const personalOrderDatas = useGetPersonalOrderDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
+  const roles = useGetAllUserRoles();
   const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -71,7 +74,6 @@ const PersonalOrderDatas = () => {
   if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
     return null;
   }
-
   const allRows = personalOrderDatas.map((personalOrderData) => {
     const foundTableData = tableCreateDatas.find(
       (tableData) => tableData.createdBy === personalOrderData.user
@@ -79,10 +81,9 @@ const PersonalOrderDatas = () => {
     const foundGameplayData = gameplayDatas.find(
       (gameplayData) => gameplayData.mentor === personalOrderData.user
     );
-    console.log(foundGameplayData);
-    console.log(personalOrderData.user);
     return {
       ...personalOrderData,
+      userInfo: getItem(personalOrderData.user, users),
       tableCount: foundTableData?.tableCount || 0,
       gameplayCount: foundGameplayData?.gameplayCount || 0,
     };
@@ -106,8 +107,7 @@ const PersonalOrderDatas = () => {
     {
       key: "user",
       node: (row: PersonalOrderData) => {
-        const user = users.find((user) => user._id === row.user);
-        return user?.name;
+        return row?.userInfo?.name;
       },
     },
     { key: "createdByCount" },
@@ -122,6 +122,20 @@ const PersonalOrderDatas = () => {
     { key: "gameplayCount" },
   ];
   const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "role",
+      label: t("Role"),
+      options: roles.map((role) => {
+        return {
+          value: role._id,
+          label: role.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Role"),
+      required: true,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -198,16 +212,23 @@ const PersonalOrderDatas = () => {
     },
   ];
   useEffect(() => {
-    console.log(gameplayDatas);
-    setRows(allRows);
+    const filteredRows = allRows?.filter((row) => {
+      return (
+        filterPanelFormElements?.role?.length === 0 ||
+        filterPanelFormElements?.role?.includes(row?.userInfo?.role?._id)
+      );
+    });
+    setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [
     users,
-    filterPanelFormElements,
     personalOrderDatas,
     tableCreateDatas,
     gameplayDatas,
+    roles,
+    filterPanelFormElements,
   ]);
+
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
