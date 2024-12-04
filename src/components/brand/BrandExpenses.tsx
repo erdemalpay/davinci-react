@@ -22,6 +22,7 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -50,6 +51,7 @@ const BrandExpenses = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -339,6 +341,22 @@ const BrandExpenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -362,6 +380,7 @@ const BrandExpenses = () => {
         rowKeys={rowKeys}
         isActionsActive={false}
         columns={columns}
+        outsideSearch={outsideSearch}
         filters={filters}
         filterPanel={filterPanel}
         rows={rows ?? []}

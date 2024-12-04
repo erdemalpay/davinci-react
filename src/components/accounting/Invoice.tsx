@@ -50,11 +50,11 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -84,6 +84,7 @@ const Invoice = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -113,7 +114,6 @@ const Invoice = () => {
   const [rowToAction, setRowToAction] = useState<AccountExpense>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isTransferEdit, setIsTransferEdit] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
@@ -178,6 +178,10 @@ const Invoice = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      required: true,
+    }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -283,7 +287,7 @@ const Invoice = () => {
       required: true,
     }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods,
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
       required: true,
     }),
     {
@@ -816,6 +820,22 @@ const Invoice = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -840,6 +860,7 @@ const Invoice = () => {
           isActionsAtFront={isEnableEdit}
           actions={actions}
           filters={tableFilters}
+          outsideSearch={outsideSearch}
           isActionsActive={false} //this seems wrong but for actions to appear in the first column it should be like this
           columns={
             isEnableEdit || isTransferEdit

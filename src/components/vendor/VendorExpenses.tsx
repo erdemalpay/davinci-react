@@ -22,6 +22,7 @@ import {
   ProductInput,
   StockLocationInput,
 } from "../../utils/panelInputs";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -51,6 +52,7 @@ const VendorExpenses = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -65,7 +67,6 @@ const VendorExpenses = () => {
   const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const allRows = invoices?.map((invoice) => {
     return {
       ...invoice,
@@ -341,6 +342,22 @@ const VendorExpenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -363,6 +380,7 @@ const VendorExpenses = () => {
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
+        outsideSearch={outsideSearch}
         filterPanel={filterPanel}
         rows={rows ?? []}
         title={t("Vendor Expenses")}

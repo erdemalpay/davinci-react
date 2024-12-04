@@ -43,11 +43,11 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -55,8 +55,6 @@ type FormElementsState = {
 const ServiceInvoice = () => {
   const { t } = useTranslation();
   const {
-    searchQuery,
-    setSearchQuery,
     serviceExpenseForm,
     setServiceExpenseForm,
     rowsPerPage,
@@ -79,6 +77,7 @@ const ServiceInvoice = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -101,7 +100,6 @@ const ServiceInvoice = () => {
   const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
     useState(false);
   const [isVendorEditModalOpen, setIsVendorEditModalOpen] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
@@ -163,6 +161,10 @@ const ServiceInvoice = () => {
     ServiceInput({ services: services, required: true, isMultiple: true }),
     VendorInput({ vendors: vendors, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      required: true,
+    }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -250,7 +252,7 @@ const ServiceInvoice = () => {
       required: true,
     }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods,
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
       required: true,
     }),
     QuantityInput(),
@@ -734,6 +736,22 @@ const ServiceInvoice = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -743,7 +761,6 @@ const ServiceInvoice = () => {
   }, [
     invoicesPayload,
     filterPanelFormElements,
-    searchQuery,
     locations,
     vendors,
     expenseTypes,
@@ -766,6 +783,7 @@ const ServiceInvoice = () => {
           }
           rows={rows ?? []}
           title={t("Service Expenses")}
+          outsideSearch={outsideSearch}
           addButton={addButton}
           filterPanel={filterPanel}
           isSearch={false}

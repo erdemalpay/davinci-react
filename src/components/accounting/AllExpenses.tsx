@@ -33,11 +33,11 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 type FormElementsState = {
   [key: string]: any;
 };
@@ -50,7 +50,6 @@ const AllExpenses = () => {
     rowsPerPage,
     currentPage,
     setCurrentPage,
-    setSearchQuery,
     allExpenseForm,
     setAllExpenseForm,
   } = useGeneralContext();
@@ -69,6 +68,7 @@ const AllExpenses = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -85,7 +85,6 @@ const AllExpenses = () => {
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountExpense } = useAccountExpenseMutations();
   const allRows = invoices
     ?.map((invoice) => {
@@ -141,6 +140,10 @@ const AllExpenses = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      required: true,
+    }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -294,7 +297,10 @@ const AllExpenses = () => {
       vendors: vendorInputOptions() ?? [],
       required: true,
     }),
-    PaymentMethodInput({ paymentMethods: paymentMethods, required: true }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      required: true,
+    }),
     QuantityInput(),
   ];
   const formKeys = [
@@ -633,6 +639,22 @@ const AllExpenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -661,6 +683,7 @@ const AllExpenses = () => {
           rowKeys={rowKeys}
           filters={tableFilters}
           columns={columns}
+          outsideSearch={outsideSearch}
           rows={rows ?? []}
           title={t("All Expenses")}
           filterPanel={filterPanel}

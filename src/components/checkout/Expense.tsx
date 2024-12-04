@@ -35,6 +35,7 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -48,11 +49,9 @@ const Expenses = () => {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
   const {
-    searchQuery,
     rowsPerPage,
     currentPage,
     setCurrentPage,
-    setSearchQuery,
     allExpenseForm,
     setAllExpenseForm,
   } = useGeneralContext();
@@ -71,6 +70,7 @@ const Expenses = () => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -87,7 +87,6 @@ const Expenses = () => {
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const { createAccountExpense, deleteAccountExpense } =
     useAccountExpenseMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -668,6 +667,22 @@ const Expenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -677,7 +692,6 @@ const Expenses = () => {
   }, [
     invoicesPayload,
     filterPanelFormElements,
-    searchQuery,
     products,
     products,
     expenseTypes,
@@ -700,6 +714,7 @@ const Expenses = () => {
           filterPanel={filterPanel}
           isSearch={false}
           addButton={addButton}
+          outsideSearch={outsideSearch}
           actions={actions}
           isActionsActive={isEnableEdit}
           {...(pagination && { pagination })}

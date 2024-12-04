@@ -16,10 +16,12 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { outsideSort } from "../../utils/outsideSort";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type Props = {
   selectedService: AccountService;
 };
@@ -32,13 +34,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const locations = useGetStockLocations();
   const services = useGetAccountServices();
   const expenseTypes = useGetAccountExpenseTypes();
-  const {
-    searchQuery,
-    rowsPerPage,
-    currentPage,
-    setCurrentPage,
-    setSearchQuery,
-  } = useGeneralContext();
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -54,6 +50,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
       after: "",
       sort: "",
       asc: 1,
+      search: "",
     });
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -63,7 +60,6 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   const invoices = invoicesPayload?.data;
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const allRows = invoices?.map((invoice) => {
     return {
       ...invoice,
@@ -306,6 +302,22 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements((prev) => ({
+            ...prev,
+            search: value,
+          }))
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -315,7 +327,6 @@ const ServiceExpenses = ({ selectedService }: Props) => {
   }, [
     invoicesPayload,
     filterPanelFormElements,
-    searchQuery,
     expenseTypes,
     vendors,
     services,
@@ -329,6 +340,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
+        outsideSearch={outsideSearch}
         filterPanel={filterPanel}
         rows={rows ?? []}
         title={t("Service Expenses")}
