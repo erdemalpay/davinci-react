@@ -87,6 +87,14 @@ const SelectInput = ({
     options.sort((a, b) => a.label.localeCompare(b.label))
   );
   const selectRef = useRef<HTMLDivElement>(null);
+  const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
+  const handleMenuOpen = () => {
+    if (selectRef.current) {
+      const selectRect = selectRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - selectRect.bottom;
+      setMaxHeight(spaceBelow > 300 ? "300px" : `${spaceBelow - 20}px`);
+    }
+  };
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -97,7 +105,7 @@ const SelectInput = ({
     }),
     menu: (base: any) => ({
       ...base,
-      maxHeight: "300px",
+      maxHeight: maxHeight,
       overflowY: "auto",
     }),
 
@@ -206,8 +214,7 @@ const SelectInput = ({
               styles={customStyles}
               closeMenuOnSelect={false}
               filterOption={customFilterOption}
-              menuPosition="fixed"
-              menuPlacement="bottom"
+              onMenuOpen={handleMenuOpen}
               isSearchable={!isSearchable && !isDownIconClicked}
               onMenuClose={() => {
                 setIsSearchable(false);
@@ -234,8 +241,8 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
+              onMenuOpen={handleMenuOpen}
               menuPosition="fixed"
-              menuPlacement="bottom"
             />
           )}
         </div>
