@@ -242,7 +242,6 @@ const SelectInput = ({
                 setIsDownIconClicked(false);
               }}
               onMenuOpen={handleMenuOpen}
-              menuPosition="fixed"
             />
           )}
         </div>

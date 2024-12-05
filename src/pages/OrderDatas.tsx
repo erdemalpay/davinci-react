@@ -3,6 +3,7 @@ import { BsClipboard2Data } from "react-icons/bs";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { SiFampay } from "react-icons/si";
 import {
+  TbCategoryPlus,
   TbDiscount,
   TbReportAnalytics,
   TbReportMoney,
@@ -17,6 +18,7 @@ import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSa
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
+import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -43,6 +45,13 @@ export const OrderDataTabs = [
     label: "Product Based Sales",
     icon: <TbReportSearch className="text-lg font-thin" />,
     content: <SingleProductSalesReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.UPPERCATEGORYBASEDSALESREPORT,
+    label: "Upper Category Based Sales",
+    icon: <TbCategoryPlus className="text-lg font-thin" />,
+    content: <UpperCategoryBasedSalesReport />,
     isDisabled: false,
   },
   {
