@@ -141,30 +141,6 @@ const GenericAddEditPanel = <T,>({
     return mergedInitialState;
   });
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isBlurFieldClickCloseEnabled &&
-        !isCancelConfirmationDialogExist &&
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        close?.();
-        if (isEditMode) additionalCancelFunction?.();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [
-    isBlurFieldClickCloseEnabled,
-    isCancelConfirmationDialogExist,
-    close,
-    additionalCancelFunction,
-    isEditMode,
-  ]);
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
