@@ -63,6 +63,7 @@ type OrderContextType = {
     }[]
   ) => void;
   filterPanelFormElements: FormElementsState;
+  initialFilterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
   filterSummaryFormElements: FormElementsState;
   setFilterSummaryFormElements: (state: FormElementsState) => void;
@@ -114,6 +115,22 @@ const OrderContext = createContext<OrderContextType>({
     after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
   },
   setFilterSummaryFormElements: () => {},
+  initialFilterPanelFormElements: {
+    location: "",
+    user: "",
+    status: "",
+    before: "",
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    date: "",
+    category: "",
+    discount: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+  },
   filterPanelFormElements: {
     location: "",
     user: "",
@@ -158,6 +175,22 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
   const [orderCreateBulk, setOrderCreateBulk] = useState<Partial<Order>[]>([]);
+  const initialFilterPanelFormElements = {
+    location: "",
+    user: "",
+    status: "",
+    before: "",
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    date: "",
+    category: "",
+    discount: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+  };
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -174,22 +207,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [selectedDiscount, setSelectedDiscount] =
     useState<OrderDiscount | null>(null);
   const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: "",
-      user: "",
-      status: "",
-      before: "",
-      after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
-      date: "",
-      category: "",
-      discount: "",
-      paymentMethod: "",
-      createdBy: "",
-      cancelledBy: "",
-      deliveredBy: "",
-      preparedBy: "",
-      role: [],
-    });
+    useState<FormElementsState>(initialFilterPanelFormElements);
   const [filterSummaryFormElements, setFilterSummaryFormElements] =
     useState<FormElementsState>({
       location: "",
@@ -224,6 +242,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setIsTakeAwayOrderModalOpen,
         isTakeAwayPaymentModalOpen,
         setIsTakeAwayPaymentModalOpen,
+        initialFilterPanelFormElements,
         discountNote,
         setDiscountNote,
         todaysOrderDate,

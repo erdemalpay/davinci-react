@@ -69,8 +69,11 @@ const OrdersReport = () => {
   const returnOrderFormElements = [
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   if (!orders || !locations || !users || !discounts) {
     return null;
   }
@@ -395,6 +398,9 @@ const OrdersReport = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {

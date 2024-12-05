@@ -47,8 +47,11 @@ const UpperCategoryBasedSalesReport = () => {
   if (!orders || !categories || !locations || !upperCategories) {
     return null;
   }
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allCategoryRows = orders
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
@@ -350,6 +353,9 @@ const UpperCategoryBasedSalesReport = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {

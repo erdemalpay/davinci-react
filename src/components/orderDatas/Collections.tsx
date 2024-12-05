@@ -37,8 +37,11 @@ const Collections = () => {
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   if (!collections || !orders || !locations || !users || !paymentMethods) {
     return null;
   }
@@ -270,6 +273,9 @@ const Collections = () => {
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
     closeFilters: () => setShowFilters(false),
   };
   const filters = [

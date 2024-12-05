@@ -68,6 +68,7 @@ export interface PanelFilterType<T> {
   setFormElements: Dispatch<SetStateAction<FormElementsState>>; // Add this to update the form state
   closeFilters: () => void;
   isApplyButtonActive?: boolean;
+  additionalFilterCleanFunction?: () => void;
 }
 export interface GenericInputType {
   type: InputTypes;

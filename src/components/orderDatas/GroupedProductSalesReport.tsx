@@ -55,8 +55,11 @@ const GroupedProductSalesReport = () => {
   if (!orders || !categories || !locations) {
     return null;
   }
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
@@ -363,6 +366,9 @@ const GroupedProductSalesReport = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {

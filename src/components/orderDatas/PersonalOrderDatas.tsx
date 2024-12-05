@@ -69,8 +69,11 @@ const PersonalOrderDatas = () => {
   const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
     return null;
   }
@@ -191,6 +194,9 @@ const PersonalOrderDatas = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {

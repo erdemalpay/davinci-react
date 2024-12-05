@@ -17,6 +17,7 @@ const FilterPanel = <T,>({
   setFormElements,
   closeFilters,
   isApplyButtonActive = false,
+  additionalFilterCleanFunction,
 }: PanelFilterType<T>) => {
   const { t } = useTranslation();
   const { setCurrentPage } = useGeneralContext();
@@ -34,6 +35,7 @@ const FilterPanel = <T,>({
       });
       return newFormElements;
     });
+    additionalFilterCleanFunction?.();
   };
   const buttons = [
     {

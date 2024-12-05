@@ -63,8 +63,11 @@ const DiscountBasedSales = () => {
   if (!orders || !locations || !discounts || !items || !tables) {
     return null;
   }
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
     ?.filter(
@@ -388,6 +391,9 @@ const DiscountBasedSales = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {

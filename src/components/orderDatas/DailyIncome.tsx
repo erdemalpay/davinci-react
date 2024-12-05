@@ -33,8 +33,11 @@ const DailyIncome = () => {
     return null;
   }
   const [showFilters, setShowFilters] = useState(false);
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useOrderContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useOrderContext();
   const allRows = collections
     ?.filter(
       (collection) => collection.status !== OrderCollectionStatus.CANCELLED
@@ -198,6 +201,9 @@ const DailyIncome = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterPanelFormElements(initialFilterPanelFormElements);
+    },
   };
   const filters = [
     {
