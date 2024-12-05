@@ -177,14 +177,31 @@ const UpperCategoryBasedSalesReport = () => {
           },
           0
         ),
+        percentageGeneralAmount: upperCategory?.categoryGroup?.reduce(
+          (acc, categoryGroupItem) => {
+            const category = allCategoryRows.find(
+              (categoryRow) =>
+                categoryRow.categoryId === categoryGroupItem?.category
+            );
+            return (
+              acc +
+              (category?.totalAmountWithDiscount ?? 0) *
+                categoryGroupItem?.percentage *
+                0.01
+            );
+          },
+          0
+        ),
         collapsible: {
           collapsibleHeader: t("Categories"),
           collapsibleColumns: [
             { key: t("Category"), isSortable: true },
+            { key: t("Percentage"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
             { key: t("Discount"), isSortable: true },
             { key: t("Total Amount"), isSortable: true },
             { key: t("General Amount"), isSortable: true },
+            { key: t("Percentage General Amount"), isSortable: true },
           ],
           collapsibleRows: upperCategory?.categoryGroup
             ?.map((categoryGroupItem) => {
@@ -196,19 +213,26 @@ const UpperCategoryBasedSalesReport = () => {
               return {
                 category: getItem(categoryGroupItem?.category, categories)
                   ?.name,
+                percentage: categoryGroupItem?.percentage,
                 quantity: category?.paidQuantity ?? 0,
                 discount: category?.discount ?? 0,
-                totalAmount: category?.totalAmountWithDiscount ?? 0,
-                generalAmount: category?.amount ?? 0,
+                totalAmount: category?.amount ?? 0,
+                generalAmount: category?.totalAmountWithDiscount ?? 0,
+                percentageGeneralAmount:
+                  (category?.totalAmountWithDiscount ?? 0) *
+                  categoryGroupItem?.percentage *
+                  0.01,
               };
             })
             ?.filter((row) => row.quantity > 0),
           collapsibleRowKeys: [
             { key: "category" },
+            { key: "percentage" },
             { key: "quantity" },
             { key: "discount" },
             { key: "totalAmount" },
             { key: "generalAmount" },
+            { key: "percentageGeneralAmount" },
           ],
         },
       };
@@ -222,6 +246,7 @@ const UpperCategoryBasedSalesReport = () => {
     { key: t("Discount"), isSortable: true },
     { key: t("Total Amount"), isSortable: true },
     { key: t("General Amount"), isSortable: true },
+    { key: t("Percentage General Amount"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -255,6 +280,14 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p>{row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}</p>
+        );
+      },
+    },
+    {
+      key: "percentageGeneralAmount",
+      node: (row: any) => {
+        return (
+          <p>{row?.percentageGeneralAmount?.toFixed(2) + " " + TURKISHLIRA}</p>
         );
       },
     },
