@@ -49,6 +49,7 @@ const Income = () => {
       user: "",
       location: "",
       date: "",
+      note: "",
     });
   if (!users || !locations || !incomes) {
     return <></>;
@@ -85,6 +86,7 @@ const Income = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Collections Income"), isSortable: true },
+    { key: t("Note"), isSortable: false },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -126,6 +128,7 @@ const Income = () => {
     { key: "lctn" },
     { key: "amount" },
     { key: "collectionIncome" },
+    { key: "note" },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     columns.splice(
@@ -153,10 +156,18 @@ const Income = () => {
       placeholder: t("Amount"),
       required: true,
     },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "note", type: FormKeyTypeEnum.STRING },
   ];
 
   const addButton = {
