@@ -725,7 +725,7 @@ const GenericTable = <T,>({
                     onClick={() => setIsColumnActiveModalOpen((prev) => !prev)}
                   />
                   {isColumnActiveModalOpen && title && (
-                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border border-gray-300 z-10 min-w-64">
+                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit  drop-shadow-lg z-10 min-w-64">
                       <ColumnActiveModal title={title} />
                     </div>
                   )}
