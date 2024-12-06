@@ -26,7 +26,7 @@ export function useWebSocket() {
   useEffect(() => {
     // Load the audio files
     const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
-    // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
+    const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
     orderCreatedSound.volume = 1;
     const audioContext = new window.AudioContext();
     const gainNode = audioContext.createGain();
