@@ -253,7 +253,7 @@ const GenericTable = <T,>({
 
     // Dynamic columns headers based on props
     data.push(
-      columns
+      usedColumns
         .filter((column) => column.correspondingKey)
         ?.map((column) => ({
           text: column.key, // Adjust based on your actual column definition
@@ -264,7 +264,7 @@ const GenericTable = <T,>({
     rows.forEach((row) => {
       const rowData: any[] = [];
 
-      columns.forEach((column) => {
+      usedColumns.forEach((column) => {
         if (column.correspondingKey) {
           const value = String(row[column.correspondingKey]);
           rowData.push(value);
@@ -325,12 +325,12 @@ const GenericTable = <T,>({
   const generateExcel = () => {
     const workbook = XLSX.utils.book_new();
     const excelRows = [];
-    const headers = columns
+    const headers = usedColumns
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
     excelRows.push(headers);
     rows.forEach((row) => {
-      const rowData = columns
+      const rowData = usedColumns
         .filter((column) => column.correspondingKey)
         .map((column) => String(row[column?.correspondingKey as keyof T]));
       excelRows.push(rowData);
