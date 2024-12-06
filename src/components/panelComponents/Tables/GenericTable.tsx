@@ -721,7 +721,7 @@ const GenericTable = <T,>({
               {isColumnFilter && (
                 <>
                   <PiFadersHorizontal
-                    className="my-auto text-xl "
+                    className="my-auto text-xl cursor-pointer"
                     onClick={() => setIsColumnActiveModalOpen((prev) => !prev)}
                   />
                   {isColumnActiveModalOpen && title && (
