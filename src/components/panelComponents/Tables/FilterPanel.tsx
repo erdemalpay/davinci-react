@@ -18,7 +18,7 @@ const FilterPanel = <T,>({
   closeFilters,
   isApplyButtonActive = false,
   additionalFilterCleanFunction,
-}: PanelFilterType<T>) => {
+}: PanelFilterType) => {
   const { t } = useTranslation();
   const { setCurrentPage } = useGeneralContext();
   const [tempFormElements, setTempFormElements] =

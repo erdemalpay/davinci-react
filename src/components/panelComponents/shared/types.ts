@@ -47,11 +47,12 @@ export interface RowKeyType<T> {
     textColor: string; // must be css color
   }[];
 }
-export interface ColumnType<T> {
+export interface ColumnType {
   key: string;
   isSortable: boolean;
   isAddable?: boolean;
   className?: string;
+  isActive?: boolean;
   correspondingKey?: string;
   outsideSort?: React.ReactNode;
   node?: () => React.ReactNode;
@@ -61,7 +62,7 @@ type FormElementsState = {
   [key: string]: any; // Adjust the type as needed for your form elements
 };
 
-export interface PanelFilterType<T> {
+export interface PanelFilterType {
   isFilterPanelActive: boolean;
   inputs: GenericInputType[];
   formElements: FormElementsState; // Add this to hold the current form state

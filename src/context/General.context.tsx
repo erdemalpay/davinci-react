@@ -1,4 +1,5 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { ColumnType } from "../components/panelComponents/shared/types";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
   AccountingPageTabEnum,
@@ -57,6 +58,10 @@ type GeneralContextType = {
   expandedRows: { [key: string]: boolean };
   setExpandedRows: React.Dispatch<
     React.SetStateAction<{ [key: string]: boolean }>
+  >;
+  tableColumns: { [key: string]: ColumnType[] };
+  setTableColumns: React.Dispatch<
+    React.SetStateAction<{ [key: string]: ColumnType[] }>
   >;
 };
 
@@ -139,6 +144,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setServiceExpenseForm: () => {},
   orderDataActiveTab: 0,
   setOrderDataActiveTab: () => {},
+  tableColumns: {},
+  setTableColumns: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -147,6 +154,9 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
+  const [tableColumns, setTableColumns] = useState<{
+    [key: string]: ColumnType[];
+  }>({});
   useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
     countListOptions[0]
@@ -188,6 +198,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        tableColumns,
+        setTableColumns,
         sortConfigKey,
         setSortConfigKey,
         countListOption,

@@ -5,6 +5,7 @@ import { BsFilePdf } from "react-icons/bs";
 import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { GoPlusCircle } from "react-icons/go";
+import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
@@ -19,6 +20,7 @@ import {
   RowKeyType,
 } from "../shared/types";
 import ButtonTooltip from "./ButtonTooltip";
+import ColumnActiveModal from "./ColumnActiveModal";
 import FilterPanel from "./FilterPanel";
 import Tooltip from "./Tooltip";
 import "./table.css";
@@ -33,7 +35,7 @@ type Props<T> = {
   isDraggable?: boolean;
   onDragEnter?: (DraggedRow: T, TargetRow: T) => void;
   isActionsActive: boolean;
-  columns: ColumnType<T>[];
+  columns: ColumnType[];
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
   actions?: ActionType<T>[];
@@ -42,7 +44,8 @@ type Props<T> = {
   title?: string;
   addButton?: ActionType<T>;
   addCollapsible?: ActionType<T>;
-  filterPanel?: PanelFilterType<T>;
+  filterPanel?: PanelFilterType;
+  isColumnFilter?: boolean;
   outsideSearch?: () => React.ReactNode;
   imageHolder?: string;
   tooltipLimit?: number;
@@ -72,6 +75,7 @@ const GenericTable = <T,>({
   isActionsActive = true,
   isDraggable = false,
   filterPanel,
+  isColumnFilter = true,
   collapsibleActions,
   onDragEnter,
   outsideSearch,
@@ -105,11 +109,14 @@ const GenericTable = <T,>({
     setExpandedRows,
     setSortConfigKey,
     sortConfigKey,
+    tableColumns,
+    setTableColumns,
   } = useGeneralContext();
   const navigate = useNavigate();
   const [tableRows, setTableRows] = useState(rows);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
+  const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -118,10 +125,28 @@ const GenericTable = <T,>({
       return tableRows;
     }
   };
+  if (title && tableColumns[title]?.length !== columns.length) {
+    setTableColumns((prev) => ({
+      ...prev,
+      [title]: columns.map((column) => ({
+        ...column,
+        isActive: true,
+      })),
+    }));
+  }
+  const usedColumns = title
+    ? tableColumns[title].filter((column) => column.isActive)
+    : columns;
+  const usedRowKeys = title
+    ? rowKeys.filter(
+        (rowKey, index) =>
+          tableColumns[title]?.[isActionsAtFront ? index + 1 : index]?.isActive
+      )
+    : rowKeys;
   const filteredRows = !isSearch
     ? initialRows()
     : initialRows().filter((row) =>
-        rowKeys.some((rowKey) => {
+        usedRowKeys?.some((rowKey) => {
           const value = row[rowKey.key as keyof typeof row];
           const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
           if (typeof value === "string") {
@@ -137,7 +162,6 @@ const GenericTable = <T,>({
   const totalRows = filteredRows.length;
   const usedTotalRows = pagination ? pagination.totalRows : totalRows;
   const totalPages = Math.ceil(usedTotalRows / rowsPerPage);
-
   const usedTotalPages = pagination ? pagination.totalPages : totalPages;
   const currentRows =
     isRowsPerPage && !pagination
@@ -376,7 +400,7 @@ const GenericTable = <T,>({
           {actions && isActionsAtFront && (
             <td>{renderActionButtons(row, actions)}</td>
           )}
-          {rowKeys.map((rowKey, keyIndex) => {
+          {usedRowKeys?.map((rowKey, keyIndex) => {
             if (rowKey.node) {
               return (
                 <td
@@ -445,7 +469,7 @@ const GenericTable = <T,>({
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
                 } min-w-20 md:min-w-0 ${
-                  columns.length === 2 && keyIndex === 1 && " text-center "
+                  usedColumns.length === 2 && keyIndex === 1 && " text-center "
                 }`}
               >
                 {rowKey.isImage ? (
@@ -488,7 +512,7 @@ const GenericTable = <T,>({
         {isRowExpanded && (
           <tr>
             <td
-              colSpan={columns.length + (isActionsActive ? 1 : 0)}
+              colSpan={usedColumns.length + (isActionsActive ? 1 : 0)}
               className="px-4 py-2 border-b transition-max-height duration-300 ease-in-out overflow-hidden"
               style={{
                 maxHeight: isRowExpanded ? "1000px" : "0",
@@ -519,7 +543,7 @@ const GenericTable = <T,>({
                   <tr>
                     {row?.collapsible?.collapsibleColumns.length > 0 &&
                       row?.collapsible?.collapsibleColumns?.map(
-                        (column: ColumnType<T>, index: number) => (
+                        (column: ColumnType, index: number) => (
                           <th
                             key={index}
                             className={`text-left py-2 px-4 w-fit border-b  ${column?.className}`}
@@ -654,7 +678,8 @@ const GenericTable = <T,>({
           {/* header part */}
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             {title && <H4 className="mr-auto">{title}</H4>}
-            <div className="ml-auto flex flex-row gap-4">
+
+            <div className="ml-auto flex flex-row gap-4  relative">
               <div className="flex flex-row flex-wrap gap-4  ">
                 {isPdf && (
                   <div className="my-auto">
@@ -692,16 +717,30 @@ const GenericTable = <T,>({
                   <H5>{addButton.name}</H5>
                 </button>
               )}
+              {/* column active inactive selection */}
+              {isColumnFilter && (
+                <>
+                  <PiFadersHorizontal
+                    className="my-auto text-xl "
+                    onClick={() => setIsColumnActiveModalOpen((prev) => !prev)}
+                  />
+                  {isColumnActiveModalOpen && title && (
+                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border border-gray-300 z-10 min-w-64">
+                      <ColumnActiveModal title={title} />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
           {/* table part */}
           <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full">
             <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar  ">
               <table className="bg-white w-full ">
-                <thead className="border-b  ">
+                <thead className="border-b ">
                   <tr>
                     {isCollapsible && <th></th>}
-                    {columns.map((column, index) => {
+                    {usedColumns.map((column, index) => {
                       if (column.node) {
                         return column.node();
                       }
@@ -709,14 +748,16 @@ const GenericTable = <T,>({
                         <th
                           key={index}
                           className={`${
-                            columns.length === 2 && "justify-between  "
+                            usedColumns.length === 2 && "justify-between  "
                           } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
                         >
                           <H5
                             className={`w-max flex gap-2 "text-gray-600" ${
-                              columns.length === 2 && index == 1 && "  mx-auto"
+                              usedColumns.length === 2 &&
+                              index == 1 &&
+                              "  mx-auto"
                             } ${column?.className} ${
-                              index === columns.length - 1 &&
+                              index === usedColumns.length - 1 &&
                               actions &&
                               isActionsActive
                                 ? "mx-auto px-4"
@@ -739,12 +780,12 @@ const GenericTable = <T,>({
                               {column?.outsideSort}
                               {column.isSortable &&
                                 !column?.outsideSort &&
-                                (sortConfig?.key === rowKeys[index]?.key &&
+                                (sortConfig?.key === usedRowKeys[index]?.key &&
                                 sortConfig?.direction === "ascending" ? (
                                   <button
                                     onClick={() =>
                                       sortRows(
-                                        rowKeys[index].key as Extract<
+                                        usedRowKeys[index].key as Extract<
                                           keyof T,
                                           string
                                         >,
@@ -758,7 +799,7 @@ const GenericTable = <T,>({
                                   <button
                                     onClick={() =>
                                       sortRows(
-                                        rowKeys[index].key as Extract<
+                                        usedRowKeys[index].key as Extract<
                                           keyof T,
                                           string
                                         >,

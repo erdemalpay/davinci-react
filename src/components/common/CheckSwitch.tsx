@@ -20,7 +20,7 @@ export function CheckSwitch({
       className={`${
         checked ? checkedBg || "bg-blue-500" : uncheckedBg || "bg-gray-500"
       }
-          relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
+       min-w-[36px]   relative inline-flex h-[20px] w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
     >
       <span
         className={`${checked ? "translate-x-4" : "translate-x-0"}
