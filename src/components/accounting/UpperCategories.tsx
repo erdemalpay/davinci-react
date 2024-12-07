@@ -308,7 +308,7 @@ const UpperCategories = () => {
                   category.category === (rowToAction as any)?.category
                     ? {
                         category: category.category,
-                        percentage: editCategoryForm.percentage,
+                        percentage: Number(editCategoryForm.percentage),
                       }
                     : category
                 ),
