@@ -7,7 +7,6 @@ import {
   commonDateOptions,
   DateRangeKey,
   OrderStatus,
-  Table,
   TURKISHLIRA,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -77,9 +76,7 @@ const CategoryBasedSalesReport = () => {
       }
 
       // Date filters
-      const orderDate = (order?.table as Table)?.date
-        ? new Date((order?.table as Table)?.date)
-        : order.createdAt;
+      const orderDate = order.createdAt;
       const beforeDate = filterPanelFormElements.before
         ? new Date(filterPanelFormElements.before)
         : null;

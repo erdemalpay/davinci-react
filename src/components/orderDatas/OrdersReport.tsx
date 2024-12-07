@@ -23,7 +23,6 @@ import {
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
-import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -95,9 +94,7 @@ const OrdersReport = () => {
         _id: order?._id,
         isReturned: order?.isReturned,
         date: format(order?.createdAt, "yyyy-MM-dd"),
-        formattedDate: formatAsLocalDate(
-          format(order?.createdAt, "yyyy-MM-dd")
-        ),
+        formattedDate: format(order?.createdAt, "dd-MM-yyyy"),
         createdBy: getItem(order?.createdBy, users)?.name ?? "",
         createdByUserId: order?.createdBy ?? "",
         createdAt: format(order?.createdAt, "HH:mm") ?? "",
