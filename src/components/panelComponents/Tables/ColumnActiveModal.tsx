@@ -17,7 +17,7 @@ const ColumnActiveModal = ({ title }: Props) => {
         if (ActionKeys.includes(column.key)) return null;
         return (
           <div
-            key={column.key}
+            key={index}
             className={`flex flex-row items-center justify-between gap-2 ${
               index === tableColumns[title]?.length - 1
                 ? "border-b-0"
@@ -33,9 +33,12 @@ const ColumnActiveModal = ({ title }: Props) => {
               onChange={() => {
                 setTableColumns((prev) => ({
                   ...prev,
-                  [title]: prev[title].map((col) => {
-                    if (col.key === column.key) {
-                      return { ...col, isActive: !col.isActive };
+                  [title]: prev[title].map((col, colIndex) => {
+                    if (colIndex === index) {
+                      return {
+                        ...col,
+                        isActive: !col.isActive,
+                      };
                     }
                     return col;
                   }),

@@ -9,6 +9,7 @@ import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
+import Images from "../pages/Images";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import MenuPrice from "../pages/MenuPrice";
@@ -24,6 +25,7 @@ import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import SingleCountArchive from "../pages/SingleCountArchive";
+import SingleFolderPage from "../pages/SingleFolderPage";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
 import User from "../pages/User";
@@ -71,6 +73,7 @@ export enum Routes {
   Brand = "/brand/:brandId",
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
+  SingleFolderPage = "/folder/:folderName",
   CountLists = "/count-lists",
   CountList = "/count-list/:countListId",
   Checkout = "/checkout",
@@ -79,6 +82,7 @@ export enum Routes {
   OrderDatas = "/order-datas",
   UserActivities = "/user-activities",
   OrdersSummary = "/orders-summary",
+  Images = "/images",
 }
 
 export const allRoutes: {
@@ -159,6 +163,18 @@ export const allRoutes: {
     path: Routes.Visits,
     element: Visits,
     isOnSidebar: true,
+  },
+  {
+    name: "Images",
+    path: Routes.Images,
+    element: Images,
+    isOnSidebar: true,
+  },
+  {
+    name: "Single Folder Page",
+    path: Routes.SingleFolderPage,
+    element: SingleFolderPage,
+    isOnSidebar: false,
   },
   {
     name: "Profile",
