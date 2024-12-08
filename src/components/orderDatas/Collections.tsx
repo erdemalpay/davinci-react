@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -70,20 +71,20 @@ const Collections = () => {
       const paymentMethod = paymentMethods.find(
         (method) => method._id === collection?.paymentMethod
       );
+      const zonedTime = toZonedTime(collection.createdAt, "UTC");
+      const collectionDate = new Date(zonedTime);
       return {
         _id: collection?._id,
         cashier: getItem(collection?.createdBy, users)?.name,
         orders: collection?.orders,
         cancelledBy: getItem(collection?.cancelledBy, users)?.name,
         cancelledById: collection?.cancelledBy,
-        date: format(collection?.createdAt, "yyyy-MM-dd"),
-        formattedDate: formatAsLocalDate(
-          format(collection?.createdAt, "yyyy-MM-dd")
-        ),
+        date: format(collectionDate, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(format(collectionDate, "yyyy-MM-dd")),
         cancelledAt: collection?.cancelledAt
           ? format(collection?.cancelledAt, "HH:mm")
           : "",
-        hour: format(collection?.createdAt, "HH:mm"),
+        hour: format(collectionDate, "HH:mm"),
         paymentMethod: paymentMethod ? t(paymentMethod.name) : "",
         paymentMethodId: collection?.paymentMethod,
         tableId: (collection?.table as Table)?._id,
@@ -303,10 +304,6 @@ const Collections = () => {
         return false;
       }
       return (
-        (filterPanelFormElements.before === "" ||
-          row.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.location) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
         passesFilter(filterPanelFormElements.cancelledBy, row.cancelledById) &&

@@ -65,19 +65,6 @@ const UpperCategoryBasedSalesReport = () => {
       }
       // Date filters
       const orderDate = new Date(order.createdAt);
-      const beforeDate = filterPanelFormElements.before
-        ? new Date(filterPanelFormElements.before)
-        : null;
-      const afterDate = filterPanelFormElements.after
-        ? new Date(filterPanelFormElements.after)
-        : null;
-
-      if (
-        (beforeDate && orderDate > beforeDate) ||
-        (afterDate && orderDate < afterDate)
-      ) {
-        return acc;
-      }
       const existingEntry = acc.find(
         (item) => item?.categoryId === getItem(order?.item, items)?.category
       );

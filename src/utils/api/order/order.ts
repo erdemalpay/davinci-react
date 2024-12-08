@@ -322,10 +322,15 @@ export function useUpdateMultipleOrderMutation() {
 
 export function useGetOrders() {
   const { filterPanelFormElements } = useOrderContext();
-  return useGetList<Order>(
-    `${baseUrl}/query?after=${filterPanelFormElements.after}`,
-    [`${Paths.Order}/query`, filterPanelFormElements.after]
-  );
+  let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
+  if (filterPanelFormElements?.before) {
+    url = url.concat(`&before=${filterPanelFormElements.before}`);
+  }
+  return useGetList<Order>(url, [
+    `${Paths.Order}/query`,
+    filterPanelFormElements.after,
+    filterPanelFormElements.before,
+  ]);
 }
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {

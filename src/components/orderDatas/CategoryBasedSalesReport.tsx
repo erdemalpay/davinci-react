@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -76,21 +77,13 @@ const CategoryBasedSalesReport = () => {
       }
 
       // Date filters
-      const orderDate = new Date(order.createdAt);
-      const beforeDate = filterPanelFormElements.before
-        ? new Date(filterPanelFormElements.before)
-        : null;
-      const afterDate = filterPanelFormElements.after
-        ? new Date(filterPanelFormElements.after)
-        : null;
-
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
       if (
-        (beforeDate && orderDate > beforeDate) ||
-        (afterDate && orderDate < afterDate) ||
-        (filterPanelFormElements?.category?.length > 0 &&
-          !filterPanelFormElements?.category?.some((category: any) =>
-            passesFilter(category, getItem(order?.item, items)?.category)
-          ))
+        filterPanelFormElements?.category?.length > 0 &&
+        !filterPanelFormElements?.category?.some((category: any) =>
+          passesFilter(category, getItem(order?.item, items)?.category)
+        )
       ) {
         return acc;
       }

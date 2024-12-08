@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
@@ -85,19 +86,9 @@ const DiscountBasedSales = () => {
         return acc;
       }
       // Date filters
-      const orderDate = new Date(order.createdAt);
-      const beforeDate = filterPanelFormElements.before
-        ? new Date(filterPanelFormElements.before)
-        : null;
-      const afterDate = filterPanelFormElements.after
-        ? new Date(filterPanelFormElements.after)
-        : null;
-
-      if (
-        (beforeDate && orderDate > beforeDate) ||
-        (afterDate && orderDate < afterDate) ||
-        !passesFilter(filterPanelFormElements.discount, order?.discount)
-      ) {
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
+      if (!passesFilter(filterPanelFormElements.discount, order?.discount)) {
         return acc;
       }
       const existingEntry = acc.find(

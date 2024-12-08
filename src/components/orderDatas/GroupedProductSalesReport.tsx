@@ -1,4 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -6,7 +8,6 @@ import {
   commonDateOptions,
   DateRangeKey,
   OrderStatus,
-  Table,
   TURKISHLIRA,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -36,6 +37,7 @@ type OrderWithPaymentInfo = {
   amount: number;
   location: number;
   date: string;
+  formattedDate: string;
   category: string;
   categoryId: number;
   totalAmountWithDiscount: number;
@@ -72,18 +74,15 @@ const GroupedProductSalesReport = () => {
         return acc;
       }
       if (
-        (filterPanelFormElements?.before !== "" &&
-          (order?.table as Table)?.date > filterPanelFormElements.before) ||
-        (filterPanelFormElements?.after !== "" &&
-          (order?.table as Table)?.date < filterPanelFormElements.after) ||
-        (filterPanelFormElements?.category?.length > 0 &&
-          !filterPanelFormElements.category.some((category: any) =>
-            passesFilter(category, getItem(order?.item, items)?.category)
-          ))
+        filterPanelFormElements?.category?.length > 0 &&
+        !filterPanelFormElements.category.some((category: any) =>
+          passesFilter(category, getItem(order?.item, items)?.category)
+        )
       ) {
         return acc;
       }
-
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
       const existingEntry = acc.find((entry) => entry.item === order?.item);
       if (existingEntry) {
         (existingEntry.paidQuantity +=
@@ -147,7 +146,8 @@ const GroupedProductSalesReport = () => {
             : (order?.discountAmount ?? 0) * order?.paidQuantity,
           amount: order?.paidQuantity * order?.unitPrice,
           location: order?.location,
-          date: (order?.table as Table)?.date,
+          date: format(orderDate, "yyyy-MM-dd"),
+          formattedDate: format(orderDate, "dd-MM-yyyy"),
           category:
             categories?.find(
               (category) =>
@@ -201,6 +201,7 @@ const GroupedProductSalesReport = () => {
       ),
       location: 4,
       date: "",
+      formattedDate: "",
       category: " ",
       categoryId: 0,
       unitPriceQuantity: [],

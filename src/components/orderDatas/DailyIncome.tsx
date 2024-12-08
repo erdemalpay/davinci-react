@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -7,7 +8,6 @@ import {
   DateRangeKey,
   OrderCollectionStatus,
   TURKISHLIRA,
-  Table,
   commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -21,7 +21,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-
 const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
@@ -43,21 +42,12 @@ const DailyIncome = () => {
       (collection) => collection.status !== OrderCollectionStatus.CANCELLED
     )
     ?.reduce((acc, collection) => {
-      const tableDate =
-        (collection?.table as Table)?.date ??
-        format(collection.createdAt, "yyyy-MM-dd");
+      const zonedTime = toZonedTime(collection.createdAt, "UTC");
+      const tableDate = format(zonedTime, "yyyy-MM-dd");
       if (!collection || !tableDate) return acc;
       if (
         filterPanelFormElements.location !== "" &&
         filterPanelFormElements.location !== collection.location
-      ) {
-        return acc;
-      }
-      if (
-        (filterPanelFormElements.before !== "" &&
-          tableDate > filterPanelFormElements.before) ||
-        (filterPanelFormElements.after !== "" &&
-          tableDate < filterPanelFormElements.after)
       ) {
         return acc;
       }

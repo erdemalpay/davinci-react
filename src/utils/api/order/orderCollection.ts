@@ -35,10 +35,15 @@ export function useGetTableCollections(tableId: number) {
 
 export function useGetAllOrderCollections() {
   const { filterPanelFormElements } = useOrderContext();
-  return useGetList<OrderCollection>(
-    `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`,
-    [`${Paths.Order}/collection/query`, filterPanelFormElements.after]
-  );
+  let url = `${Paths.Order}/collection/query?after=${filterPanelFormElements.after}`;
+  if (filterPanelFormElements?.before) {
+    url = url.concat(`&before=${filterPanelFormElements.before}`);
+  }
+  return useGetList<OrderCollection>(url, [
+    `${Paths.Order}/collection/query`,
+    filterPanelFormElements.after,
+    filterPanelFormElements.before,
+  ]);
 }
 export function useGetSummaryCollectionTotal() {
   const { filterSummaryFormElements } = useOrderContext();

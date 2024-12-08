@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
@@ -90,18 +91,20 @@ const OrdersReport = () => {
       if (!order || !order?.createdAt) {
         return null;
       }
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
       return {
         _id: order?._id,
         isReturned: order?.isReturned,
-        date: format(order?.createdAt, "yyyy-MM-dd"),
-        formattedDate: format(order?.createdAt, "dd-MM-yyyy"),
+        date: format(orderDate, "yyyy-MM-dd"),
+        formattedDate: format(orderDate, "dd-MM-yyyy"),
         createdBy: getItem(order?.createdBy, users)?.name ?? "",
         createdByUserId: order?.createdBy ?? "",
-        createdAt: format(order?.createdAt, "HH:mm") ?? "",
+        createdAt: format(orderDate, "HH:mm") ?? "",
         preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
         preparedByUserId: order?.preparedBy ?? "",
         preparationTime: order?.preparedAt
-          ? differenceInMinutes(order?.preparedAt, order?.createdAt) + " dk"
+          ? differenceInMinutes(order?.preparedAt, orderDate) + " dk"
           : "",
         cancelledBy: getItem(order?.cancelledBy, users)?.name ?? "",
         cancelledByUserId: order?.cancelledBy ?? "",
@@ -469,10 +472,6 @@ const OrdersReport = () => {
   useEffect(() => {
     const filteredRows = allRows.filter((row: any) => {
       return (
-        (filterPanelFormElements.before === "" ||
-          row?.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row?.date >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row.locationId) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
         passesFilter(

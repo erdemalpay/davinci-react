@@ -1,4 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -6,7 +8,6 @@ import {
   commonDateOptions,
   DateRangeKey,
   OrderStatus,
-  Table,
   TURKISHLIRA,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -15,7 +16,6 @@ import { useGetLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
-import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -70,17 +70,15 @@ const SingleProductSalesReport = () => {
       }
       // other filters
       if (
-        (filterPanelFormElements?.before !== "" &&
-          (order?.table as Table)?.date > filterPanelFormElements?.before) ||
-        (filterPanelFormElements?.after !== "" &&
-          (order?.table as Table)?.date < filterPanelFormElements?.after) ||
-        (filterPanelFormElements?.category?.length > 0 &&
-          !filterPanelFormElements?.category?.some((category: any) =>
-            passesFilter(category, getItem(order?.item, items)?.category)
-          ))
+        filterPanelFormElements?.category?.length > 0 &&
+        !filterPanelFormElements?.category?.some((category: any) =>
+          passesFilter(category, getItem(order?.item, items)?.category)
+        )
       ) {
         return acc;
       }
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
       acc.push({
         item: order?.item,
         itemName: getItem(order?.item, items)?.name ?? "",
@@ -97,10 +95,8 @@ const SingleProductSalesReport = () => {
           : (order?.discountAmount ?? 0) * order?.paidQuantity,
         amount: order?.paidQuantity * order?.unitPrice,
         location: order?.location,
-        date: (order?.table as Table)?.date,
-        formattedDate: (order?.table as Table)?.date
-          ? formatAsLocalDate((order?.table as Table)?.date)
-          : "",
+        date: format(orderDate, "yyyy-MM-dd"),
+        formattedDate: order?.createdAt ? format(orderDate, "dd-MM-yyyy") : "",
         category:
           categories?.find(
             (category) =>
