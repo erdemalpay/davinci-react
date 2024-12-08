@@ -85,7 +85,7 @@ const DiscountBasedSales = () => {
         return acc;
       }
       // Date filters
-      const orderDate = order.createdAt;
+      const orderDate = new Date(order.createdAt);
       const beforeDate = filterPanelFormElements.before
         ? new Date(filterPanelFormElements.before)
         : null;
