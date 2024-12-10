@@ -101,7 +101,7 @@ const CategoryBasedSalesReport = () => {
           ? (order?.discountPercentage ?? 0) *
             order.paidQuantity *
             order.unitPrice *
-            (1 / 100)
+            0.01
           : (order?.discountAmount ?? 0) * order.paidQuantity;
         existingEntry.amount += order.paidQuantity * order.unitPrice;
         existingEntry.totalAmountWithDiscount =
@@ -111,7 +111,7 @@ const CategoryBasedSalesReport = () => {
             ? (order?.discountPercentage ?? 0) *
               order.paidQuantity *
               order.unitPrice *
-              (1 / 100)
+              0.01
             : (order?.discountAmount ?? 0) * order.paidQuantity);
         const existingItem = existingEntry.itemQuantity.find(
           (itemQuantityIteration) =>
@@ -169,7 +169,7 @@ const CategoryBasedSalesReport = () => {
             ? (order?.discountPercentage ?? 0) *
               order.paidQuantity *
               order.unitPrice *
-              (1 / 100)
+              0.01
             : (order?.discountAmount ?? 0) * order.paidQuantity,
           amount: order.paidQuantity * order.unitPrice,
           date: format(orderDate, "yyyy-MM-dd"),
@@ -212,7 +212,7 @@ const CategoryBasedSalesReport = () => {
               ? (order?.discountPercentage ?? 0) *
                 order.paidQuantity *
                 order.unitPrice *
-                (1 / 100)
+                0.01
               : (order?.discountAmount ?? 0) * order.paidQuantity),
         });
       }

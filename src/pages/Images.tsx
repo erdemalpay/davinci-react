@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FcFolder } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import ImageUpload from "../components/imageUpload/ImageUpload";
 import { useGetFolderNames } from "../utils/api/asset";
 
 function Images() {
@@ -31,6 +32,7 @@ function Images() {
           </div>
         ))}
       </div>
+      <ImageUpload />
     </>
   );
 }

@@ -580,5 +580,13 @@
   "Percentage General Amount": "Percentage General Amount",
   "Images": "Images",
   "Single Folder Page": "Single Folder Page",
+  "Drag and drop or": "Drag and drop or",
+  "select from device": "select from device",
+  "File type": "File type",
+  "Max file size": "Max file size",
+  "Uploaded Images": "Uploaded Images",
+  "Please select a folder to upload images": "Please select a folder to upload images",
+  "Select a folder": "Select a folder",
+  "Folder": "Folder",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?"
 }

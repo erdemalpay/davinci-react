@@ -20,9 +20,9 @@ export function useGetFolderImages(folderName: string) {
   );
 }
 
-export function deleteImage(id: string) {
+export function deleteImage(url: string) {
   return remove({
-    path: `${Paths.Asset}/image/${id}`,
+    path: `${Paths.Asset}/image/${url}`,
   });
 }
 

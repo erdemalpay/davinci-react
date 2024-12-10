@@ -580,5 +580,13 @@
   "Percentage General Amount": "Yüzdeli Genel Tutar",
   "Images": "Resimler",
   "Single Folder Page": "Tek Klasör Sayfası",
+  "Drag and drop or": "Sürükle ve bırak yada",
+  "select from device": "cihazdan seç",
+  "File type": "Dosya türü",
+  "Max file size": "Maksimum dosya boyutu",
+  "Uploaded Images": "Yüklenen Resimler",
+  "Please select a folder to upload images": "Lütfen resim yüklemek için bir klasör seçin",
+  "Select a folder": "Bir klasör seçin",
+  "Folder": "Klasör",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

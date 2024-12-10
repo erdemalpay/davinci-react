@@ -52,7 +52,7 @@ function SingleFolderPage() {
               <button
                 className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105 "
                 onClick={() => {
-                  deleteImage(image.publicId);
+                  deleteImage(image.url);
                 }}
               >
                 <HiOutlineTrash />

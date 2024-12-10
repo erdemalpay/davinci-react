@@ -78,7 +78,7 @@ const UpperCategoryBasedSalesReport = () => {
           ? (order?.discountPercentage ?? 0) *
             order.paidQuantity *
             order.unitPrice *
-            (1 / 100)
+            0.01
           : (order?.discountAmount ?? 0) * order.paidQuantity;
         existingEntry.amount += order.paidQuantity * order.unitPrice;
         existingEntry.totalAmountWithDiscount =
@@ -88,7 +88,7 @@ const UpperCategoryBasedSalesReport = () => {
             ? (order?.discountPercentage ?? 0) *
               order.paidQuantity *
               order.unitPrice *
-              (1 / 100)
+              0.01
             : (order?.discountAmount ?? 0) * order.paidQuantity);
       } else {
         acc.push({
@@ -102,7 +102,7 @@ const UpperCategoryBasedSalesReport = () => {
             ? (order?.discountPercentage ?? 0) *
               order.paidQuantity *
               order.unitPrice *
-              (1 / 100)
+              0.01
             : (order?.discountAmount ?? 0) * order.paidQuantity,
           amount: order.paidQuantity * order.unitPrice,
           date: format(orderDate, "yyyy-MM-dd"),
@@ -113,7 +113,7 @@ const UpperCategoryBasedSalesReport = () => {
               ? (order?.discountPercentage ?? 0) *
                 order.paidQuantity *
                 order.unitPrice *
-                (1 / 100)
+                0.01
               : (order?.discountAmount ?? 0) * order.paidQuantity),
         });
       }
@@ -126,7 +126,7 @@ const UpperCategoryBasedSalesReport = () => {
         ...upperCategory,
         paidQuantity: upperCategory?.categoryGroup?.reduce(
           (acc, categoryGroupItem) => {
-            const category = allCategoryRows.find(
+            const category = allCategoryRows?.find(
               (categoryRow) =>
                 categoryRow.categoryId === categoryGroupItem?.category
             );
@@ -136,7 +136,7 @@ const UpperCategoryBasedSalesReport = () => {
         ),
         discount: upperCategory?.categoryGroup?.reduce(
           (acc, categoryGroupItem) => {
-            const category = allCategoryRows.find(
+            const category = allCategoryRows?.find(
               (categoryRow) =>
                 categoryRow.categoryId === categoryGroupItem?.category
             );
@@ -146,7 +146,7 @@ const UpperCategoryBasedSalesReport = () => {
         ),
         amount: upperCategory?.categoryGroup?.reduce(
           (acc, categoryGroupItem) => {
-            const category = allCategoryRows.find(
+            const category = allCategoryRows?.find(
               (categoryRow) =>
                 categoryRow.categoryId === categoryGroupItem?.category
             );
@@ -156,7 +156,7 @@ const UpperCategoryBasedSalesReport = () => {
         ),
         totalAmountWithDiscount: upperCategory?.categoryGroup?.reduce(
           (acc, categoryGroupItem) => {
-            const category = allCategoryRows.find(
+            const category = allCategoryRows?.find(
               (categoryRow) =>
                 categoryRow.categoryId === categoryGroupItem?.category
             );
@@ -166,7 +166,7 @@ const UpperCategoryBasedSalesReport = () => {
         ),
         percentageGeneralAmount: upperCategory?.categoryGroup?.reduce(
           (acc, categoryGroupItem) => {
-            const category = allCategoryRows.find(
+            const category = allCategoryRows?.find(
               (categoryRow) =>
                 categoryRow.categoryId === categoryGroupItem?.category
             );
@@ -192,7 +192,7 @@ const UpperCategoryBasedSalesReport = () => {
           ],
           collapsibleRows: upperCategory?.categoryGroup
             ?.map((categoryGroupItem) => {
-              const category = allCategoryRows.find(
+              const category = allCategoryRows?.find(
                 (categoryRow) =>
                   categoryRow.categoryId === categoryGroupItem?.category
               );
