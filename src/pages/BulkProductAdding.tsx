@@ -22,10 +22,10 @@ const BulkProductAdding = () => {
     const headers = data[0];
     const keys = [
       "name",
-      "image",
       "expenseType",
       "brand",
       "vendor",
+      "image",
       "category",
       "price",
       "onlinePrice",
@@ -33,10 +33,10 @@ const BulkProductAdding = () => {
     ];
     const translatedHeaders = [
       `${t("Name")} **`,
-      t("Image"),
       `${t("Expense Type")} *`,
       t("Brand"),
       t("Vendor"),
+      t("Image"),
       `${t("Menu Category")} *`,
       `${t("Price")} *`,
       t("Online Price"),
@@ -123,12 +123,7 @@ const BulkProductAdding = () => {
       className: "text-red-500",
       correspondingKey: "name",
     },
-    {
-      key: t("Image"),
-      isSortable: true,
-      correspondingKey: "image",
-      className: "text-red-500",
-    },
+
     {
       key: `${t("Expense Type")} *`,
       isSortable: true,
@@ -146,6 +141,12 @@ const BulkProductAdding = () => {
       isSortable: true,
       className: "text-blue-500",
       correspondingKey: "vendor",
+    },
+    {
+      key: t("Image"),
+      isSortable: true,
+      correspondingKey: "image",
+      className: "text-orange-500",
     },
     {
       key: `${t("Menu Category")} *`,
@@ -183,10 +184,10 @@ const BulkProductAdding = () => {
   ];
   const rowKeys = [
     { key: "name" },
-    { key: "image" },
     { key: "expenseType", className: "pr-4" },
     { key: "brand", className: "pr-4" },
     { key: "vendor", className: "pr-4" },
+    { key: "image" },
     { key: "category" },
     { key: "price" },
     { key: "onlinePrice" },

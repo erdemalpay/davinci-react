@@ -19,12 +19,12 @@ function Images() {
       <Header showLocationSelector={false} />
       <div
         key={componentKey}
-        className="flex flex-row gap-4 w-[95%] mx-auto mt-5 "
+        className="flex flex-row gap-4 w-[95%] mx-auto mt-5 flex-wrap"
       >
         {folders?.map((folder) => (
           <div
             key={folder}
-            className="flex flex-col items-center justify-between cursor-pointer hover:text-blue-500 transform transition duration-300 hover:scale-105 "
+            className="flex flex-col  items-center justify-between cursor-pointer hover:text-blue-500 transform transition duration-300 hover:scale-105 "
             onClick={() => navigate(`/folder/${folder}`)}
           >
             <FcFolder className="h-20 w-20 mr-2" />
