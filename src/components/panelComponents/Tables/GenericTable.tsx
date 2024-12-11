@@ -735,8 +735,8 @@ const GenericTable = <T,>({
             </div>
           </div>
           {/* table part */}
-          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full">
-            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar  ">
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full ">
+            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-96  ">
               <table className="bg-white w-full ">
                 <thead className="border-b ">
                   <tr>

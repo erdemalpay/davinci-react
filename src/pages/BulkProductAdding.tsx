@@ -1,21 +1,32 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useGeneralContext } from "../context/General.context";
 import { useCreateBulkProductAndMenuItemMutation } from "../utils/api/account/product";
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
+  const [tableKey, setTableKey] = useState(0);
   const { mutate: createBulkProductAndMenuItem } =
     useCreateBulkProductAndMenuItemMutation();
+  const {
+    errorDataForProductBulkCreation,
+    setErrorDataForProductBulkCreation,
+  } = useGeneralContext();
+  console.log(
+    "errorDataForProductBulkCreation",
+    errorDataForProductBulkCreation
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const processExcelData = (data: any[]) => {
     const headers = data[0];
     const keys = [
       "name",
+      "image",
       "expenseType",
       "brand",
       "vendor",
@@ -26,6 +37,7 @@ const BulkProductAdding = () => {
     ];
     const translatedHeaders = [
       `${t("Name")} **`,
+      t("Image"),
       `${t("Expense Type")} *`,
       t("Brand"),
       t("Vendor"),
@@ -45,6 +57,7 @@ const BulkProductAdding = () => {
       });
       return item;
     });
+    setErrorDataForProductBulkCreation([]);
     createBulkProductAndMenuItem(items);
   };
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,44 +82,56 @@ const BulkProductAdding = () => {
     }
   };
 
-  const rows = [
-    {
-      name: "7 Wonders Duel",
-      expenseType: "Oyun Satışı",
-      brand: "    ",
-      vendor: "Kaissa Games",
-      category: "İthal Oyunlar",
-      price: 2100,
-      onlinePrice: 2450,
-      description: "    ",
-    },
-    {
-      name: "Orta boy çöp poşeti",
-      expenseType: "Genel,Mutfak Genel",
-      brand: "Eczacıbaşı,Selpak",
-      vendor: "Öz Rize,Anka Toptan,Pem Ambalaj",
-      category: "     ",
-      price: "  ",
-      onlinePrice: "   ",
-      description: "    ",
-    },
-    {
-      name: "Margharita",
-      expenseType: "    ",
-      brand: "    ",
-      vendor: "    ",
-      category: "Pizzalar",
-      price: 280,
-      onlinePrice: "   ",
-      description: "Domates sos, Mozerella peyniri, Fesleğen",
-    },
-  ];
+  const rows =
+    errorDataForProductBulkCreation?.length > 0
+      ? errorDataForProductBulkCreation
+      : [
+          {
+            name: "7 Wonders Duel",
+            expenseType: "Oyun Satışı",
+            brand: "    ",
+            vendor: "Kaissa Games",
+            category: "İthal Oyunlar",
+            price: 2100,
+            onlinePrice: 2450,
+            description: "    ",
+            image: "menu/7 Wonders Duel.png",
+          },
+          {
+            name: "Orta boy çöp poşeti",
+            expenseType: "Genel,Mutfak Genel",
+            brand: "Eczacıbaşı,Selpak",
+            vendor: "Öz Rize,Anka Toptan,Pem Ambalaj",
+            category: "     ",
+            price: "  ",
+            onlinePrice: "   ",
+            description: "    ",
+            image: "   ",
+          },
+          {
+            name: "Margharita",
+            expenseType: "    ",
+            brand: "    ",
+            vendor: "    ",
+            category: "Pizzalar",
+            price: 280,
+            onlinePrice: "   ",
+            description: "Domates sos, Mozerella peyniri, Fesleğen",
+            image: "menu/Margharita.png",
+          },
+        ];
   const columns = [
     {
       key: `${t("Name")} **`,
       isSortable: false,
       className: "text-red-500",
       correspondingKey: "name",
+    },
+    {
+      key: t("Image"),
+      isSortable: true,
+      correspondingKey: "image",
+      className: "text-red-500",
     },
     {
       key: `${t("Expense Type")} *`,
@@ -150,9 +175,19 @@ const BulkProductAdding = () => {
       correspondingKey: "description",
       className: "text-orange-500",
     },
+    ...(errorDataForProductBulkCreation?.length > 0
+      ? [
+          {
+            key: t("Error"),
+            isSortable: true,
+            correspondingKey: "errorNote",
+          },
+        ]
+      : []),
   ];
   const rowKeys = [
     { key: "name" },
+    { key: "image" },
     { key: "expenseType", className: "pr-4" },
     { key: "brand", className: "pr-4" },
     { key: "vendor", className: "pr-4" },
@@ -160,6 +195,9 @@ const BulkProductAdding = () => {
     { key: "price" },
     { key: "onlinePrice" },
     { key: "description" },
+    ...(errorDataForProductBulkCreation?.length > 0
+      ? [{ key: "errorNote" }]
+      : []),
   ];
   const filters = [
     {
@@ -183,11 +221,15 @@ const BulkProductAdding = () => {
       ),
     },
   ];
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [errorDataForProductBulkCreation]);
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10 flex flex-col gap-6 ">
+      <div className="w-[98%] mx-auto my-10 flex flex-col gap-6 min-h-screen">
         <GenericTable
+          key={tableKey}
           rows={rows}
           rowKeys={rowKeys}
           isActionsActive={false}
@@ -201,11 +243,13 @@ const BulkProductAdding = () => {
           filters={filters}
           excelFileName={t("BulkProductAdding.xlsx")}
         />
-        <p className="indent-2 text-sm">
-          {t(
-            "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas."
-          )}
-        </p>
+        {errorDataForProductBulkCreation?.length === 0 && (
+          <p className="indent-2 text-sm">
+            {t(
+              "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas."
+            )}
+          </p>
+        )}
       </div>
     </>
   );

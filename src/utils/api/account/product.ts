@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../../context/General.context";
 import { AccountProduct } from "../../../types";
 import { post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
@@ -15,6 +16,8 @@ export interface CreateBulkProductAndMenuItem {
   price?: number;
   onlinePrice?: number;
   description?: string;
+  image?: string;
+  errorNote?: string;
 }
 export interface JoinProductsRequest {
   stayedProduct: string;
@@ -43,9 +46,19 @@ export function createBulkProductAndMenuItem(
 export function useCreateBulkProductAndMenuItemMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
+  const { setErrorDataForProductBulkCreation } = useGeneralContext();
   return useMutation(createBulkProductAndMenuItem, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: (response) => {
+      if (response) {
+        console.log(response);
+
+        setErrorDataForProductBulkCreation(
+          response as CreateBulkProductAndMenuItem[]
+        );
+      }
     },
     onError: (_err: any) => {
       const errorMessage =

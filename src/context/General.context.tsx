@@ -10,6 +10,7 @@ import {
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
+import { CreateBulkProductAndMenuItem } from "../utils/api/account/product";
 import { useUserContext } from "./User.context";
 
 type GeneralContextType = {
@@ -24,6 +25,10 @@ type GeneralContextType = {
     } | null
   ) => void;
   productExpenseForm: Partial<AccountInvoice>;
+  errorDataForProductBulkCreation: CreateBulkProductAndMenuItem[];
+  setErrorDataForProductBulkCreation: (
+    data: CreateBulkProductAndMenuItem[]
+  ) => void;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
@@ -146,11 +151,15 @@ const GeneralContext = createContext<GeneralContextType>({
   setOrderDataActiveTab: () => {},
   tableColumns: {},
   setTableColumns: () => {},
+  errorDataForProductBulkCreation: [],
+  setErrorDataForProductBulkCreation: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const { user } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
+    useState<CreateBulkProductAndMenuItem[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
@@ -236,6 +245,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setOrderDataActiveTab,
         ordersActiveTab,
         setOrdersActiveTab,
+        errorDataForProductBulkCreation,
+        setErrorDataForProductBulkCreation,
       }}
     >
       {children}
