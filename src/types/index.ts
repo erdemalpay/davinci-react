@@ -330,7 +330,6 @@ export type CheckoutIncome = {
   location: number;
   date: string;
   amount: number;
-  note: string;
 };
 export type CheckoutControl = {
   _id: number;
