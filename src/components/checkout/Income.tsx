@@ -1,4 +1,5 @@
 import { format, startOfMonth } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -51,6 +52,10 @@ const Income = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const [form, setForm] = useState({
+    date: "",
+    amount: 0,
+  });
   const initialFilterPanelFormElements = {
     user: "",
     location: "",
@@ -189,11 +194,20 @@ const Income = () => {
       1
     );
   }
+  function getDayName(dateString: string) {
+    if (!dateString) return "";
+    const zonedTime = toZonedTime(new Date(dateString), "UTC");
+    const date = new Date(zonedTime);
+    return date.toLocaleDateString("tr-TR", { weekday: "long" });
+  }
   const inputs = [
     {
       type: InputTypes.DATE,
       formKey: "date",
-      label: t("Date"),
+      label: form?.date
+        ? getDayName(form.date) + " " + t("dayIncome")
+        : t("Date"),
+
       placeholder: t("Date"),
       required: true,
       isDateInitiallyOpen: true,
@@ -223,6 +237,7 @@ const Income = () => {
           date: format(new Date(), "yyyy-MM-dd"),
           location: selectedLocationId,
         }}
+        setForm={setForm}
         formKeys={formKeys}
         submitItem={createCheckoutIncome as any}
         topClassName="flex flex-col gap-2 "

@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
@@ -64,7 +65,8 @@ const UpperCategoryBasedSalesReport = () => {
         return acc;
       }
       // Date filters
-      const orderDate = new Date(order.createdAt);
+      const zonedTime = toZonedTime(order.createdAt, "UTC");
+      const orderDate = new Date(zonedTime);
       const existingEntry = acc.find(
         (item) => item?.categoryId === getItem(order?.item, items)?.category
       );
