@@ -53,8 +53,6 @@ export function useCreateBulkProductAndMenuItemMutation() {
     },
     onSettled: (response) => {
       if (response) {
-        console.log(response);
-
         setErrorDataForProductBulkCreation(
           response as CreateBulkProductAndMenuItem[]
         );

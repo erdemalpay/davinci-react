@@ -17,10 +17,6 @@ const BulkProductAdding = () => {
     errorDataForProductBulkCreation,
     setErrorDataForProductBulkCreation,
   } = useGeneralContext();
-  console.log(
-    "errorDataForProductBulkCreation",
-    errorDataForProductBulkCreation
-  );
   const inputRef = useRef<HTMLInputElement>(null);
   const processExcelData = (data: any[]) => {
     const headers = data[0];
