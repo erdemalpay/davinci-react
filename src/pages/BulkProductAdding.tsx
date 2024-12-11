@@ -233,10 +233,10 @@ const BulkProductAdding = () => {
           columns={columns}
           isExcel={true}
           title={t("Bulk Product Adding")}
-          isSearch={false}
-          isColumnFilter={false}
-          isPagination={false}
-          isRowsPerPage={false}
+          isSearch={errorDataForProductBulkCreation?.length > 0}
+          isColumnFilter={errorDataForProductBulkCreation?.length > 0}
+          isPagination={errorDataForProductBulkCreation?.length > 0}
+          isRowsPerPage={errorDataForProductBulkCreation?.length > 0}
           filters={filters}
           excelFileName={t("BulkProductAdding.xlsx")}
         />
