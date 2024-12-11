@@ -137,6 +137,7 @@ const GenericTable = <T,>({
   const usedColumns = title
     ? tableColumns[title].filter((column) => column.isActive)
     : columns;
+
   const usedRowKeys = title
     ? rowKeys.filter(
         (rowKey, index) =>
@@ -749,14 +750,16 @@ const GenericTable = <T,>({
                           key={index}
                           className={`${
                             usedColumns.length === 2 && "justify-between  "
-                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8 `}
+                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8  `}
                         >
-                          <H5
-                            className={`w-max flex gap-2 "text-gray-600" ${
+                          <h1
+                            className={`text-base font-medium leading-6 w-max flex gap-2  ${
+                              column?.className
+                            }  ${
                               usedColumns.length === 2 &&
                               index == 1 &&
                               "  mx-auto"
-                            } ${column?.className} ${
+                            }  ${
                               index === usedColumns.length - 1 &&
                               actions &&
                               isActionsActive
@@ -764,7 +767,9 @@ const GenericTable = <T,>({
                                 : ""
                             }`}
                           >
-                            <span className="flex flex-row gap-1 items-center justify-center">
+                            <span
+                              className={`flex flex-row gap-1 items-center justify-center `}
+                            >
                               {column?.isAddable && (
                                 <GoPlusCircle
                                   onClick={() => column?.onClick?.()}
@@ -811,7 +816,7 @@ const GenericTable = <T,>({
                                   </button>
                                 ))}
                             </div>
-                          </H5>
+                          </h1>
                         </th>
                       );
                     })}

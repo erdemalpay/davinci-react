@@ -2,6 +2,7 @@ import { Tab } from "../components/panelComponents/shared/types";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
+import BulkProductAdding from "../pages/BulkProductAdding";
 import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
@@ -83,6 +84,7 @@ export enum Routes {
   UserActivities = "/user-activities",
   OrdersSummary = "/orders-summary",
   Images = "/images",
+  BulkProductAdding = "/bulk-product-adding",
 }
 
 export const allRoutes: {
@@ -269,6 +271,12 @@ export const allRoutes: {
     name: "Menu Price",
     path: Routes.MenuPrice,
     element: MenuPrice,
+    isOnSidebar: true,
+  },
+  {
+    name: "Bulk Product Adding",
+    path: Routes.BulkProductAdding,
+    element: BulkProductAdding,
     isOnSidebar: true,
   },
   {
