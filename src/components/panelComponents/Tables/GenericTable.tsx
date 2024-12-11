@@ -9,7 +9,8 @@ import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
-import { RowPerPageEnum } from "../../../types";
+import { FormElementsState, RowPerPageEnum } from "../../../types";
+import { outsideSort } from "../../../utils/outsideSort";
 import ImageModal from "../Modals/ImageModal";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
@@ -29,7 +30,10 @@ type PaginationProps = {
   totalPages: number;
   totalRows: number;
 };
-
+type OutsideSortProps = {
+  filterPanelFormElements: FormElementsState;
+  setFilterPanelFormElements: (state: FormElementsState) => void;
+};
 type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
@@ -60,6 +64,7 @@ type Props<T> = {
   isExcel?: boolean;
   excelFileName?: string;
   pagination?: PaginationProps;
+  outsideSortProps?: OutsideSortProps;
 };
 
 const GenericTable = <T,>({
@@ -79,6 +84,7 @@ const GenericTable = <T,>({
   collapsibleActions,
   onDragEnter,
   outsideSearch,
+  outsideSortProps,
   isSearch = true,
   isPdf = false,
   isExcel = false,
@@ -137,7 +143,7 @@ const GenericTable = <T,>({
   const usedColumns = title
     ? tableColumns[title].filter((column) => column.isActive)
     : columns;
-
+  console.log(usedColumns);
   const usedRowKeys = title
     ? rowKeys.filter(
         (rowKey, index) =>
@@ -722,7 +728,7 @@ const GenericTable = <T,>({
               {isColumnFilter && (
                 <>
                   <PiFadersHorizontal
-                    className="my-auto text-xl cursor-pointer"
+                    className="my-auto text-xl cursor-pointer hover:scale-105"
                     onClick={() => setIsColumnActiveModalOpen((prev) => !prev)}
                   />
                   {isColumnActiveModalOpen && title && (
@@ -782,9 +788,15 @@ const GenericTable = <T,>({
                               className="sort-buttons"
                               style={{ display: "inline-block" }}
                             >
-                              {column?.outsideSort}
+                              {outsideSortProps &&
+                                column?.correspondingKey &&
+                                outsideSort(
+                                  column.correspondingKey,
+                                  outsideSortProps.filterPanelFormElements,
+                                  outsideSortProps.setFilterPanelFormElements
+                                )}
                               {column.isSortable &&
-                                !column?.outsideSort &&
+                                !outsideSortProps &&
                                 (sortConfig?.key === usedRowKeys[index]?.key &&
                                 sortConfig?.direction === "ascending" ? (
                                   <button

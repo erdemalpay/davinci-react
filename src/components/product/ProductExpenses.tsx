@@ -16,7 +16,6 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { outsideSort } from "../../utils/outsideSort";
 import {
   BrandInput,
   StockLocationInput,
@@ -130,97 +129,57 @@ const ProductExpenses = () => {
     {
       key: "ID",
       isSortable: false,
-      outsideSort: outsideSort(
-        "_id",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "_id",
     },
     {
       key: t("Date"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "date",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "date",
       className: "min-w-32 pr-2",
     },
     {
       key: t("Note"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "note",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "note",
     },
     {
       key: t("Brand"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      outsideSort: outsideSort(
-        "brand",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "brand",
     },
     {
       key: t("Vendor"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      outsideSort: outsideSort(
-        "vendor",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "vendor",
     },
     {
       key: t("Location"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "location",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "location",
     },
     {
       key: t("Expense Type"),
       className: "min-w-32 ",
       isSortable: false,
-      outsideSort: outsideSort(
-        "expenseType",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "expenseType",
     },
     {
       key: t("Product"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      outsideSort: outsideSort(
-        "product",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "product",
     },
     {
       key: t("Payment Method"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "paymentMethod",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "paymentMethod",
     },
     {
       key: t("Quantity"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "quantity",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "quantity",
     },
     {
       key: t("Unit Price"),
@@ -229,11 +188,7 @@ const ProductExpenses = () => {
     {
       key: t("Total Expense"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "totalExpense",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "totalExpense",
     },
   ];
   const rowKeys = [
@@ -356,6 +311,10 @@ const ProductExpenses = () => {
       />
     );
   };
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -378,6 +337,7 @@ const ProductExpenses = () => {
         rowKeys={rowKeys}
         columns={columns}
         filters={filters}
+        outsideSortProps={outsideSort}
         outsideSearch={outsideSearch}
         filterPanel={filterPanel}
         rows={rows ?? []}

@@ -30,7 +30,6 @@ import {
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { outsideSort } from "../../utils/outsideSort";
 import {
   BackgroundColorInput,
   ExpenseTypeInput,
@@ -280,50 +279,30 @@ const ServiceInvoice = () => {
       key: "ID",
       isSortable: true,
       className: "pl-2",
-      outsideSort: outsideSort(
-        "_id",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "_id",
     },
     {
       key: t("Date"),
       isSortable: true,
-      outsideSort: outsideSort(
-        "date",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "date",
     },
     {
       key: t("Note"),
       isSortable: true,
-      outsideSort: outsideSort(
-        "note",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "note",
     },
     {
       key: t("Vendor"),
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddVendorOpen(true),
-      outsideSort: outsideSort(
-        "vendor",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "vendor",
     },
     {
       key: t("Location"),
       isSortable: true,
       isAddable: isEnableEdit,
-      outsideSort: outsideSort(
-        "location",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "location",
     },
     {
       key: t("Expense Type"),
@@ -331,51 +310,31 @@ const ServiceInvoice = () => {
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
-      outsideSort: outsideSort(
-        "expenseType",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "expenseType",
     },
     {
       key: t("Service"),
       isSortable: true,
       isAddable: isEnableEdit,
       onClick: () => setIsAddServiceModalOpen(true),
-      outsideSort: outsideSort(
-        "service",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "service",
     },
     {
       key: t("Payment Method"),
       className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
-      outsideSort: outsideSort(
-        "paymentMethod",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "paymentMethod",
     },
     {
       key: t("Quantity"),
       isSortable: true,
-      outsideSort: outsideSort(
-        "quantity",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "quantity",
     },
     { key: t("Unit Price"), isSortable: false },
     {
       key: t("Total Expense"),
       isSortable: true,
-      outsideSort: outsideSort(
-        "totalExpense",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "totalExpense",
     },
   ];
   const rowKeys = [
@@ -735,6 +694,10 @@ const ServiceInvoice = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
   const outsideSearch = () => {
     return (
       <TextInput
@@ -773,6 +736,7 @@ const ServiceInvoice = () => {
           rowKeys={rowKeys}
           actions={actions}
           filters={tableFilters}
+          outsideSortProps={outsideSort}
           isActionsActive={false}
           isActionsAtFront={isEnableEdit}
           columns={

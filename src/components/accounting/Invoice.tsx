@@ -36,7 +36,6 @@ import {
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { outsideSort } from "../../utils/outsideSort";
 import {
   BackgroundColorInput,
   BrandInput,
@@ -317,29 +316,17 @@ const Invoice = () => {
       key: "ID",
       isSortable: true,
       className: "pl-2",
-      outsideSort: outsideSort(
-        "_id",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "_id",
     },
     {
       key: t("Date"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "date",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "date",
     },
     {
       key: t("Note"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "note",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "note",
     },
     {
       key: t("Brand"),
@@ -347,11 +334,7 @@ const Invoice = () => {
       isSortable: false,
       isAddable: isEnableEdit,
       onClick: () => setIsAddBrandOpen(true),
-      outsideSort: outsideSort(
-        "brand",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "brand",
     },
     {
       key: t("Vendor"),
@@ -359,32 +342,20 @@ const Invoice = () => {
       isSortable: false,
       isAddable: isEnableEdit,
       onClick: () => setIsAddVendorOpen(true),
-      outsideSort: outsideSort(
-        "vendor",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "vendor",
     },
     {
       key: t("Location"),
       isSortable: false,
       isAddable: isEnableEdit,
-      outsideSort: outsideSort(
-        "location",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "location",
     },
     {
       key: t("Expense Type"),
       isSortable: false,
       isAddable: isEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
-      outsideSort: outsideSort(
-        "expenseType",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "expenseType",
     },
     {
       key: t("Product"),
@@ -392,40 +363,24 @@ const Invoice = () => {
       isSortable: false,
       isAddable: isEnableEdit,
       onClick: () => setIsAddProductOpen(true),
-      outsideSort: outsideSort(
-        "product",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "product",
     },
     {
       key: t("Payment Method"),
       className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: false,
-      outsideSort: outsideSort(
-        "paymentMethod",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "paymentMethod",
     },
     {
       key: t("Quantity"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "quantity",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "quantity",
     },
     { key: t("Unit Price"), isSortable: false },
     {
       key: t("Total Expense"),
       isSortable: true,
-      outsideSort: outsideSort(
-        "totalExpense",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "totalExpense",
     },
   ];
   const rowKeys = [
@@ -835,6 +790,10 @@ const Invoice = () => {
       />
     );
   };
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -850,6 +809,7 @@ const Invoice = () => {
     locations,
     paymentMethods,
   ]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -859,6 +819,7 @@ const Invoice = () => {
           isActionsAtFront={isEnableEdit}
           actions={actions}
           filters={tableFilters}
+          outsideSortProps={outsideSort}
           outsideSearch={outsideSearch}
           isActionsActive={false} //this seems wrong but for actions to appear in the first column it should be like this
           columns={

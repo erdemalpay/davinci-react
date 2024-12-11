@@ -15,7 +15,6 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { outsideSort } from "../../utils/outsideSort";
 import {
   BrandInput,
   ProductInput,
@@ -137,39 +136,23 @@ const ProductStockHistory = () => {
     {
       key: t("Date"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "createdAt",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "createdAt",
     },
     { key: t("Hour"), isSortable: false },
     {
       key: t("User"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "user",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "user",
     },
     {
       key: t("Product"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "product",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "product",
     },
     {
       key: t("Location"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "location",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "location",
     },
     { key: t("Old Quantity"), isSortable: false },
     { key: t("Changed"), isSortable: false },
@@ -177,11 +160,7 @@ const ProductStockHistory = () => {
     {
       key: t("Status"),
       isSortable: false,
-      outsideSort: outsideSort(
-        "status",
-        filterPanelFormElements,
-        setFilterPanelFormElements
-      ),
+      correspondingKey: "status",
     },
   ];
   const rowKeys = [
@@ -258,6 +237,10 @@ const ProductStockHistory = () => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -282,6 +265,7 @@ const ProductStockHistory = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
+          outsideSortProps={outsideSort}
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}

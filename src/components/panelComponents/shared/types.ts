@@ -54,7 +54,6 @@ export interface ColumnType {
   className?: string;
   isActive?: boolean;
   correspondingKey?: string;
-  outsideSort?: React.ReactNode;
   node?: () => React.ReactNode;
   onClick?: () => void;
 }
