@@ -157,6 +157,7 @@ const PagePermissions = () => {
           filters={filters}
           title={t("Page Permissions")}
           isActionsActive={false}
+          isSearch={false}
         />
       </div>
     </>
