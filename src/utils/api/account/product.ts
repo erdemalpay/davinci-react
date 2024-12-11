@@ -6,7 +6,16 @@ import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/products`;
 const allProductsBaseUrl = `${Paths.Accounting}/all-products`;
-
+export interface CreateBulkProductAndMenuItem {
+  name: string;
+  expenseType?: string;
+  brand?: string;
+  vendor?: string;
+  category?: string;
+  price?: number;
+  onlinePrice?: number;
+  description?: string;
+}
 export interface JoinProductsRequest {
   stayedProduct: string;
   removedProduct: string;
@@ -23,6 +32,29 @@ export function useAccountProductMutations() {
   return { deleteAccountProduct, updateAccountProduct, createAccountProduct };
 }
 
+export function createBulkProductAndMenuItem(
+  createBulkPayload: CreateBulkProductAndMenuItem[]
+) {
+  return post({
+    path: `${Paths.Accounting}/products/bulk`,
+    payload: createBulkPayload,
+  });
+}
+export function useCreateBulkProductAndMenuItemMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(createBulkProductAndMenuItem, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function joinProducts({
   stayedProduct,
   removedProduct,
@@ -32,7 +64,6 @@ export function joinProducts({
     payload: { stayedProduct, removedProduct },
   });
 }
-
 export function useJoinProductsMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();

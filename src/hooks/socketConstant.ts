@@ -156,4 +156,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "assetChanged",
     invalidateKeys: [`${Paths.Asset}`],
   },
+  {
+    event: "bulkProductAndMenuItemChanged",
+    invalidateKeys: [`${Paths.Accounting}/products`, `${Paths.MenuItems}`],
+  },
 ];
