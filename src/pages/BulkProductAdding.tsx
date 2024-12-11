@@ -91,7 +91,7 @@ const BulkProductAdding = () => {
             price: 2100,
             onlinePrice: 2450,
             description: "    ",
-            image: "menu/7 Wonders Duel.png",
+            image: "menu/7WondersDuel.png",
           },
           {
             name: "Orta boy çöp poşeti",
