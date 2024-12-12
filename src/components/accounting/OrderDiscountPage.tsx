@@ -115,7 +115,7 @@ const OrderDiscountPage = () => {
           label: t("Amount"),
         },
       ],
-      required: !isEditModalOpen,
+      required: true,
       invalidateKeys: [
         { key: "percentage", defaultValue: "" },
         { key: "amount", defaultValue: "" },
@@ -126,32 +126,16 @@ const OrderDiscountPage = () => {
       formKey: "percentage",
       label: t("Percentage"),
       placeholder: t("Percentage"),
-      required: isEditModalOpen
-        ? rowToAction?.percentage
-          ? true
-          : false
-        : form.type === DiscountTypeEnum.PERCENTAGE,
-      isDisabled: isEditModalOpen
-        ? rowToAction?.percentage
-          ? false
-          : true
-        : form.type !== DiscountTypeEnum.PERCENTAGE,
+      required: form.type === DiscountTypeEnum.PERCENTAGE,
+      isDisabled: form.type !== DiscountTypeEnum.PERCENTAGE,
     },
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
       label: t("Amount"),
       placeholder: t("Amount"),
-      required: isEditModalOpen
-        ? rowToAction?.amount
-          ? true
-          : false
-        : form.type === DiscountTypeEnum.AMOUNT,
-      isDisabled: isEditModalOpen
-        ? rowToAction?.amount
-          ? false
-          : true
-        : form.type !== DiscountTypeEnum.AMOUNT,
+      required: form.type === DiscountTypeEnum.AMOUNT,
+      isDisabled: form.type !== DiscountTypeEnum.AMOUNT,
     },
     {
       type: InputTypes.CHECKBOX,
@@ -260,7 +244,15 @@ const OrderDiscountPage = () => {
           submitItem={updateOrderDiscount as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          itemToEdit={{
+            id: rowToAction._id,
+            updates: {
+              ...rowToAction,
+              type: rowToAction?.percentage
+                ? DiscountTypeEnum.PERCENTAGE
+                : DiscountTypeEnum.AMOUNT,
+            },
+          }}
         />
       ) : null,
       isModalOpen: isEditModalOpen,

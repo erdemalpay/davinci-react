@@ -300,6 +300,15 @@ const AllExpenses = () => {
       paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
       required: true,
     }),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isStockIncrement",
+      label: t("Stock Increment"),
+      placeholder: t("Stock Increment"),
+      required: false,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
+      isTopFlexRow: true,
+    },
     QuantityInput(),
   ];
   const formKeys = [
@@ -311,6 +320,7 @@ const AllExpenses = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
+    { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [

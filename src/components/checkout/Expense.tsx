@@ -296,6 +296,15 @@ const Expenses = () => {
       vendors: vendorInputOptions() ?? [],
       required: true,
     }),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isStockIncrement",
+      label: t("Stock Increment"),
+      placeholder: t("Stock Increment"),
+      required: false,
+      isDisabled: allExpenseForm?.type !== ExpenseTypes.STOCKABLE,
+      isTopFlexRow: true,
+    },
     QuantityInput(),
   ];
   const formKeys = [
@@ -306,6 +315,7 @@ const Expenses = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
+    { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [

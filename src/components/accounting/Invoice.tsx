@@ -295,6 +295,7 @@ const Invoice = () => {
       label: t("Stock Increment"),
       placeholder: t("Stock Increment"),
       required: false,
+      isDisabled: isEditModalOpen,
       isTopFlexRow: true,
     },
     QuantityInput(),
