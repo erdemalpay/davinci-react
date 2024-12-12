@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
 import { Location } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 
 interface Props {
   allowedLocations?: number[];
@@ -9,7 +9,7 @@ interface Props {
 export function LocationSelector({ allowedLocations }: Props) {
   const { selectedLocationId } = useLocationContext();
   const { setSelectedLocationId } = useLocationContext();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const [showedLocations, setShowedLocations] = useState<Location[]>([]);
 
   useEffect(() => {

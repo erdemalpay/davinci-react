@@ -57,7 +57,11 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "locationChanged",
-    invalidateKeys: [`${Paths.Location}`],
+    invalidateKeys: [
+      `${Paths.Location}`,
+      `${Paths.Location}/stock`,
+      `${Paths.Location}/all`,
+    ],
   },
   {
     event: "gameplayChanged",

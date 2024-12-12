@@ -12,6 +12,9 @@ export type Gameplay = {
 export type Location = {
   _id: number;
   name: string;
+  tableCount?: number;
+  type: number[];
+  active: boolean;
 };
 
 export type Table = {
@@ -541,6 +544,7 @@ export enum AccountingPageTabEnum {
   DISCOUNTS,
   PAYMENTMETHODS,
   KITCHENS,
+  LOCATIONS,
   UPPERCATEGORIES,
 }
 export enum CheckoutPageTabEnum {

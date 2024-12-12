@@ -13,7 +13,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
@@ -25,7 +25,7 @@ const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   if (!collections || !locations || !paymentMethods) {

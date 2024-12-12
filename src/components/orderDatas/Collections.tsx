@@ -13,7 +13,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
@@ -31,7 +31,7 @@ const Collections = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const orders = useGetOrders();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();

@@ -235,7 +235,7 @@ const UpperCategories = () => {
           inputs={inputs}
           formKeys={formKeys}
           submitItem={updateUpperCategory as any}
-          isEditMode={false}
+          isEditMode={true}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />

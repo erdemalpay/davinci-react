@@ -6,7 +6,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { Kitchen, RoleEnum } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useGetKitchens,
   useKitchenMutations,
@@ -26,7 +26,7 @@ const KitchenPage = () => {
   const kitchens = useGetKitchens();
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const pages = useGetPanelControlPages();
@@ -234,10 +234,8 @@ const KitchenPage = () => {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
       isDisabled: user
         ? ![

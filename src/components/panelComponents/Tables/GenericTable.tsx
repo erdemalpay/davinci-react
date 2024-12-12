@@ -143,7 +143,6 @@ const GenericTable = <T,>({
   const usedColumns = title
     ? tableColumns[title].filter((column) => column.isActive)
     : columns;
-  console.log(usedColumns);
   const usedRowKeys = title
     ? rowKeys.filter(
         (rowKey, index) =>
@@ -381,11 +380,7 @@ const GenericTable = <T,>({
           onDragStart={(e) => handleDragStart(e, row)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, row)}
-          className={`${
-            rowIndex !== currentRows.length - 1 && !isRowExpanded
-              ? "border-b "
-              : ""
-          } ${rowClassNameFunction?.(row)}`}
+          className={`border-b  ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
           {(!isCollapsibleCheckActive ||

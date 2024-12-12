@@ -1,6 +1,7 @@
 import { AiOutlinePercentage } from "react-icons/ai";
 import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet } from "react-icons/fa6";
+import { IoStorefrontSharp } from "react-icons/io5";
 import { MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
@@ -8,6 +9,7 @@ import { TbBrandBlogger, TbCategoryPlus, TbZoomMoney } from "react-icons/tb";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
+import LocationPage from "../components/accounting/Location";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
@@ -76,6 +78,13 @@ export const AccountingPageTabs = [
     label: "Kitchens",
     icon: <FaKitchenSet className="text-lg font-thin" />,
     content: <KitchenPage />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.LOCATIONS,
+    label: "Locations",
+    icon: <IoStorefrontSharp className="text-lg font-thin" />,
+    content: <LocationPage />,
     isDisabled: false,
   },
   {

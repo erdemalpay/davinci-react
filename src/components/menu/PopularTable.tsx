@@ -5,7 +5,7 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuItem, MenuPopular } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
@@ -21,7 +21,7 @@ const PopularTable = ({ popularItems }: Props) => {
   const { t } = useTranslation();
   const categories = useGetCategories();
   const items = useGetMenuItems();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const { deletePopular, updatePopular } = usePopularMutations();
   const { user } = useUserContext();
   const [rowToAction, setRowToAction] = useState<MenuItem>();

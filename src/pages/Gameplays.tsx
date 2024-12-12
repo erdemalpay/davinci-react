@@ -9,7 +9,7 @@ import { Caption, H5 } from "../components/panelComponents/Typography";
 import { Game, Location, RowPerPageEnum, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { GameplayFilter, useGetGameplays } from "../utils/api/gameplay";
-import { useGetLocations } from "../utils/api/location";
+import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 
@@ -35,7 +35,7 @@ export default function NewGameplays() {
   const [tableKey, setTableKey] = useState(0);
   const { data } = useGetGameplays(filterData);
   const games = useGetGames();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const users = useGetUsers();
   const columns = [
     {

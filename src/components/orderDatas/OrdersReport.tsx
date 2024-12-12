@@ -15,7 +15,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetOrders,
@@ -37,7 +37,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 const OrdersReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);

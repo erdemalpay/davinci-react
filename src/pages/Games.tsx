@@ -18,7 +18,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
-import { useGetLocations } from "../utils/api/location";
+import { useGetStoreLocations } from "../utils/api/location";
 
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 export default function Games() {
@@ -27,7 +27,7 @@ export default function Games() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);

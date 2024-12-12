@@ -18,7 +18,7 @@ import {
   useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
 import { dateRanges } from "../../utils/api/dateRanges";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -38,7 +38,7 @@ const Income = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
   const { user } = useUserContext();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const { selectedLocationId } = useLocationContext();

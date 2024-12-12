@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Location } from "../types";
-import { useGetLocations } from "../utils/api/location";
+import { useGetStoreLocations } from "../utils/api/location";
 
 const LOCATION_LOCAL_STORAGE_KEY = "dvp.locationId";
 
@@ -20,7 +20,7 @@ const LocationContext = createContext<LocationContextType>({
 export const LocationContextProvider = ({ children }: PropsWithChildren) => {
   const locationId = Number(localStorage.getItem(LOCATION_LOCAL_STORAGE_KEY));
   const [selectedLocationId, setSelectedLocationId] = useState(locationId || 1);
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
 
   function selectLocation(locationId: number) {
     localStorage.setItem(LOCATION_LOCAL_STORAGE_KEY, locationId.toString());

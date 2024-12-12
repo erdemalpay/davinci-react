@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { MenuItem } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import {
   useGetMenuItems,
@@ -21,7 +21,7 @@ const ClosedItems = () => {
   const [isLocationEnableEdit, setIsLocationEnableEdit] = useState(false);
   const { updateItem } = useMenuItemMutations();
   const categories = useGetCategories();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const allRows = items
     ?.filter((item) => item?.locations?.length !== locations?.length)
     ?.map((item) => {

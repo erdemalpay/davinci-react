@@ -12,7 +12,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -51,7 +51,7 @@ const GroupedProductSalesReport = () => {
   const orders = useGetOrders();
   const categories = useGetCategories();
   const items = useGetMenuItems();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const queryClient = useQueryClient();
   const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {

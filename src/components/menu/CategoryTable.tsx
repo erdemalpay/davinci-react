@@ -8,7 +8,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { MenuCategory, OrderDiscountStatus, RoleEnum } from "../../types";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useCategoryMutations,
   useGetAllCategories,
@@ -33,7 +33,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
   const { t } = useTranslation();
   const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
   const [isLocationEdit, setIsLocationEdit] = useState(false);
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const allCategories = useGetAllCategories();
   const [showInactiveCategories, setShowInactiveCategories] = useState(false);
   const discounts = useGetOrderDiscounts()?.filter(

@@ -23,7 +23,7 @@ import {
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useMenuItemMutations,
   useUpdateItemsOrderMutation,
@@ -57,7 +57,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
-  const locations = useGetLocations();
+  const locations = useGetStoreLocations();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
