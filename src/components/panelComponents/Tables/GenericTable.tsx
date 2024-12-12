@@ -380,7 +380,11 @@ const GenericTable = <T,>({
           onDragStart={(e) => handleDragStart(e, row)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, row)}
-          className={`border-b  ${rowClassNameFunction?.(row)}`}
+          className={`${
+            rowIndex !== currentRows.length - 1 && !isRowExpanded
+              ? "border-b "
+              : ""
+          }  ${rowClassNameFunction?.(row)}`}
         >
           {/* Expand/Collapse Control */}
           {(!isCollapsibleCheckActive ||
@@ -737,7 +741,7 @@ const GenericTable = <T,>({
           </div>
           {/* table part */}
           <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full ">
-            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-96  ">
+            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-60  ">
               <table className="bg-white w-full ">
                 <thead className="border-b ">
                   <tr>

@@ -8,7 +8,6 @@ import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
-import InfoBox from "../components/panelComponents/FormElements/InfoBox";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
@@ -30,6 +29,7 @@ import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
+  ReservationStatusEnum,
   StockHistoryStatusEnum,
   TURKISHLIRA,
   Table,
@@ -40,11 +40,13 @@ import {
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetGames } from "../utils/api/game";
+import { useGetStoreLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
+import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -59,6 +61,7 @@ const Tables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const { user } = useUserContext();
+  const reservations = useGetReservations();
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showServedOrders, setShowServedOrders] = useState(true);
@@ -67,6 +70,7 @@ const Tables = () => {
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
+  const locations = useGetStoreLocations();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -352,7 +356,17 @@ const Tables = () => {
   );
   const activeTables = tables.filter((table) => !table?.finishHour);
   const activeTableCount = activeTables.length;
+  const waitingReservations = reservations?.filter(
+    (reservation) => reservation.status === ReservationStatusEnum.WAITING
+  )?.length;
+  const comingReservations = reservations?.filter(
+    (reservation) => reservation.status === ReservationStatusEnum.COMING
+  )?.length;
+  const emptyTableCount =
+    (getItem(selectedLocationId, locations)?.tableCount ?? 0) -
+    activeTableCount;
   const totalTableCount = tables.length;
+
   const activeCustomerCount = activeTables.reduce(
     (prev: number, curr: Table) => {
       return Number(prev) + Number(curr.playerCount);
@@ -461,6 +475,36 @@ const Tables = () => {
       });
     }
   };
+  const cafeInfos: {
+    title: string;
+    value: any;
+  }[] = [
+    {
+      title: "Total Table",
+      value: totalTableCount,
+    },
+    {
+      title: "Total Customer",
+      value: totalCustomerCount,
+    },
+    {
+      title: "Empty Table",
+      value: emptyTableCount,
+    },
+
+    {
+      title: "Active Table",
+      value: activeTableCount,
+    },
+    {
+      title: "Active Customer",
+      value: activeCustomerCount,
+    },
+    {
+      title: "Reservations",
+      value: `${waitingReservations} / ${comingReservations}`,
+    },
+  ];
 
   const bgColor = (table: Table) => {
     const tableOrders = todayOrders?.filter(
@@ -627,37 +671,23 @@ const Tables = () => {
               totalTableCount > 0 ||
               activeCustomerCount > 0 ||
               totalCustomerCount > 0) && (
-              <div className="relative w-80 h-28 border border-gray-400 rounded-md ">
-                <div className="absolute inset-0 grid grid-cols-2 grid-rows-2   ">
-                  <InfoBox
-                    title={t("Active Table")}
-                    count={activeTableCount}
-                    className="rounded-tl-2xl"
-                  />
-                  <InfoBox
-                    title={t("Total Table")}
-                    count={totalTableCount}
-                    className=" rounded-tr-2xl"
-                  />
-                  <InfoBox
-                    title={t("Active Customer")}
-                    count={activeCustomerCount}
-                    className=" rounded-bl-2xl "
-                  />
-                  <InfoBox
-                    title={t("Total Customer")}
-                    count={totalCustomerCount}
-                    className="rounded-br-2xl"
-                  />
-                </div>
-                <div className="absolute inset-0 flex justify-center items-center">
-                  <div className="w-full h-[1px] bg-gray-400" />
-                </div>
-                <div className="absolute inset-0 flex justify-center items-center">
-                  <div className="h-full w-[1px] bg-gray-400" />
+              <div className="border  w-fit min-w-fit border-gray-400 rounded-md ">
+                <div className=" grid grid-cols-3  grid-rows-2 divide-x divide-y    divide-gray-200  ">
+                  {cafeInfos.map((info, index) => (
+                    <div
+                      key={index + "cafeinfo"}
+                      className="flex flex-col items-center justify-center p-2 min-w-fit"
+                    >
+                      <h4 className="text-center text-[14px]  ">
+                        {t(info.title)}
+                      </h4>
+                      <p className="font-thin ">{info.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
+
             <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
