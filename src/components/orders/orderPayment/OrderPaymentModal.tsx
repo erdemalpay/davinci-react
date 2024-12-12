@@ -68,7 +68,6 @@ const OrderPaymentModal = ({
   const categories = useGetCategories();
   const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
-  const [buttonsKey, setButtonsKey] = useState(0);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const discounts = useGetOrderDiscounts();
@@ -562,7 +561,7 @@ const OrderPaymentModal = ({
                     if (button.isActive) {
                       return (
                         <button
-                          key={button.label + String(buttonsKey)}
+                          key={button.label}
                           onClick={button.onClick}
                           className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
                         >

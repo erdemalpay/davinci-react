@@ -40,7 +40,6 @@ import {
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useConsumptStockMutation } from "../utils/api/account/stock";
 import { useGetGames } from "../utils/api/game";
-import { useGetStockLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -64,7 +63,6 @@ const Tables = () => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
-  const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const { mutate: consumptStock } = useConsumptStockMutation();
@@ -105,7 +103,6 @@ const Tables = () => {
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
   const [orderForm, setOrderForm] = useState(initialOrderForm);
-
   const consumptInputs = [
     {
       type: InputTypes.SELECT,
@@ -140,7 +137,6 @@ const Tables = () => {
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
-
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -220,7 +216,7 @@ const Tables = () => {
       invalidateKeys: [{ key: "item", defaultValue: 0 }],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true, // remove this line and make category selection visible again
+      isDisabled: true,
     },
     {
       type: InputTypes.SELECT,
@@ -842,7 +838,7 @@ const Tables = () => {
               name: "Takeaway",
               date: selectedDate,
               location: selectedLocationId,
-              playerCount: 2,
+              playerCount: 0,
               startHour: formattedTime,
               gameplays: [],
               type: TableTypes.TAKEOUT,
