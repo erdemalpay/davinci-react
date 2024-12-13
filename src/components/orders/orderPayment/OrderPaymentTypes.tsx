@@ -1,6 +1,8 @@
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import bankTransfer from "../../../assets/order/bank_transfer.png";
@@ -18,8 +20,10 @@ import {
   TableTypes,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
+import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { closeTable } from "../../../utils/api/table";
+import { getItem } from "../../../utils/getItem";
 
 type Props = {
   tableOrders: Order[];
@@ -39,7 +43,9 @@ const OrderPaymentTypes = ({
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
   const paymentMethods = useGetAccountPaymentMethods();
+  const items = useGetMenuItems();
   const { setIsCollectionModalOpen } = useOrderContext();
+  const [componentKey, setComponentKey] = useState(0);
   // this are for collection cancel note if it is activated this will be used
   // const [selectedCollection, setSelectedCollection] =
   //   useState<OrderCollection>();
@@ -47,6 +53,7 @@ const OrderPaymentTypes = ({
   // const [inputForm, setInputForm] = useState({
   //   note: "",
   // });
+  const [expandedCollections, setExpandedCollections] = useState<number[]>([]);
   const { user } = useUserContext();
   if (
     !selectedLocationId ||
@@ -108,9 +115,14 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
-
+  useEffect(() => {
+    setComponentKey((prev) => prev + 1);
+  }, [items]);
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8">
+    <div
+      key={componentKey}
+      className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4  __className_a182b8"
+    >
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <h1>{t("Payment Types")}</h1>
@@ -240,65 +252,117 @@ const OrderPaymentTypes = ({
         {tableNotCancelledCollections?.map((collection) => (
           <div
             key={collection._id + "collection summary"}
-            className="flex flex-row justify-between px-4 border-b text-sm font-medium pb-1"
+            className="flex flex-col gap-1"
           >
-            {/* left part */}
-            <div className="flex flex-row gap-2 ">
-              <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
-              <p>
-                {collection.paymentMethod
-                  ? t(
-                      getPaymentMethodName(collection.paymentMethod)?.name || ""
-                    )
-                  : ""}
-              </p>
+            <div className="flex flex-row justify-between px-4 border-b text-sm font-medium pb-1">
+              {/* left part */}
+              <div className="flex flex-row gap-2 items-center">
+                {collection?.orders?.length !== 0 && (
+                  <div
+                    onClick={() => {
+                      setExpandedCollections((prev) =>
+                        prev.includes(collection._id)
+                          ? prev.filter((id) => id !== collection._id)
+                          : [...prev, collection._id]
+                      );
+                    }}
+                    className="w-6 h-6 mx-auto p-1 cursor-pointer text-gray-500 hover:bg-gray-50 hover:rounded-full"
+                  >
+                    {expandedCollections.includes(collection._id) ? (
+                      <FaChevronUp />
+                    ) : (
+                      <FaChevronDown />
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-row gap-2 ">
+                  <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
+                  <p>
+                    {collection.paymentMethod
+                      ? t(
+                          getPaymentMethodName(collection.paymentMethod)
+                            ?.name || ""
+                        )
+                      : ""}
+                  </p>
+                </div>
+              </div>
+
+              {/* right part */}
+              {!table?.finishHour && (
+                <HiOutlineTrash
+                  className="text-red-600 cursor-pointer text-lg"
+                  onClick={() => {
+                    let newOrders: Order[] = [];
+                    if (
+                      collection?.orders?.length &&
+                      collection?.orders?.length > 0
+                    ) {
+                      newOrders = collection?.orders
+                        ?.map((orderCollectionItem: OrderCollectionItem) => {
+                          const order = givenDateOrders?.find(
+                            (orderItem) =>
+                              orderItem._id === orderCollectionItem?.order
+                          );
+                          if (order !== undefined) {
+                            return {
+                              ...order,
+                              paidQuantity:
+                                order.paidQuantity -
+                                  orderCollectionItem?.paidQuantity <
+                                1e-6
+                                  ? 0
+                                  : order.paidQuantity -
+                                    orderCollectionItem?.paidQuantity,
+                            };
+                          }
+                          return null;
+                        })
+                        ?.filter((item): item is Order => item !== null);
+                    }
+                    updateOrderCollection({
+                      id: collection._id,
+                      updates: {
+                        cancelledAt: new Date(),
+                        cancelledBy: user._id,
+                        status: OrderCollectionStatus.CANCELLED,
+                        ...(newOrders && { newOrders: newOrders }),
+                        table: table?._id,
+                      } as Partial<OrderCollection>,
+                    });
+                    resetOrderContext();
+                  }}
+                />
+              )}
             </div>
-            {/* right part */}
-            {!table?.finishHour && (
-              <HiOutlineTrash
-                className="text-red-600 cursor-pointer text-lg"
-                onClick={() => {
-                  let newOrders: Order[] = [];
-                  if (
-                    collection?.orders?.length &&
-                    collection?.orders?.length > 0
-                  ) {
-                    newOrders = collection?.orders
-                      ?.map((orderCollectionItem: OrderCollectionItem) => {
-                        const order = givenDateOrders?.find(
-                          (orderItem) =>
-                            orderItem._id === orderCollectionItem.order
-                        );
-                        if (order !== undefined) {
-                          return {
-                            ...order,
-                            paidQuantity:
-                              order.paidQuantity -
-                                orderCollectionItem.paidQuantity <
-                              1e-6
-                                ? 0
-                                : order.paidQuantity -
-                                  orderCollectionItem.paidQuantity,
-                          };
+            {/* expanded part */}
+            {expandedCollections.includes(collection._id) &&
+              collection?.orders?.length !== 0 && (
+                <div className="flex flex-col gap-1 px-4">
+                  {collection?.orders?.map((orderCollectionItem) => {
+                    const order = givenDateOrders?.find(
+                      (orderItem) =>
+                        orderItem._id === orderCollectionItem?.order
+                    );
+                    if (!order) return null;
+                    const item = getItem(order.item, items);
+                    return (
+                      <div
+                        key={
+                          orderCollectionItem?.order + "order collection item"
                         }
-                        return null;
-                      })
-                      ?.filter((item): item is Order => item !== null);
-                  }
-                  updateOrderCollection({
-                    id: collection._id,
-                    updates: {
-                      cancelledAt: new Date(),
-                      cancelledBy: user._id,
-                      status: OrderCollectionStatus.CANCELLED,
-                      ...(newOrders && { newOrders: newOrders }),
-                      table: table?._id,
-                    } as Partial<OrderCollection>,
-                  });
-                  resetOrderContext();
-                }}
-              />
-            )}
+                        className="flex flex-row justify-between items-center border-b border-gray-200 px-2 py-1"
+                      >
+                        <p className="text-sm">{item?.name}</p>
+                        <p className="text-sm">
+                          {orderCollectionItem?.paidQuantity}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
           </div>
         ))}
       </div>
