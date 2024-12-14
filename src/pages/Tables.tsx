@@ -1,3 +1,4 @@
+import { Tooltip } from "@material-tailwind/react";
 import { subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
@@ -478,6 +479,7 @@ const Tables = () => {
   const cafeInfos: {
     title: string;
     value: any;
+    tooltip?: string;
   }[] = [
     {
       title: "Total Table",
@@ -503,6 +505,7 @@ const Tables = () => {
     {
       title: "Reservations",
       value: `${waitingReservations} / ${comingReservations}`,
+      tooltip: t("Waiting / Coming"),
     },
   ];
 
@@ -673,17 +676,33 @@ const Tables = () => {
               totalCustomerCount > 0) && (
               <div className="border  w-fit min-w-fit border-gray-400 rounded-md ">
                 <div className=" grid grid-cols-3  grid-rows-2 divide-x divide-y    divide-gray-200  ">
-                  {cafeInfos.map((info, index) => (
-                    <div
-                      key={index + "cafeinfo"}
-                      className="flex flex-col items-center justify-center p-2 min-w-fit"
-                    >
-                      <h4 className="text-center text-[14px]  ">
-                        {t(info.title)}
-                      </h4>
-                      <p className="font-thin ">{info.value}</p>
-                    </div>
-                  ))}
+                  {cafeInfos.map((info, index) =>
+                    info?.tooltip ? (
+                      <Tooltip
+                        key={index + "cafeinfo"}
+                        content={info.tooltip}
+                        placement="top"
+                        className="!z-[999999999999999999999]"
+                      >
+                        <div className="flex flex-col items-center justify-center p-2 min-w-fit">
+                          <h4 className="text-center text-[14px]">
+                            {t(info.title)}
+                          </h4>
+                          <p className="font-thin">{info.value}</p>
+                        </div>
+                      </Tooltip>
+                    ) : (
+                      <div
+                        key={index + "cafeinfo"}
+                        className="flex flex-col items-center justify-center p-2 min-w-fit"
+                      >
+                        <h4 className="text-center text-[14px]">
+                          {t(info.title)}
+                        </h4>
+                        <p className="font-thin">{info.value}</p>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
