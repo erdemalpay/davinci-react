@@ -94,7 +94,6 @@ const ServiceInvoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>();
   const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
     useState(false);
@@ -538,25 +537,6 @@ const ServiceInvoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
-    // {
-    //   name: "Transfer",
-    //   isDisabled: !isTransferEdit,
-    //   icon: <TbTransfer />,
-    //   setRow: setRowToAction,
-    //   node: (row: AccountServiceInvoice) => {
-    //     return (
-    //       <ButtonTooltip content={t("Transfer to Product Expense")}>
-    //         <TbTransfer
-    //           className="text-red-500 cursor-pointer text-2xl"
-    //           onClick={() => transferServiceInvoiceToInvoice({ id: row._id })}
-    //         />
-    //       </ButtonTooltip>
-    //     );
-    //   },
-    //   className: "text-red-500 cursor-pointer text-2xl  ",
-    //   isModal: false,
-    //   isPath: false,
-    // },
     {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
@@ -669,13 +649,6 @@ const ServiceInvoice = () => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
     {
-      label: t("Enable Transfer"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
-      ),
-    },
-    {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
@@ -740,7 +713,7 @@ const ServiceInvoice = () => {
           isActionsActive={false}
           isActionsAtFront={isEnableEdit}
           columns={
-            isEnableEdit || isTransferEdit
+            isEnableEdit
               ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }

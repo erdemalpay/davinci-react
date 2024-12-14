@@ -112,7 +112,6 @@ const Invoice = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountExpense>();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [isTransferEdit, setIsTransferEdit] = useState(false);
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
@@ -610,25 +609,6 @@ const Invoice = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
-    // {
-    //   name: "Transfer Service",
-    //   isDisabled: !isTransferEdit,
-    //   icon: <TbTransferIn />,
-    //   setRow: setRowToAction,
-    //   node: (row: AccountExpense) => {
-    //     return (
-    //       <ButtonTooltip content={t("Transfer to Service")}>
-    //         <TbTransferIn
-    //           className="text-green-500 cursor-pointer text-2xl"
-    //           onClick={() => transferToServiceInvoice({ id: row._id })}
-    //         />
-    //       </ButtonTooltip>
-    //     );
-    //   },
-    //   className: "text-green-500 cursor-pointer text-2xl  ",
-    //   isModal: false,
-    //   isPath: false,
-    // },
     {
       name: t("Delete"),
       isDisabled: !isEnableEdit,
@@ -750,13 +730,6 @@ const Invoice = () => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
     {
-      label: t("Enable Transfer"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton checked={isTransferEdit} onChange={setIsTransferEdit} />
-      ),
-    },
-    {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
@@ -824,7 +797,7 @@ const Invoice = () => {
           outsideSearch={outsideSearch}
           isActionsActive={false} //this seems wrong but for actions to appear in the first column it should be like this
           columns={
-            isEnableEdit || isTransferEdit
+            isEnableEdit
               ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }
