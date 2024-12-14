@@ -284,6 +284,7 @@ const Income = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateCheckoutIncome as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
