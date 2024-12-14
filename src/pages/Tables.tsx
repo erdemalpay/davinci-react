@@ -476,7 +476,18 @@ const Tables = () => {
       ? "bg-orange-200"
       : "bg-gray-100";
   };
+  // filter out unfinished visits and only show one visit per user
 
+  const seenUserIds = new Set<string>();
+  const filteredVisits = visits.filter((visit) => {
+    const isUserNotSeen = !seenUserIds.has(visit.user);
+    if (isUserNotSeen) {
+      seenUserIds.add(visit.user);
+      return true;
+    }
+
+    return false;
+  });
   const buttons: {
     label: string;
     onClick: () => void;
@@ -660,7 +671,7 @@ const Tables = () => {
                   visits={visits}
                 />
               ) : (
-                <PreviousVisitList visits={visits} />
+                <PreviousVisitList visits={filteredVisits} />
               )}
 
               {/* filters */}
