@@ -1,4 +1,5 @@
 import { AiOutlinePercentage } from "react-icons/ai";
+import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet } from "react-icons/fa6";
 import { IoStorefrontSharp } from "react-icons/io5";
@@ -13,6 +14,7 @@ import LocationPage from "../components/accounting/Location";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
+import ProductCategoriesPage from "../components/accounting/ProductCategories";
 import Service from "../components/accounting/Service";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
@@ -50,6 +52,13 @@ export const AccountingPageTabs = [
     label: "Products",
     icon: <RiProductHuntLine className="text-lg font-thin" />,
     content: <Product />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.PRODUCTCATEGORIES,
+    label: "Product Categories",
+    icon: <BiSolidCategoryAlt className="text-lg font-thin" />,
+    content: <ProductCategoriesPage />,
     isDisabled: false,
   },
   {

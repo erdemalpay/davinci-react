@@ -15,6 +15,7 @@ export type Location = {
   tableCount?: number;
   type: number[];
   active: boolean;
+  activityNote?: string;
 };
 
 export type Table = {
@@ -129,6 +130,12 @@ export type AccountExpenseType = {
   _id: string;
   name: string;
   backgroundColor: string;
+};
+
+export type ProductCategories = {
+  _id: string;
+  name: string;
+  ikasId?: string;
 };
 
 export type AccountBrand = {
@@ -540,6 +547,7 @@ export enum AccountingPageTabEnum {
   VENDOR,
   BRAND,
   PRODUCT,
+  PRODUCTCATEGORIES,
   SERVICES,
   DISCOUNTS,
   PAYMENTMETHODS,
