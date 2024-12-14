@@ -333,6 +333,8 @@ export type MenuItem = {
     price: number;
   }[];
   matchedProduct?: string;
+  productCategories?: string[];
+  productImages?: string[];
 };
 export type CheckoutIncome = {
   _id: number;

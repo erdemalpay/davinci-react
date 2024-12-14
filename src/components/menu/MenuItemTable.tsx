@@ -22,6 +22,7 @@ import {
   useAccountProductMutations,
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetProductCategories } from "../../utils/api/account/productCategories";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
@@ -58,8 +59,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
+  const productCategories = useGetProductCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showProductCategories, setShowProductCategories] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
   const isDisabledCondition = user
     ? ![
@@ -293,6 +296,20 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       placeholder: t("Matched Product"),
       required: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "productCategories",
+      label: t("Product Categories"),
+      options: productCategories.map((productCategory) => {
+        return {
+          value: productCategory._id,
+          label: productCategory.name,
+        };
+      }),
+      placeholder: t("Product Categories"),
+      isMultiple: true,
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -301,6 +318,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
     { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
+    { key: "productCategories", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
   const columns = [
@@ -312,6 +330,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
+    ...(showProductCategories
+      ? [{ key: t("Product Categories"), isSortable: false }]
+      : []),
     { key: t("Matched Product"), isSortable: false },
   ];
   const rowKeys = [
@@ -355,7 +376,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           },
         ]
       : []),
-
+    ...(showProductCategories
+      ? [
+          {
+            key: "productCategories",
+            node: (item: MenuItem) => {
+              return item?.productCategories
+                ?.map((productCategory) => {
+                  const foundProductCategory = getItem(
+                    productCategory,
+                    productCategories
+                  );
+                  return foundProductCategory?.name;
+                })
+                ?.join(", ");
+            },
+          },
+        ]
+      : []),
     { key: "matchedProductName" },
   ];
   const insertIndex = 3;
@@ -609,6 +647,17 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ),
       // isDisabled: isDisabledCondition,
     },
+    {
+      label: t("Show Product Categories"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={showProductCategories}
+          onChange={setShowProductCategories}
+        />
+      ),
+      // isDisabled: isDisabledCondition,
+    },
   ];
 
   useEffect(() => {
@@ -622,6 +671,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     brands,
     vendors,
     locations,
+    productCategories,
   ]);
   return (
     <div className="w-[95%] mx-auto">
