@@ -805,6 +805,7 @@ export enum ActivityType {
   GAME_LEARNED_REMOVE = "GAME_LEARNED_REMOVE",
   UPDATE_MENU_ITEM = "UPDATE_MENU_ITEM",
   ORDER_DISCOUNT = "ORDER_DISCOUNT",
+  ORDER_DISCOUNT_CANCEL = "ORDER_DISCOUNT_CANCEL",
 }
 export const activityTypeDetails = [
   {
@@ -1006,6 +1007,11 @@ export const activityTypeDetails = [
     value: ActivityType.ORDER_DISCOUNT,
     label: "Order Discount",
     bgColor: "bg-green-900",
+  },
+  {
+    value: ActivityType.ORDER_DISCOUNT_CANCEL,
+    label: "Order Discount Cancel",
+    bgColor: "bg-red-900",
   },
 ];
 
