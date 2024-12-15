@@ -97,7 +97,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
           const renderOrderDiv = (order: Order) => {
             return (
               <div
-                key={order?._id}
+                key={order?._id + "unpaid"}
                 className={`flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200  cursor-pointer ${
                   order?.status !== OrderStatus.SERVED
                     ? orderBgColor(order, "hover:bg-gray-100")

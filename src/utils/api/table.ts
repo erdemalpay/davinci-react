@@ -5,9 +5,8 @@ import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { Table } from "../../types/index";
 import { sortTable } from "../sort";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 import { patch } from "./index";
-
 interface UpdateTablePayload {
   id: number;
   updates: Partial<Table>;
@@ -213,6 +212,10 @@ export function useGetPersonalTableCreateData() {
     ],
     true
   );
+}
+
+export function useGetTable(id: number) {
+  return useGet<Table>(`${Paths.Tables}/${id}`, [Paths.Tables, id], true);
 }
 export function useGetTables() {
   const { selectedLocationId } = useLocationContext();

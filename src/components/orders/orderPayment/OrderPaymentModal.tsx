@@ -25,6 +25,7 @@ import { useGetTableCollections } from "../../../utils/api/order/orderCollection
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import {
   useCloseTableMutation,
+  useGetTable,
   useReopenTableMutation,
 } from "../../../utils/api/table";
 import { getItem } from "../../../utils/getItem";
@@ -64,7 +65,16 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   const { isCollectionModalOpen, setIsCollectionModalOpen } = useOrderContext();
   if (!orders) return null;
-  const table = orders[0]?.table as Table;
+  const getTable = (tableId: number) => {
+    if (orders?.length > 0) {
+      return orders[0]?.table as Table;
+    } else if (tables && tables.some((table) => table._id === tableId)) {
+      return getItem(tableId, tables) as Table;
+    } else {
+      return useGetTable(tableId);
+    }
+  };
+  const table = getTable(tableId) as Table;
   const categories = useGetCategories();
   const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
