@@ -23,7 +23,7 @@ export interface ItemGroup {
 export default function Menu() {
   const items = useGetMenuItems();
   const products = useGetAccountProducts();
-  const { isMenuItemPageOpen, selectedMenuItem } = useGeneralContext();
+  const { selectedMenuItem } = useGeneralContext();
   const popularItems = useGetPopularItems();
   const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
@@ -167,7 +167,7 @@ export default function Menu() {
     products,
     categories,
   ]);
-  if (isMenuItemPageOpen && selectedMenuItem) {
+  if (selectedMenuItem) {
     return <ItemPage />;
   }
   return (

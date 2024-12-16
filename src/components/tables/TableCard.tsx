@@ -78,6 +78,11 @@ export function TableCard({
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
+  const [
+    isTableNameEditConfirmationDialogOpen,
+    setIsTableNameEditConfirmationDialogOpen,
+  ] = useState(false);
+  const [newTableName, setNewTableName] = useState(table?.name);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
   let tableOrders: Order[] = [];
@@ -368,6 +373,7 @@ export function TableCard({
   function updateTableHandler(event: FormEvent<HTMLInputElement>) {
     const target = event.target as HTMLInputElement;
     if (!target.value) return;
+
     updateTable({
       id: table._id,
       updates: { [target.name]: target.value },
@@ -473,7 +479,12 @@ export function TableCard({
           <EditableText
             name="name"
             text={table.name}
-            onUpdate={updateTableHandler}
+            onUpdate={(e: FormEvent<HTMLInputElement>) => {
+              const target = e.target as HTMLInputElement;
+              if (!target.value) return;
+              setNewTableName(target.value);
+              setIsTableNameEditConfirmationDialogOpen(true);
+            }}
           />
         </p>
         <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
@@ -778,6 +789,23 @@ export function TableCard({
           )}
           setForm={setTableTransferForm}
           topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {isTableNameEditConfirmationDialogOpen && (
+        <ConfirmationDialog
+          isOpen={isTableNameEditConfirmationDialogOpen}
+          close={() => setIsTableNameEditConfirmationDialogOpen(false)}
+          confirm={() => {
+            updateTable({
+              id: table._id,
+              updates: {
+                name: newTableName,
+              },
+            });
+            setIsTableNameEditConfirmationDialogOpen(false);
+          }}
+          title={t("Edit Table Name")}
+          text={t("Are you sure to change the table name?")}
         />
       )}
     </div>

@@ -32,8 +32,6 @@ type GeneralContextType = {
   ) => void;
   selectedMenuItem: MenuItem | null;
   setSelectedMenuItem: (item: MenuItem | null) => void;
-  isMenuItemPageOpen: boolean;
-  setIsMenuItemPageOpen: (isOpen: boolean) => void;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
@@ -77,8 +75,6 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  isMenuItemPageOpen: false,
-  setIsMenuItemPageOpen: () => {},
   selectedMenuItem: null,
   setSelectedMenuItem: () => {},
   sortConfigKey: null,
@@ -172,7 +168,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
     null
   );
-  const [isMenuItemPageOpen, setIsMenuItemPageOpen] = useState<boolean>(false);
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
@@ -220,8 +215,6 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
-        isMenuItemPageOpen,
-        setIsMenuItemPageOpen,
         selectedMenuItem,
         setSelectedMenuItem,
         tableColumns,

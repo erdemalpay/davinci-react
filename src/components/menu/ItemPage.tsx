@@ -6,17 +6,12 @@ import { Header } from "../header/Header";
 
 const ItemPage = () => {
   const categories = useGetCategories();
-  const { selectedMenuItem, setSelectedMenuItem, setIsMenuItemPageOpen } =
-    useGeneralContext();
+  const { selectedMenuItem, setSelectedMenuItem } = useGeneralContext();
   if (!categories || !selectedMenuItem) return null;
   const pageNavigations = [
     {
       name: "Menu",
       path: "",
-      onClick: () => {
-        setSelectedMenuItem(null);
-        setIsMenuItemPageOpen(false);
-      },
       canBeClicked: true,
     },
     {
@@ -42,7 +37,6 @@ const ItemPage = () => {
             onClick={() => {
               if (!navigation.canBeClicked) return;
               setSelectedMenuItem(null);
-              setIsMenuItemPageOpen(false);
             }}
           >
             {navigation.name}
@@ -51,13 +45,13 @@ const ItemPage = () => {
         ))}
       </div>
       {/* item details */}
-      <div className="w-[95%] mx-auto flex flex-col gap-4 mt-10">
+      <div className="w-[95%] mx-auto flex flex-col gap-4 mt-10 border border-gray-100 p-4 rounded-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* item image */}
           <img
             src={selectedMenuItem?.imageUrl}
             alt={selectedMenuItem.name}
-            className="w-[90%] h-96 "
+            className="sm:w-[90%] h-96 sm:h-[30rem] rounded-md "
           />
           {/* item info */}
           <div className="flex flex-col gap-4">

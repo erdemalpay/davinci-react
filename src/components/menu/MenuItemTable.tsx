@@ -57,12 +57,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { user } = useUserContext();
   const { i18n } = useTranslation();
   const products = useGetAllAccountProducts();
-  const {
-    setSelectedMenuItem,
-    isMenuItemPageOpen,
-    setIsMenuItemPageOpen,
-    selectedMenuItem,
-  } = useGeneralContext();
+  const { setSelectedMenuItem, selectedMenuItem } = useGeneralContext();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -356,7 +351,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               const foundItem = getItem(item._id, items);
               if (foundItem) {
                 setSelectedMenuItem(foundItem);
-                setIsMenuItemPageOpen(true);
               }
             }}
           >
