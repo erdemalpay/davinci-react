@@ -6,6 +6,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
 import { ItemGroup } from "../../pages/Menu";
@@ -26,6 +27,7 @@ import { useGetProductCategories } from "../../utils/api/account/productCategori
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
+  useGetMenuItems,
   useMenuItemMutations,
   useUpdateItemsOrderMutation,
 } from "../../utils/api/menu/menu-item";
@@ -55,10 +57,17 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { user } = useUserContext();
   const { i18n } = useTranslation();
   const products = useGetAllAccountProducts();
+  const {
+    setSelectedMenuItem,
+    isMenuItemPageOpen,
+    setIsMenuItemPageOpen,
+    selectedMenuItem,
+  } = useGeneralContext();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
+  const items = useGetMenuItems();
   const productCategories = useGetProductCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -337,7 +346,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
-    { key: "name" },
+    {
+      key: "name",
+      node: (item: MenuItem) => {
+        return (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              const foundItem = getItem(item._id, items);
+              if (foundItem) {
+                setSelectedMenuItem(foundItem);
+                setIsMenuItemPageOpen(true);
+              }
+            }}
+          >
+            {item.name}
+          </p>
+        );
+      },
+    },
     { key: "description" },
     {
       key: "price",
@@ -672,7 +699,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     vendors,
     locations,
     productCategories,
+    items,
   ]);
+
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/header/Header";
 import CategoryTable from "../components/menu/CategoryTable";
 import ClosedItems from "../components/menu/ClosedItems";
+import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -14,7 +15,6 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetPopularItems } from "../utils/api/menu/popular";
 import { getItem } from "../utils/getItem";
-
 export interface ItemGroup {
   category: MenuCategory;
   order: number;
@@ -23,6 +23,7 @@ export interface ItemGroup {
 export default function Menu() {
   const items = useGetMenuItems();
   const products = useGetAccountProducts();
+  const { isMenuItemPageOpen, selectedMenuItem } = useGeneralContext();
   const popularItems = useGetPopularItems();
   const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
@@ -166,6 +167,9 @@ export default function Menu() {
     products,
     categories,
   ]);
+  if (isMenuItemPageOpen && selectedMenuItem) {
+    return <ItemPage />;
+  }
   return (
     <>
       <Header showLocationSelector={false} />

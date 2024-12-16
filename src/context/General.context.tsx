@@ -7,6 +7,7 @@ import {
   AccountOverallExpense,
   AccountServiceInvoice,
   ExpensesPageTabEnum,
+  MenuItem,
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
@@ -29,6 +30,10 @@ type GeneralContextType = {
   setErrorDataForProductBulkCreation: (
     data: CreateBulkProductAndMenuItem[]
   ) => void;
+  selectedMenuItem: MenuItem | null;
+  setSelectedMenuItem: (item: MenuItem | null) => void;
+  isMenuItemPageOpen: boolean;
+  setIsMenuItemPageOpen: (isOpen: boolean) => void;
   setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
@@ -72,6 +77,10 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isMenuItemPageOpen: false,
+  setIsMenuItemPageOpen: () => {},
+  selectedMenuItem: null,
+  setSelectedMenuItem: () => {},
   sortConfigKey: null,
   setSortConfigKey: () => {},
   countListOption: countListOptions[0],
@@ -160,6 +169,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
+    null
+  );
+  const [isMenuItemPageOpen, setIsMenuItemPageOpen] = useState<boolean>(false);
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
@@ -207,6 +220,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        isMenuItemPageOpen,
+        setIsMenuItemPageOpen,
+        selectedMenuItem,
+        setSelectedMenuItem,
         tableColumns,
         setTableColumns,
         sortConfigKey,

@@ -4,9 +4,10 @@ import { NavigationType } from "../shared/types";
 
 type Props = {
   navigations: NavigationType[];
+  onClick?: () => void;
 };
 
-const PageNavigator = ({ navigations }: Props) => {
+const PageNavigator = ({ navigations, onClick }: Props) => {
   const navigate = useNavigate();
   const isLastOne = (index: number): boolean => {
     return index === navigations.length - 1;
@@ -20,6 +21,11 @@ const PageNavigator = ({ navigations }: Props) => {
             navigation.canBeClicked && " cursor-pointer"
           } text-sm ${isLastOne(index) ? "text-gray-600" : "text-gray-400"} `}
           onClick={() => {
+            if (!navigation.canBeClicked) return;
+            if (onClick) {
+              onClick();
+              return;
+            }
             navigation?.additionalSubmitFunction?.();
             navigate(navigation.path);
           }}
