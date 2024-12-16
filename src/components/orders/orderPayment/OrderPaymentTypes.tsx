@@ -10,7 +10,6 @@ import cash from "../../../assets/order/cash.png";
 import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
-import { useUserContext } from "../../../context/User.context";
 import {
   Order,
   OrderCollection,
@@ -18,6 +17,7 @@ import {
   OrderCollectionStatus,
   Table,
   TableTypes,
+  User,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -31,6 +31,7 @@ type Props = {
   table: Table;
   givenDateOrders?: Order[];
   givenDateCollections?: OrderCollection[];
+  user: User;
 };
 const OrderPaymentTypes = ({
   tableOrders,
@@ -38,6 +39,7 @@ const OrderPaymentTypes = ({
   table,
   givenDateCollections,
   givenDateOrders,
+  user,
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
@@ -54,7 +56,6 @@ const OrderPaymentTypes = ({
   //   note: "",
   // });
   const [expandedCollections, setExpandedCollections] = useState<number[]>([]);
-  const { user } = useUserContext();
   if (
     !selectedLocationId ||
     !givenDateCollections ||
@@ -201,6 +202,7 @@ const OrderPaymentTypes = ({
                         paidQuantity: order.quantity,
                       })),
                 ...(newOrders && { newOrders: newOrders }),
+                createdBy: user._id,
               };
               createOrderCollection(createdCollection);
               const totalMoney =

@@ -12,6 +12,7 @@ import {
   OrderStatus,
   Table,
   TURKISHLIRA,
+  User,
 } from "../../../types";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
@@ -28,9 +29,12 @@ import {
   useGetTable,
   useReopenTableMutation,
 } from "../../../utils/api/table";
+import { useGetUsers } from "../../../utils/api/user";
+import { useGetVisits } from "../../../utils/api/visit";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
+import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -40,6 +44,8 @@ import CollectionModal from "./CollectionModal";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
+
+type OptionType = { value: number; label: string };
 
 type Props = {
   close: () => void;
@@ -63,8 +69,30 @@ const OrderPaymentModal = ({
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
+  const { selectedLocationId } = useLocationContext();
+
+  const users = useGetUsers();
+  const visits = useGetVisits();
+  const activeUsers = visits
+    ?.filter(
+      (visit) => !visit?.finishHour && visit.location === selectedLocationId
+    )
+    ?.map((visit) => visit.user);
   const { isCollectionModalOpen, setIsCollectionModalOpen } = useOrderContext();
-  if (!orders) return null;
+  if (!orders || !users || !user) return null;
+  const [selectedUser, setSelectedUser] = useState<User>(user);
+  const userOptions = activeUsers
+    .map((user) => {
+      const foundUser = users?.find((u) => u._id === user);
+      if (foundUser) {
+        return {
+          value: user,
+          label: foundUser?.name,
+        };
+      }
+      return null;
+    })
+    .filter((user) => user !== null);
   const getTable = (tableId: number) => {
     if (orders?.length > 0) {
       return orders[0]?.table as Table;
@@ -76,7 +104,6 @@ const OrderPaymentModal = ({
   };
   const table = getTable(tableId) as Table;
   const categories = useGetCategories();
-  const { selectedLocationId } = useLocationContext();
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
@@ -405,6 +432,7 @@ const OrderPaymentModal = ({
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: selectedLocationId,
+        createdBy: selectedUser._id,
       };
     }
 
@@ -422,6 +450,7 @@ const OrderPaymentModal = ({
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: selectedLocationId,
+        createdBy: selectedUser._id,
       };
     }
     return null;
@@ -475,7 +504,15 @@ const OrderPaymentModal = ({
               const orderObject = handleOrderObject();
               if (orderObject) {
                 createMultipleOrder({
-                  orders: [...orderCreateBulk, orderObject],
+                  orders: [
+                    ...orderCreateBulk.map((orderCreateBulkItem) => {
+                      return {
+                        ...orderCreateBulkItem,
+                        createdBy: selectedUser._id,
+                      };
+                    }),
+                    orderObject,
+                  ],
                   table: table,
                 });
                 setOrderForm(initialOrderForm);
@@ -484,13 +521,19 @@ const OrderPaymentModal = ({
               }
             }
             createMultipleOrder({
-              orders: orderCreateBulk,
+              orders: [
+                ...orderCreateBulk.map((orderCreateBulkItem) => {
+                  return {
+                    ...orderCreateBulkItem,
+                    createdBy: selectedUser._id,
+                  };
+                }),
+              ],
               table: table,
             });
           }
           setOrderForm(initialOrderForm);
           setOrderCreateBulk([]);
-
           setIsCreateOrderDialogOpen(false);
         }}
         generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
@@ -563,7 +606,28 @@ const OrderPaymentModal = ({
                     <span className="font-semibold">{t("Table")}</span>:{" "}
                     {table?.name}
                   </h1>
-                  <h1 className="font-medium">{user.name}</h1>
+                  {userOptions?.length > 0 ? (
+                    <SelectInput
+                      value={
+                        userOptions?.find(
+                          (option) => option.value === selectedUser._id
+                        ) ?? {
+                          value: user?._id,
+                          label: t("Select User"),
+                        }
+                      }
+                      options={userOptions}
+                      isMultiple={false}
+                      onChange={(value) => {
+                        setSelectedUser(
+                          getItem(String((value as OptionType).value), users) ??
+                            user
+                        );
+                      }}
+                    />
+                  ) : (
+                    <h1 className="font-medium">{user.name}</h1>
+                  )}
                 </div>
                 {/* buttons */}
                 <div className="flex flex-row gap-2 sm:gap-5 ml-auto mr-6 ">
@@ -601,6 +665,7 @@ const OrderPaymentModal = ({
                   collectionsTotalAmount={collectionsTotalAmount}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
+                  user={selectedUser}
                 />
               </div>
             </div>

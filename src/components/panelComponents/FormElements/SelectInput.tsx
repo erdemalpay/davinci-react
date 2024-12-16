@@ -39,7 +39,7 @@ interface SelectInputProps {
     actionMeta: ActionMeta<OptionType>
   ) => void;
   onClear?: () => void;
-  placeholder: string;
+  placeholder?: string;
   isMultiple?: boolean;
   requiredField?: boolean;
   isAutoFill?: boolean;
@@ -189,7 +189,10 @@ const SelectInput = ({
   const { t } = useTranslation();
 
   return (
-    <div ref={selectRef} className="flex flex-col gap-2 __className_a182b8 ">
+    <div
+      ref={selectRef}
+      className="flex flex-col gap-2 __className_a182b8 z-50"
+    >
       <H6>
         {label}
         {requiredField && (
