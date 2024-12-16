@@ -606,23 +606,22 @@ const OrderPaymentModal = ({
                     <span className="font-semibold">{t("Table")}</span>:{" "}
                     {table?.name}
                   </h1>
-                  {userOptions?.length > 0 ? (
+                  {userOptions && userOptions?.length > 0 ? (
                     <SelectInput
-                      value={
-                        userOptions?.find(
-                          (option) => option.value === selectedUser._id
-                        ) ?? {
-                          value: user?._id,
-                          label: t("Select User"),
-                        }
-                      }
-                      options={userOptions}
+                      value={{
+                        value: selectedUser._id,
+                        label: selectedUser.name,
+                      }}
+                      options={userOptions as any}
                       isMultiple={false}
                       onChange={(value) => {
-                        setSelectedUser(
-                          getItem(String((value as OptionType).value), users) ??
-                            user
+                        const foundUser = getItem(
+                          String((value as OptionType).value),
+                          users
                         );
+                        if (foundUser) {
+                          setSelectedUser(foundUser);
+                        }
                       }}
                     />
                   ) : (
