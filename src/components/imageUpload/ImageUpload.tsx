@@ -16,11 +16,11 @@ interface FileWithPreview extends File {
   preview: string;
 }
 type Props = {
-  path: string;
   isFolderSelect?: boolean;
+  itemId?: number;
 };
 
-const ImageUpload = ({ path, isFolderSelect = true }: Props) => {
+const ImageUpload = ({ isFolderSelect = true, itemId }: Props) => {
   const { t } = useTranslation();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,7 +30,7 @@ const ImageUpload = ({ path, isFolderSelect = true }: Props) => {
 
   const uploadImagesMutation = useMutation<any, Error, FileWithPreview[]>(
     async (filesWithPreviews) => {
-      if (selectedFolder === "" || !selectedFolder) {
+      if ((selectedFolder === "" || !selectedFolder) && !itemId) {
         toast.error(t("Please select a folder to upload images"));
         return;
       }
@@ -39,8 +39,11 @@ const ImageUpload = ({ path, isFolderSelect = true }: Props) => {
         formData.append("files", file);
       });
       formData.append("foldername", selectedFolder);
+      if (itemId) {
+        formData.append("itemId", itemId.toString());
+      }
       const response = await postWithHeader<FormData, any>({
-        path: path,
+        path: "/asset/uploads",
         payload: formData,
         headers: new AxiosHeaders({
           "Content-Type": "multipart/form-data",
@@ -50,7 +53,7 @@ const ImageUpload = ({ path, isFolderSelect = true }: Props) => {
     },
     {
       onSuccess: () => {
-        if (selectedFolder === "" || !selectedFolder) {
+        if ((selectedFolder === "" || !selectedFolder) && !itemId) {
           return;
         }
         setFiles([]);

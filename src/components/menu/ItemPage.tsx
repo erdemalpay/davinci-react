@@ -3,6 +3,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { TURKISHLIRA } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { Header } from "../header/Header";
+import ImageUpload from "../imageUpload/ImageUpload";
 
 const ItemPage = () => {
   const categories = useGetCategories();
@@ -48,11 +49,26 @@ const ItemPage = () => {
       <div className="w-[95%] mx-auto flex flex-col gap-4 mt-10 border border-gray-100 p-4 rounded-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* item image */}
-          <img
-            src={selectedMenuItem?.imageUrl}
-            alt={selectedMenuItem.name}
-            className="sm:w-[90%] h-96 sm:h-[30rem] rounded-md "
-          />
+          <div className="flex flex-col gap-2">
+            <img
+              src={selectedMenuItem?.imageUrl}
+              alt={selectedMenuItem.name}
+              className="sm:w-[90%] h-96 sm:h-[30rem] rounded-md "
+            />
+            <div className="flex flex-row gap-2 flex-wrap">
+              {selectedMenuItem?.productImages?.map((image) => {
+                return (
+                  <img
+                    key={image}
+                    src={image}
+                    alt={selectedMenuItem.name}
+                    className="w-24 h-24 rounded-md "
+                  />
+                );
+              })}
+            </div>
+          </div>
+
           {/* item info */}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
@@ -71,6 +87,7 @@ const ItemPage = () => {
             </div>
           </div>
         </div>
+        <ImageUpload isFolderSelect={false} itemId={selectedMenuItem._id} />
       </div>
     </>
   );
