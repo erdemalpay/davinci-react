@@ -481,8 +481,7 @@ const Tables = () => {
   const seenUserIds = new Set<string>();
   const filteredVisits = visits.filter((visit) => {
     const isUserNotSeen = !seenUserIds.has(visit.user);
-    const isStartHourValid = visit.startHour;
-    if (isStartHourValid && isUserNotSeen) {
+    if (isUserNotSeen) {
       seenUserIds.add(visit.user);
       return true;
     }
