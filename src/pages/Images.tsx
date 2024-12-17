@@ -32,7 +32,7 @@ function Images() {
           </div>
         ))}
       </div>
-      <ImageUpload />
+      <ImageUpload path="/asset/uploads" />
     </>
   );
 }

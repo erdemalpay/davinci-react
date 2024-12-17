@@ -806,6 +806,7 @@ export enum ActivityType {
   UPDATE_MENU_ITEM = "UPDATE_MENU_ITEM",
   ORDER_DISCOUNT = "ORDER_DISCOUNT",
   ORDER_DISCOUNT_CANCEL = "ORDER_DISCOUNT_CANCEL",
+  CANCEL_PAYMENT = "CANCEL_PAYMENT",
 }
 export const activityTypeDetails = [
   {
@@ -1011,6 +1012,11 @@ export const activityTypeDetails = [
   {
     value: ActivityType.ORDER_DISCOUNT_CANCEL,
     label: "Order Discount Cancel",
+    bgColor: "bg-red-900",
+  },
+  {
+    value: ActivityType.CANCEL_PAYMENT,
+    label: "Cancel Payment",
     bgColor: "bg-red-900",
   },
 ];

@@ -15,8 +15,12 @@ type OptionType = { value: number; label: string };
 interface FileWithPreview extends File {
   preview: string;
 }
+type Props = {
+  path: string;
+  isFolderSelect?: boolean;
+};
 
-const ImageUpload = () => {
+const ImageUpload = ({ path, isFolderSelect = true }: Props) => {
   const { t } = useTranslation();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +40,7 @@ const ImageUpload = () => {
       });
       formData.append("foldername", selectedFolder);
       const response = await postWithHeader<FormData, any>({
-        path: "/asset/uploads",
+        path: path,
         payload: formData,
         headers: new AxiosHeaders({
           "Content-Type": "multipart/form-data",
@@ -113,30 +117,32 @@ const ImageUpload = () => {
           </p>
         </div>
         <div className="flex flex-row gap-2 justify-center mr-2">
-          <div className="sm:w-1/4 px-4">
-            <SelectInput
-              options={folderNames?.map((folder) => ({
-                value: folder,
-                label: folder,
-              }))}
-              isMultiple={false}
-              value={
-                selectedFolder
-                  ? {
-                      value: selectedFolder,
-                      label: selectedFolder,
-                    }
-                  : null
-              }
-              isOnClearActive={false}
-              onChange={(selectedOption) => {
-                setSelectedFolder(
-                  String((selectedOption as OptionType)?.value)
-                );
-              }}
-              placeholder={t("Select a folder")}
-            />
-          </div>
+          {isFolderSelect && (
+            <div className="sm:w-1/4 px-4">
+              <SelectInput
+                options={folderNames?.map((folder) => ({
+                  value: folder,
+                  label: folder,
+                }))}
+                isMultiple={false}
+                value={
+                  selectedFolder
+                    ? {
+                        value: selectedFolder,
+                        label: selectedFolder,
+                      }
+                    : null
+                }
+                isOnClearActive={false}
+                onChange={(selectedOption) => {
+                  setSelectedFolder(
+                    String((selectedOption as OptionType)?.value)
+                  );
+                }}
+                placeholder={t("Select a folder")}
+              />
+            </div>
+          )}
           <button
             onClick={handleUpload}
             className="px-2 mt-auto sm:px-3 py-1 h-fit w-fit text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer  bg-blue-500 hover:text-blue-500 hover:border-blue-500"
