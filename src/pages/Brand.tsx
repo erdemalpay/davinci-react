@@ -5,6 +5,7 @@ import { MdOutlineMenuBook } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import BrandExpenses from "../components/brand/BrandExpenses";
 import BrandProducts from "../components/brand/BrandProducts";
+import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -33,6 +34,8 @@ export const BrandPageTabs = [
 ];
 export default function Brand() {
   const navigate = useNavigate();
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<number>(0);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
@@ -41,7 +44,6 @@ export default function Brand() {
   const brands = useGetAccountBrands();
   const { brandId } = useParams();
   const currentBrand = brands?.find((item) => item._id === brandId);
-  if (!currentBrand) return <></>;
   const { t } = useTranslation();
   const brandOptions = brands?.map((i) => {
     return {
@@ -49,6 +51,8 @@ export default function Brand() {
       label: i.name,
     };
   });
+  if (!user || !pages || !currentBrand || !brands) return <Loading />;
+
   const pageNavigations = [
     {
       name: t("Constants"),
@@ -68,9 +72,6 @@ export default function Brand() {
     },
   ];
   const currentPageId = "brand";
-  const pages = useGetPanelControlPages();
-  const { user } = useUserContext();
-  if (!user || pages.length === 0) return <></>;
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;
@@ -84,7 +85,6 @@ export default function Brand() {
         : true,
     };
   });
-
   return (
     <>
       <Header showLocationSelector={false} />

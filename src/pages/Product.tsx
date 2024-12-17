@@ -4,6 +4,7 @@ import { GiArchiveResearch, GiTakeMyMoney } from "react-icons/gi";
 import { MdOutlineMenuBook } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
+import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -84,12 +85,12 @@ export default function Product() {
       label: p.name,
     };
   });
-
-  if (!currentProduct) return <></>;
-  const currentPageId = "product";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  if (!user || pages.length === 0) return <></>;
+  if (!products || !pages || !user || !currentProduct) {
+    return <Loading />;
+  }
+  const currentPageId = "product";
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;

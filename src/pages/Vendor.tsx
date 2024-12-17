@@ -7,6 +7,7 @@ import {
   MdPayments,
 } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
+import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
@@ -69,11 +70,12 @@ export default function Vendor() {
       label: i.name,
     };
   });
-  if (!currentVendor) return <></>;
   const currentPageId = "vendor";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  if (!user || pages.length === 0) return <></>;
+  if (!user || !pages || !vendors || !currentVendor) {
+    return <Loading />;
+  }
   const pageNavigations = [
     {
       name: t("Constants"),

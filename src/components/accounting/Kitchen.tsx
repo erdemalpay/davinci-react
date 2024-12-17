@@ -16,10 +16,10 @@ import { useGetAllUserRoles } from "../../utils/api/user";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const KitchenPage = () => {
   const { t } = useTranslation();
@@ -116,7 +116,7 @@ const KitchenPage = () => {
       });
     } else if (isEnableSoundRole && pages) {
       const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
-      if (!kitchenTabs) return;
+      if (!kitchenTabs) return <></>;
       for (const role of roles) {
         columns.push({ key: role.name, isSortable: true });
         rowKeys.push({
