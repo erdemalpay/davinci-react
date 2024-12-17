@@ -29,12 +29,12 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import { P1 } from "../panelComponents/Typography";
 
 type FormElementsState = {
   [key: string]: any;
@@ -72,13 +72,15 @@ const Product = () => {
     stayedProduct: "",
     removedProduct: "",
   });
-  const [inputForm, setInputForm] = useState({
+  const initialInputForm = {
     brand: [],
     vendor: [],
     expenseType: [],
     name: "",
     matchedMenuItem: "",
-  });
+    ikasId: "",
+  };
+  const [inputForm, setInputForm] = useState(initialInputForm);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -151,6 +153,13 @@ const Product = () => {
       placeholder: t("Matched Menu Item"),
       required: false,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "ikasId",
+      label: "Ikas ID",
+      placeholder: "Ikas ID",
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -158,6 +167,7 @@ const Product = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
+    { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemInputs = [
     {
@@ -220,6 +230,7 @@ const Product = () => {
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Matched Menu Item"), isSortable: true },
+    { key: "Ikas ID", isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
 
@@ -333,6 +344,7 @@ const Product = () => {
         );
       },
     },
+    { key: "ikasId" },
   ];
   if (
     user &&
@@ -372,13 +384,7 @@ const Product = () => {
             ...inputForm,
             matchedMenuItem: Number(inputForm?.matchedMenuItem),
           });
-          setInputForm({
-            brand: [],
-            vendor: [],
-            expenseType: [],
-            name: "",
-            matchedMenuItem: "",
-          });
+          setInputForm(initialInputForm);
         }}
         topClassName="flex flex-col gap-2 "
       />
@@ -474,6 +480,7 @@ const Product = () => {
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
             matchedMenuItem: rowToAction.matchedMenuItem,
+            ikasId: rowToAction.ikasId,
           }}
           handleUpdate={() => {
             updateAccountProduct({

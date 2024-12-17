@@ -91,6 +91,7 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
+  ikasId?: string;
 };
 export type AccountService = {
   _id: string;
