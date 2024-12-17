@@ -134,12 +134,11 @@ const OnlineSales = () => {
     }
   };
 
-  // filter out unfinished visits and only show one visit per user
+  // only show one visit per user
   const seenUserIds = new Set<string>();
   const filteredVisits = visits.filter((visit) => {
-    const isUnfinished = !visit.finishHour;
     const isUserNotSeen = !seenUserIds.has(visit.user);
-    if (isUnfinished && isUserNotSeen) {
+    if (isUserNotSeen) {
       seenUserIds.add(visit.user);
       return true;
     }
@@ -266,7 +265,7 @@ const OnlineSales = () => {
                   suggestions={users}
                   name="employees"
                   label={t("Who's at cafe?")}
-                  visits={visits.filter((visit) => !visit.finishHour)}
+                  visits={filteredVisits}
                 />
               ) : (
                 <PreviousVisitList visits={filteredVisits} />
