@@ -133,18 +133,6 @@ const OnlineSales = () => {
       });
     }
   };
-
-  // only show one visit per user
-  const seenUserIds = new Set<string>();
-  const filteredVisits = visits.filter((visit) => {
-    const isUserNotSeen = !seenUserIds.has(visit.user);
-    if (isUserNotSeen) {
-      seenUserIds.add(visit.user);
-      return true;
-    }
-
-    return false;
-  });
   const buttons: { label: string; onClick: () => void }[] = [
     {
       label: t("Add table"),
@@ -265,7 +253,7 @@ const OnlineSales = () => {
                   suggestions={users}
                   name="employees"
                   label={t("Who's at cafe?")}
-                  visits={filteredVisits}
+                  visits={visits}
                 />
               ) : (
                 <PreviousVisitList visits={visits} />
