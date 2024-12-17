@@ -22,10 +22,10 @@ import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type ItemQuantity = {
   itemId: number;
@@ -405,7 +405,6 @@ const DiscountBasedSales = () => {
   ];
   useEffect(() => {
     setRows(allRows);
-    console.log(allRows);
     setTableKey((prev) => prev + 1);
   }, [orders, filterPanelFormElements, discounts, items, locations, tables]);
   return (

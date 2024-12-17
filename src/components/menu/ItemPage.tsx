@@ -1,13 +1,19 @@
+import { useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { useGeneralContext } from "../../context/General.context";
 import { TURKISHLIRA } from "../../types";
 import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { getItem } from "../../utils/getItem";
 import { Header } from "../header/Header";
 import ImageUpload from "../imageUpload/ImageUpload";
 
 const ItemPage = () => {
   const categories = useGetCategories();
   const { selectedMenuItem, setSelectedMenuItem } = useGeneralContext();
+  const items = useGetMenuItems();
+  const foundItem = getItem(selectedMenuItem?._id, items);
+  const [componentKey, setComponentKey] = useState(0);
   if (!categories || !selectedMenuItem) return null;
   const pageNavigations = [
     {
@@ -22,11 +28,17 @@ const ItemPage = () => {
       isLastOne: true,
     },
   ];
+  useEffect(() => {
+    setComponentKey((prev) => prev + 1);
+  }, [items]);
   return (
     <>
       <Header showLocationSelector={false} />
       {/* navigation*/}
-      <div className="w-[95%] mx-auto mt-6 flex flex-row  items-center gap-3 __className_a182b8">
+      <div
+        key={componentKey + "itemPage"}
+        className="w-[95%] mx-auto mt-6 flex flex-row  items-center gap-3 __className_a182b8"
+      >
         {pageNavigations.map((navigation, index) => (
           <div
             key={index}
@@ -56,7 +68,7 @@ const ItemPage = () => {
               className="sm:w-[90%] h-96 sm:h-[30rem] rounded-md "
             />
             <div className="flex flex-row gap-2 flex-wrap">
-              {selectedMenuItem?.productImages?.map((image) => {
+              {foundItem?.productImages?.map((image) => {
                 return (
                   <img
                     key={image}
