@@ -607,23 +607,25 @@ const OrderPaymentModal = ({
                     {table?.name}
                   </h1>
                   {userOptions && userOptions?.length > 0 ? (
-                    <SelectInput
-                      value={{
-                        value: selectedUser._id,
-                        label: selectedUser.name,
-                      }}
-                      options={userOptions as any}
-                      isMultiple={false}
-                      onChange={(value) => {
-                        const foundUser = getItem(
-                          String((value as OptionType).value),
-                          users
-                        );
-                        if (foundUser) {
-                          setSelectedUser(foundUser);
-                        }
-                      }}
-                    />
+                    <div className="z-50">
+                      <SelectInput
+                        value={{
+                          value: selectedUser._id,
+                          label: selectedUser.name,
+                        }}
+                        options={userOptions as any}
+                        isMultiple={false}
+                        onChange={(value) => {
+                          const foundUser = getItem(
+                            String((value as OptionType).value),
+                            users
+                          );
+                          if (foundUser) {
+                            setSelectedUser(foundUser);
+                          }
+                        }}
+                      />
+                    </div>
                   ) : (
                     <h1 className="font-medium">{user.name}</h1>
                   )}
