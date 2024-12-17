@@ -268,7 +268,7 @@ const OnlineSales = () => {
                   visits={filteredVisits}
                 />
               ) : (
-                <PreviousVisitList visits={filteredVisits} />
+                <PreviousVisitList visits={visits} />
               )}
 
               {/* filters */}
