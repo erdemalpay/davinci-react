@@ -252,7 +252,12 @@ export function TableCard({
       type: InputTypes.TEXT,
       formKey: "discountNote",
       label: t("Discount Note"),
-      placeholder: t("What is the reason for the discount?"),
+      placeholder:
+        orderForm?.discount &&
+        discounts?.find((discount) => discount._id === orderForm.discount)?.note
+          ? discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.note
+          : t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
           discounts?.find((discount) => discount._id === orderForm.discount)

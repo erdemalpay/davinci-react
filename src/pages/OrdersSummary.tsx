@@ -246,6 +246,7 @@ const OrdersSummary = () => {
                       setSelectedCategory(null);
                     }}
                     placeholder={t("Select a upper category")}
+                    isAutoFill={false}
                   />
                 </div>
                 {/* category selection */}
@@ -276,6 +277,7 @@ const OrdersSummary = () => {
                       }
                     }}
                     placeholder={t("Select a category")}
+                    isAutoFill={false}
                   />
                 </div>
               </div>

@@ -443,6 +443,7 @@ export type OrderDiscount = {
   isNoteRequired?: boolean;
   isOnlineOrder?: boolean;
   status?: string;
+  note?: string;
 };
 export enum OrderDiscountStatus {
   DELETED = "deleted",
