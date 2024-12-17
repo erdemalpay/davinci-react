@@ -1,5 +1,4 @@
 import { format, startOfMonth } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
@@ -22,14 +21,15 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -194,12 +194,7 @@ const Income = () => {
       1
     );
   }
-  function getDayName(dateString: string) {
-    if (!dateString) return "";
-    const zonedTime = toZonedTime(new Date(dateString), "UTC");
-    const date = new Date(zonedTime);
-    return date.toLocaleDateString("tr-TR", { weekday: "long" });
-  }
+
   const inputs = [
     {
       type: InputTypes.DATE,

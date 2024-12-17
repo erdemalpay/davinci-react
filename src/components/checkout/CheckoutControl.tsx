@@ -16,13 +16,14 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetPanelControlCheckoutCashs } from "../../utils/api/panelControl/checkoutCash";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -67,6 +68,10 @@ const CheckoutControlPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
   const [showFilters, setShowFilters] = useState(false);
+  const [form, setForm] = useState({
+    date: "",
+    amount: 0,
+  });
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -336,7 +341,10 @@ const CheckoutControlPage = () => {
     {
       type: InputTypes.DATE,
       formKey: "date",
-      label: t("Date"),
+      label: form?.date
+        ? getDayName(form.date) + " " + t("checkout control")
+        : t("Date"),
+
       placeholder: t("Date"),
       required: true,
       isDateInitiallyOpen: true,
@@ -362,6 +370,7 @@ const CheckoutControlPage = () => {
           date: format(new Date(), "yyyy-MM-dd"),
           location: selectedLocationId,
         }}
+        setForm={setForm}
         formKeys={formKeys}
         submitItem={createCheckoutControl as any}
         topClassName="flex flex-col gap-2 "
@@ -408,6 +417,7 @@ const CheckoutControlPage = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateCheckoutControl as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
