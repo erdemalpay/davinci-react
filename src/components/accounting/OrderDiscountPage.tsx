@@ -12,10 +12,10 @@ import {
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -48,6 +48,7 @@ const OrderDiscountPage = () => {
     amount: "",
     isOnlineOrder: "",
     isNoteRequired: "",
+    note: "",
   });
   const [
     isCloseAllConfirmationDialogOpen,
@@ -62,6 +63,7 @@ const OrderDiscountPage = () => {
     { key: t("Amount"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
     { key: t("Note Required"), isSortable: false },
+    { key: t("Note Placeholder"), isSortable: false },
   ];
   if (userCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
@@ -96,6 +98,10 @@ const OrderDiscountPage = () => {
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
+    },
+    {
+      key: "note",
+      className: "min-w-32 pr-1",
     },
   ];
   const inputs = [
@@ -153,6 +159,13 @@ const OrderDiscountPage = () => {
       required: false,
       isTopFlexRow: true,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "note",
+      label: t("Note Placeholder"),
+      placeholder: t("Note Placeholder"),
+      required: false,
+    },
   ];
 
   const formKeys = [
@@ -162,6 +175,7 @@ const OrderDiscountPage = () => {
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "note", type: FormKeyTypeEnum.STRING },
   ];
 
   const addButton = {
