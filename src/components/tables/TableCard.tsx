@@ -18,10 +18,10 @@ import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
-  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
+  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -252,7 +252,7 @@ export function TableCard({
       type: InputTypes.TEXT,
       formKey: "discountNote",
       label: t("Discount Note"),
-      placeholder: t("Discount Note"),
+      placeholder: t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
           discounts?.find((discount) => discount._id === orderForm.discount)

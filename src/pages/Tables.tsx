@@ -8,13 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
-import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
-import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
+import { H5 } from "../components/panelComponents/Typography";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
@@ -32,10 +32,10 @@ import {
   OrderStatus,
   ReservationStatusEnum,
   StockHistoryStatusEnum,
-  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
+  TURKISHLIRA,
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
@@ -282,7 +282,7 @@ const Tables = () => {
       type: InputTypes.TEXT,
       formKey: "discountNote",
       label: t("Discount Note"),
-      placeholder: t("Discount Note"),
+      placeholder: t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
           discounts?.find((discount) => discount._id === orderForm.discount)
