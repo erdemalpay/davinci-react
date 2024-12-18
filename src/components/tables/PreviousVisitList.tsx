@@ -41,7 +41,7 @@ export function PreviousVisitList({ visits }: PreviousVisitListProps) {
           ))}
           >
             <Chip
-              value={user}
+              value={getItem(user, users)?.name}
               style={{
                 backgroundColor: getItem(user, users)?.role?.color,
                 height: "fit-content",
