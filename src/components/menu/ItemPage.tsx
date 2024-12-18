@@ -59,7 +59,7 @@ const ItemPage = () => {
       </div>
       {/* item details */}
       <div className="w-[95%] mx-auto flex flex-col gap-4 mt-10 ">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-100 p-4 rounded-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200 p-4 rounded-md shadow-sm">
           {/* item image */}
           <div className="flex flex-col gap-2">
             <img
