@@ -67,6 +67,7 @@ type Props<T> = {
   excelFileName?: string;
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
+  selectionActions?: ActionType<T>[];
 };
 
 const GenericTable = <T,>({
@@ -104,6 +105,7 @@ const GenericTable = <T,>({
     RowPerPageEnum.THIRD,
   ],
   pagination,
+  selectionActions,
 }: Props<T>) => {
   const { t } = useTranslation();
   const {
@@ -688,11 +690,13 @@ const GenericTable = <T,>({
           {/* header part */}
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             <div className="flex flex-row gap-1 items-center">
-              <Tooltip content={t("Activate Selection")} placement="top">
-                <div>
-                  <CgChevronDownR className="my-auto text-xl cursor-pointer hover:scale-105" />
-                </div>
-              </Tooltip>
+              {selectionActions && (
+                <Tooltip content={t("Activate Selection")} placement="top">
+                  <div>
+                    <CgChevronDownR className="my-auto text-xl cursor-pointer hover:scale-105" />
+                  </div>
+                </Tooltip>
+              )}
               {title && <H4 className="mr-auto">{title}</H4>}
             </div>
 
