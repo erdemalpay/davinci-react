@@ -11,6 +11,13 @@ interface PreviousVisitListProps {
 export function PreviousVisitList({ visits }: PreviousVisitListProps) {
   const { t } = useTranslation();
   const users = useGetUsers();
+  const usersVisits = visits.reduce((acc, visit) => {
+    if (!acc[visit.user]) {
+      acc[visit.user] = [];
+    }
+    acc[visit.user].push(`${visit.startHour} - ${visit.finishHour || ""}`);
+    return acc;
+  }, {} as Record<string, string[]>);
   if (!users) return <></>;
   return visits?.length ? (
     <div className="flex flex-col lg:flex-row w-full gap-2">
@@ -24,15 +31,19 @@ export function PreviousVisitList({ visits }: PreviousVisitListProps) {
         className="flex flex-wrap gap-2 mt-2 justify-center items-center"
         id="mentors"
       >
-        {visits.map((visit) => (
+       {Object.entries(usersVisits).map(([user, userVisits]) => (
           <Tooltip
-            key={visit?.user}
-            content={getItem(visit.user, users)?.role?.name}
+            key={user}
+            content= {userVisits.map((visit, index) => (
+            <div key={index}>
+              {visit}
+            </div>
+          ))}
           >
             <Chip
-              value={getItem(visit.user, users)?.name}
+              value={user}
               style={{
-                backgroundColor: getItem(visit.user, users)?.role?.color,
+                backgroundColor: getItem(user, users)?.role?.color,
                 height: "fit-content",
               }}
               color="gray"
