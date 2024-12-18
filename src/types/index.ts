@@ -91,7 +91,6 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
-  ikasId?: string;
 };
 export type AccountService = {
   _id: string;
@@ -336,6 +335,7 @@ export type MenuItem = {
   matchedProduct?: string;
   productCategories?: string[];
   productImages?: string[];
+  ikasId?: string;
 };
 export type CheckoutIncome = {
   _id: number;

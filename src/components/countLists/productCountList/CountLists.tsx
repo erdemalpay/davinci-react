@@ -234,7 +234,7 @@ const CountLists = () => {
       isDisabled:
         user &&
         ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
-      isUpperSide: false,
+      isUpperSide: true,
       node: (
         <SwitchButton
           checked={showInactiveCountLists}
@@ -244,7 +244,7 @@ const CountLists = () => {
     },
     {
       label: t("Location Edit"),
-      isUpperSide: false,
+      isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];

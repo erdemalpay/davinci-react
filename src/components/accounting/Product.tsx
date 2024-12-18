@@ -78,7 +78,6 @@ const Product = () => {
     expenseType: [],
     name: "",
     matchedMenuItem: "",
-    ikasId: "",
   };
   const [inputForm, setInputForm] = useState(initialInputForm);
   const [
@@ -153,13 +152,6 @@ const Product = () => {
       placeholder: t("Matched Menu Item"),
       required: false,
     },
-    {
-      type: InputTypes.TEXT,
-      formKey: "ikasId",
-      label: "Ikas ID",
-      placeholder: "Ikas ID",
-      required: false,
-    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -167,7 +159,6 @@ const Product = () => {
     { key: "vendor", type: FormKeyTypeEnum.STRING },
     { key: "brand", type: FormKeyTypeEnum.STRING },
     { key: "matchedMenuItem", type: FormKeyTypeEnum.STRING },
-    { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemInputs = [
     {
@@ -230,7 +221,6 @@ const Product = () => {
     { key: t("Vendor"), isSortable: true },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Matched Menu Item"), isSortable: true },
-    { key: "Ikas ID", isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
 
@@ -344,7 +334,6 @@ const Product = () => {
         );
       },
     },
-    { key: "ikasId" },
   ];
   if (
     user &&
@@ -480,7 +469,6 @@ const Product = () => {
             brand: rowToAction.brand,
             vendor: rowToAction.vendor,
             matchedMenuItem: rowToAction.matchedMenuItem,
-            ikasId: rowToAction.ikasId,
           }}
           handleUpdate={() => {
             updateAccountProduct({

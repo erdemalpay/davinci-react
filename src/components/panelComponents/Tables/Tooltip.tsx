@@ -5,7 +5,7 @@ type Props = {
   content: React.ReactNode;
 };
 
-export default function Tooltip({ children, content }: Props) {
+export default function CustomTooltip({ children, content }: Props) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (

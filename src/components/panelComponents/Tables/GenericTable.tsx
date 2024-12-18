@@ -1,7 +1,9 @@
+import { Tooltip } from "@material-tailwind/react";
 import "pdfmake/build/pdfmake";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
+import { CgChevronDownR } from "react-icons/cg";
 import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { GoPlusCircle } from "react-icons/go";
@@ -12,7 +14,6 @@ import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
 import { outsideSort } from "../../../utils/outsideSort";
 import ImageModal from "../Modals/ImageModal";
-import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
   ColumnType,
@@ -20,11 +21,12 @@ import {
   PanelFilterType,
   RowKeyType,
 } from "../shared/types";
+import { Caption, H4, H5, P1 } from "../Typography";
 import ButtonTooltip from "./ButtonTooltip";
 import ColumnActiveModal from "./ColumnActiveModal";
 import FilterPanel from "./FilterPanel";
-import Tooltip from "./Tooltip";
 import "./table.css";
+import CustomTooltip from "./Tooltip";
 
 type PaginationProps = {
   totalPages: number;
@@ -123,6 +125,8 @@ const GenericTable = <T,>({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
+  const [isSelectionActive, setIsSelectionActive] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<T[]>([]);
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -491,9 +495,9 @@ const GenericTable = <T,>({
                     }}
                   />
                 ) : cellValue.length > tooltipLimit ? (
-                  <Tooltip content={cellValue}>
+                  <CustomTooltip content={cellValue}>
                     <P1>{displayValue}</P1>
-                  </Tooltip>
+                  </CustomTooltip>
                 ) : (
                   <P1 style={style}>{displayValue}</P1>
                 )}
@@ -683,7 +687,14 @@ const GenericTable = <T,>({
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
           {/* header part */}
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
-            {title && <H4 className="mr-auto">{title}</H4>}
+            <div className="flex flex-row gap-1 items-center">
+              <Tooltip content={t("Activate Selection")} placement="top">
+                <div>
+                  <CgChevronDownR className="my-auto text-xl cursor-pointer hover:scale-105" />
+                </div>
+              </Tooltip>
+              {title && <H4 className="mr-auto">{title}</H4>}
+            </div>
 
             <div className="ml-auto flex flex-row gap-4  relative">
               <div className="flex flex-row flex-wrap gap-4  ">
@@ -726,10 +737,16 @@ const GenericTable = <T,>({
               {/* column active inactive selection */}
               {isColumnFilter && (
                 <>
-                  <PiFadersHorizontal
-                    className="my-auto text-xl cursor-pointer hover:scale-105"
-                    onClick={() => setIsColumnActiveModalOpen((prev) => !prev)}
-                  />
+                  <Tooltip content={t("Filter Columns")} placement="top">
+                    <div className="items-center my-auto text-xl cursor-pointer hover:scale-105">
+                      <PiFadersHorizontal
+                        onClick={() =>
+                          setIsColumnActiveModalOpen((prev) => !prev)
+                        }
+                      />
+                    </div>
+                  </Tooltip>
+
                   {isColumnActiveModalOpen && title && (
                     <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit  drop-shadow-lg z-10 min-w-64">
                       <ColumnActiveModal title={title} />

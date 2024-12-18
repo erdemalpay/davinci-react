@@ -605,6 +605,8 @@
   "What is the reason for the discount?": "İndirim sebebi nedir?",
   "checkout control": "Gününe Ait Kasa Kontrolü",
   "Note Placeholder": "Not Sorusu",
+  "Filter Columns": "Sütunları Filtrele",
+  "Activate Selection": "Seçimi Aktive Et",
   "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.": "Ad alanı boş bırakılmamalıdır. Mavi sütunlar ürün detaylarını girmek için belirlenmiştir, turuncu sütunlar ise menü ürünü detayları içindir. Asterisk (*) ile işaretlenmiş alanlar zorunludur. Ürün detaylarını veya menü ürünü detaylarını bağımsız olarak doldurabilirsiniz. Gider Türü, Marka ve Tedarikçi alanları birden fazla girişe izin verir. Birden fazla değer girdiğinizde, virgülle ayırın.",
   "Paid orders cannot be changed": "Ödenen siparişler değiştirilemez"
 }

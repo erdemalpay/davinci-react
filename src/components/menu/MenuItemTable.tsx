@@ -41,11 +41,11 @@ import {
 } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   singleItemGroup: ItemGroup;
@@ -314,6 +314,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isMultiple: true,
       required: false,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "ikasId",
+      label: "Ikas ID",
+      placeholder: "Ikas ID",
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -323,6 +330,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
     { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
     { key: "productCategories", type: FormKeyTypeEnum.STRING },
+    { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
   const columns = [
@@ -337,6 +345,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ...(showProductCategories
       ? [{ key: t("Product Categories"), isSortable: false }]
       : []),
+    { key: "Ikas ID", isSortable: false },
     { key: t("Matched Product"), isSortable: false },
   ];
   const rowKeys = [
@@ -415,6 +424,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           },
         ]
       : []),
+    {
+      key: "ikasId",
+      className: "min-w-32 pr-1",
+    },
     { key: "matchedProductName" },
   ];
   const insertIndex = 3;
