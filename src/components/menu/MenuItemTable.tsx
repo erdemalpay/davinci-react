@@ -57,7 +57,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { user } = useUserContext();
   const { i18n } = useTranslation();
   const products = useGetAllAccountProducts();
-  const { setSelectedMenuItem, selectedMenuItem } = useGeneralContext();
+  const { setSelectedMenuItem, isShownInMenu, setIsShownInMenu } =
+    useGeneralContext();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -347,6 +348,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       : []),
     { key: "Ikas ID", isSortable: false },
     { key: t("Matched Product"), isSortable: false },
+    { key: t("Shown In Menu"), isSortable: false },
   ];
   const rowKeys = [
     { key: "imageUrl", isImage: true },
@@ -429,6 +431,31 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       className: "min-w-32 pr-1",
     },
     { key: "matchedProductName" },
+    {
+      key: "shownInMenu",
+      node: (row: MenuItem) => {
+        if (isShownInMenu) {
+          return (
+            <CheckSwitch
+              checked={row?.shownInMenu ?? false}
+              onChange={() => {
+                updateItem({
+                  id: row._id,
+                  updates: {
+                    shownInMenu: !row.shownInMenu,
+                  },
+                });
+              }}
+            />
+          );
+        }
+        return row?.shownInMenu ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
   ];
   const insertIndex = 3;
   for (const location of locations) {
@@ -679,7 +706,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       node: (
         <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
       ),
-      // isDisabled: isDisabledCondition,
+    },
+    {
+      label: t("Shown In Menu"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={isShownInMenu}
+          onChange={() => {
+            setIsShownInMenu(!isShownInMenu);
+          }}
+        />
+      ),
     },
     {
       label: t("Show Product Categories"),
@@ -690,7 +728,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           onChange={setShowProductCategories}
         />
       ),
-      // isDisabled: isDisabledCondition,
     },
   ];
 

@@ -76,6 +76,8 @@ type GeneralContextType = {
   selectedRows: any[];
   setSelectedRows: (rows: any[]) => void;
   resetGeneralContext: () => void;
+  isShownInMenu: boolean;
+  setIsShownInMenu: (isShown: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -168,6 +170,8 @@ const GeneralContext = createContext<GeneralContextType>({
   selectedRows: [],
   setSelectedRows: () => {},
   resetGeneralContext: () => {},
+  isShownInMenu: false,
+  setIsShownInMenu: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -215,6 +219,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [isShownInMenu, setIsShownInMenu] = useState(false);
   const [allExpenseForm, setAllExpenseForm] = useState<
     Partial<AccountOverallExpense>
   >({});
@@ -283,6 +288,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         selectedRows,
         setSelectedRows,
         resetGeneralContext,
+        isShownInMenu,
+        setIsShownInMenu,
       }}
     >
       {children}

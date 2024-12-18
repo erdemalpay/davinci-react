@@ -336,6 +336,7 @@ export type MenuItem = {
   productCategories?: string[];
   productImages?: string[];
   ikasId?: string;
+  shownInMenu?: boolean;
 };
 export type CheckoutIncome = {
   _id: number;
