@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
-import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
+import { P1 } from "../Typography";
 
 // active tab is required to be outside so that when the item added into the tab and tabpanel is rerendered, the active tab will not be reset.
 type Props = {
@@ -44,7 +44,7 @@ const TabPanel: React.FC<Props> = ({
   const tabsRef = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { i18n } = useTranslation();
-  const { setSortConfigKey, setExpandedRows } = useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   useEffect(() => {
     additionalOpenAction?.();
     if (tabsRef.current[activeTab] && containerRef.current) {
@@ -71,8 +71,7 @@ const TabPanel: React.FC<Props> = ({
 
   const handleTabChange = (tab: Tab) => {
     additionalClickAction && additionalClickAction();
-    setSortConfigKey(null);
-    setExpandedRows({});
+    resetGeneralContext();
     setActiveTab(tab.number);
   };
 

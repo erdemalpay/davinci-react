@@ -11,9 +11,7 @@ import { PanelControlPageTabEnum } from "../types";
 
 const PanelControl = () => {
   const {
-    setCurrentPage,
-    setExpandedRows,
-    setSearchQuery,
+    resetGeneralContext,
     panelControlActiveTab,
     setPanelControlActiveTab,
   } = useGeneralContext();
@@ -49,9 +47,7 @@ const PanelControl = () => {
         activeTab={panelControlActiveTab}
         setActiveTab={setPanelControlActiveTab}
         additionalOpenAction={() => {
-          setCurrentPage(1);
-          setExpandedRows({});
-          setSearchQuery("");
+          resetGeneralContext;
         }}
       />
     </>

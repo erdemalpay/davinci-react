@@ -3,10 +3,14 @@ import "pdfmake/build/pdfmake";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
-import { CgChevronDownR } from "react-icons/cg";
+import { CgChevronDownR, CgChevronUpR } from "react-icons/cg";
 import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { GoPlusCircle } from "react-icons/go";
+import {
+  MdOutlineCheckBox,
+  MdOutlineCheckBoxOutlineBlank,
+} from "react-icons/md";
 import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -121,14 +125,16 @@ const GenericTable = <T,>({
     sortConfigKey,
     tableColumns,
     setTableColumns,
+    selectedRows,
+    setSelectedRows,
+    isSelectionActive,
+    setIsSelectionActive,
   } = useGeneralContext();
   const navigate = useNavigate();
   const [tableRows, setTableRows] = useState(rows);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
-  const [isSelectionActive, setIsSelectionActive] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<T[]>([]);
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -392,6 +398,27 @@ const GenericTable = <T,>({
               : ""
           }  ${rowClassNameFunction?.(row)}`}
         >
+          {selectionActions && isSelectionActive && (
+            <td className="w-6 h-6 mx-auto p-1 ">
+              {selectedRows.includes(row) ? (
+                <MdOutlineCheckBox
+                  className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
+                  onClick={() => {
+                    setSelectedRows(
+                      selectedRows.filter((selectedRow) => selectedRow !== row)
+                    );
+                  }}
+                />
+              ) : (
+                <MdOutlineCheckBoxOutlineBlank
+                  className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
+                  onClick={() => {
+                    setSelectedRows([...selectedRows, row]);
+                  }}
+                />
+              )}
+            </td>
+          )}
           {/* Expand/Collapse Control */}
           {(!isCollapsibleCheckActive ||
             (isCollapsible &&
@@ -408,6 +435,7 @@ const GenericTable = <T,>({
             row?.collapsible?.collapsibleRows?.length === 0 && (
               <td className="w-6 h-6 mx-auto p-1 "></td>
             )}
+
           {/* front actions  */}
           {actions && isActionsAtFront && (
             <td>{renderActionButtons(row, actions)}</td>
@@ -691,12 +719,28 @@ const GenericTable = <T,>({
           <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
             <div className="flex flex-row gap-1 items-center">
               {selectionActions && (
-                <Tooltip content={t("Activate Selection")} placement="top">
-                  <div>
-                    <CgChevronDownR className="my-auto text-xl cursor-pointer hover:scale-105" />
+                <Tooltip
+                  content={
+                    isSelectionActive
+                      ? t("Close Selection")
+                      : t("Activate Selection")
+                  }
+                  placement="top"
+                >
+                  <div
+                    onClick={() => {
+                      setIsSelectionActive(!isSelectionActive);
+                    }}
+                  >
+                    {isSelectionActive ? (
+                      <CgChevronUpR className="my-auto text-xl cursor-pointer hover:scale-105" />
+                    ) : (
+                      <CgChevronDownR className="my-auto text-xl cursor-pointer hover:scale-105" />
+                    )}
                   </div>
                 </Tooltip>
               )}
+
               {title && <H4 className="mr-auto">{title}</H4>}
             </div>
 
@@ -766,7 +810,31 @@ const GenericTable = <T,>({
               <table className="bg-white w-full ">
                 <thead className="border-b ">
                   <tr>
+                    {selectionActions && isSelectionActive && (
+                      <th>
+                        {selectionActions && isSelectionActive && (
+                          <Tooltip content={t("Select All")} placement="top">
+                            <div
+                              onClick={() => {
+                                if (selectedRows.length === totalRows) {
+                                  setSelectedRows([]);
+                                } else {
+                                  setSelectedRows(tableRows);
+                                }
+                              }}
+                            >
+                              {selectedRows.length === totalRows ? (
+                                <MdOutlineCheckBox className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
+                              ) : (
+                                <MdOutlineCheckBoxOutlineBlank className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
+                              )}
+                            </div>
+                          </Tooltip>
+                        )}
+                      </th>
+                    )}
                     {isCollapsible && <th></th>}
+
                     {usedColumns.map((column, index) => {
                       if (column.node) {
                         return column.node();
@@ -776,7 +844,11 @@ const GenericTable = <T,>({
                           key={index}
                           className={`${
                             usedColumns.length === 2 && "justify-between  "
-                          } ${index === 0 ? "pl-3" : ""}  py-3  min-w-8  `}
+                          } ${
+                            index === 0 && !isCollapsible && !isSelectionActive
+                              ? "pl-3"
+                              : ""
+                          }  py-3  min-w-8  `}
                         >
                           <h1
                             className={`text-base font-medium leading-6 w-max flex gap-2  ${

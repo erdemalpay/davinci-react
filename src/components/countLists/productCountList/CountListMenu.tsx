@@ -14,13 +14,8 @@ import CountLists from "./CountLists";
 const CountListMenu = () => {
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const {
-    setCurrentPage,
-    setExpandedRows,
-    setSearchQuery,
-    countListActiveTab,
-    setCountListActiveTab,
-  } = useGeneralContext();
+  const { resetGeneralContext, countListActiveTab, setCountListActiveTab } =
+    useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
   useEffect(() => {
@@ -61,9 +56,7 @@ const CountListMenu = () => {
         activeTab={countListActiveTab}
         setActiveTab={setCountListActiveTab}
         additionalOpenAction={() => {
-          setCurrentPage(1);
-          setExpandedRows({});
-          setSearchQuery("");
+          resetGeneralContext();
         }}
       />
     </>

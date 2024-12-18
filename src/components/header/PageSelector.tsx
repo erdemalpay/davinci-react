@@ -24,13 +24,7 @@ export function PageSelector() {
   const queryClient = useQueryClient();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
-  const {
-    setCurrentPage,
-    setRowsPerPage,
-    setExpandedRows,
-    setSearchQuery,
-    setSortConfigKey,
-  } = useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const routes = allRoutes.filter(
     (route) =>
       route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
@@ -75,11 +69,7 @@ export function PageSelector() {
                   return;
                 }
                 if (route?.path) {
-                  setCurrentPage(1);
-                  // setRowsPerPage(RowPerPageEnum.FIRST);
-                  setExpandedRows({});
-                  setSearchQuery("");
-                  setSortConfigKey(null);
+                  resetGeneralContext();
                   navigate(route.path);
                 }
               }}

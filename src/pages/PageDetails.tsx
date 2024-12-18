@@ -7,8 +7,7 @@ import { useGeneralContext } from "../context/General.context";
 import { PageDetailsPageTabEnum } from "../types";
 
 const PageDetails = () => {
-  const { setCurrentPage, setExpandedRows, setSearchQuery } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [activeTab, setActiveTab] = useState(0);
   const tabs = [
     {
@@ -27,9 +26,7 @@ const PageDetails = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         additionalOpenAction={() => {
-          setCurrentPage(1);
-          setExpandedRows({});
-          setSearchQuery("");
+          resetGeneralContext();
         }}
       />
     </>

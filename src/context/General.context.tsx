@@ -71,6 +71,11 @@ type GeneralContextType = {
   setTableColumns: React.Dispatch<
     React.SetStateAction<{ [key: string]: ColumnType[] }>
   >;
+  isSelectionActive: boolean;
+  setIsSelectionActive: (isActive: boolean) => void;
+  selectedRows: any[];
+  setSelectedRows: (rows: any[]) => void;
+  resetGeneralContext: () => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -158,6 +163,11 @@ const GeneralContext = createContext<GeneralContextType>({
   setTableColumns: () => {},
   errorDataForProductBulkCreation: [],
   setErrorDataForProductBulkCreation: () => {},
+  isSelectionActive: false,
+  setIsSelectionActive: () => {},
+  selectedRows: [],
+  setSelectedRows: () => {},
+  resetGeneralContext: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -168,12 +178,14 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
     null
   );
+  const [isSelectionActive, setIsSelectionActive] = useState<boolean>(false);
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
   const [tableColumns, setTableColumns] = useState<{
     [key: string]: ColumnType[];
   }>({});
+  const [selectedRows, setSelectedRows] = useState<any[]>([]);
   useState<boolean>(false);
   const [countListOption, setCountListOption] = useState<CountListOptions>(
     countListOptions[0]
@@ -212,6 +224,15 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
+  const resetGeneralContext = () => {
+    setIsSelectionActive(false);
+    setSelectedRows([]);
+    setSortConfigKey(null);
+    setExpandedRows({});
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
   return (
     <GeneralContext.Provider
       value={{
@@ -257,6 +278,11 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setOrdersActiveTab,
         errorDataForProductBulkCreation,
         setErrorDataForProductBulkCreation,
+        isSelectionActive,
+        setIsSelectionActive,
+        selectedRows,
+        setSelectedRows,
+        resetGeneralContext,
       }}
     >
       {children}

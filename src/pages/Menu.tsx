@@ -6,8 +6,8 @@ import ClosedItems from "../components/menu/ClosedItems";
 import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -32,10 +32,9 @@ export default function Menu() {
   const seenCategories: { [key: string]: boolean } = {};
   const {
     currentPage,
-    setCurrentPage,
+
     rowsPerPage,
-    setExpandedRows,
-    setSearchQuery,
+    resetGeneralContext,
     menuActiveTab,
     setMenuActiveTab,
   } = useGeneralContext();
@@ -180,9 +179,7 @@ export default function Menu() {
         isLanguageChange={false}
         additionalOpenAction={() => {
           if (!isCategoryTabChanged) {
-            setCurrentPage(1);
-            setExpandedRows({});
-            setSearchQuery("");
+            resetGeneralContext();
           }
           setIsCategoryTabChanged(false);
         }}
