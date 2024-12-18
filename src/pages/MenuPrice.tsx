@@ -23,6 +23,7 @@ const MenuPrice = () => {
     ...item,
     category: getItem(item.category, categories)?.name,
     onlinePrice: item?.onlinePrice ?? "",
+    ikasId: item?.ikasId ?? "",
   }));
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -35,6 +36,7 @@ const MenuPrice = () => {
       correspondingKey: "onlinePrice",
     },
     { key: t("Category"), isSortable: true, correspondingKey: "category" },
+    { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
   ];
   const rowKeys = [
     { key: "_id" },
@@ -42,6 +44,7 @@ const MenuPrice = () => {
     { key: "price" },
     { key: "onlinePrice" },
     { key: "category" },
+    { key: "ikasId" },
   ];
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -62,14 +65,8 @@ const MenuPrice = () => {
 
   const processExcelData = (data: any[]) => {
     const headers = data[0];
-    const keys = ["_id", "name", "price", "onlinePrice", "category"];
-    const translatedHeaders = [
-      t("ID"),
-      t("Name"),
-      t("Price"),
-      t("Online Price"),
-      t("Category"),
-    ];
+    const keys = rowKeys.map((rowKey) => rowKey.key);
+    const translatedHeaders = columns.map((column) => column.key);
     const items = data.slice(1).map((row) => {
       const item: any = {};
       row.forEach((cell: any, index: number) => {
