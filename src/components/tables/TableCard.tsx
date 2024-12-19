@@ -492,17 +492,17 @@ export function TableCard({
             }}
           />
         </p>
-        <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
+        <div className="justify-end w-3/4 gap-6 sm:gap-2  flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && !table?.isOnlineSale && (
             <Tooltip content={t("Add Gameplay")}>
-              <span className="text-{8px}">
+              <span>
                 <CardAction onClick={createGameplay} IconComponent={PlusIcon} />
               </span>
             </Tooltip>
           )}
           {!table.finishHour && (
             <Tooltip content={t("Add Order")}>
-              <span className="text-{8px}">
+              <span>
                 <CardAction
                   onClick={() => {
                     setIsCreateOrderDialogOpen(true);
@@ -514,7 +514,7 @@ export function TableCard({
           )}
 
           <Tooltip content={t("Check")}>
-            <span className="text-{8px}">
+            <span>
               <CardAction
                 // onClick={() => setIsCloseConfirmationDialogOpen(true)}
                 onClick={() => newClose()}
@@ -528,7 +528,7 @@ export function TableCard({
               return (tableOrder as Order)?.status === OrderStatus.READYTOSERVE;
             }) && (
               <Tooltip content={t("Served")}>
-                <span className="text-{8px}">
+                <span>
                   <CardAction
                     onClick={() => {
                       if (!tableOrders || !user) return;
@@ -561,7 +561,7 @@ export function TableCard({
             )}
           {table.finishHour && (
             <Tooltip content="Reopen">
-              <span className="text-{8px}">
+              <span>
                 <CardAction
                   onClick={() => reopenTableBack()}
                   IconComponent={LockOpenIcon}
@@ -742,7 +742,7 @@ export function TableCard({
       <div
         className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2  h-9`}
       >
-        <div className="justify-end w-3/4 gap-2 flex lg:hidden lg:group-hover:flex ">
+        <div className="justify-end w-3/4 gap-6 sm:gap-2 flex lg:hidden lg:group-hover:flex ">
           <Tooltip content={t("Table Transfer")}>
             <span>
               <CardAction
