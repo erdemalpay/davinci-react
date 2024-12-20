@@ -126,6 +126,29 @@ export type AccountCount = {
   }[];
   countList: string;
 };
+
+export type ChecklistType = {
+  _id: string;
+  name: string;
+  locations: number[];
+  active: boolean;
+  duties?: string[];
+};
+
+export type CheckType = {
+  _id: string;
+  user: string;
+  location: number;
+  checklist: string;
+  isCompleted: boolean;
+  completedAt?: Date;
+  createdAt: Date;
+  duties: {
+    duty: string;
+    isCompleted: boolean;
+  }[];
+};
+
 export type AccountExpenseType = {
   _id: string;
   name: string;
