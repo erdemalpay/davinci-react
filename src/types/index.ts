@@ -583,6 +583,9 @@ export enum AccountingPageTabEnum {
   LOCATIONS,
   UPPERCATEGORIES,
 }
+export enum CheclistPageTabEnum {
+  CHECKLISTS,
+}
 export enum CheckoutPageTabEnum {
   INCOME,
   EXPENSE,

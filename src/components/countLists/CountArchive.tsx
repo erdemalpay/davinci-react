@@ -3,25 +3,25 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
-import { useGeneralContext } from "../../../context/General.context";
-import { useUserContext } from "../../../context/User.context";
-import { AccountCount, RoleEnum } from "../../../types";
+import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { AccountCount, RoleEnum } from "../../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
-} from "../../../utils/api/account/count";
-import { useGetAccountCountLists } from "../../../utils/api/account/countList";
-import { useGetStockLocations } from "../../../utils/api/location";
-import { useGetUsers } from "../../../utils/api/user";
-import { formatAsLocalDate } from "../../../utils/format";
-import { getItem } from "../../../utils/getItem";
-import { StockLocationInput } from "../../../utils/panelInputs";
-import { passesFilter } from "../../../utils/passesFilter";
-import { CheckSwitch } from "../../common/CheckSwitch";
-import { ConfirmationDialog } from "../../common/ConfirmationDialog";
-import GenericTable from "../../panelComponents/Tables/GenericTable";
-import SwitchButton from "../../panelComponents/common/SwitchButton";
-import { InputTypes } from "../../panelComponents/shared/types";
+} from "../../utils/api/account/count";
+import { useGetAccountCountLists } from "../../utils/api/account/countList";
+import { useGetStockLocations } from "../../utils/api/location";
+import { useGetUsers } from "../../utils/api/user";
+import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
+import { StockLocationInput } from "../../utils/panelInputs";
+import { passesFilter } from "../../utils/passesFilter";
+import { CheckSwitch } from "../common/CheckSwitch";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;

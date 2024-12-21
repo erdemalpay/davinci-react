@@ -5,50 +5,44 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useGeneralContext } from "../../../context/General.context";
-import { useUserContext } from "../../../context/User.context";
-import { AccountCountList, RoleEnum } from "../../../types";
+import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { ChecklistType, RoleEnum } from "../../types";
 import {
-  useAccountCountListMutations,
-  useGetAccountCountLists,
-} from "../../../utils/api/account/countList";
-import { useGetStockLocations } from "../../../utils/api/location";
-import { NameInput } from "../../../utils/panelInputs";
-import { CheckSwitch } from "../../common/CheckSwitch";
-import { ConfirmationDialog } from "../../common/ConfirmationDialog";
-import SwitchButton from "../../panelComponents/common/SwitchButton";
-import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
-import {
-  FormKeyTypeEnum,
-  RowKeyType,
-} from "../../panelComponents/shared/types";
-import GenericTable from "../../panelComponents/Tables/GenericTable";
+  useChecklistMutations,
+  useGetChecklists,
+} from "../../utils/api/account/checklist/checklist";
+import { useGetStockLocations } from "../../utils/api/location";
+import { NameInput } from "../../utils/panelInputs";
+import { CheckSwitch } from "../common/CheckSwitch";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
-const CountLists = () => {
+const ChecklistsTab = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
-  const countLists = useGetAccountCountLists();
+  const checklists = useGetChecklists();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetStockLocations();
-  const [showInactiveCountLists, setShowInactiveCountLists] = useState(false);
+  const [showInactiveChecklists, setShowInactiveChecklists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountCountList>();
+  const [rowToAction, setRowToAction] = useState<ChecklistType>();
   const { setCurrentPage, setSortConfigKey, setSearchQuery } =
     useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const {
-    createAccountCountList,
-    deleteAccountCountList,
-    updateAccountCountList,
-  } = useAccountCountListMutations();
+  const { createChecklist, deleteChecklist, updateChecklist } =
+    useChecklistMutations();
 
-  function handleLocationUpdate(item: AccountCountList, location: number) {
+  function handleLocationUpdate(item: ChecklistType, location: number) {
     const newLocations = item.locations || [];
     const index = newLocations.indexOf(location);
     if (index === -1) {
@@ -56,25 +50,24 @@ const CountLists = () => {
     } else {
       newLocations.splice(index, 1);
     }
-    updateAccountCountList({
+    updateChecklist({
       id: item._id,
       updates: { locations: newLocations },
     });
-    toast.success(`${t("Count List updated successfully")}`);
+    toast.success(`${t("Checklist updated successfully")}`);
   }
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<AccountCountList>[] = [
+  const rowKeys: RowKeyType<ChecklistType>[] = [
     {
       key: "name",
-      node: (row: AccountCountList) => (
+      node: (row: ChecklistType) => (
         <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+          className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
             setCurrentPage(1);
-            // setRowsPerPage(RowPerPageEnum.FIRST);
             setSearchQuery("");
             setSortConfigKey(null);
-            navigate(`/count-list/${row._id}`);
+            navigate(`/checklist/${row._id}`);
           }}
         >
           {row.name}
@@ -88,14 +81,14 @@ const CountLists = () => {
     columns.push({ key: location?.name, isSortable: true });
     rowKeys.push({
       key: String(location._id),
-      node: (row: AccountCountList) =>
+      node: (row: ChecklistType) =>
         isEnableEdit ? (
           <CheckSwitch
             checked={row?.locations?.includes(location._id)}
             onChange={() => handleLocationUpdate(row, location?._id)}
           />
         ) : row?.locations?.includes(location?._id) ? (
-          <IoCheckmark className="text-blue-500 text-2xl " />
+          <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
         ),
@@ -111,7 +104,7 @@ const CountLists = () => {
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
   const addButton = {
-    name: t(`Add Count List`),
+    name: t(`Add Checklist`),
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -121,15 +114,15 @@ const CountLists = () => {
         }}
         inputs={inputs}
         formKeys={formKeys}
-        submitItem={createAccountCountList as any}
-        topClassName="flex flex-col gap-2 "
+        submitItem={createChecklist as any}
+        topClassName="flex flex-col gap-2"
       />
     ),
     isModalOpen: isAddModalOpen,
     setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
   };
   const actions = [
     {
@@ -143,14 +136,14 @@ const CountLists = () => {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           confirm={() => {
-            deleteAccountCountList(rowToAction?._id);
+            deleteChecklist(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Count List")}
+          title={t("Delete Checklist")}
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
+      className: "text-red-500 cursor-pointer text-2xl",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
@@ -162,7 +155,7 @@ const CountLists = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl  ",
+      className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -173,11 +166,11 @@ const CountLists = () => {
           }}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAccountCountList as any}
+          submitItem={updateChecklist as any}
           isEditMode={true}
-          topClassName="flex flex-col gap-2  "
+          topClassName="flex flex-col gap-2"
           submitFunction={() => {
-            updateAccountCountList({
+            updateChecklist({
               id: rowToAction._id,
               updates: {
                 name: rowToAction.name,
@@ -202,7 +195,7 @@ const CountLists = () => {
     {
       name: t("Toggle Active"),
       isDisabled:
-        !showInactiveCountLists ||
+        !showInactiveChecklists ||
         (user &&
           ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
             user.role._id
@@ -216,7 +209,7 @@ const CountLists = () => {
           <CheckSwitch
             checked={row?.active}
             onChange={() =>
-              updateAccountCountList({
+              updateChecklist({
                 id: row._id,
                 updates: {
                   active: !(row?.active ? row.active : false),
@@ -230,15 +223,15 @@ const CountLists = () => {
   ];
   const filters = [
     {
-      label: t("Show Inactive CountLists"),
+      label: t("Show Inactive Checklists"),
       isDisabled:
         user &&
         ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
       isUpperSide: true,
       node: (
         <SwitchButton
-          checked={showInactiveCountLists}
-          onChange={setShowInactiveCountLists}
+          checked={showInactiveChecklists}
+          onChange={setShowInactiveChecklists}
         />
       ),
     },
@@ -250,7 +243,7 @@ const CountLists = () => {
   ];
   useEffect(
     () => setTableKey((prev) => prev + 1),
-    [countLists, locations, showInactiveCountLists]
+    [checklists, locations, showInactiveChecklists]
   );
 
   return (
@@ -275,11 +268,11 @@ const CountLists = () => {
               : []
           }
           rows={
-            showInactiveCountLists
-              ? countLists
-              : countLists?.filter((countList) => countList.active)
+            showInactiveChecklists
+              ? checklists
+              : checklists?.filter((checklist) => checklist.active)
           }
-          title={t("Count Lists")}
+          title={t("Checklists")}
           addButton={
             user &&
             [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
@@ -292,4 +285,4 @@ const CountLists = () => {
   );
 };
 
-export default CountLists;
+export default ChecklistsTab;

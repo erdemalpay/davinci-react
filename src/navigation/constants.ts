@@ -3,6 +3,7 @@ import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
+import Checklists, { ChecklistTabs } from "../pages/Checklists";
 import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
@@ -85,6 +86,7 @@ export enum Routes {
   OrdersSummary = "/orders-summary",
   Images = "/images",
   BulkProductAdding = "/bulk-product-adding",
+  Checklists = "/checklists",
 }
 
 export const allRoutes: {
@@ -219,6 +221,13 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: true,
+  },
+  {
+    name: "Checklists",
+    path: Routes.Checklists,
+    element: Checklists,
+    isOnSidebar: true,
+    tabs: ChecklistTabs,
   },
   {
     name: "Stocks",

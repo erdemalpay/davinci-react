@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { UpdatePayload, get, patch, post, remove } from ".";
+import { get, patch, post, remove, UpdatePayload } from ".";
 export const Paths = {
   Asset: "/asset",
   Activity: "/activity",
@@ -35,6 +35,7 @@ export const Paths = {
   Accounting: "/accounting",
   PanelControl: "/panel-control",
   Order: "/order",
+  Checklist: "/checklist",
 };
 
 interface Props<T> {

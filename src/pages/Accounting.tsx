@@ -105,12 +105,7 @@ export const AccountingPageTabs = [
   },
 ];
 export default function Accounting() {
-  const {
-    setCurrentPage,
-    setSearchQuery,
-    accountingActiveTab,
-    setAccountingActiveTab,
-  } = useGeneralContext();
+  const { accountingActiveTab, setAccountingActiveTab } = useGeneralContext();
   const currentPageId = "constants";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
@@ -135,10 +130,6 @@ export default function Accounting() {
         tabs={tabs}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}
-        additionalOpenAction={() => {
-          setCurrentPage(1);
-          setSearchQuery("");
-        }}
       />
     </>
   );

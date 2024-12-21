@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import CommonSelectInput from "../components/common/SelectInput";
-import CountListMenu from "../components/countLists/productCountList/CountListMenu";
+import CountListMenu from "../components/countLists/CountListMenu";
 import { Header } from "../components/header/Header";
 import { useGeneralContext } from "../context/General.context";
 
