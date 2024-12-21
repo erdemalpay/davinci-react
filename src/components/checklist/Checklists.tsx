@@ -11,7 +11,7 @@ import { ChecklistType, RoleEnum } from "../../types";
 import {
   useChecklistMutations,
   useGetChecklists,
-} from "../../utils/api/account/checklist/checklist";
+} from "../../utils/api/checklist/checklist";
 import { useGetStockLocations } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -33,8 +33,7 @@ const ChecklistsTab = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<ChecklistType>();
-  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -64,9 +63,7 @@ const ChecklistsTab = () => {
         <p
           className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
-            setCurrentPage(1);
-            setSearchQuery("");
-            setSortConfigKey(null);
+            resetGeneralContext();
             navigate(`/checklist/${row._id}`);
           }}
         >

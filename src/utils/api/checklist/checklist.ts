@@ -1,5 +1,5 @@
-import { Paths, useGetList, useMutationApi } from "../../factory";
-import { ChecklistType } from "./../../../../types/index";
+import { ChecklistType } from "../../../types/index";
+import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Checklist}`;
 export function useChecklistMutations() {

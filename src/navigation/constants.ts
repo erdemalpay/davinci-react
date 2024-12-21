@@ -3,6 +3,7 @@ import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
+import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
 import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
@@ -87,6 +88,7 @@ export enum Routes {
   Images = "/images",
   BulkProductAdding = "/bulk-product-adding",
   Checklists = "/checklists",
+  Checklist = "/checklist/:checklistId",
 }
 
 export const allRoutes: {
@@ -228,6 +230,12 @@ export const allRoutes: {
     element: Checklists,
     isOnSidebar: true,
     tabs: ChecklistTabs,
+  },
+  {
+    name: "Checklist",
+    path: Routes.Checklist,
+    element: Checklist,
+    isOnSidebar: false,
   },
   {
     name: "Stocks",

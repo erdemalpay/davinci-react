@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
@@ -30,6 +31,7 @@ import {
 } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetStockLocations } from "../utils/api/location";
+import { getItem } from "../utils/getItem";
 import { StockLocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
@@ -43,8 +45,7 @@ const CountList = () => {
   const { user } = useUserContext();
   const locations = useGetStockLocations();
   const countLists = useGetAccountCountLists();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -72,15 +73,14 @@ const CountList = () => {
   type CountListRowType = {
     product: string;
   };
-  const currentCountList = countLists?.find((item) => item._id === countListId);
-  if (!currentCountList) {
-    return <></>;
+
+  if (!countLists || !locations || !user || !products || !countListId) {
+    return <Loading />;
   }
   const [countLocationForm, setCountLocationForm] = useState({
     location: 0,
   });
   const counts = useGetAccountCounts();
-
   const countLocationInputs = [
     StockLocationInput({
       locations: locations.filter((l) =>
@@ -98,6 +98,9 @@ const CountList = () => {
       (item) => item._id === countListId
     );
     if (!currentCountList) return;
+    const currentLocations = currentCountList?.products?.find(
+      (p) => p.product === row.productId
+    )?.locations;
     const newProducts = [
       ...(currentCountList.products?.filter(
         (p) =>
@@ -106,23 +109,17 @@ const CountList = () => {
       ) || []),
 
       {
-        product: products.find((it) => it.name === row.product)?._id ?? "",
-        locations: Object.entries(row).reduce((acc, [key, value]) => {
-          if (key === "product" || typeof key !== "number") return acc;
-          if (key === changedLocationId) {
-            if (!value) {
-              acc.push(key);
-            }
-          } else if (value) {
-            acc.push(key);
-          }
-          return acc;
-        }, [] as number[]),
+        product: row.productId,
+        locations: currentLocations
+          ? currentLocations?.includes(changedLocationId)
+            ? currentLocations?.filter((l) => l !== changedLocationId)
+            : [...currentLocations, changedLocationId]
+          : [],
       },
     ];
-
+    if (!countListId) return;
     updateAccountCountList({
-      id: currentCountList._id,
+      id: countListId,
       updates: { products: newProducts },
     });
 
@@ -147,6 +144,7 @@ const CountList = () => {
           );
           productRows.push({
             product: product.name,
+            productId: product._id,
             ...locationEntries,
           });
         }
@@ -170,7 +168,9 @@ const CountList = () => {
       label: t("Product"),
       options: products
         .filter((item) => {
-          const countList = countLists.find((item) => item._id === countListId);
+          const countList = countLists?.find(
+            (item) => item._id === countListId
+          );
           return !countList?.products?.some((pro) => pro.product === item._id);
         })
         .map((product) => {
@@ -187,9 +187,9 @@ const CountList = () => {
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<any>[] = [{ key: "product" }];
-  locations.forEach((item) => {
-    columns.push({ key: item.name, isSortable: true });
-    rowKeys.push({
+  locations?.forEach((item) => {
+    columns?.push({ key: item.name, isSortable: true });
+    rowKeys?.push({
       key: String(item._id),
       node: (row: any) =>
         isEnableEdit ? (
@@ -331,11 +331,6 @@ const CountList = () => {
       ),
     },
   ];
-
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [countLists, products, countListId]);
-
   // adjust columns and rowkeys  according to locations deletes if neccessary
   locations.forEach((location) => {
     if (
@@ -357,8 +352,10 @@ const CountList = () => {
       }
     }
   });
+  useEffect(() => {
+    setTableKey((prev) => prev + 1);
+  }, [countLists, products, countListId, locations]);
 
-  if (!user) return <></>;
   return (
     <>
       <Header showLocationSelector={false} />
@@ -374,18 +371,17 @@ const CountList = () => {
                       label: selectedCountList.name,
                     }
                   : {
-                      value: currentCountList._id,
-                      label: currentCountList.name,
+                      value: countListId,
+                      label:
+                        getItem(countListId, countLists)?.name ||
+                        t("Select a count list"),
                     }
               }
               onChange={(selectedOption) => {
                 setSelectedCountList(
                   countLists?.find((p) => p._id === selectedOption?.value)
                 );
-                setCurrentPage(1);
-                // setRowsPerPage(RowPerPageEnum.FIRST);
-                setSearchQuery("");
-                setSortConfigKey(null);
+                resetGeneralContext();
                 navigate(`/count-list/${selectedOption?.value}`);
               }}
               placeholder={t("Select a count list")}
@@ -435,9 +431,7 @@ const CountList = () => {
                     );
                   }).length > 0
                 ) {
-                  setCurrentPage(1);
-                  setSearchQuery("");
-                  setSortConfigKey(null);
+                  resetGeneralContext();
                   navigate(
                     `/count/${countLocationForm.location}/${countListId}`
                   );
@@ -449,9 +443,7 @@ const CountList = () => {
                     createdAt: new Date(),
                     user: user._id,
                   });
-                  setCurrentPage(1);
-                  setSearchQuery("");
-                  setSortConfigKey(null);
+                  resetGeneralContext();
                   navigate(
                     `/count/${countLocationForm.location}/${countListId}`
                   );

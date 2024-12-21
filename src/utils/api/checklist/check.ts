@@ -1,5 +1,5 @@
-import { Paths, useGetList, useMutationApi } from "../../factory";
-import { CheckType } from "./../../../../types/index";
+import { CheckType } from "../../../types/index";
+import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Checklist}/check`;
 export function useCheckMutations() {
@@ -10,14 +10,12 @@ export function useCheckMutations() {
   } = useMutationApi<CheckType>({
     baseQuery: baseUrl,
   });
-
   return {
     deleteCheck,
     updateCheck,
     createCheck,
   };
 }
-
 export function useGetChecks() {
   return useGetList<CheckType>(baseUrl);
 }
