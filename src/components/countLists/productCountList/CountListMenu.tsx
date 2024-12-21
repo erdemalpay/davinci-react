@@ -14,8 +14,7 @@ import CountLists from "./CountLists";
 const CountListMenu = () => {
   const { user } = useUserContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const { resetGeneralContext, countListActiveTab, setCountListActiveTab } =
-    useGeneralContext();
+  const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const [tabs, setTabs] = useState<Tab[]>([]);
   useEffect(() => {
@@ -55,9 +54,6 @@ const CountListMenu = () => {
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={countListActiveTab}
         setActiveTab={setCountListActiveTab}
-        additionalOpenAction={() => {
-          resetGeneralContext();
-        }}
       />
     </>
   );
