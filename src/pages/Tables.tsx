@@ -729,8 +729,8 @@ const Tables = () => {
         </div>
 
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
-          {tableColumns.map((tablesColumns, idx) => (
-            <div key={idx}>
+          {tableColumns?.map((tablesColumns, idx) => (
+            <div key={idx + "tablecolumns"}>
               {tablesColumns.map((table) => (
                 <div
                   id={`table-large-${table?._id}`}
@@ -752,7 +752,7 @@ const Tables = () => {
           ))}
         </div>
         <div className="h-full grid lg:hidden grid-cols-1 mt-4 gap-x-8">
-          {tables.map((table) => (
+          {tables?.map((table) => (
             <div
               id={`table-${table?._id}`}
               key={table?._id || table?.startHour}

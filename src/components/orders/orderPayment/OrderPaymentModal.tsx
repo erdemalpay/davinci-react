@@ -26,7 +26,6 @@ import { useGetTableCollections } from "../../../utils/api/order/orderCollection
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import {
   useCloseTableMutation,
-  useGetTable,
   useReopenTableMutation,
 } from "../../../utils/api/table";
 import { useGetUsers } from "../../../utils/api/user";
@@ -98,8 +97,6 @@ const OrderPaymentModal = ({
       return orders[0]?.table as Table;
     } else if (tables && tables.some((table) => table._id === tableId)) {
       return getItem(tableId, tables) as Table;
-    } else {
-      return useGetTable(tableId);
     }
   };
   const table = getTable(tableId) as Table;
