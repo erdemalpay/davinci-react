@@ -12,7 +12,7 @@ import {
   useChecklistMutations,
   useGetChecklists,
 } from "../../utils/api/checklist/checklist";
-import { useGetStockLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -27,7 +27,7 @@ const ChecklistsTab = () => {
   const navigate = useNavigate();
   const checklists = useGetChecklists();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetStockLocations();
+  const locations = useGetStoreLocations();
   const [showInactiveChecklists, setShowInactiveChecklists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
