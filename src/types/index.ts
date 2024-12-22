@@ -132,7 +132,10 @@ export type ChecklistType = {
   name: string;
   locations: number[];
   active: boolean;
-  duties?: string[];
+  duties?: {
+    duty: string;
+    locations: number[];
+  }[];
 };
 
 export type CheckType = {

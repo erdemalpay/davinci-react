@@ -224,6 +224,7 @@ const CountList = () => {
         formKeys={addProductFormKeys}
         submitItem={updateAccountCountList as any}
         isEditMode={true}
+        buttonName={t("Add")}
         setForm={setForm}
         topClassName="flex flex-col gap-2 "
         handleUpdate={() => {

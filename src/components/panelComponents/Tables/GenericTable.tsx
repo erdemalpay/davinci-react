@@ -72,6 +72,7 @@ type Props<T> = {
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
   selectionActions?: ActionType<T>[];
+  isToolTipEnabled?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -96,6 +97,7 @@ const GenericTable = <T,>({
   isPdf = false,
   isExcel = false,
   isCollapsible = false,
+  isToolTipEnabled = true,
   isPagination = true,
   isRowsPerPage = true,
   isActionsAtFront = false,
@@ -472,7 +474,7 @@ const GenericTable = <T,>({
             }
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
-              cellValue.length > tooltipLimit
+              cellValue.length > tooltipLimit && isToolTipEnabled
                 ? `${cellValue.substring(0, tooltipLimit)}...`
                 : cellValue;
 
@@ -524,7 +526,7 @@ const GenericTable = <T,>({
                       setIsImageModalOpen(true);
                     }}
                   />
-                ) : cellValue.length > tooltipLimit ? (
+                ) : cellValue.length > tooltipLimit && isToolTipEnabled ? (
                   <CustomTooltip content={cellValue}>
                     <P1>{displayValue}</P1>
                   </CustomTooltip>

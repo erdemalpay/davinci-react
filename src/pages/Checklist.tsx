@@ -1,14 +1,22 @@
 import { Switch } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../components/panelComponents/shared/types";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -17,74 +25,106 @@ import {
   useChecklistMutations,
   useGetChecklists,
 } from "../utils/api/checklist/checklist";
-import { useGetStockLocations } from "../utils/api/location";
+import { useGetStoreLocations } from "../utils/api/location";
+import { getItem } from "../utils/getItem";
 
+interface LocationEntries {
+  [key: string]: boolean;
+}
 const Checklist = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { checklistId } = useParams();
   const { user } = useUserContext();
-  const locations = useGetStockLocations();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const locations = useGetStoreLocations();
   const checklists = useGetChecklists();
   const { resetGeneralContext } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
+  const [form, setForm] = useState({
+    duty: "",
+  });
   const [isLocationEdit, setIsLocationEdit] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { updateChecklist } = useChecklistMutations();
   const [selectedChecklist, setSelectedChecklist] = useState<ChecklistType>();
-
-  const currentChecklist = checklists?.find((item) => item._id === checklistId);
-  if (!user || !currentChecklist) return <></>;
+  if (!user || !checklists || !checklistId || !locations) return <Loading />;
 
   function handleLocationUpdate(row: any, changedLocationId: number) {
     const currentChecklist = checklists?.find(
       (item) => item._id === checklistId
     );
-
     if (!currentChecklist) return;
-    // const newProducts = [
-    //   ...(currentChecklist.products?.filter(
-    //     (p) =>
-    //       p.product !==
-    //       (products.find((it) => it.name === row.product)?._id ?? "")
-    //   ) || []),
+    const currentLocations = currentChecklist?.duties?.find(
+      (d) => d.duty === row.duty
+    )?.locations;
+    const newDuties = [
+      ...(currentChecklist.duties?.filter((d) => d.duty !== row.duty) || []),
+      {
+        duty: row.duty,
+        locations: currentLocations
+          ? currentLocations?.includes(changedLocationId)
+            ? currentLocations?.filter((l) => l !== changedLocationId)
+            : [...currentLocations, changedLocationId]
+          : [],
+      },
+    ];
+    if (!checklistId) return;
+    updateChecklist({
+      id: checklistId,
+      updates: { duties: newDuties },
+    });
 
-    //   {
-    //     product: products.find((it) => it.name === row.product)?._id ?? "",
-    //     locations: Object.entries(row).reduce((acc, [key, value]) => {
-    //       if (key === "product" || typeof key !== "number") return acc;
-    //       if (key === changedLocationId) {
-    //         if (!value) {
-    //           acc.push(key);
-    //         }
-    //       } else if (value) {
-    //         acc.push(key);
-    //       }
-    //       return acc;
-    //     }, [] as number[]),
-    //   },
-    // ];
-
-    //  updateChecklist({
-    //    id: currentCountList._id,
-    //    updates: { products: newProducts },
-    //  });
-
-    //  toast.success(`${t("Count List updated successfully")}`);
+    toast.success(`${t("Checklist updated successfully")}`);
   }
+  const rows = () => {
+    let dutyRows = [];
+    const currentChecklist = checklists?.find(
+      (item) => item._id === checklistId
+    );
+    if (currentChecklist && currentChecklist.duties) {
+      for (let item of currentChecklist.duties) {
+        const locationEntries = locations?.reduce<LocationEntries>(
+          (acc, location) => {
+            acc[location._id] = item.locations?.includes(location._id) ?? false;
+            return acc;
+          },
+          {}
+        );
+        dutyRows.push({
+          duty: item.duty,
+          ...locationEntries,
+        });
+      }
+    }
+    dutyRows = dutyRows.sort((a, b) => {
+      if (a.duty < b.duty) {
+        return -1;
+      }
+      if (a.duty > b.duty) {
+        return 1;
+      }
+      return 0;
+    });
+    return dutyRows;
+  };
+  const addDutyInputs = [
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "duty",
+      label: t("Duty"),
+      placeholder: t("Duty"),
+      required: true,
+    },
+  ];
+  const addDutyFormKeys = [{ key: "duty", type: FormKeyTypeEnum.STRING }];
   const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys = checklists?.map((checklist) => ({
-    key: checklist._id,
-    node: (row: any) => (
-      <p
-        className="text-blue-700 cursor-pointer hover:text-blue-500 transition-transform"
-        onClick={() => navigate(`/checklist-detail/${checklist._id}`)}
-      >
-        {checklist.name}
-      </p>
-    ),
-  }));
-
+  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }];
   locations.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
@@ -118,14 +158,34 @@ const Checklist = () => {
       <GenericAddEditPanel
         isOpen={isAddModalOpen}
         close={() => setIsAddModalOpen(false)}
-        inputs={[]}
-        formKeys={[]}
+        inputs={addDutyInputs}
+        formKeys={addDutyFormKeys}
         submitItem={() => {}}
         isEditMode={true}
-        setForm={() => {}}
+        buttonName={t("Add")}
+        setForm={setForm}
         topClassName="flex flex-col gap-2 "
         handleUpdate={() => {
-          // Define logic for updating the checklist with a new task
+          const checklistDuties = () => {
+            let dutyRows = [];
+            const duties =
+              checklists?.find((item) => item._id === checklistId)?.duties ||
+              [];
+            const newDuty = {
+              duty: form.duty,
+              locations:
+                checklists?.find((item) => item._id === checklistId)
+                  ?.locations ?? [],
+            };
+            dutyRows = [...duties, newDuty];
+            return dutyRows;
+          };
+          updateChecklist({
+            id: checklistId,
+            updates: {
+              duties: checklistDuties(),
+            },
+          });
         }}
       />
     ),
@@ -138,20 +198,83 @@ const Checklist = () => {
     {
       name: t("Delete"),
       icon: <HiOutlineTrash />,
-      setRow: () => {},
-      modal: (
+      setRow: setRowToAction,
+      modal: rowToAction ? (
         <ConfirmationDialog
-          isOpen={false}
-          close={() => {}}
-          confirm={() => {}}
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            if (checklistId && rowToAction) {
+              const currentChecklist = getItem(checklistId, checklists);
+              const newDuties = currentChecklist?.duties?.filter(
+                (item) => item.duty !== rowToAction.duty
+              );
+              updateChecklist({
+                id: checklistId,
+                updates: {
+                  duties: newDuties,
+                },
+              });
+            }
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
           title={t("Delete Task")}
-          text={t("Are you sure you want to delete this task?")}
+          text={`${rowToAction.duty} ${t("GeneralDeleteMessage")}`}
         />
+      ) : (
+        ""
       ),
       className: "text-red-500 cursor-pointer text-2xl ",
       isModal: true,
-      isModalOpen: false,
-      setIsModal: () => {},
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={addDutyInputs}
+          formKeys={addDutyFormKeys}
+          setForm={setForm}
+          submitItem={updateChecklist as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          constantValues={{ duty: rowToAction.duty }}
+          handleUpdate={() => {
+            const checklistDuties = () => {
+              let dutyRows = [];
+              const currentChecklist = getItem(checklistId, checklists);
+              const filteredDuties = currentChecklist?.duties?.filter(
+                (item) => item.duty !== rowToAction.duty
+              );
+              const newDuty = {
+                duty: form.duty,
+                locations:
+                  checklists?.find((item) => item._id === checklistId)
+                    ?.locations ?? [],
+              };
+              dutyRows = [...(filteredDuties ?? []), newDuty];
+              return dutyRows;
+            };
+            if (!checklistId) return;
+            updateChecklist({
+              id: checklistId,
+              updates: {
+                duties: checklistDuties(),
+              },
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
       isPath: false,
     },
   ];
@@ -181,7 +304,7 @@ const Checklist = () => {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [checklists, locations]);
+  }, [checklists, locations, user]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -189,7 +312,7 @@ const Checklist = () => {
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
             <CommonSelectInput
-              options={checklists.map((p) => ({
+              options={checklists?.map((p) => ({
                 value: p._id,
                 label: p.name,
               }))}
@@ -200,13 +323,15 @@ const Checklist = () => {
                       label: selectedChecklist.name,
                     }
                   : {
-                      value: currentChecklist._id,
-                      label: currentChecklist.name,
+                      value: checklistId,
+                      label:
+                        getItem(checklistId, checklists)?.name ??
+                        t("Select a checklist"),
                     }
               }
               onChange={(selectedOption) => {
                 setSelectedChecklist(
-                  checklists.find((p) => p._id === selectedOption?.value)
+                  checklists?.find((p) => p._id === selectedOption?.value)
                 );
                 resetGeneralContext();
                 navigate(`/checklist/${selectedOption?.value}`);
@@ -220,7 +345,8 @@ const Checklist = () => {
             key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
-            rows={checklists}
+            isToolTipEnabled={false}
+            rows={rows()}
             actions={
               [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
                 user.role._id
@@ -236,7 +362,7 @@ const Checklist = () => {
                 : undefined
             }
             filters={filters}
-            title={currentChecklist.name}
+            title={checklists?.find((p) => p._id === checklistId)?.name}
             isActionsActive={true}
           />
         </div>
