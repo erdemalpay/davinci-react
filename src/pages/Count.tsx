@@ -18,6 +18,7 @@ import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
+import { CountListPageTabEnum } from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -45,12 +46,7 @@ const Count = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
 
-  const {
-    setCurrentPage,
-    setSearchQuery,
-    setCountListActiveTab,
-    setSortConfigKey,
-  } = useGeneralContext();
+  const { resetGeneralContext, setCountListActiveTab } = useGeneralContext();
   const { location, countListId } = useParams();
   const [form, setForm] = useState({
     product: [],
@@ -97,9 +93,7 @@ const Count = () => {
       path: Routes.CountLists,
       canBeClicked: true,
       additionalSubmitFunction: () => {
-        setCurrentPage(1);
-        setSortConfigKey(null);
-        setSearchQuery("");
+        resetGeneralContext();
       },
     },
     {
@@ -368,11 +362,8 @@ const Count = () => {
       });
     }
 
-    setCountListActiveTab(countLists.length);
-    setCurrentPage(1);
-    // setRowsPerPage(RowPerPageEnum.FIRST);
-    setSearchQuery("");
-    setSortConfigKey(null);
+    setCountListActiveTab(CountListPageTabEnum.COUNTARCHIVE);
+    resetGeneralContext();
     navigate(Routes.CountLists);
   };
   useEffect(() => {

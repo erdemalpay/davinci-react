@@ -564,6 +564,10 @@ export enum CountListPageTabEnum {
   COUNTLISTS,
   COUNTLISTPRODUCTS,
 }
+export enum ChecklistPageTabEnum {
+  CHECKARCHIVE,
+  CHECKLISTS,
+}
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,

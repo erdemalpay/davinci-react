@@ -155,7 +155,7 @@ const GenericTable = <T,>({
     }));
   }
   const usedColumns = title
-    ? tableColumns[title].filter((column) => column.isActive)
+    ? tableColumns[title]?.filter((column) => column.isActive)
     : columns;
   const usedRowKeys = title
     ? rowKeys.filter(
@@ -284,7 +284,7 @@ const GenericTable = <T,>({
     rows.forEach((row) => {
       const rowData: any[] = [];
 
-      usedColumns.forEach((column) => {
+      usedColumns?.forEach((column) => {
         if (column.correspondingKey) {
           const value = String(row[column.correspondingKey]);
           rowData.push(value);
@@ -511,7 +511,7 @@ const GenericTable = <T,>({
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
                 } min-w-20 md:min-w-0 ${
-                  usedColumns.length === 2 && keyIndex === 1 && " text-center "
+                  usedColumns?.length === 2 && keyIndex === 1 && " text-center "
                 }`}
               >
                 {rowKey.isImage ? (
@@ -554,7 +554,7 @@ const GenericTable = <T,>({
         {isRowExpanded && (
           <tr>
             <td
-              colSpan={usedColumns.length + (isActionsActive ? 1 : 0)}
+              colSpan={usedColumns?.length + (isActionsActive ? 1 : 0)}
               className="px-4 py-2 border-b transition-max-height duration-300 ease-in-out overflow-hidden"
               style={{
                 maxHeight: isRowExpanded ? "1000px" : "0",
@@ -837,7 +837,7 @@ const GenericTable = <T,>({
                     )}
                     {isCollapsible && <th></th>}
 
-                    {usedColumns.map((column, index) => {
+                    {usedColumns?.map((column, index) => {
                       if (column.node) {
                         return column.node();
                       }
@@ -845,7 +845,7 @@ const GenericTable = <T,>({
                         <th
                           key={index}
                           className={`${
-                            usedColumns.length === 2 && "justify-between  "
+                            usedColumns?.length === 2 && "justify-between  "
                           } ${
                             index === 0 && !isCollapsible && !isSelectionActive
                               ? "pl-3"
@@ -856,11 +856,11 @@ const GenericTable = <T,>({
                             className={`text-base font-medium leading-6 w-max flex gap-2  ${
                               column?.className
                             }  ${
-                              usedColumns.length === 2 &&
+                              usedColumns?.length === 2 &&
                               index == 1 &&
                               "  mx-auto"
                             }  ${
-                              index === usedColumns.length - 1 &&
+                              index === usedColumns?.length - 1 &&
                               actions &&
                               isActionsActive
                                 ? "mx-auto px-4"

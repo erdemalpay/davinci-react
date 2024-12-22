@@ -11,6 +11,7 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
@@ -21,12 +22,14 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ChecklistType, RoleEnum } from "../types";
+import { useCheckMutations, useGetChecks } from "../utils/api/checklist/check";
 import {
   useChecklistMutations,
   useGetChecklists,
 } from "../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
+import { LocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
   [key: string]: boolean;
@@ -38,11 +41,14 @@ const Checklist = () => {
   const { user } = useUserContext();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const { createCheck } = useCheckMutations();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const locations = useGetStoreLocations();
+  const checks = useGetChecks();
   const checklists = useGetChecklists();
   const { resetGeneralContext } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
@@ -53,7 +59,8 @@ const Checklist = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { updateChecklist } = useChecklistMutations();
   const [selectedChecklist, setSelectedChecklist] = useState<ChecklistType>();
-  if (!user || !checklists || !checklistId || !locations) return <Loading />;
+  if (!user || !checklists || !checklistId || !locations || !checks)
+    return <Loading />;
 
   function handleLocationUpdate(row: any, changedLocationId: number) {
     const currentChecklist = checklists?.find(
@@ -123,6 +130,21 @@ const Checklist = () => {
     },
   ];
   const addDutyFormKeys = [{ key: "duty", type: FormKeyTypeEnum.STRING }];
+  const [checkLocationForm, setCheckLocationForm] = useState({
+    location: 0,
+  });
+  const checkLocationInputs = [
+    LocationInput({
+      locations: locations.filter((l) =>
+        checklists
+          ?.find((row) => row._id === checklistId)
+          ?.locations?.includes(l._id)
+      ),
+    }),
+  ];
+  const checkLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<any>[] = [{ key: "duty" }];
   locations.forEach((item) => {
@@ -281,6 +303,17 @@ const Checklist = () => {
 
   const filters = [
     {
+      isUpperSide: true,
+      node: (
+        <ButtonFilter
+          buttonName={t("Checkit")}
+          onclick={() => {
+            setIsCheckModalOpen(true);
+          }}
+        />
+      ),
+    },
+    {
       label: t("Location Edit"),
       isUpperSide: true,
       isDisabled: user
@@ -304,7 +337,7 @@ const Checklist = () => {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [checklists, locations, user]);
+  }, [checklists, locations, user, checks, checklistId]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -366,6 +399,45 @@ const Checklist = () => {
             isActionsActive={true}
           />
         </div>
+        {isCheckModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isCheckModalOpen}
+            close={() => setIsCheckModalOpen(false)}
+            inputs={checkLocationInputs}
+            formKeys={checkLocationFormKeys}
+            submitItem={() => {}}
+            submitFunction={async () => {
+              if (checkLocationForm.location === 0 || !user) return;
+              if (
+                checks?.filter((item) => {
+                  return (
+                    item.isCompleted === false &&
+                    item.location === checkLocationForm.location &&
+                    item.user === user._id &&
+                    item.checklist === checklistId
+                  );
+                }).length > 0
+              ) {
+                resetGeneralContext();
+                navigate(`/check/${checkLocationForm.location}/${checklistId}`);
+              } else {
+                createCheck({
+                  location: checkLocationForm.location,
+                  checklist: checklistId,
+                  isCompleted: false,
+                  createdAt: new Date(),
+                  user: user._id,
+                });
+                resetGeneralContext();
+                navigate(`/check/${checkLocationForm.location}/${checklistId}`);
+              }
+            }}
+            setForm={setCheckLocationForm}
+            isEditMode={false}
+            topClassName="flex flex-col gap-2 "
+            buttonName={t("Submit")}
+          />
+        )}
       </div>
     </>
   );

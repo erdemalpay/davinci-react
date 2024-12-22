@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { GoChecklist } from "react-icons/go";
 import ChecklistsTab from "../components/checklist/Checklists";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { CheclistPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -17,7 +17,7 @@ export const ChecklistTabs = [
   },
 ];
 export default function Checklists() {
-  const [checklistActiveTab, setChecklistActiveTab] = useState(0);
+  const { checklistActiveTab, setChecklistActiveTab } = useGeneralContext();
   const currentPageId = "checklists";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();

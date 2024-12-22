@@ -45,6 +45,8 @@ type GeneralContextType = {
   setMenuActiveTab: (tab: number) => void;
   countListActiveTab: number;
   setCountListActiveTab: (tab: number) => void;
+  checklistActiveTab: number;
+  setChecklistActiveTab: (tab: number) => void;
   panelControlActiveTab: number;
   setPanelControlActiveTab: (tab: number) => void;
   orderDataActiveTab: number;
@@ -102,6 +104,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setMenuActiveTab: () => {},
   countListActiveTab: 0,
   setCountListActiveTab: () => {},
+  checklistActiveTab: 0,
+  setChecklistActiveTab: () => {},
   panelControlActiveTab: 0,
   setPanelControlActiveTab: () => {},
   setCurrentPage: () => {},
@@ -179,6 +183,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
+  const [checklistActiveTab, setChecklistActiveTab] = useState<number>(0);
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
     null
   );
@@ -290,6 +295,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         resetGeneralContext,
         isShownInMenu,
         setIsShownInMenu,
+        checklistActiveTab,
+        setChecklistActiveTab,
       }}
     >
       {children}
