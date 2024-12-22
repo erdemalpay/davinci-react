@@ -591,6 +591,7 @@ export enum AccountingPageTabEnum {
   UPPERCATEGORIES,
 }
 export enum CheclistPageTabEnum {
+  CHECKARCHIVE,
   CHECKLISTS,
 }
 export enum CheckoutPageTabEnum {

@@ -7,11 +7,11 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -47,8 +47,7 @@ const SingleCountArchive = () => {
   const products = useGetAllAccountProducts();
   const [rowToAction, setRowToAction] = useState<any>();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const { setCurrentPage, setSearchQuery, setSortConfigKey } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -60,10 +59,7 @@ const SingleCountArchive = () => {
       path: Routes.CountLists,
       canBeClicked: true,
       additionalSubmitFunction: () => {
-        setCurrentPage(1);
-        // setRowsPerPage(RowPerPageEnum.FIRST);
-        setSortConfigKey(null);
-        setSearchQuery("");
+        resetGeneralContext();
       },
     },
     {

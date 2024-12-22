@@ -5,13 +5,13 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountCount, RoleEnum } from "../../types";
+import { CheckType, RoleEnum } from "../../types";
 import {
-  useAccountCountMutations,
-  useGetAccountCounts,
-} from "../../utils/api/account/count";
-import { useGetAccountCountLists } from "../../utils/api/account/countList";
-import { useGetStockLocations } from "../../utils/api/location";
+  useCheckMutations,
+  useGetChecks,
+} from "../../utils/api/checklist/check";
+import { useGetChecklists } from "../../utils/api/checklist/checklist";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -26,20 +26,20 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 type FormElementsState = {
   [key: string]: any;
 };
-const CountArchive = () => {
+const CheckArchive = () => {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
-  const counts = useGetAccountCounts();
-  const countLists = useGetAccountCountLists();
+  const checks = useGetChecks();
+  const checklists = useGetChecklists();
   const users = useGetUsers();
-  const { deleteAccountCount, updateAccountCount } = useAccountCountMutations();
-  const [rowToAction, setRowToAction] = useState<Partial<AccountCount>>();
+  const { deleteCheck, updateCheck } = useCheckMutations();
+  const [rowToAction, setRowToAction] = useState<Partial<CheckType>>();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const locations = useGetStockLocations();
+  const locations = useGetStoreLocations();
   const { resetGeneralContext } = useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
@@ -53,45 +53,45 @@ const CountArchive = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       createdBy: "",
-      countList: "",
+      checklist: "",
       location: "",
       after: "",
       before: "",
     });
-  const allRows = counts
-    .filter((count) => {
-      if (count?.user === user?._id || !isDisabledCondition) {
-        return count;
+  const allRows = checks
+    .filter((check) => {
+      if (check?.user === user?._id || !isDisabledCondition) {
+        return check;
       }
     })
-    .map((count) => {
-      if (!count?.createdAt) {
+    .map((check) => {
+      if (!check?.createdAt) {
         return null;
       }
-      const startDate = new Date(count?.createdAt);
-      const endDate = new Date(count?.completedAt ?? 0);
+      const startDate = new Date(check?.createdAt);
+      const endDate = new Date(check?.completedAt ?? 0);
       return {
-        ...count,
-        cntLst: getItem(count?.countList, countLists)?.name,
-        cntLstId: count?.countList,
-        lctn: getItem(count?.location, locations)?.name,
-        lctnId: count?.location,
-        usr: getItem(count?.user, users)?.name,
-        usrId: count?.user,
-        startDate: format(count?.createdAt, "yyyy-MM-dd"),
+        ...check,
+        chcLst: getItem(check?.checklist, checklists)?.name,
+        chcLstId: check?.checklist,
+        lctn: getItem(check?.location, locations)?.name,
+        lctnId: check?.location,
+        usr: getItem(check?.user, users)?.name,
+        usrId: check?.user,
+        startDate: format(check?.createdAt, "yyyy-MM-dd"),
         formattedStartDate: formatAsLocalDate(
-          format(count?.createdAt, "yyyy-MM-dd")
+          format(check?.createdAt, "yyyy-MM-dd")
         ),
         startHour: `${pad(startDate.getHours())}:${pad(
           startDate.getMinutes()
         )}`,
-        endDate: count?.completedAt
-          ? format(count?.completedAt, "yyyy-MM-dd")
+        endDate: check?.completedAt
+          ? format(check?.completedAt, "yyyy-MM-dd")
           : "",
-        formattedEndDate: count?.completedAt
-          ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
+        formattedEndDate: check?.completedAt
+          ? formatAsLocalDate(format(check?.completedAt, "yyyy-MM-dd"))
           : "-",
-        endHour: count?.completedAt
+        endHour: check?.completedAt
           ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
           : "-",
       };
@@ -103,7 +103,7 @@ const CountArchive = () => {
     { key: t("Start Hour"), isSortable: true },
     { key: t("End Date"), isSortable: true },
     { key: t("End Hour"), isSortable: true },
-    { key: t("NounCount"), isSortable: true },
+    { key: t("NounCheck"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("User"), isSortable: true },
     { key: t("Status"), isSortable: false },
@@ -120,10 +120,10 @@ const CountArchive = () => {
           onClick={() => {
             if (row?.isCompleted) {
               resetGeneralContext();
-              navigate(`/archive/${row?._id}`);
+              navigate(`/check-archive/${row?._id}`);
             } else {
               resetGeneralContext();
-              navigate(`/count/${row?.location}/${row?.countList}`);
+              navigate(`/check/${row?.location}/${row?.checklist}`);
             }
           }}
         >
@@ -148,14 +148,14 @@ const CountArchive = () => {
       className: "min-w-32 pr-1",
     },
     {
-      key: "cntLst",
+      key: "chcLst",
       className: "min-w-32 pr-1",
     },
     { key: "lctn" },
     { key: "usr" },
     {
       key: "isCompleted",
-      node: (row: AccountCount) => {
+      node: (row: any) => {
         if (row?.isCompleted) {
           return (
             <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
@@ -190,13 +190,13 @@ const CountArchive = () => {
     StockLocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
-      formKey: "countList",
-      label: t("NounCount"),
-      options: countLists?.map((countList) => ({
-        value: countList._id,
-        label: countList.name,
+      formKey: "checklist",
+      label: t("NounCheck"),
+      options: checklists?.map((checklist) => ({
+        value: checklist._id,
+        label: checklist.name,
       })),
-      placeholder: t("NounCount"),
+      placeholder: t("NounCheck"),
       required: true,
     },
 
@@ -241,11 +241,11 @@ const CountArchive = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountCount(rowToAction?._id as any);
+            deleteCheck(rowToAction?._id as any);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
-          title={t("Delete Count")}
-          text={`Count ${t("GeneralDeleteMessage")}`}
+          title={t("Delete Check")}
+          text={`Check ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl  ",
@@ -266,13 +266,7 @@ const CountArchive = () => {
           <CheckSwitch
             checked={row.isCompleted}
             onChange={() => {
-              // if (!row.isCompleted) {
-              //   toast.error(
-              //     t("The status of an inactive count cannot be changed.")
-              //   );
-              //   return;
-              // }
-              updateAccountCount({
+              updateCheck({
                 id: row._id,
                 updates: {
                   isCompleted: !row.isCompleted,
@@ -293,13 +287,13 @@ const CountArchive = () => {
         (filterPanelFormElements.after === "" ||
           row?.startDate >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.location, row?.lctnId) &&
-        passesFilter(filterPanelFormElements.countList, row?.cntLstId) &&
+        passesFilter(filterPanelFormElements.checklist, row?.chcLstId) &&
         passesFilter(filterPanelFormElements.createdBy, row?.usrId)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [counts, user, locations, users, filterPanelFormElements, countLists]);
+  }, [checks, user, locations, users, filterPanelFormElements, checklists]);
 
   return (
     <>
@@ -309,7 +303,7 @@ const CountArchive = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          title={t("Count Archive")}
+          title={t("Check Archive")}
           filterPanel={filterPanel}
           filters={filters}
           actions={actions}
@@ -320,4 +314,4 @@ const CountArchive = () => {
   );
 };
 
-export default CountArchive;
+export default CheckArchive;

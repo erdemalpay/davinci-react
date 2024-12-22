@@ -28,6 +28,7 @@ import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
+import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
 import SingleFolderPage from "../pages/SingleFolderPage";
 import Stocks from "../pages/Stocks";
@@ -78,6 +79,7 @@ export enum Routes {
   Brand = "/brand/:brandId",
   Service = "/service/:serviceId",
   SingleCountArchive = "/archive/:archiveId",
+  SingleCheckArchive = "/check-archive/:archiveId",
   SingleFolderPage = "/folder/:folderName",
   CountLists = "/count-lists",
   CountList = "/count-list/:countListId",
@@ -243,6 +245,12 @@ export const allRoutes: {
     name: "Check",
     path: Routes.Check,
     element: Check,
+    isOnSidebar: false,
+  },
+  {
+    name: "Single Check Archive",
+    path: Routes.SingleCheckArchive,
+    element: SingleCheckArchive,
     isOnSidebar: false,
   },
   {

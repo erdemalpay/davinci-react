@@ -54,7 +54,7 @@ const Check = () => {
   const [rows, setRows] = useState(allRows);
   const pageNavigations = [
     {
-      name: t("Checklists"),
+      name: t("Check Archive"),
       path: Routes.Checklists,
       canBeClicked: true,
       additionalSubmitFunction: () => {
@@ -135,6 +135,7 @@ const Check = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows ?? []}
+          isToolTipEnabled={false}
           title={t("Checkit")}
           isActionsActive={false}
         />

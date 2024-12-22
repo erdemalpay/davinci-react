@@ -1,4 +1,6 @@
+import { FaArchive } from "react-icons/fa";
 import { GoChecklist } from "react-icons/go";
+import CheckArchive from "../components/checklist/CheckArchive";
 import ChecklistsTab from "../components/checklist/Checklists";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -8,6 +10,13 @@ import { CheclistPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const ChecklistTabs = [
+  {
+    number: CheclistPageTabEnum.CHECKARCHIVE,
+    label: "Check Archive",
+    icon: <FaArchive className="text-lg font-thin" />,
+    content: <CheckArchive />,
+    isDisabled: false,
+  },
   {
     number: CheclistPageTabEnum.CHECKLISTS,
     label: "Checklists",
