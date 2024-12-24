@@ -810,7 +810,7 @@ const GenericTable = <T,>({
           <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full ">
             <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-60  ">
               <table className="bg-white w-full ">
-                <thead className="border-b ">
+                <thead className="border-b bg-gray-100">
                   <tr>
                     {selectionActions && isSelectionActive && (
                       <th>

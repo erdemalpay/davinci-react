@@ -13,7 +13,7 @@ export const outsideSort = (
         handleSort(key, filterPanelFormElements, setFilterPanelFormElements)
       }
     >
-      <div className=" items-center py-3 cursor-pointer ">
+      <div className=" items-center cursor-pointer ">
         {filterPanelFormElements.sort === key &&
         filterPanelFormElements.asc === -1 ? (
           <p className="font-bold">↑</p>
