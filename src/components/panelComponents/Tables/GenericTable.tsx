@@ -788,12 +788,13 @@ const GenericTable = <T,>({
               {isColumnFilter && (
                 <>
                   <Tooltip content={t("Filter Columns")} placement="top">
-                    <div className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105">
-                      <PiFadersHorizontal
-                        onClick={() =>
-                          setIsColumnActiveModalOpen((prev) => !prev)
-                        }
-                      />
+                    <div
+                      onClick={() =>
+                        setIsColumnActiveModalOpen((prev) => !prev)
+                      }
+                      className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+                    >
+                      <PiFadersHorizontal />
                     </div>
                   </Tooltip>
 
