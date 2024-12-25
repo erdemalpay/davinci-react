@@ -22,6 +22,7 @@ const LocationPage = () => {
   const initialForm = {
     type: [],
     tableCount: 0,
+    ikasId: "",
   };
   const getRowTypeName = (type: number[]) => {
     if (type.includes(1) && type.includes(2)) {
@@ -41,6 +42,7 @@ const LocationPage = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Type"), isSortable: false },
     { key: t("Table Count"), isSortable: false },
+    { key: "Ikas ID", isSortable: false },
   ];
   if (
     user &&
@@ -65,6 +67,10 @@ const LocationPage = () => {
     {
       key: "tableCount",
     },
+    {
+      key: "ikasId",
+      className: "min-w-32 pr-1",
+    },
   ];
   const inputs = [
     NameInput(),
@@ -76,10 +82,18 @@ const LocationPage = () => {
       required: false,
       isDisabled: isAddModalOpen || !form?.type?.includes(1),
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "ikasId",
+      label: "Ikas ID",
+      placeholder: "Ikas ID",
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
 
   const addButton = {

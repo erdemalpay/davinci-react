@@ -16,6 +16,7 @@ export type Location = {
   type: number[];
   active: boolean;
   activityNote?: string;
+  ikasId?: string;
 };
 
 export type Table = {
