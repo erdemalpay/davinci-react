@@ -649,6 +649,7 @@ export enum StockHistoryStatusEnum {
   STOCKTRANSFER = "STOCKTRANSFER",
   LOSSPRODUCT = "LOSSPRODUCT",
   ORDERRETURN = "ORDERRETURN",
+  IKASORDERCREATE = "IKASORDERCREATE",
 }
 export enum OrderDataTabEnum {
   DAILYINCOME,
@@ -761,6 +762,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.ORDERRETURN,
     label: "Order Return",
     backgroundColor: "bg-purple-800",
+  },
+  {
+    value: StockHistoryStatusEnum.IKASORDERCREATE,
+    label: "Ikas Order Create",
+    backgroundColor: "bg-pink-800",
   },
 ];
 
