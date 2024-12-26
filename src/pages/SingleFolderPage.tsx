@@ -47,6 +47,7 @@ function SingleFolderPage() {
               alt={image.publicId}
               className="w-32 h-32 rounded-md shadow-sm"
             />
+            <p>{image.publicId}</p>
             {/* buttons */}
             <div className="ml-auto">
               <button
