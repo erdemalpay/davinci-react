@@ -421,6 +421,8 @@ const OrderPaymentModal = ({
     ) {
       return {
         ...orderForm,
+        createdBy: selectedUser._id,
+        createdAt: new Date(),
         location: selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
@@ -434,13 +436,14 @@ const OrderPaymentModal = ({
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: selectedLocationId,
-        createdBy: selectedUser._id,
       };
     }
 
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
+        createdAt: new Date(),
+        createdBy: selectedUser._id,
         location: selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
@@ -452,7 +455,6 @@ const OrderPaymentModal = ({
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: selectedLocationId,
-        createdBy: selectedUser._id,
       };
     }
     return null;

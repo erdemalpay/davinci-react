@@ -104,7 +104,7 @@ const OrdersReport = () => {
         preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
         preparedByUserId: order?.preparedBy ?? "",
         preparationTime: order?.preparedAt
-          ? differenceInMinutes(order?.preparedAt, orderDate) + " dk"
+          ? differenceInMinutes(order?.preparedAt, order.createdAt) + " dk"
           : "",
         cancelledBy: getItem(order?.cancelledBy, users)?.name ?? "",
         cancelledByUserId: order?.cancelledBy ?? "",

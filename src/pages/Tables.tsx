@@ -433,6 +433,7 @@ const Tables = () => {
     if ((user && selectedMenuItem && selectedMenuItemCategory)?.isAutoServed) {
       return {
         ...orderForm,
+        createdAt: new Date(),
         location: selectedLocationId,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price

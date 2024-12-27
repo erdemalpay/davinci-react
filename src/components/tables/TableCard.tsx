@@ -428,6 +428,7 @@ export function TableCard({
     ) {
       return {
         ...orderForm,
+        createdAt: new Date(),
         location: selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
