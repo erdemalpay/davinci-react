@@ -439,6 +439,7 @@ export type Order = {
   [key: string]: any;
   kitchen?: string;
   stockNote?: string;
+  ikasId?: string;
 };
 
 export type OrderCollection = {
@@ -456,6 +457,7 @@ export type OrderCollection = {
   newOrders?: Order[];
   table?: Table | number;
   stockLocation?: number;
+  ikasId?: string;
 };
 
 export type OrderCollectionItem = {
