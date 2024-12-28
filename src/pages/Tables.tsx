@@ -187,6 +187,20 @@ const Tables = () => {
       isOnClearActive: false,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "stockLocation",
+      label: t("Stock Location"),
+      options: locations?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Stock Location"),
+      isDisabled: false,
+      required: true,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -198,6 +212,7 @@ const Tables = () => {
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const isOnlinePrice = () => {
@@ -301,6 +316,20 @@ const Tables = () => {
       isOnClearActive: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "stockLocation",
+      label: t("Stock Location"),
+      options: locations?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Stock Location"),
+      isDisabled: false,
+      required: true,
+    },
+    {
       type: InputTypes.CHECKBOX,
       formKey: "isOnlinePrice",
       label: t("Online Price"),
@@ -324,7 +353,7 @@ const Tables = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
@@ -445,7 +474,7 @@ const Tables = () => {
         preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
 
@@ -462,7 +491,7 @@ const Tables = () => {
           : selectedMenuItem.price,
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
     return null;

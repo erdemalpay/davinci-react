@@ -63,7 +63,6 @@ export interface TableCardProps {
   showAllOrders?: boolean;
   showServedOrders?: boolean;
   tables: Table[];
-  isOrderLocationSelection?: boolean;
 }
 
 export function TableCard({
@@ -74,7 +73,6 @@ export function TableCard({
   showAllOrders = false,
   showServedOrders = false,
   tables,
-  isOrderLocationSelection = false,
 }: TableCardProps) {
   const { t } = useTranslation();
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
@@ -273,16 +271,16 @@ export function TableCard({
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
-      label: t("Location"),
+      label: t("Stock Location"),
       options: locations?.map((input) => {
         return {
           value: input._id,
           label: input.name,
         };
       }),
-      placeholder: t("Location"),
-      isDisabled: !isOrderLocationSelection,
-      required: isOrderLocationSelection,
+      placeholder: t("Stock Location"),
+      isDisabled: false,
+      required: true,
     },
     {
       type: InputTypes.CHECKBOX,
@@ -308,7 +306,7 @@ export function TableCard({
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
@@ -441,9 +439,7 @@ export function TableCard({
         preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: isOrderLocationSelection
-          ? orderForm?.stockLocation
-          : selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
 
@@ -461,9 +457,7 @@ export function TableCard({
           : selectedMenuItem.price,
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: isOrderLocationSelection
-          ? orderForm?.stockLocation
-          : selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
     return null;

@@ -14,6 +14,7 @@ import {
   TURKISHLIRA,
   User,
 } from "../../../types";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -69,7 +70,7 @@ const OrderPaymentModal = ({
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
   const { selectedLocationId } = useLocationContext();
-
+  const locations = useGetStockLocations();
   const users = useGetUsers();
   const visits = useGetVisits();
   const activeUsers = visits
@@ -387,6 +388,20 @@ const OrderPaymentModal = ({
       isOnClearActive: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "stockLocation",
+      label: t("Stock Location"),
+      options: locations?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Stock Location"),
+      isDisabled: false,
+      required: true,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -401,6 +416,7 @@ const OrderPaymentModal = ({
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
+    { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const handleOrderObject = () => {
@@ -435,7 +451,7 @@ const OrderPaymentModal = ({
         preparedBy: user?._id,
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
 
@@ -454,7 +470,7 @@ const OrderPaymentModal = ({
           : selectedMenuItem.price,
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
-        stockLocation: selectedLocationId,
+        stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
     return null;
