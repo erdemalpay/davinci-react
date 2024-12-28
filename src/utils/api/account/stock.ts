@@ -69,6 +69,30 @@ export function stockTransfer(payload: StockTransferPayload) {
     payload,
   });
 }
+export function updateIkasStocks() {
+  return post<any, any>({
+    path: `${Paths.Ikas}/update-all-stocks`,
+    payload: {},
+  });
+}
+export function useUpdateIkasStocksMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(updateIkasStocks, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useConsumptStockMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();

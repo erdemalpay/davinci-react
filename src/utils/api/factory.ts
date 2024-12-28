@@ -36,6 +36,7 @@ export const Paths = {
   PanelControl: "/panel-control",
   Order: "/order",
   Checklist: "/checklist",
+  Ikas: "/ikas",
 };
 
 interface Props<T> {
