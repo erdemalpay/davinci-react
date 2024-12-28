@@ -287,7 +287,6 @@ const OnlineSales = () => {
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
                   tables={tables}
-                  isOrderLocationSelection={true}
                 />
               ))}
             </div>
@@ -303,7 +302,6 @@ const OnlineSales = () => {
                 showAllGameplays={showAllGameplays}
                 showAllOrders={showAllOrders}
                 tables={tables}
-                isOrderLocationSelection={true}
               />
             </div>
           ))}
