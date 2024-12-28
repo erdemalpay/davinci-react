@@ -475,7 +475,6 @@ const OrderPaymentModal = ({
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
-
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
@@ -496,7 +495,6 @@ const OrderPaymentModal = ({
     }
     return null;
   };
-
   if (isCreateOrderDialogOpen) {
     return (
       <GenericAddEditPanel
@@ -508,7 +506,6 @@ const OrderPaymentModal = ({
         inputs={orderInputs}
         formKeys={orderFormKeys}
         submitItem={createOrder as any}
-        isBlurFieldClickCloseEnabled={false}
         setForm={setOrderForm}
         isCreateCloseActive={false}
         optionalCreateButtonActive={orderCreateBulk?.length > 0}

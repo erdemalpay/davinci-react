@@ -862,7 +862,6 @@ const Tables = () => {
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
-          isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
           constantValues={{
@@ -904,7 +903,6 @@ const Tables = () => {
           inputs={orderInputsForTakeAway}
           formKeys={orderFormKeysForTakeAway}
           submitItem={createTable as any}
-          isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}

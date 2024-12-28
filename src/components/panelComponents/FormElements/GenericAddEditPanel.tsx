@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
-import { UpdatePayload, postWithHeader } from "../../../utils/api";
+import { postWithHeader, UpdatePayload } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import {
   FormKeyType,
@@ -31,7 +31,6 @@ type Props<T> = {
   submitFunction?: () => void;
   additionalSubmitFunction?: () => void;
   additionalCancelFunction?: () => void;
-  isBlurFieldClickCloseEnabled?: boolean;
   constantValues?: { [key: string]: any };
   isCancelConfirmationDialogExist?: boolean;
   isCreateConfirmationDialogExist?: boolean;
@@ -79,7 +78,6 @@ const GenericAddEditPanel = <T,>({
   handleUpdate,
   anotherPanel,
   optionalCreateButtonActive,
-  isBlurFieldClickCloseEnabled = true,
   cancelButtonLabel = "Cancel",
   submitFunction,
   additionalSubmitFunction,

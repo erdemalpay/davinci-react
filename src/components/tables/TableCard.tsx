@@ -670,7 +670,6 @@ export function TableCard({
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
-          isBlurFieldClickCloseEnabled={false}
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
