@@ -8,12 +8,14 @@ import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
+  MenuItem,
   OrderCollectionStatus,
   OrderStatus,
   Table,
   TURKISHLIRA,
   User,
 } from "../../../types";
+import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
@@ -73,6 +75,7 @@ const OrderPaymentModal = ({
   const locations = useGetStockLocations();
   const users = useGetUsers();
   const visits = useGetVisits();
+  const stocks = useGetAccountStocks();
   const activeUsers = visits
     ?.filter(
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
@@ -268,6 +271,17 @@ const OrderPaymentModal = ({
   const filteredDiscounts = discounts?.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
   );
+  const menuItemStockQuantity = (item: MenuItem, location: number) => {
+    if (item?.matchedProduct) {
+      const stock = stocks?.find((stock) => {
+        return (
+          stock.product === item.matchedProduct && stock.location === location
+        );
+      });
+      return stock?.quantity ?? 0;
+    }
+    return 0;
+  };
   const menuItemOptions = items
     ?.filter((menuItem) => {
       return (
@@ -392,11 +406,18 @@ const OrderPaymentModal = ({
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: locations?.map((input) => {
+        const menuItem = items?.find((item) => item._id === orderForm.item);
+        const stockQuantity = menuItem
+          ? menuItemStockQuantity(menuItem, input._id)
+          : null;
+
         return {
           value: input._id,
-          label: input.name,
+          label:
+            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
         };
       }),
+
       placeholder: t("Stock Location"),
       isDisabled: false,
       required: true,

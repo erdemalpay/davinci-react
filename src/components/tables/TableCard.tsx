@@ -126,12 +126,11 @@ export function TableCard({
     table: "",
   });
   const menuItems = useGetMenuItems();
-  const menuItemStockQuantity = (item: MenuItem) => {
+  const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
       const stock = stocks?.find((stock) => {
         return (
-          stock.product === item.matchedProduct &&
-          stock.location === selectedLocationId
+          stock.product === item.matchedProduct && stock.location === location
         );
       });
       return stock?.quantity ?? 0;
@@ -153,15 +152,7 @@ export function TableCard({
     ?.map((menuItem) => {
       return {
         value: menuItem?._id,
-        label:
-          menuItem?.name +
-          " (" +
-          menuItem.price +
-          TURKISHLIRA +
-          ")" +
-          (menuItemStockQuantity(menuItem) > 0
-            ? " (" + `${t("Stock")}:` + menuItemStockQuantity(menuItem) + ")"
-            : ""),
+        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
 
@@ -189,7 +180,7 @@ export function TableCard({
       invalidateKeys: [{ key: "item", defaultValue: 0 }],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true, // remove this line and make category selection visible again
+      isDisabled: true,
     },
     {
       type: InputTypes.SELECT,
@@ -273,11 +264,18 @@ export function TableCard({
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: locations?.map((input) => {
+        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+        const stockQuantity = menuItem
+          ? menuItemStockQuantity(menuItem, input._id)
+          : null;
+
         return {
           value: input._id,
-          label: input.name,
+          label:
+            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
         };
       }),
+
       placeholder: t("Stock Location"),
       isDisabled: false,
       required: true,

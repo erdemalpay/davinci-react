@@ -27,6 +27,7 @@ import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
   Game,
+  MenuItem,
   Order,
   OrderDiscountStatus,
   OrderStatus,
@@ -39,9 +40,15 @@ import {
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
-import { useConsumptStockMutation } from "../utils/api/account/stock";
+import {
+  useConsumptStockMutation,
+  useGetAccountStocks,
+} from "../utils/api/account/stock";
 import { useGetGames } from "../utils/api/game";
-import { useGetStoreLocations } from "../utils/api/location";
+import {
+  useGetStockLocations,
+  useGetStoreLocations,
+} from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -59,6 +66,7 @@ const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const { setSelectedDate, selectedDate } = useDateContext();
+  const stocks = useGetAccountStocks();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const { user } = useUserContext();
@@ -72,6 +80,7 @@ const Tables = () => {
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
+  const stockLocations = useGetStockLocations();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -107,6 +116,17 @@ const Tables = () => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const menuItemStockQuantity = (item: MenuItem, location: number) => {
+    if (item?.matchedProduct) {
+      const stock = stocks?.find((stock) => {
+        return (
+          stock.product === item.matchedProduct && stock.location === location
+        );
+      });
+      return stock?.quantity ?? 0;
+    }
+    return 0;
+  };
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const consumptInputs = [
     {
@@ -190,12 +210,19 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: stockLocations?.map((input) => {
+        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+        const stockQuantity = menuItem
+          ? menuItemStockQuantity(menuItem, input._id)
+          : null;
+
         return {
           value: input._id,
-          label: input.name,
+          label:
+            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
         };
       }),
+
       placeholder: t("Stock Location"),
       isDisabled: false,
       required: true,
@@ -319,12 +346,19 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: stockLocations?.map((input) => {
+        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+        const stockQuantity = menuItem
+          ? menuItemStockQuantity(menuItem, input._id)
+          : null;
+
         return {
           value: input._id,
-          label: input.name,
+          label:
+            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
         };
       }),
+
       placeholder: t("Stock Location"),
       isDisabled: false,
       required: true,
