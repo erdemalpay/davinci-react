@@ -914,6 +914,25 @@ const Tables = () => {
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderTakeawayPanel />}
+          isConfirmationDialogRequired={() => {
+            const menuItem = menuItems?.find(
+              (item) => item._id === orderForm.item
+            );
+            const category = categories?.find(
+              (category) => category._id === menuItem?.category
+            );
+            const stockQuantity = menuItem
+              ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
+              : null;
+            if (!category?.isOnlineOrder) {
+              return false;
+            }
+            return !stockQuantity || stockQuantity < orderForm.quantity;
+          }}
+          confirmationDialogHeader={t("Stock Quantity Warning")}
+          confirmationDialogText={t(
+            "Stock Quantity is not enough. Do you want to continue?"
+          )}
           additionalButtons={[
             {
               label: "Add",

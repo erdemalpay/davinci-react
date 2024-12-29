@@ -44,6 +44,9 @@ type Props<T> = {
   anotherPanelTopClassName?: string;
   createConfirmationDialogText?: string;
   createConfirmationDialogHeader?: string;
+  isConfirmationDialogRequired?: () => boolean;
+  confirmationDialogHeader?: string;
+  confirmationDialogText?: string;
   additionalButtons?: AdditionalButtonProps[];
   itemToEdit?: {
     id: number | string;
@@ -88,15 +91,23 @@ const GenericAddEditPanel = <T,>({
   createConfirmationDialogHeader,
   isCreateCloseActive = true,
   anotherPanelTopClassName,
+  isConfirmationDialogRequired,
+  confirmationDialogText,
+  confirmationDialogHeader,
   setForm,
   submitItem,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
   const [resetTextInput, setResetTextInput] = useState(false);
   const [isCancelConfirmationDialogOpen, setIsCancelConfirmationDialogOpen] =
     useState(false);
+  const [confirmationDialogFunction, setConfirmationDialogFunction] = useState<
+    (() => void) | null
+  >(null);
   const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -201,7 +212,7 @@ const GenericAddEditPanel = <T,>({
     },
     [uploadImageMutation]
   );
-  const handleSubmit = () => {
+  const finalSubmitFunction = () => {
     try {
       if (isEditMode && itemToEdit) {
         submitItem({ id: itemToEdit.id, updates: formElements as T });
@@ -220,6 +231,14 @@ const GenericAddEditPanel = <T,>({
       isCreateCloseActive && close?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
+    }
+  };
+  const handleSubmit = () => {
+    if (isConfirmationDialogRequired?.()) {
+      setConfirmationDialogFunction(() => finalSubmitFunction);
+      setIsConfirmationDialogOpen(true);
+    } else {
+      finalSubmitFunction();
     }
   };
 
@@ -521,15 +540,24 @@ const GenericAddEditPanel = <T,>({
                   <button
                     key={index}
                     onClick={() => {
-                      button.onClick();
-                      if (button?.isInputNeedToBeReset) {
-                        constantValues
-                          ? setFormElements({
-                              ...initialState,
-                              ...constantValues,
-                            })
-                          : setFormElements(initialState);
-                        setResetTextInput((prev) => !prev);
+                      const handleButtonClick = () => {
+                        button.onClick();
+
+                        if (button?.isInputNeedToBeReset) {
+                          setFormElements(
+                            constantValues
+                              ? { ...initialState, ...constantValues }
+                              : initialState
+                          );
+                          setResetTextInput((prev) => !prev);
+                        }
+                      };
+
+                      if (isConfirmationDialogRequired?.()) {
+                        setConfirmationDialogFunction(() => handleButtonClick);
+                        setIsConfirmationDialogOpen(true);
+                      } else {
+                        handleButtonClick();
                       }
                     }}
                     className={`inline-block ${
@@ -544,9 +572,11 @@ const GenericAddEditPanel = <T,>({
               })}
             <button
               onClick={() => {
-                isCreateConfirmationDialogExist
-                  ? setIsCreateConfirmationDialogOpen(true)
-                  : handleCreateButtonClick();
+                if (isCreateConfirmationDialogExist) {
+                  setIsCreateConfirmationDialogOpen(true);
+                } else {
+                  handleCreateButtonClick();
+                }
               }}
               className={`inline-block ${
                 !allRequiredFilled && !optionalCreateButtonActive
@@ -597,10 +627,30 @@ const GenericAddEditPanel = <T,>({
           }}
           confirm={() => {
             handleCreateButtonClick();
+            setIsCreateConfirmationDialogOpen(false);
           }}
           title={createConfirmationDialogHeader ?? t("Create Entry")}
           text={
             createConfirmationDialogText ??
+            `${t("Are you sure you want to create this entry?")}`
+          }
+        />
+      )}
+      {isConfirmationDialogOpen && (
+        <ConfirmationDialog
+          isOpen={isConfirmationDialogOpen}
+          close={() => {
+            setIsConfirmationDialogOpen(false);
+            setConfirmationDialogFunction(null);
+          }}
+          confirm={() => {
+            confirmationDialogFunction?.();
+            setIsConfirmationDialogOpen(false);
+            setConfirmationDialogFunction(null);
+          }}
+          title={confirmationDialogHeader ?? t("Create Entry")}
+          text={
+            confirmationDialogText ??
             `${t("Are you sure you want to create this entry?")}`
           }
         />

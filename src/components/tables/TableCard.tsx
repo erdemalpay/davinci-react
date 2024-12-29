@@ -670,6 +670,25 @@ export function TableCard({
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
+          isConfirmationDialogRequired={() => {
+            const menuItem = menuItems?.find(
+              (item) => item._id === orderForm.item
+            );
+            const category = categories?.find(
+              (category) => category._id === menuItem?.category
+            );
+            const stockQuantity = menuItem
+              ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
+              : null;
+            if (!category?.isOnlineOrder) {
+              return false;
+            }
+            return !stockQuantity || stockQuantity < orderForm.quantity;
+          }}
+          confirmationDialogHeader={t("Stock Quantity Warning")}
+          confirmationDialogText={t(
+            "Stock Quantity is not enough. Do you want to continue?"
+          )}
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
