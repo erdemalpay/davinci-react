@@ -108,7 +108,7 @@ export function TableCard({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: table?.isOnlineSale ? 2 : selectedLocationId,
+    stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
   };
   const locations = useGetStockLocations();
   const stocks = useGetAccountStocks();
@@ -694,7 +694,7 @@ export function TableCard({
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
           constantValues={{
             quantity: 1,
-            stockLocation: table?.isOnlineSale ? 2 : selectedLocationId,
+            stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "

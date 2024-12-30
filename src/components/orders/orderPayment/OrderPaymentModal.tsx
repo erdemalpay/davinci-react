@@ -120,7 +120,7 @@ const OrderPaymentModal = ({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: selectedLocationId,
+    stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
   };
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -511,7 +511,7 @@ const OrderPaymentModal = ({
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
         constantValues={{
           quantity: 1,
-          stockLocation: selectedLocationId,
+          stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
         }}
         isConfirmationDialogRequired={() => {
           const menuItem = items?.find((item) => item._id === orderForm.item);
