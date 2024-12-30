@@ -157,7 +157,7 @@ export function TableCard({
     });
 
   const filteredDiscounts = discounts.filter((discount) =>
-    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+    table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
   const isOnlinePrice = () => {
     const menuItem = menuItems?.find((item) => item._id === orderForm.item);

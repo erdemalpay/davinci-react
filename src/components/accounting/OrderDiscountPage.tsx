@@ -47,6 +47,7 @@ const OrderDiscountPage = () => {
     percentage: "",
     amount: "",
     isOnlineOrder: "",
+    isStoreOrder: "",
     isNoteRequired: "",
     note: "",
   });
@@ -62,6 +63,7 @@ const OrderDiscountPage = () => {
     { key: t("Percentage"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
+    { key: t("Store Order"), isSortable: false },
     { key: t("Note Required"), isSortable: false },
     { key: t("Note Placeholder"), isSortable: false },
   ];
@@ -85,6 +87,15 @@ const OrderDiscountPage = () => {
       key: "isOnlineOrder",
       node: (row: any) =>
         row?.isOnlineOrder ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
+    {
+      key: "isStoreOrder",
+      node: (row: any) =>
+        row?.isStoreOrder ? (
           <IoCheckmark className="text-blue-500 text-2xl " />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl " />
@@ -153,6 +164,14 @@ const OrderDiscountPage = () => {
     },
     {
       type: InputTypes.CHECKBOX,
+      formKey: "isStoreOrder",
+      label: t("Store Order"),
+      placeholder: t("Store Order"),
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
       formKey: "isNoteRequired",
       label: t("Note Required"),
       placeholder: t("Note Required"),
@@ -174,6 +193,7 @@ const OrderDiscountPage = () => {
     { key: "percentage", type: FormKeyTypeEnum.NUMBER },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isStoreOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];

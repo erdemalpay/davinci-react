@@ -472,6 +472,7 @@ export type OrderDiscount = {
   amount?: number;
   isNoteRequired?: boolean;
   isOnlineOrder?: boolean;
+  isStoreOrder?: boolean;
   status?: string;
   note?: string;
 };

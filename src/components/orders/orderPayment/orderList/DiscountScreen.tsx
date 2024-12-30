@@ -33,7 +33,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     setIsProductSelectionOpen(true);
   };
   const filteredDiscounts = discounts?.filter((discount) =>
-    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+    table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
   return (
     <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar  ">

@@ -269,7 +269,7 @@ const OrderPaymentModal = ({
     },
   ];
   const filteredDiscounts = discounts?.filter((discount) =>
-    table?.isOnlineSale ? discount?.isOnlineOrder : !discount?.isOnlineOrder
+    table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
