@@ -630,6 +630,8 @@
   "Update Ikas Stocks": "Update Ikas Stocks",
   "Stock Location": "Stock Location",
   "Stock Quantity Warning": "Stock Quantity Warning",
+  "Consumption History": "Consumption History",
+  "Add Consumption": "Add Consumption",
   "Stock Quantity is not enough. Do you want to continue?": "Stock Quantity is not enough. Do you want to continue?",
   "Are you sure you want to complete the check?": "Are you sure you want to complete the check?",
   "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.": "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.",
