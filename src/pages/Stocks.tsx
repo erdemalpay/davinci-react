@@ -4,6 +4,7 @@ import {
   GiGreatPyramid,
 } from "react-icons/gi";
 // import CountArchive from "../components/accounting/CountArchive";
+import { BsTrash2Fill } from "react-icons/bs";
 import { FaGamepad } from "react-icons/fa";
 import GameStock from "../components/accounting/GameStock";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -11,6 +12,7 @@ import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import EnterConsumption from "../components/stocks/EnterConsumption";
+import LossProduct from "../components/stocks/LossProduct";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { StocksPageTabEnum } from "../types";
@@ -36,6 +38,13 @@ export const StockPageTabs = [
     label: "Enter Consumption",
     icon: <GiEatingPelican className="text-xl font-thin" />,
     content: <EnterConsumption />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.LOSSPRODUCT,
+    label: "Loss Product",
+    icon: <BsTrash2Fill className="text-xl font-thin" />,
+    content: <LossProduct />,
     isDisabled: false,
   },
   {

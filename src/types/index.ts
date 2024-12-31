@@ -608,6 +608,7 @@ export enum StocksPageTabEnum {
   STOCK,
   GAMESTOCK,
   ENTERCONSUMPTION,
+  LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
 }
 export enum ProductPageTabEnum {
