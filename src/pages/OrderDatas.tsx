@@ -78,7 +78,7 @@ export const OrderDataTabs = [
   },
   {
     number: OrderDataTabEnum.ORDERS,
-    label: "Orders",
+    label: "Cafe Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <OrdersReport />,
     isDisabled: false,
