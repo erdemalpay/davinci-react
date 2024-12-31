@@ -266,16 +266,14 @@ const CountArchive = () => {
           <CheckSwitch
             checked={row.isCompleted}
             onChange={() => {
-              // if (!row.isCompleted) {
-              //   toast.error(
-              //     t("The status of an inactive count cannot be changed.")
-              //   );
-              //   return;
-              // }
+              const newCountProducts = row.products.map((product: any) => {
+                return { ...product, isStockEqualized: false };
+              });
               updateAccountCount({
                 id: row._id,
                 updates: {
                   isCompleted: !row.isCompleted,
+                  products: newCountProducts,
                 },
               });
             }}
