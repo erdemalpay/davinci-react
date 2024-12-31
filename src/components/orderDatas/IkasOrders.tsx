@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
@@ -14,13 +15,17 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrders } from "../../utils/api/order/order";
+import {
+  useCancelIkasOrderMutation,
+  useGetOrders,
+} from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -36,9 +41,11 @@ const IkasOrders = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
+  const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
+  const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
@@ -122,6 +129,7 @@ const IkasOrders = () => {
         note: order?.note ?? "",
         status: t(order?.status),
         paymentMethod: order?.paymentMethod,
+        ikasId: order?.ikasId,
         statusLabel: statusOptions.find(
           (status) => status.value === order?.status
         )?.label,
@@ -135,41 +143,6 @@ const IkasOrders = () => {
     { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
     { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
     {
-      key: t("Discount"),
-      isSortable: true,
-      correspondingKey: "discountName",
-    },
-
-    {
-      key: t("Discount Amount"),
-      isSortable: true,
-      correspondingKey: "discountAmount",
-    },
-    {
-      key: t("Discount Note"),
-      isSortable: true,
-      correspondingKey: "discountNote",
-    },
-    { key: t("Note"), isSortable: true, correspondingKey: "note" },
-    { key: t("Created At"), isSortable: true, correspondingKey: "createdAt" },
-    { key: t("Created By"), isSortable: true, correspondingKey: "createdBy" },
-    {
-      key: t("Prepared In"),
-      isSortable: true,
-      correspondingKey: "preparationTime",
-    },
-    { key: t("Prepared By"), isSortable: true, correspondingKey: "preparedBy" },
-    {
-      key: t("Delivered In"),
-      isSortable: true,
-      correspondingKey: "deliveryTime",
-    },
-    {
-      key: t("Delivered By"),
-      isSortable: true,
-      correspondingKey: "deliveredBy",
-    },
-    {
       key: t("Cancelled At"),
       isSortable: true,
       correspondingKey: "cancelledAt",
@@ -181,6 +154,7 @@ const IkasOrders = () => {
     },
     { key: t("Location"), isSortable: true, correspondingKey: "location" },
     { key: t("Status"), isSortable: true, correspondingKey: "status" },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -203,25 +177,6 @@ const IkasOrders = () => {
         </p>
       ),
     },
-    { key: "discountName" },
-    {
-      key: "discountAmount",
-      node: (row: any) => (
-        <p className="min-w-32 pr-2" key={row._id + "discountAmount"}>
-          {Number(row.discountAmount) !== 0 && row?.discount
-            ? row.discountAmount + "₺"
-            : "-"}
-        </p>
-      ),
-    },
-    { key: "discountNote", className: "min-w-32 pr-2" },
-    { key: "note", className: "min-w-32 pr-2" },
-    { key: "createdAt" },
-    { key: "createdBy" },
-    { key: "preparationTime" },
-    { key: "preparedBy" },
-    { key: "deliveryTime" },
-    { key: "deliveredBy" },
     { key: "cancelledAt" },
     { key: "cancelledBy" },
     { key: "location" },
@@ -372,6 +327,32 @@ const IkasOrders = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const actions = [
+    {
+      name: t("Cancel"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCancelOrderModalOpen}
+          close={() => setIsCancelOrderModalOpen(false)}
+          confirm={() => {
+            cancelIkasOrder({
+              ikasId: rowToAction.ikasId,
+            });
+            setIsCancelOrderModalOpen(false);
+          }}
+          title={t("Cancel Order")}
+          text={`Order ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCancelOrderModalOpen,
+      setIsModal: setIsCancelOrderModalOpen,
+      isPath: false,
+    },
+  ];
 
   useEffect(() => {
     const filteredRows = allRows.filter((row: any) => {
@@ -406,7 +387,8 @@ const IkasOrders = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}

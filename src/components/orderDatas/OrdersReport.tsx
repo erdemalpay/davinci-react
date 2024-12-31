@@ -509,10 +509,10 @@ const OrdersReport = () => {
           rowKeys={rowKeys}
           rows={rows}
           isActionsActive={true}
+          actions={actions}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}
-          actions={actions}
           excelFileName={t("Orders.xlsx")}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {

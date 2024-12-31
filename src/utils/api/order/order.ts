@@ -55,6 +55,9 @@ interface UpdateMultipleOrder {
   ids: number[];
   updates: Partial<Order>;
 }
+interface CancelIkasOrder {
+  ikasId: string;
+}
 
 const baseUrl = `${Paths.Order}`;
 export function useOrderMutations() {
@@ -284,6 +287,31 @@ export function createMultipleOrder(payload: CreateMultipleOrderPayload) {
     payload,
   });
 }
+export function cancelIkasOrder(payload: CancelIkasOrder) {
+  return post({
+    path: `/order/cancel-ikas-order`,
+    payload,
+  });
+}
+export function useCancelIkasOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation(cancelIkasOrder, {
+    onMutate: async () => {
+      queryClient.invalidateQueries([`${Paths.Order}/query`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`${Paths.Order}/query`]);
+      queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useCreateMultipleOrderMutation() {
   const queryKey = [`${Paths.Order}/today`];
   const queryClient = useQueryClient();
