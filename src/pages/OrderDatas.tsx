@@ -15,6 +15,7 @@ import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
+import IkasOrders from "../components/orderDatas/IkasOrders";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
@@ -80,6 +81,13 @@ export const OrderDataTabs = [
     label: "Orders",
     icon: <TbReportAnalytics className="text-lg font-thin" />,
     content: <OrdersReport />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.IKASORDERS,
+    label: "Ikas Orders",
+    icon: <TbReportAnalytics className="text-lg font-thin" />,
+    content: <IkasOrders />,
     isDisabled: false,
   },
   {
