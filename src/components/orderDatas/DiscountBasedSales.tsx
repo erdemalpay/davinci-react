@@ -153,13 +153,13 @@ const DiscountBasedSales = () => {
             { key: t("Quantity"), isSortable: true },
             { key: t("Tables"), isSortable: false },
           ],
-          collapsibleRows: existingEntry.itemQuantity.map(
-            (itemQuantityIteration) => ({
+          collapsibleRows: existingEntry.itemQuantity
+            .map((itemQuantityIteration) => ({
               product: itemQuantityIteration.itemName,
               quantity: itemQuantityIteration.quantity,
               tables: itemQuantityIteration.tables,
-            })
-          ),
+            }))
+            .sort((a, b) => b.quantity - a.quantity),
           collapsibleRowKeys: [
             { key: "product" },
             { key: "quantity" },

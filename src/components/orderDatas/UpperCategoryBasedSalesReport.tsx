@@ -19,10 +19,10 @@ import { useGetUpperCategories } from "../../utils/api/menu/upperCategory";
 import { useGetOrders } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type OrderWithPaymentInfo = {
   item: number;
@@ -213,6 +213,7 @@ const UpperCategoryBasedSalesReport = () => {
                   0.01,
               };
             })
+            .sort((a, b) => b.quantity - a.quantity)
             ?.filter((row) => row.quantity > 0),
           collapsibleRowKeys: [
             { key: "category" },

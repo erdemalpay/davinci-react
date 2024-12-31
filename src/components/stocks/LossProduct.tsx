@@ -37,7 +37,6 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-
 const LossProduct = () => {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
@@ -252,7 +251,6 @@ const LossProduct = () => {
       isDatePicker: true,
     },
   ];
-
   const columns = [
     {
       key: t("Date"),
@@ -409,7 +407,6 @@ const LossProduct = () => {
     filterPanelFormElements: filterPanelFormElements,
     setFilterPanelFormElements: setFilterPanelFormElements,
   };
-
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -430,7 +427,6 @@ const LossProduct = () => {
     items,
     user,
   ]);
-
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -452,5 +448,4 @@ const LossProduct = () => {
     </>
   );
 };
-
 export default LossProduct;

@@ -19,10 +19,10 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type ItemQuantity = {
   itemId: number;
@@ -148,12 +148,12 @@ const CategoryBasedSalesReport = () => {
             { key: t("Product"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
           ],
-          collapsibleRows: existingEntry.itemQuantity.map(
-            (itemQuantityIteration) => ({
+          collapsibleRows: existingEntry.itemQuantity
+            .map((itemQuantityIteration) => ({
               product: itemQuantityIteration.itemName,
               quantity: itemQuantityIteration.quantity,
-            })
-          ),
+            }))
+            .sort((a, b) => b.quantity - a.quantity),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         };
       } else {

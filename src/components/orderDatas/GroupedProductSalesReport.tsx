@@ -19,10 +19,10 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type UnitPriceQuantity = {
   unitPrice: number;
@@ -123,11 +123,13 @@ const GroupedProductSalesReport = () => {
         }
         if (existingEntry.unitPriceQuantity.length > 1) {
           existingEntry.collapsible.collapsibleRows =
-            existingEntry.unitPriceQuantity.map((item) => ({
-              unitPrice: item.unitPrice.toString() + " " + TURKISHLIRA,
-              quantity: item.quantity,
-              unitPriceValue: item.unitPrice,
-            }));
+            existingEntry.unitPriceQuantity
+              .map((item) => ({
+                unitPrice: item.unitPrice.toString() + " " + TURKISHLIRA,
+                quantity: item.quantity,
+                unitPriceValue: item.unitPrice,
+              }))
+              .sort((a, b) => b.quantity - a.quantity);
         }
       } else {
         acc.push({
