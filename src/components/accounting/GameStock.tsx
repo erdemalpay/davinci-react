@@ -29,13 +29,13 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
   GenericInputType,
 } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -57,6 +57,7 @@ const GameStock = () => {
   const [temporarySearch, setTemporarySearch] = useState("");
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [rowToAction, setRowToAction] = useState<any>();
+  const [showPrices, setShowPrices] = useState(false);
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [stockTransferForm, setStockTransferForm] = useState({
@@ -225,7 +226,7 @@ const GameStock = () => {
       node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
     },
   ];
-  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
+  if ((user && ![RoleEnum.MANAGER].includes(user?.role?._id)) || !showPrices) {
     const splicedColumns = [
       "Unit Price",
       "Menu Price",
@@ -396,6 +397,11 @@ const GameStock = () => {
         </div>
       ),
       isDisabled: isDisabledCondition,
+    },
+    {
+      label: t("Show Prices"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showPrices} onChange={setShowPrices} />,
     },
     {
       label: t("Enable Edit"),

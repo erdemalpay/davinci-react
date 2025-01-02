@@ -66,6 +66,7 @@ const Stock = () => {
     useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showPrices, setShowPrices] = useState(false);
   const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
@@ -211,7 +212,7 @@ const Stock = () => {
       node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
     },
   ];
-  if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
+  if ((user && ![RoleEnum.MANAGER].includes(user?.role?._id)) || !showPrices) {
     const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "menuPrice", "totalGroupPrice"];
     splicedColumns.forEach((item) => {
@@ -372,6 +373,11 @@ const Stock = () => {
         </div>
       ),
       isDisabled: isDisabledCondition,
+    },
+    {
+      label: t("Show Prices"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showPrices} onChange={setShowPrices} />,
     },
     {
       label: t("Enable Edit"),
