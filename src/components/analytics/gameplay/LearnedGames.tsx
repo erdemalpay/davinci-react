@@ -4,9 +4,9 @@ import { useGetGames } from "../../../utils/api/game";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
 import { passesFilter } from "../../../utils/passesFilter";
-import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
+import GenericTable from "../../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -22,7 +22,8 @@ const LearnedGames = () => {
     useState<FormElementsState>({
       user: "",
       game: "",
-      date: "",
+      after: "",
+      before: "",
     });
   const columns = [
     { key: t("User"), isSortable: true },
@@ -89,12 +90,19 @@ const LearnedGames = () => {
       placeholder: t("Game"),
       required: true,
     },
-
     {
       type: InputTypes.DATE,
-      formKey: "date",
-      label: t("Learn Date"),
-      placeholder: t("Learn Date"),
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
     },
@@ -119,8 +127,10 @@ const LearnedGames = () => {
         return false;
       }
       return (
-        (filterPanelFormElements.date === "" ||
-          row.learnDate === filterPanelFormElements.date) &&
+        (filterPanelFormElements.before === "" ||
+          row.learnDate <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          row.learnDate >= filterPanelFormElements.after) &&
         passesFilter(filterPanelFormElements.user, row.userId) &&
         passesFilter(filterPanelFormElements.game, row.gameId)
       );
