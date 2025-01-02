@@ -7,6 +7,7 @@ import {
   FormElementsState,
   MenuItem,
   OrderStatus,
+  RoleEnum,
   StockHistoryStatusEnum,
   stockHistoryStatuses,
   TURKISHLIRA,
@@ -85,6 +86,12 @@ const LossProduct = () => {
   const locations = useGetStockLocations();
   const items = useGetMenuItems();
   const [showFilters, setShowFilters] = useState(false);
+  const isDisabledCondition = !(
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
+      user.role._id
+    )
+  );
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data
     ?.map((stockHistory) => {
@@ -273,9 +280,13 @@ const LossProduct = () => {
       isSortable: false,
       correspondingKey: "location",
     },
-    { key: t("Old Quantity"), isSortable: false },
+    ...(!isDisabledCondition
+      ? [{ key: t("Old Quantity"), isSortable: false }]
+      : []),
     { key: t("Changed"), isSortable: false },
-    { key: t("New Quantity"), isSortable: false },
+    ...(!isDisabledCondition
+      ? [{ key: t("New Quantity"), isSortable: false }]
+      : []),
     {
       key: t("Status"),
       isSortable: false,
@@ -353,18 +364,26 @@ const LossProduct = () => {
       key: "lctn",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "currentAmount",
-      className: "min-w-32 pr-1",
-    },
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "currentAmount",
+            className: "min-w-32 pr-1",
+          },
+        ]
+      : []),
     {
       key: "change",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "newQuantity",
-      className: "min-w-32 pr-1",
-    },
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "newQuantity",
+            className: "min-w-32 pr-1",
+          },
+        ]
+      : []),
     {
       key: "status",
       className: "min-w-32 pr-1",

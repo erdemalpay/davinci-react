@@ -35,7 +35,7 @@ export const StockPageTabs = [
   },
   {
     number: StocksPageTabEnum.ENTERCONSUMPTION,
-    label: "Enter Consumption",
+    label: "Consumption",
     icon: <GiEatingPelican className="text-xl font-thin" />,
     content: <EnterConsumption />,
     isDisabled: false,

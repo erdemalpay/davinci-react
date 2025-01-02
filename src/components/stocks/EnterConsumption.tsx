@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useUserContext } from "../../context/User.context";
 import {
   FormElementsState,
+  RoleEnum,
   StockHistoryStatusEnum,
   stockHistoryStatuses,
 } from "../../types";
@@ -62,6 +64,7 @@ const EnterConsumption = () => {
   stockHistoriesPayload as StockHistoryPayload;
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
+  const { user } = useUserContext();
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
@@ -89,6 +92,12 @@ const EnterConsumption = () => {
     })
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
+  const isDisabledCondition = !(
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
+      user.role._id
+    )
+  );
   const consumptInputs = [
     {
       type: InputTypes.SELECT,
@@ -173,9 +182,13 @@ const EnterConsumption = () => {
       isSortable: false,
       correspondingKey: "location",
     },
-    { key: t("Old Quantity"), isSortable: false },
+    ...(!isDisabledCondition
+      ? [{ key: t("Old Quantity"), isSortable: false }]
+      : []),
     { key: t("Changed"), isSortable: false },
-    { key: t("New Quantity"), isSortable: false },
+    ...(!isDisabledCondition
+      ? [{ key: t("New Quantity"), isSortable: false }]
+      : []),
     {
       key: t("Status"),
       isSortable: false,
@@ -228,18 +241,26 @@ const EnterConsumption = () => {
       key: "lctn",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "currentAmount",
-      className: "min-w-32 pr-1",
-    },
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "currentAmount",
+            className: "min-w-32 pr-1",
+          },
+        ]
+      : []),
     {
       key: "change",
       className: "min-w-32 pr-1",
     },
-    {
-      key: "newQuantity",
-      className: "min-w-32 pr-1",
-    },
+    ...(!isDisabledCondition
+      ? [
+          {
+            key: "newQuantity",
+            className: "min-w-32 pr-1",
+          },
+        ]
+      : []),
     {
       key: "status",
       className: "min-w-32 pr-1",
@@ -298,6 +319,7 @@ const EnterConsumption = () => {
     expenseTypes,
     vendors,
     brands,
+    user,
   ]);
 
   return (
