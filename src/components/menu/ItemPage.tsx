@@ -1,20 +1,107 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IoIosArrowForward } from "react-icons/io";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { TURKISHLIRA } from "../../types";
+import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
-import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import {
+  useCreateDamagedItemMutation,
+  useGetMenuItems,
+} from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
+import { NameInput } from "../../utils/panelInputs";
 import { Header } from "../header/Header";
 import ImageUpload from "../imageUpload/ImageUpload";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { H5 } from "../panelComponents/Typography";
 
 const ItemPage = () => {
+  const { t } = useTranslation();
   const categories = useGetCategories();
   const { selectedMenuItem, setSelectedMenuItem } = useGeneralContext();
   const items = useGetMenuItems();
   const foundItem = getItem(selectedMenuItem?._id, items);
   const [componentKey, setComponentKey] = useState(0);
+  const stockLocations = useGetStockLocations();
+  const { mutate: createDamagedItem } = useCreateDamagedItemMutation();
+  const [isCreateDamagedItemOpen, setIsCreateDamagedItemOpen] = useState(false);
   if (!categories || !selectedMenuItem) return null;
+  const [form, setForm] = useState({
+    name: "",
+    oldStockLocation: 0,
+    newStockLocation: 0,
+    stockQuantity: 0,
+    price: 0,
+    category: 0,
+    itemId: selectedMenuItem?._id,
+  });
+  const createDamagedItemInputs = [
+    NameInput(),
+    {
+      type: InputTypes.SELECT,
+      formKey: "oldStockLocation",
+      label: t("Old Stock Location"),
+      options: stockLocations?.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("Old Stock Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "newStockLocation",
+      label: t("New Stock Location"),
+      options: stockLocations?.map((location) => {
+        return {
+          value: location._id,
+          label: location.name,
+        };
+      }),
+      placeholder: t("New Stock Location"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "stockQuantity",
+      label: t("Stock Quantity"),
+      placeholder: t("Stock Quantity"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "price",
+      label: t("Price"),
+      placeholder: t("Price"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      placeholder: t("Category"),
+      required: true,
+    },
+  ];
+  const createDamagedItemFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "oldStockLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "newStockLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "stockQuantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "price", type: FormKeyTypeEnum.NUMBER },
+    { key: "category", type: FormKeyTypeEnum.NUMBER },
+  ];
   const pageNavigations = [
     {
       name: "Menu",
@@ -30,7 +117,7 @@ const ItemPage = () => {
   ];
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
-  }, [items]);
+  }, [items, stockLocations]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -97,10 +184,46 @@ const ItemPage = () => {
                 Category: {selectedMenuItem.category}
               </h1>
             </div>
+            <button
+              className="px-2 mt-auto  ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+              onClick={() => setIsCreateDamagedItemOpen(true)}
+            >
+              <H5> {t("Create Damaged Item")}</H5>
+            </button>
           </div>
         </div>
         <ImageUpload isFolderSelect={false} itemId={selectedMenuItem._id} />
       </div>
+      {isCreateDamagedItemOpen && (
+        <GenericAddEditPanel
+          isOpen={isCreateDamagedItemOpen}
+          close={() => setIsCreateDamagedItemOpen(false)}
+          inputs={createDamagedItemInputs}
+          formKeys={createDamagedItemFormKeys}
+          submitItem={createDamagedItem as any}
+          topClassName="flex flex-col gap-2 "
+          constantValues={{
+            category: selectedMenuItem.category,
+            name: "Hasarlı " + selectedMenuItem.name,
+            price: selectedMenuItem.price,
+          }}
+          setForm={setForm}
+          submitFunction={() => {
+            if (form.name === selectedMenuItem.name) {
+              toast.error(
+                t("Name of the item should be different than the original item")
+              );
+              return;
+            }
+            createDamagedItem({
+              ...form,
+              price: Number(form.price),
+              stockQuantity: Number(form.stockQuantity),
+              itemId: selectedMenuItem._id,
+            });
+          }}
+        />
+      )}
     </>
   );
 };

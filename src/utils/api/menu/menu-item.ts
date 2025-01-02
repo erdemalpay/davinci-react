@@ -1,8 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { patch } from "..";
+import { patch, post } from "..";
 import { MenuItem } from "../../../types/index";
 import { Paths, useGetList, useMutationApi } from "../factory";
+
+interface CreateDamagedItem {
+  itemId: number;
+  stockQuantity: number;
+  price: number;
+  category: number;
+  name: string;
+  oldStockLocation: number;
+  newStockLocation: number;
+}
 
 export function useMenuItemMutations() {
   return useMutationApi<MenuItem>({
@@ -45,6 +55,30 @@ export function updateItemsOrder({
   return patch({
     path: `${Paths.Menu}/items_order/${id}`,
     payload: { newOrder },
+  });
+}
+
+export function createDamagedItem(payload: CreateDamagedItem) {
+  return post({
+    path: `${Paths.MenuItems}/create-damaged-item`,
+    payload,
+  });
+}
+
+export function useCreateDamagedItemMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation(createDamagedItem, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries(queryKey);
+    },
   });
 }
 export function useUpdateItemsOrderMutation() {
