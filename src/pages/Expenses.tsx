@@ -1,3 +1,4 @@
+import { FaLayerGroup } from "react-icons/fa";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GrMoney } from "react-icons/gr";
 import { LuWallet } from "react-icons/lu";
@@ -6,12 +7,14 @@ import AddVendorPayment from "../components/accounting/AddVendorPayment";
 import AllExpenses from "../components/accounting/AllExpenses";
 import Invoice from "../components/accounting/Invoice";
 import ServiceInvoice from "../components/accounting/ServiceInvoice";
+import BulkExpenseCreate from "../components/expense/BulkExpenseCreate";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ExpensesPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+
 export const ExpensePageTabs = [
   {
     number: ExpensesPageTabEnum.INVOICE,
@@ -39,6 +42,13 @@ export const ExpensePageTabs = [
     label: "Add Vendor Payment",
     icon: <LuWallet className="text-lg font-thin" />,
     content: <AddVendorPayment />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.BULKEXPENSECREATE,
+    label: "Bulk Stock Expense Create",
+    icon: <FaLayerGroup className="text-lg font-thin" />,
+    content: <BulkExpenseCreate />,
     isDisabled: false,
   },
 ];
