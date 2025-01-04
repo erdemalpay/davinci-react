@@ -11,7 +11,9 @@ import {
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
+import { CreateMultipleExpense } from "../utils/api/account/expense";
 import { CreateBulkProductAndMenuItem } from "../utils/api/account/product";
+
 import { useUserContext } from "./User.context";
 
 type GeneralContextType = {
@@ -26,6 +28,8 @@ type GeneralContextType = {
     } | null
   ) => void;
   productExpenseForm: Partial<AccountInvoice>;
+  errorDataForCreateMultipleExpense: CreateMultipleExpense[];
+  setErrorDataForCreateMultipleExpense: (data: CreateMultipleExpense[]) => void;
   errorDataForProductBulkCreation: CreateBulkProductAndMenuItem[];
   setErrorDataForProductBulkCreation: (
     data: CreateBulkProductAndMenuItem[]
@@ -84,6 +88,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  errorDataForCreateMultipleExpense: [],
+  setErrorDataForCreateMultipleExpense: () => {},
   selectedMenuItem: null,
   setSelectedMenuItem: () => {},
   sortConfigKey: null,
@@ -183,6 +189,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
+  const [
+    errorDataForCreateMultipleExpense,
+    setErrorDataForCreateMultipleExpense,
+  ] = useState<CreateMultipleExpense[]>([]);
   const [checklistActiveTab, setChecklistActiveTab] = useState<number>(0);
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
     null
@@ -246,6 +256,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        errorDataForCreateMultipleExpense,
+        setErrorDataForCreateMultipleExpense,
         selectedMenuItem,
         setSelectedMenuItem,
         tableColumns,

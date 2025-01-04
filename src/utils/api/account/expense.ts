@@ -1,3 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { post } from "..";
+import { useGeneralContext } from "../../../context/General.context";
 import { AccountExpense, FormElementsState } from "../../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
@@ -9,6 +13,22 @@ export interface AccountExpensePayload {
   limit: number;
   generalTotalExpense: number;
 }
+
+export interface CreateMultipleExpense {
+  date: string;
+  product: string;
+  expenseType: string;
+  location: string;
+  brand?: string;
+  vendor: string;
+  paymentMethod: string;
+  quantity: number;
+  price: number;
+  kdv: number;
+  isStockIncrement: boolean;
+  note?: string;
+}
+
 const baseUrl = `${Paths.Accounting}/expenses`;
 
 export function useAccountExpenseMutations() {
@@ -54,4 +74,36 @@ export function useGetAccountExpensesWithoutPagination(
   let url = `${Paths.Accounting}/expenses-without-pagination?product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`;
 
   return useGet<AccountExpense[]>(url, [baseUrl, filterPanelElements], true);
+}
+
+export function createMultipleExpense(
+  createExpenseDto: CreateMultipleExpense[]
+) {
+  return post({
+    path: `${Paths.Accounting}/expenses/create-multiple`,
+    payload: createExpenseDto,
+  });
+}
+export function useCreateMultipleExpenseMutation() {
+  const queryKey = [`${Paths.Accounting}/expenses/create-multiple`];
+  const queryClient = useQueryClient();
+  const { setErrorDataForCreateMultipleExpense } = useGeneralContext();
+  return useMutation(createMultipleExpense, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: (response) => {
+      if (response) {
+        console.log(response);
+        setErrorDataForCreateMultipleExpense(
+          response as CreateMultipleExpense[]
+        );
+      }
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }

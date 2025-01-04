@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
+import { useCreateMultipleExpenseMutation } from "../../utils/api/account/expense";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -10,10 +11,45 @@ const BulkExpenseCreate = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const {
-    errorDataForProductBulkCreation,
-    setErrorDataForProductBulkCreation,
+    errorDataForCreateMultipleExpense,
+    setErrorDataForCreateMultipleExpense,
   } = useGeneralContext();
+  const { mutate: createMultipleExpense } = useCreateMultipleExpenseMutation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const rows =
+    errorDataForCreateMultipleExpense?.length > 0
+      ? errorDataForCreateMultipleExpense
+      : [
+          {
+            date: "04-01-2025",
+            product: "3 Peynirli Simit",
+            expenseType: "Sandviç",
+            location: "Neorama",
+            brand: " ",
+            vendor: "Atlantik Gıda",
+            paymentMethod: "Kredi Kartı",
+            quantity: 1,
+            price: 50,
+            kdv: 18,
+            isStockIncrement: false,
+            note: " ",
+          },
+
+          {
+            date: "04-01-2025",
+            product: "Filtre Kahve 250gr",
+            expenseType: "İçecek",
+            location: "Bahçeli",
+            brand: "Tchibo",
+            vendor: "Ramazan Ağca (trendyol)",
+            paymentMethod: "Havale",
+            quantity: 1,
+            price: 120,
+            kdv: 10,
+            isStockIncrement: true,
+            note: " ",
+          },
+        ];
   const columns = [
     {
       key: `${t("Date")} *`,
@@ -67,12 +103,17 @@ const BulkExpenseCreate = () => {
       correspondingKey: "kdv",
     },
     {
+      key: `${t("Stock Increment")} *`,
+      isSortable: true,
+      correspondingKey: "isStockIncrement",
+    },
+    {
       key: t("Note"),
       isSortable: true,
       correspondingKey: "note",
     },
 
-    ...(errorDataForProductBulkCreation?.length > 0
+    ...(errorDataForCreateMultipleExpense?.length > 0
       ? [
           {
             key: t("Error"),
@@ -93,8 +134,9 @@ const BulkExpenseCreate = () => {
     { key: "quantity" },
     { key: "price" },
     { key: "kdv" },
+    { key: "isStockIncrement" },
     { key: "note" },
-    ...(errorDataForProductBulkCreation?.length > 0
+    ...(errorDataForCreateMultipleExpense?.length > 0
       ? [{ key: "errorNote" }]
       : []),
   ];
@@ -102,7 +144,7 @@ const BulkExpenseCreate = () => {
     const headers = data[0];
     const columnKeys = columns.map((column) => column.key);
     const keys = rowKeys.map((rowKey) => rowKey.key);
-    const items = data.slice(1).map((row) => {
+    const items = data.slice(1).reduce((accum: any[], row) => {
       const item: any = {};
       row.forEach((cell: any, index: number) => {
         const translatedIndex = columnKeys.indexOf(headers[index]);
@@ -111,11 +153,17 @@ const BulkExpenseCreate = () => {
           item[key] = cell;
         }
       });
-      return item;
-    });
-    setErrorDataForProductBulkCreation([]);
-    // createBulkProductAndMenuItem(items);
+      if (Object.keys(item).length > 0) {
+        accum.push(item);
+      }
+      return accum;
+    }, []);
+
+    setErrorDataForCreateMultipleExpense([]);
+    createMultipleExpense(items);
+    // console.log(items);
   };
+
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -162,26 +210,26 @@ const BulkExpenseCreate = () => {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [errorDataForProductBulkCreation]);
+  }, [errorDataForCreateMultipleExpense]);
   return (
     <>
       <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 min-h-screen">
         <GenericTable
           key={tableKey}
-          rows={[]}
+          rows={rows}
           rowKeys={rowKeys}
           isActionsActive={false}
           columns={columns}
           isExcel={true}
           title={t("Bulk Stock Expense Create")}
-          isSearch={errorDataForProductBulkCreation?.length > 0}
-          isColumnFilter={errorDataForProductBulkCreation?.length > 0}
-          isPagination={errorDataForProductBulkCreation?.length > 0}
-          isRowsPerPage={errorDataForProductBulkCreation?.length > 0}
+          isSearch={errorDataForCreateMultipleExpense?.length > 0}
+          isColumnFilter={errorDataForCreateMultipleExpense?.length > 0}
+          isPagination={errorDataForCreateMultipleExpense?.length > 0}
+          isRowsPerPage={errorDataForCreateMultipleExpense?.length > 0}
           filters={filters}
           excelFileName={t("BulkExpenseCreate.xlsx")}
         />
-        {errorDataForProductBulkCreation?.length === 0 && (
+        {errorDataForCreateMultipleExpense?.length === 0 && (
           <p className="indent-2 text-sm">
             {t("Fields marked with an asterisk (*) are mandatory.")}
           </p>
