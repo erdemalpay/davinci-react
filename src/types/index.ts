@@ -179,6 +179,7 @@ export type AccountPaymentMethod = {
   name: string;
   isConstant: boolean;
   isOnlineOrder?: boolean;
+  ikasId?: string;
 };
 export type AccountPayment = {
   _id: number;

@@ -12,8 +12,8 @@ import {
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const PaymentMethods = () => {
   const { t, i18n } = useTranslation();
@@ -42,6 +42,7 @@ const PaymentMethods = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
+    { key: "Ikas ID", isSortable: false },
   ];
   if (
     user &&
@@ -68,6 +69,7 @@ const PaymentMethods = () => {
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
+    { key: "ikasId" },
   ];
   const inputs = [
     NameInput(),
@@ -79,10 +81,18 @@ const PaymentMethods = () => {
       required: true,
       isTopFlexRow: true,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "ikasId",
+      label: "Ikas ID",
+      placeholder: "Ikas ID",
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
 
   const addButton = {
