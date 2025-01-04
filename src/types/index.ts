@@ -441,6 +441,7 @@ export type Order = {
   kitchen?: string;
   stockNote?: string;
   ikasId?: string;
+  paymentMethod?: string;
 };
 
 export type OrderCollection = {
