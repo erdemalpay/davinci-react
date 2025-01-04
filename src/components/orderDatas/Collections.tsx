@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { useOrderContext } from "../../context/Order.context";
 import {
   commonDateOptions,
@@ -16,16 +17,20 @@ import { Paths } from "../../utils/api/factory";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
-import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
+import {
+  useCollectionMutation,
+  useGetAllOrderCollections,
+} from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const Collections = () => {
   const { t } = useTranslation();
@@ -37,7 +42,10 @@ const Collections = () => {
   const users = useGetUsers();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { updateCollection } = useCollectionMutation();
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -115,6 +123,16 @@ const Collections = () => {
     })
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
+  const editInputs = [
+    {
+      type: InputTypes.NUMBER,
+      formKey: "amount",
+      label: t("Amount"),
+      placeholder: t("Amount"),
+      required: true,
+    },
+  ];
+  const editFormKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Table Id"), isSortable: true },
@@ -128,6 +146,7 @@ const Collections = () => {
     { key: t("Cancelled At"), isSortable: true },
     { key: t("Cancel Note"), isSortable: true },
     { key: t("Status"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -298,6 +317,37 @@ const Collections = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={editInputs}
+          formKeys={editFormKeys}
+          submitItem={updateCollection as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-visible"
+          itemToEdit={{
+            id: rowToAction?._id,
+            updates: {
+              amount: rowToAction?.amount,
+            },
+          }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+  ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       if (!row?.date) {
@@ -332,7 +382,8 @@ const Collections = () => {
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           isCollapsible={true}
           filterPanel={filterPanel}
           filters={filters}

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { UpdatePayload, patch, post } from "..";
+import { patch, post, UpdatePayload } from "..";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order, OrderCollection, OrderCollectionStatus } from "../../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
@@ -24,6 +24,15 @@ export function useOrderCollectionMutations(tableId: number) {
     updateOrderCollection,
     createOrderCollection,
   };
+}
+export function useCollectionMutation() {
+  const { updateItem: updateCollection } = useMutationApi<OrderCollection>({
+    baseQuery: collectionBaseUrl,
+    queryKey: [`${Paths.Order}/collection/query`],
+    isInvalidate: true,
+  });
+
+  return { updateCollection };
 }
 
 export function useGetTableCollections(tableId: number) {
