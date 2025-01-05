@@ -712,9 +712,11 @@ const GenericTable = <T,>({
           {/* outside search button */}
           {outsideSearch?.()}
           {/* filters  for upperside*/}
-          <div className="flex flex-row flex-wrap gap-4 ml-auto ">
-            {renderFilters(true)}
-          </div>
+          {!(selectionActions && isSelectionActive) && (
+            <div className="flex flex-row flex-wrap gap-4 ml-auto ">
+              {renderFilters(true)}
+            </div>
+          )}
         </div>
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
           {/* header part */}
@@ -731,6 +733,9 @@ const GenericTable = <T,>({
                 >
                   <div
                     onClick={() => {
+                      if (isSelectionActive) {
+                        setSelectedRows([]);
+                      }
                       setIsSelectionActive(!isSelectionActive);
                     }}
                   >
@@ -747,30 +752,35 @@ const GenericTable = <T,>({
             </div>
 
             <div className="ml-auto flex flex-row gap-4  relative">
-              <div className="flex flex-row flex-wrap gap-4  ">
-                {isPdf && (
-                  <div className="my-auto">
-                    <ButtonTooltip content="Pdf">
-                      <BsFilePdf
-                        className="text-3xl my-auto cursor-pointer "
-                        onClick={generatePDF}
-                      />
-                    </ButtonTooltip>
-                  </div>
-                )}
-                {isExcel && (
-                  <div className="my-auto">
-                    <ButtonTooltip content="Excel">
-                      <FaFileExcel
-                        className="text-3xl my-auto cursor-pointer "
-                        onClick={generateExcel}
-                      />
-                    </ButtonTooltip>
-                  </div>
-                )}
-                {/* filters for lowerside */}
-                {renderFilters(false)}
-              </div>
+              {!(selectionActions && isSelectionActive) && (
+                <div className="flex flex-row flex-wrap gap-4  ">
+                  {isPdf && (
+                    <div className="my-auto">
+                      <ButtonTooltip content="Pdf">
+                        <BsFilePdf
+                          className="text-3xl my-auto cursor-pointer "
+                          onClick={generatePDF}
+                        />
+                      </ButtonTooltip>
+                    </div>
+                  )}
+                  {isExcel && (
+                    <div className="my-auto">
+                      <ButtonTooltip content="Excel">
+                        <FaFileExcel
+                          className="text-3xl my-auto cursor-pointer "
+                          onClick={generateExcel}
+                        />
+                      </ButtonTooltip>
+                    </div>
+                  )}
+                  {/* filters for lowerside */}
+                  {renderFilters(false)}
+                </div>
+              )}
+              {selectionActions &&
+                isSelectionActive &&
+                renderActionButtons({} as unknown as T, selectionActions)}
               {/* add button */}
               {addButton && !addButton.isDisabled && (
                 <button

@@ -362,6 +362,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               const foundItem = getItem(item._id, items);
               if (foundItem) {
                 setSelectedMenuItem(foundItem);
+                window.scrollTo(0, 0);
               }
             }}
           >
@@ -730,6 +731,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ),
     },
   ];
+  const selectionActions = [];
 
   useEffect(() => {
     setRows(allRows);
@@ -752,6 +754,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         key={tableKey}
         rowKeys={rowKeys}
         actions={actions}
+        selectionActions={[]}
         isActionsActive={true}
         columns={columns}
         rows={rows}

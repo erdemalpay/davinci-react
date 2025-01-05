@@ -169,7 +169,7 @@ const ProductCategoriesPage = () => {
           actions={actions}
           columns={columns}
           rows={rows}
-          title={t("Product Categories")}
+          title={t("Ikas Categories")}
           addButton={addButton}
           isActionsActive={
             user

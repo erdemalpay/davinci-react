@@ -56,7 +56,7 @@ export const AccountingPageTabs = [
   },
   {
     number: AccountingPageTabEnum.PRODUCTCATEGORIES,
-    label: "Product Categories",
+    label: "Ikas Categories",
     icon: <BiSolidCategoryAlt className="text-lg font-thin" />,
     content: <ProductCategoriesPage />,
     isDisabled: false,
