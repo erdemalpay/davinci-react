@@ -139,6 +139,11 @@ const IkasOrders = () => {
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+    {
+      key: t("Sales Channel"),
+      isSortable: true,
+      correspondingKey: "paymentMethod",
+    },
     { key: t("Product"), isSortable: true, correspondingKey: "item" },
     { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
     { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
@@ -153,7 +158,8 @@ const IkasOrders = () => {
       correspondingKey: "cancelledBy",
     },
     { key: t("Location"), isSortable: true, correspondingKey: "location" },
-    { key: t("Status"), isSortable: true, correspondingKey: "status" },
+    { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
+
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -167,6 +173,7 @@ const IkasOrders = () => {
         );
       },
     },
+    { key: "paymentMethod", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
     { key: "quantity" },
     {
