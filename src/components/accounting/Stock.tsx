@@ -378,6 +378,7 @@ const Stock = () => {
       label: t("Show Prices"),
       isUpperSide: true,
       node: <SwitchButton checked={showPrices} onChange={setShowPrices} />,
+      isDisabled: isDisabledCondition,
     },
     {
       label: t("Enable Edit"),
