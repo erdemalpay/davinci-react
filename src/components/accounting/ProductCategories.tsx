@@ -5,8 +5,8 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
 import { ProductCategories, RoleEnum } from "../../types";
 import {
-  useGetProductCategories,
-  useProductCategoriesMutations,
+  useGetIkasCategories,
+  useIkasCategoriesMutations,
 } from "../../utils/api/account/productCategories";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -17,7 +17,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 const ProductCategoriesPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const productCategories = useGetProductCategories();
+  const productCategories = useGetIkasCategories();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [
@@ -30,7 +30,7 @@ const ProductCategoriesPage = () => {
     createProductCategories,
     updateProductCategories,
     deleteProductCategories,
-  } = useProductCategoriesMutations();
+  } = useIkasCategoriesMutations();
   const [rows, setRows] = useState(productCategories);
   const columns = [
     { key: t("Name"), isSortable: true },

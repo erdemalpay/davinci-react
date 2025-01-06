@@ -13,6 +13,7 @@ import {
 } from "react-icons/md";
 import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
@@ -261,6 +262,14 @@ const GenericTable = <T,>({
       action.onClick(row);
     }
     if (action?.isModal && action.setIsModal) {
+      if (isSelectionActive) {
+        if (selectedRows.length === 0) {
+          toast.error(
+            t("Please select at least one row to perform this action.")
+          );
+          return;
+        }
+      }
       action?.setIsModal(true);
     } else if (action.isPath && action.path) {
       navigate(action.path);
@@ -373,12 +382,20 @@ const GenericTable = <T,>({
         return (
           <div
             key={index}
-            className={`rounded-full  h-6 w-6 flex my-auto items-center justify-center ${action?.className}`}
+            className={`${
+              action.icon &&
+              "rounded-full  h-6 w-6 flex my-auto items-center justify-center"
+            } ${action?.className}`}
             onClick={() => {
               actionOnClick(action, row);
             }}
           >
-            <ButtonTooltip content={action.name}>{action.icon}</ButtonTooltip>
+            {action.icon && (
+              <ButtonTooltip content={action.name}>{action.icon}</ButtonTooltip>
+            )}
+            {action.isButton && (
+              <button className={action?.buttonClassName}>{action.name}</button>
+            )}
           </div>
         );
       })}
@@ -750,7 +767,9 @@ const GenericTable = <T,>({
 
               {title && <H4 className="mr-auto">{title}</H4>}
             </div>
-
+            {selectionActions &&
+              isSelectionActive &&
+              renderActionButtons({} as unknown as T, selectionActions)}
             <div className="ml-auto flex flex-row gap-4  relative">
               {!(selectionActions && isSelectionActive) && (
                 <div className="flex flex-row flex-wrap gap-4  ">
@@ -778,22 +797,22 @@ const GenericTable = <T,>({
                   {renderFilters(false)}
                 </div>
               )}
-              {selectionActions &&
-                isSelectionActive &&
-                renderActionButtons({} as unknown as T, selectionActions)}
+
               {/* add button */}
-              {addButton && !addButton.isDisabled && (
-                <button
-                  className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
-                    addButton.className
-                      ? `${addButton.className}`
-                      : "bg-black border-black hover:text-black"
-                  } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
-                  onClick={() => actionOnClick(addButton, {} as unknown as T)}
-                >
-                  <H5>{addButton.name}</H5>
-                </button>
-              )}
+              {!(selectionActions && isSelectionActive) &&
+                addButton &&
+                !addButton.isDisabled && (
+                  <button
+                    className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
+                      addButton.className
+                        ? `${addButton.className}`
+                        : "bg-black border-black hover:text-black"
+                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                    onClick={() => actionOnClick(addButton, {} as unknown as T)}
+                  >
+                    <H5>{addButton.name}</H5>
+                  </button>
+                )}
               {/* column active inactive selection */}
               {isColumnFilter && (
                 <>
@@ -802,14 +821,14 @@ const GenericTable = <T,>({
                       onClick={() =>
                         setIsColumnActiveModalOpen((prev) => !prev)
                       }
-                      className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+                      className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
                     >
                       <PiFadersHorizontal />
                     </div>
                   </Tooltip>
 
                   {isColumnActiveModalOpen && title && (
-                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit  drop-shadow-lg z-10 min-w-64">
+                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-10 min-w-64">
                       <ColumnActiveModal title={title} />
                     </div>
                   )}
@@ -1010,6 +1029,11 @@ const GenericTable = <T,>({
           </div>
           {/* action modal if there is */}
           {actions?.map((action, index) => {
+            if (action?.isModal && action?.isModalOpen && action?.modal) {
+              return <div key={index}>{action.modal}</div>;
+            }
+          })}
+          {selectionActions?.map((action, index) => {
             if (action?.isModal && action?.isModalOpen && action?.modal) {
               return <div key={index}>{action.modal}</div>;
             }

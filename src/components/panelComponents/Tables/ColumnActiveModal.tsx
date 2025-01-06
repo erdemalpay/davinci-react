@@ -12,7 +12,7 @@ const ColumnActiveModal = ({ title }: Props) => {
   //   const [componentKey, setComponentKey] = useState(0);
 
   return (
-    <div className="flex flex-col gap-2 __className_a182b">
+    <div className="flex flex-col gap-2   __className_a182b">
       {tableColumns[title]?.map((column, index) => {
         if (ActionKeys.includes(column.key)) return null;
         return (

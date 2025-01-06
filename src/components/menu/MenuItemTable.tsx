@@ -23,7 +23,7 @@ import {
   useAccountProductMutations,
   useGetAllAccountProducts,
 } from "../../utils/api/account/product";
-import { useGetProductCategories } from "../../utils/api/account/productCategories";
+import { useGetIkasCategories } from "../../utils/api/account/productCategories";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
@@ -64,11 +64,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
-  const productCategories = useGetProductCategories();
+  const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showProductCategories, setShowProductCategories] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
+  const ikasCategories = useGetIkasCategories();
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,
@@ -174,6 +175,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
     };
   });
+  const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
   const [rows, setRows] = useState(allRows);
   function handleLocationUpdate(item: MenuItem, location: number) {
     const newLocations = item?.locations || [];
@@ -231,6 +233,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "isDecrementStock", type: FormKeyTypeEnum.BOOLEAN },
+  ];
+  const bulkEditInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "ikasCategory",
+      label: t("Ikas Category"),
+      options: ikasCategories?.map((category) => {
+        return {
+          value: category._id,
+          label: category.name,
+        };
+      }),
+      placeholder: t("Ikas Category"),
+      required: true,
+      isMultiple: true,
+    },
+  ];
+  const bulkEditFormKeys = [
+    { key: "ikasCategory", type: FormKeyTypeEnum.STRING },
   ];
   const productInputs = [
     ExpenseTypeInput({
@@ -731,7 +752,33 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ),
     },
   ];
-  const selectionActions = [];
+  const selectionActions = [
+    {
+      name: t(`Edit`),
+      isButton: true,
+      buttonClassName:
+        "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+      isModal: true,
+      className: "cursor-pointer",
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isBulkEditModalOpen}
+          close={() => setIsBulkEditModalOpen(false)}
+          inputs={bulkEditInputs}
+          formKeys={bulkEditFormKeys}
+          setForm={setProductInputForm}
+          submitItem={createAccountProduct as any}
+          generalClassName="overflow-visible"
+          topClassName="flex flex-col gap-2 "
+          submitFunction={() => {}}
+        />
+      ) : null,
+      isModalOpen: isBulkEditModalOpen,
+      setIsModal: setIsBulkEditModalOpen,
+      isPath: false,
+    },
+  ];
 
   useEffect(() => {
     setRows(allRows);
@@ -746,6 +793,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     locations,
     productCategories,
     items,
+    ikasCategories,
   ]);
 
   return (
@@ -754,7 +802,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         key={tableKey}
         rowKeys={rowKeys}
         actions={actions}
-        selectionActions={[]}
+        {...(!isDisabledCondition && { selectionActions: selectionActions })} //this condition may be removed
         isActionsActive={true}
         columns={columns}
         rows={rows}
