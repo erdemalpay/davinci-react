@@ -257,7 +257,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       label: t("Price"),
     },
   ];
-  const bulkEditSelectionInputs = [
+  const bulkEditInputs = [
     {
       type: InputTypes.SELECT,
       formKey: "bulkEditSelection",
@@ -271,12 +271,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       placeholder: t("Edit Option Selection"),
       required: true,
       isMultiple: true,
+      isDisabled: isEditSelectionCompeted,
     },
-  ];
-  const bulkEditSelectionFormKeys = [
-    { key: "bulkEditSelection", type: FormKeyTypeEnum.STRING },
-  ];
-  const bulkEditInputs = [
     {
       type: InputTypes.SELECT,
       formKey: "productCategories",
@@ -290,22 +286,25 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       placeholder: t("Ikas Category"),
       required: false,
       isMultiple: true,
-      isDisabled: !(bulkInputForm?.bulkEditSelection as string[])?.includes(
-        "productCategories"
-      ),
+      isDisabled:
+        !isEditSelectionCompeted ||
+        !(bulkInputForm?.bulkEditSelection as string[])?.includes(
+          "productCategories"
+        ),
     },
     {
       type: InputTypes.NUMBER,
       formKey: "price",
       label: `${t("Price")}`,
       placeholder: `${t("Price")}`,
-      isDisabled: !(bulkInputForm?.bulkEditSelection as string[])?.includes(
-        "price"
-      ),
+      isDisabled:
+        !isEditSelectionCompeted ||
+        !(bulkInputForm?.bulkEditSelection as string[])?.includes("price"),
       required: false,
     },
   ];
   const bulkEditFormKeys = [
+    { key: "bulkEditSelection", type: FormKeyTypeEnum.STRING },
     { key: "productCategories", type: FormKeyTypeEnum.STRING },
     { key: "price", type: FormKeyTypeEnum.NUMBER },
   ];
@@ -798,7 +797,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ),
     },
     {
-      label: t("Show Product Categories"),
+      label: t("Show Ikas Categories"),
       isUpperSide: false,
       node: (
         <SwitchButton
@@ -821,14 +820,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         <GenericAddEditPanel
           isOpen={isBulkEditModalOpen}
           close={() => setIsBulkEditModalOpen(false)}
-          inputs={
-            isEditSelectionCompeted ? bulkEditInputs : bulkEditSelectionInputs
-          }
-          formKeys={
-            isEditSelectionCompeted
-              ? bulkEditFormKeys
-              : bulkEditSelectionFormKeys
-          }
+          inputs={bulkEditInputs}
+          formKeys={bulkEditFormKeys}
           setForm={setBulkInputForm}
           submitItem={updateBulkItems as any}
           generalClassName="overflow-visible"
