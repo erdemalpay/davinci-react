@@ -247,7 +247,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "isDecrementStock", type: FormKeyTypeEnum.BOOLEAN },
   ];
-  const bulkEditSelections = [
+  const bulkEditSelectionsOptions = [
     {
       _id: "productCategories",
       label: t("Ikas Category"),
@@ -262,7 +262,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       type: InputTypes.SELECT,
       formKey: "bulkEditSelection",
       label: t("Edit Option Selection"),
-      options: bulkEditSelections.map((selection) => {
+      options: bulkEditSelectionsOptions.map((selection) => {
         return {
           value: selection._id,
           label: selection.label,
@@ -560,21 +560,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     }
   }
   columns.push({ key: t("Action"), isSortable: false });
-  // for online orders cost field is removed
-  if (
-    user &&
-    ![RoleEnum.MANAGER].includes(user?.role?._id) &&
-    singleItemGroup?.category?.isOnlineOrder
-  ) {
-    columns.splice(
-      columns.findIndex((column) => column.key === "Cost"),
-      1
-    );
-    rowKeys.splice(
-      rowKeys.findIndex((rowKey) => rowKey.key === "cost"),
-      1
-    );
-  }
+
   const addButton = {
     name: t(`Add Item`),
     isModal: true,
@@ -843,7 +829,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               itemIds: selectedRows.map((row) => row._id),
               updates: adjustedBulkInputForm,
             });
-
             setSelectedRows([]);
             setIsSelectionActive(false);
             setIsEditSelectionCompeted(false);
