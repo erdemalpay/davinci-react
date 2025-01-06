@@ -769,6 +769,7 @@ const GenericTable = <T,>({
             </div>
             {selectionActions &&
               isSelectionActive &&
+              selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
             <div className="ml-auto flex flex-row gap-4  relative">
               {!(selectionActions && isSelectionActive) && (

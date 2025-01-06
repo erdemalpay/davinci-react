@@ -68,6 +68,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
+  const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
   const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -87,6 +88,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const [isLocationEdit, setIsLocationEdit] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
+    price: 0,
+    bulkEditSelection: [],
   };
   const [bulkInputForm, setBulkInputForm] = useState({
     ...initialBulkInputForm,
@@ -244,6 +247,35 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "isDecrementStock", type: FormKeyTypeEnum.BOOLEAN },
   ];
+  const bulkEditSelections = [
+    {
+      _id: "productCategories",
+      label: t("Ikas Category"),
+    },
+    {
+      _id: "price",
+      label: t("Price"),
+    },
+  ];
+  const bulkEditSelectionInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "bulkEditSelection",
+      label: t("Edit Option Selection"),
+      options: bulkEditSelections.map((selection) => {
+        return {
+          value: selection._id,
+          label: selection.label,
+        };
+      }),
+      placeholder: t("Edit Option Selection"),
+      required: true,
+      isMultiple: true,
+    },
+  ];
+  const bulkEditSelectionFormKeys = [
+    { key: "bulkEditSelection", type: FormKeyTypeEnum.STRING },
+  ];
   const bulkEditInputs = [
     {
       type: InputTypes.SELECT,
@@ -256,12 +288,26 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         };
       }),
       placeholder: t("Ikas Category"),
-      required: true,
+      required: false,
       isMultiple: true,
+      isDisabled: !(bulkInputForm?.bulkEditSelection as string[])?.includes(
+        "productCategories"
+      ),
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "price",
+      label: `${t("Price")}`,
+      placeholder: `${t("Price")}`,
+      isDisabled: !(bulkInputForm?.bulkEditSelection as string[])?.includes(
+        "price"
+      ),
+      required: false,
     },
   ];
   const bulkEditFormKeys = [
     { key: "productCategories", type: FormKeyTypeEnum.STRING },
+    { key: "price", type: FormKeyTypeEnum.NUMBER },
   ];
   const productInputs = [
     ExpenseTypeInput({
@@ -775,37 +821,59 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         <GenericAddEditPanel
           isOpen={isBulkEditModalOpen}
           close={() => setIsBulkEditModalOpen(false)}
-          inputs={bulkEditInputs}
-          formKeys={bulkEditFormKeys}
+          inputs={
+            isEditSelectionCompeted ? bulkEditInputs : bulkEditSelectionInputs
+          }
+          formKeys={
+            isEditSelectionCompeted
+              ? bulkEditFormKeys
+              : bulkEditSelectionFormKeys
+          }
           setForm={setBulkInputForm}
           submitItem={updateBulkItems as any}
           generalClassName="overflow-visible"
           topClassName="flex flex-col gap-2 "
           submitFunction={() => {
-            const updates = Object.keys(bulkInputForm).reduce((acc, key) => {
-              if (
-                JSON.stringify(
-                  bulkInputForm[key as keyof typeof bulkInputForm]
-                ) !==
-                JSON.stringify(
-                  initialBulkInputForm[key as keyof typeof initialBulkInputForm]
-                )
-              ) {
-                acc[key as keyof typeof acc] =
-                  bulkInputForm[key as keyof typeof bulkInputForm];
-              }
-              return acc;
-            }, {} as typeof bulkInputForm);
-            if (Object.keys(updates).length > 0) {
-              updateBulkItems({
-                itemIds: selectedRows.map((row) => row._id),
-                updates: updates as any,
-              });
-            } else {
-              console.log("No changes to submit");
+            if (!isEditSelectionCompeted) {
+              setIsEditSelectionCompeted(true);
+              return;
             }
+            const adjustedBulkInputForm =
+              bulkInputForm.bulkEditSelection.reduce((acc, key) => {
+                acc[key] =
+                  key in bulkInputForm
+                    ? bulkInputForm[key]
+                    : initialBulkInputForm[key];
+                return acc;
+              }, {});
+            updateBulkItems({
+              itemIds: selectedRows.map((row) => row._id),
+              updates: adjustedBulkInputForm,
+            });
+
             setSelectedRows([]);
             setIsSelectionActive(false);
+            setIsEditSelectionCompeted(false);
+          }}
+          isSubmitButtonActive={isEditSelectionCompeted}
+          buttonName={t("Edit")}
+          additionalButtons={[
+            {
+              label: isEditSelectionCompeted ? t("Back") : t("Forward"),
+              isInputRequirementCheck: true,
+              onClick: () => {
+                if (isEditSelectionCompeted) {
+                  setIsEditSelectionCompeted(false);
+                  return;
+                }
+                setIsEditSelectionCompeted(true);
+              },
+            },
+          ]}
+          additionalCancelFunction={() => {
+            setSelectedRows([]);
+            setIsSelectionActive(false);
+            setIsEditSelectionCompeted(false);
           }}
         />
       ) : null,

@@ -47,6 +47,7 @@ type Props<T> = {
   isConfirmationDialogRequired?: () => boolean;
   confirmationDialogHeader?: string;
   confirmationDialogText?: string;
+  isSubmitButtonActive?: boolean;
   additionalButtons?: AdditionalButtonProps[];
   itemToEdit?: {
     id: number | string;
@@ -85,6 +86,7 @@ const GenericAddEditPanel = <T,>({
   submitFunction,
   additionalSubmitFunction,
   additionalCancelFunction,
+  isSubmitButtonActive = true,
   isCancelConfirmationDialogExist = false,
   isCreateConfirmationDialogExist = false,
   createConfirmationDialogText,
@@ -182,7 +184,6 @@ const GenericAddEditPanel = <T,>({
     }
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
-
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -570,22 +571,28 @@ const GenericAddEditPanel = <T,>({
                   </button>
                 );
               })}
-            <button
-              onClick={() => {
-                if (isCreateConfirmationDialogExist) {
-                  setIsCreateConfirmationDialogOpen(true);
-                } else {
-                  handleCreateButtonClick();
-                }
-              }}
-              className={`inline-block ${
-                !allRequiredFilled && !optionalCreateButtonActive
-                  ? "bg-gray-500"
-                  : "bg-blue-500 hover:bg-blue-600"
-              } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
-            >
-              {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
-            </button>
+            {isSubmitButtonActive && (
+              <button
+                onClick={() => {
+                  if (isCreateConfirmationDialogExist) {
+                    setIsCreateConfirmationDialogOpen(true);
+                  } else {
+                    handleCreateButtonClick();
+                  }
+                }}
+                className={`inline-block ${
+                  !allRequiredFilled && !optionalCreateButtonActive
+                    ? "bg-gray-500"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
+              >
+                {buttonName
+                  ? buttonName
+                  : isEditMode
+                  ? t("Update")
+                  : t("Create")}
+              </button>
+            )}
           </div>
         </div>
       </div>
