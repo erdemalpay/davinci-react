@@ -29,6 +29,7 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useGetMenuItems,
   useMenuItemMutations,
+  useUpdateBulkItemsMutation,
   useUpdateItemsOrderMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
@@ -56,6 +57,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const { i18n } = useTranslation();
+  const { selectedRows, setSelectedRows, setIsSelectionActive } =
+    useGeneralContext();
   const products = useGetAllAccountProducts();
   const { setSelectedMenuItem, isShownInMenu, setIsShownInMenu } =
     useGeneralContext();
@@ -64,6 +67,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
+  const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -81,6 +85,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLocationEdit, setIsLocationEdit] = useState(false);
+  const initialBulkInputForm = {
+    productCategories: [],
+  };
+  const [bulkInputForm, setBulkInputForm] = useState({
+    ...initialBulkInputForm,
+  });
   const [isAddCollapsibleOpen, setIsAddCollapsibleOpen] = useState(false);
   const [form, setForm] = useState({
     product: "",
@@ -237,7 +247,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const bulkEditInputs = [
     {
       type: InputTypes.SELECT,
-      formKey: "ikasCategory",
+      formKey: "productCategories",
       label: t("Ikas Category"),
       options: ikasCategories?.map((category) => {
         return {
@@ -251,7 +261,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     },
   ];
   const bulkEditFormKeys = [
-    { key: "ikasCategory", type: FormKeyTypeEnum.STRING },
+    { key: "productCategories", type: FormKeyTypeEnum.STRING },
   ];
   const productInputs = [
     ExpenseTypeInput({
@@ -365,7 +375,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     ...(showProductCategories
-      ? [{ key: t("Product Categories"), isSortable: false }]
+      ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
     { key: "Ikas ID", isSortable: false },
     { key: t("Matched Product"), isSortable: false },
@@ -767,11 +777,36 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           close={() => setIsBulkEditModalOpen(false)}
           inputs={bulkEditInputs}
           formKeys={bulkEditFormKeys}
-          setForm={setProductInputForm}
-          submitItem={createAccountProduct as any}
+          setForm={setBulkInputForm}
+          submitItem={updateBulkItems as any}
           generalClassName="overflow-visible"
           topClassName="flex flex-col gap-2 "
-          submitFunction={() => {}}
+          submitFunction={() => {
+            const updates = Object.keys(bulkInputForm).reduce((acc, key) => {
+              if (
+                JSON.stringify(
+                  bulkInputForm[key as keyof typeof bulkInputForm]
+                ) !==
+                JSON.stringify(
+                  initialBulkInputForm[key as keyof typeof initialBulkInputForm]
+                )
+              ) {
+                acc[key as keyof typeof acc] =
+                  bulkInputForm[key as keyof typeof bulkInputForm];
+              }
+              return acc;
+            }, {} as typeof bulkInputForm);
+            if (Object.keys(updates).length > 0) {
+              updateBulkItems({
+                itemIds: selectedRows.map((row) => row._id),
+                updates: updates as any,
+              });
+            } else {
+              console.log("No changes to submit");
+            }
+            setSelectedRows([]);
+            setIsSelectionActive(false);
+          }}
         />
       ) : null,
       isModalOpen: isBulkEditModalOpen,

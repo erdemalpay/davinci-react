@@ -14,16 +14,44 @@ interface CreateDamagedItem {
   newStockLocation: number;
 }
 
+interface UpdateBulkItemsPayload {
+  itemIds: number[];
+  updates: Partial<MenuItem>;
+}
 export function useMenuItemMutations() {
   return useMutationApi<MenuItem>({
     baseQuery: Paths.MenuItems,
     // isInvalidate: true,
   });
 }
+export function updateBulkItems(payload: UpdateBulkItemsPayload) {
+  return post({
+    path: `${Paths.MenuItems}/update-bulk-items`,
+    payload: payload,
+  });
+}
+
 export function updateItems(items: MenuItem[]) {
   return patch({
     path: `${Paths.MenuItems}/update_bulk`,
     payload: { items },
+  });
+}
+export function useUpdateBulkItemsMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation(updateBulkItems, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }
 export function useUpdateItemsMutation() {
