@@ -229,6 +229,49 @@ const UpperCategoryBasedSalesReport = () => {
     })
     ?.filter((row) => row.paidQuantity > 0)
     ?.sort((a, b) => b.paidQuantity - a.paidQuantity);
+  const totalRow = {
+    name: t("Total"),
+    className: "font-semibold",
+    isSortable: false,
+    paidQuantity: allRows.reduce((acc, row) => acc + row.paidQuantity, 0),
+    discount: allRows.reduce((acc, row) => acc + row.discount, 0),
+    amount: allRows.reduce((acc, row) => acc + row.amount, 0),
+    totalAmountWithDiscount: allRows.reduce(
+      (acc, row) => acc + row.totalAmountWithDiscount,
+      0
+    ),
+    percentageGeneralAmount: allRows.reduce(
+      (acc, row) => acc + row.percentageGeneralAmount,
+      0
+    ),
+    collapsible: {
+      collapsibleHeader: t("Categories"),
+      collapsibleColumns: [
+        { key: t("Category"), isSortable: false },
+        { key: t("Percentage"), isSortable: false },
+        { key: t("Quantity"), isSortable: false },
+        { key: t("Discount"), isSortable: false },
+        { key: t("Total Amount"), isSortable: false },
+        { key: t("General Amount"), isSortable: false },
+        { key: t("Percentage General Amount"), isSortable: false },
+      ],
+      collapsibleRows: [],
+      collapsibleRowKeys: [
+        { key: "category" },
+        { key: "percentage" },
+        { key: "quantity" },
+        { key: "discount" },
+        { key: "totalAmount" },
+        { key: "generalAmount" },
+        { key: "percentageGeneralAmount" },
+      ],
+    },
+  };
+
+  // Push the total row at the end of the allRows array
+  if (allRows.length > 0) {
+    allRows.push(totalRow as any);
+  }
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true },
@@ -241,19 +284,21 @@ const UpperCategoryBasedSalesReport = () => {
   const rowKeys = [
     {
       key: "name",
-      className: "min-w-32 pr-2",
+      node: (row: any) => {
+        return <p className={`min-w-32 pr-2 ${row?.className}`}>{row?.name}</p>;
+      },
     },
     {
       key: "paidQuantity",
       node: (row: any) => {
-        return <p>{row?.paidQuantity}</p>;
+        return <p className={`${row?.className}`}>{row?.paidQuantity}</p>;
       },
     },
     {
       key: "discount",
       node: (row: any) => {
         return (
-          <p>
+          <p className={`${row?.className}`}>
             {row?.discount > 0 && row?.discount?.toFixed(2) + " " + TURKISHLIRA}
           </p>
         );
@@ -262,14 +307,20 @@ const UpperCategoryBasedSalesReport = () => {
     {
       key: "amount",
       node: (row: any) => {
-        return <p>{row?.amount?.toFixed(2) + " " + TURKISHLIRA}</p>;
+        return (
+          <p className={`${row?.className}`}>
+            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
+          </p>
+        );
       },
     },
     {
       key: "totalAmountWithDiscount",
       node: (row: any) => {
         return (
-          <p>{row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}</p>
+          <p className={`${row?.className}`}>
+            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
+          </p>
         );
       },
     },
@@ -277,7 +328,9 @@ const UpperCategoryBasedSalesReport = () => {
       key: "percentageGeneralAmount",
       node: (row: any) => {
         return (
-          <p>{row?.percentageGeneralAmount?.toFixed(2) + " " + TURKISHLIRA}</p>
+          <p className={`${row?.className}`}>
+            {row?.percentageGeneralAmount?.toFixed(2) + " " + TURKISHLIRA}
+          </p>
         );
       },
     },
