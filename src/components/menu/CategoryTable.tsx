@@ -126,8 +126,8 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     },
   ];
 
-  function handleLocationUpdate(item: MenuCategory, location: number) {
-    const newLocations = item.locations || [];
+  function handleLocationUpdate(category: MenuCategory, location: number) {
+    const newLocations = category.locations || [];
     // Add if it doesn't exist, remove otherwise
     const index = newLocations.indexOf(location);
     if (index === -1) {
@@ -136,7 +136,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       newLocations.splice(index, 1);
     }
     updateCategory({
-      id: item._id,
+      id: category._id,
       updates: { locations: newLocations },
     });
     toast.success(`${t("Category updated successfully")}`);
