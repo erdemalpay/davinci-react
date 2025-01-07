@@ -13,7 +13,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelIkasOrderMutation,
@@ -35,7 +35,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 const IkasOrders = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
-  const locations = useGetStoreLocations();
+  const locations = useGetAllLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);

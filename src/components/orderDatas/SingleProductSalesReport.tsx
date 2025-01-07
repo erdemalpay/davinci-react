@@ -12,17 +12,17 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type OrderWithPaymentInfo = {
   item: number;
@@ -44,7 +44,7 @@ const SingleProductSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const categories = useGetCategories();
-  const locations = useGetStoreLocations();
+  const locations = useGetAllLocations();
   const items = useGetMenuItems();
   const queryClient = useQueryClient();
   const [showFilters, setShowFilters] = useState(false);

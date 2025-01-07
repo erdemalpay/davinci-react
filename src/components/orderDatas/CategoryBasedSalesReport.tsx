@@ -12,7 +12,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -51,7 +51,7 @@ const CategoryBasedSalesReport = () => {
   const orders = useGetOrders();
   const categories = useGetCategories();
   const items = useGetMenuItems();
-  const locations = useGetStoreLocations();
+  const locations = useGetAllLocations();
   const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
   if (!orders || !categories || !locations) {

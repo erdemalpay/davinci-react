@@ -13,7 +13,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -52,7 +52,7 @@ const DiscountBasedSales = () => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
-  const locations = useGetStoreLocations();
+  const locations = useGetAllLocations();
   const queryClient = useQueryClient();
   const items = useGetMenuItems();
   const { setExpandedRows } = useGeneralContext();
