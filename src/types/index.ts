@@ -1122,3 +1122,13 @@ export enum ExpenseTypes {
   STOCKABLE = "STOCKABLE",
   NONSTOCKABLE = "NONSTOCKABLE",
 }
+
+export const orderFilterStatusOptions = [
+  { value: OrderStatus.PENDING, label: "Pending" },
+  { value: OrderStatus.READYTOSERVE, label: "Ready to Serve" },
+  { value: OrderStatus.SERVED, label: "Served" },
+  { value: OrderStatus.CANCELLED, label: "Cancelled" },
+  { value: OrderStatus.AUTOSERVED, label: "Auto served" },
+  { value: OrderStatus.WASTED, label: "Loss Product" },
+  { value: OrderStatus.RETURNED, label: "Returned" },
+];

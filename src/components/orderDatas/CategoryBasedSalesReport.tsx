@@ -7,6 +7,7 @@ import { useOrderContext } from "../../context/Order.context";
 import {
   commonDateOptions,
   DateRangeKey,
+  orderFilterStatusOptions,
   OrderStatus,
   TURKISHLIRA,
 } from "../../types";
@@ -16,6 +17,8 @@ import { useGetAllLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -52,6 +55,8 @@ const CategoryBasedSalesReport = () => {
   const categories = useGetCategories();
   const items = useGetMenuItems();
   const locations = useGetAllLocations();
+  const discounts = useGetOrderDiscounts();
+  const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
   if (!orders || !categories || !locations) {
@@ -316,20 +321,6 @@ const CategoryBasedSalesReport = () => {
     LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
-      formKey: "category",
-      label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category?._id,
-          label: category?.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Category"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
       formKey: "date",
       label: t("Date"),
       options: commonDateOptions.map((option) => {
@@ -376,6 +367,98 @@ const CategoryBasedSalesReport = () => {
       invalidateKeys: [{ key: "date", defaultValue: "" }],
       isOnClearActive: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: orderFilterStatusOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Status"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category?._id,
+          label: category?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: discounts.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "createdBy",
+      label: t("Created By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Created By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "preparedBy",
+      label: t("Prepared By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Prepared By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "deliveredBy",
+      label: t("Delivered By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Delivered By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "cancelledBy",
+      label: t("Cancelled By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Cancelled By"),
+      required: true,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showFilters,
@@ -411,7 +494,15 @@ const CategoryBasedSalesReport = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, categories, filterPanelFormElements, locations, items]);
+  }, [
+    orders,
+    categories,
+    filterPanelFormElements,
+    locations,
+    discounts,
+    items,
+    users,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

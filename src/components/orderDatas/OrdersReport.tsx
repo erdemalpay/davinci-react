@@ -9,12 +9,13 @@ import { useOrderContext } from "../../context/Order.context";
 import {
   commonDateOptions,
   DateRangeKey,
-  OrderStatus,
+  orderFilterStatusOptions,
   Table,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetAllLocations } from "../../utils/api/location";
+import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetOrders,
@@ -39,6 +40,7 @@ const OrdersReport = () => {
   const locations = useGetAllLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
+  const categories = useGetCategories();
   const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
@@ -76,15 +78,7 @@ const OrdersReport = () => {
   if (!orders || !locations || !users || !discounts) {
     return null;
   }
-  const statusOptions = [
-    { value: OrderStatus.PENDING, label: t("Pending") },
-    { value: OrderStatus.READYTOSERVE, label: t("Ready to Serve") },
-    { value: OrderStatus.SERVED, label: t("Served") },
-    { value: OrderStatus.CANCELLED, label: t("Cancelled") },
-    { value: OrderStatus.AUTOSERVED, label: t("Auto served") },
-    { value: OrderStatus.WASTED, label: t("Loss Product") },
-    { value: OrderStatus.RETURNED, label: t("Returned") },
-  ];
+
   const allRows = orders
     ?.filter(
       (order) =>
@@ -149,7 +143,7 @@ const OrdersReport = () => {
         note: order?.note ?? "",
         status: t(order?.status),
         paymentMethod: order?.paymentMethod,
-        statusLabel: statusOptions.find(
+        statusLabel: orderFilterStatusOptions.find(
           (status) => status.value === order?.status
         )?.label,
       };
@@ -275,6 +269,95 @@ const OrdersReport = () => {
     { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
   const filterPanelInputs = [
+    LocationInput({ locations: locations, required: true }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: orderFilterStatusOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Status"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category?._id,
+          label: category?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: discounts.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: true,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "createdBy",
@@ -326,76 +409,6 @@ const OrdersReport = () => {
         })),
       placeholder: t("Cancelled By"),
       required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "status",
-      label: t("Status"),
-      options: statusOptions,
-      placeholder: t("Status"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "discount",
-      label: t("Discount"),
-      options: discounts.map((discount) => {
-        return {
-          value: discount._id,
-          label: discount.name,
-        };
-      }),
-      placeholder: t("Discount"),
-      required: true,
-    },
-    LocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
-      required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
-      },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
     },
   ];
   const filterPanel = {
@@ -498,7 +511,15 @@ const OrdersReport = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, locations, users, filterPanelFormElements, discounts, items]);
+  }, [
+    orders,
+    locations,
+    users,
+    filterPanelFormElements,
+    discounts,
+    items,
+    categories,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
