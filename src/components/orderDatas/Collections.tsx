@@ -99,7 +99,7 @@ const Collections = () => {
         tableName: (collection?.table as Table)?.name,
         location: collection?.location,
         createdBy: collection?.createdBy,
-        amount: collection?.amount.toFixed(2),
+        amount: collection?.amount,
         cancelNote: collection?.cancelNote ?? "",
         locationName: getItem(collection?.location, locations)?.name,
         status: collection?.status,
@@ -122,38 +122,6 @@ const Collections = () => {
       };
     })
     ?.filter((item) => item !== null);
-  const totalRow = {
-    _id: "total",
-    formattedDate: "Total",
-    tableId: "",
-    tableName: "",
-    locationName: "",
-    date: "",
-    hour: "",
-    cashier: "",
-    paymentMethod: "",
-    createdBy: "",
-    cancelledBy: "",
-    cancelledById: "",
-    cancelNote: "",
-    status: "",
-    cancelledAt: "",
-    className: "font-semibold",
-    isSortable: false,
-    amount: collections
-      ?.reduce((acc: any, row) => acc + row?.amount, 0)
-      ?.toFixed(2),
-    collapsible: {
-      collapsibleHeader: t("Total Summary"),
-      collapsibleColumns: [
-        { key: t("Total Amount"), isSortable: false },
-        { key: t("Quantity"), isSortable: false },
-      ],
-      collapsibleRows: [],
-      collapsibleRowKeys: [{ key: "totalAmount" }, { key: "totalQuantity" }],
-    },
-  };
-  allRows.push(totalRow as any);
   const [rows, setRows] = useState(allRows);
   const editInputs = [
     {
@@ -198,7 +166,7 @@ const Collections = () => {
       key: "amount",
       node: (row: any) => (
         <p className={row?.className} key={row._id + "amount"}>
-          {row.amount} ₺
+          {row.amount.toFixed(2)} ₺
         </p>
       ),
     },
@@ -386,9 +354,6 @@ const Collections = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
-      if ((row?._id as any) === "total") {
-        return true;
-      }
       if (!row?.date) {
         return false;
       }
@@ -400,6 +365,36 @@ const Collections = () => {
         passesFilter(filterPanelFormElements.paymentMethod, row.paymentMethodId)
       );
     });
+    const totalRow = {
+      _id: "total",
+      formattedDate: "Total",
+      tableId: "",
+      tableName: "",
+      locationName: "",
+      date: "",
+      hour: "",
+      cashier: "",
+      paymentMethod: "",
+      createdBy: "",
+      cancelledBy: "",
+      cancelledById: "",
+      cancelNote: "",
+      status: "",
+      cancelledAt: "",
+      className: "font-semibold",
+      isSortable: false,
+      amount: filteredRows?.reduce((acc, row: any) => acc + row.amount, 0),
+      collapsible: {
+        collapsibleHeader: t("Total Summary"),
+        collapsibleColumns: [
+          { key: t("Total Amount"), isSortable: false },
+          { key: t("Quantity"), isSortable: false },
+        ],
+        collapsibleRows: [],
+        collapsibleRowKeys: [{ key: "totalAmount" }, { key: "totalQuantity" }],
+      },
+    };
+    filteredRows.push(totalRow as any);
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [
