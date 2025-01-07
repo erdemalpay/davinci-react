@@ -458,7 +458,6 @@ export type OrderCollection = {
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
   table?: Table | number;
-  stockLocation?: number;
   ikasId?: string;
 };
 
