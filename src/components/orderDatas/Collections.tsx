@@ -72,7 +72,7 @@ const Collections = () => {
     },
   ];
   const allRows = collections
-    .map((collection) => {
+    ?.map((collection) => {
       if (!collection?.createdAt) {
         return null;
       }
@@ -121,7 +121,39 @@ const Collections = () => {
         },
       };
     })
-    .filter((item) => item !== null);
+    ?.filter((item) => item !== null);
+  const totalRow = {
+    _id: "total",
+    formattedDate: "Total",
+    tableId: "",
+    tableName: "",
+    locationName: "",
+    date: "",
+    hour: "",
+    cashier: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    cancelledById: "",
+    cancelNote: "",
+    status: "",
+    cancelledAt: "",
+    className: "font-semibold",
+    isSortable: false,
+    amount: collections
+      ?.reduce((acc: any, row) => acc + row?.amount, 0)
+      ?.toFixed(2),
+    collapsible: {
+      collapsibleHeader: t("Total Summary"),
+      collapsibleColumns: [
+        { key: t("Total Amount"), isSortable: false },
+        { key: t("Quantity"), isSortable: false },
+      ],
+      collapsibleRows: [],
+      collapsibleRowKeys: [{ key: "totalAmount" }, { key: "totalQuantity" }],
+    },
+  };
+  allRows.push(totalRow as any);
   const [rows, setRows] = useState(allRows);
   const editInputs = [
     {
@@ -153,7 +185,7 @@ const Collections = () => {
       key: "date",
       className: "min-w-32 pr-2 ",
       node: (row: any) => {
-        return <p className={`${row?.className}`}>{row.formattedDate}</p>;
+        return <p className={row?.className}>{row.formattedDate}</p>;
       },
     },
     { key: "tableId" },
@@ -164,7 +196,11 @@ const Collections = () => {
     { key: "paymentMethod" },
     {
       key: "amount",
-      node: (row: any) => <p key={row._id + "amount"}>{row.amount} ₺</p>,
+      node: (row: any) => (
+        <p className={row?.className} key={row._id + "amount"}>
+          {row.amount} ₺
+        </p>
+      ),
     },
     { key: "cancelledBy" },
     { key: "cancelledAt" },
@@ -350,6 +386,9 @@ const Collections = () => {
   ];
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
+      if ((row?._id as any) === "total") {
+        return true;
+      }
       if (!row?.date) {
         return false;
       }

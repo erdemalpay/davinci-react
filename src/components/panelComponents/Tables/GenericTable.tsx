@@ -555,6 +555,7 @@ const GenericTable = <T,>({
           })}
           <td>
             {actions &&
+              !(row?.isSortable === false) &&
               !(row?.isActionsDisabled ?? false) &&
               !isActionsAtFront &&
               renderActionButtons(row, actions)}
