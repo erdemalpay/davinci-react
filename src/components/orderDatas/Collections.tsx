@@ -14,7 +14,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import {
@@ -36,7 +36,7 @@ const Collections = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const orders = useGetOrders();
-  const locations = useGetStoreLocations();
+  const locations = useGetAllLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
@@ -102,7 +102,7 @@ const Collections = () => {
         amount: collection?.amount,
         cancelNote: collection?.cancelNote ?? "",
         locationName: getItem(collection?.location, locations)?.name,
-        status: collection?.status,
+        collectionStatus: collection?.status,
         collapsible: {
           collapsibleHeader: t("Orders"),
           collapsibleColumns: [
@@ -174,10 +174,10 @@ const Collections = () => {
     { key: "cancelledAt" },
     { key: "cancelNote" },
     {
-      key: "status",
+      key: "collectionStatus",
       node: (row: any) => {
         const status = collectionStatus.find(
-          (status) => status.value === row.status
+          (status) => status.value === row.collectionStatus
         );
         if (!status) {
           return null;
@@ -233,7 +233,7 @@ const Collections = () => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "status",
+      formKey: "collectionStatus",
       label: t("Status"),
       options: [
         { value: OrderCollectionStatus.PAID, label: t("Paid") },
@@ -361,7 +361,10 @@ const Collections = () => {
         passesFilter(filterPanelFormElements.location, row.location) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
         passesFilter(filterPanelFormElements.cancelledBy, row.cancelledById) &&
-        passesFilter(filterPanelFormElements.status, row.status) &&
+        passesFilter(
+          filterPanelFormElements.collectionStatus,
+          row.collectionStatus
+        ) &&
         passesFilter(filterPanelFormElements.paymentMethod, row.paymentMethodId)
       );
     });
@@ -379,7 +382,7 @@ const Collections = () => {
       cancelledBy: "",
       cancelledById: "",
       cancelNote: "",
-      status: "",
+      collectionStatus: "",
       cancelledAt: "",
       className: "font-semibold",
       isSortable: false,
