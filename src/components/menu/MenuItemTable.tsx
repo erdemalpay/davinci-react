@@ -42,11 +42,11 @@ import {
 } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   singleItemGroup: ItemGroup;
@@ -76,11 +76,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
   const ikasCategories = useGetIkasCategories();
   const isDisabledCondition = user
-    ? ![
-        RoleEnum.MANAGER,
-        RoleEnum.CATERINGMANAGER,
-        RoleEnum.GAMEMANAGER,
-      ].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
     : true;
   const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
