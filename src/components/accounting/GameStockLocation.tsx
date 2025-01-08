@@ -276,6 +276,7 @@ const GameStockLocation = () => {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
   };
 
   return (
