@@ -166,11 +166,26 @@ const IkasOrders = () => {
     },
     { key: "paymentMethod", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
-    { key: "quantity" },
+    {
+      key: "quantity",
+      node: (row: any) => {
+        return (
+          <p
+            className={`min-w-32 pr-2 ${row.className}`}
+            key={row._id + "quantity"}
+          >
+            {row.quantity}
+          </p>
+        );
+      },
+    },
     {
       key: "amount",
       node: (row: any) => (
-        <p className="min-w-32 pr-2" key={row._id + "amount"}>
+        <p
+          className={`min-w-32 pr-2 ${row.className}`}
+          key={row._id + "amount"}
+        >
           {row.amount} ₺
         </p>
       ),
@@ -400,6 +415,19 @@ const IkasOrders = () => {
         passesFilter(filterPanelFormElements.status, row.status)
       );
     });
+    const totalRow = {
+      _id: "total",
+      className: "font-semibold",
+      isSortable: false,
+      quantity: filteredRows?.reduce((acc, row: any) => acc + row.quantity, 0),
+      amount: filteredRows?.reduce((acc, row: any) => acc + row.amount, 0),
+      discountAmount: filteredRows?.reduce(
+        (acc, row: any) => acc + row.discountAmount,
+        0
+      ),
+      formattedDate: "Total",
+    };
+    filteredRows?.push(totalRow as any);
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [
