@@ -7,6 +7,7 @@ import {
 import { BsTrash2Fill } from "react-icons/bs";
 import { FaGamepad } from "react-icons/fa";
 import GameStock from "../components/accounting/GameStock";
+import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
@@ -31,6 +32,13 @@ export const StockPageTabs = [
     label: "Game Stocks",
     icon: <FaGamepad className="text-lg font-thin" />,
     content: <GameStock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.GAMESTOCKBYLOCATION,
+    label: "Game Stocks by Location",
+    icon: <FaGamepad className="text-lg font-thin" />,
+    content: <GameStockLocation />,
     isDisabled: false,
   },
   {
