@@ -42,11 +42,11 @@ import {
 } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   singleItemGroup: ItemGroup;
@@ -606,6 +606,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           updateItem({
             id: rowToAction?._id,
             updates: {
+              ...rowToAction,
               itemProduction: [...(rowToAction?.itemProduction || []), form],
             },
           });
