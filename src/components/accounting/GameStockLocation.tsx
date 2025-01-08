@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TbTransferIn } from "react-icons/tb";
+import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
+  useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -30,6 +33,10 @@ const GameStockLocation = () => {
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
+    useState(false);
+  const { mutate: stockTransfer } = useStockTransferMutation();
   const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -73,6 +80,11 @@ const GameStockLocation = () => {
     return Object.values(groupedProducts);
   });
   const { createAccountStock } = useAccountStockMutations();
+  const [stockTransferForm, setStockTransferForm] = useState({
+    currentStockLocation: "",
+    transferredStockLocation: "",
+    quantity: 0,
+  });
   const filterPanelInputs = [
     ProductInput({
       products: products?.filter((product) =>
@@ -152,6 +164,7 @@ const GameStockLocation = () => {
       required: false,
     },
   ];
+
   const inputs = [
     ProductInput({
       products: products?.filter((product) =>
@@ -165,6 +178,46 @@ const GameStockLocation = () => {
   const formKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const stockTransferInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "currentStockLocation",
+      label: t("From"),
+      options: locations
+        ?.filter(
+          (location) =>
+            location._id !== Number(stockTransferForm?.transferredStockLocation)
+        )
+        .map((location) => ({
+          value: location._id,
+          label: location.name,
+        })),
+      placeholder: t("From"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "transferredStockLocation",
+      label: t("Where"),
+      options: locations
+        ?.filter(
+          (location) =>
+            location._id !== Number(stockTransferForm?.currentStockLocation)
+        )
+        .map((location) => ({
+          value: location._id,
+          label: location.name,
+        })),
+      placeholder: t("Where"),
+      required: true,
+    },
+    QuantityInput(),
+  ];
+  const stockTransferFormKeys = [
+    { key: "currentStockLocation", type: FormKeyTypeEnum.STRING },
+    { key: "transferredStockLocation", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const columns = [
@@ -182,6 +235,7 @@ const GameStockLocation = () => {
       key: `location_${location._id}`,
     });
   });
+  columns.push({ key: t("Action"), isSortable: false } as any);
   const addButton = {
     name: t("Add Stock"),
     isModal: true,
@@ -208,6 +262,47 @@ const GameStockLocation = () => {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+  ];
+  const actions = [
+    {
+      name: t("Transfer"),
+      icon: <TbTransferIn />,
+      className: "text-green-500 cursor-pointer text-xl ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isStockTransferModalOpen}
+          close={() => setIsStockTransferModalOpen(false)}
+          inputs={stockTransferInputs}
+          setForm={setStockTransferForm}
+          submitFunction={() => {
+            if (
+              stockTransferForm.currentStockLocation === "" ||
+              stockTransferForm.transferredStockLocation === "" ||
+              stockTransferForm.quantity === 0
+            ) {
+              toast.error(t("Please fill all the fields"));
+              return;
+            }
+            stockTransfer({
+              currentStockLocation: stockTransferForm.currentStockLocation,
+              transferredStockLocation:
+                stockTransferForm.transferredStockLocation,
+              product: rowToAction?.product,
+              quantity: stockTransferForm.quantity,
+            });
+          }}
+          formKeys={stockTransferFormKeys}
+          submitItem={stockTransfer as any}
+          topClassName="flex flex-col gap-2 "
+        />
+      ) : null,
+      isModalOpen: isStockTransferModalOpen,
+      setIsModal: setIsStockTransferModalOpen,
+      isPath: false,
+      isDisabled: false,
     },
   ];
 
@@ -292,7 +387,8 @@ const GameStockLocation = () => {
           filterPanel={filterPanel}
           isSearch={false}
           filters={filters}
-          isActionsActive={false}
+          actions={actions}
+          isActionsActive={true}
           isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
           excelFileName={t("GamesByLocation.xlsx")}
         />
