@@ -84,10 +84,16 @@ type GeneralContextType = {
   resetGeneralContext: () => void;
   isShownInMenu: boolean;
   setIsShownInMenu: (isShown: boolean) => void;
+  isMenuShowIkasCategories: boolean;
+  setIsMenuShowIkasCategories: (isShown: boolean) => void;
+  isMenuLocationEdit: boolean;
+  setIsMenuLocationEdit: (isShown: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isMenuShowIkasCategories: false,
+  setIsMenuShowIkasCategories: () => {},
   errorDataForCreateMultipleExpense: [],
   setErrorDataForCreateMultipleExpense: () => {},
   selectedMenuItem: null,
@@ -182,11 +188,14 @@ const GeneralContext = createContext<GeneralContextType>({
   resetGeneralContext: () => {},
   isShownInMenu: false,
   setIsShownInMenu: () => {},
+  isMenuLocationEdit: false,
+  setIsMenuLocationEdit: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const { user } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
   const [
@@ -197,6 +206,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
     null
   );
+  const [isMenuShowIkasCategories, setIsMenuShowIkasCategories] =
+    useState<boolean>(false);
   const [isSelectionActive, setIsSelectionActive] = useState<boolean>(false);
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
@@ -256,6 +267,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        isMenuLocationEdit,
+        setIsMenuLocationEdit,
+        isMenuShowIkasCategories,
+        setIsMenuShowIkasCategories,
         errorDataForCreateMultipleExpense,
         setErrorDataForCreateMultipleExpense,
         selectedMenuItem,

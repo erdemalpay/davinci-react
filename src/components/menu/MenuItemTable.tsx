@@ -60,8 +60,15 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { selectedRows, setSelectedRows, setIsSelectionActive } =
     useGeneralContext();
   const products = useGetAllAccountProducts();
-  const { setSelectedMenuItem, isShownInMenu, setIsShownInMenu } =
-    useGeneralContext();
+  const {
+    setSelectedMenuItem,
+    isShownInMenu,
+    setIsShownInMenu,
+    isMenuShowIkasCategories,
+    setIsMenuShowIkasCategories,
+    isMenuLocationEdit,
+    setIsMenuLocationEdit,
+  } = useGeneralContext();
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
@@ -72,7 +79,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [showProductCategories, setShowProductCategories] = useState(false);
   const [isProductAddModalOpen, setIsProductAddModalOpen] = useState(false);
   const ikasCategories = useGetIkasCategories();
   const isDisabledCondition = user
@@ -81,7 +87,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isLocationEdit, setIsLocationEdit] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
     price: 0,
@@ -415,7 +420,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
-    ...(showProductCategories
+    ...(isMenuShowIkasCategories
       ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
     { key: "Ikas ID", isSortable: false },
@@ -481,7 +486,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           },
         ]
       : []),
-    ...(showProductCategories
+    ...(isMenuShowIkasCategories
       ? [
           {
             key: "productCategories",
@@ -538,7 +543,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         key: location.name,
         node: (row: any) => {
           const isExist = row?.locations?.includes(location._id);
-          if (isLocationEdit) {
+          if (isMenuLocationEdit) {
             return (
               <CheckSwitch
                 checked={isExist}
@@ -764,7 +769,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       label: t("Location Edit"),
       isUpperSide: false,
       node: (
-        <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
+        <SwitchButton
+          checked={isMenuLocationEdit}
+          onChange={() => {
+            setIsMenuLocationEdit(!isMenuLocationEdit);
+          }}
+        />
       ),
     },
     {
@@ -784,8 +794,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isUpperSide: false,
       node: (
         <SwitchButton
-          checked={showProductCategories}
-          onChange={setShowProductCategories}
+          checked={isMenuShowIkasCategories}
+          onChange={() => {
+            setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
+          }}
         />
       ),
     },
