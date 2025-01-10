@@ -473,6 +473,7 @@ const OrderPaymentModal = ({
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
       };
     }
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
@@ -491,6 +492,7 @@ const OrderPaymentModal = ({
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
+        tableDate: new Date(table.date),
       };
     }
     return null;

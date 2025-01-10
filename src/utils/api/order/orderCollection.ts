@@ -48,11 +48,15 @@ export function useGetAllOrderCollections() {
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
   }
-  return useGetList<OrderCollection>(url, [
-    `${Paths.Order}/collection/query`,
-    filterPanelFormElements.after,
-    filterPanelFormElements.before,
-  ]);
+  return useGetList<OrderCollection>(
+    url,
+    [
+      `${Paths.Order}/collection/query`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ],
+    true
+  );
 }
 export function useGetSummaryCollectionTotal() {
   const { filterSummaryFormElements } = useOrderContext();

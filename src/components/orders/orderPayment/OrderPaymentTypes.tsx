@@ -203,6 +203,7 @@ const OrderPaymentTypes = ({
                       })),
                 ...(newOrders && { newOrders: newOrders }),
                 createdBy: user._id,
+                tableDate: table ? new Date(table.date) : new Date(),
               };
               createOrderCollection(createdCollection);
               const totalMoney =

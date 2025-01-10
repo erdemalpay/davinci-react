@@ -326,6 +326,7 @@ const LossProduct = () => {
               kitchen: selectedMenuItemCategory?.kitchen,
               stockLocation: selectedLocationId,
               stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
+              tableDate: new Date(),
             });
           }
           setOrderForm(initialOrderForm);

@@ -442,6 +442,7 @@ export type Order = {
   stockNote?: string;
   ikasId?: string;
   paymentMethod?: string;
+  tableDate?: Date;
 };
 
 export type OrderCollection = {
@@ -459,6 +460,7 @@ export type OrderCollection = {
   newOrders?: Order[];
   table?: Table | number;
   ikasId?: string;
+  tableDate?: Date;
 };
 
 export type OrderCollectionItem = {

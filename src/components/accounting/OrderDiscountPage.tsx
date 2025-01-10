@@ -55,7 +55,7 @@ const OrderDiscountPage = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const { createOrderDiscount, deleteOrderDiscount, updateOrderDiscount } =
+  const { createOrderDiscount, updateOrderDiscount } =
     useOrderDiscountMutations();
 
   const columns = [

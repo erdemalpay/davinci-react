@@ -24,6 +24,7 @@ import {
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
+import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
@@ -33,7 +34,6 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-
 const OrdersReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -96,8 +96,8 @@ const OrdersReport = () => {
       return {
         _id: order?._id,
         isReturned: order?.isReturned,
-        date: format(order.createdAt, "yyyy-MM-dd"),
-        formattedDate: format(order.createdAt, "dd-MM-yyyy"),
+        date: formatDateInTurkey(order.createdAt),
+        formattedDate: convertDateFormat(format(order.createdAt, "yyyy-MM-dd")),
         createdBy: getItem(order?.createdBy, users)?.name ?? "",
         createdByUserId: order?.createdBy ?? "",
         createdAt: format(order.createdAt, "HH:mm") ?? "",
@@ -210,11 +210,7 @@ const OrdersReport = () => {
     {
       key: "date",
       node: (row: any) => {
-        return (
-          <p className={`${row?.className} min-w-32 pr-2`}>
-            {row.formattedDate}
-          </p>
-        );
+        return <p className={`${row?.className} min-w-32 pr-2`}>{row.date}</p>;
       },
     },
     {

@@ -354,11 +354,15 @@ export function useGetOrders() {
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
   }
-  return useGetList<Order>(url, [
-    `${Paths.Order}/query`,
-    filterPanelFormElements.after,
-    filterPanelFormElements.before,
-  ]);
+  return useGetList<Order>(
+    url,
+    [
+      `${Paths.Order}/query`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ],
+    true
+  );
 }
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {

@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 export function formatAsLocalDate(dateString: string) {
   const date = new Date(dateString);
@@ -10,6 +11,12 @@ export function formatAsLocalDate(dateString: string) {
 export function convertDateFormat(dateStr: string) {
   const parts = dateStr.split("-"); // Split the date by '-'
   return `${parts[2]}-${parts[1]}-${parts[0]}`; // Reformat to 'YYYY-MM-DD'
+}
+
+export function formatDateInTurkey(dateStr: Date) {
+  const timeZone = "Europe/Istanbul";
+  const zonedDate = toZonedTime(dateStr, timeZone);
+  return format(zonedDate, "yyyy-MM-dd");
 }
 
 export function getFirstDayOfCurrentMonth() {
