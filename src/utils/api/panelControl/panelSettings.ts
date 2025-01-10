@@ -14,6 +14,28 @@ export function createPanelSettings(
   });
 }
 
+export function resetRedis() {
+  return post({
+    path: `${Paths.Redis}/clear-cache`,
+    payload: {},
+  });
+}
+export function useResetRedisMutation() {
+  const queryKey = [`${Paths.Redis}/clear-cache`];
+  const queryClient = useQueryClient();
+  return useMutation(resetRedis, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
 export function useCreateMultiplePageMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();

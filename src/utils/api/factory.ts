@@ -37,6 +37,7 @@ export const Paths = {
   Order: "/order",
   Checklist: "/checklist",
   Ikas: "/ikas",
+  Redis: "/redis",
 };
 
 interface Props<T> {
