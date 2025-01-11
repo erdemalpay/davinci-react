@@ -14,7 +14,7 @@ export interface BreadCrumbItem {
 
 export interface ActionType<T> {
   name: string;
-  isModal: boolean;
+  isModal?: boolean;
   className?: string;
   icon?: React.ReactNode;
   isButton?: boolean;
@@ -26,7 +26,7 @@ export interface ActionType<T> {
   isModalOpen?: boolean;
   setIsModal?: (value: boolean) => void;
   setRow?: (value: T) => void;
-  isPath: boolean;
+  isPath?: boolean;
   path?: string;
 }
 

@@ -27,6 +27,7 @@ import { useGetIkasCategories } from "../../utils/api/account/productCategories"
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
+  useCreateMultipleIkasProductMutation,
   useGetMenuItems,
   useMenuItemMutations,
   useUpdateBulkItemsMutation,
@@ -86,6 +87,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     : true;
   const { mutate: updateItemsOrder } = useUpdateItemsOrderMutation();
   const { createPopular, deletePopular } = usePopularMutations();
+  const { mutate: createMultipleIkasProduct } =
+    useCreateMultipleIkasProductMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const initialBulkInputForm = {
     productCategories: [],
@@ -868,8 +871,21 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       setIsModal: setIsBulkEditModalOpen,
       isPath: false,
     },
+    {
+      name: t("Create Ikas Product"),
+      isButton: true,
+      buttonClassName:
+        "px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer",
+      onClick: () => {
+        createMultipleIkasProduct({
+          itemIds: selectedRows?.map((row) => row._id),
+        } as any);
+        setSelectedRows([]);
+        setIsSelectionActive(false);
+        setIsEditSelectionCompeted(false);
+      },
+    },
   ];
-
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);

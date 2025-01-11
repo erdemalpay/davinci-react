@@ -48,13 +48,6 @@ const OrderPaymentTypes = ({
   const items = useGetMenuItems();
   const { setIsCollectionModalOpen } = useOrderContext();
   const [componentKey, setComponentKey] = useState(0);
-  // this are for collection cancel note if it is activated this will be used
-  // const [selectedCollection, setSelectedCollection] =
-  //   useState<OrderCollection>();
-  // const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  // const [inputForm, setInputForm] = useState({
-  //   note: "",
-  // });
   const [expandedCollections, setExpandedCollections] = useState<number[]>([]);
   if (
     !selectedLocationId ||
@@ -65,18 +58,15 @@ const OrderPaymentTypes = ({
   ) {
     return null;
   }
-
   function getPaymentMethodName(paymentType: string) {
     return paymentMethods.find((method) => method._id === paymentType);
   }
-
   const tableNotCancelledCollections = givenDateCollections.filter(
     (collection) =>
       ((collection.table as Table)?._id === table?._id ||
         collection.table === table?._id) &&
       collection.status !== OrderCollectionStatus.CANCELLED
   );
-
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
   const paymentTypeImage = (paymentType: string) => {

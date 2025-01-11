@@ -31,6 +31,29 @@ export function updateBulkItems(payload: UpdateBulkItemsPayload) {
   });
 }
 
+export function createMultipleIkasProduct(itemIds: number[]) {
+  return post({
+    path: `${Paths.MenuItems}/create-ikas-products`,
+    payload: itemIds,
+  });
+}
+
+export function useCreateMultipleIkasProductMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation(createMultipleIkasProduct, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries(queryKey);
+    },
+  });
+}
+
 export function updateItems(items: MenuItem[]) {
   return patch({
     path: `${Paths.MenuItems}/update_bulk`,
