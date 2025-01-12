@@ -6,6 +6,7 @@ import {
 // import CountArchive from "../components/accounting/CountArchive";
 import { BsTrash2Fill } from "react-icons/bs";
 import { FaGamepad } from "react-icons/fa";
+import { MdOutlineCompare } from "react-icons/md";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -13,6 +14,7 @@ import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import EnterConsumption from "../components/stocks/EnterConsumption";
+import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -39,6 +41,13 @@ export const StockPageTabs = [
     label: "Game Stocks by Location",
     icon: <FaGamepad className="text-lg font-thin" />,
     content: <GameStockLocation />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.IKASSTOCKCOMPARISION,
+    label: "Ikas Stock Comparision",
+    icon: <MdOutlineCompare className="text-lg font-thin" />,
+    content: <IkasStockComparision />,
     isDisabled: false,
   },
   {

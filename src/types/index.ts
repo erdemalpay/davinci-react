@@ -538,6 +538,66 @@ export enum RowPerPageEnum {
   ALL = 10000000000,
 }
 
+export type IkasProduct = {
+  id: string;
+  name: string;
+  description: null;
+  shortDescription: null;
+  weight: null;
+  baseUnit: null;
+  brandId: string;
+  categoryIds: string[];
+  googleTaxonomyId: null;
+  salesChannelIds: string[];
+  tagIds: string[];
+  translations: any[];
+  metaData: {
+    id: string;
+    canonicals: null;
+    description: null;
+    disableIndex: null;
+    metadataOverrides: any[];
+    pageTitle: null;
+    slug: string;
+    targetType: string;
+    translations: any[];
+  };
+  productOptionSetId: null;
+  productVariantTypes: any[];
+  type: string;
+  totalStock: null;
+  variants: {
+    id: string;
+    attributes: null;
+    stocks: {
+      id: string;
+      productId: string;
+      stockCount: number;
+      stockLocationId: string;
+    }[];
+    barcodeList: string[];
+    fileId: null;
+    hsCode: null;
+    images: {
+      fileName: null;
+      imageId: string;
+      isMain: boolean;
+      isVideo: boolean;
+      order: number;
+    }[];
+    isActive: boolean;
+    prices: {
+      currency: string | null;
+      sellPrice: number;
+      discountPrice: null;
+      buyPrice: null;
+    }[];
+    sku: null;
+    unit: null;
+    weight: null;
+  }[];
+};
+
 export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
@@ -612,6 +672,7 @@ export enum StocksPageTabEnum {
   STOCK,
   GAMESTOCK,
   GAMESTOCKBYLOCATION,
+  IKASSTOCKCOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
