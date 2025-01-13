@@ -136,6 +136,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Accounting}/product-stock-histories`],
   },
   {
+    event: "ikasProductStockChanged",
+    invalidateKeys: [`${Paths.Ikas}/product`],
+  },
+  {
     event: "serviceChanged",
     invalidateKeys: [`${Paths.Accounting}/services`],
   },

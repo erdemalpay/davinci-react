@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { RiFileTransferFill } from "react-icons/ri";
+import { TbTransferOut } from "react-icons/tb";
 import { useGetAccountProducts } from "../../utils/api/account/product";
-import { useGetAccountStocks } from "../../utils/api/account/stock";
-import { useGetIkasProducts } from "../../utils/api/ikas";
+import {
+  useAccountStockMutations,
+  useGetAccountStocks,
+} from "../../utils/api/account/stock";
+import {
+  useGetIkasProducts,
+  useUpdateIkasProductStockMutation,
+} from "../../utils/api/ikas";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -12,6 +20,9 @@ const IkasStockComparision = () => {
   const items = useGetMenuItems();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
+  const { mutate: updateIkasProductStock } =
+    useUpdateIkasProductStockMutation();
+  const { updateAccountStock } = useAccountStockMutations();
   const ikasItemsProductsIds = items
     ?.filter((item) => item.ikasId)
     ?.map((item) => item.matchedProduct);
@@ -19,6 +30,9 @@ const IkasStockComparision = () => {
     ikasItemsProductsIds.includes(product._id)
   );
   const allRows = ikasItemProducts?.map((ikasItemProduct) => {
+    const foundStock = stocks.find(
+      (stock) => stock.product === ikasItemProduct._id && stock.location === 6
+    );
     return {
       ...ikasItemProduct,
       ikasStock: ikasProducts?.find(
@@ -27,9 +41,9 @@ const IkasStockComparision = () => {
           items.find((item) => item?.matchedProduct === ikasItemProduct._id)
             ?.ikasId
       )?.variants[0]?.stocks[0]?.stockCount,
-      storeStock: stocks.find(
-        (stock) => stock.product === ikasItemProduct._id && stock.location === 6
-      )?.quantity,
+      storeStock: foundStock?.quantity,
+      storeStockId: foundStock?._id,
+      foundStock: foundStock,
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -38,11 +52,45 @@ const IkasStockComparision = () => {
     { key: t("Product"), isSortable: true },
     { key: t("Ikas Stock"), isSortable: true },
     { key: t("Store Stock"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "name" },
     { key: "ikasStock" },
     { key: "storeStock" },
+  ];
+  const actions = [
+    {
+      name: t("Update Store Stock"),
+      icon: <RiFileTransferFill />,
+      className: " cursor-pointer text-2xl",
+      onClick: (row: any) => {
+        if (row.ikasStock === row.storeStock) return;
+        updateAccountStock({
+          id: row?.storeStockId,
+          updates: {
+            ...row?.foundStock,
+            quantity: row?.ikasStock,
+          },
+        });
+      },
+    },
+    {
+      name: t("Update Ikas Stock"),
+      icon: <TbTransferOut />,
+      className: " cursor-pointer text-2xl",
+      onClick: (row: any) => {
+        const foundItemIkasId = items.find(
+          (item) => item.matchedProduct === row._id
+        )?.ikasId;
+        if (row.ikasStock === row.storeStock || !foundItemIkasId) return;
+        updateIkasProductStock({
+          productId: foundItemIkasId,
+          stockLocationId: 6,
+          stockCount: row.storeStock,
+        });
+      },
+    },
   ];
   useEffect(() => {
     setRows(allRows);
@@ -57,7 +105,8 @@ const IkasStockComparision = () => {
           columns={columns}
           rows={rows}
           title={t("Ikas Stock Comparision")}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           rowClassNameFunction={(row: any) => {
             if (row?.ikasStock > row?.storeStock) {
               return "bg-red-200";

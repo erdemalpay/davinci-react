@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
-import { useGeneralContext } from "../../context/General.context";
 import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -67,7 +65,6 @@ const Stock = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showPrices, setShowPrices] = useState(false);
-  const [temporarySearch, setTemporarySearch] = useState("");
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -83,7 +80,6 @@ const Stock = () => {
       return acc + expense;
     }, 0);
   });
-  const { setCurrentPage, setSearchQuery, searchQuery } = useGeneralContext();
   const { filterPanelFormElements, setFilterPanelFormElements } =
     useStockContext();
   const [form, setForm] = useState({
@@ -404,36 +400,7 @@ const Stock = () => {
       ),
     },
   ];
-  const outsideSearch = () => {
-    return (
-      <div className="flex flex-row relative min-w-32">
-        <input
-          type="text"
-          value={temporarySearch}
-          onChange={(e) => {
-            setTemporarySearch(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery(e.target.value);
-            }
-          }}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearchQuery(temporarySearch);
-            }
-          }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none"
-        />
-        <CiSearch
-          className="w-9 h-full p-2 bg-blue-gray-100 text-black cursor-pointer my-auto rounded-md absolute right-0 top-1/2 transform -translate-y-1/2"
-          onClick={() => {
-            setSearchQuery(temporarySearch);
-          }}
-        />
-      </div>
-    );
-  };
+
   const filterPanelInputs = [
     {
       type: InputTypes.SELECT,
@@ -588,41 +555,21 @@ const Stock = () => {
 
         return acc;
       }, {});
-    const filteredRows = Object.values(processedRows)?.filter((row: any) =>
-      rowKeys.some((rowKey) => {
-        const value = row[rowKey.key as keyof typeof row];
-        const query = searchQuery.trimStart()?.toLocaleLowerCase("tr-TR");
-        if (typeof value === "string") {
-          return value.toLocaleLowerCase("tr-TR")?.includes(query);
-        } else if (typeof value === "number") {
-          return value.toString()?.includes(query);
-        } else if (typeof value === "boolean") {
-          return (value ? "true" : "false")?.includes(query);
-        }
-        return false;
-      })
-    );
-    const newGeneralTotalExpense = filteredRows.reduce(
+
+    const newGeneralTotalExpense = Object.values(processedRows)?.reduce(
       (acc: any, stock: any) => {
         const expense = parseFloat(stock?.totalGroupPrice.toFixed(1));
         return acc + expense;
       },
       0
     );
-    setRows(filteredRows);
+    setRows(Object.values(processedRows));
     setGeneralTotalExpense(newGeneralTotalExpense as number);
-    if (
-      searchQuery !== "" ||
-      Object.values(filterPanelFormElements)?.some((value) => value !== "")
-    ) {
-      setCurrentPage(1);
-    }
 
     setTableKey((prev) => prev + 1);
   }, [
     stocks,
     filterPanelFormElements,
-    searchQuery,
     products,
     locations,
     user,
@@ -645,8 +592,6 @@ const Stock = () => {
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isSearch={false}
-          outsideSearch={outsideSearch}
           isActionsActive={false}
           isCollapsible={true}
           isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
