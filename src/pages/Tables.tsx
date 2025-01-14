@@ -215,16 +215,16 @@ const Tables = () => {
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
-
         return {
           value: input._id,
           label:
-            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
+            input.name +
+            (menuItem?.itemProduction && menuItem.itemProduction.length > 0
+              ? ` (${t("Stock")}: ${stockQuantity})`
+              : ""),
         };
       }),
-
       placeholder: t("Stock Location"),
-      isDisabled: false,
       required: true,
     },
     {
