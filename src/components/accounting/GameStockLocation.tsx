@@ -385,7 +385,6 @@ const GameStockLocation = () => {
           title={t("Game Stocks by Location")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isSearch={false}
           filters={filters}
           actions={actions}
           isActionsActive={true}
