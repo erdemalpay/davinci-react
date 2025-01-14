@@ -393,7 +393,6 @@ const IkasOrders = () => {
       isPath: false,
     },
   ];
-
   useEffect(() => {
     const filteredRows = allRows.filter((row: any) => {
       return (
