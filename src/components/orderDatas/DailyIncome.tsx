@@ -31,11 +31,12 @@ const DailyIncome = () => {
   if (!collections || !locations || !paymentMethods) {
     return null;
   }
-  const [showFilters, setShowFilters] = useState(false);
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   const allRows = collections
     ?.filter(
@@ -186,11 +187,11 @@ const DailyIncome = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -211,7 +212,14 @@ const DailyIncome = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {

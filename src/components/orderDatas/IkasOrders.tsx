@@ -43,7 +43,6 @@ const IkasOrders = () => {
   const queryClient = useQueryClient();
   const users = useGetUsers();
   const categories = useGetCategories();
-  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
@@ -56,13 +55,13 @@ const IkasOrders = () => {
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
-  const [editForm, setEditForm] = useState({
-    status: "",
-  });
+
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   if (!orders || !locations || !users || !discounts) {
     return null;
@@ -79,7 +78,7 @@ const IkasOrders = () => {
         return null;
       }
       return {
-        _id: order?._id,
+        ...order,
         isReturned: order?.isReturned,
         date: format(order.createdAt, "yyyy-MM-dd"),
         formattedDate: format(order.createdAt, "dd-MM-yyyy"),
@@ -150,8 +149,18 @@ const IkasOrders = () => {
       placeholder: t("Status"),
       required: true,
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "paidQuantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      required: true,
+    },
   ];
-  const editFormKeys = [{ key: "status", type: FormKeyTypeEnum.STRING }];
+  const editFormKeys = [
+    { key: "status", type: FormKeyTypeEnum.STRING },
+    { key: "paidQuantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
     {
@@ -174,6 +183,11 @@ const IkasOrders = () => {
     },
     { key: t("Location"), isSortable: true, correspondingKey: "location" },
     { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
+    {
+      key: t("Paid Quantity"),
+      isSortable: true,
+      correspondingKey: "paidQuantity",
+    },
 
     { key: t("Actions"), isSortable: false },
   ];
@@ -217,6 +231,7 @@ const IkasOrders = () => {
     { key: "cancelledAt" },
     { key: "cancelledBy" },
     { key: "location" },
+    { key: "paidQuantity", className: "min-w-32 pr-2" },
     { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
   const filterPanelInputs = [
@@ -363,11 +378,11 @@ const IkasOrders = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -388,7 +403,14 @@ const IkasOrders = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   const actions = [
@@ -429,21 +451,24 @@ const IkasOrders = () => {
           inputs={editInputs}
           formKeys={editFormKeys}
           submitItem={updateOrder as any}
-          constantValues={{ status: rowToAction.status }}
-          setForm={setEditForm}
-          submitFunction={() => {
-            updateOrder({
-              id: rowToAction._id,
-              updates: {
-                ...editForm,
-              },
-            });
+          constantValues={{
+            status: rowToAction.status,
+            paidQuantity: rowToAction.paidQuantity,
+          }}
+          isEditMode={true}
+          itemToEdit={{
+            id: rowToAction?._id,
+            updates: {
+              // amount: rowToAction?.amount,
+              paidQuantity: rowToAction?.paidQuantity,
+              status: rowToAction?.status,
+            },
           }}
         />
       ) : null,
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-      isDisabled: true, //will be opened for the neccessary cases
+      isDisabled: false, //will be opened for the neccessary cases
     },
   ];
   useEffect(() => {

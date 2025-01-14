@@ -10,10 +10,10 @@ import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 interface PersonalOrderData {
   user: string;
@@ -68,11 +68,12 @@ const PersonalOrderDatas = () => {
   const roles = useGetAllUserRoles();
   const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
     return null;
@@ -189,11 +190,11 @@ const PersonalOrderDatas = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -214,7 +215,14 @@ const PersonalOrderDatas = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {

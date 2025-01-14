@@ -44,12 +44,13 @@ const Collections = () => {
   const [tableKey, setTableKey] = useState(0);
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const { updateCollection } = useCollectionMutation();
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   if (!collections || !orders || !locations || !users || !paymentMethods) {
     return null;
@@ -303,14 +304,14 @@ const Collections = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
   };
   const filters = [
     {
@@ -328,7 +329,14 @@ const Collections = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   const actions = [

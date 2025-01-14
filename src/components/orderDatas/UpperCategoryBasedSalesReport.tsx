@@ -42,7 +42,6 @@ const UpperCategoryBasedSalesReport = () => {
   const categories = useGetCategories();
   const items = useGetMenuItems();
   const locations = useGetAllLocations();
-  const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
   if (!orders || !categories || !locations || !upperCategories) {
     return null;
@@ -51,6 +50,8 @@ const UpperCategoryBasedSalesReport = () => {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allCategoryRows = orders
@@ -388,11 +389,11 @@ const UpperCategoryBasedSalesReport = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -413,7 +414,14 @@ const UpperCategoryBasedSalesReport = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {

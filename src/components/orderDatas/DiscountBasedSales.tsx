@@ -65,7 +65,6 @@ const DiscountBasedSales = () => {
   const [selectedTableId, setSelectedTableId] = useState<number>(0);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const tables = useGetTables();
-  const [showFilters, setShowFilters] = useState(false);
   if (!orders || !locations || !discounts || !items || !tables) {
     return null;
   }
@@ -73,6 +72,8 @@ const DiscountBasedSales = () => {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
@@ -459,11 +460,11 @@ const DiscountBasedSales = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -484,7 +485,14 @@ const DiscountBasedSales = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {

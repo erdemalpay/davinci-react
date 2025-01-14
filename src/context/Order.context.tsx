@@ -6,6 +6,8 @@ type FormElementsState = {
 };
 
 type OrderContextType = {
+  showOrderDataFilters: boolean;
+  setShowOrderDataFilters: (showOrderDataFilters: boolean) => void;
   isCollectionModalOpen: boolean;
   setIsCollectionModalOpen: (isCollectionModalOpen: boolean) => void;
   isTransferProductOpen: boolean;
@@ -74,6 +76,8 @@ type OrderContextType = {
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  showOrderDataFilters: false,
+  setShowOrderDataFilters: () => {},
   isCollectionModalOpen: false,
   setIsCollectionModalOpen: () => {},
   takeawayTableId: 0,
@@ -163,6 +167,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [temporaryOrders, setTemporaryOrders] = useState<
     { order: Order; quantity: number }[]
   >([]);
+  const [showOrderDataFilters, setShowOrderDataFilters] = useState(false);
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [takeawayTableId, setTakeawayTableId] = useState<number>(0);
@@ -237,6 +242,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <OrderContext.Provider
       value={{
+        showOrderDataFilters,
+        setShowOrderDataFilters,
         isCollectionModalOpen,
         setIsCollectionModalOpen,
         takeawayTableId,

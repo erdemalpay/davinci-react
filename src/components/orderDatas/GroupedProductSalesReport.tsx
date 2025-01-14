@@ -58,7 +58,6 @@ const GroupedProductSalesReport = () => {
   const users = useGetUsers();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
-  const [showFilters, setShowFilters] = useState(false);
   if (!orders || !categories || !locations) {
     return null;
   }
@@ -66,6 +65,8 @@ const GroupedProductSalesReport = () => {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
+    showOrderDataFilters,
+    setShowOrderDataFilters,
   } = useOrderContext();
   const [tableKey, setTableKey] = useState(0);
   const allRows = orders
@@ -447,11 +448,11 @@ const GroupedProductSalesReport = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -472,7 +473,14 @@ const GroupedProductSalesReport = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showOrderDataFilters}
+          onChange={() => {
+            setShowOrderDataFilters(!showOrderDataFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {
