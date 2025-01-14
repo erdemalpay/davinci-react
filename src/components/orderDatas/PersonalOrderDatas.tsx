@@ -7,6 +7,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -66,6 +67,7 @@ const PersonalOrderDatas = () => {
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
   const roles = useGetAllUserRoles();
+  const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   const [tableKey, setTableKey] = useState(0);
   const {
@@ -138,6 +140,20 @@ const PersonalOrderDatas = () => {
       }),
       isMultiple: true,
       placeholder: t("Role"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "eliminatedDiscounts",
+      label: t("Eliminated Discounts"),
+      options: discounts?.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Eliminated Discounts"),
       required: true,
     },
     {
@@ -241,6 +257,7 @@ const PersonalOrderDatas = () => {
     gameplayDatas,
     roles,
     filterPanelFormElements,
+    discounts,
   ]);
 
   return (

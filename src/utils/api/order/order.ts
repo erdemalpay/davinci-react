@@ -266,11 +266,12 @@ export function useGetTableOrders(tableId: number) {
 export function useGetPersonalOrderDatas() {
   const { filterPanelFormElements } = useOrderContext();
   return useGetList<PersonalOrderDataType>(
-    `${baseUrl}/personal?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    `${baseUrl}/personal?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}&eliminatedDiscounts=${filterPanelFormElements.eliminatedDiscounts}`,
     [
       `${Paths.Order}/personal`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.eliminatedDiscounts,
     ]
   );
 }
