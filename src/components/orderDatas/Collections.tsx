@@ -82,9 +82,8 @@ const Collections = () => {
       const zonedTime = toZonedTime(collection.createdAt, "UTC");
       const collectionDate = new Date(zonedTime);
       return {
-        _id: collection?._id,
+        ...collection,
         cashier: getItem(collection?.createdBy, users)?.name,
-        orders: collection?.orders,
         cancelledBy: getItem(collection?.cancelledBy, users)?.name,
         cancelledById: collection?.cancelledBy,
         date: format(collectionDate, "yyyy-MM-dd"),
@@ -97,12 +96,7 @@ const Collections = () => {
         paymentMethodId: collection?.paymentMethod,
         tableId: (collection?.table as Table)?._id,
         tableName: (collection?.table as Table)?.name,
-        location: collection?.location,
-        createdBy: collection?.createdBy,
-        amount: collection?.amount,
-        cancelNote: collection?.cancelNote ?? "",
         locationName: getItem(collection?.location, locations)?.name,
-        collectionStatus: collection?.status,
         collapsible: {
           collapsibleHeader: t("Orders"),
           collapsibleColumns: [
@@ -131,8 +125,24 @@ const Collections = () => {
       placeholder: t("Amount"),
       required: true,
     },
+    // {
+    //   type: InputTypes.SELECT,
+    //   formKey: "status",
+    //   label: t("Status"),
+    //   options: collectionStatus.map((option) => {
+    //     return {
+    //       value: option.value,
+    //       label: t(option.label),
+    //     };
+    //   }),
+    //   placeholder: t("Status"),
+    //   required: true,
+    // },
   ];
-  const editFormKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
+  const editFormKeys = [
+    { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    // { key: "status", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Table Id"), isSortable: true },
@@ -174,10 +184,10 @@ const Collections = () => {
     { key: "cancelledAt" },
     { key: "cancelNote" },
     {
-      key: "collectionStatus",
+      key: "status",
       node: (row: any) => {
         const status = collectionStatus.find(
-          (status) => status.value === row.collectionStatus
+          (status) => status.value === row.status
         );
         if (!status) {
           return null;
@@ -342,6 +352,7 @@ const Collections = () => {
             id: rowToAction?._id,
             updates: {
               amount: rowToAction?.amount,
+              // status: rowToAction?.status,
             },
           }}
         />
@@ -361,10 +372,7 @@ const Collections = () => {
         passesFilter(filterPanelFormElements.location, row.location) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
         passesFilter(filterPanelFormElements.cancelledBy, row.cancelledById) &&
-        passesFilter(
-          filterPanelFormElements.collectionStatus,
-          row.collectionStatus
-        ) &&
+        passesFilter(filterPanelFormElements.collectionStatus, row.status) &&
         passesFilter(filterPanelFormElements.paymentMethod, row.paymentMethodId)
       );
     });

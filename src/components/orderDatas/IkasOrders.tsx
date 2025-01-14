@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -19,6 +20,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelIkasOrderMutation,
   useGetOrders,
+  useOrderMutations,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
@@ -30,7 +32,8 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const IkasOrders = () => {
@@ -44,13 +47,18 @@ const IkasOrders = () => {
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
+  const { updateOrder } = useOrderMutations();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
+  const [editForm, setEditForm] = useState({
+    status: "",
+  });
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -128,6 +136,22 @@ const IkasOrders = () => {
     })
     ?.filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
+  const editInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: orderFilterStatusOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Status"),
+      required: true,
+    },
+  ];
+  const editFormKeys = [{ key: "status", type: FormKeyTypeEnum.STRING }];
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
     {
@@ -372,6 +396,7 @@ const IkasOrders = () => {
       name: t("Cancel"),
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
+      className: "text-red-500 cursor-pointer text-2xl  ",
       modal: rowToAction ? (
         <ConfirmationDialog
           isOpen={isCancelOrderModalOpen}
@@ -386,11 +411,39 @@ const IkasOrders = () => {
           text={`Order ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
       isModal: true,
       isModalOpen: isCancelOrderModalOpen,
       setIsModal: setIsCancelOrderModalOpen,
-      isPath: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          topClassName="flex flex-col gap-2 "
+          close={() => setIsEditModalOpen(false)}
+          inputs={editInputs}
+          formKeys={editFormKeys}
+          submitItem={updateOrder as any}
+          constantValues={{ status: rowToAction.status }}
+          setForm={setEditForm}
+          submitFunction={() => {
+            updateOrder({
+              id: rowToAction._id,
+              updates: {
+                ...editForm,
+              },
+            });
+          }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isDisabled: true, //will be opened for the neccessary cases
     },
   ];
   useEffect(() => {
