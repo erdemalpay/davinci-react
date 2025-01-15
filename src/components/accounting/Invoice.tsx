@@ -817,6 +817,7 @@ const Invoice = () => {
             setForm={setProductInputForm}
             submitItem={createAccountProduct as any}
             generalClassName="overflow-visible"
+            topClassName="flex flex-col gap-2 "
             submitFunction={() => {
               createAccountProduct(productInputForm);
               setProductInputForm({
@@ -826,7 +827,6 @@ const Invoice = () => {
                 name: "",
               });
             }}
-            topClassName="flex flex-col gap-2 "
           />
         )}
         {isAddBrandOpen && (

@@ -362,6 +362,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       isDisabled: !singleItemGroup?.category?.isOnlineOrder,
     },
     {
+      type: InputTypes.NUMBER,
+      formKey: "ikasDiscountedPrice",
+      label: `${t("Ikas Discounted Price")}`,
+      placeholder: `${t("Ikas Discounted Price")}`,
+      required: singleItemGroup?.category?.isOnlineOrder ?? false,
+      isDisabled: !singleItemGroup?.category?.isOnlineOrder,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: "Image",
@@ -408,6 +416,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "description", type: FormKeyTypeEnum.STRING },
     { key: "price", type: FormKeyTypeEnum.NUMBER },
     { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+    { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
     { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
     { key: "productCategories", type: FormKeyTypeEnum.STRING },
@@ -421,6 +430,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: `${t("Price")}`, isSortable: true },
     ...(singleItemGroup?.category?.isOnlineOrder
       ? [{ key: `${t("Online Price")}`, isSortable: true }]
+      : []),
+    ...(singleItemGroup?.category?.isOnlineOrder
+      ? [{ key: `${t("Ikas Discounted Price")}`, isSortable: true }]
       : []),
     ...(!isDisabledCondition ? [{ key: t("Cost"), isSortable: false }] : []),
     ...(isMenuShowIkasCategories
@@ -465,6 +477,20 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
             node: (item: MenuItem) => {
               return `${
                 item?.onlinePrice ? item?.onlinePrice + TURKISHLIRA : "-"
+              } `;
+            },
+          },
+        ]
+      : []),
+    ...(singleItemGroup?.category?.isOnlineOrder
+      ? [
+          {
+            key: "ikasDiscountedPrice",
+            node: (item: MenuItem) => {
+              return `${
+                item?.ikasDiscountedPrice
+                  ? item?.ikasDiscountedPrice + TURKISHLIRA
+                  : "-"
               } `;
             },
           },
@@ -580,6 +606,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           locations: [1, 2],
         }}
         folderName="menu"
+        generalClassName="overflow-scroll"
+        topClassName="flex flex-col gap-2 "
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -695,6 +723,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           constantValues={{ category: singleItemGroup?.category }}
           isEditMode={true}
           itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}
+          generalClassName="overflow-scroll"
+          topClassName="flex flex-col gap-2 "
         />
       ) : null,
 
