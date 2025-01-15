@@ -1,3 +1,4 @@
+import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,6 +45,7 @@ const OrderPaymentTypes = ({
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
+  const isMutating = useIsMutating();
   const paymentMethods = useGetAccountPaymentMethods();
   const items = useGetMenuItems();
   const { setIsCollectionModalOpen } = useOrderContext();
@@ -124,6 +126,9 @@ const OrderPaymentTypes = ({
           <div
             key={paymentType._id}
             onClick={() => {
+              if (isMutating) {
+                return;
+              }
               // all items are paid
               if (isAllItemsPaid) {
                 toast.error(t("There is no order to pay"));
@@ -287,6 +292,9 @@ const OrderPaymentTypes = ({
                 <HiOutlineTrash
                   className="text-red-600 cursor-pointer text-lg"
                   onClick={() => {
+                    if (isMutating) {
+                      return;
+                    }
                     let newOrders: Order[] = [];
                     if (
                       collection?.orders?.length &&
