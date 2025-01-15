@@ -52,7 +52,7 @@ export interface GameplayGroupQueryResult {
 
 interface GameplayPersonalCreatePayload {
   gameplayCount: number;
-  mentor: string;
+  createdBy: string;
 }
 
 export interface GameplayFilter {

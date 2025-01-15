@@ -7,6 +7,7 @@ export type Gameplay = {
   game?: Game | number;
   mentor: User;
   location: number;
+  createdBy: User;
 };
 
 export type Location = {

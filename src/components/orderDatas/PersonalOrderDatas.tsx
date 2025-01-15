@@ -85,7 +85,7 @@ const PersonalOrderDatas = () => {
       (tableData) => tableData.createdBy === personalOrderData.user
     );
     const foundGameplayData = gameplayDatas.find(
-      (gameplayData) => gameplayData.mentor === personalOrderData.user
+      (gameplayData) => gameplayData.createdBy === personalOrderData.user
     );
     return {
       ...personalOrderData,
