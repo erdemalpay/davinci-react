@@ -44,6 +44,7 @@ interface SelectInputProps {
   requiredField?: boolean;
   isAutoFill?: boolean;
   isOnClearActive?: boolean;
+  isReadOnly?: boolean;
 }
 
 const normalizeText = (text: string) => {
@@ -79,6 +80,7 @@ const SelectInput = ({
   isOnClearActive = true,
   isAutoFill = true,
   requiredField = false,
+  isReadOnly = false,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -220,6 +222,7 @@ const SelectInput = ({
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
+              isDisabled={isReadOnly}
             />
           ) : (
             <Select
@@ -242,10 +245,11 @@ const SelectInput = ({
                 setIsDownIconClicked(false);
               }}
               onMenuOpen={handleMenuOpen}
+              isDisabled={isReadOnly}
             />
           )}
         </div>
-        {!isMultiple && isOnClearActive && value && onClear && (
+        {!isReadOnly && !isMultiple && isOnClearActive && value && onClear && (
           <button
             onClick={onClear}
             className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"

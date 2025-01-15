@@ -447,6 +447,7 @@ const GenericAddEditPanel = <T,>({
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           minNumber={input?.minNumber ?? 0}
                           isDebounce={input?.isDebounce ?? false}
+                          isReadOnly={input.isReadOnly ?? false}
                           isMinNumber={input?.isMinNumber ?? true}
                           onClear={() => {
                             handleInputClear(input);
@@ -486,6 +487,7 @@ const GenericAddEditPanel = <T,>({
                           requiredField={input.required}
                           onChange={handleChangeForSelect(input.formKey)}
                           isOnClearActive={input?.isOnClearActive ?? true}
+                          isReadOnly={input.isReadOnly ?? false}
                           onClear={() => {
                             handleInputClear(input);
                           }}

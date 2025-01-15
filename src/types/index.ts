@@ -93,6 +93,10 @@ export type AccountProduct = {
   unitPrice: number;
   matchedMenuItem?: number;
   deleted?: boolean;
+  baseQuantities?: {
+    location: number;
+    quantity: number;
+  }[];
 };
 export type AccountService = {
   _id: string;

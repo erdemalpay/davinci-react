@@ -81,6 +81,7 @@ const GameStockLocation = () => {
   });
   const { createAccountStock } = useAccountStockMutations();
   const [stockTransferForm, setStockTransferForm] = useState({
+    product: "",
     currentStockLocation: "",
     transferredStockLocation: "",
     quantity: 0,
@@ -183,6 +184,18 @@ const GameStockLocation = () => {
   const stockTransferInputs = [
     {
       type: InputTypes.SELECT,
+      formKey: "product",
+      label: t("Product"),
+      options: products.map((product) => ({
+        value: product._id,
+        label: product.name,
+      })),
+      placeholder: t("Product"),
+      isReadOnly: true,
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "currentStockLocation",
       label: t("From"),
       options: locations
@@ -216,6 +229,7 @@ const GameStockLocation = () => {
     QuantityInput(),
   ];
   const stockTransferFormKeys = [
+    { key: "product", type: FormKeyTypeEnum.STRING },
     { key: "currentStockLocation", type: FormKeyTypeEnum.STRING },
     { key: "transferredStockLocation", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
@@ -223,7 +237,6 @@ const GameStockLocation = () => {
   const columns = [
     { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
   ];
-
   const rowKeys = [{ key: "prdct" }];
   locations.forEach((location) => {
     columns.push({
@@ -277,6 +290,7 @@ const GameStockLocation = () => {
           close={() => setIsStockTransferModalOpen(false)}
           inputs={stockTransferInputs}
           setForm={setStockTransferForm}
+          constantValues={{ product: rowToAction.product }}
           submitFunction={() => {
             if (
               stockTransferForm.currentStockLocation === "" ||

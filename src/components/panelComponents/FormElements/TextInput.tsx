@@ -36,6 +36,7 @@ type TextInputProps = {
   isOnClearActive?: boolean;
   isDebounce?: boolean;
   isDatePickerLabel?: boolean;
+  isReadOnly?: boolean;
 };
 
 const TextInput = ({
@@ -57,6 +58,7 @@ const TextInput = ({
   requiredField = false,
   isDebounce = false,
   isDatePickerLabel = true,
+  isReadOnly = false,
   className = "px-4 py-2.5 border rounded-md __className_a182b8",
 }: TextInputProps) => {
   const [localValue, setLocalValue] = useState(value);
@@ -342,7 +344,7 @@ const TextInput = ({
           type={type}
           style={{ fontSize: "16px" }}
           placeholder={placeholder}
-          disabled={disabled}
+          disabled={disabled || isReadOnly}
           value={localValue}
           onChange={handleChange}
           className={inputClassName}
