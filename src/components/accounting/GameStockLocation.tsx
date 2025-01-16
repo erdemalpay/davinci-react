@@ -281,7 +281,7 @@ const GameStockLocation = () => {
     {
       name: t("Transfer"),
       icon: <TbTransferIn />,
-      className: "text-green-500 cursor-pointer text-xl ",
+      className: "text-green-500 cursor-pointer text-2xl ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (

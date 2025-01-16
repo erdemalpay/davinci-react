@@ -5,6 +5,7 @@ import {
 } from "react-icons/gi";
 // import CountArchive from "../components/accounting/CountArchive";
 import { BsTrash2Fill } from "react-icons/bs";
+import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
 import { MdOutlineCompare } from "react-icons/md";
 import GameStock from "../components/accounting/GameStock";
@@ -13,6 +14,7 @@ import ProductStockHistory from "../components/accounting/ProductStockHistory";
 import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
@@ -41,6 +43,13 @@ export const StockPageTabs = [
     label: "Game Stocks by Location",
     icon: <FaGamepad className="text-lg font-thin" />,
     content: <GameStockLocation />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.BASEQUANTITYBYLOCATION,
+    label: "Base Quantity By Location",
+    icon: <DiDatabase className="text-lg font-thin" />,
+    content: <BaseQuantityByLocation />,
     isDisabled: false,
   },
   {

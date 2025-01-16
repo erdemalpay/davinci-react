@@ -366,7 +366,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       formKey: "ikasDiscountedPrice",
       label: `${t("Ikas Discounted Price")}`,
       placeholder: `${t("Ikas Discounted Price")}`,
-      required: singleItemGroup?.category?.isOnlineOrder ?? false,
+      required: false,
       isDisabled: !singleItemGroup?.category?.isOnlineOrder,
     },
     {
