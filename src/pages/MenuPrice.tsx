@@ -94,7 +94,10 @@ const MenuPrice = () => {
     {
       isUpperSide: false,
       node: (
-        <div>
+        <div
+          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+          onClick={handleFileButtonClick}
+        >
           <input
             type="file"
             accept=".xlsx, .xls"
@@ -103,10 +106,7 @@ const MenuPrice = () => {
             ref={inputRef}
           />
           <ButtonTooltip content={t("Upload")}>
-            <FaFileUpload
-              className="text-3xl my-auto cursor-pointer "
-              onClick={handleFileButtonClick}
-            />
+            <FaFileUpload />
           </ButtonTooltip>
         </div>
       ),

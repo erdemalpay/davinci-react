@@ -772,26 +772,24 @@ const GenericTable = <T,>({
               isSelectionActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
-            <div className="ml-auto flex flex-row gap-4  relative">
+            <div className="ml-auto flex flex-row gap-4 relative">
               {!(selectionActions && isSelectionActive) && (
                 <div className="flex flex-row flex-wrap gap-4  ">
                   {isPdf && (
-                    <div className="my-auto">
-                      <ButtonTooltip content="Pdf">
-                        <BsFilePdf
-                          className="text-3xl my-auto cursor-pointer "
-                          onClick={generatePDF}
-                        />
-                      </ButtonTooltip>
+                    <div
+                      className="my-auto  items-center text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      onClick={generatePDF}
+                    >
+                      <BsFilePdf />
                     </div>
                   )}
                   {isExcel && (
-                    <div className="my-auto">
-                      <ButtonTooltip content="Excel">
-                        <FaFileExcel
-                          className="text-3xl my-auto cursor-pointer "
-                          onClick={generateExcel}
-                        />
+                    <div
+                      className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      onClick={generateExcel}
+                    >
+                      <ButtonTooltip content={t("Excel")}>
+                        <FaFileExcel />
                       </ButtonTooltip>
                     </div>
                   )}
