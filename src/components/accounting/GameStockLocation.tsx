@@ -19,10 +19,10 @@ import {
   StockLocationInput,
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -50,8 +50,6 @@ const GameStockLocation = () => {
       neoramaMax: "",
       amazonMin: "",
       amazonMax: "",
-      hasarliMin: "",
-      hasarliMax: "",
       neoDepoMin: "",
       neoDepoMax: "",
     });
@@ -134,20 +132,6 @@ const GameStockLocation = () => {
       formKey: "amazonMax",
       label: "Amazon Max",
       placeholder: "Amazon Max",
-      required: false,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "hasarliMin",
-      label: "Hasarlı Min",
-      placeholder: "Hasarlı Min",
-      required: false,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "hasarliMax",
-      label: "Hasarlı Max",
-      placeholder: "Hasarlı Max",
       required: false,
     },
     {
@@ -357,7 +341,6 @@ const GameStockLocation = () => {
         { minKey: "bahceliMin", maxKey: "bahceliMax", locationIndex: 1 },
         { minKey: "neoramaMin", maxKey: "neoramaMax", locationIndex: 2 },
         { minKey: "amazonMin", maxKey: "amazonMax", locationIndex: 3 },
-        { minKey: "hasarliMin", maxKey: "hasarliMax", locationIndex: 5 },
         { minKey: "neoDepoMin", maxKey: "neoDepoMax", locationIndex: 6 },
       ];
       for (const filter of filters) {
