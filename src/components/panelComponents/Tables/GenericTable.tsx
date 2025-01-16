@@ -772,7 +772,7 @@ const GenericTable = <T,>({
               isSelectionActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
-            <div className="ml-auto flex flex-row gap-4 relative">
+            <div className="ml-auto flex flex-row gap-4 relative items-center">
               {!(selectionActions && isSelectionActive) && (
                 <div className="flex flex-row flex-wrap gap-4  ">
                   {isPdf && (

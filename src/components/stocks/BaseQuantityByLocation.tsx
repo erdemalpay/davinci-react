@@ -1,25 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGetAccountProducts } from "../../utils/api/account/product";
+import { FaFileUpload } from "react-icons/fa";
+import * as XLSX from "xlsx";
+import {
+  useGetAccountProducts,
+  useUpdateProductsBaseQuantities,
+} from "../../utils/api/account/product";
 import { useGetAllLocations } from "../../utils/api/location";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-
 interface Quantities {
   [key: string]: number;
 }
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
+  const { mutate: updateProductsBaseQuantities } =
+    useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = products.map((product) => {
-    const quantitiesObject = product.baseQuantities?.reduce<Quantities>(
-      (acc, baseQuantity) => {
-        acc[`location_${baseQuantity.location}`] = baseQuantity.quantity;
-        return acc;
-      },
-      {}
-    );
+  const inputRef = useRef<HTMLInputElement>(null);
+  const allRows = products?.map((product) => {
+    const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
+      acc[`${location._id}`] =
+        product?.baseQuantities?.find(
+          (baseQuantity) => baseQuantity?.location === location._id
+        )?.quantity ?? 0;
+      return acc;
+    }, {});
     return {
       ...product,
       ...quantitiesObject,
@@ -30,21 +38,85 @@ const BaseQuantityByLocation = () => {
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
   ];
   const rowKeys = [{ key: "name" }];
-  locations.forEach((location) => {
+  locations?.forEach((location) => {
     columns.push({
       key: location.name,
       isSortable: true,
-      correspondingKey: `location_${location._id}`,
+      correspondingKey: `${location._id}`,
     });
     rowKeys.push({
-      key: `location_${location._id}`,
+      key: `${location._id}`,
     });
   });
 
+  const processExcelData = (data: any[]) => {
+    const headers = data[0];
+    const columnKeys = columns.map((column) => column.key);
+    const keys = rowKeys.map((rowKey) => rowKey.key);
+    const items = data.slice(1).reduce((accum: any[], row) => {
+      const item: any = {};
+      row.forEach((cell: any, index: number) => {
+        const translatedIndex = columnKeys.indexOf(headers[index]);
+        if (translatedIndex !== -1) {
+          const key = keys[translatedIndex];
+          item[key] = cell;
+        }
+      });
+      if (Object.keys(item).length > 0) {
+        accum.push(item);
+      }
+      return accum;
+    }, []);
+    updateProductsBaseQuantities(items);
+  };
+
+  const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const buffer = e.target?.result;
+      if (buffer) {
+        const wb = XLSX.read(buffer, { type: "array" });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        processExcelData(data);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  const handleFileButtonClick = () => {
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  };
+  const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <div
+          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+          onClick={handleFileButtonClick}
+        >
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={uploadExcelFile}
+            style={{ display: "none" }}
+            ref={inputRef}
+          />
+          <ButtonTooltip content={t("Upload")}>
+            <FaFileUpload />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [products]);
+  }, [products, locations]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -54,13 +126,10 @@ const BaseQuantityByLocation = () => {
           columns={columns}
           rows={rows}
           title={t("Base Quantity By Location")}
-          //   addButton={addButton}
-          //   filterPanel={filterPanel}
-          //   filters={filters}
-          //   actions={actions}
+          filters={filters}
           isActionsActive={false}
-          //   isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
-          //   excelFileName={t("GamesByLocation.xlsx")}
+          isExcel={true}
+          excelFileName={t("BaseQuantityByLocation.xlsx")}
         />
       </div>
     </>
