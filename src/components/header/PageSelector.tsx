@@ -50,7 +50,7 @@ export function PageSelector() {
           <Bars3Icon className="h-5 w-5" />
         </button>
       </MenuHandler>
-      <MenuList className=" overflow-scroll no-scrollbar h-[95%]">
+      <MenuList className=" overflow-scroll no-scrollbar h-[95%] max-h-max">
         {routes.map((route) => {
           if (!route.isOnSidebar) return <div key={route.name}></div>;
           return (
