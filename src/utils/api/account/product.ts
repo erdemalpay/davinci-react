@@ -19,6 +19,7 @@ export interface CreateBulkProductAndMenuItem {
   image?: string;
   errorNote?: string;
 }
+
 export interface JoinProductsRequest {
   stayedProduct: string;
   removedProduct: string;
@@ -41,6 +42,15 @@ export function createBulkProductAndMenuItem(
   return post({
     path: `${Paths.Accounting}/products/bulk`,
     payload: createBulkPayload,
+  });
+}
+
+export function updateMultipleProduct(
+  updateMultipleProductPayload: CreateBulkProductAndMenuItem[]
+) {
+  return post({
+    path: `${Paths.Accounting}/products/update-multiple`,
+    payload: updateMultipleProductPayload,
   });
 }
 
@@ -88,7 +98,28 @@ export function useCreateBulkProductAndMenuItemMutation() {
     },
   });
 }
-
+export function useUpdateMultipleProductMutations() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  const { setErrorDataForProductBulkCreation } = useGeneralContext();
+  return useMutation(updateMultipleProduct, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: (response) => {
+      if (response) {
+        setErrorDataForProductBulkCreation(
+          response as CreateBulkProductAndMenuItem[]
+        );
+      }
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 export function joinProducts({
   stayedProduct,
   removedProduct,

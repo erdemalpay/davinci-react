@@ -1,24 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
+import { IoIosCreate } from "react-icons/io";
 import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
-import { useCreateBulkProductAndMenuItemMutation } from "../utils/api/account/product";
+import {
+  useCreateBulkProductAndMenuItemMutation,
+  useUpdateMultipleProductMutations,
+} from "../utils/api/account/product";
 
 const BulkProductAdding = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const { mutate: createBulkProductAndMenuItem } =
     useCreateBulkProductAndMenuItemMutation();
+  const [actionType, setActionType] = useState("");
+  const { mutate: updateMultipleProduct } = useUpdateMultipleProductMutations();
   const {
     errorDataForProductBulkCreation,
     setErrorDataForProductBulkCreation,
   } = useGeneralContext();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const processExcelData = (data: any[]) => {
+  const createRef = useRef<HTMLInputElement>(null);
+  const updateRef = useRef<HTMLInputElement>(null);
+  const processExcelData = (data: any[], actionType: string) => {
+    const isCreate = actionType === "create";
     const headers = data[0];
     const keys = [
       "name",
@@ -42,6 +50,7 @@ const BulkProductAdding = () => {
       t("Online Price"),
       t("Description"),
     ];
+
     const items = data.slice(1).map((row) => {
       const item: any = {};
       row.forEach((cell: any, index: number) => {
@@ -54,10 +63,17 @@ const BulkProductAdding = () => {
       return item;
     });
     setErrorDataForProductBulkCreation([]);
-    createBulkProductAndMenuItem(items);
+    if (isCreate) {
+      createBulkProductAndMenuItem(items);
+    } else {
+      updateMultipleProduct(items);
+    }
   };
-  const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const uploadExcelFile = (
+    ref: React.RefObject<HTMLInputElement>,
+    actionType: string
+  ) => {
+    const file = ref.current?.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -67,17 +83,18 @@ const BulkProductAdding = () => {
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        processExcelData(data);
+        processExcelData(data, actionType);
       }
     };
     reader.readAsArrayBuffer(file);
   };
-  const handleFileButtonClick = () => {
-    if (inputRef.current) {
-      inputRef.current.click();
+
+  const handleFileButtonClick = (actionType: string) => {
+    const ref = actionType === "create" ? createRef : updateRef;
+    if (ref.current) {
+      ref.current.click();
     }
   };
-
   const rows =
     errorDataForProductBulkCreation?.length > 0
       ? errorDataForProductBulkCreation
@@ -200,19 +217,39 @@ const BulkProductAdding = () => {
     {
       isUpperSide: false,
       node: (
-        <div>
+        <div
+          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+          onClick={() => handleFileButtonClick("update")}
+        >
           <input
             type="file"
             accept=".xlsx, .xls"
-            onChange={uploadExcelFile}
+            onChange={() => uploadExcelFile(updateRef, "update")}
             style={{ display: "none" }}
-            ref={inputRef}
+            ref={updateRef}
           />
-          <ButtonTooltip content={t("Upload")}>
-            <FaFileUpload
-              className="text-3xl my-auto cursor-pointer "
-              onClick={handleFileButtonClick}
-            />
+          <ButtonTooltip content={t("Update Products")}>
+            <IoIosCreate />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+    {
+      isUpperSide: false,
+      node: (
+        <div
+          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+          onClick={() => handleFileButtonClick("create")}
+        >
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={() => uploadExcelFile(createRef, "create")}
+            style={{ display: "none" }}
+            ref={createRef}
+          />
+          <ButtonTooltip content={t("Create")}>
+            <FaFileUpload />
           </ButtonTooltip>
         </div>
       ),

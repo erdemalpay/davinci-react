@@ -215,11 +215,15 @@ const Product = () => {
     { key: "removedProduct", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: t("Expense Type"), isSortable: true },
-    { key: t("Brand"), isSortable: true },
-    { key: t("Vendor"), isSortable: true },
-    { key: t("Unit Price"), isSortable: true },
+    { key: t("Name"), isSortable: true, correspondingKey: "name" },
+    {
+      key: t("Expense Type"),
+      isSortable: true,
+      correspondingKey: "expenseType",
+    },
+    { key: t("Brand"), isSortable: true, correspondingKey: "brand" },
+    { key: t("Vendor"), isSortable: true, correspondingKey: "vendor" },
+    { key: t("Unit Price"), isSortable: true, correspondingKey: "unitPrice" },
     { key: t("Matched Menu Item"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
@@ -558,6 +562,7 @@ const Product = () => {
           addButton={addButton}
           filters={filters}
           filterPanel={filterPanel}
+          isExcel={true}
           isActionsActive={
             user
               ? [
