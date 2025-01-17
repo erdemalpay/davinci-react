@@ -74,6 +74,7 @@ type Props<T> = {
   outsideSortProps?: OutsideSortProps;
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
+  isEmtpyExcel?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -103,6 +104,7 @@ const GenericTable = <T,>({
   isRowsPerPage = true,
   isActionsAtFront = false,
   isCollapsibleCheckActive = true,
+  isEmtpyExcel = false,
   tooltipLimit = 40,
   rowClassNameFunction,
   excelFileName,
@@ -358,7 +360,8 @@ const GenericTable = <T,>({
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
     excelRows.push(headers);
-    rows.forEach((row) => {
+    const excelAllRows = !isEmtpyExcel ? rows : [];
+    excelAllRows.forEach((row) => {
       const rowData = usedColumns
         .filter((column) => column.correspondingKey)
         .map((column) => String(row[column?.correspondingKey as keyof T]));

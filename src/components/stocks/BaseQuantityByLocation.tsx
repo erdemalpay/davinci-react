@@ -64,7 +64,6 @@ const BaseQuantityByLocation = () => {
       key: `${location._id}`,
     });
   });
-
   const processExcelData = (data: any[]) => {
     const headers = data[0];
     const columnKeys = columns.map((column) => column.key);
@@ -85,7 +84,6 @@ const BaseQuantityByLocation = () => {
     }, []);
     updateProductsBaseQuantities(items);
   };
-
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -134,7 +132,6 @@ const BaseQuantityByLocation = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
-
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,

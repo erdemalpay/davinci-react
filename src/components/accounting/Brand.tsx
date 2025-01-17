@@ -1,15 +1,18 @@
 import { forEach } from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
+import { FaFileUpload } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountBrand, RoleEnum } from "../../types";
 import {
   useAccountBrandMutations,
+  useCreateMultipleBrandMutation,
   useGetAccountBrands,
 } from "../../utils/api/account/brand";
 import {
@@ -20,15 +23,17 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const pages = useGetPanelControlPages();
   const navigate = useNavigate();
+  const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
   const brands = useGetAccountBrands();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,9 +61,8 @@ const Brand = () => {
     };
   });
   const [rows, setRows] = useState(allRows);
-
   const columns = [
-    { key: t("Name"), isSortable: true },
+    { key: t("Name"), isSortable: true, correspondingKey: "name" },
     { key: t("Product Count"), isSortable: true },
   ];
   if (
@@ -253,11 +257,73 @@ const Brand = () => {
         : true,
     },
   ];
+  const processExcelData = (data: any[]) => {
+    const headers = data[0];
+    const columnKeys = columns.map((column) => column.key);
+    const keys = rowKeys.map((rowKey) => rowKey.key);
+    const items = data.slice(1).reduce((accum: any[], row) => {
+      const item: any = {};
+      row.forEach((cell: any, index: number) => {
+        const translatedIndex = columnKeys.indexOf(headers[index]);
+        if (translatedIndex !== -1) {
+          const key = keys[translatedIndex];
+          item[key] = cell;
+        }
+      });
+      if (Object.keys(item).length > 0) {
+        accum.push(item);
+      }
+      return accum;
+    }, []);
+    createMultipleBrand(items);
+  };
+  const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const buffer = e.target?.result;
+      if (buffer) {
+        const wb = XLSX.read(buffer, { type: "array" });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        processExcelData(data);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  const handleFileButtonClick = () => {
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  };
+  const filters = [
+    {
+      isUpperSide: false,
+      node: (
+        <div
+          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+          onClick={handleFileButtonClick}
+        >
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={uploadExcelFile}
+            style={{ display: "none" }}
+            ref={inputRef}
+          />
+          <ButtonTooltip content={t("Create Multiple")}>
+            <FaFileUpload />
+          </ButtonTooltip>
+        </div>
+      ),
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [brands, products]);
-
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -269,6 +335,10 @@ const Brand = () => {
           rows={rows}
           title={t("Brands")}
           addButton={addButton}
+          filters={filters}
+          isExcel={true}
+          isEmtpyExcel={true}
+          excelFileName={"Brand.xlsx"}
           isActionsActive={
             user
               ? [
