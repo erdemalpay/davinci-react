@@ -24,6 +24,7 @@ const MenuPrice = () => {
     category: getItem(item.category, categories)?.name,
     onlinePrice: item?.onlinePrice ?? "",
     ikasId: item?.ikasId ?? "",
+    ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
   }));
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -35,6 +36,11 @@ const MenuPrice = () => {
       isSortable: true,
       correspondingKey: "onlinePrice",
     },
+    {
+      key: t("Ikas Discounted Price"),
+      isSortable: true,
+      correspondingKey: "ikasDiscountedPrice",
+    },
     { key: t("Category"), isSortable: true, correspondingKey: "category" },
     { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
   ];
@@ -43,6 +49,7 @@ const MenuPrice = () => {
     { key: "name" },
     { key: "price" },
     { key: "onlinePrice" },
+    { key: "ikasDiscountedPrice" },
     { key: "category" },
     { key: "ikasId" },
   ];
