@@ -2,22 +2,31 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useGetAccountProducts,
   useUpdateProductsBaseQuantities,
 } from "../../utils/api/account/product";
 import { useGetAllLocations } from "../../utils/api/location";
+import { ExpenseTypeInput } from "../../utils/panelInputs";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
+type FormElementsState = {
+  [key: string]: any;
+};
 interface Quantities {
   [key: string]: number;
 }
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
+  const [showFilters, setShowFilters] = useState(false);
   const { mutate: updateProductsBaseQuantities } =
     useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
+  const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const allRows = products?.map((product) => {
@@ -33,7 +42,14 @@ const BaseQuantityByLocation = () => {
       ...quantitiesObject,
     };
   });
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      expenseType: [],
+    });
   const [rows, setRows] = useState(allRows);
+  const filterPanelInputs = [
+    ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
+  ];
   const columns = [
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
   ];
@@ -112,11 +128,32 @@ const BaseQuantityByLocation = () => {
         </div>
       ),
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
   ];
+
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   useEffect(() => {
-    setRows(allRows);
+    const filteredRows = allRows?.filter((row) => {
+      if (filterPanelFormElements.expenseType.length === 0) {
+        return true;
+      }
+      return row.expenseType?.some((expense) =>
+        filterPanelFormElements.expenseType.includes(expense)
+      );
+    });
+    setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [products, locations]);
+  }, [products, locations, expenseTypes, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -129,6 +166,7 @@ const BaseQuantityByLocation = () => {
           filters={filters}
           isActionsActive={false}
           isExcel={true}
+          filterPanel={filterPanel}
           excelFileName={t("BaseQuantityByLocation.xlsx")}
         />
       </div>
