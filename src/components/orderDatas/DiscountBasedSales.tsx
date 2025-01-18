@@ -172,18 +172,22 @@ const DiscountBasedSales = () => {
             {
               key: "tables",
               node: (row: any) => {
-                return row?.tables?.map((table: Table) => (
-                  <p
-                    key={table?._id} // Unique key for each item in the list
-                    className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-                    onClick={() => {
-                      setSelectedTableId(table?._id);
-                      setIsOrderPaymentModalOpen(true);
-                    }}
-                  >
-                    {table?._id}
-                  </p>
-                ));
+                return (
+                  <div className="flex flex-row gap-3 flex-wrap   ">
+                    {row?.tables?.map((table: Table) => (
+                      <p
+                        key={table?._id}
+                        className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform "
+                        onClick={() => {
+                          setSelectedTableId(table?._id);
+                          setIsOrderPaymentModalOpen(true);
+                        }}
+                      >
+                        {table?._id}
+                      </p>
+                    ))}
+                  </div>
+                );
               },
             },
           ],
@@ -236,18 +240,22 @@ const DiscountBasedSales = () => {
               {
                 key: "tables",
                 node: (row: any) => {
-                  return row?.tables?.map((table: Table) => (
-                    <p
-                      key={table?._id} // Unique key for each item in the list
-                      className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-                      onClick={() => {
-                        setSelectedTableId(table?._id);
-                        setIsOrderPaymentModalOpen(true);
-                      }}
-                    >
-                      {table?._id}
-                    </p>
-                  ));
+                  return (
+                    <div className="flex flex-row border-4 ">
+                      {row?.tables?.map((table: Table) => (
+                        <p
+                          key={table?._id}
+                          className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+                          onClick={() => {
+                            setSelectedTableId(table?._id);
+                            setIsOrderPaymentModalOpen(true);
+                          }}
+                        >
+                          {table?._id}
+                        </p>
+                      ))}
+                    </div>
+                  );
                 },
               },
             ],
