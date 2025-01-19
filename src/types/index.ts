@@ -83,6 +83,7 @@ export type Game = {
   thumbnail: string;
   expansion: boolean;
   locations: number[];
+  narrationDurationPoint?: number;
 };
 export type AccountProduct = {
   _id: string;

@@ -6,16 +6,16 @@ import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import StarRating from "../components/common/StarRating";
 import { AddGameDialog } from "../components/games/AddGameDialog";
 import { Header } from "../components/header/Header";
-import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
-
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 import { useGetStoreLocations } from "../utils/api/location";
@@ -146,6 +146,23 @@ export default function Games() {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+    },
+    {
+      name: "Star Rating",
+      isDisabled: !isEnableEdit,
+      node: (row: any) => {
+        return (
+          <StarRating
+            numberOfStars={row?.narrationDurationPoint}
+            onChange={(value) => {
+              updateGame({
+                id: row._id,
+                updates: { narrationDurationPoint: value },
+              });
+            }}
+          />
+        );
+      },
     },
   ];
   const filters = [
