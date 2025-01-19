@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
 import * as XLSX from "xlsx";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
+  useAccountProductMutations,
   useGetAccountProducts,
   useUpdateProductsBaseQuantities,
 } from "../../utils/api/account/product";
 import { useGetAllLocations } from "../../utils/api/location";
 import { ExpenseTypeInput } from "../../utils/panelInputs";
 import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
@@ -27,8 +31,11 @@ const BaseQuantityByLocation = () => {
     useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { updateAccountProduct } = useAccountProductMutations();
   const allRows = products?.map((product) => {
     const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
       acc[`${location._id}`] =
@@ -41,6 +48,25 @@ const BaseQuantityByLocation = () => {
       ...product,
       ...quantitiesObject,
     };
+  });
+  const initialFormState = locations.reduce((acc: any, location) => {
+    acc[location._id.toString()] = 1;
+    return acc;
+  }, {});
+
+  const [form, setForm] = useState(initialFormState);
+  const editInputs = locations?.map((location) => {
+    return {
+      type: InputTypes.NUMBER,
+      formKey: location._id.toString(),
+      label: location.name,
+      placeholder: location.name,
+      isNumberButtonsActive: true,
+      required: false,
+    };
+  });
+  const editFormKeys = locations?.map((location) => {
+    return { key: String(location._id), type: FormKeyTypeEnum.NUMBER };
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -64,6 +90,8 @@ const BaseQuantityByLocation = () => {
       key: `${location._id}`,
     });
   });
+
+  columns.push({ key: t("Action"), isSortable: false } as any);
   const processExcelData = (data: any[]) => {
     const headers = data[0];
     const columnKeys = columns.map((column) => column.key);
@@ -105,6 +133,46 @@ const BaseQuantityByLocation = () => {
       inputRef.current.click();
     }
   };
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={editInputs}
+          formKeys={editFormKeys}
+          submitItem={updateAccountProduct as any}
+          constantValues={rowToAction}
+          setForm={setForm}
+          submitFunction={() => {
+            const newBaseQuantities = locations.map((location) => {
+              return {
+                location: location._id,
+                quantity: Number(form[location._id]),
+              };
+            });
+            updateAccountProduct({
+              id: rowToAction._id,
+              updates: {
+                baseQuantities: newBaseQuantities,
+              },
+            });
+          }}
+          generalClassName="overflow-scroll"
+          topClassName="flex flex-col gap-2 "
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+  ];
   const filters = [
     {
       isUpperSide: false,
@@ -159,6 +227,7 @@ const BaseQuantityByLocation = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          actions={actions}
           title={t("Base Quantity By Location")}
           filters={filters}
           isActionsActive={false}

@@ -357,7 +357,7 @@ const TextInput = ({
             onClick={handleIncrement}
           />
         )}
-        {onClear && localValue && isOnClearActive && (
+        {onClear && isOnClearActive && (
           <button
             onClick={() => {
               setLocalValue("");
