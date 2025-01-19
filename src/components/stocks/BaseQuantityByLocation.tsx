@@ -230,7 +230,7 @@ const BaseQuantityByLocation = () => {
           actions={actions}
           title={t("Base Quantity By Location")}
           filters={filters}
-          isActionsActive={false}
+          isActionsActive={true}
           isExcel={true}
           filterPanel={filterPanel}
           excelFileName={t("BaseQuantityByLocation.xlsx")}
