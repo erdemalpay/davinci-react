@@ -929,6 +929,8 @@ export enum ActivityType {
   ORDER_DISCOUNT = "ORDER_DISCOUNT",
   ORDER_DISCOUNT_CANCEL = "ORDER_DISCOUNT_CANCEL",
   CANCEL_PAYMENT = "CANCEL_PAYMENT",
+  CREATE_RESERVATION = "CREATE_RESERVATION",
+  UPDATE_RESERVATION = "UPDATE_RESERVATION",
 }
 export const activityTypeDetails = [
   {
@@ -1140,6 +1142,16 @@ export const activityTypeDetails = [
     value: ActivityType.CANCEL_PAYMENT,
     label: "Cancel Payment",
     bgColor: "bg-red-900",
+  },
+  {
+    value: ActivityType.CREATE_RESERVATION,
+    label: "Create Reservation",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.UPDATE_RESERVATION,
+    label: "Update Reservation",
+    bgColor: "bg-yellow-700",
   },
 ];
 
