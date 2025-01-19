@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
-import { toast } from "react-toastify";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import StarRating from "../components/common/StarRating";
@@ -49,7 +48,6 @@ export default function Games() {
       id: game._id,
       updates: { locations: newLocations },
     });
-    toast.success(`Game ${game.name} updated`);
   }
   const inputs = [
     {
