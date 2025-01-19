@@ -889,10 +889,6 @@ const GenericTable = <T,>({
                             className={`text-base font-medium leading-6 w-max flex gap-2  ${
                               column?.className
                             }  ${
-                              usedColumns?.length === 2 &&
-                              index == 1 &&
-                              "  mx-auto"
-                            }  ${
                               index === usedColumns?.length - 1 &&
                               actions &&
                               isActionsActive
