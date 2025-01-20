@@ -93,27 +93,27 @@ const CheckoutControlPage = () => {
         checkoutControl?.location,
         locations
       );
+      const closestCheckout = checkoutControls
+        .slice(0, index)
+        .reverse()
+        .find((control) => control.location === checkoutControl?.location);
       return {
         ...checkoutControl,
         usr: checkoutControlUser?.name,
         lctn: checkoutControlLocation?.name,
         formattedDate: formatAsLocalDate(checkoutControl?.date),
-        beginningQuantity:
-          index !== 0
-            ? checkoutControls
-                .slice(0, index)
-                .reverse()
-                .find(
-                  (control) => control.location === checkoutControl?.location
-                )?.amount ?? 0
-            : beginningCashs?.filter(
-                (cash) =>
-                  cash.location === checkoutControl?.location &&
-                  cash.date <= checkoutControl?.date
-              )?.[0]?.amount ?? 0,
+        beginningQuantity: closestCheckout
+          ? closestCheckout?.amount ?? 0
+          : beginningCashs?.filter(
+              (cash) =>
+                cash.location === checkoutControl?.location &&
+                cash.date <= checkoutControl?.date
+            )?.[0]?.amount ?? 0,
         incomeQuantity: incomes
           ?.filter(
-            (item) => item.date === getPreviousDate(checkoutControl?.date)
+            (item) =>
+              item.date === getPreviousDate(checkoutControl?.date) &&
+              item.location === checkoutControl?.location
           )
           ?.reduce((acc, item) => acc + item.amount, 0),
         expenseQuantity:
@@ -121,21 +121,24 @@ const CheckoutControlPage = () => {
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
-                item.date === getPreviousDate(checkoutControl?.date)
+                item.date === getPreviousDate(checkoutControl?.date) &&
+                item.location === checkoutControl?.location
             )
             ?.reduce((acc, item) => acc + item.totalExpense, 0) ?? 0) +
           (serviceInvoices
             ?.filter(
               (item) =>
                 checkoutControl?.date >= item?.date &&
-                item.date === getPreviousDate(checkoutControl?.date)
+                item.date === getPreviousDate(checkoutControl?.date) &&
+                item.location === checkoutControl?.location
             )
             ?.reduce((acc, item) => acc + item.totalExpense, 0) ?? 0),
         cashout: cashouts
           ?.filter(
             (item) =>
               checkoutControl?.date >= item?.date &&
-              item.date === getPreviousDate(checkoutControl?.date)
+              item.date === getPreviousDate(checkoutControl?.date) &&
+              item.location === checkoutControl?.location
           )
           ?.reduce((acc, item) => acc + item.amount, 0),
       };
