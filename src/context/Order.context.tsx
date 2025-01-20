@@ -64,6 +64,8 @@ type OrderContextType = {
       quantity: number;
     }[]
   ) => void;
+  vendorOrderFilterPanelFormElements: FormElementsState;
+  setVendorOrderFilterPanelFormElements: (state: FormElementsState) => void;
   filterPanelFormElements: FormElementsState;
   initialFilterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
@@ -76,6 +78,11 @@ type OrderContextType = {
 
 const OrderContext = createContext<OrderContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  vendorOrderFilterPanelFormElements: {
+    vendor: "",
+    location: [],
+  },
+  setVendorOrderFilterPanelFormElements: () => {},
   showOrderDataFilters: false,
   setShowOrderDataFilters: () => {},
   isCollectionModalOpen: false,
@@ -180,6 +187,13 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
+  const [
+    vendorOrderFilterPanelFormElements,
+    setVendorOrderFilterPanelFormElements,
+  ] = useState<FormElementsState>({
+    vendor: "",
+    location: [],
+  });
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
@@ -245,6 +259,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <OrderContext.Provider
       value={{
+        vendorOrderFilterPanelFormElements,
+        setVendorOrderFilterPanelFormElements,
         showOrderDataFilters,
         setShowOrderDataFilters,
         isCollectionModalOpen,

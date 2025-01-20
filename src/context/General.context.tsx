@@ -27,6 +27,8 @@ type GeneralContextType = {
       direction: "ascending" | "descending";
     } | null
   ) => void;
+  showStockFilters: boolean;
+  setShowStockFilters: (show: boolean) => void;
   productExpenseForm: Partial<AccountInvoice>;
   errorDataForCreateMultipleExpense: CreateMultipleExpense[];
   setErrorDataForCreateMultipleExpense: (data: CreateMultipleExpense[]) => void;
@@ -92,6 +94,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  showStockFilters: false,
+  setShowStockFilters: () => {},
   isMenuShowIkasCategories: false,
   setIsMenuShowIkasCategories: () => {},
   errorDataForCreateMultipleExpense: [],
@@ -196,6 +200,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const { user } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
+  const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
   const [
@@ -267,6 +272,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        showStockFilters,
+        setShowStockFilters,
         isMenuLocationEdit,
         setIsMenuLocationEdit,
         isMenuShowIkasCategories,
