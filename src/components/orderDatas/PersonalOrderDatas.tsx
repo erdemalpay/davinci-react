@@ -7,6 +7,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
+import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
@@ -64,6 +65,7 @@ const PersonalOrderDatas = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   const personalOrderDatas = useGetPersonalOrderDatas();
+  const personalCollectionDatas = useGetPersonalCollectionDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
   const roles = useGetAllUserRoles();
@@ -87,11 +89,15 @@ const PersonalOrderDatas = () => {
     const foundGameplayData = gameplayDatas.find(
       (gameplayData) => gameplayData.createdBy === personalOrderData.user
     );
+    const foundPersonalCollectionData = personalCollectionDatas.find(
+      (data) => data.createdBy === personalOrderData.user
+    );
     return {
       ...personalOrderData,
       userInfo: getItem(personalOrderData.user, users),
       tableCount: foundTableData?.tableCount || 0,
       gameplayCount: foundGameplayData?.gameplayCount || 0,
+      collectionCount: foundPersonalCollectionData?.totalCollections,
     };
   });
 
@@ -108,6 +114,7 @@ const PersonalOrderDatas = () => {
     { key: t("Table Count"), isSortable: true },
     { key: t("Created Table Count"), isSortable: true },
     { key: t("Created Gameplay Count"), isSortable: true },
+    { key: t("Collection Count"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -126,6 +133,7 @@ const PersonalOrderDatas = () => {
     { key: "cancelledByTableCount" },
     { key: "tableCount" },
     { key: "gameplayCount" },
+    { key: "collectionCount" },
   ];
   const filterPanelInputs = [
     {

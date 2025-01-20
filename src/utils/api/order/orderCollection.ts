@@ -7,7 +7,10 @@ import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 
 const collectionBaseUrl = `${Paths.Order}/collection/table`;
 const orderBaseUrl = `${Paths.Order}/table`;
-
+export type PersonalCollectionNumber = {
+  createdBy: string;
+  totalCollections: number;
+};
 export function useOrderCollectionMutations(tableId: number) {
   const { deleteItem: deleteOrderCollection } = useMutationApi<OrderCollection>(
     {
@@ -35,6 +38,17 @@ export function useCollectionMutation() {
   return { updateCollection };
 }
 
+export function useGetPersonalCollectionDatas() {
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<PersonalCollectionNumber>(
+    `${Paths.Order}/personal/collection?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    [
+      `${Paths.Order}/personal/collection`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ]
+  );
+}
 export function useGetTableCollections(tableId: number) {
   return useGetList<OrderCollection>(`${collectionBaseUrl}/${tableId}`, [
     collectionBaseUrl,
