@@ -414,7 +414,8 @@ const GenericTable = <T,>({
           onDragStart={(e) => handleDragStart(e, row)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, row)}
-          className={`${
+          className={`
+          ${
             rowIndex !== currentRows.length - 1 && !isRowExpanded
               ? "border-b "
               : ""
@@ -530,9 +531,7 @@ const GenericTable = <T,>({
                 key={keyIndex}
                 className={`${keyIndex === 0 ? "pl-3" : ""} py-3 ${
                   rowKey?.className
-                } min-w-20 md:min-w-0 ${
-                  usedColumns?.length === 2 && keyIndex === 1 && " text-center "
-                }`}
+                } min-w-20 md:min-w-0 `}
               >
                 {rowKey.isImage ? (
                   <img
@@ -877,9 +876,7 @@ const GenericTable = <T,>({
                       return (
                         <th
                           key={index}
-                          className={`${
-                            usedColumns?.length === 2 && "justify-between  "
-                          } ${
+                          className={` ${
                             index === 0 && !isCollapsible && !isSelectionActive
                               ? "pl-3"
                               : ""

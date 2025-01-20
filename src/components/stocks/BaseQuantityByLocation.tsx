@@ -9,8 +9,9 @@ import {
   useGetAccountProducts,
   useUpdateProductsBaseQuantities,
 } from "../../utils/api/account/product";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
-import { ExpenseTypeInput } from "../../utils/panelInputs";
+import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -31,6 +32,7 @@ const BaseQuantityByLocation = () => {
     useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
+  const vendors = useGetAccountVendors();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tableKey, setTableKey] = useState(0);
@@ -71,10 +73,12 @@ const BaseQuantityByLocation = () => {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       expenseType: [],
+      vendor: [],
     });
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
+    VendorInput({ vendors: vendors, isMultiple: true }),
   ];
   const columns = [
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
@@ -209,16 +213,20 @@ const BaseQuantityByLocation = () => {
   };
   useEffect(() => {
     const filteredRows = allRows?.filter((row) => {
-      if (filterPanelFormElements.expenseType.length === 0) {
-        return true;
+      if (filterPanelFormElements.expenseType.length !== 0) {
+        return row.expenseType?.some((expense) =>
+          filterPanelFormElements.expenseType.includes(expense)
+        );
+      } else if (filterPanelFormElements.vendor.length !== 0) {
+        return row.vendor?.some((vendor) =>
+          filterPanelFormElements.vendor.includes(vendor)
+        );
       }
-      return row.expenseType?.some((expense) =>
-        filterPanelFormElements.expenseType.includes(expense)
-      );
+      return true;
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [products, locations, expenseTypes, filterPanelFormElements]);
+  }, [products, locations, expenseTypes, filterPanelFormElements, vendors]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

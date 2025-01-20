@@ -13,8 +13,8 @@ import { formatAsLocalDate } from "../../utils/format";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type Props = {
   userId: string;
@@ -84,7 +84,7 @@ const GamesIKnow = ({ userId }: Props) => {
     },
     {
       key: "learnDate",
-      className: `min-w-32 ${!isEnableEdit && "flex justify-center"}  `,
+      className: `min-w-32  `,
       node: (row: Game) => {
         const userGame = user?.userGames.find(
           (userGame) => userGame.game === row._id
