@@ -141,7 +141,7 @@ const VendorOrder = () => {
           rows={rows}
           title={t("Vendor Order")}
           filters={filters}
-          isActionsActive={true}
+          isActionsActive={false}
           isExcel={true}
           filterPanel={filterPanel}
           excelFileName={"VendorOrder.xlsx"}
