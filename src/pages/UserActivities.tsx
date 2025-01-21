@@ -7,6 +7,7 @@ import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
+import { useGeneralContext } from "../context/General.context";
 import { Activity, activityTypeDetails, RowPerPageEnum, User } from "../types";
 import { ActivityFilter, useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
@@ -18,6 +19,7 @@ const UserActivities = () => {
     limit: 10,
     page: 1,
   });
+  const { setExpandedRows } = useGeneralContext();
   const { data } = useGetActivities(filterData);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [tableKey, setTableKey] = useState(0);
@@ -119,6 +121,7 @@ const UserActivities = () => {
         page: newPage,
       });
     }
+    setExpandedRows({});
   }
 
   function handleSort(value: string) {

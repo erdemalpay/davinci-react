@@ -999,6 +999,7 @@ const GenericTable = <T,>({
                         onClick={() => {
                           if (currentPage > 1) {
                             setCurrentPage(Number(currentPage) - 1);
+                            setExpandedRows({});
                           }
                         }}
                         className="cursor-pointer"
@@ -1010,6 +1011,7 @@ const GenericTable = <T,>({
                         onClick={() => {
                           if (currentPage < usedTotalPages) {
                             setCurrentPage(Number(currentPage) + 1);
+                            setExpandedRows({});
                           }
                         }}
                         className="cursor-pointer"
