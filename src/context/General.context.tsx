@@ -47,6 +47,8 @@ type GeneralContextType = {
   setAllExpenseForm: (form: Partial<AccountInvoice>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  isMenuCategoryLocationEdit: boolean;
+  setIsMenuCategoryLocationEdit: (edit: boolean) => void;
   menuActiveTab: number;
   setMenuActiveTab: (tab: number) => void;
   countListActiveTab: number;
@@ -94,6 +96,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isMenuCategoryLocationEdit: false,
+  setIsMenuCategoryLocationEdit: () => {},
   showStockFilters: false,
   setShowStockFilters: () => {},
   isMenuShowIkasCategories: false,
@@ -201,6 +205,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
+  const [isMenuCategoryLocationEdit, setIsMenuCategoryLocationEdit] =
+    useState<boolean>(false);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
     useState<CreateBulkProductAndMenuItem[]>([]);
   const [
@@ -272,6 +278,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        isMenuCategoryLocationEdit,
+        setIsMenuCategoryLocationEdit,
         showStockFilters,
         setShowStockFilters,
         isMenuLocationEdit,

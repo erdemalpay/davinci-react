@@ -31,8 +31,12 @@ type Props = {
 
 const CategoryTable = ({ handleCategoryChange }: Props) => {
   const { t } = useTranslation();
-  const { menuActiveTab, setMenuActiveTab } = useGeneralContext();
-  const [isLocationEdit, setIsLocationEdit] = useState(false);
+  const {
+    menuActiveTab,
+    setMenuActiveTab,
+    isMenuCategoryLocationEdit,
+    setIsMenuCategoryLocationEdit,
+  } = useGeneralContext();
   const locations = useGetStoreLocations();
   const allCategories = useGetAllCategories();
   const [showInactiveCategories, setShowInactiveCategories] = useState(false);
@@ -241,7 +245,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       key: location.name,
       node: (row: any) => {
         const isExist = row?.locations?.includes(location._id);
-        if (isLocationEdit) {
+        if (isMenuCategoryLocationEdit) {
           return (
             <CheckSwitch
               checked={isExist}
@@ -359,7 +363,12 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       label: t("Location Edit"),
       isUpperSide: false,
       node: (
-        <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
+        <SwitchButton
+          checked={isMenuCategoryLocationEdit}
+          onChange={() => {
+            setIsMenuCategoryLocationEdit(!isMenuCategoryLocationEdit);
+          }}
+        />
       ),
     },
     {
