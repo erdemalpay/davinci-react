@@ -42,7 +42,10 @@ const ClosedItems = () => {
     }
     updateItem({
       id: item?._id,
-      updates: { locations: newLocations },
+      updates: {
+        ...item,
+        locations: newLocations,
+      },
     });
     toast.success(`${t("Menu Item updated successfully")}`);
   }

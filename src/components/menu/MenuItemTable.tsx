@@ -5,7 +5,6 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
-import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
@@ -155,7 +154,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           { key: "name" },
           { key: "quantity" },
           ...(!isDisabledCondition ? [{ key: "price" }] : []),
-
           {
             key: "isDecrementStock",
             node: (row: any) => {
@@ -167,6 +165,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                       updateItem({
                         id: item?._id,
                         updates: {
+                          ...item,
                           itemProduction: item?.itemProduction?.map(
                             (itemProduction) => {
                               if (itemProduction.product === row?.product) {
@@ -205,9 +204,11 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     }
     updateItem({
       id: item?._id,
-      updates: { locations: newLocations },
+      updates: {
+        ...item,
+        locations: newLocations,
+      },
     });
-    toast.success(`${t("Menu Item updated successfully")}`);
   }
   const collapsibleInputs = [
     {
@@ -549,6 +550,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
                 updateItem({
                   id: row._id,
                   updates: {
+                    ...row,
                     shownInMenu: !row.shownInMenu,
                   },
                 });
@@ -667,6 +669,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
               updateItem({
                 id: row?._id,
                 updates: {
+                  ...row,
                   itemProduction: row?.itemProduction?.filter(
                     (item: any) => item?.product !== row?.product
                   ),
