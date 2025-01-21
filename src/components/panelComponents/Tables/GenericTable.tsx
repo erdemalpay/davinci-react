@@ -247,6 +247,7 @@ const GenericTable = <T,>({
     if (onDragEnter) {
       onDragEnter(draggedRow, targetRow);
     }
+    setExpandedRows({});
   };
   const toggleRowExpansion = (rowId: string) => {
     setExpandedRows((prevExpandedRows) => ({
