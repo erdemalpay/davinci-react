@@ -1,5 +1,5 @@
 import { Paths } from "../utils/api/factory";
-import { SocketEventType } from "./../types/index";
+import { SocketEventType } from "../types";
 
 export const socketEventListeners: SocketEventType[] = [
   {
