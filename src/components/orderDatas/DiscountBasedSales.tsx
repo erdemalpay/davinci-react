@@ -316,11 +316,7 @@ const DiscountBasedSales = () => {
     {
       key: "paidQuantity",
       node: (row: any) => {
-        return (
-          <p className={`${row?.className} text-center `}>
-            {row?.paidQuantity}
-          </p>
-        );
+        return <p className={`${row?.className}  `}>{row?.paidQuantity}</p>;
       },
     },
   ];
