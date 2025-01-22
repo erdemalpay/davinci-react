@@ -697,7 +697,7 @@ const Tables = () => {
                     key={table?._id + "tableselector"}
                     onClick={() => scrollToSection(`table-${table?._id}`)}
                     className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                      table,
+                      table
                     )}`}
                   >
                     {table?.name}
