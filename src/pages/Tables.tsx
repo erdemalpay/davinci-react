@@ -58,10 +58,12 @@ import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
+import { useGetButtonCalls } from "../utils/api/buttonCalls";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
+import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -84,6 +86,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
+  const buttonCalls = useGetButtonCalls();
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
@@ -677,6 +680,14 @@ const Tables = () => {
                 }}
               />
             </div>
+
+            <div className="flex-row items-center w-full text-3xl sm:hidden">
+              <ActiveButtonCallsList buttonCalls={buttonCalls} />
+            </div>
+            <div className="mb-5 flex-row items-center w-full text-l hidden sm:block">
+              <ActiveButtonCallsList buttonCalls={buttonCalls} />
+            </div>
+
             {/* Table name buttons for small screen */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
               {tables
@@ -686,7 +697,7 @@ const Tables = () => {
                     key={table?._id + "tableselector"}
                     onClick={() => scrollToSection(`table-${table?._id}`)}
                     className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                      table
+                      table,
                     )}`}
                   >
                     {table?.name}

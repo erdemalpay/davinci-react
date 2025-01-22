@@ -297,6 +297,16 @@ export type Visit = {
   finishHour?: string;
 };
 
+export type ButtonCall = {
+  _id: string;
+  tableName: string;
+  location: number;
+  date: string;
+  startHour: string;
+  finishHour?: string;
+  createdBy: string;
+};
+
 export type Membership = {
   _id: number;
   name: string;

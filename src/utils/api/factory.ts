@@ -38,6 +38,7 @@ export const Paths = {
   Checklist: "/checklist",
   Ikas: "/ikas",
   Redis: "/redis",
+  ButtonCalls: "/button-calls",
 };
 
 interface Props<T> {
