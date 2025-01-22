@@ -46,7 +46,8 @@ export function useGetPersonalCollectionDatas() {
       `${Paths.Order}/personal/collection`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
-    ]
+    ],
+    true
   );
 }
 export function useGetTableCollections(tableId: number) {

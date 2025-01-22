@@ -272,7 +272,8 @@ export function useGetPersonalOrderDatas() {
       filterPanelFormElements.after,
       filterPanelFormElements.before,
       filterPanelFormElements.eliminatedDiscounts,
-    ]
+    ],
+    true
   );
 }
 

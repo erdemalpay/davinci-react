@@ -25,12 +25,6 @@ const LearnedGames = () => {
       after: "",
       before: "",
     });
-  const columns = [
-    { key: t("User"), isSortable: true },
-    { key: t("Game"), isSortable: true },
-    { key: t("Learn Date"), isSortable: true },
-  ];
-
   const allRows = users
     .flatMap((user) =>
       user?.userGames?.map((item) => {
@@ -48,8 +42,12 @@ const LearnedGames = () => {
       (a, b) =>
         new Date(b.learnDate).getTime() - new Date(a.learnDate).getTime()
     );
-
   const [rows, setRows] = useState(allRows);
+  const columns = [
+    { key: t("User"), isSortable: true },
+    { key: t("Game"), isSortable: true },
+    { key: t("Learn Date"), isSortable: true },
+  ];
   const rowKeys = [
     {
       key: "userName",

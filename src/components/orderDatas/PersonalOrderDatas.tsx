@@ -68,10 +68,10 @@ const PersonalOrderDatas = () => {
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
+  const [tableKey, setTableKey] = useState(0);
   const roles = useGetAllUserRoles();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
-  const [tableKey, setTableKey] = useState(0);
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -261,6 +261,7 @@ const PersonalOrderDatas = () => {
   }, [
     users,
     personalOrderDatas,
+    personalCollectionDatas,
     tableCreateDatas,
     gameplayDatas,
     roles,

@@ -7,14 +7,10 @@ type Props = {
 const InfoCard = ({ icon, title, value, color }: Props) => {
   return (
     <div
-      className="flex flex-col gap-6 py-6 px-10 items-center justify-center opacity-20 rounded-md"
-      style={{
-        backgroundColor: `bg-${color}-300`,
-        color: `text-${color}-500`,
-      }}
+      className={`flex flex-col gap-5 py-6 px-10 items-center justify-center bg-${color}-300 bg-opacity-20 text-${color}-500 rounded-md `}
     >
-      <div className="text-2xl">{icon}</div>
-      <div className="flex flex-col gap-2">
+      <div className="text-4xl  ">{icon}</div>
+      <div className="flex flex-col items-center font-medium gap-2">
         <p>{title}</p>
         <p>{value}</p>
       </div>

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaRegListAlt, FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineEventNote } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import { useGeneralContext } from "../context/General.context";
@@ -71,6 +72,17 @@ export default function UserView() {
         user?.role._id === RoleEnum.GAMEMANAGER ||
         user?.role._id === RoleEnum.MANAGER
       ),
+    },
+    {
+      number: 3,
+      label: `${t("User Summary")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <GameMasterSummary userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(user?.role._id === RoleEnum.GAMEMASTER),
     },
   ];
   if (!user) return <></>;
