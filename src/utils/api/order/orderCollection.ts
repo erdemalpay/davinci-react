@@ -40,14 +40,14 @@ export function useCollectionMutation() {
 
 export function useGetPersonalCollectionDatas() {
   const { filterPanelFormElements } = useOrderContext();
-  let url = `${Paths.Order}/personal-collection?after=${filterPanelFormElements.after}`;
+  let url = `${Paths.Order}/personal_collection?after=${filterPanelFormElements.after}`;
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
   }
   return useGetList<PersonalCollectionNumber>(
     url,
     [
-      `${Paths.Order}/personal-collection`,
+      `${Paths.Order}/personal_collection`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
     ],
