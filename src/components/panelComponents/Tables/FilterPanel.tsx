@@ -17,6 +17,7 @@ const FilterPanel = <T,>({
   setFormElements,
   closeFilters,
   isApplyButtonActive = false,
+  isCloseButtonActive = true,
   additionalFilterCleanFunction,
 }: PanelFilterType) => {
   const { t } = useTranslation();
@@ -54,9 +55,11 @@ const FilterPanel = <T,>({
     <div className="flex flex-col gap-3 __className_a182b8 bg-white min-w-full sm:min-w-[20rem] border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
       <div className="flex flex-row justify-between">
         <H4 className="my-1">{t("Filters")}</H4>
-        <button onClick={closeFilters}>
-          <IoIosClose className="w-8 h-8 mx-auto p-1 cursor-pointer  hover:bg-gray-50 hover:rounded-full" />
-        </button>
+        {isCloseButtonActive && (
+          <button onClick={closeFilters}>
+            <IoIosClose className="w-8 h-8 mx-auto p-1 cursor-pointer  hover:bg-gray-50 hover:rounded-full" />
+          </button>
+        )}
       </div>
       {inputs.map((input) => {
         const value = tempFormElements[input.formKey];

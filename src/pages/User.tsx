@@ -10,6 +10,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
+import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
 import { useGeneralContext } from "../context/General.context";
 import { RoleEnum, User } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
@@ -83,6 +84,20 @@ export default function UserView() {
         </div>
       ),
       isDisabled: !(user?.role._id === RoleEnum.GAMEMASTER),
+    },
+    {
+      number: 4,
+      label: `${t("User Summary")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <ServicePersonalSummary userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.BARISTA ||
+        user?.role._id === RoleEnum.SERVICE
+      ),
     },
   ];
   if (!user) return <></>;

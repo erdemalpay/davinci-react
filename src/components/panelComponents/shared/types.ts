@@ -71,6 +71,7 @@ export interface PanelFilterType {
   closeFilters: () => void;
   isApplyButtonActive?: boolean;
   additionalFilterCleanFunction?: () => void;
+  isCloseButtonActive?: boolean;
 }
 export interface GenericInputType {
   type: InputTypes;
