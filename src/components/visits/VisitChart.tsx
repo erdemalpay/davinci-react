@@ -18,7 +18,7 @@ export default function VisitChart() {
   );
   return (
     <>
-      <div className=" __className_a182b8 w-[90%] mx-auto ">
+      <div className=" __className_a182b8 w-[95%] mx-auto ">
         <div className="flex justıfy-end">
           <div className="my-4 flex justify-between w-full">
             <h1 className="text-4xl ">

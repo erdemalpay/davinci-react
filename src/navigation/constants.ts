@@ -45,6 +45,7 @@ import { OrderDataTabs } from "./../pages/OrderDatas";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
+import { VisitPageTabs } from "./../pages/Visits";
 import { RoleEnum } from "./../types/index";
 
 export enum PublicRoutes {
@@ -173,6 +174,7 @@ export const allRoutes: {
     path: Routes.Visits,
     element: Visits,
     isOnSidebar: true,
+    tabs: VisitPageTabs,
   },
   {
     name: "Images",

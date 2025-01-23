@@ -634,6 +634,11 @@ export enum ExpensesPageTabEnum {
   ADDVENDORPAYMENT,
   BULKEXPENSECREATE,
 }
+export enum VisitPageTabEnum {
+  DAILYVISIT,
+  VISITCHART,
+  VISITSCHEDULEOVERVIEW,
+}
 export enum CountListPageTabEnum {
   COUNTARCHIVE,
   COUNTLISTS,
