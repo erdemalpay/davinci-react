@@ -353,15 +353,38 @@ export function useUpdateMultipleOrderMutation() {
 export function useGetOrders() {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
-  if (filterPanelFormElements?.before) {
-    url = url.concat(`&before=${filterPanelFormElements.before}`);
-  }
+  const parameters = [
+    "before",
+    "discount",
+    "createdBy",
+    "preparedBy",
+    "deliveredBy",
+    "cancelledBy",
+    "status",
+    "category",
+    "location",
+  ];
+  parameters.forEach((param) => {
+    if (filterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
+      );
+    }
+  });
   return useGetList<Order>(
     url,
     [
       `${Paths.Order}/query`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.discount,
+      filterPanelFormElements.createdBy,
+      filterPanelFormElements.preparedBy,
+      filterPanelFormElements.deliveredBy,
+      filterPanelFormElements.cancelledBy,
+      filterPanelFormElements.status,
+      filterPanelFormElements.category,
+      filterPanelFormElements.location,
     ],
     true
   );

@@ -73,15 +73,6 @@ const CategoryBasedSalesReport = () => {
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
     ?.reduce((acc, order) => {
       if (!order || order.paidQuantity === 0) return acc;
-
-      // Location filter
-      if (
-        filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !== order.location
-      ) {
-        return acc;
-      }
-
       // Date filters
       const zonedTime = toZonedTime(order.createdAt, "UTC");
       const orderDate = new Date(zonedTime);
