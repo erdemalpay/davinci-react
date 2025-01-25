@@ -58,10 +58,12 @@ import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
+import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
+import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -84,6 +86,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
+  const buttonCalls = useGetButtonCalls();
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
@@ -677,8 +680,12 @@ const Tables = () => {
                 }}
               />
             </div>
+
             {/* Table name buttons for small screen */}
             <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
+              <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
+                <ActiveButtonCallsList buttonCalls={buttonCalls} />
+              </div>
               {tables
                 ?.filter((table) => !table?.finishHour)
                 ?.map((table) => (
@@ -709,20 +716,25 @@ const Tables = () => {
             </div>
           </div>
           {/* Table name buttons for big screen */}
-          <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
-            {tables
-              ?.filter((table) => !table?.finishHour)
-              ?.map((table) => (
-                <a
-                  key={table?._id + "tableselector"}
-                  onClick={() => scrollToSection(`table-large-${table?._id}`)}
-                  className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
-                    table
-                  )}`}
-                >
-                  {table?.name}
-                </a>
-              ))}
+          <div className="flex flex-col gap-2">
+            <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
+              <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
+                <ActiveButtonCallsList buttonCalls={buttonCalls} />
+              </div>
+              {tables
+                ?.filter((table) => !table?.finishHour)
+                ?.map((table) => (
+                  <a
+                    key={table?._id + "tableselector"}
+                    onClick={() => scrollToSection(`table-large-${table?._id}`)}
+                    className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
+                      table
+                    )}`}
+                  >
+                    {table?.name}
+                  </a>
+                ))}
+            </div>
           </div>
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
