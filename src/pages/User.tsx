@@ -83,7 +83,10 @@ export default function UserView() {
           <GameMasterSummary userId={user._id} />
         </div>
       ),
-      isDisabled: !(user?.role._id === RoleEnum.GAMEMASTER),
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.GAMEMASTER
+      ),
     },
     {
       number: 4,
