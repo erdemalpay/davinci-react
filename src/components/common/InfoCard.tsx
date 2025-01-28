@@ -11,7 +11,7 @@ const InfoCard = ({ icon, title, value, color }: Props) => {
     >
       <div className="text-4xl  ">{icon}</div>
       <div className="flex flex-col items-center font-medium gap-2">
-        <p>{title}</p>
+        <p className="text-center">{title}</p>
         <p>{value}</p>
       </div>
     </div>

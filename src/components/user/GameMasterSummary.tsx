@@ -4,11 +4,15 @@ import { FaGamepad } from "react-icons/fa";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
 import { MdOutlineFastfood } from "react-icons/md";
+import { PiPersonArmsSpreadFill } from "react-icons/pi";
 import { useOrderContext } from "../../context/Order.context";
 import { commonDateOptions, DateRangeKey } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
-import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
+import {
+  useGetPersonalGameplayCreateData,
+  useGetPersonalGameplayMentoredData,
+} from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
@@ -28,6 +32,7 @@ const GameMasterSummary = ({ userId }: Props) => {
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   //   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
+  const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
   const games = useGetGames();
@@ -47,6 +52,9 @@ const GameMasterSummary = ({ userId }: Props) => {
     const foundPersonalCollectionData = personalCollectionDatas?.find(
       (data) => data.createdBy === userId
     );
+    const foundGameplayMentoredData = gameplayMentoredDatas.find(
+      (gameplayData) => gameplayData.mentoredBy === userId
+    );
     // const foundTableData = tableCreateDatas?.find(
     //   (tableData) => tableData.createdBy === userId
     // );
@@ -55,6 +63,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       deliveredByCount: foundPersonalOrderDatas?.deliveredByCount || 0,
       gameplayCount: foundGameplayData?.gameplayCount || 0,
       collectionCount: foundPersonalCollectionData?.totalCollections || 0,
+      mentoredGameplayCount: foundGameplayMentoredData?.gameplayCount || 0,
     };
   };
   const userInfoCards = [
@@ -75,6 +84,12 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Created Gameplay Count"),
       value: allUserInfos().gameplayCount.toString(),
       color: "orange",
+    },
+    {
+      icon: <PiPersonArmsSpreadFill />,
+      title: t("Mentored Gameplay Count"),
+      value: allUserInfos().mentoredGameplayCount.toString(),
+      color: "purple",
     },
     {
       icon: <FaMoneyBill1Wave />,
@@ -200,13 +215,14 @@ const GameMasterSummary = ({ userId }: Props) => {
     personalOrderDatas,
     personalCollectionDatas,
     // tableCreateDatas,
+    gameplayMentoredDatas,
     gameplayDatas,
     games,
     users,
   ]);
   return (
     <div key={tableKey} className="w-full  h-fit flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 ">
         {userInfoCards.map((card, index) => (
           <InfoCard
             key={index}
