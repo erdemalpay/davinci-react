@@ -139,6 +139,12 @@ const OrderDatas = () => {
             category: [30],
           });
         },
+        onCloseAction: () => {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            category: [],
+          });
+        },
       }),
     };
   });

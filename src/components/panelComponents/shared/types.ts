@@ -6,6 +6,7 @@ export interface Tab {
   label: string;
   isDisabled: boolean;
   onOpenAction?: () => void;
+  onCloseAction?: () => void;
 }
 
 export interface BreadCrumbItem {
