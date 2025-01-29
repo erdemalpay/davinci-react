@@ -648,6 +648,7 @@ export enum VisitPageTabEnum {
   DAILYVISIT,
   VISITCHART,
   VISITSCHEDULEOVERVIEW,
+  ALLVISITS,
 }
 export enum CountListPageTabEnum {
   COUNTARCHIVE,

@@ -6,7 +6,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { useGetFilteredVisits } from "../../utils/api/visit";
-import { formatAsLocalDate } from "../../utils/format";
+import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -16,7 +16,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 type FormElementsState = {
   [key: string]: any;
 };
-const VisitScheduleOverview = () => {
+const AllVisits = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -35,56 +35,39 @@ const VisitScheduleOverview = () => {
     filterPanelFormElements.after,
     filterPanelFormElements.before
   );
-  const allRows = visits
-    ?.filter((visit) => {
-      if (filterPanelFormElements.user !== "") {
-        return visit.user === filterPanelFormElements.user;
-      }
-      if (filterPanelFormElements.location !== "") {
-        return visit.location === filterPanelFormElements.location;
-      }
-      return true;
-    })
-    ?.map((visit) => {
-      const foundUser = getItem(visit.user, users);
-      if (!foundUser) return null;
-      const isPartTime = visit.startHour >= "16:00";
-      return {
-        visitDate: formatAsLocalDate(visit.date),
-        userName: foundUser.name,
-        userType: isPartTime ? "PartTime" : "FullTime",
-      };
-    })
-    ?.filter((row) => row !== null)
-    ?.reduce((acc: any, curr: any) => {
-      let userEntry = acc.find(
-        (entry: any) => entry.userName === curr.userName
-      );
-      if (!userEntry) {
-        userEntry = {
-          userName: curr.userName,
-          partTime: 0,
-          fullTime: 0,
-        };
-        acc.push(userEntry);
-      }
-      if (curr.userType === "PartTime") {
-        userEntry.partTime += 1;
-      } else {
-        userEntry.fullTime += 1;
-      }
-      return acc;
-    }, []);
+  const allRows = visits?.map((visit) => {
+    const foundUser = getItem(visit.user, users);
+    const foundLocation = getItem(visit.location, locations);
+    return {
+      ...visit,
+      formattedDate: convertDateFormat(visit.date),
+      userName: foundUser?.name,
+      locationName: foundLocation?.name,
+      userRole: foundUser?.role?.name,
+      finishHour: visit?.finishHour ?? " ",
+    };
+  });
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("User"), isSortable: true },
-    { key: "Part Time", isSortable: true },
-    { key: "Full Time", isSortable: true },
+    { key: t("User"), isSortable: true, correspondingKey: "userName" },
+    { key: t("Role"), isSortable: true, correspondingKey: "userRole" },
+    { key: t("Location"), isSortable: true, correspondingKey: "locationName" },
+    { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+    { key: t("Start Hour"), isSortable: true, correspondingKey: "startHour" },
+    { key: t("Finish Hour"), isSortable: true, correspondingKey: "finishHour" },
   ];
   const rowKeys = [
     { key: "userName" },
-    { key: "partTime" },
-    { key: "fullTime" },
+    { key: "userRole" },
+    { key: "locationName" },
+    {
+      key: "date",
+      node: (row: any) => {
+        return <p className="min-w-32 pr-2">{row.formattedDate}</p>;
+      },
+    },
+    { key: "startHour" },
+    { key: "finishHour" },
   ];
   const filters = [
     {
@@ -182,10 +165,12 @@ const VisitScheduleOverview = () => {
           isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
-          title={t("Visit Schedule Overview")}
+          title={t("All Visits")}
+          isExcel={true}
+          excelFileName={`Visits.xlsx`}
         />
       </div>
     </>
   );
 };
-export default VisitScheduleOverview;
+export default AllVisits;

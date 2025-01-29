@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { CiViewTable } from "react-icons/ci";
+import { GiEgyptianWalk } from "react-icons/gi";
 import { MdOutlineSchedule } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import AllVisits from "../components/visits/AllVisits";
 import DailyVisit from "../components/visits/DailyVisit";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
@@ -32,6 +34,13 @@ export const VisitPageTabs = [
     label: "Visit Schedule Overview",
     icon: <MdOutlineSchedule className="text-lg font-thin" />,
     content: <VisitScheduleOverview />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.ALLVISITS,
+    label: "All Visits",
+    icon: <GiEgyptianWalk className="text-lg font-thin" />,
+    content: <AllVisits />,
     isDisabled: false,
   },
 ];
