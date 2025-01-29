@@ -41,6 +41,7 @@ import Visits from "../pages/Visits";
 import { BrandPageTabs } from "./../pages/Brand";
 import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
+import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
@@ -94,6 +95,7 @@ export enum Routes {
   BulkProductAdding = "/bulk-product-adding",
   Checklists = "/checklists",
   Checklist = "/checklist/:checklistId",
+  Notifications = "/notifications",
 }
 
 export const allRoutes: {
@@ -168,13 +170,19 @@ export const allRoutes: {
     element: Rewards,
     isOnSidebar: true,
   },
-
   {
     name: "Visits",
     path: Routes.Visits,
     element: Visits,
     isOnSidebar: true,
     tabs: VisitPageTabs,
+  },
+  {
+    name: "Notifications",
+    path: Routes.Notifications,
+    element: Notifications,
+    isOnSidebar: true,
+    tabs: NotificationPageTabs,
   },
   {
     name: "Images",

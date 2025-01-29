@@ -532,6 +532,24 @@ export type Reservation = {
   finishHour: string;
   status: ReservationStatusEnum;
 };
+export type Notification = {
+  _id: number;
+  createdAt: Date;
+  message: string;
+  type: string;
+  createdBy?: string;
+  selectedUsers?: string[];
+  selectedRoles?: number[];
+  selectedLocations?: number[];
+  seenBy?: string[];
+};
+export enum NotificationType {
+  INFORMATION = "INFORMATION",
+  WARNING = "WARNING",
+  ERROR = "ERROR",
+  SUCCESS = "SUCCESS",
+  ORDER = "ORDER",
+}
 
 export type TagType<T> = {
   _id: string | number;
@@ -649,6 +667,9 @@ export enum VisitPageTabEnum {
   VISITCHART,
   VISITSCHEDULEOVERVIEW,
   ALLVISITS,
+}
+export enum NotificationPageTabEnum {
+  CREATENOTIFICATION,
 }
 export enum CountListPageTabEnum {
   COUNTARCHIVE,

@@ -39,6 +39,7 @@ export const Paths = {
   Ikas: "/ikas",
   Redis: "/redis",
   ButtonCalls: "/button-calls",
+  Notification: "/notification",
 };
 
 interface Props<T> {
