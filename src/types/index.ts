@@ -755,6 +755,7 @@ export enum OrderDataTabEnum {
   COLLECTIONS,
   ORDERS,
   IKASORDERS,
+  FARMBURGER,
   PERSONALORDERDATAS,
 }
 export const stockHistoryStatuses = [

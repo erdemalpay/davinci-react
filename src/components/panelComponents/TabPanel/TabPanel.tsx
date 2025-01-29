@@ -73,6 +73,7 @@ const TabPanel: React.FC<Props> = ({
     additionalClickAction && additionalClickAction();
     resetGeneralContext();
     setActiveTab(tab.number);
+    tab?.onOpenAction?.();
   };
 
   return (

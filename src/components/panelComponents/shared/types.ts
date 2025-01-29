@@ -5,6 +5,7 @@ export interface Tab {
   icon?: React.ReactNode | null;
   label: string;
   isDisabled: boolean;
+  onOpenAction?: () => void;
 }
 
 export interface BreadCrumbItem {
