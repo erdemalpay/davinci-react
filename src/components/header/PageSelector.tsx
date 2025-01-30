@@ -24,7 +24,7 @@ export function PageSelector() {
   const queryClient = useQueryClient();
   const currentRoute = location.pathname;
   const { user, setUser } = useUserContext();
-  const { resetGeneralContext } = useGeneralContext();
+  const { resetGeneralContext, setIsNotificationOpen } = useGeneralContext();
   const routes = allRoutes.filter(
     (route) =>
       route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
@@ -47,7 +47,12 @@ export function PageSelector() {
     <Menu>
       <MenuHandler>
         <button className="text-sm text-white">
-          <Bars3Icon className="h-5 w-5" />
+          <Bars3Icon
+            className="h-5 w-5"
+            onClick={() => {
+              setIsNotificationOpen(false);
+            }}
+          />
         </button>
       </MenuHandler>
       <MenuList className=" overflow-scroll no-scrollbar h-[95%] max-h-max">

@@ -28,3 +28,19 @@ export function useGetUserNewNotifications() {
     `${Paths.Notification}/new`,
   ]);
 }
+
+export function useGetUserAllNotifications({
+  after,
+  before,
+}: {
+  after: string;
+  before?: string;
+}) {
+  let url = `${baseUrl}/all?after=${after}`;
+  if (before) url += `&before=${before}`;
+  return useGetList<Notification>(url, [
+    `${Paths.Notification}/all`,
+    after,
+    before ?? null,
+  ]);
+}

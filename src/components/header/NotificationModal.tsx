@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { NotificationType } from "../../types";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
-
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const notifications = useGetUserNewNotifications();
@@ -16,6 +15,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
     [NotificationType.SUCCESS]: "#92e895",
     [NotificationType.ORDER]: "#de8dec",
   };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -26,9 +26,9 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [onClose]);
   return (
