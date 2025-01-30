@@ -5,14 +5,14 @@ import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
-import { UpdatePayload, postWithHeader } from "../../../utils/api";
-import { H4, H6 } from "../Typography";
+import { postWithHeader, UpdatePayload } from "../../../utils/api";
 import {
   FormKeyType,
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import { H4, H6 } from "../Typography";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
 
@@ -375,7 +375,7 @@ const GenericAddComponent = <T,>({
                             handleChange(input.formKey)(e.target.value);
                           }}
                           placeholder={input.placeholder ?? ""}
-                          className="border text-sm border-gray-300 rounded-md p-2"
+                          className="border text-sm border-gray-300 rounded-md p-2 min-h-40"
                         />
                       </div>
                     )}

@@ -22,3 +22,9 @@ export function useGetNotifications({
 
   return useGetList<Notification>(url, [baseUrl, after, before ?? null], true);
 }
+
+export function useGetUserNewNotifications() {
+  return useGetList<Notification>(`${Paths.Notification}/new`, [
+    `${Paths.Notification}/new`,
+  ]);
+}

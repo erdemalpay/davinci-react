@@ -28,6 +28,8 @@ type GeneralContextType = {
     } | null
   ) => void;
   showStockFilters: boolean;
+  isNotificationOpen: boolean;
+  setIsNotificationOpen: (open: boolean) => void;
   setShowStockFilters: (show: boolean) => void;
   productExpenseForm: Partial<AccountInvoice>;
   errorDataForCreateMultipleExpense: CreateMultipleExpense[];
@@ -96,6 +98,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  isNotificationOpen: false,
+  setIsNotificationOpen: () => {},
   isMenuCategoryLocationEdit: false,
   setIsMenuCategoryLocationEdit: () => {},
   showStockFilters: false,
@@ -205,6 +209,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   const [isMenuCategoryLocationEdit, setIsMenuCategoryLocationEdit] =
     useState<boolean>(false);
   const [errorDataForProductBulkCreation, setErrorDataForProductBulkCreation] =
@@ -273,11 +278,14 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setExpandedRows({});
     setSearchQuery("");
     setCurrentPage(1);
+    setIsNotificationOpen(false);
   };
 
   return (
     <GeneralContext.Provider
       value={{
+        isNotificationOpen,
+        setIsNotificationOpen,
         isMenuCategoryLocationEdit,
         setIsMenuCategoryLocationEdit,
         showStockFilters,
