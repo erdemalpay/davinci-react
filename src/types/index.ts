@@ -670,6 +670,7 @@ export enum VisitPageTabEnum {
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
+  ALLNOTIFICATIONS,
 }
 export enum CountListPageTabEnum {
   COUNTARCHIVE,

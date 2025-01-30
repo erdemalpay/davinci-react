@@ -1,5 +1,7 @@
 import { Notification } from "../../types";
-import { Paths, useMutationApi } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
+
+const baseUrl = `${Paths.Notification}`;
 
 export function useNotificationMutations() {
   const { createItem: createNotification } = useMutationApi<Notification>({
@@ -7,4 +9,16 @@ export function useNotificationMutations() {
   });
 
   return { createNotification };
+}
+export function useGetNotifications({
+  after,
+  before,
+}: {
+  after: string;
+  before?: string;
+}) {
+  let url = `${baseUrl}?after=${after}`;
+  if (before) url += `&before=${before}`;
+
+  return useGetList<Notification>(url, [baseUrl, after, before ?? null], true);
 }
