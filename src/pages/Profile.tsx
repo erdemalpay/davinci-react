@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegUserCircle } from "react-icons/fa";
-import { IoIosSettings } from "react-icons/io";
+import { IoIosSettings, IoMdNotifications } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
 import { Header } from "../components/header/Header";
@@ -9,6 +8,7 @@ import ChangePassword from "../components/panelComponents/Profile/ChangePassword
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import Settings from "../components/panelComponents/Profile/Settings";
+import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -17,24 +17,36 @@ import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import { useGetUser } from "../utils/api/user";
-
+export enum ProfileTabEnum {
+  PHOTO = 0,
+  PERSONAL_DETAILS = 1,
+  CHANGE_PASSWORD = 2,
+  SETTINGS = 3,
+  MENTORED_GAMES = 4,
+  KNOWN_GAMES = 5,
+  NOTIFICATIONS = 6,
+}
 export default function Profile() {
   const updatedUser = useGetUser();
   const { user } = useUserContext();
-  const [activeTab, setActiveTab] = useState<number>(0);
   const { t } = useTranslation();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
-  const { setCurrentPage, setSearchQuery } = useGeneralContext();
+  const {
+    setCurrentPage,
+    setSearchQuery,
+    profileActiveTab,
+    setProfileActiveTab,
+  } = useGeneralContext();
   const tabs = [
     {
-      number: 0,
+      number: ProfileTabEnum.PHOTO,
       label: "Photo",
       icon: <FaRegUserCircle className="text-lg font-thin" />,
       content: <ProfileCard />,
       isDisabled: false,
     },
     {
-      number: 1,
+      number: ProfileTabEnum.PERSONAL_DETAILS,
       label: "Personal Details",
       icon: <TbListDetails className="text-lg font-thin" />,
       content: updatedUser && (
@@ -43,21 +55,21 @@ export default function Profile() {
       isDisabled: false,
     },
     {
-      number: 2,
+      number: ProfileTabEnum.CHANGE_PASSWORD,
       label: "Change Password",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: <ChangePassword />,
       isDisabled: false,
     },
     {
-      number: 3,
+      number: ProfileTabEnum.SETTINGS,
       label: "Settings",
       icon: <IoIosSettings className="text-lg font-thin" />,
       content: <Settings />,
       isDisabled: false,
     },
     {
-      number: 4,
+      number: ProfileTabEnum.MENTORED_GAMES,
       label: "Mentored Games",
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: data && (
@@ -72,7 +84,7 @@ export default function Profile() {
       ),
     },
     {
-      number: 5,
+      number: ProfileTabEnum.KNOWN_GAMES,
       label: `${t("Known Games")} (${user?.userGames.length})`,
       icon: <MdOutlineEventNote className="text-lg font-thin" />,
       content: (
@@ -86,6 +98,13 @@ export default function Profile() {
         user?.role._id === RoleEnum.MANAGER
       ),
     },
+    {
+      number: ProfileTabEnum.NOTIFICATIONS,
+      label: t("Notifications"),
+      icon: <IoMdNotifications className="text-lg font-thin" />,
+      content: <UserNotifications />,
+      isDisabled: false,
+    },
   ];
 
   return (
@@ -93,8 +112,8 @@ export default function Profile() {
       <Header showLocationSelector={false} />
       <TabPanel
         tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        activeTab={profileActiveTab}
+        setActiveTab={setProfileActiveTab}
         additionalOpenAction={() => {
           setCurrentPage(1);
           setSearchQuery("");

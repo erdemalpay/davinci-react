@@ -662,6 +662,7 @@ export enum ExpensesPageTabEnum {
   ADDVENDORPAYMENT,
   BULKEXPENSECREATE,
 }
+
 export enum VisitPageTabEnum {
   DAILYVISIT,
   VISITCHART,
@@ -1256,3 +1257,10 @@ export const orderFilterStatusOptions = [
   { value: OrderStatus.WASTED, label: "Loss Product" },
   { value: OrderStatus.RETURNED, label: "Returned" },
 ];
+export const NotificationBackgroundColors: Record<NotificationType, string> = {
+  [NotificationType.INFORMATION]: "#79a8ce",
+  [NotificationType.WARNING]: "#e8c185",
+  [NotificationType.ERROR]: "#e56d64",
+  [NotificationType.SUCCESS]: "#92e895",
+  [NotificationType.ORDER]: "#de8dec",
+};

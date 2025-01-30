@@ -27,6 +27,8 @@ type GeneralContextType = {
       direction: "ascending" | "descending";
     } | null
   ) => void;
+  profileActiveTab: number;
+  setProfileActiveTab: (tab: number) => void;
   showStockFilters: boolean;
   isNotificationOpen: boolean;
   setIsNotificationOpen: (open: boolean) => void;
@@ -98,6 +100,8 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
+  profileActiveTab: 0,
+  setProfileActiveTab: () => {},
   isNotificationOpen: false,
   setIsNotificationOpen: () => {},
   isMenuCategoryLocationEdit: false,
@@ -207,6 +211,7 @@ const GeneralContext = createContext<GeneralContextType>({
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const { user } = useUserContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [profileActiveTab, setProfileActiveTab] = useState<number>(0);
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
@@ -284,6 +289,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <GeneralContext.Provider
       value={{
+        profileActiveTab,
+        setProfileActiveTab,
         isNotificationOpen,
         setIsNotificationOpen,
         isMenuCategoryLocationEdit,

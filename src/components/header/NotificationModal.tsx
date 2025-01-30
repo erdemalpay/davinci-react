@@ -1,20 +1,19 @@
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { NotificationType } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
+import { ProfileTabEnum } from "../../pages/Profile";
+import { NotificationBackgroundColors, NotificationType } from "../../types";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
+
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const notifications = useGetUserNewNotifications();
+  const { setProfileActiveTab } = useGeneralContext();
   const modalRef = useRef<HTMLDivElement | null>(null);
   if (!notifications) return null;
-  const NotificationBackgroundColors: Record<NotificationType, string> = {
-    [NotificationType.INFORMATION]: "#79a8ce",
-    [NotificationType.WARNING]: "#e8c185",
-    [NotificationType.ERROR]: "#e56d64",
-    [NotificationType.SUCCESS]: "#92e895",
-    [NotificationType.ORDER]: "#de8dec",
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,7 +36,19 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       className="flex flex-col gap-2  overflow-auto no-scrollbar "
     >
       {/* header */}
-      <div className="text-lg font-bold">{t("Notifications")}</div>
+      <div className="flex flex-row justify-between">
+        <p className="text-lg font-bold">{t("Notifications")}</p>
+        <button
+          onClick={() => {
+            setProfileActiveTab(ProfileTabEnum.NOTIFICATIONS);
+            navigate("/profile");
+            onClose();
+          }}
+          className="text-sm text-blue-500 hover:scale-105 pr-2"
+        >
+          {t("All Notifications")}
+        </button>
+      </div>
       {/* notifications */}
       <div className="flex flex-col gap-2 overflow-auto no-scrollbar max-h-[80vh]">
         {notifications.map((notification) => (
