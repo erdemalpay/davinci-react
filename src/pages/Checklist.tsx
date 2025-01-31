@@ -315,7 +315,7 @@ const Checklist = () => {
     },
     {
       label: t("Location Edit"),
-      isUpperSide: true,
+      isUpperSide: false,
       isDisabled: user
         ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
         : true,
