@@ -55,7 +55,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       </div>
       {/* notifications */}
       <div className="flex flex-col gap-2 overflow-auto no-scrollbar max-h-[80vh]">
-        {notifications.map((notification) => (
+        {notifications?.map((notification) => (
           <div
             key={notification._id}
             className="flex flex-col gap-0.5 border-b border-b-slate-200 py-1 rounded-md px-2  "
