@@ -91,6 +91,18 @@ export function useWebSocket() {
         data.collection.table,
       ]);
     });
+
+    socket.on("notificationChanged", (data) => {
+      if (
+        data?.selectedUsers?.includes(user?._id) ||
+        (data?.selectedRoles?.includes(user?.role?._id) &&
+          !data?.notification?.seenUsers?.includes(user?._id))
+      ) {
+        queryClient.invalidateQueries([`${Paths.Notification}/new`]);
+        queryClient.invalidateQueries([`${Paths.Notification}/all`]);
+      }
+    });
+
     socket.on("singleTableChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
     });
