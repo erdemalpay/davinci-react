@@ -1,17 +1,21 @@
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { ProfileTabEnum } from "../../pages/Profile";
 import { NotificationBackgroundColors, NotificationType } from "../../types";
-import { useGetUserNewNotifications } from "../../utils/api/notification";
-
+import {
+  useGetUserNewNotifications,
+  useMarkAsReadMutation,
+} from "../../utils/api/notification";
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const notifications = useGetUserNewNotifications();
   const { setProfileActiveTab } = useGeneralContext();
+  const { mutate: markAsRead } = useMarkAsReadMutation();
   const modalRef = useRef<HTMLDivElement | null>(null);
   if (!notifications) return null;
 
@@ -63,12 +67,18 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
             }}
           >
             {/* date and mark as read */}
-            <div className="flex flex-row justify-between gap-2">
+            <div className="flex flex-row justify-between gap-2 ">
               {/* date */}
               <p className="text-white text-sm">
                 {format(notification.createdAt, "dd-MM-yyyy")}
               </p>
               {/* mark as read */}
+              <MdOutlineCheckBoxOutlineBlank
+                onClick={() => {
+                  markAsRead(notification._id);
+                }}
+                className="my-auto text-white text-2xl cursor-pointer hover:scale-105"
+              />
             </div>
 
             {/* message */}

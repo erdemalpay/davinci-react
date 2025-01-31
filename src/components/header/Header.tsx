@@ -72,7 +72,7 @@ export function Header({
               )}
             </div>
             {isNotificationOpen && (
-              <div className="absolute top-12 right-2 flex flex-col gap-2 bg-white rounded-md py-4 px-2 mx-auto border-t border-gray-200 drop-shadow-lg z-10 min-w-64 max-w-[90%] sm:max-w-[40%]">
+              <div className="absolute top-12 right-2 flex flex-col gap-2 bg-white rounded-md py-4 px-2 mx-auto border-t border-gray-200 drop-shadow-lg z-10 w-[90%] sm:w-[35%]">
                 <NotificationModal
                   onClose={() => {
                     setIsNotificationOpen(false);
