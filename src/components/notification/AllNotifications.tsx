@@ -1,4 +1,4 @@
-import { format, startOfMonth } from "date-fns";
+import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { commonDateOptions, DateRangeKey } from "../../types";
@@ -21,7 +21,7 @@ const AllNotifications = () => {
   const roles = useGetAllUserRoles();
   const initialFilterPanelFormElements = {
     before: "",
-    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    after: format(startOfYear(new Date()), "yyyy-MM-dd"),
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
