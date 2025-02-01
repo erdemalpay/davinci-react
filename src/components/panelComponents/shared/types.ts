@@ -7,6 +7,7 @@ export interface Tab {
   isDisabled: boolean;
   onOpenAction?: () => void;
   onCloseAction?: () => void;
+  adjustedNumber?: number;
 }
 
 export interface BreadCrumbItem {
