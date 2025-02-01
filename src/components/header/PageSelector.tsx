@@ -76,6 +76,7 @@ export function PageSelector() {
                 if (route?.path) {
                   resetGeneralContext();
                   navigate(route.path);
+                  window.scrollTo(0, 0);
                 }
               }}
             >
