@@ -261,7 +261,7 @@ const BulkProductAdding = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10 flex flex-col gap-6 min-h-screen">
+      <div className="w-[95%] mx-auto my-10 flex flex-col gap-6 ">
         <GenericTable
           key={tableKey}
           rows={rows}
