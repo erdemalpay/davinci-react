@@ -727,7 +727,15 @@ export function TableCard({
                 const orderObject = handleOrderObject();
                 if (orderObject) {
                   createMultipleOrder({
-                    orders: [...orderCreateBulk, orderObject],
+                    orders: [
+                      ...orderCreateBulk.map((orderCreateBulkItem) => {
+                        return {
+                          ...orderCreateBulkItem,
+                          tableDate: table ? new Date(table?.date) : new Date(),
+                        };
+                      }),
+                      orderObject,
+                    ],
                     table: table,
                   });
                   setOrderForm(initialOrderForm);
@@ -736,7 +744,12 @@ export function TableCard({
                 }
               }
               createMultipleOrder({
-                orders: orderCreateBulk,
+                orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                  return {
+                    ...orderCreateBulkItem,
+                    tableDate: table ? new Date(table?.date) : new Date(),
+                  };
+                }),
                 table: table,
               });
             }

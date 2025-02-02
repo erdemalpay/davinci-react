@@ -565,6 +565,7 @@ const OrderPaymentModal = ({
                     ...orderCreateBulk.map((orderCreateBulkItem) => {
                       return {
                         ...orderCreateBulkItem,
+                        tableDate: table ? new Date(table?.date) : new Date(),
                         createdBy: selectedUser._id,
                       };
                     }),
@@ -582,6 +583,7 @@ const OrderPaymentModal = ({
                 ...orderCreateBulk.map((orderCreateBulkItem) => {
                   return {
                     ...orderCreateBulkItem,
+                    tableDate: table ? new Date(table?.date) : new Date(),
                     createdBy: selectedUser._id,
                   };
                 }),
