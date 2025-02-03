@@ -37,7 +37,7 @@ const Count = () => {
   const products = useGetAccountProducts();
   const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
-  const { updateAccountCount } = useAccountCountMutations();
+  const { updateAccountCount, deleteAccountCount } = useAccountCountMutations();
   const countLists = useGetAccountCountLists();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
@@ -45,7 +45,6 @@ const Count = () => {
   const { updateAccountCountList } = useAccountCountListMutations();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-
   const { resetGeneralContext, setCountListActiveTab } = useGeneralContext();
   const { location, countListId } = useParams();
   const [form, setForm] = useState({
@@ -366,6 +365,16 @@ const Count = () => {
     resetGeneralContext();
     navigate(Routes.CountLists);
   };
+  const cancelCount = () => {
+    if (!currentCount && !countListProducts) {
+      return;
+    }
+    if (currentCount) {
+      deleteAccountCount(currentCount?._id);
+      setCountListActiveTab(CountListPageTabEnum.COUNTARCHIVE);
+      navigate(Routes.CountLists);
+    }
+  };
   useEffect(() => {
     setRows(
       countLists
@@ -421,7 +430,13 @@ const Count = () => {
           filters={filters}
           actions={isEnableEdit ? actions : []}
         />
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end flex-row gap-2 mt-4">
+          <button
+            className="px-2  bg-red-500 hover:text-red-500 hover:border-red-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+            onClick={cancelCount}
+          >
+            <H5> {t("Cancel")}</H5>
+          </button>
           <button
             className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
             onClick={() => {
