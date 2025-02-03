@@ -77,9 +77,9 @@ const VisitScheduleOverview = () => {
     }, []);
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("User"), isSortable: true },
-    { key: "Part Time", isSortable: true },
-    { key: "Full Time", isSortable: true },
+    { key: t("User"), isSortable: true, correspondingKey: "userName" },
+    { key: "Part Time", isSortable: true, correspondingKey: "partTime" },
+    { key: "Full Time", isSortable: true, correspondingKey: "fullTime" },
   ];
   const rowKeys = [
     { key: "userName" },
@@ -182,6 +182,8 @@ const VisitScheduleOverview = () => {
           isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
+          isExcel={true}
+          excelFileName={"VisitSchedule.xlsx"}
           title={t("Visit Schedule Overview")}
         />
       </div>
