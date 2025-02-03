@@ -1,5 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { debounce } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
@@ -291,7 +292,7 @@ const OrderPaymentTypes = ({
               {!table?.finishHour && (
                 <HiOutlineTrash
                   className="text-red-600 cursor-pointer text-lg"
-                  onClick={() => {
+                  onClick={debounce(() => {
                     if (isMutating) {
                       return;
                     }
@@ -333,7 +334,7 @@ const OrderPaymentTypes = ({
                       } as Partial<OrderCollection>,
                     });
                     resetOrderContext();
-                  }}
+                  }, 250)}
                 />
               )}
             </div>
