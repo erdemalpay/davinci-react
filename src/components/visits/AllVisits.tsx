@@ -35,18 +35,28 @@ const AllVisits = () => {
     filterPanelFormElements.after,
     filterPanelFormElements.before
   );
-  const allRows = visits?.map((visit) => {
-    const foundUser = getItem(visit.user, users);
-    const foundLocation = getItem(visit.location, locations);
-    return {
-      ...visit,
-      formattedDate: convertDateFormat(visit.date),
-      userName: foundUser?.name,
-      locationName: foundLocation?.name,
-      userRole: foundUser?.role?.name,
-      finishHour: visit?.finishHour ?? " ",
-    };
-  });
+  const allRows = visits
+    ?.filter((visit) => {
+      if (filterPanelFormElements.user !== "") {
+        return visit.user === filterPanelFormElements.user;
+      }
+      if (filterPanelFormElements.location !== "") {
+        return visit.location === filterPanelFormElements.location;
+      }
+      return true;
+    })
+    ?.map((visit) => {
+      const foundUser = getItem(visit.user, users);
+      const foundLocation = getItem(visit.location, locations);
+      return {
+        ...visit,
+        formattedDate: convertDateFormat(visit.date),
+        userName: foundUser?.name,
+        locationName: foundLocation?.name,
+        userRole: foundUser?.role?.name,
+        finishHour: visit?.finishHour ?? " ",
+      };
+    });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("User"), isSortable: true, correspondingKey: "userName" },
