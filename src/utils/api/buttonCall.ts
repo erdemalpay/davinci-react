@@ -9,12 +9,12 @@ import { toast } from "react-toastify";
 interface UpdateButtonCallPayload {
   id: string;
 }
-export function useGetButtonCalls(isActive = true) {
+export function useGetButtonCalls(type = 'active') {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
   return useGetList<ButtonCall>(
-    `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&isActive=${isActive}`,
-    [Paths.ButtonCalls, selectedLocationId, selectedDate, isActive]
+    `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&type=${type}`,
+    [Paths.ButtonCalls, selectedLocationId, selectedDate, type]
   );
 }
 export function finishButtonCall({ id }: UpdateButtonCallPayload): Promise<ButtonCall> {

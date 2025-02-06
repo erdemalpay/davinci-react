@@ -86,7 +86,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
-  const buttonCalls = useGetButtonCalls();
+  const buttonCalls = useGetButtonCalls('active');
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
