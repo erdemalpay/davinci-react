@@ -48,7 +48,7 @@ const VisitScheduleOverview = () => {
     ?.map((visit) => {
       const foundUser = getItem(visit.user, users);
       if (!foundUser) return null;
-      const isPartTime = visit.startHour >= "16:00";
+      const isPartTime = visit.startHour >= "14:30";
       return {
         visitDate: formatAsLocalDate(visit.date),
         userName: foundUser.name,
