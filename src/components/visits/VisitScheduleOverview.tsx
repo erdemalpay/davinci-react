@@ -5,7 +5,7 @@ import { commonDateOptions, DateRangeKey } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
-import { useGetFilteredVisits } from "../../utils/api/visit";
+import { useGetUniqueVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
@@ -31,7 +31,7 @@ const VisitScheduleOverview = () => {
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const visits = useGetFilteredVisits(
+  const visits = useGetUniqueVisits(
     filterPanelFormElements.after,
     filterPanelFormElements.before
   );

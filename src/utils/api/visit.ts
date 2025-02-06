@@ -40,6 +40,14 @@ export function useGetFilteredVisits(startDate: string, endDate?: string) {
   }
   return useGetList<Visit>(url, [Paths.Visits, startDate, endDate]);
 }
+export function useGetUniqueVisits(startDate: string, endDate?: string) {
+  let url = `${Paths.Visits}/panel?start-date=${startDate}`;
+  if (endDate) {
+    url = url.concat(`&end-date=${endDate}`);
+  }
+  return useGetList<Visit>(url, [Paths.Visits, startDate, endDate]);
+}
+
 export function useGetGivenDateVisits(date: string) {
   const { selectedLocationId } = useLocationContext();
   return useGetList<Visit>(
