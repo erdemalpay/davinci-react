@@ -230,7 +230,7 @@ const Collections = () => {
       placeholder: t("Cancelled By"),
       required: true,
     },
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "paymentMethod",
@@ -377,7 +377,6 @@ const Collections = () => {
         return false;
       }
       return (
-        passesFilter(filterPanelFormElements.location, row.location) &&
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
         passesFilter(filterPanelFormElements.cancelledBy, row.cancelledById) &&
         passesFilter(filterPanelFormElements.collectionStatus, row.status) &&

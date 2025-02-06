@@ -21,7 +21,6 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -73,20 +72,6 @@ const GroupedProductSalesReport = () => {
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
     ?.reduce((acc, order) => {
       if (!order || order?.paidQuantity === 0) return acc;
-      if (
-        filterPanelFormElements?.location !== "" &&
-        filterPanelFormElements?.location !== order?.location
-      ) {
-        return acc;
-      }
-      if (
-        filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements.category.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        )
-      ) {
-        return acc;
-      }
       const zonedTime = toZonedTime(order.createdAt, "UTC");
       const orderDate = new Date(zonedTime);
       const existingEntry = acc.find((entry) => entry.item === order?.item);
@@ -305,7 +290,7 @@ const GroupedProductSalesReport = () => {
   ];
 
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",

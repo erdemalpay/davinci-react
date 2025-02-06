@@ -314,7 +314,7 @@ const DiscountBasedSales = () => {
     },
   ];
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",

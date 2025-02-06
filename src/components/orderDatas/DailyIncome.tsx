@@ -46,12 +46,6 @@ const DailyIncome = () => {
       const zonedTime = toZonedTime(collection.createdAt, "UTC");
       const tableDate = format(zonedTime, "yyyy-MM-dd");
       if (!collection || !tableDate) return acc;
-      if (
-        filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !== collection.location
-      ) {
-        return acc;
-      }
       const existingEntry = acc.find((item) => item.date === tableDate);
       if (existingEntry) {
         paymentMethods.forEach((method) => {
@@ -136,7 +130,7 @@ const DailyIncome = () => {
     },
   ];
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
