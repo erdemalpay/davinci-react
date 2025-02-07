@@ -18,10 +18,14 @@ import { useGetUsers, useGetUserWithId } from "../utils/api/user";
 
 export default function UserView() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<number>(0);
   const { userId } = useParams();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
-    useGeneralContext();
+  const {
+    setCurrentPage,
+    userPageActiveTab,
+    setUserPageActiveTab,
+    setSearchQuery,
+    setSortConfigKey,
+  } = useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User>();
   const user = useGetUserWithId(userId as string);
@@ -131,7 +135,6 @@ export default function UserView() {
                 // setRowsPerPage(RowPerPageEnum.FIRST);
                 setSearchQuery("");
                 setTabPanelKey(tabPanelKey + 1);
-                setActiveTab(0);
                 setSortConfigKey(null);
                 navigate(`/user/${selectedOption?.value}`);
               }}
@@ -144,8 +147,8 @@ export default function UserView() {
           <TabPanel
             key={tabPanelKey}
             tabs={tabs}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            activeTab={userPageActiveTab}
+            setActiveTab={setUserPageActiveTab}
             additionalOpenAction={() => {
               setCurrentPage(1);
               setSearchQuery("");
