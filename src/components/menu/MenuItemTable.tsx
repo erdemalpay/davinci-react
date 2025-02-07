@@ -666,10 +666,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           <div
             className="text-red-500 cursor-pointer text-xl"
             onClick={() => {
+              const foundMenuItem = getItem(row?._id, items);
+              if (!foundMenuItem) return;
               updateItem({
                 id: row?._id,
                 updates: {
-                  ...row,
+                  ...foundMenuItem,
                   itemProduction: row?.itemProduction?.filter(
                     (item: any) => item?.product !== row?.product
                   ),
