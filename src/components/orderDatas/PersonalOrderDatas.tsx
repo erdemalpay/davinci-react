@@ -106,6 +106,8 @@ const PersonalOrderDatas = () => {
       gameplayCount: foundGameplayData?.gameplayCount || 0,
       collectionCount: foundPersonalCollectionData?.totalCollections,
       mentoredGameplayCount: foundGameplayMentoredData?.gameplayCount || 0,
+      mentoredGamesTotalPoints:
+        foundGameplayMentoredData?.totalNarrationDurationPoint || 0,
     };
   });
 
@@ -124,6 +126,7 @@ const PersonalOrderDatas = () => {
     { key: t("Collection Count"), isSortable: true },
     { key: t("Created Gameplay Count"), isSortable: true },
     { key: t("Mentored Gameplay Count"), isSortable: true },
+    { key: t("Mentored Games Total Points"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -144,6 +147,7 @@ const PersonalOrderDatas = () => {
     { key: "collectionCount" },
     { key: "gameplayCount" },
     { key: "mentoredGameplayCount" },
+    { key: "mentoredGamesTotalPoints" },
   ];
   const filterPanelInputs = [
     {

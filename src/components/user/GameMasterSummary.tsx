@@ -267,7 +267,7 @@ const GameMasterSummary = ({ userId }: Props) => {
           isActionsActive={false}
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
         {userInfoCards.map((card, index) => (
           <InfoCard
             key={index}
