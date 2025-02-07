@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { patch } from ".";
-import { ButtonCall } from "../../types";
+import { ButtonCall, ButtonCallType } from "../../types";
 import { Paths, useGetList } from "./factory";
 import { useLocationContext } from "../../context/Location.context";
 import { useDateContext } from "../../context/Date.context";
@@ -9,12 +9,12 @@ import { toast } from "react-toastify";
 interface UpdateButtonCallPayload {
   id: string;
 }
-export function useGetButtonCalls(isActive = true) {
+export function useGetButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
   return useGetList<ButtonCall>(
-    `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&isActive=${isActive}`,
-    [Paths.ButtonCalls, selectedLocationId, selectedDate, isActive]
+    `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&type=${type}`,
+    [Paths.ButtonCalls, selectedLocationId, selectedDate, type]
   );
 }
 export function finishButtonCall({ id }: UpdateButtonCallPayload): Promise<ButtonCall> {
