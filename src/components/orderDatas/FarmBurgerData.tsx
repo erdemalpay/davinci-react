@@ -54,7 +54,6 @@ const FarmBurgerData = () => {
   if (!orders || !locations || !users || !discounts) {
     return null;
   }
-
   const allRows = orders
     ?.filter(
       (order) =>
@@ -68,7 +67,22 @@ const FarmBurgerData = () => {
       if (!order || !order?.createdAt) {
         return null;
       }
-
+      const confirmationTime = order?.confirmedAt
+        ? differenceInMinutes(
+            order?.confirmedAt ?? order?.createdAt,
+            order?.createdAt
+          )
+        : 0;
+      const preparationTime = order?.preparedAt
+        ? differenceInMinutes(
+            order?.preparedAt,
+            order?.confirmedAt ?? order?.createdAt
+          )
+        : 0;
+      const deliveryTime =
+        order?.deliveredAt && order?.preparedAt
+          ? differenceInMinutes(order?.deliveredAt, order?.preparedAt)
+          : 0;
       return {
         _id: order?._id,
         isReturned: order?.isReturned,
@@ -79,9 +93,8 @@ const FarmBurgerData = () => {
         createdAt: format(order.createdAt, "HH:mm") ?? "",
         preparedBy: getItem(order?.preparedBy, users)?.name ?? "",
         preparedByUserId: order?.preparedBy ?? "",
-        preparationTime: order?.preparedAt
-          ? differenceInMinutes(order?.preparedAt, order.createdAt)
-          : 0,
+        confirmationTime: confirmationTime,
+        preparationTime: preparationTime,
         cancelledBy: getItem(order?.cancelledBy, users)?.name ?? "",
         cancelledByUserId: order?.cancelledBy ?? "",
         cancelledAt: order?.cancelledAt
@@ -89,10 +102,8 @@ const FarmBurgerData = () => {
           : "",
         deliveredBy: getItem(order?.deliveredBy, users)?.name ?? "",
         deliveredByUserId: order?.deliveredBy ?? "",
-        deliveryTime:
-          order?.deliveredAt && order?.preparedAt
-            ? differenceInMinutes(order?.deliveredAt, order?.preparedAt)
-            : 0,
+        deliveryTime: deliveryTime,
+        totalTime: confirmationTime + preparationTime + deliveryTime,
         discountId: order?.discount ?? "",
         discountNote: order?.discountNote ?? "",
         discountAmount: order?.discountAmount
@@ -105,7 +116,6 @@ const FarmBurgerData = () => {
                 100
               ).toFixed(2)
             ),
-
         discountName:
           discounts?.find((discount) => discount?._id === order?.discount)
             ?.name ?? "",
@@ -153,7 +163,10 @@ const FarmBurgerData = () => {
       : []),
     { key: t("Product"), isSortable: true, correspondingKey: "item" },
     { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
-    { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
+    ...(user?.role?._id === RoleEnum.MANAGER
+      ? [{ key: t("Amount"), isSortable: true, correspondingKey: "amount" }]
+      : []),
+
     {
       key: t("Discount"),
       isSortable: true,
@@ -174,6 +187,11 @@ const FarmBurgerData = () => {
     { key: t("Created At"), isSortable: true, correspondingKey: "createdAt" },
     { key: t("Created By"), isSortable: true, correspondingKey: "createdBy" },
     {
+      key: t("Confirmed In"),
+      isSortable: true,
+      correspondingKey: "confirmationTime",
+    },
+    {
       key: t("Prepared In"),
       isSortable: true,
       correspondingKey: "preparationTime",
@@ -182,6 +200,11 @@ const FarmBurgerData = () => {
       key: t("Delivered In"),
       isSortable: true,
       correspondingKey: "deliveryTime",
+    },
+    {
+      key: t("Total"),
+      isSortable: true,
+      correspondingKey: "totalTime",
     },
     {
       key: t("Cancelled At"),
@@ -238,17 +261,21 @@ const FarmBurgerData = () => {
         );
       },
     },
-    {
-      key: "amount",
-      node: (row: any) => (
-        <p
-          className={`min-w-32 pr-2 ${row.className}`}
-          key={row._id + "amount"}
-        >
-          {row.amount} ₺
-        </p>
-      ),
-    },
+    ...(user?.role?._id === RoleEnum.MANAGER
+      ? [
+          {
+            key: "amount",
+            node: (row: any) => (
+              <p
+                className={`min-w-32 pr-2 ${row.className}`}
+                key={row._id + "amount"}
+              >
+                {row.amount} ₺
+              </p>
+            ),
+          },
+        ]
+      : []),
     { key: "discountName" },
     {
       key: "discountAmount",
@@ -268,6 +295,16 @@ const FarmBurgerData = () => {
     { key: "createdAt" },
     { key: "createdBy" },
     {
+      key: "confirmationTime",
+      node: (row: any) => {
+        return (
+          <p className={`${row?.className} min-w-32 pr-2`}>
+            {row.confirmationTime} dk
+          </p>
+        );
+      },
+    },
+    {
       key: "preparationTime",
       node: (row: any) => {
         return (
@@ -283,6 +320,16 @@ const FarmBurgerData = () => {
         return (
           <p className={`${row?.className} min-w-32 pr-2`}>
             {row.deliveryTime} dk
+          </p>
+        );
+      },
+    },
+    {
+      key: "totalTime",
+      node: (row: any) => {
+        return (
+          <p className={`${row?.className} min-w-32 pr-2`}>
+            {row.totalTime} dk
           </p>
         );
       },
