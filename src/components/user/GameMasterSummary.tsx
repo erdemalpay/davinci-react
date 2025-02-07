@@ -254,7 +254,10 @@ const GameMasterSummary = ({ userId }: Props) => {
     users,
   ]);
   return (
-    <div key={tableKey} className="w-full grid grid-cols-3 gap-4">
+    <div
+      key={tableKey}
+      className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
+    >
       <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
         <GenericTable
           key={tableKey}
