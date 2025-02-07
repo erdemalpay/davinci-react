@@ -171,7 +171,7 @@ const LocationPage = () => {
     {
       name: t("Add Shift"),
       icon: <CiCirclePlus />,
-      className: "text-2xl mt-1  mr-auto cursor-pointer",
+      className: "text-2xl mt-1   cursor-pointer",
       isModal: true,
       setRow: setRowToAction,
       modal: (
