@@ -18,6 +18,7 @@ const FilterPanel = <T,>({
   closeFilters,
   isApplyButtonActive = false,
   isCloseButtonActive = true,
+  isFilterPanelCoverTable = false,
   additionalFilterCleanFunction,
 }: PanelFilterType) => {
   const { t } = useTranslation();
@@ -52,7 +53,11 @@ const FilterPanel = <T,>({
   ];
 
   return (
-    <div className="flex flex-col gap-3 __className_a182b8 bg-white min-w-full sm:min-w-[20rem] border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none ">
+    <div
+      className={`flex flex-col gap-3 __className_a182b8 bg-white min-w-full ${
+        isFilterPanelCoverTable ? "" : "sm:min-w-[20rem]"
+      } border h-fit pb-8 border-gray-200 rounded-md py-2 px-3 focus:outline-none `}
+    >
       <div className="flex flex-row justify-between">
         <H4 className="my-1">{t("Filters")}</H4>
         {isCloseButtonActive && (

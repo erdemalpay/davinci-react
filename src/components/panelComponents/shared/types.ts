@@ -73,6 +73,7 @@ export interface PanelFilterType {
   setFormElements: Dispatch<SetStateAction<FormElementsState>>; // Add this to update the form state
   closeFilters: () => void;
   isApplyButtonActive?: boolean;
+  isFilterPanelCoverTable?: boolean;
   additionalFilterCleanFunction?: () => void;
   isCloseButtonActive?: boolean;
 }

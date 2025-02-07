@@ -57,6 +57,7 @@ interface GameplayPersonalCreatePayload {
 interface GameplayPersonalMentoredPayload {
   gameplayCount: number;
   mentoredBy: string;
+  totalNarrationDurationPoint: number;
 }
 
 export interface GameplayFilter {
