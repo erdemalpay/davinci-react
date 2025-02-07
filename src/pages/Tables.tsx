@@ -26,6 +26,7 @@ import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
+  ButtonCallType,
   Game,
   MenuItem,
   Order,
@@ -86,7 +87,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
-  const buttonCalls = useGetButtonCalls('active');
+  const buttonCalls = useGetButtonCalls(ButtonCallType.ACTIVE);
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();

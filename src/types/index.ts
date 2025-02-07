@@ -307,6 +307,11 @@ export type ButtonCall = {
   createdBy: string;
 };
 
+export enum ButtonCallType {
+  ACTIVE = "active",
+  CLOSED = "closed",
+}
+
 export type Membership = {
   _id: number;
   name: string;
