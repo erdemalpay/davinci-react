@@ -48,6 +48,7 @@ const LocationPage = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Type"), isSortable: false },
     { key: t("Table Count"), isSortable: false },
+    { key: t("Shifts"), isSortable: false },
     { key: "Ikas ID", isSortable: false },
   ];
   if (
@@ -70,9 +71,8 @@ const LocationPage = () => {
         return <p>{getRowTypeName(row.type)}</p>;
       },
     },
-    {
-      key: "tableCount",
-    },
+    { key: "tableCount" },
+    { key: "shifts" },
     {
       key: "ikasId",
       className: "min-w-32 pr-1",
