@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
@@ -44,8 +45,10 @@ import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
+import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
+  useGetAllLocations,
   useGetStockLocations,
   useGetStoreLocations,
 } from "../utils/api/location";
@@ -58,12 +61,10 @@ import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
-import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
-import { QuantityInput } from "../utils/panelInputs";
+import { LocationInput, QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
-import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -82,6 +83,7 @@ const Tables = () => {
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
+  const allLocations = useGetAllLocations();
   const stockLocations = useGetStockLocations();
   const navigate = useNavigate();
   const games = useGetGames();
@@ -146,11 +148,12 @@ const Tables = () => {
       required: true,
     },
     QuantityInput({ required: true }),
+    LocationInput({ locations: allLocations }),
   ];
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemOptions = menuItems
     ?.filter((menuItem) => {
