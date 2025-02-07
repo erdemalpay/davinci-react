@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { useUserContext } from "../../context/User.context";
 import { Location, RoleEnum } from "../../types";
@@ -11,6 +12,7 @@ import { NameInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+
 const LocationPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -18,6 +20,10 @@ const LocationPage = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
+  const [shiftForm, setShiftForm] = useState({
+    hour: "",
+  });
   const [rowToAction, setRowToAction] = useState<Location>();
   const initialForm = {
     type: [],
@@ -95,7 +101,15 @@ const LocationPage = () => {
     { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
     { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
-
+  const addShiftInputs = [
+    {
+      type: InputTypes.HOUR,
+      formKey: "hour",
+      label: t("Hour"),
+      required: true,
+    },
+  ];
+  const addShiftFormKeys = [{ key: "hour", type: FormKeyTypeEnum.STRING }];
   const addButton = {
     name: t(`Add Stock Location`),
     isModal: true,
@@ -145,6 +159,52 @@ const LocationPage = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
+      isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+    {
+      name: t("Add Shift"),
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1  mr-auto cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddShiftModalOpen}
+          close={() => setIsAddShiftModalOpen(false)}
+          inputs={addShiftInputs}
+          formKeys={addShiftFormKeys}
+          submitItem={updateLocation as any}
+          isEditMode={true}
+          setForm={setShiftForm}
+          topClassName="flex flex-col gap-2  "
+          handleUpdate={() => {
+            if (rowToAction) {
+              const updatedShifts = [
+                ...(rowToAction.shifts || []),
+                String(shiftForm.hour),
+              ];
+
+              updateLocation({
+                id: Number(rowToAction._id),
+                updates: {
+                  shifts: updatedShifts,
+                },
+              });
+
+              setIsAddShiftModalOpen(false);
+            }
+          }}
+        />
+      ),
+      isModalOpen: isAddShiftModalOpen,
+      setIsModal: setIsAddShiftModalOpen,
       isPath: false,
       isDisabled: user
         ? ![
