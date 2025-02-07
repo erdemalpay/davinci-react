@@ -18,6 +18,7 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
+  shifts?: string[];
 };
 
 export type Table = {
