@@ -217,7 +217,7 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: stockLocations?.map((input) => {
+      options: locations?.map((input) => {
         const menuItem = menuItems?.find((item) => item._id === orderForm.item);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
@@ -353,21 +353,21 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: stockLocations?.map((input) => {
+      options: locations?.map((input) => {
         const menuItem = menuItems?.find((item) => item._id === orderForm.item);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
-
         return {
           value: input._id,
           label:
-            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
+            input.name +
+            (menuItem?.itemProduction && menuItem.itemProduction.length > 0
+              ? ` (${t("Stock")}: ${stockQuantity})`
+              : ""),
         };
       }),
-
       placeholder: t("Stock Location"),
-      isDisabled: false,
       required: true,
     },
     {
