@@ -101,7 +101,7 @@ type GeneralContextType = {
 };
 
 const GeneralContext = createContext<GeneralContextType>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  /* eslint-disable @typescript-eslint/no-empty-function */
   userPageActiveTab: 0,
   setUserPageActiveTab: () => {},
   profileActiveTab: 0,

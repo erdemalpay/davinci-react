@@ -10,7 +10,7 @@ type StockContextType = {
 };
 
 const StockContext = createContext<StockContextType>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  /* eslint-disable @typescript-eslint/no-empty-function */
   filterPanelFormElements: {
     product: [],
     location: "",

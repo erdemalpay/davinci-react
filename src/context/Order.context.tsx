@@ -1,5 +1,5 @@
 import { format, startOfMonth } from "date-fns";
-import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { Order, OrderDiscount } from "../types";
 type FormElementsState = {
   [key: string]: any;
@@ -77,7 +77,7 @@ type OrderContextType = {
 };
 
 const OrderContext = createContext<OrderContextType>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  /* eslint-disable @typescript-eslint/no-empty-function */
   vendorOrderFilterPanelFormElements: {
     vendor: "",
     location: [],

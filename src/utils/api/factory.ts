@@ -40,6 +40,7 @@ export const Paths = {
   Redis: "/redis",
   ButtonCalls: "/button-calls",
   Notification: "/notification",
+  Shift: "/shift",
 };
 
 interface Props<T> {

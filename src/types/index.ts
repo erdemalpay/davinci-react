@@ -389,6 +389,18 @@ export type MenuItem = {
   shownInMenu?: boolean;
   ikasDiscountedPrice?: number;
 };
+export type ShiftValue = {
+  shift: string;
+  user: string;
+};
+
+export type Shift = {
+  _id: number;
+  day: string;
+  location?: number;
+  shifts: ShiftValue[];
+};
+
 export type CheckoutIncome = {
   _id: number;
   user: string;

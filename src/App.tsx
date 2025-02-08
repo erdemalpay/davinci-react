@@ -12,6 +12,7 @@ import { DateContextProvider } from "./context/Date.context";
 import { GeneralContextProvider } from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
+import { ShiftContextProvider } from "./context/Shift.context";
 import { StockContextProvider } from "./context/Stock.context";
 import { UserContextProvider } from "./context/User.context";
 import { usePageVisibility } from "./hooks/usePageVisibility";
@@ -57,7 +58,9 @@ function Wrapper() {
             <GeneralContextProvider>
               <OrderContextProvider>
                 <StockContextProvider>
-                  <App />
+                  <ShiftContextProvider>
+                    <App />
+                  </ShiftContextProvider>
                 </StockContextProvider>
               </OrderContextProvider>
             </GeneralContextProvider>
