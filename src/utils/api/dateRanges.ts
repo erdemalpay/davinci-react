@@ -1,4 +1,5 @@
 import {
+  endOfMonth,
   format,
   startOfMonth,
   startOfWeek,
@@ -42,8 +43,8 @@ export const dateRanges: {
     date: "lastWeek",
   }),
   thisMonth: () => ({
-    before: formatDate(new Date()),
     after: formatDate(startOfMonth(new Date())),
+    before: formatDate(endOfMonth(new Date())),
     date: "thisMonth",
   }),
   lastMonth: () => ({

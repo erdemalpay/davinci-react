@@ -10,14 +10,14 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
   FormKeyTypeEnum,
   InputTypes,
   RowKeyType,
 } from "../components/panelComponents/shared/types";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountCountList, RoleEnum } from "../types";
@@ -131,7 +131,7 @@ const CountList = () => {
       (item) => item._id === countListId
     );
     if (currentCountList && currentCountList.products) {
-      for (let item of currentCountList.products) {
+      for (const item of currentCountList.products) {
         const product = products.find((it) => it._id === item.product);
         if (product) {
           const locationEntries = locations?.reduce<LocationEntries>(
@@ -419,6 +419,7 @@ const CountList = () => {
               close={() => setIsCountLocationModalOpen(false)}
               inputs={countLocationInputs}
               formKeys={countLocationFormKeys}
+              //  eslint-disable-next-line
               submitItem={() => {}}
               submitFunction={async () => {
                 if (countLocationForm.location === 0 || !user) return;

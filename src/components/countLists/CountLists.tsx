@@ -21,14 +21,14 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
   RowKeyType,
 } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const CountLists = () => {
   const { t } = useTranslation();
@@ -265,6 +265,7 @@ const CountLists = () => {
           close={() => setIsCountLocationModalOpen(false)}
           inputs={countLocationInputs}
           formKeys={countLocationFormKeys}
+          //  eslint-disable-next-line
           submitItem={() => {}}
           submitFunction={async () => {
             if (countLocationForm.location === 0 || !user) return;

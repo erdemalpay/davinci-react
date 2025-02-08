@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShiftContext } from "../../context/Shift.context";
+import { DateRangeKey, commonDateOptions } from "../../types";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetShifts } from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
-import { convertDateFormat } from "../../utils/format";
+import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -25,48 +27,45 @@ const Shifts = () => {
   } = useShiftContext();
 
   const allRows = shifts?.map((shift) => {
-    const foundLocation = getItem(shift.location, locations);
+    const shiftMapping = shift.shifts?.reduce((acc, shiftValue) => {
+      const foundUser = getItem(shiftValue.user, users);
+      const userName = foundUser?.name;
+      if (shiftValue.shift && userName) {
+        acc[shiftValue.shift] = userName;
+      }
+      return acc;
+    }, {} as { [key: string]: string });
+
     return {
       ...shift,
       formattedDay: convertDateFormat(shift.day),
-      locationName: foundLocation?.name,
-      shifts: shift?.shifts?.map((shiftValue) => {
-        const foundUser = getItem(shiftValue.user, users);
-        return {
-          ...shiftValue,
-          userName: foundUser?.name,
-        };
-      }),
+      shiftMapping,
     };
   });
 
   const [rows, setRows] = useState(allRows);
-
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
-    { key: t("Location"), isSortable: true, correspondingKey: "locationName" },
-    { key: t("Shifts"), isSortable: false, correspondingKey: "shifts" },
   ];
-
   const rowKeys = [
     {
-      key: "formattedDay",
+      key: "day",
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
-    { key: "locationName" },
-    {
-      key: "shifts",
-      node: (row: any) => (
-        <ul>
-          {row.shifts.map((shift: any, index: number) => (
-            <li key={index}>
-              {shift.userName} - {shift.shift}
-            </li>
-          ))}
-        </ul>
-      ),
-    },
   ];
+  const foundLocation = getItem(filterPanelFormElements?.location, locations);
+  if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
+    for (const shift of foundLocation.shifts) {
+      columns.push({ key: shift, isSortable: false, correspondingKey: shift });
+      rowKeys.push({
+        key: String(shift),
+        node: (row: any) => {
+          return <>{row.shift}</>;
+        },
+      });
+    }
+  }
+
   const filters = [
     {
       label: t("Show Filters"),
@@ -75,6 +74,34 @@ const Shifts = () => {
     },
   ];
   const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
     {
       type: InputTypes.DATE,
       formKey: "after",
@@ -134,7 +161,15 @@ const Shifts = () => {
         rows={rows}
         isActionsActive={false}
         filters={filters}
-        title={t("Shifts")}
+        title={
+          getItem(filterPanelFormElements.location, locations)?.name +
+          "  " +
+          formatAsLocalDate(filterPanelFormElements.after) +
+          "-" +
+          formatAsLocalDate(filterPanelFormElements.before) +
+          "  " +
+          t("Shifts")
+        }
         isExcel={true}
         filterPanel={filterPanel}
         excelFileName={`Shifts.xlsx`}
