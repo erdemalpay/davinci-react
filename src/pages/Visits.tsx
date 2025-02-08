@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CiViewTable } from "react-icons/ci";
+import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
 import { MdOutlineSchedule } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
@@ -7,6 +8,7 @@ import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import AllVisits from "../components/visits/AllVisits";
 import DailyVisit from "../components/visits/DailyVisit";
+import Shifts from "../components/visits/Shifts";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
 import { useGeneralContext } from "../context/General.context";
@@ -41,6 +43,13 @@ export const VisitPageTabs = [
     label: "All Visits",
     icon: <GiEgyptianWalk className="text-lg font-thin" />,
     content: <AllVisits />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.SHIFTS,
+    label: "Shifts",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    content: <Shifts />,
     isDisabled: false,
   },
 ];

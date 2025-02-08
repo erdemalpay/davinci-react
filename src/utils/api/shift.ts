@@ -1,5 +1,6 @@
-import { Shift } from "../../types";
-import { Paths, useMutationApi } from "./factory";
+import { useShiftContext } from "../../context/Shift.context";
+import { Shift } from "./../../types/index";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 export function useShiftMutations() {
   const {
@@ -11,4 +12,26 @@ export function useShiftMutations() {
   });
 
   return { deleteShift, updateShift, createShift };
+}
+export function useGetShifts() {
+  const { filterPanelFormElements } = useShiftContext();
+  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}`;
+  const parameters = ["before", "location"];
+  parameters.forEach((param) => {
+    if (filterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
+      );
+    }
+  });
+  return useGetList<Shift>(
+    url,
+    [
+      `${Paths.Order}/query`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+      filterPanelFormElements.location,
+    ],
+    true
+  );
 }

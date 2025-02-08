@@ -8,6 +8,7 @@ type FormElementsState = {
 
 type ShiftContextType = {
   filterPanelFormElements: FormElementsState;
+  initialFilterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
 };
 
@@ -17,21 +18,29 @@ const ShiftContext = createContext<ShiftContextType>({
     location: "",
     after: "",
     before: "",
+    user: "",
   },
+  initialFilterPanelFormElements: {},
   setFilterPanelFormElements: () => {},
 });
 
 export const ShiftContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
+  const initialFilterPanelFormElements = {
+    location: selectedLocationId,
+    after: format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
+    before: format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
+    user: "",
+  };
   const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      location: selectedLocationId,
-      after: format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
-      before: format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
-    });
+    useState<FormElementsState>(initialFilterPanelFormElements);
   return (
     <ShiftContext.Provider
-      value={{ filterPanelFormElements, setFilterPanelFormElements }}
+      value={{
+        filterPanelFormElements,
+        setFilterPanelFormElements,
+        initialFilterPanelFormElements,
+      }}
     >
       {children}
     </ShiftContext.Provider>
