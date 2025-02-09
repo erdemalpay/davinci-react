@@ -19,6 +19,7 @@ import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
 import { outsideSort } from "../../../utils/outsideSort";
 import ImageModal from "../Modals/ImageModal";
+import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
   ColumnType,
@@ -26,12 +27,11 @@ import {
   PanelFilterType,
   RowKeyType,
 } from "../shared/types";
-import { Caption, H4, H5, P1 } from "../Typography";
 import ButtonTooltip from "./ButtonTooltip";
 import ColumnActiveModal from "./ColumnActiveModal";
 import FilterPanel from "./FilterPanel";
-import "./table.css";
 import CustomTooltip from "./Tooltip";
+import "./table.css";
 
 type PaginationProps = {
   totalPages: number;
@@ -211,8 +211,8 @@ const GenericTable = <T,>({
       }
       const isNumeric = !isNaN(Number(a[key])) && !isNaN(Number(b[key]));
 
-      let valA = isNumeric ? Number(a[key]) : String(a[key]).toLowerCase();
-      let valB = isNumeric ? Number(b[key]) : String(b[key]).toLowerCase();
+      const valA = isNumeric ? Number(a[key]) : String(a[key]).toLowerCase();
+      const valB = isNumeric ? Number(b[key]) : String(b[key]).toLowerCase();
 
       if (valA < valB) {
         return direction === "ascending" ? -1 : 1;
@@ -365,7 +365,10 @@ const GenericTable = <T,>({
     excelAllRows.forEach((row) => {
       const rowData = usedColumns
         .filter((column) => column.correspondingKey)
-        .map((column) => String(row[column?.correspondingKey as keyof T]));
+        .map((column) => {
+          const value = row[column.correspondingKey as keyof T];
+          return value === undefined || value === null ? "" : String(value);
+        });
       excelRows.push(rowData);
     });
     const worksheet = XLSX.utils.aoa_to_sheet(excelRows);

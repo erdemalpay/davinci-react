@@ -23,7 +23,6 @@ const Shifts = () => {
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -43,31 +42,30 @@ const Shifts = () => {
     initialFilterPanelFormElements,
   } = useShiftContext();
   const foundLocation = getItem(filterPanelFormElements?.location, locations);
-  const initialFormState: Record<string, string> = {
+  const initialFormState: Record<string, any> = {
     day: "",
-    ...(foundLocation?.shifts?.reduce<Record<string, string>>((acc, shift) => {
-      acc[shift] = "";
-      return acc;
-    }, {}) || {}),
+    ...(foundLocation?.shifts?.reduce<Record<string, string[]>>(
+      (acc, shift) => {
+        acc[shift] = [];
+        return acc;
+      },
+      {}
+    ) || {}),
   };
-
   const [form, setForm] = useState(initialFormState);
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift.shifts?.reduce((acc, shiftValue) => {
-      const foundUser = getItem(shiftValue.user, users);
-      if (shiftValue.shift && foundUser) {
-        acc[shiftValue.shift] = foundUser._id;
+      if (shiftValue.shift && shiftValue.user) {
+        acc[shiftValue.shift] = shiftValue.user;
       }
       return acc;
-    }, {} as { [key: string]: string });
-
+    }, {} as { [key: string]: string[] });
     return {
       ...shift,
       formattedDay: convertDateFormat(shift.day),
       ...shiftMapping,
     };
   });
-  console.log(allRows);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -118,6 +116,7 @@ const Shifts = () => {
         label: user.name,
       })),
       placeholder: t("User"),
+      isMultiple: true,
       required: false,
     })),
   ];
@@ -313,7 +312,11 @@ const Shifts = () => {
         }
         isExcel={true}
         filterPanel={filterPanel as any}
-        excelFileName={`Shifts.xlsx`}
+        excelFileName={`${
+          getItem(filterPanelFormElements.location, locations)?.name +
+          formatAsLocalDate(filterPanelFormElements.after) +
+          formatAsLocalDate(filterPanelFormElements.before)
+        }.xlsx`}
       />
     </div>
   );
