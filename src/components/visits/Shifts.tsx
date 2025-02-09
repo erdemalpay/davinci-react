@@ -76,7 +76,6 @@ const Shifts = () => {
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
   ];
-  console.log(allRows);
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
