@@ -54,7 +54,7 @@ const Shifts = () => {
   };
   const [form, setForm] = useState(initialFormState);
   const allRows = shifts?.map((shift) => {
-    const shiftMapping = shift.shifts?.reduce((acc, shiftValue) => {
+    const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
       if (shiftValue.shift && shiftValue.user) {
         acc[shiftValue.shift] = shiftValue.user;
       }
@@ -76,24 +76,52 @@ const Shifts = () => {
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
   ];
+  console.log(allRows);
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
       rowKeys.push({
         key: shift,
         node: (row: any) => {
-          const foundUser = getItem(row[shift], users);
-          return (
-            <p
-              className={`${
-                filterPanelFormElements.user === foundUser?._id
-                  ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit "
-                  : ""
-              }`}
-            >
-              {foundUser?.name}
-            </p>
-          );
+          const shiftValue = row[shift];
+
+          if (Array.isArray(shiftValue)) {
+            return (
+              <div className="flex flex-row gap-1 flex-wrap max-w-40">
+                {shiftValue.map((user: string, index: number) => {
+                  const foundUser = getItem(user, users);
+                  return (
+                    <p
+                      key={`${row.day}${foundUser?._id}${index}`}
+                      className={
+                        filterPanelFormElements.user === foundUser?._id
+                          ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
+                          : ""
+                      }
+                    >
+                      {foundUser?.name}
+                    </p>
+                  );
+                })}
+              </div>
+            );
+          } else if (shiftValue) {
+            // If it's a single value rather than an array
+            const foundUser = getItem(shiftValue, users);
+            return (
+              <p
+                key={`${row.day}${foundUser?._id}-single`}
+                className={
+                  filterPanelFormElements.user === foundUser?._id
+                    ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
+                    : ""
+                }
+              >
+                {foundUser?.name}
+              </p>
+            );
+          }
+          return <></>;
         },
       });
     }
