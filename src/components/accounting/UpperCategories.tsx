@@ -149,7 +149,7 @@ const UpperCategories = () => {
             id: rowToAction?._id,
             updates: {
               categoryGroup: [
-                ...rowToAction?.categoryGroup,
+                ...(rowToAction?.categoryGroup as any),
                 {
                   category: form.category,
                   percentage: form.percentage,

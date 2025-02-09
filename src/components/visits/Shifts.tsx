@@ -1,31 +1,45 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
 import { useShiftContext } from "../../context/Shift.context";
-import { DateRangeKey, commonDateOptions } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetShifts } from "../../utils/api/shift";
+import { useGetShifts, useShiftMutations } from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Shifts = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const locations = useGetStoreLocations();
   const shifts = useGetShifts();
+  const { user } = useUserContext();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const { updateShift } = useShiftMutations();
   const [showFilters, setShowFilters] = useState(false);
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useShiftContext();
-
+  const foundLocation = getItem(filterPanelFormElements?.location, locations);
+  const initialFormState =
+    foundLocation?.shifts?.reduce<Record<string, string>>((acc, shift) => {
+      acc[shift] = "";
+      return acc;
+    }, {}) || {};
+  const [form, setForm] = useState(initialFormState);
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift.shifts?.reduce((acc, shiftValue) => {
       const foundUser = getItem(shiftValue.user, users);
@@ -53,7 +67,6 @@ const Shifts = () => {
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
   ];
-  const foundLocation = getItem(filterPanelFormElements?.location, locations);
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
@@ -65,7 +78,53 @@ const Shifts = () => {
       });
     }
   }
-
+  const inputs = (foundLocation?.shifts ?? [])?.map((shift) => ({
+    type: InputTypes.SELECT,
+    formKey: shift,
+    label: shift,
+    options: (users ?? []).map((user) => ({
+      value: user._id,
+      label: user.name,
+    })),
+    placeholder: t("User"),
+    required: false,
+  }));
+  const formKeys = (foundLocation?.shifts ?? [])?.map((shift) => ({
+    key: shift,
+    type: FormKeyTypeEnum.STRING,
+  }));
+  columns.push({ key: t("Actions"), isSortable: false } as any);
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-2xl mt-1  cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateShift as any}
+          isEditMode={true}
+          setForm={setForm}
+          topClassName="flex flex-col gap-2  "
+        />
+      ),
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+      isDisabled: user
+        ? ![
+            RoleEnum.MANAGER,
+            RoleEnum.CATERINGMANAGER,
+            RoleEnum.GAMEMANAGER,
+          ].includes(user?.role?._id)
+        : true,
+    },
+  ];
   const filters = [
     {
       label: t("Show Filters"),
@@ -159,7 +218,8 @@ const Shifts = () => {
         rowKeys={rowKeys}
         columns={columns}
         rows={rows}
-        isActionsActive={false}
+        isActionsActive={true}
+        actions={actions}
         filters={filters}
         title={
           getItem(filterPanelFormElements.location, locations)?.name +
