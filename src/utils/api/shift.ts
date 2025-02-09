@@ -27,7 +27,7 @@ export function useGetShifts() {
   return useGetList<Shift>(
     url,
     [
-      `${Paths.Order}/query`,
+      `${Paths.Shift}`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
       filterPanelFormElements.location,

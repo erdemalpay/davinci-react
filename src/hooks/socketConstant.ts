@@ -1,5 +1,5 @@
-import { Paths } from "../utils/api/factory";
 import { SocketEventType } from "../types";
+import { Paths } from "../utils/api/factory";
 
 export const socketEventListeners: SocketEventType[] = [
   {
@@ -189,5 +189,9 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "buttonCallChanged",
     invalidateKeys: [`${Paths.ButtonCalls}`],
-  }
+  },
+  {
+    event: "shiftChanged",
+    invalidateKeys: [`${Paths.Shift}`],
+  },
 ];

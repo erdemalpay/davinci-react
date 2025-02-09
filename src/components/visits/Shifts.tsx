@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
@@ -11,6 +12,7 @@ import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -21,12 +23,19 @@ const Shifts = () => {
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
   const locations = useGetStoreLocations();
   const shifts = useGetShifts();
   const { user } = useUserContext();
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    : true;
   const [rowToAction, setRowToAction] = useState<any>();
-  const { updateShift } = useShiftMutations();
+  const { updateShift, createShift, deleteShift } = useShiftMutations();
   const [showFilters, setShowFilters] = useState(false);
   const {
     filterPanelFormElements,
@@ -34,18 +43,20 @@ const Shifts = () => {
     initialFilterPanelFormElements,
   } = useShiftContext();
   const foundLocation = getItem(filterPanelFormElements?.location, locations);
-  const initialFormState =
-    foundLocation?.shifts?.reduce<Record<string, string>>((acc, shift) => {
+  const initialFormState: Record<string, string> = {
+    day: "",
+    ...(foundLocation?.shifts?.reduce<Record<string, string>>((acc, shift) => {
       acc[shift] = "";
       return acc;
-    }, {}) || {};
+    }, {}) || {}),
+  };
+
   const [form, setForm] = useState(initialFormState);
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift.shifts?.reduce((acc, shiftValue) => {
       const foundUser = getItem(shiftValue.user, users);
-      const userName = foundUser?.name;
-      if (shiftValue.shift && userName) {
-        acc[shiftValue.shift] = userName;
+      if (shiftValue.shift && foundUser) {
+        acc[shiftValue.shift] = foundUser._id;
       }
       return acc;
     }, {} as { [key: string]: string });
@@ -53,10 +64,10 @@ const Shifts = () => {
     return {
       ...shift,
       formattedDay: convertDateFormat(shift.day),
-      shiftMapping,
+      ...shiftMapping,
     };
   });
-
+  console.log(allRows);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -71,34 +82,60 @@ const Shifts = () => {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
       rowKeys.push({
-        key: String(shift),
+        key: shift,
         node: (row: any) => {
-          return <>{row.shift}</>;
+          const foundUser = getItem(row[shift], users);
+          return (
+            <p
+              className={`${
+                filterPanelFormElements.user === foundUser?._id
+                  ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit "
+                  : ""
+              }`}
+            >
+              {foundUser?.name}
+            </p>
+          );
         },
       });
     }
   }
-  const inputs = (foundLocation?.shifts ?? [])?.map((shift) => ({
-    type: InputTypes.SELECT,
-    formKey: shift,
-    label: shift,
-    options: (users ?? []).map((user) => ({
-      value: user._id,
-      label: user.name,
+  const inputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "day",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: !rowToAction?._id,
+      isDisabled: true,
+    },
+    ...(foundLocation?.shifts ?? []).map((shift) => ({
+      type: InputTypes.SELECT,
+      formKey: shift,
+      label: shift,
+      options: (users ?? []).map((user) => ({
+        value: user._id,
+        label: user.name,
+      })),
+      placeholder: t("User"),
+      required: false,
     })),
-    placeholder: t("User"),
-    required: false,
-  }));
-  const formKeys = (foundLocation?.shifts ?? [])?.map((shift) => ({
-    key: shift,
-    type: FormKeyTypeEnum.STRING,
-  }));
-  columns.push({ key: t("Actions"), isSortable: false } as any);
+  ];
+  const formKeys = [
+    { key: "day", type: FormKeyTypeEnum.DATE },
+    ...(foundLocation?.shifts ?? []).map((shift) => ({
+      key: shift,
+      type: FormKeyTypeEnum.STRING,
+    })),
+  ];
+  if (!isDisabledCondition) {
+    columns.push({ key: t("Actions"), isSortable: false } as any);
+  }
   const actions = [
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className: "text-2xl mt-1  cursor-pointer",
+      className: "text-2xl text-blue-500 cursor-pointer",
       isModal: true,
       setRow: setRowToAction,
       modal: (
@@ -107,22 +144,67 @@ const Shifts = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          constantValues={rowToAction}
           submitItem={updateShift as any}
           isEditMode={true}
           setForm={setForm}
+          handleUpdate={() => {
+            // handle create
+            if (!rowToAction?._id && foundLocation) {
+              const shifts = foundLocation?.shifts?.map((shift) => ({
+                shift,
+                user: form?.[shift],
+              }));
+              createShift({
+                shifts,
+                location: foundLocation?._id,
+                day: form.day,
+              });
+            }
+            // handle update
+            else {
+              const shifts = foundLocation?.shifts?.map((shift) => ({
+                shift,
+                user: form?.[shift],
+              }));
+              updateShift({
+                id: rowToAction?._id,
+                updates: {
+                  shifts,
+                },
+              });
+            }
+          }}
           topClassName="flex flex-col gap-2  "
         />
       ),
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
+    },
+    {
+      name: t("Delete"),
+      isDisabled: isDisabledCondition,
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteShift(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title="Delete Shift"
+          text={`${rowToAction.formattedDate} shift will be deleted. Are you sure you want to continue?`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
     },
   ];
   const filters = [
@@ -186,14 +268,13 @@ const Shifts = () => {
       type: InputTypes.SELECT,
       formKey: "user",
       label: t("User"),
-      options: users.map((user) => {
+      options: users?.map((user) => {
         return {
           value: user._id,
           label: user.name,
         };
       }),
       placeholder: t("User"),
-      required: true,
     },
   ];
   const filterPanel = {
@@ -218,7 +299,7 @@ const Shifts = () => {
         rowKeys={rowKeys}
         columns={columns}
         rows={rows}
-        isActionsActive={true}
+        isActionsActive={!isDisabledCondition}
         actions={actions}
         filters={filters}
         title={
@@ -231,7 +312,7 @@ const Shifts = () => {
           t("Shifts")
         }
         isExcel={true}
-        filterPanel={filterPanel}
+        filterPanel={filterPanel as any}
         excelFileName={`Shifts.xlsx`}
       />
     </div>
