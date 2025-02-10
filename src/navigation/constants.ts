@@ -11,6 +11,7 @@ import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
+import Expirations, { ExpirationTabs } from "../pages/Expiration";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Images from "../pages/Images";
@@ -96,6 +97,7 @@ export enum Routes {
   Checklists = "/checklists",
   Checklist = "/checklist/:checklistId",
   Notifications = "/notifications",
+  Expirations = "/expirations",
 }
 
 export const allRoutes: {
@@ -262,6 +264,13 @@ export const allRoutes: {
     path: Routes.SingleCheckArchive,
     element: SingleCheckArchive,
     isOnSidebar: false,
+  },
+  {
+    name: "Expirations",
+    path: Routes.Expirations,
+    element: Expirations,
+    isOnSidebar: true,
+    tabs: ExpirationTabs,
   },
   {
     name: "Stocks",

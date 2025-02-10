@@ -194,4 +194,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "shiftChanged",
     invalidateKeys: [`${Paths.Shift}`],
   },
+  {
+    event: "expirationListChanged",
+    invalidateKeys: [`${Paths.Expiration}/lists`],
+  },
 ];

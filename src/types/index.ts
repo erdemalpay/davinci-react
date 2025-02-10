@@ -711,6 +711,9 @@ export enum ChecklistPageTabEnum {
   CHECKARCHIVE,
   CHECKLISTS,
 }
+export enum ExpirationPageTabEnum {
+  EXPIRATIONLISTS,
+}
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
   CHECKOUTCASH,
