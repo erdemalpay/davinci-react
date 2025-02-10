@@ -1,4 +1,5 @@
-import { FaClipboardList } from "react-icons/fa";
+import { FaClipboardList, FaSitemap } from "react-icons/fa";
+import ExpirationListProducts from "../components/expiration/ExpirationListProducts";
 import ExpirationLists from "../components/expiration/ExpirationLists";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -13,6 +14,13 @@ export const ExpirationTabs = [
     label: "Expiration Lists",
     icon: <FaClipboardList className="text-lg font-thin" />,
     content: <ExpirationLists />,
+    isDisabled: false,
+  },
+  {
+    number: ExpirationPageTabEnum.EXPIRATIONLISTPRODUCTS,
+    label: "Expiration List Products",
+    icon: <FaSitemap />,
+    content: <ExpirationListProducts />,
     isDisabled: false,
   },
 ];

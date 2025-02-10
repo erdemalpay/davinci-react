@@ -713,6 +713,7 @@ export enum ChecklistPageTabEnum {
 }
 export enum ExpirationPageTabEnum {
   EXPIRATIONLISTS,
+  EXPIRATIONLISTPRODUCTS,
 }
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
