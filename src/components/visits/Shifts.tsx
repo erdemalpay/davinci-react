@@ -32,6 +32,7 @@ const Shifts = () => {
   ] = useState(false);
   const locations = useGetStoreLocations();
   const shifts = useGetShifts();
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -82,7 +83,7 @@ const Shifts = () => {
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
-      if (isDisabledCondition) {
+      if (isDisabledCondition || (!isEnableEdit && !isDisabledCondition)) {
         // When disabled, simply render the text (first node)
         rowKeys.push({
           key: shift,
@@ -220,7 +221,7 @@ const Shifts = () => {
       type: FormKeyTypeEnum.STRING,
     })),
   ];
-  if (!isDisabledCondition) {
+  if (isEnableEdit) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
   const actions = [
@@ -304,6 +305,12 @@ const Shifts = () => {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+    {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filterPanelInputs = [
@@ -391,8 +398,8 @@ const Shifts = () => {
         rowKeys={rowKeys}
         columns={columns}
         rows={rows}
-        isActionsActive={!isDisabledCondition}
-        actions={actions}
+        isActionsActive={isEnableEdit}
+        actions={isEnableEdit ? actions : []}
         filters={filters}
         title={
           getItem(filterPanelFormElements.location, locations)?.name +
