@@ -118,6 +118,16 @@ export type AccountCountList = {
   }[];
   active: boolean;
 };
+export type ExpirationListType = {
+  _id: string;
+  name: string;
+  locations: number[];
+  products?: {
+    product: string;
+    locations: number[];
+  }[];
+  active: boolean;
+};
 export type AccountCount = {
   _id: string;
   isCompleted: boolean;

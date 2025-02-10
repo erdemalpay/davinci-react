@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { get, patch, post, remove, UpdatePayload } from ".";
+import { UpdatePayload, get, patch, post, remove } from ".";
 export const Paths = {
   Asset: "/asset",
   Activity: "/activity",
@@ -41,6 +41,7 @@ export const Paths = {
   ButtonCalls: "/button-calls",
   Notification: "/notification",
   Shift: "/shift",
+  Expiration: "/expiration",
 };
 
 interface Props<T> {
