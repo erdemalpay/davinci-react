@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { MultiValue } from "react-select";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
@@ -14,9 +15,11 @@ import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import SelectInput from "../panelComponents/FormElements/SelectInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+type OptionType = { value: any; label: string };
 
 const Shifts = () => {
   const { t } = useTranslation();
@@ -79,50 +82,113 @@ const Shifts = () => {
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
-      rowKeys.push({
-        key: shift,
-        node: (row: any) => {
-          const shiftValue = row[shift];
+      if (isDisabledCondition) {
+        // When disabled, simply render the text (first node)
+        rowKeys.push({
+          key: shift,
+          node: (row: any) => {
+            const shiftValue = row[shift];
+            if (Array.isArray(shiftValue)) {
+              return (
+                <div className="flex flex-row gap-1 flex-wrap max-w-40">
+                  {shiftValue.map((user: string, index: number) => {
+                    const foundUser = getItem(user, users);
+                    return (
+                      <p
+                        key={`${row.day}${foundUser?._id}${index}`}
+                        className={
+                          filterPanelFormElements.user === foundUser?._id
+                            ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
+                            : ""
+                        }
+                      >
+                        {foundUser?.name}
+                      </p>
+                    );
+                  })}
+                </div>
+              );
+            } else if (shiftValue) {
+              const foundUser = getItem(shiftValue, users);
+              return (
+                <p
+                  key={`${row.day}${foundUser?._id}-single`}
+                  className={
+                    filterPanelFormElements.user === foundUser?._id
+                      ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
+                      : ""
+                  }
+                >
+                  {foundUser?.name}
+                </p>
+              );
+            }
+            return <></>;
+          },
+        });
+      } else {
+        // When not disabled, render the SelectInput (second node)
+        rowKeys.push({
+          key: shift,
+          node: (row: any) => {
+            const shiftValue = row[shift];
+            const normalizedValue = Array.isArray(shiftValue)
+              ? shiftValue.map((userId: string) => ({
+                  value: userId,
+                  label: getItem(userId, users)?.name ?? "",
+                }))
+              : shiftValue
+              ? {
+                  value: shiftValue,
+                  label: getItem(shiftValue, users)?.name ?? "",
+                }
+              : null;
 
-          if (Array.isArray(shiftValue)) {
             return (
-              <div className="flex flex-row gap-1 flex-wrap max-w-40">
-                {shiftValue.map((user: string, index: number) => {
-                  const foundUser = getItem(user, users);
-                  return (
-                    <p
-                      key={`${row.day}${foundUser?._id}${index}`}
-                      className={
-                        filterPanelFormElements.user === foundUser?._id
-                          ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
-                          : ""
+              <div key={`${row.day}${shiftValue}`} className="overflow-visible">
+                <SelectInput
+                  options={users?.map((user) => ({
+                    value: user._id,
+                    label: user.name,
+                  }))}
+                  isMultiple={true}
+                  value={normalizedValue}
+                  placeholder=""
+                  isOnClearActive={false}
+                  onChange={(selectedOption) => {
+                    const newValue = (
+                      selectedOption as MultiValue<OptionType>
+                    ).map((option) => option.value);
+                    const updatedShifts = foundLocation?.shifts?.map(
+                      (foundShift) => {
+                        return {
+                          shift: foundShift,
+                          user:
+                            foundShift !== shift ? row[foundShift] : newValue,
+                        };
                       }
-                    >
-                      {foundUser?.name}
-                    </p>
-                  );
-                })}
+                    );
+                    if (!row?._id && foundLocation) {
+                      createShift({
+                        shifts: updatedShifts,
+                        location: foundLocation._id,
+                        day: row.day,
+                      });
+                    } else {
+                      updateShift({
+                        id: row?._id,
+                        updates: {
+                          shifts: updatedShifts,
+                        },
+                      });
+                    }
+                  }}
+                />
               </div>
             );
-          } else if (shiftValue) {
-            // If it's a single value rather than an array
-            const foundUser = getItem(shiftValue, users);
-            return (
-              <p
-                key={`${row.day}${foundUser?._id}-single`}
-                className={
-                  filterPanelFormElements.user === foundUser?._id
-                    ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
-                    : ""
-                }
-              >
-                {foundUser?.name}
-              </p>
-            );
-          }
-          return <></>;
-        },
-      });
+          },
+        });
+      }
     }
   }
   const inputs = [
@@ -223,7 +289,7 @@ const Shifts = () => {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Shift"
-          text={`${rowToAction.formattedDate} shift will be deleted. Are you sure you want to continue?`}
+          text={`Shift will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl  ",
