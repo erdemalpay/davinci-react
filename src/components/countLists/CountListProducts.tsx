@@ -10,13 +10,11 @@ import {
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
 import { CheckSwitch } from "../common/CheckSwitch";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type Props = {};
-
-const CountListProducts = (props: Props) => {
+const CountListProducts = () => {
   const { t } = useTranslation();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);

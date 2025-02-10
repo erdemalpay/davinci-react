@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
+import { IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
 import { Location, RoleEnum } from "../../types";
 import {
@@ -10,6 +11,7 @@ import {
 } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -72,7 +74,46 @@ const LocationPage = () => {
       },
     },
     { key: "tableCount" },
-    { key: "shifts" },
+    {
+      key: "shifts",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2 max-w-40 flex-wrap ">
+            {row?.shifts?.map((shift: string, index: number) => (
+              <div
+                key={index}
+                className="flex flex-row px-1 py-0.5 bg-red-400 rounded-md text-white"
+              >
+                <p>{shift}</p>
+                <ButtonTooltip content={t("Delete")}>
+                  <IoCloseOutline
+                    className="cursor-pointer font-bold"
+                    onClick={() => {
+                      const updatedShifts = row.shifts.filter(
+                        (foundShift: string) => foundShift !== shift
+                      );
+                      updatedShifts?.sort((a: string, b: string) => {
+                        const [aHour, aMinute] = a.split(":").map(Number);
+                        const [bHour, bMinute] = b.split(":").map(Number);
+                        const totalMinutesA = aHour * 60 + aMinute;
+                        const totalMinutesB = bHour * 60 + bMinute;
+                        return totalMinutesA - totalMinutesB;
+                      });
+                      updateLocation({
+                        id: Number(row._id),
+                        updates: {
+                          shifts: updatedShifts,
+                        },
+                      });
+                    }}
+                  />
+                </ButtonTooltip>
+              </div>
+            ))}
+          </div>
+        );
+      },
+    },
     {
       key: "ikasId",
       className: "min-w-32 pr-1",
@@ -223,7 +264,7 @@ const LocationPage = () => {
   useEffect(() => {
     setRows(locations);
     setTableKey((prev) => prev + 1);
-  }, [locations]);
+  }, [locations, user]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
