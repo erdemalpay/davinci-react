@@ -10,8 +10,8 @@ import {
 } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const LocationPage = () => {
   const { t } = useTranslation();
@@ -188,16 +188,21 @@ const LocationPage = () => {
             if (rowToAction) {
               const updatedShifts = [
                 ...(rowToAction.shifts || []),
-                String(shiftForm.hour),
+                shiftForm.hour,
               ];
-
+              updatedShifts.sort((a, b) => {
+                const [aHour, aMinute] = a.split(":").map(Number);
+                const [bHour, bMinute] = b.split(":").map(Number);
+                const totalMinutesA = aHour * 60 + aMinute;
+                const totalMinutesB = bHour * 60 + bMinute;
+                return totalMinutesA - totalMinutesB;
+              });
               updateLocation({
                 id: Number(rowToAction._id),
                 updates: {
                   shifts: updatedShifts,
                 },
               });
-
               setIsAddShiftModalOpen(false);
             }
           }}
