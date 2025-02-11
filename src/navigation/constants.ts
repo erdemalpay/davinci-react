@@ -381,7 +381,7 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
-    name: "Shift",
+    name: "ShiftLink",
     link: "https://docs.google.com/spreadsheets/d/12I0SfAT97zDFjyLHnujv9pIKCUkCpLUfX36MXPK1Bek/edit",
     isOnSidebar: true,
   },
