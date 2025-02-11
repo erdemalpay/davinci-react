@@ -68,7 +68,7 @@ const ExpirationListProducts = () => {
         updates: { products: newProducts },
       });
 
-      toast.success(`${t("Count List updated successfully")}`);
+      toast.success(`${t("Expiration List updated successfully")}`);
     }
   }
 

@@ -1,6 +1,14 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { post } from ".";
 import { useShiftContext } from "../../context/Shift.context";
 import { Shift } from "./../../types/index";
 import { Paths, useGetList, useMutationApi } from "./factory";
+
+interface CopyShiftPayload {
+  copiedDay: string;
+  selectedDay: string;
+}
 
 export function useShiftMutations() {
   const {
@@ -34,4 +42,25 @@ export function useGetShifts() {
     ],
     true
   );
+}
+
+function copyShift(payload: CopyShiftPayload) {
+  return post({
+    path: `/shift/copy`,
+    payload,
+  });
+}
+
+export function useCopyShiftMutation() {
+  const queryClient = useQueryClient();
+  return useMutation(copyShift, {
+    onMutate: async () => {
+      await queryClient.cancelQueries([`${Paths.Shift}`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
 }

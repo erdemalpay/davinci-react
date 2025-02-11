@@ -2,13 +2,18 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { LuCopyPlus } from "react-icons/lu";
 import { MultiValue } from "react-select";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetShifts, useShiftMutations } from "../../utils/api/shift";
+import {
+  useCopyShiftMutation,
+  useGetShifts,
+  useShiftMutations,
+} from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -19,6 +24,7 @@ import SelectInput from "../panelComponents/FormElements/SelectInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 type OptionType = { value: any; label: string };
 
 const Shifts = () => {
@@ -26,6 +32,7 @@ const Shifts = () => {
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -33,6 +40,7 @@ const Shifts = () => {
   const locations = useGetStoreLocations();
   const shifts = useGetShifts();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { mutate: copyShift } = useCopyShiftMutation();
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -70,6 +78,31 @@ const Shifts = () => {
       ...shiftMapping,
     };
   });
+  const copyShiftInputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "copiedDay",
+      label: t("Copied Day"),
+      placeholder: t("Copied Day"),
+      required: true,
+      isDatePicker: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "selectedDay",
+      label: t("Selected Day"),
+      placeholder: t("Selected Day"),
+      required: true,
+      isDatePicker: true,
+      isOnClearActive: false,
+      isDisabled: true,
+    },
+  ];
+  const copyShiftFormKeys = [
+    { key: "copiedDay", type: FormKeyTypeEnum.STRING },
+    { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+  ];
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -298,6 +331,29 @@ const Shifts = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+    },
+    {
+      name: t("Copy Shift"),
+      icon: <LuCopyPlus />,
+      className: "text-2xl mt-1 cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isCopyShiftModalOpen}
+          close={() => setIsCopyShiftModalOpen(false)}
+          inputs={copyShiftInputs}
+          formKeys={copyShiftFormKeys}
+          submitItem={copyShift as any}
+          isEditMode={false}
+          constantValues={{ selectedDay: rowToAction?.day }}
+          topClassName="flex flex-col gap-2  "
+        />
+      ) : null,
+      isModalOpen: isCopyShiftModalOpen,
+      setIsModal: setIsCopyShiftModalOpen,
+      isPath: false,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filters = [
