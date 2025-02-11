@@ -10,6 +10,7 @@ import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
+  useCopyShiftIntervalMutation,
   useCopyShiftMutation,
   useGetShifts,
   useShiftMutations,
@@ -33,6 +34,8 @@ const Shifts = () => {
   const users = useGetUsers();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
+  const [isCopyShiftIntervalModalOpen, setIsCopyShiftIntervalModalOpen] =
+    useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -41,6 +44,7 @@ const Shifts = () => {
   const shifts = useGetShifts();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: copyShift } = useCopyShiftMutation();
+  const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -101,6 +105,40 @@ const Shifts = () => {
   ];
   const copyShiftFormKeys = [
     { key: "copiedDay", type: FormKeyTypeEnum.STRING },
+    { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+  ];
+  const copyShifIntervaltInputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "startCopiedDay",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "endCopiedDay",
+      label: t("End date"),
+      placeholder: t("End date"),
+      required: true,
+      isDatePicker: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "selectedDay",
+      label: t("Selected Day"),
+      placeholder: t("Selected Day"),
+      required: true,
+      isDatePicker: true,
+      isOnClearActive: false,
+    },
+  ];
+  const copyShiftIntervalFormKeys = [
+    { key: "startCopiedDay", type: FormKeyTypeEnum.STRING },
+    { key: "endCopiedDay", type: FormKeyTypeEnum.STRING },
     { key: "selectedDay", type: FormKeyTypeEnum.STRING },
   ];
   const [rows, setRows] = useState(allRows);
@@ -356,6 +394,26 @@ const Shifts = () => {
       isDisabled: isDisabledCondition,
     },
   ];
+  const copyShiftIntervalButton = {
+    name: t(`Copy Shift Interval`),
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isOpen={isCopyShiftIntervalModalOpen}
+        close={() => setIsCopyShiftIntervalModalOpen(false)}
+        inputs={copyShifIntervaltInputs}
+        formKeys={copyShiftIntervalFormKeys}
+        submitItem={copyShiftInterval as any}
+        topClassName="flex flex-col gap-2 "
+      />
+    ),
+    isModalOpen: isCopyShiftIntervalModalOpen,
+    setIsModal: setIsCopyShiftIntervalModalOpen,
+    isPath: false,
+    isDisabled: isDisabledCondition,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+  };
   const filters = [
     {
       label: t("Show Filters"),
@@ -453,6 +511,7 @@ const Shifts = () => {
         key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
+        addButton={copyShiftIntervalButton}
         rows={rows}
         isActionsActive={isEnableEdit}
         actions={isEnableEdit ? actions : []}
