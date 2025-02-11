@@ -47,11 +47,10 @@ const ExpirationListProducts = () => {
     row: any,
     expirationList: ExpirationListType
   ) {
-    if (
-      expirationList?.products?.find((item) => item.product === row.product)
-    ) {
-      const newProducts = expirationList.products.filter(
-        (item) => item.product !== row.product
+    console.log(row);
+    if (expirationList?.products?.find((item) => item.product === row._id)) {
+      const newProducts = expirationList?.products?.filter(
+        (item) => item.product !== row._id
       );
       updateExpirationList({
         id: expirationList._id,
@@ -60,7 +59,7 @@ const ExpirationListProducts = () => {
     } else {
       const newProducts = expirationList.products || [];
       newProducts.push({
-        product: row.product,
+        product: row._id,
         locations: locations.map((location) => location._id),
       });
       updateExpirationList({
@@ -83,7 +82,7 @@ const ExpirationListProducts = () => {
     {
       key: "name",
       node: (row) => {
-        const className = checkProductIsInExpirationLists(row.product)
+        const className = checkProductIsInExpirationLists(row._id)
           ? ""
           : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
         return <div className={className}>{row.name}</div>;
@@ -98,31 +97,19 @@ const ExpirationListProducts = () => {
       key: expirationList._id,
       node: (row: any) => {
         const isChecked = expirationList?.products?.some(
-          (item) => item.product === row.product
+          (item) => item.product === row._id
         );
         return isEnableEdit ? (
-          <div
-            className={`${
-              expirationLists?.length === 1 ? "flex justify-center" : ""
-            }`}
-          >
+          <div>
             <CheckSwitch
               checked={isChecked ?? false}
               onChange={() => handleExpirationListUpdate(row, expirationList)}
             />
           </div>
         ) : isChecked ? (
-          <IoCheckmark
-            className={`text-blue-500 text-2xl ${
-              expirationLists?.length === 1 ? "mx-auto" : ""
-            }`}
-          />
+          <IoCheckmark className={`text-blue-500 text-2xl`} />
         ) : (
-          <IoCloseOutline
-            className={`text-red-800 text-2xl ${
-              expirationLists?.length === 1 ? "mx-auto" : ""
-            }`}
-          />
+          <IoCloseOutline className={`text-red-800 text-2xl`} />
         );
       },
     });

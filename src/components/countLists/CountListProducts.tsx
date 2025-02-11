@@ -44,9 +44,9 @@ const CountListProducts = () => {
 
   const [rows, setRows] = useState(allRows);
   function handleCountListUpdate(row: any, countList: AccountCountList) {
-    if (countList?.products?.find((item) => item.product === row.product)) {
+    if (countList?.products?.find((item) => item.product === row._id)) {
       const newProducts = countList.products.filter(
-        (item) => item.product !== row.product
+        (item) => item.product !== row._id
       );
       updateAccountCountList({
         id: countList._id,
@@ -55,7 +55,7 @@ const CountListProducts = () => {
     } else {
       const newProducts = countList.products || [];
       newProducts.push({
-        product: row.product,
+        product: row._id,
         locations: locations.map((location) => location._id),
       });
       updateAccountCountList({
@@ -78,7 +78,7 @@ const CountListProducts = () => {
     {
       key: "name",
       node: (row) => {
-        const className = checkProductIsInCountLists(row.product)
+        const className = checkProductIsInCountLists(row._id)
           ? ""
           : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
         return <div className={className}>{row.name}</div>;
@@ -93,7 +93,7 @@ const CountListProducts = () => {
       key: countList._id,
       node: (row: any) => {
         const isChecked = countList?.products?.some(
-          (item) => item.product === row.product
+          (item) => item.product === row._id
         );
         return isEnableEdit ? (
           <div
