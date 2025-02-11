@@ -7,12 +7,18 @@ import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
+import { ExpenseTypeInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../panelComponents/shared/types";
+
+type FormElementsState = {
+  [key: string]: any;
+};
 
 const CountListProducts = () => {
   const { t } = useTranslation();
@@ -20,12 +26,21 @@ const CountListProducts = () => {
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      expenseType: "",
+    });
+  const [showFilters, setShowFilters] = useState(false);
+  const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
   const { updateAccountCountList } = useAccountCountListMutations();
-  const allRows = products.map((product) => ({
-    product: product._id,
-    name: product.name,
-  }));
+  const allRows = products.filter((product) => {
+    return (
+      filterPanelFormElements.expenseType === "" ||
+      product.expenseType?.includes(filterPanelFormElements.expenseType)
+    );
+  });
 
   const [rows, setRows] = useState(allRows);
   function handleCountListUpdate(row: any, countList: AccountCountList) {
@@ -113,11 +128,23 @@ const CountListProducts = () => {
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
   ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [countLists, locations, products]);
+  }, [countLists, locations, products, filterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -127,6 +154,7 @@ const CountListProducts = () => {
           columns={columns}
           filters={filters}
           rows={rows}
+          filterPanel={filterPanel}
           title={t("Count List Products")}
           isActionsActive={false}
         />
