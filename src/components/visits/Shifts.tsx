@@ -120,8 +120,8 @@ const Shifts = () => {
     {
       type: InputTypes.DATE,
       formKey: "endCopiedDay",
-      label: t("End date"),
-      placeholder: t("End date"),
+      label: t("End Date"),
+      placeholder: t("End Date"),
       required: true,
       isDatePicker: true,
       isOnClearActive: false,
@@ -129,8 +129,8 @@ const Shifts = () => {
     {
       type: InputTypes.DATE,
       formKey: "selectedDay",
-      label: t("Selected Day"),
-      placeholder: t("Selected Day"),
+      label: t("Selected Date"),
+      placeholder: t("Selected Date"),
       required: true,
       isDatePicker: true,
       isOnClearActive: false,
