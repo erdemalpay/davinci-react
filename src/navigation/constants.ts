@@ -175,7 +175,7 @@ export const allRoutes: {
     isOnSidebar: true,
   },
   {
-    name: "Visits",
+    name: "Shifts",
     path: Routes.Visits,
     element: Visits,
     isOnSidebar: true,
