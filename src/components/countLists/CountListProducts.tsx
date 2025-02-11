@@ -144,7 +144,7 @@ const CountListProducts = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [countLists, locations, products, filterPanelFormElements]);
+  }, [countLists, locations, products, filterPanelFormElements, expenseTypes]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

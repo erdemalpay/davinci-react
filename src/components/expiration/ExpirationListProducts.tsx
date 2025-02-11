@@ -3,16 +3,22 @@ import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { ExpirationListType } from "../../types";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useExpirationListMutations,
   useGetExpirationLists,
 } from "../../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../../utils/api/location";
+import { ExpenseTypeInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../panelComponents/shared/types";
+
+type FormElementsState = {
+  [key: string]: any;
+};
 
 const ExpirationListProducts = () => {
   const { t } = useTranslation();
@@ -22,10 +28,19 @@ const ExpirationListProducts = () => {
   const locations = useGetStockLocations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateExpirationList } = useExpirationListMutations();
-  const allRows = products.map((product) => ({
-    product: product._id,
-    name: product.name,
-  }));
+  const expenseTypes = useGetAccountExpenseTypes();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      expenseType: "",
+    });
+  const [showFilters, setShowFilters] = useState(false);
+  const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
+  const allRows = products.filter((product) => {
+    return (
+      filterPanelFormElements.expenseType === "" ||
+      product.expenseType?.includes(filterPanelFormElements.expenseType)
+    );
+  });
 
   const [rows, setRows] = useState(allRows);
   function handleExpirationListUpdate(
@@ -118,11 +133,29 @@ const ExpirationListProducts = () => {
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
   ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [expirationLists, locations, products]);
+  }, [
+    expirationLists,
+    locations,
+    products,
+    expenseTypes,
+    filterPanelFormElements,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -132,6 +165,7 @@ const ExpirationListProducts = () => {
           columns={columns}
           filters={filters}
           rows={rows}
+          filterPanel={filterPanel}
           title={t("Expiration List Products")}
           isActionsActive={false}
         />
