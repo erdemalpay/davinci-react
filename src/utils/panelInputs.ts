@@ -21,7 +21,10 @@ export function NameInput({ required = true } = {}) {
     required: required,
   };
 }
-export function QuantityInput({ required = true } = {}) {
+export function QuantityInput({
+  required = true,
+  isNumberButtonActive = false,
+} = {}) {
   const { t } = useTranslation();
   return {
     type: InputTypes.NUMBER,
@@ -29,6 +32,7 @@ export function QuantityInput({ required = true } = {}) {
     label: t("Quantity"),
     placeholder: t("Quantity"),
     required: required,
+    isNumberButtonActive: isNumberButtonActive,
   };
 }
 export function BackgroundColorInput({ required = true } = {}) {

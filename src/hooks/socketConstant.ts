@@ -198,4 +198,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "expirationListChanged",
     invalidateKeys: [`${Paths.Expiration}/lists`],
   },
+  {
+    event: "expirationCountChanged",
+    invalidateKeys: [`${Paths.Expiration}/counts`],
+  },
 ];

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../components/panelComponents/FormElements/TextInput";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
@@ -13,7 +15,6 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountProduct } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
-import { useGetAccountStocks } from "../utils/api/account/stock";
 import {
   useExpirationCountMutations,
   useGetExpirationCounts,
@@ -22,6 +23,8 @@ import {
   useExpirationListMutations,
   useGetExpirationLists,
 } from "../utils/api/expiration/expirationList";
+import { formatAsLocalDate } from "../utils/format";
+import { getItem } from "../utils/getItem";
 
 const ExpirationCount = () => {
   const { t, i18n } = useTranslation();
@@ -29,7 +32,6 @@ const ExpirationCount = () => {
   const navigate = useNavigate();
   const products = useGetAccountProducts();
   const expirationCounts = useGetExpirationCounts();
-  const stocks = useGetAccountStocks();
   const { updateExpirationCount, deleteExpirationCount } =
     useExpirationCountMutations();
   const expirationLists = useGetExpirationLists();
@@ -39,10 +41,17 @@ const ExpirationCount = () => {
   const { updateExpirationList } = useExpirationListMutations();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isAddExpirationModalOpen, setIsAddExpirationModalOpen] =
+    useState(false);
   const { resetGeneralContext, setExpirationActiveTab } = useGeneralContext();
+  const [rowToAction, setRowToAction] = useState<any>();
   const { location, expirationListId } = useParams();
   const [form, setForm] = useState({
     product: [],
+  });
+  const [expirationDateForm, setExpirationDateForm] = useState({
+    expirationDate: "",
+    quantity: 0,
   });
   const currentExpirationCount = expirationCounts?.find((item) => {
     return (
@@ -52,27 +61,111 @@ const ExpirationCount = () => {
       item.expirationList === expirationListId
     );
   });
-  const countListProducts = expirationLists?.find(
-    (cl) => cl?._id === expirationListId
-  )?.products;
-  const [rows, setRows] = useState(
-    expirationLists
-      ?.find((cl) => cl?._id === expirationListId)
-      ?.products?.map((countListProduct) => {
-        if (location && countListProduct.locations.includes(Number(location))) {
-          return {
-            products: currentExpirationCount?.products,
-            productId: countListProduct.product,
-            product:
-              products?.find(
-                (p: AccountProduct) => p?._id === countListProduct.product
-              )?.name || "",
-          };
-        }
-        return { product: "", countQuantity: 0 };
-      })
-      .filter((item) => item.product !== "") || []
-  );
+  const currentExpirationList = getItem(expirationListId, expirationLists);
+  const allRows = (
+    currentExpirationList?.products
+      ?.filter((listProduct) =>
+        listProduct?.locations?.includes(Number(location))
+      )
+      ?.map((item) => {
+        const foundProduct = getItem(item.product, products);
+        if (!foundProduct) return null;
+        return {
+          productName: foundProduct.name,
+          productId: foundProduct._id,
+          collapsible: {
+            collapsibleColumns: [
+              { key: t("Expiration Date"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+            ],
+            collapsibleRowKeys: [
+              {
+                key: "expirationDate",
+                node: (row: any) => {
+                  return <p>{formatAsLocalDate(row.expirationDate)}</p>;
+                },
+              },
+              {
+                key: "quantity",
+                node: (row: any) => {
+                  return (
+                    <div>
+                      <TextInput
+                        key={row.productId}
+                        type={"number"}
+                        value={row.quantity ?? 0}
+                        label={""}
+                        placeholder={""}
+                        inputWidth="w-32 md:w-40 "
+                        onChange={(value) => {
+                          if (value === "" || !currentExpirationCount) {
+                            return;
+                          }
+                          const newProducts =
+                            currentExpirationCount?.products?.map(
+                              (expirationCountItem) => {
+                                if (
+                                  expirationCountItem.product !== row.productId
+                                ) {
+                                  return expirationCountItem;
+                                } else {
+                                  const newDateQuantities =
+                                    expirationCountItem?.dateQuantities?.map(
+                                      (dateQuantity) => {
+                                        if (
+                                          dateQuantity.expirationDate !==
+                                          row.expirationDate
+                                        ) {
+                                          return dateQuantity;
+                                        } else {
+                                          return {
+                                            ...dateQuantity,
+                                            quantity:
+                                              Number(dateQuantity.quantity) +
+                                              Number(value),
+                                          };
+                                        }
+                                      }
+                                    );
+                                  return {
+                                    ...expirationCountItem,
+                                    dateQuantities: newDateQuantities,
+                                  };
+                                }
+                              }
+                            );
+
+                          updateExpirationCount({
+                            id: currentExpirationCount?._id,
+                            updates: {
+                              products: newProducts,
+                            },
+                          });
+                        }}
+                        isDebounce={true}
+                        isOnClearActive={true}
+                        isNumberButtonsActive={true}
+                        isDateInitiallyOpen={false}
+                        isTopFlexRow={false}
+                        minNumber={0}
+                        isMinNumber={true}
+                        className="w-20 h-10 text-center"
+                      />
+                    </div>
+                  );
+                },
+              },
+            ],
+            collapsibleRows:
+              currentExpirationCount?.products?.find(
+                (expirationCountProduct) =>
+                  expirationCountProduct?.product === item.product
+              )?.dateQuantities ?? [],
+          },
+        };
+      }) ?? []
+  )?.filter((item) => item !== null);
+  const [rows, setRows] = useState(allRows);
   //   const pageNavigations = [
   //     {
   //       name: t("ExpirationCount Lists"),
@@ -112,8 +205,50 @@ const ExpirationCount = () => {
     },
   ];
   const addProductFormKeys = [{ key: "product", type: FormKeyTypeEnum.STRING }];
-
-  const columns = [{ key: t("Product"), isSortable: true }];
+  const expirationDateInputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "expirationDate",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+    },
+  ];
+  const expirationDateFormKeys = [
+    { key: "expirationDate", type: FormKeyTypeEnum.STRING },
+    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+  ];
+  const columns = [
+    { key: t("Product"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
+  ];
+  const rowKeys = [
+    {
+      key: "productName",
+      node: (row: any) => {
+        return (
+          <div
+            className={`${
+              row?.productDeleteRequest
+                ? "bg-red-200 w-fit px-2 py-1 rounded-md text-white"
+                : ""
+            }`}
+          >
+            {row.productName}
+          </div>
+        );
+      },
+    },
+  ];
   if (isEnableEdit) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -162,25 +297,6 @@ const ExpirationCount = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
   };
-
-  const rowKeys = [
-    {
-      key: "product",
-      node: (row: any) => {
-        return (
-          <div
-            className={`${
-              row?.productDeleteRequest
-                ? "bg-red-200 w-fit px-2 py-1 rounded-md text-white"
-                : ""
-            }`}
-          >
-            {row.product}
-          </div>
-        );
-      },
-    },
-  ];
   const filters = [
     {
       label: t("Enable Edit"),
@@ -188,36 +304,108 @@ const ExpirationCount = () => {
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
-
+  const actions = [
+    {
+      name: t("Add Count"),
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1 cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddExpirationModalOpen}
+          close={() => setIsAddExpirationModalOpen(false)}
+          inputs={expirationDateInputs}
+          formKeys={expirationDateFormKeys}
+          submitItem={updateExpirationCount as any}
+          isEditMode={false}
+          setForm={setExpirationDateForm}
+          topClassName="flex flex-col gap-2  "
+          submitFunction={() => {
+            if (!currentExpirationCount || !rowToAction) return;
+            let newProducts = [];
+            const isProductExist = currentExpirationCount?.products?.find(
+              (item) => item.product === rowToAction.productId
+            );
+            if (isProductExist) {
+              newProducts = currentExpirationCount?.products?.map(
+                (expirationCountProductItem) => {
+                  if (
+                    expirationCountProductItem.product !== rowToAction.productId
+                  ) {
+                    return expirationCountProductItem.product;
+                  } else {
+                    const isDateExists =
+                      expirationCountProductItem?.dateQuantities?.some(
+                        (dateQuantityItem) =>
+                          dateQuantityItem.expirationDate ===
+                          expirationDateForm.expirationDate
+                      );
+                    let newDateQuantities = [];
+                    if (isDateExists) {
+                      newDateQuantities =
+                        expirationCountProductItem?.dateQuantities.map(
+                          (dateQuantityItem) => {
+                            if (
+                              dateQuantityItem.expirationDate !==
+                              expirationDateForm.expirationDate
+                            ) {
+                              return dateQuantityItem;
+                            } else {
+                              return {
+                                ...dateQuantityItem,
+                                quantity:
+                                  Number(dateQuantityItem.quantity) +
+                                  Number(expirationDateForm.quantity),
+                              };
+                            }
+                          }
+                        );
+                    } else {
+                      newDateQuantities = [
+                        ...(expirationCountProductItem?.dateQuantities ?? []),
+                        {
+                          expirationDate: expirationDateForm.expirationDate,
+                          quantity: expirationDateForm.quantity,
+                        },
+                      ];
+                    }
+                    return {
+                      ...expirationCountProductItem,
+                      dateQuantities: newDateQuantities,
+                    };
+                  }
+                }
+              );
+            } else {
+              newProducts = [
+                ...(currentExpirationCount?.products ?? []),
+                {
+                  product: rowToAction.productId,
+                  dateQuantities: [expirationDateForm],
+                },
+              ];
+            }
+            updateExpirationCount({
+              id: currentExpirationCount?._id,
+              updates: { products: newProducts as any },
+            });
+          }}
+        />
+      ),
+      isModalOpen: isAddExpirationModalOpen,
+      setIsModal: setIsAddExpirationModalOpen,
+      isPath: false,
+    },
+  ];
   useEffect(() => {
-    setRows(
-      expirationLists
-        .find((cl) => cl._id === expirationListId)
-        ?.products?.map((countListProduct) => {
-          if (
-            location &&
-            countListProduct.locations.includes(Number(location))
-          ) {
-            return {
-              products: currentExpirationCount?.products,
-              productId: countListProduct.product,
-              product:
-                products?.find(
-                  (p: AccountProduct) => p?._id === countListProduct.product
-                )?.name || "",
-            };
-          }
-          return { product: "", countQuantity: 0 };
-        })
-        .filter((item) => item.product !== "") || []
-    );
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [
     expirationListId,
     expirationLists,
     location,
     products,
-    stocks,
     expirationCounts,
     i18n.language,
   ]);
@@ -230,12 +418,13 @@ const ExpirationCount = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
+          actions={actions}
           rows={rows}
           title={t("Expiration Count")}
-          isActionsActive={false}
+          isActionsActive={true}
+          isCollapsible={true}
           addButton={addButton}
           filters={filters}
-          //   actions={isEnableEdit ? actions : []}
         />
       </div>
     </>
