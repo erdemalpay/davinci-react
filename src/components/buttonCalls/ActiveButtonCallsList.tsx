@@ -25,16 +25,16 @@ export function ActiveButtonCallsList({
 
   function handleChipClose(buttonCallId: string) {
     const buttonCall = buttonCalls.find(
-      (buttonCallItem) => buttonCallItem._id == buttonCallId && !buttonCallItem?.finishHour
+      (buttonCallItem) => buttonCallItem.tableName == buttonCallId
     );
-    if (buttonCall) finishButtonCall({ id: buttonCall._id });
+    if (buttonCall) finishButtonCall({ location: selectedLocationId, tableName: buttonCall.tableName });
   }
 
   return (<div className="flex flex-col w-full">
       <div className="flex flex-wrap gap-3 mt-4 justify-start">
         {activeButtonCalls.map((buttonCall) => (
           <Chip
-            key={buttonCall._id}
+            key={buttonCall.tableName}
             value={buttonCall.tableName}
             style={{
               backgroundColor: "#4cae50",
@@ -42,7 +42,7 @@ export function ActiveButtonCallsList({
               borderRadius: "8px",
             }}
             className="px-5 py-3 text-md text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-            onClose={() => handleChipClose(buttonCall._id)}
+            onClose={() => handleChipClose(buttonCall.tableName)}
           />
         ))}
       </div>
