@@ -47,7 +47,6 @@ const ExpirationListProducts = () => {
     row: any,
     expirationList: ExpirationListType
   ) {
-    console.log(row);
     if (expirationList?.products?.find((item) => item.product === row._id)) {
       const newProducts = expirationList?.products?.filter(
         (item) => item.product !== row._id

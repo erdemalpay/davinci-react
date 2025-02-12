@@ -711,6 +711,26 @@ export enum ChecklistPageTabEnum {
   CHECKARCHIVE,
   CHECKLISTS,
 }
+export type DateQuantitiesType = {
+  expirationDate: string;
+  quantity: number;
+};
+
+export type ExpirationCountProductType = {
+  product: string;
+  dateQuantities: DateQuantitiesType[];
+};
+
+export type ExpirationCountType = {
+  _id: string;
+  user: string;
+  location: number;
+  expirationList: string;
+  createdAt: Date;
+  completedAt?: Date;
+  isCompleted: boolean;
+  products: ExpirationCountProductType[];
+};
 export enum ExpirationPageTabEnum {
   EXPIRATIONLISTS,
   EXPIRATIONLISTPRODUCTS,
