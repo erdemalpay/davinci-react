@@ -732,6 +732,7 @@ export type ExpirationCountType = {
   products: ExpirationCountProductType[];
 };
 export enum ExpirationPageTabEnum {
+  COUNTARCHIVE,
   EXPIRATIONLISTS,
   EXPIRATIONLISTPRODUCTS,
 }

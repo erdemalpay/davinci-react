@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
@@ -13,6 +15,7 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
+import { Routes } from "../navigation/constants";
 import { AccountProduct } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import {
@@ -181,6 +184,32 @@ const ExpirationCount = () => {
   //       canBeClicked: false,
   //     },
   //   ];
+  const completeCount = () => {
+    if (!currentExpirationCount) {
+      return;
+    }
+    updateExpirationCount({
+      id: currentExpirationCount?._id,
+      updates: {
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    //   setExpirationActiveTab(ExpirationPageTabEnum.);
+    resetGeneralContext();
+    navigate(Routes.Expirations);
+  };
+  const cancelCount = () => {
+    if (!currentExpirationCount) {
+      return;
+    }
+    if (currentExpirationCount) {
+      deleteExpirationCount(currentExpirationCount?._id);
+      // setCountListActiveTab(CountListPageTabEnum.COUNTARCHIVE);
+      navigate(Routes.Expirations);
+    }
+  };
   const addProductInputs = [
     {
       type: InputTypes.SELECT,
@@ -426,6 +455,34 @@ const ExpirationCount = () => {
           addButton={addButton}
           filters={filters}
         />
+        <div className="flex justify-end flex-row gap-2 mt-4">
+          <button
+            className="px-2  bg-red-500 hover:text-red-500 hover:border-red-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+            onClick={cancelCount}
+          >
+            <H5> {t("Cancel")}</H5>
+          </button>
+          <button
+            className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+            onClick={() => {
+              setIsConfirmationDialogOpen(true);
+            }}
+          >
+            <H5> {t("Complete")}</H5>
+          </button>
+        </div>
+        {isConfirmationDialogOpen && (
+          <ConfirmationDialog
+            isOpen={isConfirmationDialogOpen}
+            close={() => setIsConfirmationDialogOpen(false)}
+            confirm={() => {
+              completeCount();
+              setIsConfirmationDialogOpen(false);
+            }}
+            title={t("Complete Count")}
+            text={`${t("Are you sure you want to complete the count?")}`}
+          />
+        )}
       </div>
     </>
   );

@@ -33,6 +33,7 @@ import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
 import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
+import SingleExpirationCountArchive from "../pages/SingleExpirationCountArchive";
 import SingleFolderPage from "../pages/SingleFolderPage";
 import Stocks from "../pages/Stocks";
 import Tables from "../pages/Tables";
@@ -78,7 +79,6 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Count = "/count/:location/:countListId",
-  ExpirationCount = "/expiration/:location/:expirationListId",
   Check = "/check/:location/:checklistId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
@@ -102,6 +102,8 @@ export enum Routes {
   Notifications = "/notifications",
   Expirations = "/expirations",
   ExpirationList = "/expiration-list/:expirationListId",
+  ExpirationCount = "/expiration/:location/:expirationListId",
+  SingleExpirationCountArchive = "/expiration-archive/:archiveId",
 }
 
 export const allRoutes: {
@@ -286,6 +288,12 @@ export const allRoutes: {
     name: "ExpirationList",
     path: Routes.ExpirationList,
     element: ExpirationList,
+    isOnSidebar: false,
+  },
+  {
+    name: "Single Expiration Count Archive",
+    path: Routes.SingleExpirationCountArchive,
+    element: SingleExpirationCountArchive,
     isOnSidebar: false,
   },
   {

@@ -1,4 +1,5 @@
-import { FaClipboardList, FaSitemap } from "react-icons/fa";
+import { FaArchive, FaClipboardList, FaSitemap } from "react-icons/fa";
+import ExpirationCountArchive from "../components/expiration/ExpirationCountArchive";
 import ExpirationListProducts from "../components/expiration/ExpirationListProducts";
 import ExpirationLists from "../components/expiration/ExpirationLists";
 import { Header } from "../components/header/Header";
@@ -9,6 +10,13 @@ import { ExpirationPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const ExpirationTabs = [
+  {
+    number: ExpirationPageTabEnum.COUNTARCHIVE,
+    label: "Count Archive",
+    icon: <FaArchive />,
+    content: <ExpirationCountArchive />,
+    isDisabled: false,
+  },
   {
     number: ExpirationPageTabEnum.EXPIRATIONLISTS,
     label: "Expiration Lists",
