@@ -77,10 +77,10 @@ const CountList = () => {
   if (!countLists || !locations || !user || !products || !countListId) {
     return <Loading />;
   }
+  const counts = useGetAccountCounts();
   const [countLocationForm, setCountLocationForm] = useState({
     location: 0,
   });
-  const counts = useGetAccountCounts();
   const countLocationInputs = [
     StockLocationInput({
       locations: locations.filter((l) =>
@@ -93,6 +93,7 @@ const CountList = () => {
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
+
   function handleLocationUpdate(row: any, changedLocationId: number) {
     const currentCountList = countLists.find(
       (item) => item._id === countListId

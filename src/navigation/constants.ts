@@ -12,6 +12,7 @@ import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
 import Expenses from "../pages/Expenses";
 import Expirations, { ExpirationTabs } from "../pages/Expiration";
+import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
@@ -77,6 +78,7 @@ export enum Routes {
   Expenses = "/expenses",
   Stocks = "/stocks",
   Count = "/count/:location/:countListId",
+  ExpirationCount = "/expiration/:location/:expirationListId",
   Check = "/check/:location/:checklistId",
   Product = "/product/:productId",
   Vendor = "/vendor/:vendorId",
@@ -273,6 +275,12 @@ export const allRoutes: {
     element: Expirations,
     isOnSidebar: true,
     tabs: ExpirationTabs,
+  },
+  {
+    name: "Expiration Count",
+    path: Routes.ExpirationCount,
+    element: ExpirationCount,
+    isOnSidebar: false,
   },
   {
     name: "ExpirationList",

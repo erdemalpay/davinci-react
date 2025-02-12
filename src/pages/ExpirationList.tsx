@@ -12,6 +12,7 @@ import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -22,11 +23,16 @@ import { useUserContext } from "../context/User.context";
 import { ExpirationListType, RoleEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import {
+  useExpirationCountMutations,
+  useGetExpirationCounts,
+} from "../utils/api/expiration/expirationCount";
+import {
   useExpirationListMutations,
   useGetExpirationLists,
 } from "../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
+import { StockLocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
   [key: string]: boolean;
@@ -41,8 +47,14 @@ const ExpirationList = () => {
   const expirationLists = useGetExpirationLists();
   const { resetGeneralContext } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
+  const { createExpirationCount } = useExpirationCountMutations();
+  const expirationCounts = useGetExpirationCounts();
   const { updateExpirationList } = useExpirationListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [
+    isExpirationCountLocationModalOpen,
+    setIsExpirationCountLocationModalOpen,
+  ] = useState(false);
   const [selectedExpirationList, setSelectedExpirationList] =
     useState<ExpirationListType>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -65,6 +77,21 @@ const ExpirationList = () => {
     product: string;
   };
 
+  const [countLocationForm, setCountLocationForm] = useState({
+    location: 0,
+  });
+  const countLocationInputs = [
+    StockLocationInput({
+      locations: locations.filter((l) =>
+        expirationLists
+          .find((row) => row._id === expirationListId)
+          ?.locations?.includes(l._id)
+      ),
+    }),
+  ];
+  const countLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
   if (
     !expirationLists ||
     !locations ||
@@ -283,6 +310,17 @@ const ExpirationList = () => {
   ];
   const filters = [
     {
+      isUpperSide: true,
+      node: (
+        <ButtonFilter
+          buttonName={t("Expiration Count")}
+          onclick={() => {
+            setIsExpirationCountLocationModalOpen(true);
+          }}
+        />
+      ),
+    },
+    {
       label: t("Location Edit"),
       isUpperSide: false,
       isDisabled: user
@@ -327,7 +365,13 @@ const ExpirationList = () => {
   });
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [expirationLists, products, expirationListId, locations]);
+  }, [
+    expirationLists,
+    products,
+    expirationListId,
+    locations,
+    expirationCounts,
+  ]);
 
   return (
     <>
@@ -387,6 +431,50 @@ const ExpirationList = () => {
             }
             isActionsActive={true}
           />
+          {isExpirationCountLocationModalOpen && (
+            <GenericAddEditPanel
+              isOpen={isExpirationCountLocationModalOpen}
+              close={() => setIsExpirationCountLocationModalOpen(false)}
+              inputs={countLocationInputs}
+              formKeys={countLocationFormKeys}
+              //  eslint-disable-next-line
+              submitItem={() => {}}
+              submitFunction={async () => {
+                if (countLocationForm.location === 0 || !user) return;
+                if (
+                  expirationCounts?.filter((item) => {
+                    return (
+                      item.isCompleted === false &&
+                      item.location === countLocationForm.location &&
+                      item.user === user._id &&
+                      item.expirationList === expirationListId
+                    );
+                  }).length > 0
+                ) {
+                  resetGeneralContext();
+                  navigate(
+                    `/expiration/${countLocationForm.location}/${expirationListId}`
+                  );
+                } else {
+                  createExpirationCount({
+                    location: countLocationForm.location,
+                    expirationList: expirationListId,
+                    isCompleted: false,
+                    createdAt: new Date(),
+                    user: user._id,
+                  });
+                  resetGeneralContext();
+                  navigate(
+                    `/expiration/${countLocationForm.location}/${expirationListId}`
+                  );
+                }
+              }}
+              setForm={setCountLocationForm}
+              isEditMode={false}
+              topClassName="flex flex-col gap-2 "
+              buttonName={t("Submit")}
+            />
+          )}
         </div>
       </div>
     </>
