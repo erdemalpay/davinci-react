@@ -56,7 +56,7 @@ export const VisitPageTabs = [
 export default function Visits() {
   const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const [activeTab, setActiveTab] = useState(VisitPageTabEnum.DAILYVISIT);
-  const currentPageId = "visits";
+  const currentPageId = "shifts";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
   if (!user || pages.length === 0) return <></>;

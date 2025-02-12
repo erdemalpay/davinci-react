@@ -59,13 +59,7 @@ const PageTabPermissions = () => {
         node: (row: any) => {
           const hasPermission = row?.permissionRoles?.includes(role._id);
           return isEnableEdit ? (
-            <div
-              className={` ${
-                currentPage?.permissionRoles?.length === 1
-                  ? "flex justify-center"
-                  : ""
-              } `}
-            >
+            <div>
               <CheckSwitch
                 checked={hasPermission}
                 onChange={() => handleRolePermission(row, role._id)}
