@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { patch } from ".";
+import { post } from ".";
 import { ButtonCall, ButtonCallType } from "../../types";
 import { Paths, useGetList } from "./factory";
 import { useLocationContext } from "../../context/Location.context";
@@ -7,7 +7,8 @@ import { useDateContext } from "../../context/Date.context";
 import { toast } from "react-toastify";
 
 interface UpdateButtonCallPayload {
-  id: string;
+  location: number,
+  tableName: string;
 }
 export function useGetButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedLocationId } = useLocationContext();
@@ -17,10 +18,10 @@ export function useGetButtonCalls(type = ButtonCallType.ACTIVE) {
     [Paths.ButtonCalls, selectedLocationId, selectedDate, type]
   );
 }
-export function finishButtonCall({ id }: UpdateButtonCallPayload): Promise<ButtonCall> {
-  return patch<Partial<ButtonCall>, ButtonCall>({
-    path: `${Paths.ButtonCalls}`,
-    payload: {_id: id},
+export function finishButtonCall({location, tableName }: UpdateButtonCallPayload): Promise<ButtonCall> {
+  return post<Partial<ButtonCall>, ButtonCall>({
+    path: `${Paths.ButtonCalls}/close-from-panel`,
+    payload: {location: location, tableName: tableName},
   });
 }
 export function useFinishButtonCallMutation() {
@@ -31,7 +32,7 @@ export function useFinishButtonCallMutation() {
 
   return useMutation(finishButtonCall, {
     // We are updating visits query data with new visit
-    onMutate: async ({ id }) => {
+    onMutate: async ({ tableName }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(queryKey);
 
@@ -41,7 +42,7 @@ export function useFinishButtonCallMutation() {
       const updatedButtonCalls = [...previousButtonCalls];
 
       for (let i = 0; i < updatedButtonCalls.length; i++) {
-        if (updatedButtonCalls[i]._id === id) {
+        if (updatedButtonCalls[i].tableName === tableName) {
           updatedButtonCalls[i] = {
             ...updatedButtonCalls[i]
           };
