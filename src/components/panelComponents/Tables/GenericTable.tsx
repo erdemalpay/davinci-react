@@ -639,7 +639,9 @@ const GenericTable = <T,>({
                                     key={keyIndex}
                                     className={`${
                                       keyIndex === 0 ? "pl-3" : ""
-                                    } py-3 min-w-20 ${rowKey?.className} `}
+                                    } py-3 min-w-20 ${
+                                      rowKey?.className
+                                    } border-b`}
                                   >
                                     {rowKey.node(collapsibleRow)}
                                   </td>
