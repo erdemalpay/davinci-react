@@ -161,7 +161,6 @@ const BulkExpenseCreate = () => {
 
     setErrorDataForCreateMultipleExpense([]);
     createMultipleExpense(items);
-    // console.log(items);
   };
 
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {

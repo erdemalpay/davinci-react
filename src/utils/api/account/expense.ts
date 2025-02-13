@@ -71,7 +71,7 @@ export function useGetAccountExpenses(
 export function useGetAccountExpensesWithoutPagination(
   filterPanelElements: FormElementsState
 ) {
-  let url = `${Paths.Accounting}/expenses-without-pagination?product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`;
+  const url = `${Paths.Accounting}/expenses-without-pagination?product=${filterPanelElements.product}&service=${filterPanelElements.service}&type=${filterPanelElements.type}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&brand=${filterPanelElements.brand}&vendor=${filterPanelElements.vendor}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&date=${filterPanelElements.date}&paymentMethod=${filterPanelElements.paymentMethod}`;
 
   return useGet<AccountExpense[]>(url, [baseUrl, filterPanelElements], true);
 }
@@ -94,7 +94,6 @@ export function useCreateMultipleExpenseMutation() {
     },
     onSettled: (response) => {
       if (response) {
-        console.log(response);
         setErrorDataForCreateMultipleExpense(
           response as CreateMultipleExpense[]
         );

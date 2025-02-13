@@ -13,8 +13,8 @@ import {
 } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { CheckSwitch } from "../common/CheckSwitch";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 
 const PagePermissions = () => {
   const navigate = useNavigate();
@@ -109,7 +109,6 @@ const PagePermissions = () => {
         });
       }
     }
-    console.log(missedRoutes);
     if (missedRoutes.length > 0) {
       createMultiplePage(missedRoutes);
     }
