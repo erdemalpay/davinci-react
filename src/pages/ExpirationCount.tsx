@@ -108,7 +108,8 @@ const ExpirationCount = () => {
                           const newProducts = currentExpirationCount?.products
                             ?.map((expirationCountItem) => {
                               if (
-                                expirationCountItem?.product !== row.productId
+                                expirationCountItem?.product !==
+                                foundProduct._id
                               ) {
                                 return expirationCountItem;
                               } else {
@@ -123,9 +124,7 @@ const ExpirationCount = () => {
                                       } else {
                                         return {
                                           ...dateQuantity,
-                                          quantity:
-                                            Number(dateQuantity.quantity) +
-                                            Number(value),
+                                          quantity: Number(value),
                                         };
                                       }
                                     }
@@ -159,10 +158,16 @@ const ExpirationCount = () => {
               },
             ],
             collapsibleRows:
-              currentExpirationCount?.products?.find(
-                (expirationCountProduct) =>
-                  expirationCountProduct?.product === item?.product
-              )?.dateQuantities ?? [],
+              currentExpirationCount?.products
+                ?.find(
+                  (expirationCountProduct) =>
+                    expirationCountProduct?.product === item?.product
+                )
+                ?.dateQuantities?.sort((a, b) => {
+                  const timeA = new Date(a.expirationDate).getTime();
+                  const timeB = new Date(b.expirationDate).getTime();
+                  return timeA - timeB;
+                }) ?? [],
           },
         };
       }) ?? []
