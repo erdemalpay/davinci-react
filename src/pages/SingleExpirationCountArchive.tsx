@@ -89,7 +89,6 @@ const SingleExpirationCountArchive = () => {
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Product"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "formattedDate", className: "min-w-32" },
