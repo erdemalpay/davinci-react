@@ -3,11 +3,16 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { TbIndentIncrease } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { ExpirationListType, RoleEnum } from "../../types";
+import {
+  useExpirationCountMutations,
+  useGetExpirationCounts,
+} from "../../utils/api/expiration/expirationCount";
 import {
   useExpirationListMutations,
   useGetExpirationLists,
@@ -19,7 +24,11 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../panelComponents/shared/types";
 
 const ExpirationLists = () => {
   const { t } = useTranslation();
@@ -34,6 +43,10 @@ const ExpirationLists = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<ExpirationListType>();
+  const { createExpirationCount } = useExpirationCountMutations();
+  const expirationCounts = useGetExpirationCounts();
+  const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
+    useState(false);
   const { resetGeneralContext } = useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -56,6 +69,32 @@ const ExpirationLists = () => {
     });
     toast.success(`${t("Expiration List updated successfully")}`);
   }
+  const [countLocationForm, setCountLocationForm] = useState({
+    location: 0,
+  });
+  const countLocationInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: (rowToAction
+        ? locations.filter((lctn) => {
+            return rowToAction?.locations?.includes(lctn._id);
+          })
+        : locations
+      )?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+  ];
+  const countLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
   const columns = [{ key: t("Name"), isSortable: true }];
   const rowKeys: RowKeyType<ExpirationListType>[] = [
     {
@@ -213,6 +252,60 @@ const ExpirationLists = () => {
         </div>
       ),
     },
+    {
+      name: t("Count"),
+      icon: <TbIndentIncrease />,
+      className: "cursor-pointer text-xl  ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isCountLocationModalOpen}
+          close={() => setIsCountLocationModalOpen(false)}
+          inputs={countLocationInputs}
+          formKeys={countLocationFormKeys}
+          //  eslint-disable-next-line
+          submitItem={() => {}}
+          submitFunction={async () => {
+            if (countLocationForm.location === 0 || !user) return;
+            if (
+              expirationCounts?.filter((item) => {
+                return (
+                  item.isCompleted === false &&
+                  item.location === countLocationForm.location &&
+                  item.user === user._id &&
+                  item.expirationList === rowToAction._id
+                );
+              }).length > 0
+            ) {
+              resetGeneralContext();
+              navigate(
+                `/count/${countLocationForm.location}/${rowToAction._id}`
+              );
+            } else {
+              createExpirationCount({
+                location: countLocationForm.location,
+                expirationList: rowToAction._id,
+                isCompleted: false,
+                createdAt: new Date(),
+                user: user._id,
+              });
+              resetGeneralContext();
+              navigate(
+                `/expiration/${countLocationForm.location}/${rowToAction._id}`
+              );
+            }
+          }}
+          setForm={setCountLocationForm}
+          isEditMode={false}
+          topClassName="flex flex-col gap-2 "
+          buttonName={t("Submit")}
+        />
+      ) : null,
+      isModalOpen: isCountLocationModalOpen,
+      setIsModal: setIsCountLocationModalOpen,
+      isPath: false,
+    },
   ];
   const filters = [
     {
@@ -236,7 +329,13 @@ const ExpirationLists = () => {
   ];
   useEffect(
     () => setTableKey((prev) => prev + 1),
-    [expirationLists, locations, showInactiveExpirationLists, expirationLists]
+    [
+      expirationLists,
+      locations,
+      showInactiveExpirationLists,
+      expirationLists,
+      expirationCounts,
+    ]
   );
 
   return (

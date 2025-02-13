@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
+import { useGeneralContext } from "../context/General.context";
+import { Routes } from "../navigation/constants";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
   useExpirationCountMutations,
@@ -22,6 +25,7 @@ const SingleExpirationCountArchive = () => {
   const expirationLists = useGetExpirationLists();
   const users = useGetUsers();
   const { updateExpirationCount } = useExpirationCountMutations();
+  const { resetGeneralContext } = useGeneralContext();
   const products = useGetAllAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const currentExpirationCount = expirationCounts?.find(
@@ -110,7 +114,24 @@ const SingleExpirationCountArchive = () => {
       ),
     },
   ];
-
+  const pageNavigations = [
+    {
+      name: t("Expirations"),
+      path: Routes.Expirations,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        resetGeneralContext();
+      },
+    },
+    {
+      name:
+        getItem(currentExpirationCount?.expirationList, expirationLists)?.name +
+        " " +
+        t("Countu"),
+      path: `/expiration-archive/${archiveId}`,
+      canBeClicked: false,
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -118,6 +139,7 @@ const SingleExpirationCountArchive = () => {
   return (
     <>
       <Header />
+      <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] mx-auto my-10 ">
         {currentExpirationCount && (
           <GenericTable

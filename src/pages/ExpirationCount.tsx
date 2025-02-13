@@ -6,6 +6,7 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -16,7 +17,7 @@ import {
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
-import { AccountProduct } from "../types";
+import { AccountProduct, ExpirationPageTabEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import {
   useExpirationCountMutations,
@@ -169,21 +170,6 @@ const ExpirationCount = () => {
       }) ?? []
   )?.filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
-  //   const pageNavigations = [
-  //     {
-  //       name: t("ExpirationCount Lists"),
-  //       path: Routes.ExpirationLists,
-  //       canBeClicked: true,
-  //       additionalSubmitFunction: () => {
-  //         resetGeneralContext();
-  //       },
-  //     },
-  //     {
-  //       name: t("ExpirationCount"),
-  //       path: "",
-  //       canBeClicked: false,
-  //     },
-  //   ];
   const completeCount = () => {
     if (!currentExpirationCount) {
       return;
@@ -427,6 +413,22 @@ const ExpirationCount = () => {
       isPath: false,
     },
   ];
+  const pageNavigations = [
+    {
+      name: t("Expiration Lists"),
+      path: Routes.Expirations,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setExpirationActiveTab(ExpirationPageTabEnum.EXPIRATIONLISTS);
+        resetGeneralContext();
+      },
+    },
+    {
+      name: t("Count"),
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -441,7 +443,7 @@ const ExpirationCount = () => {
   return (
     <>
       <Header />
-      {/* <PageNavigator navigations={pageNavigations} /> */}
+      <PageNavigator navigations={pageNavigations} />
       <div className="w-[95%] my-10 mx-auto ">
         <GenericTable
           key={tableKey}

@@ -11,6 +11,7 @@ import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
@@ -20,7 +21,8 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { ExpirationListType, RoleEnum } from "../types";
+import { Routes } from "../navigation/constants";
+import { ExpirationListType, ExpirationPageTabEnum, RoleEnum } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import {
   useExpirationCountMutations,
@@ -37,7 +39,6 @@ import { StockLocationInput } from "../utils/panelInputs";
 interface LocationEntries {
   [key: string]: boolean;
 }
-
 const ExpirationList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const ExpirationList = () => {
   const { user } = useUserContext();
   const locations = useGetStockLocations();
   const expirationLists = useGetExpirationLists();
-  const { resetGeneralContext } = useGeneralContext();
+  const { resetGeneralContext, setExpirationActiveTab } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const { createExpirationCount } = useExpirationCountMutations();
   const expirationCounts = useGetExpirationCounts();
@@ -62,7 +63,7 @@ const ExpirationList = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rowToAction, setRowToAction] = useState<ExpirationListRowType>();
+  const [rowToAction, setRowToAction] = useState<any>();
   const products = useGetAccountProducts();
   const [form, setForm] = useState({
     product: [],
@@ -73,10 +74,6 @@ const ExpirationList = () => {
       label: p.name,
     };
   });
-  type ExpirationListRowType = {
-    product: string;
-  };
-
   const [countLocationForm, setCountLocationForm] = useState({
     location: 0,
   });
@@ -101,10 +98,10 @@ const ExpirationList = () => {
   ) {
     return <Loading />;
   }
+  const currentExpirationList = expirationLists.find(
+    (item) => item._id === expirationListId
+  );
   function handleLocationUpdate(row: any, changedLocationId: number) {
-    const currentExpirationList = expirationLists.find(
-      (item) => item._id === expirationListId
-    );
     if (!currentExpirationList) return;
     const currentLocations = currentExpirationList?.products?.find(
       (p) => p.product === row.productId
@@ -363,6 +360,22 @@ const ExpirationList = () => {
       }
     }
   });
+  const pageNavigations = [
+    {
+      name: t("Expiration Lists"),
+      path: Routes.Expirations,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setExpirationActiveTab(ExpirationPageTabEnum.EXPIRATIONLISTS);
+        resetGeneralContext();
+      },
+    },
+    {
+      name: currentExpirationList?.name ?? "",
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [
@@ -376,6 +389,7 @@ const ExpirationList = () => {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">

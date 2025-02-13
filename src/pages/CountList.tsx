@@ -11,6 +11,7 @@ import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
@@ -20,7 +21,8 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { AccountCountList, RoleEnum } from "../types";
+import { Routes } from "../navigation/constants";
+import { AccountCountList, CountListPageTabEnum, RoleEnum } from "../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -33,7 +35,6 @@ import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetStockLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
 import { StockLocationInput } from "../utils/panelInputs";
-
 interface LocationEntries {
   [key: string]: boolean;
 }
@@ -45,7 +46,7 @@ const CountList = () => {
   const { user } = useUserContext();
   const locations = useGetStockLocations();
   const countLists = useGetAccountCountLists();
-  const { resetGeneralContext } = useGeneralContext();
+  const { resetGeneralContext, setCountListActiveTab } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const { updateAccountCountList } = useAccountCountListMutations();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -93,11 +94,8 @@ const CountList = () => {
   const countLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-
+  const currentCountList = countLists.find((item) => item._id === countListId);
   function handleLocationUpdate(row: any, changedLocationId: number) {
-    const currentCountList = countLists.find(
-      (item) => item._id === countListId
-    );
     if (!currentCountList) return;
     const currentLocations = currentCountList?.products?.find(
       (p) => p.product === row.productId
@@ -354,6 +352,22 @@ const CountList = () => {
       }
     }
   });
+  const pageNavigations = [
+    {
+      name: t("Count Lists"),
+      path: Routes.Expirations,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCountListActiveTab(CountListPageTabEnum.COUNTLISTS);
+        resetGeneralContext();
+      },
+    },
+    {
+      name: currentCountList?.name ?? "",
+      path: "",
+      canBeClicked: false,
+    },
+  ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [countLists, products, countListId, locations]);
@@ -361,6 +375,7 @@ const CountList = () => {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-4">
         <div className="w-[95%] mx-auto">
           <div className="sm:w-1/4 ">
