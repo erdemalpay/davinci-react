@@ -72,7 +72,7 @@ const ExpirationCount = () => {
         listProduct?.locations?.includes(Number(location))
       )
       ?.map((item) => {
-        const foundProduct = getItem(item.product, products);
+        const foundProduct = getItem(item?.product, products);
         if (!foundProduct) return null;
         return {
           productName: foundProduct.name,
@@ -105,40 +105,38 @@ const ExpirationCount = () => {
                           if (value === "" || !currentExpirationCount) {
                             return;
                           }
-                          const newProducts =
-                            currentExpirationCount?.products?.map(
-                              (expirationCountItem) => {
-                                if (
-                                  expirationCountItem.product !== row.productId
-                                ) {
-                                  return expirationCountItem;
-                                } else {
-                                  const newDateQuantities =
-                                    expirationCountItem?.dateQuantities?.map(
-                                      (dateQuantity) => {
-                                        if (
-                                          dateQuantity.expirationDate !==
-                                          row.expirationDate
-                                        ) {
-                                          return dateQuantity;
-                                        } else {
-                                          return {
-                                            ...dateQuantity,
-                                            quantity:
-                                              Number(dateQuantity.quantity) +
-                                              Number(value),
-                                          };
-                                        }
+                          const newProducts = currentExpirationCount?.products
+                            ?.map((expirationCountItem) => {
+                              if (
+                                expirationCountItem?.product !== row.productId
+                              ) {
+                                return expirationCountItem;
+                              } else {
+                                const newDateQuantities =
+                                  expirationCountItem?.dateQuantities?.map(
+                                    (dateQuantity) => {
+                                      if (
+                                        dateQuantity.expirationDate !==
+                                        row.expirationDate
+                                      ) {
+                                        return dateQuantity;
+                                      } else {
+                                        return {
+                                          ...dateQuantity,
+                                          quantity:
+                                            Number(dateQuantity.quantity) +
+                                            Number(value),
+                                        };
                                       }
-                                    );
-                                  return {
-                                    ...expirationCountItem,
-                                    dateQuantities: newDateQuantities,
-                                  };
-                                }
+                                    }
+                                  );
+                                return {
+                                  ...expirationCountItem,
+                                  dateQuantities: newDateQuantities,
+                                };
                               }
-                            );
-
+                            })
+                            .filter((row) => row !== null && row !== undefined);
                           updateExpirationCount({
                             id: currentExpirationCount?._id,
                             updates: {
@@ -163,7 +161,7 @@ const ExpirationCount = () => {
             collapsibleRows:
               currentExpirationCount?.products?.find(
                 (expirationCountProduct) =>
-                  expirationCountProduct?.product === item.product
+                  expirationCountProduct?.product === item?.product
               )?.dateQuantities ?? [],
           },
         };
@@ -340,15 +338,16 @@ const ExpirationCount = () => {
             if (!currentExpirationCount || !rowToAction) return;
             let newProducts = [];
             const isProductExist = currentExpirationCount?.products?.find(
-              (item) => item.product === rowToAction.productId
+              (item) => item?.product === rowToAction.productId
             );
             if (isProductExist) {
               newProducts = currentExpirationCount?.products?.map(
                 (expirationCountProductItem) => {
                   if (
-                    expirationCountProductItem.product !== rowToAction.productId
+                    expirationCountProductItem?.product !==
+                    rowToAction.productId
                   ) {
-                    return expirationCountProductItem.product;
+                    return expirationCountProductItem;
                   } else {
                     const isDateExists =
                       expirationCountProductItem?.dateQuantities?.some(
@@ -401,6 +400,9 @@ const ExpirationCount = () => {
                 },
               ];
             }
+            newProducts = newProducts?.filter(
+              (row) => row !== null && row !== undefined
+            );
             updateExpirationCount({
               id: currentExpirationCount?._id,
               updates: { products: newProducts as any },
