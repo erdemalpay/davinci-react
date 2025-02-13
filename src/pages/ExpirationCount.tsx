@@ -95,7 +95,7 @@ const ExpirationCount = () => {
                   return (
                     <div>
                       <TextInput
-                        key={row.productId}
+                        key={foundProduct._id}
                         type={"number"}
                         value={row.quantity ?? 0}
                         label={""}
@@ -184,8 +184,7 @@ const ExpirationCount = () => {
         completedAt: new Date(),
       },
     });
-
-    //   setExpirationActiveTab(ExpirationPageTabEnum.);
+    setExpirationActiveTab(ExpirationPageTabEnum.COUNTARCHIVE);
     resetGeneralContext();
     navigate(Routes.Expirations);
   };
@@ -195,7 +194,7 @@ const ExpirationCount = () => {
     }
     if (currentExpirationCount) {
       deleteExpirationCount(currentExpirationCount?._id);
-      // setCountListActiveTab(CountListPageTabEnum.COUNTARCHIVE);
+      setExpirationActiveTab(ExpirationPageTabEnum.COUNTARCHIVE);
       navigate(Routes.Expirations);
     }
   };

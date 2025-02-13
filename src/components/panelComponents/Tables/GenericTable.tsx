@@ -627,7 +627,12 @@ const GenericTable = <T,>({
                   {row?.collapsible?.collapsibleRows.length > 0 &&
                     row?.collapsible?.collapsibleRows?.map(
                       (collapsibleRow: T, rowIndex: number) => (
-                        <tr key={rowIndex}>
+                        <tr
+                          key={rowIndex}
+                          className={`${row?.collapsible?.className?.(
+                            row?.collapsible?.collapsibleRows[rowIndex]
+                          )} `}
+                        >
                           {row?.collapsible?.collapsibleRowKeys?.map(
                             (rowKey: RowKeyType<T>, keyIndex: number) => {
                               const cellValue = `${

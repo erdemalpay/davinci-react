@@ -34,6 +34,21 @@ const SingleExpirationCountArchive = () => {
       const formattedDate = `${pad(date.getDate())}-${pad(
         date.getMonth() + 1
       )}-${date.getFullYear()}`;
+      function getBgColor(expirationDate: string): string {
+        const expDate = new Date(expirationDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        expDate.setHours(0, 0, 0, 0);
+        const diffTime = expDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) {
+          return "bg-red-200";
+        } else if (diffDays <= 20) {
+          return "bg-blue-200";
+        }
+        return "";
+      }
+
       return {
         formattedDate,
         productName: foundProduct.name,
@@ -43,6 +58,9 @@ const SingleExpirationCountArchive = () => {
             { key: t("Expiration Date"), isSortable: true },
             { key: t("Quantity"), isSortable: true },
           ],
+          className: (row: any) => {
+            return getBgColor(row.expirationDate);
+          },
           collapsibleRowKeys: [
             {
               key: "expirationDate",
@@ -53,10 +71,16 @@ const SingleExpirationCountArchive = () => {
             { key: "quantity" },
           ],
           collapsibleRows:
-            currentExpirationCount?.products?.find(
-              (expirationCountProduct) =>
-                expirationCountProduct?.product === item.product
-            )?.dateQuantities ?? [],
+            currentExpirationCount?.products
+              ?.find(
+                (expirationCountProduct) =>
+                  expirationCountProduct?.product === item?.product
+              )
+              ?.dateQuantities?.sort((a, b) => {
+                const timeA = new Date(a.expirationDate).getTime();
+                const timeB = new Date(b.expirationDate).getTime();
+                return timeA - timeB;
+              }) ?? [],
         },
       };
     }) ?? []
