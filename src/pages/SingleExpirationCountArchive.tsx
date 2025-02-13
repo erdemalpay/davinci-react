@@ -4,14 +4,10 @@ import { useParams } from "react-router-dom";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
-import {
-  useExpirationCountMutations,
-  useGetExpirationCounts,
-} from "../utils/api/expiration/expirationCount";
+import { useGetExpirationCounts } from "../utils/api/expiration/expirationCount";
 import { useGetExpirationLists } from "../utils/api/expiration/expirationList";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
@@ -24,7 +20,6 @@ const SingleExpirationCountArchive = () => {
   const expirationCounts = useGetExpirationCounts();
   const expirationLists = useGetExpirationLists();
   const users = useGetUsers();
-  const { updateExpirationCount } = useExpirationCountMutations();
   const { resetGeneralContext } = useGeneralContext();
   const products = useGetAllAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
@@ -91,29 +86,6 @@ const SingleExpirationCountArchive = () => {
       },
     },
   ];
-
-  const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
-          onClick={() => {
-            if (archiveId) {
-              updateExpirationCount({
-                id: archiveId,
-                updates: {
-                  isCompleted: true,
-                },
-              });
-            }
-          }}
-        >
-          <H5> {t("Complete")}</H5>
-        </button>
-      ),
-    },
-  ];
   const pageNavigations = [
     {
       name: t("Expirations"),
@@ -148,7 +120,6 @@ const SingleExpirationCountArchive = () => {
             columns={columns}
             rows={rows}
             isActionsActive={false}
-            filters={filters}
             isCollapsible={true}
             title={`${getItem(currentExpirationCount?.user, users)?.name}  ${t(
               "Countu"
