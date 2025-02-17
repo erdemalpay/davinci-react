@@ -11,14 +11,14 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
   FormKeyTypeEnum,
   InputTypes,
   RowKeyType,
 } from "../components/panelComponents/shared/types";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ChecklistType, RoleEnum } from "../types";
@@ -95,7 +95,7 @@ const Checklist = () => {
       (item) => item._id === checklistId
     );
     if (currentChecklist && currentChecklist.duties) {
-      for (let item of currentChecklist.duties) {
+      for (const item of currentChecklist.duties) {
         const locationEntries = locations?.reduce<LocationEntries>(
           (acc, location) => {
             acc[location._id] = item.locations?.includes(location._id) ?? false;
@@ -182,7 +182,9 @@ const Checklist = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={addDutyInputs}
         formKeys={addDutyFormKeys}
-        submitItem={() => {}}
+        submitItem={() => {
+          return null;
+        }}
         isEditMode={true}
         buttonName={t("Add")}
         setForm={setForm}
@@ -405,7 +407,9 @@ const Checklist = () => {
             close={() => setIsCheckModalOpen(false)}
             inputs={checkLocationInputs}
             formKeys={checkLocationFormKeys}
-            submitItem={() => {}}
+            submitItem={() => {
+              return null;
+            }}
             submitFunction={async () => {
               if (checkLocationForm.location === 0 || !user) return;
               if (

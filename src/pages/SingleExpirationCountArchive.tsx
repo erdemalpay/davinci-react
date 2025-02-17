@@ -48,7 +48,6 @@ const SingleExpirationCountArchive = () => {
         }
         return "";
       }
-
       return {
         formattedDate,
         productName: foundProduct.name,

@@ -18,10 +18,10 @@ import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
+  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -508,7 +508,7 @@ export function TableCard({
             </Tooltip>
           )}
 
-          <Tooltip content={t("Check")}>
+          <Tooltip content={t("Table Check")}>
             <span>
               <CardAction
                 // onClick={() => setIsCloseConfirmationDialogOpen(true)}
