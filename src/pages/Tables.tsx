@@ -9,13 +9,13 @@ import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCal
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
-import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import { H5 } from "../components/panelComponents/Typography";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { H5 } from "../components/panelComponents/Typography";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
@@ -35,10 +35,10 @@ import {
   OrderStatus,
   ReservationStatusEnum,
   StockHistoryStatusEnum,
+  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
@@ -537,21 +537,20 @@ const Tables = () => {
     }
     return null;
   };
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, offset = 100) => {
     const element = document.getElementById(id);
+    if (!element) return;
 
-    if (element) {
-      const offset = -100;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition + offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    const elementPosition =
+      element.getBoundingClientRect().top + window.pageYOffset;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
   };
+
   const cafeInfos: {
     title: string;
     value: any;
