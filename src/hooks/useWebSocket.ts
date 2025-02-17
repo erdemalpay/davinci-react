@@ -60,7 +60,8 @@ export function useWebSocket() {
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
           OrderStatus.RETURNED,
-        ].includes(order?.status as OrderStatus)
+        ].includes(order?.status as OrderStatus) ||
+        order?.location !== selectedLocationId
       ) {
         return;
       }
