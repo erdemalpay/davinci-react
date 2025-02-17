@@ -17,6 +17,7 @@ import { ChecklistPageTabEnum } from "../types";
 import { useCheckMutations, useGetChecks } from "../utils/api/checklist/check";
 import { useGetChecklists } from "../utils/api/checklist/checklist";
 import { getItem } from "../utils/getItem";
+
 const Check = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
@@ -37,20 +38,17 @@ const Check = () => {
       item.checklist === checklistId
     );
   });
-  const checklistDuties = getItem(checklistId, checklists)?.duties;
-  const allRows = checklistDuties
-    ?.map((dutyItem) => {
-      if (location && dutyItem.locations.includes(Number(location))) {
-        return {
-          duty: dutyItem.duty,
-          isCompleted:
-            currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
-              ?.isCompleted ?? false,
-        };
-      }
-      return null;
-    })
-    ?.filter((item) => item !== null);
+  const checklistDuties = getItem(checklistId, checklists)?.duties?.filter(
+    (item) => item.locations.includes(Number(location))
+  );
+  const allRows = checklistDuties?.map((dutyItem) => {
+    return {
+      duty: dutyItem.duty,
+      isCompleted:
+        currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
+          ?.isCompleted ?? false,
+    };
+  });
   const [rows, setRows] = useState(allRows);
   const pageNavigations = [
     {
@@ -110,9 +108,25 @@ const Check = () => {
   };
   const completeCheck = () => {
     if (!currentCheck) return;
+    const updatedDuties = currentCheck.duties;
+    if (checklistDuties) {
+      for (const item of checklistDuties) {
+        if (
+          !currentCheck?.duties?.some(
+            (currentCheckDutyItem) => currentCheckDutyItem.duty === item.duty
+          )
+        ) {
+          updatedDuties.push({
+            duty: item.duty,
+            isCompleted: false,
+          });
+        }
+      }
+    }
     updateCheck({
       id: currentCheck?._id,
       updates: {
+        duties: updatedDuties,
         isCompleted: true,
         completedAt: new Date(),
       },
