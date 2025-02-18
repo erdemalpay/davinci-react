@@ -52,19 +52,16 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
   return (
     <div className="flex flex-col border rounded-lg border-gray-200 bg-white w-full mx-auto">
       {/* Small Screen Top Bar */}
-      <div className="md:hidden flex items-center p-4 border-b sticky top-5 ">
+      <div className="md:hidden flex items-center p-4 border-b sticky top-16 ">
         <button onClick={() => setIsMenuOpen(true)}>
           <MdOutlineMenu size={24} />
         </button>
         <div className="ml-4">
           <P1 className="text-blue-500">
-            {isLanguageChange
-              ? t(
-                  adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
-                    ?.label || ""
-                )
-              : adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
-                  ?.label}
+            {t(
+              adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
+                ?.label || ""
+            )}
           </P1>
         </div>
       </div>
@@ -84,9 +81,7 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
               }`}
             >
               {tab.icon}
-              <P1 className="inline ml-2">
-                {isLanguageChange ? t(tab.label) : tab.label}
-              </P1>
+              <P1 className="inline ml-2">{t(tab.label)}</P1>
             </div>
           ))}
           {filters && filters.length > 0 && (
@@ -113,7 +108,10 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
             </button>
             <div className="ml-4">
               <P1 className="font-bold">
-                {isLanguageChange ? t("Select Tab") : "Select Tab"}
+                {t(
+                  adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
+                    ?.label ?? ""
+                )}
               </P1>
             </div>
           </div>
@@ -127,9 +125,7 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
                 }`}
               >
                 {tab.icon}
-                <P1 className="inline ml-2">
-                  {isLanguageChange ? t(tab.label) : tab.label}
-                </P1>
+                <P1 className="inline ml-2">{t(tab.label)}</P1>
               </div>
             ))}
             {filters && filters.length > 0 && (
