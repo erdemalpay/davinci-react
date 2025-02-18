@@ -70,7 +70,7 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
         <div
           className={`hidden md:flex flex-col pt-10 ${
             sideClassName ? sideClassName : "w-40"
-          } border-r h-fit sticky top-6`}
+          } border-r h-fit sticky top-16`}
         >
           {adjustedTabs.map((tab, index) => (
             <div
