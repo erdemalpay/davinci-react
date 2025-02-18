@@ -19,7 +19,7 @@ import Service from "../components/accounting/Service";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
-import VerticalTabPanel from "../components/panelComponents/TabPanel/VerticalTabPanel";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountingPageTabEnum } from "../types";
@@ -126,7 +126,7 @@ export default function Accounting() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <VerticalTabPanel
+      <TabPanel
         tabs={tabs}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}
