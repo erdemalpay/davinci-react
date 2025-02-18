@@ -126,7 +126,10 @@ export function useWebSocket() {
         return;
       }
 
-      if (data?.soundRoles?.includes(user?.role?._id)) {
+      if (
+        data?.soundRoles?.includes(user?.role?._id) &&
+        data.location === selectedLocationId
+      ) {
         orderCreatedSound
           .play()
           .catch((error) => console.error("Error playing sound:", error));
