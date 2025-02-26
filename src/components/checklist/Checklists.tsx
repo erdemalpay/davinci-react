@@ -21,14 +21,14 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
   RowKeyType,
 } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const ChecklistsTab = () => {
   const { t } = useTranslation();
@@ -43,6 +43,9 @@ const ChecklistsTab = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<ChecklistType>();
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    : true;
   const { createCheck } = useCheckMutations();
   const checks = useGetChecks();
   const [checkLocationForm, setCheckLocationForm] = useState({
@@ -178,9 +181,7 @@ const ChecklistsTab = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),
@@ -218,18 +219,11 @@ const ChecklistsTab = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Toggle Active"),
-      isDisabled:
-        !showInactiveChecklists ||
-        (user &&
-          ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-            user.role._id
-          )),
+      isDisabled: isDisabledCondition,
       isModal: false,
       isPath: false,
       icon: null,
@@ -262,6 +256,7 @@ const ChecklistsTab = () => {
           close={() => setIsCheckModalOpen(false)}
           inputs={checkLocationInputs}
           formKeys={checkLocationFormKeys}
+          // eslint-disable-next-line
           submitItem={() => {}}
           submitFunction={async () => {
             if (checkLocationForm.location === 0 || !user) return;
@@ -307,9 +302,7 @@ const ChecklistsTab = () => {
   const filters = [
     {
       label: t("Show Inactive Checklists"),
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -338,24 +331,14 @@ const ChecklistsTab = () => {
           actions={actions}
           isActionsActive={true}
           columns={columns}
-          filters={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? filters
-              : []
-          }
+          filters={!isDisabledCondition ? filters : []}
           rows={
             showInactiveChecklists
               ? checklists
               : checklists?.filter((checklist) => checklist.active)
           }
           title={t("Checklists")}
-          addButton={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? addButton
-              : undefined
-          }
+          addButton={!isDisabledCondition ? addButton : undefined}
         />
       </div>
     </>

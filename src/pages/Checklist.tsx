@@ -42,6 +42,9 @@ const Checklist = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    : true;
   const { createCheck } = useCheckMutations();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -164,10 +167,7 @@ const Checklist = () => {
         ),
     });
   });
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-  ) {
+  if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
@@ -318,9 +318,7 @@ const Checklist = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-        : true,
+      isDisabled: isDisabledCondition,
       node: (
         <Switch
           checked={isLocationEdit}
@@ -382,20 +380,8 @@ const Checklist = () => {
             columns={columns}
             isToolTipEnabled={false}
             rows={rows()}
-            actions={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-                user.role._id
-              )
-                ? actions
-                : undefined
-            }
-            addButton={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-                user.role._id
-              )
-                ? addButton
-                : undefined
-            }
+            actions={!isDisabledCondition ? actions : undefined}
+            addButton={!isDisabledCondition ? addButton : undefined}
             filters={filters}
             title={checklists?.find((p) => p._id === checklistId)?.name}
             isActionsActive={true}
