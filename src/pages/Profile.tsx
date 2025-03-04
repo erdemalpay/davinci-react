@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaPhoenixFramework, FaRegUserCircle } from "react-icons/fa";
 import { IoIosSettings, IoMdNotifications } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
@@ -9,6 +9,7 @@ import PersonalDetails from "../components/panelComponents/Profile/PersonalDetai
 import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
+import UserShifts from "../components/panelComponents/Profile/UserShifts";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -17,14 +18,16 @@ import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
 import { useGetUser } from "../utils/api/user";
+
 export enum ProfileTabEnum {
-  PHOTO = 0,
-  PERSONAL_DETAILS = 1,
-  CHANGE_PASSWORD = 2,
-  SETTINGS = 3,
-  MENTORED_GAMES = 4,
-  KNOWN_GAMES = 5,
-  NOTIFICATIONS = 6,
+  PHOTO,
+  PERSONAL_DETAILS,
+  CHANGE_PASSWORD,
+  SETTINGS,
+  MENTORED_GAMES,
+  KNOWN_GAMES,
+  SHIFTS,
+  NOTIFICATIONS,
 }
 export default function Profile() {
   const updatedUser = useGetUser();
@@ -99,6 +102,13 @@ export default function Profile() {
       ),
     },
     {
+      number: ProfileTabEnum.SHIFTS,
+      label: "Shifts",
+      icon: <FaPhoenixFramework className="text-lg font-thin" />,
+      content: <UserShifts />,
+      isDisabled: false,
+    },
+    {
       number: ProfileTabEnum.NOTIFICATIONS,
       label: t("Notifications"),
       icon: <IoMdNotifications className="text-lg font-thin" />,
@@ -109,7 +119,7 @@ export default function Profile() {
 
   return (
     <>
-      <Header showLocationSelector={false} />
+      <Header showLocationSelector={true} />
       <TabPanel
         tabs={tabs}
         activeTab={profileActiveTab}

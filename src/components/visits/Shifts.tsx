@@ -58,7 +58,7 @@ const Shifts = () => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useShiftContext();
-  const foundLocation = getItem(filterPanelFormElements?.location, locations);
+  const foundLocation = getItem(selectedLocationId, locations);
   const initialFormState: Record<string, any> = {
     day: "",
     ...(foundLocation?.shifts?.reduce<Record<string, string[]>>(
@@ -160,7 +160,6 @@ const Shifts = () => {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
       if (isDisabledCondition || (!isEnableEdit && !isDisabledCondition)) {
-        // When disabled, simply render the text (first node)
         rowKeys.push({
           key: shift,
           node: (row: any) => {
@@ -204,7 +203,6 @@ const Shifts = () => {
           },
         });
       } else {
-        // When not disabled, render the SelectInput (second node)
         rowKeys.push({
           key: shift,
           node: (row: any) => {
