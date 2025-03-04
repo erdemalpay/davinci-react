@@ -560,6 +560,7 @@ export type Reservation = {
   finishHour: string;
   status: ReservationStatusEnum;
   order: number;
+  note?: string;
 };
 export type Notification = {
   _id: number;
