@@ -323,6 +323,17 @@ const OrderPaymentTypes = ({
                         })
                         ?.filter((item): item is Order => item !== null);
                     }
+                    if (
+                      collection.amount === totalMoneySpend &&
+                      collection?.table
+                    ) {
+                      newOrders = tableOrders?.map((tableOrder) => {
+                        return {
+                          ...tableOrder,
+                          paidQuantity: 0,
+                        };
+                      });
+                    }
                     updateOrderCollection({
                       id: collection._id,
                       updates: {
