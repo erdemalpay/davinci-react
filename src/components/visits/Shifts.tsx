@@ -4,6 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { LuCopyPlus } from "react-icons/lu";
 import { MultiValue } from "react-select";
+import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
@@ -18,7 +19,6 @@ import {
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { LocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
@@ -45,6 +45,7 @@ const Shifts = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
+  const { selectedLocationId } = useLocationContext();
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -476,7 +477,6 @@ const Shifts = () => {
       invalidateKeys: [{ key: "date", defaultValue: "" }],
       isOnClearActive: false,
     },
-    LocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
       formKey: "user",
@@ -503,7 +503,7 @@ const Shifts = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [shifts, users, locations]);
+  }, [shifts, users, locations, selectedLocationId]);
 
   return (
     <div className="w-[95%] my-5 mx-auto">
@@ -517,7 +517,7 @@ const Shifts = () => {
         actions={isEnableEdit ? actions : []}
         filters={filters}
         title={
-          getItem(filterPanelFormElements.location, locations)?.name +
+          getItem(selectedLocationId, locations)?.name +
           "  " +
           formatAsLocalDate(filterPanelFormElements.after) +
           "-" +
@@ -528,7 +528,7 @@ const Shifts = () => {
         isExcel={true}
         filterPanel={filterPanel as any}
         excelFileName={`${
-          getItem(filterPanelFormElements.location, locations)?.name +
+          getItem(selectedLocationId, locations)?.name +
           formatAsLocalDate(filterPanelFormElements.after) +
           formatAsLocalDate(filterPanelFormElements.before)
         }.xlsx`}

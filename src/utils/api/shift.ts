@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { post } from ".";
+import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { Shift } from "./../../types/index";
 import { Paths, useGetList, useMutationApi } from "./factory";
-
 interface CopyShiftPayload {
   copiedDay: string;
   selectedDay: string;
@@ -29,8 +29,9 @@ export function useShiftMutations() {
 }
 export function useGetShifts() {
   const { filterPanelFormElements } = useShiftContext();
-  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}`;
-  const parameters = ["before", "location"];
+  const { selectedLocationId } = useLocationContext();
+  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&location=${selectedLocationId}`;
+  const parameters = ["before"];
   parameters.forEach((param) => {
     if (filterPanelFormElements[param]) {
       url = url.concat(
@@ -44,7 +45,7 @@ export function useGetShifts() {
       `${Paths.Shift}`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
-      filterPanelFormElements.location,
+      selectedLocationId,
     ],
     true
   );

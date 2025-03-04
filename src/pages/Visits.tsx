@@ -75,7 +75,7 @@ export default function Visits() {
   });
   return (
     <>
-      <Header showLocationSelector={false} />
+      <Header showLocationSelector={true} />
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           tabs={tabs}
