@@ -42,11 +42,11 @@ import {
 } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   singleItemGroup: ItemGroup;
@@ -953,9 +953,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         addButton={addButton}
         isCollapsibleCheckActive={false}
         addCollapsible={addCollapsible}
-        isDraggable={true}
         isCollapsible={products.length > 0}
         collapsibleActions={collapsibleActions}
+        isDraggable={true}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>

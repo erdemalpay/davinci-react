@@ -559,6 +559,7 @@ export type Reservation = {
   callCount: number;
   finishHour: string;
   status: ReservationStatusEnum;
+  order: number;
 };
 export type Notification = {
   _id: number;

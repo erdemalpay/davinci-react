@@ -23,12 +23,15 @@ import {
   useGetReservations,
   useReservationCallMutations,
   useReservationMutations,
+  useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
 export default function Reservations() {
   const { t } = useTranslation();
   const reservations = useGetReservations();
   const navigate = useNavigate();
   const [tableKey, setTableKey] = useState(0);
+  const { mutate: updateReservationsOrder } =
+    useUpdateReservationsOrderMutation();
   const [hideCompletedReservations, setHideCompletedReservations] =
     useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -82,6 +85,12 @@ export default function Reservations() {
         return "bg-yellow-100";
     }
   }
+  const handleDrag = (DragRow: Reservation, DropRow: Reservation) => {
+    updateReservationsOrder({
+      id: DragRow._id,
+      newOrder: DropRow.order,
+    });
+  };
   const inputs = [
     {
       type: InputTypes.TEXT,
@@ -334,6 +343,8 @@ export default function Reservations() {
           title={t("Reservations")}
           addButton={addButton}
           rowClassNameFunction={getBgColor}
+          isDraggable={true}
+          onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
         />
         {isReservationCalledDialogOpen && (
           <ReservationCallDialog
