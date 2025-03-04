@@ -77,9 +77,13 @@ const Shifts = () => {
       }
       return acc;
     }, {} as { [key: string]: string[] });
+    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
     return {
       ...shift,
-      formattedDay: convertDateFormat(shift.day),
+      formattedDay:
+        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
       ...shiftMapping,
     };
   });
