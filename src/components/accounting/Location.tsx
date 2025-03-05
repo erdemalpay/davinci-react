@@ -3,12 +3,15 @@ import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { Location, RoleEnum } from "../../types";
 import {
   useGetAllLocations,
   useLocationMutations,
 } from "../../utils/api/location";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -18,6 +21,9 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const LocationPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const pages=useGetPanelControlPages()
+  const navigate=useNavigate()
+  const {resetGeneralContext}=useGeneralContext()
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -65,6 +71,25 @@ const LocationPage = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
+      node: (row: any) =>
+        user &&
+        pages &&
+        pages
+          ?.find((page) => page._id === "location")
+          ?.permissionRoles?.includes(user.role._id) &&row.type.includes(1)? (
+          <p
+className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              if(!row.type.includes(1)) return;
+              resetGeneralContext()
+              navigate(`/location/${row._id}`);
+            }}
+          >
+            {row.name}
+          </p>
+        ) : (
+          <p>{row.name}</p>
+        ),
     },
     {
       key: "type",

@@ -19,6 +19,7 @@ export type Location = {
   activityNote?: string;
   ikasId?: string;
   shifts?: string[];
+  tableNames?: string[];
 };
 
 export type Table = {
