@@ -17,7 +17,7 @@ import ExpirationList from "../pages/ExpirationList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import Images from "../pages/Images";
-import LocationPage from "../pages/Location";
+import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
 import Menu from "../pages/Menu";
 import MenuPrice from "../pages/MenuPrice";
@@ -105,7 +105,7 @@ export enum Routes {
   ExpirationList = "/expiration-list/:expirationListId",
   ExpirationCount = "/expiration/:location/:expirationListId",
   SingleExpirationCountArchive = "/expiration-archive/:archiveId",
-  Location= "/location/:locationId",
+  Location = "/location/:locationId",
 }
 
 export const allRoutes: {
@@ -324,6 +324,7 @@ export const allRoutes: {
     path: Routes.Location,
     element: LocationPage,
     isOnSidebar: false,
+    tabs: LocationPageTabs as any,
   },
   {
     name: "Service",

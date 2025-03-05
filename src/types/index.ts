@@ -789,7 +789,9 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
-
+export enum LocationPageTabEnum {
+  TABLENAMES
+}
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORSERVICES,
