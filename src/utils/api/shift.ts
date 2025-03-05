@@ -50,6 +50,29 @@ export function useGetShifts() {
     true
   );
 }
+
+export function useGetUserShifts(user:string) {
+  const { filterPanelFormElements } = useShiftContext();
+  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&user=${user}`;
+  const parameters = ["before"];
+  parameters.forEach((param) => {
+    if (filterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
+      );
+    }
+  });
+  return useGetList<Shift>(
+    url,
+    [
+      `${Paths.Shift}`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+      user
+    ],
+    true
+  );
+}
 export function useGetLocationShifts(location: number) {
   const { filterPanelFormElements } = useShiftContext();
   let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&location=${location}`;
