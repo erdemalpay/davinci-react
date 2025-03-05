@@ -50,8 +50,7 @@ import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
   useGetAllLocations,
-  useGetStockLocations,
-  useGetStoreLocations,
+  useGetStoreLocations
 } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
@@ -85,7 +84,6 @@ const Tables = () => {
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
-  const stockLocations = useGetStockLocations();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -217,7 +215,7 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: allLocations?.map((input) => {
         const menuItem = menuItems?.find((item) => item._id === orderForm.item);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
@@ -353,7 +351,7 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: allLocations?.map((input) => {
         const menuItem = menuItems?.find((item) => item._id === orderForm.item);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
