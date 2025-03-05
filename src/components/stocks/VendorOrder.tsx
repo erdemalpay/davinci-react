@@ -7,8 +7,8 @@ import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
 import { LocationInput, VendorInput } from "../../utils/panelInputs";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 
 type FormElementsState = {
   [key: string]: any;
@@ -41,7 +41,7 @@ const VendorOrder = () => {
           ) {
             return acc;
           }
-          return acc + baseQuantity.quantity;
+          return acc + baseQuantity?.minQuantity;
         }, 0) ?? 0;
 
       const productStocksTotal = stocks

@@ -97,7 +97,8 @@ export type AccountProduct = {
   deleted?: boolean;
   baseQuantities?: {
     location: number;
-    quantity: number;
+    minQuantity: number;
+    maxQuantity: number;
   }[];
 };
 export type AccountService = {

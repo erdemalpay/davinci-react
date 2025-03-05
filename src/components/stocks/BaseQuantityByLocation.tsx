@@ -12,17 +12,17 @@ import {
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
 };
 interface Quantities {
-  [key: string]: number;
+  [key: string]: any;
 }
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
@@ -40,10 +40,12 @@ const BaseQuantityByLocation = () => {
   const { updateAccountProduct } = useAccountProductMutations();
   const allRows = products?.map((product) => {
     const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
-      acc[`${location._id}`] =
-        product?.baseQuantities?.find(
-          (baseQuantity) => baseQuantity?.location === location._id
-        )?.quantity ?? 0;
+      const foundBaseQuantity= product?.baseQuantities?.find(
+        (baseQuantity) => baseQuantity?.location === location._id
+      )
+      acc[`${location._id}`] = `min=${foundBaseQuantity?.minQuantity ?? 0} / max=${foundBaseQuantity?.maxQuantity ?? 0}`;
+      acc[`${location._id}min`] = `${foundBaseQuantity?.minQuantity ?? 0}`;
+      acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
     }, {});
     return {
@@ -52,23 +54,35 @@ const BaseQuantityByLocation = () => {
     };
   });
   const initialFormState = locations.reduce((acc: any, location) => {
-    acc[location._id.toString()] = 1;
+    acc[location._id.toString()+"min"] = 1;
+    acc[location._id.toString()+"max"] = 1;
     return acc;
   }, {});
 
   const [form, setForm] = useState(initialFormState);
-  const editInputs = locations?.map((location) => {
-    return {
+  const editInputs = locations?.flatMap((location) => [
+    {
       type: InputTypes.NUMBER,
-      formKey: location._id.toString(),
+      formKey: location._id.toString() + "min",
       label: location.name,
-      placeholder: location.name,
+      placeholder: "Min",
       isNumberButtonsActive: true,
       required: false,
-    };
-  });
-  const editFormKeys = locations?.map((location) => {
-    return { key: String(location._id), type: FormKeyTypeEnum.NUMBER };
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: location._id.toString() + "max",
+      placeholder: "Max",
+      isNumberButtonsActive: true,
+      required: false,
+    },
+  ]);
+  
+  const editFormKeys = locations?.flatMap((location) => {
+    return [
+      { key: String(location._id)+"min", type: FormKeyTypeEnum.NUMBER },
+      { key: String(location._id)+"max", type: FormKeyTypeEnum.NUMBER }
+    ];
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -154,10 +168,11 @@ const BaseQuantityByLocation = () => {
           constantValues={rowToAction}
           setForm={setForm}
           submitFunction={() => {
-            const newBaseQuantities = locations.map((location) => {
+            const newBaseQuantities = locations?.map((location) => {
               return {
                 location: location._id,
-                quantity: Number(form[location._id]),
+                minQuantity: Number(form[`${location._id}min`]),
+                maxQuantity:  Number(form[`${location._id}max`]),
               };
             });
             updateAccountProduct({
