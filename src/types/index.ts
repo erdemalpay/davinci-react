@@ -790,7 +790,7 @@ export enum ProductPageTabEnum {
   PRODUCTSTOCKHISTORY,
 }
 export enum LocationPageTabEnum {
-  TABLENAMES
+  TABLENAMES,
 }
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
