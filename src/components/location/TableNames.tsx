@@ -101,7 +101,7 @@ const TableNames = ({ locationId }: Props) => {
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
