@@ -1,5 +1,5 @@
 import { Tooltip } from "@material-tailwind/react";
-import { subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,6 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
-import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
@@ -50,7 +49,7 @@ import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
   useGetAllLocations,
-  useGetStoreLocations
+  useGetStoreLocations,
 } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
@@ -65,6 +64,7 @@ import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { LocationInput, QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
+
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -117,6 +117,15 @@ const Tables = () => {
     isOnlinePrice: false,
     stockLocation: selectedLocationId,
   };
+  const [tableForm, setTableForm] = useState({
+    name: "",
+    startHour: format(new Date(), "HH:mm"),
+    playerCount: 2,
+    location: selectedLocationId,
+    type: TableTypes.NORMAL,
+    isAutoEntryAdded: false,
+    isOnlineSale: false,
+  });
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -657,6 +666,49 @@ const Tables = () => {
       onChange: setShowAllTables,
     },
   ];
+  const tableInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "name",
+      label: t("Name"),
+      options: locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      placeholder: t("Name"),
+      required: true,
+    },
+    {
+      type: InputTypes.HOUR,
+      formKey: "startHour",
+      label: t("Start Time"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "playerCount",
+      label: t("Player Count"),
+      placeholder: t("Player Count"),
+      required: false,
+      minNumber: 0,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+  ];
+  const tableFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "startHour", type: FormKeyTypeEnum.STRING },
+    { key: "isAutoEntryAdded", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isOnlineSale", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+  ];
+
   return (
     <>
       <Header />
@@ -848,10 +900,47 @@ const Tables = () => {
         </div>
       </div>
       {isCreateTableDialogOpen && (
-        <CreateTableDialog
+        <GenericAddEditPanel
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
-          type={TableTypes.NORMAL}
+          inputs={tableInputs}
+          setForm={setTableForm}
+          formKeys={tableFormKeys}
+          constantValues={{
+            startHour: format(new Date(), "HH:mm"),
+            location: selectedLocationId,
+            playerCount: 2,
+            type: TableTypes.NORMAL,
+            isOnlineSale: false,
+            isAutoEntryAdded: false,
+          }}
+          additionalButtons={[
+            {
+              label: t("Create Without Entry"),
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: false,
+              onClick: () => {
+                createTable({
+                  tableDto: {
+                    ...tableForm,
+                    isAutoEntryAdded: false,
+                  },
+                } as any);
+                setIsCreateTableDialogOpen(false);
+              },
+            },
+          ]}
+          submitItem={createTable as any}
+          submitFunction={() => {
+            createTable({
+              tableDto: {
+                ...tableForm,
+                isAutoEntryAdded: true,
+              },
+            } as any);
+          }}
+          buttonName={t("Create With Entry")}
+          topClassName="flex flex-col gap-2 "
         />
       )}
       {isConsumptModalOpen && (
