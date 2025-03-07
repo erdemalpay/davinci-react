@@ -46,7 +46,7 @@ export default function LocationPage() {
       },
     },
     {
-      name: t("Location"),
+      name: t("Locations"),
       path: "",
       canBeClicked: false,
     },
