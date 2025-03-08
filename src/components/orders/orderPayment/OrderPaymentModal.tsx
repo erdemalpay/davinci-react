@@ -679,7 +679,7 @@ const OrderPaymentModal = ({
                             className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
                               foundUser._id === selectedUser._id
                                 ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
-                                : "bg-white hover:bg-blue-gray-100 text-gray-600 hover:text-black"
+                                : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
                             } `}
                           >
                             {foundUser?.name}
