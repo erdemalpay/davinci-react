@@ -36,7 +36,6 @@ import { useGetVisits } from "../../../utils/api/visit";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
-import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -665,29 +664,32 @@ const OrderPaymentModal = ({
                     <span className="font-semibold">{t("Table")}</span>:{" "}
                     {table?.name}
                   </h1>
-                  {userOptions && userOptions?.length > 0 ? (
-                    <div className="z-50">
-                      <SelectInput
-                        value={{
-                          value: selectedUser._id,
-                          label: selectedUser.name,
-                        }}
-                        options={userOptions as any}
-                        isMultiple={false}
-                        onChange={(value) => {
-                          const foundUser = getItem(
-                            String((value as OptionType).value),
-                            users
-                          );
-                          if (foundUser) {
-                            setSelectedUser(foundUser);
-                          }
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <h1 className="font-medium">{user.name}</h1>
-                  )}
+                  <div className="flex flex-row flex-wrap gap-2">
+                    {userOptions && userOptions?.length > 0 ? (
+                      userOptions?.map((userOption) => {
+                        const foundUser = getItem(
+                          String(userOption?.value),
+                          users
+                        );
+                        if (!foundUser) return null;
+                        return (
+                          <a
+                            key={foundUser._id}
+                            onClick={() => setSelectedUser(foundUser)}
+                            className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
+                              foundUser._id === selectedUser._id
+                                ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
+                                : "bg-white hover:bg-blue-gray-100 text-gray-600 hover:text-black"
+                            } `}
+                          >
+                            {foundUser?.name}
+                          </a>
+                        );
+                      })
+                    ) : (
+                      <h1 className="font-medium">{user.name}</h1>
+                    )}
+                  </div>
                 </div>
                 {/* buttons */}
                 <div className="flex flex-row gap-2 sm:gap-5 ml-auto mr-6 ">
