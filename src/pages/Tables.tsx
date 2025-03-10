@@ -679,7 +679,9 @@ const Tables = () => {
         .find((location) => location._id === selectedLocationId)
         ?.tableNames?.filter((t) => {
           return !tables.find(
-            (table) => table.name === t && !table?.finishHour
+            (table) =>
+              (table.name === t || table?.tables?.includes(t)) &&
+              !table?.finishHour
           );
         })
         ?.map((t, index) => {
@@ -755,7 +757,9 @@ const Tables = () => {
                   .find((location) => location._id === selectedLocationId)
                   ?.tableNames?.map((tableName, index) => {
                     const table = tables.find(
-                      (table) => table.name === tableName
+                      (table) =>
+                        table.name === tableName ||
+                        table?.tables?.includes(tableName)
                     );
                     if (table && !table?.finishHour) {
                       return null;
@@ -824,7 +828,9 @@ const Tables = () => {
                 .find((location) => location._id === selectedLocationId)
                 ?.tableNames?.map((tableName, index) => {
                   const table = tables.find(
-                    (table) => table.name === tableName
+                    (table) =>
+                      table.name === tableName ||
+                      table?.tables?.includes(tableName)
                   );
                   if (table && !table?.finishHour) {
                     return null;

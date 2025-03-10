@@ -32,7 +32,7 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
-  tables?: number[];
+  tables?: string[];
   gameplays: Gameplay[];
   status?: string;
   isOnlineSale?: boolean;

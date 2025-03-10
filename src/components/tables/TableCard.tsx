@@ -4,7 +4,11 @@ import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoReceipt } from "react-icons/io5";
-import { MdBorderColor, MdBrunchDining } from "react-icons/md";
+import {
+  MdBorderColor,
+  MdBrunchDining,
+  MdOutlineAddCircleOutline,
+} from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -55,6 +59,7 @@ import { EditGameplayDialog } from "./EditGameplayDialog";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
+
 export interface TableCardProps {
   table: Table;
   mentors: User[];
@@ -90,6 +95,7 @@ export function TableCard({
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
+  const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { updateTable } = useTableMutations();
@@ -124,6 +130,9 @@ export function TableCard({
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
+  });
+  const [activityTableForm, setActivityTableForm] = useState({
+    name: [],
   });
   const menuItems = useGetMenuItems();
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
@@ -166,6 +175,32 @@ export function TableCard({
     }
     return false;
   };
+  const activityTableInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "name",
+      label: t("Name"),
+      options: locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t || table?.tables?.includes(t)) &&
+              !table?.finishHour
+          );
+        })
+        ?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      placeholder: t("Name"),
+      isMultiple: true,
+      required: true,
+    },
+  ];
+  const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -779,6 +814,16 @@ export function TableCard({
               </span>
             </Tooltip>
           )}
+          {table.type === TableTypes.ACTIVITY && (
+            <Tooltip content={t("Add Table")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsAddActivityTableOpen(true)}
+                  IconComponent={MdOutlineAddCircleOutline}
+                />
+              </span>
+            </Tooltip>
+          )}
           <Tooltip content={t("Delete")}>
             <span>
               <CardAction
@@ -821,6 +866,29 @@ export function TableCard({
             "Are you sure to transfer the table?"
           )}
           setForm={setTableTransferForm}
+          topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {isAddActivityTableOpen && (
+        <GenericAddEditPanel
+          isOpen={isAddActivityTableOpen}
+          close={() => setIsAddActivityTableOpen(false)}
+          inputs={activityTableInputs}
+          formKeys={activityTableFormKeys}
+          submitItem={updateTable as any}
+          submitFunction={() => {
+            const newTableNames = [
+              ...(table?.tables || []),
+              ...activityTableForm.name,
+            ];
+            updateTable({
+              id: table._id,
+              updates: {
+                tables: newTableNames,
+              },
+            });
+          }}
+          setForm={setActivityTableForm}
           topClassName="flex flex-col gap-2 "
         />
       )}
