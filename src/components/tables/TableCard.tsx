@@ -116,6 +116,8 @@ export function TableCard({
     discountNote: "",
     isOnlinePrice: false,
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    activityTableName: "",
+    activityPlayer: "",
   };
   const locations = useGetStockLocations();
   const stocks = useGetAccountStocks();
