@@ -968,6 +968,12 @@ export enum TableTypes {
   ACTIVITY = "activity",
 }
 
+export const tableTypeOptions = Object.values(TableTypes)
+  .filter((value) => value !== "online")
+  .map((value) => ({
+    value,
+    label: value.charAt(0).toUpperCase() + value.slice(1),
+  }));
 export enum OrderCollectionStatus {
   PAID = "paid",
   CANCELLED = "cancelled",

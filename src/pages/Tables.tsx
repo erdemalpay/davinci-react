@@ -39,6 +39,7 @@ import {
   TableStatus,
   TableTypes,
   User,
+  tableTypeOptions,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
@@ -125,6 +126,7 @@ const Tables = () => {
     type: TableTypes.NORMAL,
     isAutoEntryAdded: false,
     isOnlineSale: false,
+    tables: [],
   });
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -671,28 +673,35 @@ const Tables = () => {
     },
   ];
   const tableInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "name",
-      label: t("Name"),
-      options: locations
-        .find((location) => location._id === selectedLocationId)
-        ?.tableNames?.filter((t) => {
-          return !tables.find(
-            (table) =>
-              (table.name === t || table?.tables?.includes(t)) &&
-              !table?.finishHour
-          );
-        })
-        ?.map((t, index) => {
-          return {
-            value: t,
-            label: t,
-          };
-        }),
-      placeholder: t("Name"),
-      required: true,
-    },
+    tableForm.type !== TableTypes.ACTIVITY
+      ? {
+          type: InputTypes.SELECT,
+          formKey: "name",
+          label: t("Name"),
+          options: locations
+            .find((location) => location._id === selectedLocationId)
+            ?.tableNames?.filter((t) => {
+              return !tables.find(
+                (table) =>
+                  (table.name === t || table?.tables?.includes(t)) &&
+                  !table?.finishHour
+              );
+            })
+            ?.map((t, index) => {
+              return {
+                value: t,
+                label: t,
+              };
+            }),
+          placeholder: t("Name"),
+          required: true,
+        }
+      : {
+          type: InputTypes.TEXT,
+          formKey: "name",
+          label: t("Name"),
+          required: true,
+        },
     {
       type: InputTypes.HOUR,
       formKey: "startHour",
@@ -709,6 +718,45 @@ const Tables = () => {
       isNumberButtonsActive: true,
       isOnClearActive: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: tableTypeOptions,
+      placeholder: t("Type"),
+      invalidateKeys: [
+        { key: "name", defaultValue: "" },
+        { key: "tables", defaultValue: "" },
+      ],
+      isDisabled: false,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "tables",
+      label: t("Tables"),
+      options: locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t ||
+                table?.tables?.includes(t) ||
+                tableForm.name === t) &&
+              !table?.finishHour
+          );
+        })
+        ?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      placeholder: t("Tables"),
+      isMultiple: true,
+      isDisabled: tableForm.type !== TableTypes.ACTIVITY,
+      required: tableForm.type === TableTypes.ACTIVITY,
+    },
   ];
   const tableFormKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -718,6 +766,8 @@ const Tables = () => {
     { key: "isOnlineSale", type: FormKeyTypeEnum.BOOLEAN },
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
     { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "tables", type: FormKeyTypeEnum.STRING },
   ];
 
   return (

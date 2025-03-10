@@ -3,7 +3,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoReceipt } from "react-icons/io5";
+import { IoCloseOutline, IoReceipt } from "react-icons/io5";
 import {
   MdBorderColor,
   MdBrunchDining,
@@ -53,6 +53,7 @@ import { EditableText } from "../common/EditableText";
 import { InputWithLabel } from "../common/InputWithLabel";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
@@ -649,6 +650,47 @@ export function TableCard({
                     getGameName={getGameName}
                     getDuration={getDuration}
                   />
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* table tables for activity table type */}
+        {table?.type === TableTypes.ACTIVITY && table?.tables && (
+          <div
+            className={`${
+              table?.tables &&
+              table?.tables?.length > 0 &&
+              "pb-3 border-b-[1px] border-b-gray-300"
+            }`}
+          >
+            <p className="text-gray-800 text-[13px]">{t("Tables")}</p>
+            {/* tables */}
+            <div className="flex flex-row gap-2 mt-2">
+              {table.tables.map((tableName) => {
+                return (
+                  <div
+                    key={tableName}
+                    className="flex flex-row  gap-2 px-2 py-1 bg-gray-200 rounded-md"
+                  >
+                    <p className="text-sm font-semibold">{tableName}</p>
+                    <ButtonTooltip content={t("Delete")}>
+                      <IoCloseOutline
+                        className="cursor-pointer font-bold"
+                        onClick={() => {
+                          const updatedTables = table?.tables?.filter(
+                            (foundTable) => foundTable !== tableName
+                          );
+                          updateTable({
+                            id: table._id,
+                            updates: {
+                              tables: updatedTables,
+                            },
+                          });
+                        }}
+                      />
+                    </ButtonTooltip>
+                  </div>
                 );
               })}
             </div>
