@@ -326,6 +326,28 @@ export function TableCard({
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "activityTableName",
+      label: t("Table"),
+      options: table.tables?.map((tableName) => {
+        return {
+          value: tableName,
+          label: tableName,
+        };
+      }),
+      placeholder: t("Table"),
+      required: table?.type === TableTypes.ACTIVITY,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "activityPlayer",
+      label: t("Player Number"),
+      placeholder: t("Player Number"),
+      required: table?.type === TableTypes.ACTIVITY,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "note",
       label: t("Note"),
@@ -342,6 +364,8 @@ export function TableCard({
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "activityTableName", type: FormKeyTypeEnum.STRING },
+    { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const tableTransferInputs = [
@@ -836,7 +860,7 @@ export function TableCard({
               setIsCreateOrderDialogOpen(false);
             }
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}

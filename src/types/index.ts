@@ -491,6 +491,8 @@ export type Order = {
   ikasId?: string;
   paymentMethod?: string;
   tableDate?: Date;
+  activityTableName?: string;
+  activityPlayer?: string;
 };
 
 export type OrderCollection = {
@@ -969,7 +971,7 @@ export enum TableTypes {
 }
 
 export const tableTypeOptions = Object.values(TableTypes)
-  .filter((value) => value !== "online")
+  .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
   .map((value) => ({
     value,
     label: value.charAt(0).toUpperCase() + value.slice(1),
