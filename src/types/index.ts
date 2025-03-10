@@ -32,6 +32,7 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
+  tables?: number[];
   gameplays: Gameplay[];
   status?: string;
   isOnlineSale?: boolean;
@@ -964,6 +965,7 @@ export enum TableTypes {
   NORMAL = "normal",
   TAKEOUT = "takeout",
   ONLINE = "online",
+  ACTIVITY = "activity",
 }
 
 export enum OrderCollectionStatus {

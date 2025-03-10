@@ -677,7 +677,12 @@ const Tables = () => {
       label: t("Name"),
       options: locations
         .find((location) => location._id === selectedLocationId)
-        ?.tableNames?.map((t, index) => {
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) => table.name === t && !table?.finishHour
+          );
+        })
+        ?.map((t, index) => {
           return {
             value: t,
             label: t,

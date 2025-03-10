@@ -769,14 +769,16 @@ export function TableCard({
         className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2  h-9`}
       >
         <div className="justify-end w-3/4 gap-6 sm:gap-2 flex lg:hidden lg:group-hover:flex ">
-          <Tooltip content={t("Table Transfer")}>
-            <span>
-              <CardAction
-                onClick={() => setIsTableTransferOpen(true)}
-                IconComponent={RiFileTransferFill}
-              />
-            </span>
-          </Tooltip>
+          {table.type !== TableTypes.ACTIVITY && (
+            <Tooltip content={t("Table Transfer")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsTableTransferOpen(true)}
+                  IconComponent={RiFileTransferFill}
+                />
+              </span>
+            </Tooltip>
+          )}
           <Tooltip content={t("Delete")}>
             <span>
               <CardAction
