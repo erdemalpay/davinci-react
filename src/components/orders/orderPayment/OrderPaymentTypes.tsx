@@ -291,8 +291,8 @@ const OrderPaymentTypes = ({
                       : ""}
                   </p>
                   {collection?.activityPlayer && (
-                    <p className="text-xs text-gray-400">
-                      {collection?.activityPlayer}
+                    <p className="text-gray-600">
+                      {"(" + collection?.activityPlayer + ")"}
                     </p>
                   )}
                 </div>

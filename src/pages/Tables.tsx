@@ -39,7 +39,6 @@ import {
   TableStatus,
   TableTypes,
   User,
-  tableTypeOptions,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
@@ -131,6 +130,12 @@ const Tables = () => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const tableTypeOptions = Object.values(TableTypes)
+    .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
+    .map((value) => ({
+      value,
+      label: t(value.charAt(0).toUpperCase() + value.slice(1)),
+    }));
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
       const stock = stocks?.find((stock) => {

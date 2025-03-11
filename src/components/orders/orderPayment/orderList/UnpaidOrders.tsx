@@ -235,8 +235,8 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                         {getItem(order?.item, items)?.name}
                       </p>
                       {order?.activityPlayer && (
-                        <p className="text-xs text-gray-400">
-                          {order?.activityPlayer}
+                        <p className="text-gray-600">
+                          {"(" + order?.activityPlayer + ")"}
                         </p>
                       )}
                       {order?.isOnlinePrice && (

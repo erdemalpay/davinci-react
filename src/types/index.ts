@@ -970,13 +970,6 @@ export enum TableTypes {
   ONLINE = "online",
   ACTIVITY = "activity",
 }
-
-export const tableTypeOptions = Object.values(TableTypes)
-  .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
-  .map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1),
-  }));
 export enum OrderCollectionStatus {
   PAID = "paid",
   CANCELLED = "cancelled",
