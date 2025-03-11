@@ -4,13 +4,13 @@ import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
   ActionMeta,
-  components,
   GroupBase,
   InputActionMeta,
   MultiValue,
   OptionProps,
   PropsValue,
   SingleValue,
+  components,
 } from "react-select";
 import { H6 } from "../Typography";
 
@@ -86,7 +86,7 @@ const SelectInput = ({
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const [sortedOptions, setSortedOptions] = useState<OptionType[]>(
-    options.sort((a, b) => a.label.localeCompare(b.label))
+    options.sort((a, b) => a?.label?.localeCompare(b.label))
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
@@ -146,7 +146,7 @@ const SelectInput = ({
       );
       if (aStartsWith && !bStartsWith) return -1;
       if (bStartsWith && !aStartsWith) return 1;
-      return a.label.localeCompare(b.label);
+      return a?.label?.localeCompare(b.label);
     });
     setSortedOptions([...sorted]);
   }, [options, searchInput]);

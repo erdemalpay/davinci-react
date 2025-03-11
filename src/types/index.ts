@@ -511,6 +511,7 @@ export type OrderCollection = {
   table?: Table | number;
   ikasId?: string;
   tableDate?: Date;
+  activityPlayer?: string;
 };
 
 export type OrderCollectionItem = {

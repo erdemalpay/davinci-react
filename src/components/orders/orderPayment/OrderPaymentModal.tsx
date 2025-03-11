@@ -37,6 +37,7 @@ import { useGetVisits } from "../../../utils/api/visit";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
+import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
   FormKeyTypeEnum,
   InputTypes,
@@ -46,6 +47,8 @@ import CollectionModal from "./CollectionModal";
 import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
+
+type OptionType = { value: string; label: string };
 
 type Props = {
   close: () => void;
@@ -108,6 +111,7 @@ const OrderPaymentModal = ({
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
+  const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { createOrder } = useOrderMutations();
   const initialOrderForm = {
@@ -131,11 +135,19 @@ const OrderPaymentModal = ({
   const tableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED
+      order.status !== OrderStatus.CANCELLED &&
+      (selectedActivityUser === "" ||
+        order.activityPlayer === selectedActivityUser)
   );
+
   const collectionsTotalAmount = Number(
     collections
-      ?.filter((collection) => (collection?.table as Table)?._id === tableId)
+      ?.filter(
+        (collection) =>
+          (collection?.table as Table)?._id === tableId &&
+          (selectedActivityUser === "" ||
+            collection?.activityPlayer === selectedActivityUser)
+      )
       ?.reduce((acc, collection) => {
         if (collection?.status === OrderCollectionStatus.CANCELLED) {
           return acc;
@@ -308,6 +320,13 @@ const OrderPaymentModal = ({
     setIsCloseConfirmationDialogOpen(false);
     toast.success(t("Table {{tableName}} closed", { tableName: table?.name }));
   }
+  const activityUsers = Array.from(
+    new Set(
+      orders
+        ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+        ?.map((order) => order?.activityPlayer) || []
+    )
+  );
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -689,31 +708,64 @@ const OrderPaymentModal = ({
                     <span className="font-semibold">{t("Table")}</span>:{" "}
                     {table?.name}
                   </h1>
-                  <div className="flex flex-row flex-wrap gap-2">
-                    {userOptions && userOptions?.length > 0 ? (
-                      userOptions?.map((userOption) => {
-                        const foundUser = getItem(
-                          String(userOption?.value),
-                          users
-                        );
-                        if (!foundUser) return null;
-                        return (
-                          <a
-                            key={foundUser._id}
-                            onClick={() => setSelectedUser(foundUser)}
-                            className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
-                              foundUser._id === selectedUser._id
-                                ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
-                                : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
-                            } `}
-                          >
-                            {foundUser?.name}
-                          </a>
-                        );
-                      })
-                    ) : (
-                      <h1 className="font-medium">{user.name}</h1>
+                  <div className="flex flex-row gap-2 justify-center items-center">
+                    {table.type === TableTypes.ACTIVITY && (
+                      <div className="z-50">
+                        <SelectInput
+                          value={{
+                            value: selectedActivityUser,
+                            label:
+                              selectedActivityUser === ""
+                                ? t("All")
+                                : selectedActivityUser,
+                          }}
+                          options={
+                            [
+                              ...activityUsers.map((u) => {
+                                return {
+                                  value: u,
+                                  label: u,
+                                };
+                              }),
+                              { value: "", label: t("All") },
+                            ] as any
+                          }
+                          isMultiple={false}
+                          onChange={(value) => {
+                            setSelectedActivityUser(
+                              (value as OptionType).value
+                            );
+                          }}
+                          isOnClearActive={true}
+                        />
+                      </div>
                     )}
+                    <div className="flex flex-row flex-wrap gap-2">
+                      {userOptions && userOptions?.length > 0 ? (
+                        userOptions?.map((userOption) => {
+                          const foundUser = getItem(
+                            String(userOption?.value),
+                            users
+                          );
+                          if (!foundUser) return null;
+                          return (
+                            <a
+                              key={foundUser._id}
+                              onClick={() => setSelectedUser(foundUser)}
+                              className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
+                                foundUser._id === selectedUser._id
+                                  ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
+                                  : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
+                              } `}
+                            >
+                              {foundUser?.name}
+                            </a>
+                          );
+                        })
+                      ) : (
+                        <h1 className="font-medium">{user.name}</h1>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {/* buttons */}
@@ -750,6 +802,7 @@ const OrderPaymentModal = ({
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  selectedActivityUser={selectedActivityUser}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
                   user={selectedUser}

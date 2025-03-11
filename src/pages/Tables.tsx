@@ -1046,32 +1046,40 @@ const Tables = () => {
             isOnlineSale: false,
             isAutoEntryAdded: false,
           }}
-          additionalButtons={[
-            {
-              label: t("Create Without Entry"),
-              isInputRequirementCheck: true,
-              isInputNeedToBeReset: false,
-              onClick: () => {
-                createTable({
-                  tableDto: {
-                    ...tableForm,
-                    isAutoEntryAdded: false,
+          additionalButtons={
+            tableForm?.type !== TableTypes.ACTIVITY
+              ? [
+                  {
+                    label: t("Create Without Entry"),
+                    isInputRequirementCheck: true,
+                    isInputNeedToBeReset: false,
+                    onClick: () => {
+                      createTable({
+                        tableDto: {
+                          ...tableForm,
+                          isAutoEntryAdded: false,
+                        },
+                      } as any);
+                      setIsCreateTableDialogOpen(false);
+                    },
                   },
-                } as any);
-                setIsCreateTableDialogOpen(false);
-              },
-            },
-          ]}
+                ]
+              : []
+          }
           submitItem={createTable as any}
           submitFunction={() => {
             createTable({
               tableDto: {
                 ...tableForm,
-                isAutoEntryAdded: true,
+                isAutoEntryAdded: tableForm.type !== TableTypes.ACTIVITY,
               },
             } as any);
           }}
-          buttonName={t("Create With Entry")}
+          buttonName={
+            tableForm.type !== TableTypes.ACTIVITY
+              ? t("Create With Entry")
+              : t("Create")
+          }
           topClassName="flex flex-col gap-2 "
         />
       )}

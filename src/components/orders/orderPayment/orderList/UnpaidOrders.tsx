@@ -234,6 +234,11 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       <p className={`${order?.division ? "max-w-28" : ""}`}>
                         {getItem(order?.item, items)?.name}
                       </p>
+                      {order?.activityPlayer && (
+                        <p className="text-xs text-gray-400">
+                          {order?.activityPlayer}
+                        </p>
+                      )}
                       {order?.isOnlinePrice && (
                         <Tooltip
                           content={"online"}
@@ -454,9 +459,9 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                         );
                       }
                       setTemporaryOrders([
-                        ...temporaryOrders?.filter(
+                        ...(temporaryOrders?.filter(
                           (tempOrder) => tempOrder.order?._id !== order?._id
-                        ),
+                        ) || []),
                         {
                           order: order,
                           quantity: order?.quantity - order?.paidQuantity,

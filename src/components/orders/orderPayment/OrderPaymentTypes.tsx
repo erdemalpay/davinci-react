@@ -34,6 +34,7 @@ type Props = {
   givenDateOrders?: Order[];
   givenDateCollections?: OrderCollection[];
   user: User;
+  selectedActivityUser: string;
 };
 const OrderPaymentTypes = ({
   tableOrders,
@@ -42,6 +43,7 @@ const OrderPaymentTypes = ({
   givenDateCollections,
   givenDateOrders,
   user,
+  selectedActivityUser,
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
@@ -68,7 +70,9 @@ const OrderPaymentTypes = ({
     (collection) =>
       ((collection.table as Table)?._id === table?._id ||
         collection.table === table?._id) &&
-      collection.status !== OrderCollectionStatus.CANCELLED
+      collection.status !== OrderCollectionStatus.CANCELLED &&
+      (selectedActivityUser === "" ||
+        collection?.activityPlayer === selectedActivityUser)
   );
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
@@ -200,6 +204,7 @@ const OrderPaymentTypes = ({
                 ...(newOrders && { newOrders: newOrders }),
                 createdBy: user._id,
                 tableDate: table ? new Date(table.date) : new Date(),
+                activityPlayer: selectedActivityUser,
               };
               createOrderCollection(createdCollection);
               const totalMoney =
@@ -275,7 +280,7 @@ const OrderPaymentTypes = ({
                   </div>
                 )}
 
-                <div className="flex flex-row gap-2 ">
+                <div className="flex flex-row gap-2 justify-center items-center">
                   <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
                   <p>
                     {collection.paymentMethod
@@ -285,6 +290,11 @@ const OrderPaymentTypes = ({
                         )
                       : ""}
                   </p>
+                  {collection?.activityPlayer && (
+                    <p className="text-xs text-gray-400">
+                      {collection?.activityPlayer}
+                    </p>
+                  )}
                 </div>
               </div>
 
