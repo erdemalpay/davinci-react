@@ -323,7 +323,11 @@ const OrderPaymentModal = ({
   const activityUsers = Array.from(
     new Set(
       orders
-        ?.filter((order) => order.status !== OrderStatus.CANCELLED)
+        ?.filter(
+          (order) =>
+            order.status !== OrderStatus.CANCELLED &&
+            order?.activityPlayer !== ""
+        )
         ?.map((order) => order?.activityPlayer) || []
     )
   );
@@ -452,7 +456,7 @@ const OrderPaymentModal = ({
         };
       }),
       placeholder: t("Table"),
-      required: table?.type === TableTypes.ACTIVITY,
+      required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
@@ -460,7 +464,7 @@ const OrderPaymentModal = ({
       formKey: "activityPlayer",
       label: t("Player Number"),
       placeholder: t("Player Number"),
-      required: table?.type === TableTypes.ACTIVITY,
+      required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {

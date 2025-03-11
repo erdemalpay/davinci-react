@@ -445,7 +445,17 @@ const Tables = () => {
     defaultUser ? [defaultUser] : []
   );
   const activeTables = tables.filter((table) => !table?.finishHour);
-  const activeTableCount = activeTables.length;
+  const activeTableCount =
+    tables.filter(
+      (table) => !table?.finishHour && table.type === TableTypes.NORMAL
+    ).length +
+    tables
+      .filter(
+        (table) => !table?.finishHour && table.type === TableTypes.ACTIVITY
+      )
+      .reduce((prev, curr) => {
+        return Number(prev) + Number(curr.tables?.length);
+      }, 0);
   const waitingReservations = reservations?.filter(
     (reservation) => reservation.status === ReservationStatusEnum.WAITING
   )?.length;
@@ -455,7 +465,8 @@ const Tables = () => {
   const emptyTableCount =
     (getItem(selectedLocationId, locations)?.tableCount ?? 0) -
     activeTableCount;
-  const totalTableCount = tables.length;
+  const totalTableCount =
+    getItem(selectedLocationId, locations)?.tableCount ?? 0;
 
   const activeCustomerCount = activeTables.reduce(
     (prev: number, curr: Table) => {

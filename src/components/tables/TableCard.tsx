@@ -338,7 +338,7 @@ export function TableCard({
         };
       }),
       placeholder: t("Table"),
-      required: table?.type === TableTypes.ACTIVITY,
+      required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
@@ -346,7 +346,7 @@ export function TableCard({
       formKey: "activityPlayer",
       label: t("Player Number"),
       placeholder: t("Player Number"),
-      required: table?.type === TableTypes.ACTIVITY,
+      required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
