@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { IoNotificationsCircle } from "react-icons/io5";
-import { MdOutlineNotificationAdd } from "react-icons/md";
+import { MdAssignmentAdd, MdOutlineNotificationAdd } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import AllNotifications from "../components/notification/AllNotifications";
+import AssignNotification from "../components/notification/AssignNotification";
 import CreateNotification from "../components/notification/CreateNotification";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -23,6 +24,13 @@ export const NotificationPageTabs = [
     label: "All Notifications",
     icon: <IoNotificationsCircle className="text-lg font-thin" />,
     content: <AllNotifications />,
+    isDisabled: false,
+  },
+  {
+    number: NotificationPageTabEnum.ASSIGNEDNOTIFICATIONS,
+    label: "Assigned Notifications",
+    icon: <MdAssignmentAdd className="text-lg font-thin" />,
+    content: <AssignNotification />,
     isDisabled: false,
   },
 ];

@@ -101,6 +101,7 @@ export function useWebSocket() {
       ) {
         queryClient.invalidateQueries([`${Paths.Notification}/new`]);
         queryClient.invalidateQueries([`${Paths.Notification}/all`]);
+        queryClient.invalidateQueries([`${Paths.Notification}/event`]);
       }
     });
 

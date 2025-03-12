@@ -7,20 +7,30 @@ import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+export enum NotificationEventType {
+  COMPLETECOUNT = "COMPLETECOUNT",
+}
+
 const CreateNotification = () => {
   const { t } = useTranslation();
   const { createNotification } = useNotificationMutations();
   const users = useGetUsers();
   const roles = useGetAllUserRoles();
   const locations = useGetAllLocations();
-
   const [form, setForm] = useState({
     selectedUsers: [],
     selectedRoles: [],
     selectedLocations: [],
     type: "",
     message: "",
+    event: "",
   });
+  const notificationEventsOptions = [
+    {
+      value: NotificationEventType.COMPLETECOUNT,
+      label: t("Complete Count"),
+    },
+  ];
   const inputs = [
     {
       type: InputTypes.SELECT,
@@ -79,11 +89,21 @@ const CreateNotification = () => {
       required: true,
     },
     {
+      type: InputTypes.SELECT,
+      formKey: "event",
+      label: t("Event"),
+      options: notificationEventsOptions,
+      placeholder: t("Event"),
+      isMultiple: false,
+      required: false,
+      isAutoFill: false,
+    },
+    {
       type: InputTypes.TEXTAREA,
       formKey: "message",
       label: t("Message"),
       placeholder: t("Message"),
-      required: true,
+      required: form.event === "",
     },
   ];
   const formKeys = [
@@ -91,6 +111,7 @@ const CreateNotification = () => {
     { key: "selectedRoles", type: FormKeyTypeEnum.STRING },
     { key: "selectedLocations", type: FormKeyTypeEnum.STRING },
     { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "event", type: FormKeyTypeEnum.STRING },
     { key: "message", type: FormKeyTypeEnum.STRING },
   ];
 

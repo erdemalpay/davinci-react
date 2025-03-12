@@ -5,14 +5,14 @@ import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
-import { postWithHeader, UpdatePayload } from "../../../utils/api";
+import { UpdatePayload, postWithHeader } from "../../../utils/api";
+import { H4, H6 } from "../Typography";
 import {
   FormKeyType,
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../shared/types";
-import { H4, H6 } from "../Typography";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
 
@@ -349,6 +349,7 @@ const GenericAddComponent = <T,>({
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
                         requiredField={input.required && showRequired}
+                        isAutoFill={input.isAutoFill ?? true}
                         isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
                         onClear={() => {

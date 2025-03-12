@@ -7,11 +7,15 @@ import { Paths, useGetList, useMutationApi } from "./factory";
 const baseUrl = `${Paths.Notification}`;
 
 export function useNotificationMutations() {
-  const { createItem: createNotification } = useMutationApi<Notification>({
+  const {
+    createItem: createNotification,
+    updateItem: updateNotification,
+    deleteItem: deleteNotification,
+  } = useMutationApi<Notification>({
     baseQuery: Paths.Notification,
   });
 
-  return { createNotification };
+  return { createNotification, updateNotification, deleteNotification };
 }
 export function useGetNotifications({
   after,
@@ -29,6 +33,11 @@ export function useGetNotifications({
 export function useGetUserNewNotifications() {
   return useGetList<Notification>(`${Paths.Notification}/new`, [
     `${Paths.Notification}/new`,
+  ]);
+}
+export function useGetEventNotifications() {
+  return useGetList<Notification>(`${Paths.Notification}/event`, [
+    `${Paths.Notification}/event`,
   ]);
 }
 

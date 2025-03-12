@@ -571,7 +571,7 @@ export type Reservation = {
 export type Notification = {
   _id: number;
   createdAt: Date;
-  message: string;
+  message?: string;
   type: string;
   createdBy?: string;
   selectedUsers?: string[];
@@ -709,6 +709,7 @@ export enum VisitPageTabEnum {
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
   ALLNOTIFICATIONS,
+  ASSIGNEDNOTIFICATIONS,
 }
 export enum CountListPageTabEnum {
   COUNTARCHIVE,

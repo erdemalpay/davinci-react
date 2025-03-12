@@ -202,4 +202,12 @@ export const socketEventListeners: SocketEventType[] = [
     event: "expirationCountChanged",
     invalidateKeys: [`${Paths.Expiration}/counts`],
   },
+  {
+    event: "notificationRemoved",
+    invalidateKeys: [
+      `${Paths.Notification}/new`,
+      `${Paths.Notification}/all`,
+      `${Paths.Notification}/event`,
+    ],
+  },
 ];
