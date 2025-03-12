@@ -443,7 +443,11 @@ const OrderPaymentModal = ({
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, items)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, items)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.SELECT,

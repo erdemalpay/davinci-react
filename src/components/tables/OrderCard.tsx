@@ -57,7 +57,7 @@ const OrderCard = ({ order, table }: Props) => {
   return (
     <div
       key={order?._id}
-      className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor(
+      className={`flex flex-wrap justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor(
         order
       )}`}
     >
@@ -99,7 +99,7 @@ const OrderCard = ({ order, table }: Props) => {
         )}
       </div>
       {order?.activityTableName && (
-        <p className="text-gray-600">
+        <p className="text-gray-600 ml-auto">
           {"(" + t("Table") + " " + order?.activityTableName + ")"}
         </p>
       )}

@@ -172,7 +172,7 @@ export function TableCard({
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
   const isOnlinePrice = () => {
-    const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+    const menuItem = getItem(orderForm.item, menuItems);
     if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
       return true;
     }
@@ -302,7 +302,7 @@ export function TableCard({
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: locations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -316,7 +316,11 @@ export function TableCard({
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.CHECKBOX,

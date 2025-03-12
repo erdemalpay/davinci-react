@@ -58,7 +58,7 @@ const AssignNotification = () => {
   const columns = [
     { key: t("Created By"), isSortable: true },
     { key: t("Created At"), isSortable: true },
-    { key: t("Event"), isSortable: true },
+    { key: t("Triggered Event"), isSortable: true },
     { key: t("Type"), isSortable: true },
     { key: t("Message"), isSortable: true },
     { key: t("Selected Users"), isSortable: true },

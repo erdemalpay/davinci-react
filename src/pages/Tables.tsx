@@ -231,8 +231,8 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: allLocations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+      options: locations?.map((input) => {
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -246,7 +246,11 @@ const Tables = () => {
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.TEXTAREA,
@@ -367,8 +371,8 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: allLocations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+      options: locations?.map((input) => {
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -382,7 +386,11 @@ const Tables = () => {
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.CHECKBOX,
@@ -816,7 +824,79 @@ const Tables = () => {
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
-
+              <div className="flex flex-row gap-2">
+                {/* inactive tables */}
+                <div className="flex gap-2 flex-wrap">
+                  {locations
+                    .find((location) => location._id === selectedLocationId)
+                    ?.tableNames?.map((tableName, index) => {
+                      const table = tables.find(
+                        (table) =>
+                          table.name === tableName ||
+                          table?.tables?.includes(tableName)
+                      );
+                      if (table && !table?.finishHour) {
+                        return null;
+                      }
+                      return (
+                        <a
+                          key={index + "tableselector"}
+                          onClick={() => {
+                            setTableForm({
+                              ...tableForm,
+                              name: tableName,
+                            });
+                            setIsCreateTableDialogOpen(true);
+                          }}
+                          className={` bg-purple-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-purple-200 text-purple-600 hover:text-white font-medium cursor-pointer`}
+                        >
+                          {tableName}
+                        </a>
+                      );
+                    })}
+                </div>
+                {/* active tables */}
+                <div className="flex gap-2 flex-wrap">
+                  {tables
+                    ?.filter((table) => !table?.finishHour)
+                    ?.map((table) => (
+                      <a
+                        key={table?._id + "tableselector"}
+                        onClick={() => scrollToSection(`table-${table?._id}`)}
+                        className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                          table
+                        )}`}
+                      >
+                        {table?.name}
+                      </a>
+                    ))}
+                </div>
+              </div>
+            </div>
+            {/* buttons */}
+            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
+              {buttons.map((button, index) => (
+                <button
+                  key={index}
+                  onClick={button.onClick}
+                  className={`min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm md:block ${
+                    button.hideOnMobile ? "hidden" : ""
+                  }`}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Table name buttons for big screen */}
+          <div className="sm:flex-col gap-2 hidden sm:flex ">
+            <div className=" flex-wrap gap-2 my-4 ">
+              {/* active buttons */}
+              <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
+                <ActiveButtonCallsList buttonCalls={buttonCalls} />
+              </div>
+            </div>
+            <div className="flex flex-row gap-2">
               {/* inactive tables */}
               <div className="flex gap-2 flex-wrap">
                 {locations
@@ -847,6 +927,7 @@ const Tables = () => {
                     );
                   })}
               </div>
+
               {/* active tables */}
               <div className="flex gap-2 flex-wrap">
                 {tables
@@ -854,8 +935,10 @@ const Tables = () => {
                   ?.map((table) => (
                     <a
                       key={table?._id + "tableselector"}
-                      onClick={() => scrollToSection(`table-${table?._id}`)}
-                      className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                      onClick={() =>
+                        scrollToSection(`table-large-${table?._id}`)
+                      }
+                      className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
                         table
                       )}`}
                     >
@@ -863,77 +946,6 @@ const Tables = () => {
                     </a>
                   ))}
               </div>
-            </div>
-            {/* buttons */}
-            <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
-              {buttons.map((button, index) => (
-                <button
-                  key={index}
-                  onClick={button.onClick}
-                  className={`min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm md:block ${
-                    button.hideOnMobile ? "hidden" : ""
-                  }`}
-                >
-                  {button.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Table name buttons for big screen */}
-          <div className="sm:flex-col gap-2 hidden sm:flex ">
-            <div className=" flex-wrap gap-2 my-4 ">
-              {/* active buttons */}
-              <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
-                <ActiveButtonCallsList buttonCalls={buttonCalls} />
-              </div>
-            </div>
-
-            {/* inactive tables */}
-            <div className="flex gap-2 flex-wrap">
-              {locations
-                .find((location) => location._id === selectedLocationId)
-                ?.tableNames?.map((tableName, index) => {
-                  const table = tables.find(
-                    (table) =>
-                      table.name === tableName ||
-                      table?.tables?.includes(tableName)
-                  );
-                  if (table && !table?.finishHour) {
-                    return null;
-                  }
-                  return (
-                    <a
-                      key={index + "tableselector"}
-                      onClick={() => {
-                        setTableForm({
-                          ...tableForm,
-                          name: tableName,
-                        });
-                        setIsCreateTableDialogOpen(true);
-                      }}
-                      className={` bg-purple-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-purple-200 text-purple-600 hover:text-white font-medium cursor-pointer`}
-                    >
-                      {tableName}
-                    </a>
-                  );
-                })}
-            </div>
-
-            {/* active tables */}
-            <div className="flex gap-2 flex-wrap">
-              {tables
-                ?.filter((table) => !table?.finishHour)
-                ?.map((table) => (
-                  <a
-                    key={table?._id + "tableselector"}
-                    onClick={() => scrollToSection(`table-large-${table?._id}`)}
-                    className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
-                      table
-                    )}`}
-                  >
-                    {table?.name}
-                  </a>
-                ))}
             </div>
           </div>
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
