@@ -184,10 +184,9 @@ const AssignNotification = () => {
     {
       type: InputTypes.SELECT,
       formKey: "event",
-      label: t("Event"),
+      label: t("Triggered Event"),
       options: notificationEventsOptions,
-      placeholder: t("Event"),
-      isMultiple: false,
+      placeholder: t("Triggered Event"),
       required: false,
       isAutoFill: false,
     },
