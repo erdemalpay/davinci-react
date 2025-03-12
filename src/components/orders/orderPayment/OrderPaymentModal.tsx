@@ -100,7 +100,7 @@ const OrderPaymentModal = ({
   const getTable = (tableId: number) => {
     if (orders?.length > 0) {
       return orders[0]?.table as Table;
-    } else if (tables && tables.some((table) => table._id === tableId)) {
+    } else if (tables && tables.some((table) => table?._id === tableId)) {
       return getItem(tableId, tables) as Table;
     }
   };
@@ -453,7 +453,7 @@ const OrderPaymentModal = ({
       type: InputTypes.SELECT,
       formKey: "activityTableName",
       label: t("Table"),
-      options: table.tables?.map((tableName) => {
+      options: table?.tables?.map((tableName) => {
         return {
           value: tableName,
           label: tableName,
@@ -512,7 +512,7 @@ const OrderPaymentModal = ({
         createdBy: selectedUser._id,
         createdAt: new Date(),
         location: selectedLocationId,
-        table: table._id,
+        table: table?._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
           : selectedMenuItem.price,
@@ -524,7 +524,7 @@ const OrderPaymentModal = ({
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
-        tableDate: new Date(table.date),
+        tableDate: new Date(table?.date),
       };
     }
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
@@ -533,7 +533,7 @@ const OrderPaymentModal = ({
         createdAt: new Date(),
         createdBy: selectedUser._id,
         location: selectedLocationId,
-        table: table._id,
+        table: table?._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
           : OrderStatus.PENDING,
@@ -543,7 +543,7 @@ const OrderPaymentModal = ({
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
-        tableDate: new Date(table.date),
+        tableDate: new Date(table?.date),
       };
     }
     return null;
@@ -717,7 +717,7 @@ const OrderPaymentModal = ({
                     {table?.name}
                   </h1>
                   <div className="flex flex-row gap-2 justify-center items-center">
-                    {table.type === TableTypes.ACTIVITY && (
+                    {table?.type === TableTypes.ACTIVITY && (
                       <div className="z-50">
                         <SelectInput
                           value={{
