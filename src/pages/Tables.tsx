@@ -1085,6 +1085,7 @@ const Tables = () => {
                       createTable({
                         tableDto: {
                           ...tableForm,
+                          date: format(new Date(), "yyyy-MM-dd"),
                           isAutoEntryAdded: false,
                         },
                       } as any);
@@ -1099,6 +1100,7 @@ const Tables = () => {
             createTable({
               tableDto: {
                 ...tableForm,
+                date: format(new Date(), "yyyy-MM-dd"),
                 isAutoEntryAdded: tableForm.type !== TableTypes.ACTIVITY,
               },
             } as any);
@@ -1229,7 +1231,7 @@ const Tables = () => {
             const orderObject = handleOrderObject();
             const tableData = {
               name: "Takeaway",
-              date: selectedDate,
+              date: format(new Date(), "yyyy-MM-dd"),
               location: selectedLocationId,
               playerCount: 0,
               startHour: formattedTime,
