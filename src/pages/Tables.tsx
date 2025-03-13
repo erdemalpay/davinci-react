@@ -836,7 +836,24 @@ const Tables = () => {
                           table?.tables?.includes(tableName)
                       );
                       if (table && !table?.finishHour) {
-                        return null;
+                        const openTable = tables?.find(
+                          (t) => !t.finishHour && t.name === table.name
+                        );
+                        return openTable ? (
+                          <a
+                            key={openTable?._id + "tableselector"}
+                            onClick={() =>
+                              scrollToSection(`table-${table?._id}`)
+                            }
+                            className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                              table
+                            )}`}
+                          >
+                            {table?.type === TableTypes.ACTIVITY
+                              ? `${tableName} (${table?.name})`
+                              : table?.name}
+                          </a>
+                        ) : null;
                       }
                       return (
                         <a
@@ -854,22 +871,6 @@ const Tables = () => {
                         </a>
                       );
                     })}
-                </div>
-                {/* active tables */}
-                <div className="flex gap-2 flex-wrap">
-                  {tables
-                    ?.filter((table) => !table?.finishHour)
-                    ?.map((table) => (
-                      <a
-                        key={table?._id + "tableselector"}
-                        onClick={() => scrollToSection(`table-${table?._id}`)}
-                        className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                          table
-                        )}`}
-                      >
-                        {table?.name}
-                      </a>
-                    ))}
                 </div>
               </div>
             </div>
@@ -908,7 +909,22 @@ const Tables = () => {
                         table?.tables?.includes(tableName)
                     );
                     if (table && !table?.finishHour) {
-                      return null;
+                      const openTable = tables?.find(
+                        (t) => !t.finishHour && t.name === table.name
+                      );
+                      return openTable ? (
+                        <a
+                          key={openTable?._id + "tableselector"}
+                          onClick={() => scrollToSection(`table-${table?._id}`)}
+                          className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                            table
+                          )}`}
+                        >
+                          {table?.type === TableTypes.ACTIVITY
+                            ? `${tableName} (${table?.name})`
+                            : table?.name}
+                        </a>
+                      ) : null;
                     }
                     return (
                       <a
@@ -926,25 +942,6 @@ const Tables = () => {
                       </a>
                     );
                   })}
-              </div>
-
-              {/* active tables */}
-              <div className="flex gap-2 flex-wrap">
-                {tables
-                  ?.filter((table) => !table?.finishHour)
-                  ?.map((table) => (
-                    <a
-                      key={table?._id + "tableselector"}
-                      onClick={() =>
-                        scrollToSection(`table-large-${table?._id}`)
-                      }
-                      className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
-                        table
-                      )}`}
-                    >
-                      {table?.name}
-                    </a>
-                  ))}
               </div>
             </div>
           </div>
