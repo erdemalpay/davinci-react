@@ -912,23 +912,28 @@ const Tables = () => {
                       const openTable = tables?.find(
                         (t) => !t.finishHour && t.name === table.name
                       );
-                      return openTable ? (
-                        <a
-                          key={openTable?._id + "tableselector"}
-                          onClick={() => scrollToSection(`table-${table?._id}`)}
-                          className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                            table
-                          )}`}
-                        >
-                          {table?.type === TableTypes.ACTIVITY
-                            ? `${tableName} (${table?.name})`
-                            : table?.name}
-                        </a>
-                      ) : null;
+                      console.log(openTable);
+                      return (
+                        openTable && (
+                          <a
+                            key={openTable?._id + "tableselector"}
+                            onClick={() =>
+                              scrollToSection(`table-large-${openTable?._id}`)
+                            }
+                            className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                              table
+                            )}`}
+                          >
+                            {table?.type === TableTypes.ACTIVITY
+                              ? `${tableName} (${table?.name})`
+                              : table?.name}
+                          </a>
+                        )
+                      );
                     }
                     return (
                       <a
-                        key={index + "tableselector"}
+                        key={index}
                         onClick={() => {
                           setTableForm({
                             ...tableForm,
