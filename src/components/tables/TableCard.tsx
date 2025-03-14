@@ -696,7 +696,7 @@ export function TableCard({
           >
             <p className="text-gray-800 text-[13px]">{t("Tables")}</p>
             {/* tables */}
-            <div className="flex flex-row gap-2 mt-2">
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
               {table.tables.map((tableName) => {
                 return (
                   <div
