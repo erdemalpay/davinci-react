@@ -15,7 +15,7 @@ const GameplayCard = ({
   return (
     <div
       key={gameplay._id || gameplay.startHour}
-      className="flex justify-between text-xs cursor-pointer"
+      className="flex flex-wrap justify-between text-xs cursor-pointer"
       onClick={() => editGameplay(gameplay)}
     >
       <div className="flex w-4/5">
