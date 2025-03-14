@@ -909,16 +909,12 @@ const Tables = () => {
                         table?.tables?.includes(tableName)
                     );
                     if (table && !table?.finishHour) {
-                      const openTable = tables?.find(
-                        (t) => !t.finishHour && t.name === table.name
-                      );
-                      console.log(openTable);
                       return (
-                        openTable && (
+                        table && (
                           <a
-                            key={openTable?._id + "tableselector"}
+                            key={table?._id + "tableselector"}
                             onClick={() =>
-                              scrollToSection(`table-large-${openTable?._id}`)
+                              scrollToSection(`table-large-${table?._id}`)
                             }
                             className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
                               table
