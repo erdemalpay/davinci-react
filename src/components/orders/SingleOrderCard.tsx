@@ -122,9 +122,17 @@ const SingleOrderCard = ({ order, user }: Props) => {
       {/* createdBy and buttons */}
       <div className="flex flex-row justify-between w-full px-2 mb-1 items-center">
         {/* created by */}
-        <p className="text-xs text-gray-500">
-          {t("Created By")}: {getItem(order?.createdBy, users)?.name}
-        </p>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-gray-500">
+            {t("Created By")}: {getItem(order?.createdBy, users)?.name}
+          </p>
+          {order?.activityTableName && (
+            <p className="text-gray-600 text-xs ml-auto">
+              {"(" + t("Table") + " " + order?.activityTableName + ")"}
+            </p>
+          )}
+        </div>
+
         {/* buttons */}
         <div className="  flex flex-row justify-between gap-2  ">
           {/* cancel button */}

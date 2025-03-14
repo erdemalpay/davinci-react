@@ -74,6 +74,7 @@ const OrderStatusContainer = ({
     const earliestA = getEarliestDate(a[1]);
     const earliestB = getEarliestDate(b[1]);
     if (earliestA === null && earliestB === null) {
+      return 0;
     }
     if (earliestA === null) {
       return 1;
