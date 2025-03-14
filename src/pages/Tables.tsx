@@ -826,7 +826,10 @@ const Tables = () => {
               </div>
               <div className="flex flex-row gap-2">
                 {/* inactive tables */}
-                <div className="flex gap-2 flex-wrap">
+                <div
+                  key={selectedLocationId + "tables-small"}
+                  className="flex gap-2 flex-wrap"
+                >
                   {locations
                     .find((location) => location._id === selectedLocationId)
                     ?.tableNames?.map((tableName, index) => {
@@ -836,12 +839,9 @@ const Tables = () => {
                           table?.tables?.includes(tableName)
                       );
                       if (table && !table?.finishHour) {
-                        const openTable = tables?.find(
-                          (t) => !t.finishHour && t.name === table.name
-                        );
-                        return openTable ? (
+                        return (
                           <a
-                            key={openTable?._id + "tableselector"}
+                            key={table?._id + "tableselector"}
                             onClick={() =>
                               scrollToSection(`table-${table?._id}`)
                             }
@@ -853,7 +853,7 @@ const Tables = () => {
                               ? `${tableName} (${table?.name})`
                               : table?.name}
                           </a>
-                        ) : null;
+                        );
                       }
                       return (
                         <a
@@ -899,7 +899,10 @@ const Tables = () => {
             </div>
             <div className="flex flex-row gap-2">
               {/* inactive tables */}
-              <div className="flex gap-2 flex-wrap">
+              <div
+                key={selectedLocationId + "tables-large"}
+                className="flex gap-2 flex-wrap"
+              >
                 {locations
                   .find((location) => location._id === selectedLocationId)
                   ?.tableNames?.map((tableName, index) => {
@@ -910,21 +913,19 @@ const Tables = () => {
                     );
                     if (table && !table?.finishHour) {
                       return (
-                        table && (
-                          <a
-                            key={table?._id + "tableselector"}
-                            onClick={() =>
-                              scrollToSection(`table-large-${table?._id}`)
-                            }
-                            className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                              table
-                            )}`}
-                          >
-                            {table?.type === TableTypes.ACTIVITY
-                              ? `${tableName} (${table?.name})`
-                              : table?.name}
-                          </a>
-                        )
+                        <a
+                          key={table?._id + "tableselector"}
+                          onClick={() =>
+                            scrollToSection(`table-large-${table?._id}`)
+                          }
+                          className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                            table
+                          )}`}
+                        >
+                          {table?.type === TableTypes.ACTIVITY
+                            ? `${tableName} (${table?.name})`
+                            : table?.name}
+                        </a>
                       );
                     }
                     return (
