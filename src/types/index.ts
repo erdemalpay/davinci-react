@@ -9,6 +9,13 @@ export type Gameplay = {
   location: number;
   createdBy: User;
 };
+export type Authorization = {
+  _id: number;
+  path: string;
+  method: string;
+  roles: number[];
+  relatedPages?: string[];
+};
 
 export type Location = {
   _id: number;
@@ -746,6 +753,7 @@ export enum ExpirationPageTabEnum {
   EXPIRATIONLISTPRODUCTS,
 }
 export enum PanelControlPageTabEnum {
+  ROUTEAUTHORIZATIONPERMISSIONS,
   PAGEPERMISSIONS,
   CHECKOUTCASH,
   PANELSETTINGS,
