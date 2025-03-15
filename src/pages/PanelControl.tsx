@@ -19,17 +19,17 @@ const PanelControl = () => {
   } = useGeneralContext();
   const tabs = [
     {
-      number: PanelControlPageTabEnum.ROUTEAUTHORIZATIONPERMISSIONS,
-      label: "Route Authorization Permissions",
-      icon: <SiGnuprivacyguard className="text-lg font-thin" />,
-      content: <RouteAuthorizationPermissions />,
-      isDisabled: false,
-    },
-    {
       number: PanelControlPageTabEnum.PAGEPERMISSIONS,
       label: "Page Permissions",
       icon: <MdManageAccounts className="text-lg font-thin" />,
       content: <PagePermissions />,
+      isDisabled: false,
+    },
+    {
+      number: PanelControlPageTabEnum.ROUTEAUTHORIZATIONPERMISSIONS,
+      label: "Route Authorization Permissions",
+      icon: <SiGnuprivacyguard className="text-lg font-thin" />,
+      content: <RouteAuthorizationPermissions />,
       isDisabled: false,
     },
     {
