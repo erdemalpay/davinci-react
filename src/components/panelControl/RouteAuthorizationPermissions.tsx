@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { Authorization } from "../../types";
@@ -7,11 +9,15 @@ import {
   useAuthorizationMutations,
   useGetAuthorizations,
 } from "../../utils/api/authorization";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -39,7 +45,16 @@ const RouteAuthorizationPermissions = () => {
   const roles = useGetAllUserRoles();
   const authorizations = useGetAuthorizations();
   const [tableKey, setTableKey] = useState(0);
+  const pages = useGetPanelControlPages();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<Authorization>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const { updateAuthorization, deleteAuthorization } =
+    useAuthorizationMutations();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       method: "",
@@ -68,7 +83,23 @@ const RouteAuthorizationPermissions = () => {
       required: true,
     },
   ];
-  const { updateAuthorization } = useAuthorizationMutations();
+  const inputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "relatedPages",
+      label: t("Related Pages"),
+      options: pages.map((page) => {
+        return {
+          value: page._id,
+          label: page.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Related Pages"),
+      required: false,
+    },
+  ];
+  const formKeys = [{ key: "relatedPages", type: FormKeyTypeEnum.STRING }];
   function handleRolePermission(row: Authorization, roleKey: number) {
     const newPermissionRoles = row?.roles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -86,6 +117,7 @@ const RouteAuthorizationPermissions = () => {
   const columns = [
     { key: t("Method"), isSortable: true },
     { key: t("Path"), isSortable: true },
+    { key: t("Related Pages"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -106,6 +138,23 @@ const RouteAuthorizationPermissions = () => {
       },
     },
     { key: "path" },
+    {
+      key: "relatedPages",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-col gap-2 min-w-32">
+            {row?.relatedPages?.map((page: any, index: number) => {
+              const foundPage = getItem(page, pages);
+              return (
+                <p key={index} className="text-gray-500">
+                  {foundPage?.name}
+                </p>
+              );
+            })}
+          </div>
+        );
+      },
+    },
   ];
   // Adding roles columns and rowkeys
   for (const role of roles) {
@@ -127,6 +176,53 @@ const RouteAuthorizationPermissions = () => {
       },
     } as any);
   }
+  columns.push({ key: t("Actions"), isSortable: false });
+  const actions = [
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateAuthorization as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteAuthorization(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Route Authorization")}
+          text={`${rowToAction.path} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+  ];
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -137,7 +233,7 @@ const RouteAuthorizationPermissions = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [authorizations, roles, filterPanelFormElements]);
+  }, [authorizations, roles, filterPanelFormElements, pages]);
 
   const filters = [
     {
@@ -169,8 +265,8 @@ const RouteAuthorizationPermissions = () => {
           filters={filters}
           filterPanel={filterPanel}
           title={t("Route Authorization Permissions")}
-          isActionsActive={false}
-          isSearch={false}
+          isActionsActive={true}
+          actions={actions}
         />
       </div>
     </>

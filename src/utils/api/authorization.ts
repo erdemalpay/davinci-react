@@ -3,11 +3,15 @@ import { Paths, useGetList, useMutationApi } from "./factory";
 
 const baseUrl = `${Paths.Authorization}`;
 export function useAuthorizationMutations() {
-  const { updateItem: updateAuthorization, createItem: createAuthorization } =
-    useMutationApi<Authorization>({
-      baseQuery: baseUrl,
-    });
+  const {
+    updateItem: updateAuthorization,
+    deleteItem: deleteAuthorization,
+    createItem: createAuthorization,
+  } = useMutationApi<Authorization>({
+    baseQuery: baseUrl,
+  });
   return {
+    deleteAuthorization,
     updateAuthorization,
     createAuthorization,
   };
