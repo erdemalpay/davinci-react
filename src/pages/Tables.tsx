@@ -59,7 +59,7 @@ import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
-import { useGetButtonCalls } from "../utils/api/buttonCall";
+import { useGetActiveButtonCalls } from "../utils/api/buttonCall";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { QuantityInput } from "../utils/panelInputs";
@@ -87,7 +87,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
-  const buttonCalls = useGetButtonCalls(ButtonCallType.ACTIVE);
+  const buttonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();

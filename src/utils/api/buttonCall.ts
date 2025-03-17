@@ -10,13 +10,16 @@ interface UpdateButtonCallPayload {
   location: number,
   tableName: string;
 }
-export function useGetButtonCalls(type = ButtonCallType.ACTIVE) {
+export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
   return useGetList<ButtonCall>(
     `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&type=${type}`,
     [Paths.ButtonCalls, selectedLocationId, selectedDate, type]
   );
+}
+export function useGetButtonCalls() {
+  return useGetList<ButtonCall>(Paths.ButtonCalls);
 }
 export function finishButtonCall({location, tableName }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<Partial<ButtonCall>, ButtonCall>({

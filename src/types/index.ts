@@ -305,6 +305,9 @@ export type ButtonCall = {
   startHour: string;
   finishHour?: string;
   createdBy: string;
+  cancelledBy?: string;
+  duration?: number;
+  callCount: number;
 };
 
 export enum ButtonCallType {

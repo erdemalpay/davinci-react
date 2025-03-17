@@ -27,6 +27,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
+import ButtonCalls from "../pages/ButtonCalls";
 import Service from "../pages/Service";
 import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
@@ -93,6 +94,7 @@ export enum Routes {
   BulkProductAdding = "/bulk-product-adding",
   Checklists = "/checklists",
   Checklist = "/checklist/:checklistId",
+  ButtonCalls = "/button-calls",
 }
 
 export const allRoutes: {
@@ -167,7 +169,12 @@ export const allRoutes: {
     element: Rewards,
     isOnSidebar: true,
   },
-
+  {
+    name: "Button Calls",
+    path: Routes.ButtonCalls,
+    element: ButtonCalls,
+    isOnSidebar: true,
+  },
   {
     name: "Visits",
     path: Routes.Visits,
