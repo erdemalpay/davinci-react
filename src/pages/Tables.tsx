@@ -637,7 +637,7 @@ const Tables = () => {
       onClick: () => {
         setIsTakeAwayOrderModalOpen(true);
       },
-      hideOnMobile: true,
+      hideOnMobile: false,
     },
     {
       label: t("Loss Product"),
