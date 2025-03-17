@@ -1,7 +1,9 @@
 import { Tooltip } from "@material-tailwind/react";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { MdOutlineOnlinePrediction } from "react-icons/md";
 import { Order, OrderDiscountStatus, OrderStatus } from "../../../../types";
 import { useGetMenuItems } from "../../../../utils/api/menu/menu-item";
+import { useOrderMutations } from "../../../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../../utils/getItem";
 import { orderBgColor } from "../../../tables/OrderCard";
@@ -14,6 +16,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const { updateOrder } = useOrderMutations();
   const items = useGetMenuItems();
   if (!discounts || !items) return null;
   const renderPayment = (order: Order) => {
@@ -52,7 +55,6 @@ const PaidOrders = ({ tableOrders }: Props) => {
               }`}
             >
               {/* item name,quantity part */}
-
               <div className="flex flex-row gap-1 text-sm font-medium py-0.2">
                 <p>
                   {"("}
@@ -81,10 +83,25 @@ const PaidOrders = ({ tableOrders }: Props) => {
                   <p>{getItem(order.discount, discounts)?.name}</p>
                 </div>
               )}
-
               {/* buttons */}
               <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
                 {renderPayment(order)}
+                {order.discount &&
+                  ((order?.discountAmount ?? 0) >=
+                    order.unitPrice * order.quantity ||
+                    (order?.discountPercentage ?? 0) >= 100) && (
+                    <HiOutlineTrash
+                      className="text-red-600 cursor-pointer text-lg"
+                      onClick={() => {
+                        updateOrder({
+                          id: order._id,
+                          updates: {
+                            paidQuantity: 0,
+                          },
+                        });
+                      }}
+                    />
+                  )}
               </div>
             </div>
           );
