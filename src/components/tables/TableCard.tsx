@@ -49,7 +49,6 @@ import { getItem } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import { EditableText } from "../common/EditableText";
 import { InputWithLabel } from "../common/InputWithLabel";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -541,18 +540,7 @@ export function TableCard({
       <div
         className={`${bgColor} rounded-tl-md rounded-tr-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-between mb-2 max-h-12`}
       >
-        <p className="text-base font-semibold cursor-pointer w-full">
-          <EditableText
-            name="name"
-            text={table.name}
-            onUpdate={(e: FormEvent<HTMLInputElement>) => {
-              const target = e.target as HTMLInputElement;
-              if (!target.value) return;
-              setNewTableName(target.value);
-              setIsTableNameEditConfirmationDialogOpen(true);
-            }}
-          />
-        </p>
+        <p className="text-base font-semibold  w-full">{table.name}</p>
         <div className="justify-end w-3/4 gap-6 sm:gap-2  flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && !table?.isOnlineSale && (
             <Tooltip content={t("Add Gameplay")}>
