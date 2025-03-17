@@ -40,10 +40,12 @@ const BaseQuantityByLocation = () => {
   const { updateAccountProduct } = useAccountProductMutations();
   const allRows = products?.map((product) => {
     const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
-      const foundBaseQuantity= product?.baseQuantities?.find(
+      const foundBaseQuantity = product?.baseQuantities?.find(
         (baseQuantity) => baseQuantity?.location === location._id
-      )
-      acc[`${location._id}`] = `min=${foundBaseQuantity?.minQuantity ?? 0} / max=${foundBaseQuantity?.maxQuantity ?? 0}`;
+      );
+      acc[`${location._id}`] = `min=${
+        foundBaseQuantity?.minQuantity ?? 0
+      } / max=${foundBaseQuantity?.maxQuantity ?? 0}`;
       acc[`${location._id}min`] = `${foundBaseQuantity?.minQuantity ?? 0}`;
       acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
@@ -54,8 +56,8 @@ const BaseQuantityByLocation = () => {
     };
   });
   const initialFormState = locations.reduce((acc: any, location) => {
-    acc[location._id.toString()+"min"] = 1;
-    acc[location._id.toString()+"max"] = 1;
+    acc[location._id.toString() + "min"] = 1;
+    acc[location._id.toString() + "max"] = 1;
     return acc;
   }, {});
 
@@ -77,11 +79,11 @@ const BaseQuantityByLocation = () => {
       required: false,
     },
   ]);
-  
+
   const editFormKeys = locations?.flatMap((location) => {
     return [
-      { key: String(location._id)+"min", type: FormKeyTypeEnum.NUMBER },
-      { key: String(location._id)+"max", type: FormKeyTypeEnum.NUMBER }
+      { key: String(location._id) + "min", type: FormKeyTypeEnum.NUMBER },
+      { key: String(location._id) + "max", type: FormKeyTypeEnum.NUMBER },
     ];
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -99,14 +101,20 @@ const BaseQuantityByLocation = () => {
   ];
   const rowKeys = [{ key: "name" }];
   locations?.forEach((location) => {
-    columns.push({
-      key: location.name,
-      isSortable: true,
-      correspondingKey: `${location._id}`,
-    });
-    rowKeys.push({
-      key: `${location._id}`,
-    });
+    columns.push(
+      {
+        key: location.name + "Min",
+        isSortable: true,
+        correspondingKey: `${location._id}min`,
+      },
+      {
+        key: location.name + "Max",
+        isSortable: true,
+        correspondingKey: `${location._id}max`,
+      }
+    );
+
+    rowKeys.push({ key: `${location._id}min` }, { key: `${location._id}max` });
   });
 
   columns.push({ key: t("Action"), isSortable: false } as any);
@@ -172,7 +180,7 @@ const BaseQuantityByLocation = () => {
               return {
                 location: location._id,
                 minQuantity: Number(form[`${location._id}min`]),
-                maxQuantity:  Number(form[`${location._id}max`]),
+                maxQuantity: Number(form[`${location._id}max`]),
               };
             });
             updateAccountProduct({
