@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { UpdatePayload, get, patch, post, remove } from ".";
 export const Paths = {
+  Authorization: "/authorization",
   Asset: "/asset",
   Activity: "/activity",
   Checkout: "/checkout",
