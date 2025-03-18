@@ -9,12 +9,14 @@ import {
   useGetAccountProducts,
   useUpdateProductsBaseQuantities,
 } from "../../utils/api/account/product";
+import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -27,6 +29,7 @@ interface Quantities {
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
+  const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
   const [showFilters, setShowFilters] = useState(false);
   const { mutate: updateProductsBaseQuantities } =
     useUpdateProductsBaseQuantities();
@@ -219,6 +222,18 @@ const BaseQuantityByLocation = () => {
             <FaFileUpload />
           </ButtonTooltip>
         </div>
+      ),
+    },
+    {
+      isUpperSide: false,
+      isDisabled: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Set Base Quantities")}
+          onclick={() => {
+            updateProductBaseStocks();
+          }}
+        />
       ),
     },
     {
