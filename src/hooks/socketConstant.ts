@@ -210,4 +210,8 @@ export const socketEventListeners: SocketEventType[] = [
       `${Paths.Notification}/event`,
     ],
   },
+  {
+    event: "authorizationChanged",
+    invalidateKeys: [`${Paths.Authorization}`],
+  },
 ];

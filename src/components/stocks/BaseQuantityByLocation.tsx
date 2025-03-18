@@ -50,6 +50,10 @@ const BaseQuantityByLocation = () => {
       acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
     }, {});
+    const karakum = product?._id === "karakum";
+    if (karakum) {
+      console.log("product", product);
+    }
     return {
       ...product,
       ...quantitiesObject,
