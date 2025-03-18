@@ -48,7 +48,11 @@ const Shifts = () => {
   const { selectedLocationId } = useLocationContext();
   const { user } = useUserContext();
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.GAMEMANAGER,
+        RoleEnum.CATERINGMANAGER,
+      ].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateShift, createShift, deleteShift } = useShiftMutations();
