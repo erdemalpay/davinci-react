@@ -114,10 +114,22 @@ const RouteAuthorizationPermissions = () => {
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
+  function handleAllRolePermission(row: Authorization) {
+    const hasAllRoles = roles.every((role) => row?.roles?.includes(role._id));
+    const newPermissionRoles = hasAllRoles ? [] : roles.map((role) => role._id);
+
+    updateAuthorization({
+      id: row._id,
+      updates: { roles: newPermissionRoles },
+    });
+    toast.success(`${t("Role permissions updated successfully.")}`);
+  }
+
   const columns = [
     { key: t("Method"), isSortable: true },
     { key: t("Path"), isSortable: true },
     { key: t("Related Pages"), isSortable: true },
+    { key: t("All"), isSortable: false },
   ];
   const rowKeys = [
     {
@@ -151,6 +163,29 @@ const RouteAuthorizationPermissions = () => {
                 </p>
               );
             })}
+          </div>
+        );
+      },
+    },
+    {
+      key: "all",
+      node: (row: any) => {
+        // Check if every role is assigned to this row
+        const hasAllRoles = roles.every((role) =>
+          row?.roles?.includes(role._id)
+        );
+        return (
+          <div className="flex flex-col gap-2 min-w-32">
+            {isEnableEdit ? (
+              <CheckSwitch
+                checked={hasAllRoles}
+                onChange={() => handleAllRolePermission(row)}
+              />
+            ) : hasAllRoles ? (
+              <IoCheckmark className="text-blue-500 text-2xl" />
+            ) : (
+              <IoCloseOutline className="text-red-800 text-2xl" />
+            )}
           </div>
         );
       },
