@@ -511,7 +511,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdBy: selectedUser._id,
         createdAt: new Date(),
-        location: selectedLocationId,
+        location: orderForm?.stockLocation ?? selectedLocationId,
         table: table?._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -532,7 +532,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdAt: new Date(),
         createdBy: selectedUser._id,
-        location: selectedLocationId,
+        location: orderForm?.stockLocation ?? selectedLocationId,
         table: table?._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ

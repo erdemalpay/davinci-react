@@ -3,6 +3,7 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BsWrenchAdjustableCircle } from "react-icons/bs";
 import { IoCloseOutline, IoReceipt } from "react-icons/io5";
 import {
   MdBorderColor,
@@ -34,10 +35,11 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
+  useCombineTableMutation,
   useCreateMultipleOrderMutation,
   useGetTableOrders,
   useOrderMutations,
-  useTransferTableMutation,
+  useTransferTableMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -85,7 +87,6 @@ export function TableCard({
     isTableNameEditConfirmationDialogOpen,
     setIsTableNameEditConfirmationDialogOpen,
   ] = useState(false);
-  const [newTableName, setNewTableName] = useState(table?.name);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
   let tableOrders: Order[] = [];
@@ -100,7 +101,8 @@ export function TableCard({
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { updateTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
-  const { mutate: transferTable } = useTransferTableMutation();
+  const { mutate: combineTable } = useCombineTableMutation();
+  const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts()?.filter(
@@ -123,6 +125,7 @@ export function TableCard({
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext } = useOrderContext();
@@ -130,6 +133,9 @@ export function TableCard({
   const { user } = useUserContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const [tableCombineForm, setTableCombineForm] = useState({
+    table: "",
+  });
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
   });
@@ -166,7 +172,15 @@ export function TableCard({
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
-
+  const activeTables = tables.filter((t) => !t.finishHour);
+  const inactiveTableInputs = getItem(selectedLocationId, locations)
+    ?.tableNames?.filter((t) => !activeTables.some((table) => table.name === t))
+    ?.map((t) => {
+      return {
+        value: t,
+        label: t,
+      };
+    });
   const filteredDiscounts = discounts.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
@@ -373,7 +387,7 @@ export function TableCard({
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
-  const tableTransferInputs = [
+  const tableCombineInputs = [
     {
       type: InputTypes.SELECT,
       formKey: "table",
@@ -393,10 +407,20 @@ export function TableCard({
       required: true,
     },
   ];
+  const tableCombineFormKeys = [{ key: "table", type: FormKeyTypeEnum.STRING }];
+  const tableTransferInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "table",
+      label: t("Table"),
+      options: inactiveTableInputs,
+      placeholder: t("Table"),
+      required: true,
+    },
+  ];
   const tableTransferFormKeys = [
     { key: "table", type: FormKeyTypeEnum.STRING },
   ];
-
   const bgColor = table.finishHour
     ? "bg-gray-500"
     : tableOrders?.some(
@@ -490,7 +514,7 @@ export function TableCard({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: selectedLocationId,
+        location: orderForm?.stockLocation ?? selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -511,7 +535,7 @@ export function TableCard({
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: selectedLocationId,
+        location: orderForm?.stockLocation ?? selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -865,11 +889,21 @@ export function TableCard({
       >
         <div className="justify-end w-3/4 gap-6 sm:gap-2 flex lg:hidden lg:group-hover:flex ">
           {table.type !== TableTypes.ACTIVITY && (
+            <Tooltip content={t("Table Combine")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsTableCombineOpen(true)}
+                  IconComponent={RiFileTransferFill}
+                />
+              </span>
+            </Tooltip>
+          )}
+          {table.type !== TableTypes.ACTIVITY && (
             <Tooltip content={t("Table Transfer")}>
               <span>
                 <CardAction
                   onClick={() => setIsTableTransferOpen(true)}
-                  IconComponent={RiFileTransferFill}
+                  IconComponent={BsWrenchAdjustableCircle}
                 />
               </span>
             </Tooltip>
@@ -906,6 +940,27 @@ export function TableCard({
           }}
         />
       )}
+      {isTableCombineOpen && (
+        <GenericAddEditPanel
+          isOpen={isTableCombineOpen}
+          close={() => setIsTableCombineOpen(false)}
+          inputs={tableCombineInputs}
+          formKeys={tableCombineFormKeys}
+          submitItem={combineTable as any}
+          submitFunction={() => {
+            combineTable({
+              orders: tableOrders,
+              oldTableId: table._id,
+              transferredTableId: Number(tableCombineForm.table),
+            });
+          }}
+          isCreateConfirmationDialogExist={true}
+          createConfirmationDialogHeader={t("Transfer Combine")}
+          createConfirmationDialogText={t("Are you sure to combine the table?")}
+          setForm={setTableCombineForm}
+          topClassName="flex flex-col gap-2 "
+        />
+      )}
       {isTableTransferOpen && (
         <GenericAddEditPanel
           isOpen={isTableTransferOpen}
@@ -917,11 +972,11 @@ export function TableCard({
             transferTable({
               orders: tableOrders,
               oldTableId: table._id,
-              transferredTableId: Number(tableTransferForm.table),
+              transferredTableName: tableTransferForm.table,
             });
           }}
           isCreateConfirmationDialogExist={true}
-          createConfirmationDialogHeader={t("Transfer Table")}
+          createConfirmationDialogHeader={t("Transfer Transfer")}
           createConfirmationDialogText={t(
             "Are you sure to transfer the table?"
           )}
@@ -960,7 +1015,7 @@ export function TableCard({
             updateTable({
               id: table._id,
               updates: {
-                name: newTableName,
+                name: table?.name,
               },
             });
             setIsTableNameEditConfirmationDialogOpen(false);

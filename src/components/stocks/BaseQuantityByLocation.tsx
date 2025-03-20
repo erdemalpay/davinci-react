@@ -7,7 +7,6 @@ import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
-  useUpdateProductsBaseQuantities,
 } from "../../utils/api/account/product";
 import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -31,8 +30,6 @@ const BaseQuantityByLocation = () => {
   const products = useGetAccountProducts();
   const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
   const [showFilters, setShowFilters] = useState(false);
-  const { mutate: updateProductsBaseQuantities } =
-    useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
@@ -53,6 +50,10 @@ const BaseQuantityByLocation = () => {
       acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
     }, {});
+    const karakum = product?._id === "karakum";
+    if (karakum) {
+      console.log("product", product);
+    }
     return {
       ...product,
       ...quantitiesObject,
@@ -139,7 +140,6 @@ const BaseQuantityByLocation = () => {
       }
       return accum;
     }, []);
-    updateProductsBaseQuantities(items);
   };
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

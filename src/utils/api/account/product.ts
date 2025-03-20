@@ -53,29 +53,6 @@ export function updateMultipleProduct(
     payload: updateMultipleProductPayload,
   });
 }
-
-export function updateProductsBaseQuantities(
-  items: { [key: number]: string; name: string }[]
-) {
-  return post({
-    path: `${Paths.Accounting}/product/update-base-quantities`,
-    payload: items,
-  });
-}
-export function useUpdateProductsBaseQuantities() {
-  const queryKey = [allProductsBaseUrl];
-  const queryClient = useQueryClient();
-  return useMutation(updateProductsBaseQuantities, {
-    onMutate: async () => {
-      await queryClient.cancelQueries(queryKey);
-    },
-    onError: (_err: any) => {
-      const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
-      setTimeout(() => toast.error(errorMessage), 200);
-    },
-  });
-}
 export function useCreateBulkProductAndMenuItemMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
