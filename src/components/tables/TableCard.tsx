@@ -893,7 +893,7 @@ export function TableCard({
               <span>
                 <CardAction
                   onClick={() => setIsTableCombineOpen(true)}
-                  IconComponent={RiFileTransferFill}
+                  IconComponent={BsWrenchAdjustableCircle}
                 />
               </span>
             </Tooltip>
@@ -903,7 +903,7 @@ export function TableCard({
               <span>
                 <CardAction
                   onClick={() => setIsTableTransferOpen(true)}
-                  IconComponent={BsWrenchAdjustableCircle}
+                  IconComponent={RiFileTransferFill}
                 />
               </span>
             </Tooltip>
