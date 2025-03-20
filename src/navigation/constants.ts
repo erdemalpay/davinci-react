@@ -415,6 +415,11 @@ export const allRoutes: {
     link: "https://docs.google.com/spreadsheets/d/1r_8gDsQCBNKUJX4VeQtkkfZqUUQAgkQnm1a_NQg8YUA/edit",
     isOnSidebar: true,
   },
+  {
+    name: "Activities",
+    link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
+    isOnSidebar: true,
+  },
 ];
 
 export const NO_IMAGE_URL =
