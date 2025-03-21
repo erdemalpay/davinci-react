@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { AccountProduct } from "../../../types";
-import { post } from ".././index";
+import { patch, post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/products`;
@@ -19,7 +19,10 @@ export interface CreateBulkProductAndMenuItem {
   image?: string;
   errorNote?: string;
 }
-
+export interface UpdateMultipleBaseQuantities {
+  _id: number;
+  baseQuantities: any[];
+}
 export interface JoinProductsRequest {
   stayedProduct: string;
   removedProduct: string;
@@ -42,6 +45,38 @@ export function createBulkProductAndMenuItem(
   return post({
     path: `${Paths.Accounting}/products/bulk`,
     payload: createBulkPayload,
+  });
+}
+
+export function updateMultipleBaseQuantities(
+  updates: UpdateMultipleBaseQuantities[]
+) {
+  return patch({
+    path: `${Paths.Accounting}/base-quantities`,
+    payload: updates,
+  });
+}
+
+export function useUpdateMultipleBaseQuantitiesMutation() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  const { setErrorDataForProductBulkCreation } = useGeneralContext();
+  return useMutation(updateMultipleBaseQuantities, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: (response) => {
+      // if (response) {
+      //   setErrorDataForProductBulkCreation(
+      //     response as CreateBulkProductAndMenuItem[]
+      //   );
+      // }
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
   });
 }
 

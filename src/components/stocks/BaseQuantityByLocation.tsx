@@ -7,6 +7,7 @@ import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
+  useUpdateMultipleBaseQuantitiesMutation,
 } from "../../utils/api/account/product";
 import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -37,6 +38,8 @@ const BaseQuantityByLocation = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { mutate: updateMultipleBaseQuantities } =
+    useUpdateMultipleBaseQuantitiesMutation();
   const { updateAccountProduct } = useAccountProductMutations();
   const allRows = products?.map((product) => {
     const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
@@ -50,10 +53,6 @@ const BaseQuantityByLocation = () => {
       acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
     }, {});
-    const karakum = product?._id === "karakum";
-    if (karakum) {
-      console.log("product", product);
-    }
     return {
       ...product,
       ...quantitiesObject,
@@ -140,6 +139,35 @@ const BaseQuantityByLocation = () => {
       }
       return accum;
     }, []);
+    const result: any[] = [];
+
+    items.forEach((data) => {
+      const foundProduct = products.find(
+        (product) => product.name === data.name
+      );
+      if (!foundProduct) {
+        return;
+      }
+      const baseQuantities: any[] = [];
+      Object.keys(data).forEach((key) => {
+        if (key.endsWith("min")) {
+          const location = key.replace("min", "");
+          const minQuantity = data[key];
+          const maxQuantity = data[`${location}max`];
+
+          baseQuantities.push({
+            location: parseInt(location, 10),
+            minQuantity,
+            maxQuantity,
+          });
+        }
+      });
+      result.push({
+        _id: foundProduct._id,
+        baseQuantities,
+      });
+    });
+    updateMultipleBaseQuantities(result);
   };
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
