@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { UpdatePayload, get, patch, post, remove } from ".";
 export const Paths = {
   Authorization: "/authorization",
+  Education: "/education",
   Asset: "/asset",
   Activity: "/activity",
   Checkout: "/checkout",

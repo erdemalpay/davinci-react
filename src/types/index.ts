@@ -465,6 +465,35 @@ export type PanelControlCheckoutCash = {
   user: User;
   location: number;
 };
+
+export type StyleDto = {
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  textAlign?: string;
+  imageHeight?: string;
+  imageWidth?: string;
+  imageBorderRadius?: string;
+  imageMargin?: string;
+};
+
+export type EducationSubheaderDto = {
+  componentType: string;
+  subHeader?: string;
+  paragraph?: string;
+  imageUrl?: string;
+  style?: StyleDto;
+};
+
+export type Education = {
+  _id: number;
+  permissionRoles: number[];
+  header: string;
+  order: number;
+  subheaders?: EducationSubheaderDto[];
+};
+
 export type Order = {
   _id: number;
   location: number;
