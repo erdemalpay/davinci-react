@@ -10,6 +10,7 @@ import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
+import Education from "../pages/Education";
 import Expenses from "../pages/Expenses";
 import Expirations, { ExpirationTabs } from "../pages/Expiration";
 import ExpirationCount from "../pages/ExpirationCount";
@@ -68,6 +69,7 @@ export enum Routes {
   NewTables = "/new-tables",
   OnlineSales = "/online-sales",
   Visits = "/visits",
+  Education = "/education",
   Menu = "/menu",
   MenuPrice = "/menu-price",
   User = "/user/:userId",
@@ -390,7 +392,12 @@ export const allRoutes: {
     element: Users,
     isOnSidebar: true,
   },
-
+  {
+    name: "Education",
+    path: Routes.Education,
+    element: Education,
+    isOnSidebar: true,
+  },
   {
     name: "Panel Control",
     path: Routes.PanelControl,
