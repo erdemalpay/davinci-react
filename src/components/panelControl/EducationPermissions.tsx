@@ -43,7 +43,7 @@ const EducationPermissions = () => {
   for (const role of roles) {
     columns.push({ key: role.name, isSortable: true });
     rowKeys.push({
-      key: role._id.toString(),
+      key: role._id,
       node: (row: any) => {
         const hasPermission = row?.permissionRoles?.includes(role._id);
         return isEnableEdit ? (
