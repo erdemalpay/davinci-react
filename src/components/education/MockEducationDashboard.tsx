@@ -258,7 +258,7 @@ const MockEducationDashboard: React.FC = () => {
 
       {/* Main content area showing education details */}
       <div className="w-3/4 p-4 overflow-y-auto h-full">
-        {filteredEducations.map((edu, index) => (
+        {filteredEducations.map((edu) => (
           <section
             key={edu._id}
             id={`edu-${edu._id}`}

@@ -479,11 +479,12 @@ export type StyleDto = {
 };
 
 export type EducationSubheaderDto = {
-  componentType: string;
+  componentType?: string;
   subHeader?: string;
   paragraph?: string;
   imageUrl?: string;
   style?: StyleDto;
+  order: number;
 };
 
 export type Education = {

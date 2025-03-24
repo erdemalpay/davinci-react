@@ -6,15 +6,15 @@ import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
-import { postWithHeader, UpdatePayload } from "../../../utils/api";
+import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
+import { H6 } from "../Typography";
 import {
   FormKeyType,
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../shared/types";
-import { H6 } from "../Typography";
 import HourInput from "./HourInput";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
@@ -530,7 +530,7 @@ const GenericAddEditPanel = <T,>({
                               handleChange(input.formKey)(e.target.value);
                             }}
                             placeholder={input.placeholder ?? ""}
-                            className="border text-base border-gray-300 rounded-md p-2"
+                            className={`border text-base border-gray-300 rounded-md p-2 ${input.inputClassName}`}
                           />
                         </div>
                       )}
