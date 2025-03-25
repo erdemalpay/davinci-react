@@ -214,4 +214,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "authorizationChanged",
     invalidateKeys: [`${Paths.Authorization}`],
   },
+  {
+    event: "educationChanged",
+    invalidateKeys: [`${Paths.Education}`],
+  },
 ];

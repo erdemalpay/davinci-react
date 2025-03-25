@@ -195,7 +195,9 @@ const EducationDashboard = () => {
           >
             <div className="flex flex-row gap-2 items-center">
               <h2
-                className="text-2xl font-bold cursor-pointer "
+                className={`text-2xl font-bold ${
+                  !isDisabledCondition && "cursor-pointer"
+                } `}
                 onClick={() => {
                   if (isDisabledCondition) return;
                   setHeaderToAction(edu);
@@ -277,7 +279,9 @@ const EducationDashboard = () => {
                           setSubHeaderToAction(sub);
                           setIsUpdateSubHeaderModalOpen(true);
                         }}
-                        className="text-lg font-semibold"
+                        className={`text-lg font-semibold ${
+                          !isDisabledCondition && "cursor-pointer"
+                        }`}
                       >
                         {sub.subHeader}
                       </h3>
