@@ -72,7 +72,7 @@ const EducationDashboard = () => {
   const [isAddNewEducationModalOpen, setIsAddNewEducationModalOpen] =
     useState(false);
   const [isUpdateHeaderModalOpen, setIsUpdateHeaderModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<Education | null>(null);
+  const [headerToAction, setHeaderToAction] = useState<Education | null>(null);
   const [subHeaderToAction, setSubHeaderToAction] = useState<any>(null);
   const [isAddNewSubHeaderModalOpen, setIsAddNewSubHeaderModalOpen] =
     useState(false);
@@ -178,7 +178,7 @@ const EducationDashboard = () => {
           <ButtonFilter
             buttonName={"+ " + t("Add New Header")}
             onclick={() => {
-              setRowToAction(null);
+              setHeaderToAction(null);
               setIsAddNewEducationModalOpen(true);
             }}
           />
@@ -198,7 +198,7 @@ const EducationDashboard = () => {
                 className="text-2xl font-bold cursor-pointer "
                 onClick={() => {
                   if (isDisabledCondition) return;
-                  setRowToAction(edu);
+                  setHeaderToAction(edu);
                   setIsUpdateHeaderModalOpen(true);
                 }}
               >
@@ -209,7 +209,7 @@ const EducationDashboard = () => {
                   <button
                     className="px-2 text-sm bg-blue-500 hover:text-blue-500 hover:border-blue-500  py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
                     onClick={() => {
-                      setRowToAction(edu);
+                      setHeaderToAction(edu);
                       setSubHeaderToAction(null);
                       setIsAddNewSubHeaderModalOpen(true);
                     }}
@@ -233,68 +233,118 @@ const EducationDashboard = () => {
                 </div>
               )}
             </div>
-            {edu.subheaders?.map((sub, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex flex-row gap-1 items-center w-fit">
-                  {!isDisabledCondition && (
-                    <CiCircleChevUp
-                      className="text-green-500 cursor-pointer text-2xl "
+            {edu.subheaders
+              ?.sort((a, b) => a.order - b.order)
+              ?.map((sub, index) => (
+                <div key={index} className="mb-4">
+                  <div className="flex flex-row gap-1 items-center w-fit">
+                    {!isDisabledCondition && index !== 0 && (
+                      <CiCircleChevUp
+                        className="text-green-500 cursor-pointer text-2xl "
+                        onClick={() => {
+                          const targetOrder = sub.order - 1;
+                          const updatedSubheaders = (edu.subheaders || []).map(
+                            (subHeader) => {
+                              if (subHeader.order === sub.order) {
+                                return {
+                                  ...subHeader,
+                                  order: targetOrder,
+                                };
+                              }
+                              if (subHeader.order === targetOrder) {
+                                return {
+                                  ...subHeader,
+                                  order: sub.order,
+                                };
+                              }
+                              return subHeader;
+                            }
+                          );
+                          updateEducation({
+                            id: edu._id,
+                            updates: {
+                              subheaders: updatedSubheaders,
+                            },
+                          });
+                        }}
+                      />
+                    )}
+                    {sub.subHeader && (
+                      <h3
+                        onClick={() => {
+                          if (isDisabledCondition) return;
+                          setHeaderToAction(edu);
+                          setSubHeaderToAction(sub);
+                          setIsUpdateSubHeaderModalOpen(true);
+                        }}
+                        className="text-lg font-semibold"
+                      >
+                        {sub.subHeader}
+                      </h3>
+                    )}
+                    {!isDisabledCondition &&
+                      index !== (edu?.subheaders?.length ?? 0) - 1 &&
+                      (edu.subheaders?.length ?? 0) > 1 && (
+                        <CiCircleChevDown
+                          className="text-red-500 cursor-pointer text-2xl ml-auto"
+                          onClick={() => {
+                            const targetOrder = sub.order + 1;
+                            const updatedSubheaders = (
+                              edu.subheaders || []
+                            ).map((subHeader) => {
+                              if (subHeader.order === sub.order) {
+                                return {
+                                  ...subHeader,
+                                  order: targetOrder,
+                                };
+                              }
+                              if (subHeader.order === targetOrder) {
+                                return {
+                                  ...subHeader,
+                                  order: sub.order,
+                                };
+                              }
+                              return subHeader;
+                            });
+                            updateEducation({
+                              id: edu._id,
+                              updates: {
+                                subheaders: updatedSubheaders,
+                              },
+                            });
+                          }}
+                        />
+                      )}
+                  </div>
+
+                  {sub.paragraph && (
+                    <p
                       onClick={() => {
                         if (isDisabledCondition) return;
-                      }}
-                    />
-                  )}
-                  {sub.subHeader && (
-                    <h3
-                      onClick={() => {
-                        if (isDisabledCondition) return;
-                        setRowToAction(edu);
+                        setHeaderToAction(edu);
                         setSubHeaderToAction(sub);
                         setIsUpdateSubHeaderModalOpen(true);
                       }}
-                      className="text-lg font-semibold"
+                      className="mt-1"
                     >
-                      {sub.subHeader}
-                    </h3>
+                      {sub.paragraph}
+                    </p>
                   )}
-                  {!isDisabledCondition && (
-                    <CiCircleChevDown
-                      className="text-red-500 cursor-pointer text-2xl ml-auto"
-                      onClick={() => {
-                        if (isDisabledCondition) return;
+                  {sub.imageUrl && (
+                    <img
+                      src={sub.imageUrl}
+                      alt={sub.subHeader}
+                      className="mt-2"
+                      style={{
+                        height: sub.style?.imageHeight,
+                        width: sub.style?.imageWidth,
+                        borderRadius: sub.style?.imageBorderRadius,
+                        margin: sub.style?.imageMargin,
                       }}
                     />
                   )}
                 </div>
-
-                {sub.paragraph && (
-                  <p
-                    onClick={() => {
-                      if (isDisabledCondition) return;
-                      setRowToAction(edu);
-                      setSubHeaderToAction(sub);
-                      setIsUpdateSubHeaderModalOpen(true);
-                    }}
-                    className="mt-1"
-                  >
-                    {sub.paragraph}
-                  </p>
-                )}
-                {sub.imageUrl && (
-                  <img
-                    src={sub.imageUrl}
-                    alt={sub.subHeader}
-                    className="mt-2"
-                    style={{
-                      height: sub.style?.imageHeight,
-                      width: sub.style?.imageWidth,
-                      borderRadius: sub.style?.imageBorderRadius,
-                      margin: sub.style?.imageMargin,
-                    }}
-                  />
-                )}
-              </div>
-            ))}
+              ))}
           </section>
         ))}
       </div>
@@ -309,16 +359,16 @@ const EducationDashboard = () => {
           formKeys={headerFormKeys}
           submitItem={createEducation as any}
           setForm={setHeaderForm}
-          constantValues={{ ...rowToAction }}
+          constantValues={{ ...headerToAction }}
           submitFunction={() => {
-            if (isUpdateHeaderModalOpen && rowToAction) {
+            if (isUpdateHeaderModalOpen && headerToAction) {
               updateEducation({
-                id: rowToAction._id,
+                id: headerToAction._id,
                 updates: {
                   ...headerForm,
                 },
               });
-            } else if (isAddNewEducationModalOpen && rowToAction) {
+            } else if (isAddNewEducationModalOpen && headerToAction) {
               createEducation({
                 ...headerForm,
                 order: educations?.length ?? 0,
@@ -330,7 +380,7 @@ const EducationDashboard = () => {
       )}
 
       {(isAddNewSubHeaderModalOpen || isUpdateSubHeaderModalOpen) &&
-        rowToAction && (
+        headerToAction && (
           <GenericAddEditPanel
             isOpen={isAddNewSubHeaderModalOpen || isUpdateSubHeaderModalOpen}
             close={() => {
@@ -343,26 +393,26 @@ const EducationDashboard = () => {
             setForm={setUpdateForm}
             constantValues={{ ...subHeaderToAction }}
             submitFunction={() => {
-              if (isAddNewSubHeaderModalOpen && rowToAction) {
+              if (isAddNewSubHeaderModalOpen && headerToAction) {
                 updateEducation({
-                  id: rowToAction._id,
+                  id: headerToAction._id,
                   updates: {
                     subheaders: [
-                      ...(rowToAction.subheaders || []),
+                      ...(headerToAction.subheaders || []),
                       {
                         ...updateForm,
-                        order: rowToAction.subheaders?.length ?? 0,
+                        order: headerToAction.subheaders?.length ?? 0,
                       },
                     ],
                   },
                 });
               } else if (isUpdateSubHeaderModalOpen && subHeaderToAction) {
                 updateEducation({
-                  id: rowToAction._id,
+                  id: headerToAction._id,
                   updates: {
                     subheaders: [
-                      ...(rowToAction.subheaders || []).map((sub) => {
-                        if (sub.subHeader === subHeaderToAction.subHeader) {
+                      ...(headerToAction.subheaders || []).map((sub) => {
+                        if (sub.order === subHeaderToAction.order) {
                           return { ...sub, ...updateForm };
                         }
                         return sub;
