@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
 import {
   useEducationMutations,
   useGetEducations,
 } from "../../utils/api/education";
 import { useGetAllUserRoles } from "../../utils/api/user";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../panelComponents/Typography";
@@ -68,11 +70,18 @@ const EducationDashboard = () => {
     : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
-  const { updateEducation, createEducation } = useEducationMutations();
+  const { updateEducation, createEducation, deleteEducation } =
+    useEducationMutations();
   const [isAddNewEducationModalOpen, setIsAddNewEducationModalOpen] =
     useState(false);
   const [isUpdateHeaderModalOpen, setIsUpdateHeaderModalOpen] = useState(false);
   const [headerToAction, setHeaderToAction] = useState<Education | null>(null);
+  const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
+    useState(false);
+  const [
+    isSubheaderDeleteConfirmationDialogOpen,
+    setIsSubheaderDeleteConfirmationDialogOpen,
+  ] = useState(false);
   const [subHeaderToAction, setSubHeaderToAction] = useState<any>(null);
   const [isAddNewSubHeaderModalOpen, setIsAddNewSubHeaderModalOpen] =
     useState(false);
@@ -167,12 +176,25 @@ const EducationDashboard = () => {
       {/* Sidebar with draggable headers that stays fixed */}
       <div className="hidden sm:block w-1/4 border-r border-gray-300 p-4 sticky top-[104px]  h-full overflow-y-auto ">
         {filteredEducations.map((edu, index) => (
-          <DraggableHeaderItem
+          <div
             key={edu._id}
-            education={edu}
-            onDragEnter={handleDragEnter}
-            onSelect={handleSelect}
-          />
+            className="flex flex-row justify-between items-center"
+          >
+            <DraggableHeaderItem
+              education={edu}
+              onDragEnter={handleDragEnter}
+              onSelect={handleSelect}
+            />
+            {!isDisabledCondition && (
+              <HiOutlineTrash
+                className="text-red-500 cursor-pointer text-xl  "
+                onClick={() => {
+                  setHeaderToAction(edu);
+                  setIsDeleteConfirmationDialogOpen(true);
+                }}
+              />
+            )}
+          </div>
         ))}
         {!isDisabledCondition && (
           <ButtonFilter
@@ -319,6 +341,16 @@ const EducationDashboard = () => {
                           }}
                         />
                       )}
+                    {!isDisabledCondition && (
+                      <HiOutlineTrash
+                        className="text-red-500 cursor-pointer text-xl  "
+                        onClick={() => {
+                          setHeaderToAction(edu);
+                          setSubHeaderToAction(sub);
+                          setIsSubheaderDeleteConfirmationDialogOpen(true);
+                        }}
+                      />
+                    )}
                   </div>
 
                   {sub.paragraph && (
@@ -427,6 +459,46 @@ const EducationDashboard = () => {
               }
             }}
             topClassName="flex flex-col gap-2  "
+          />
+        )}
+      {isDeleteConfirmationDialogOpen && headerToAction && (
+        <ConfirmationDialog
+          isOpen={isDeleteConfirmationDialogOpen}
+          close={() => setIsDeleteConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteEducation(headerToAction?._id);
+            setIsDeleteConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Header")}
+          text={`${headerToAction.header} ${t("GeneralDeleteMessage")}`}
+        />
+      )}
+      {isSubheaderDeleteConfirmationDialogOpen &&
+        subHeaderToAction &&
+        headerToAction && (
+          <ConfirmationDialog
+            isOpen={isSubheaderDeleteConfirmationDialogOpen}
+            close={() => setIsSubheaderDeleteConfirmationDialogOpen(false)}
+            confirm={() => {
+              const updatedSubheaders = (headerToAction.subheaders || [])
+                .filter((sub) => sub.order !== subHeaderToAction.order)
+                .sort((a, b) => a.order - b.order)
+                .map((sub, index) => ({
+                  ...sub,
+                  order: index,
+                }));
+              updateEducation({
+                id: headerToAction._id,
+                updates: {
+                  subheaders: updatedSubheaders,
+                },
+              });
+              setIsSubheaderDeleteConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Subheader")}
+            text={`${subHeaderToAction?.subheader ?? "Subheader"} ${t(
+              "GeneralDeleteMessage"
+            )}`}
           />
         )}
     </div>
