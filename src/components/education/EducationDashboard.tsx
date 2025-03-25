@@ -165,7 +165,7 @@ const EducationDashboard = () => {
       className="flex h-full sticky top-16 "
     >
       {/* Sidebar with draggable headers that stays fixed */}
-      <div className="w-1/4 border-r border-gray-300 p-4 sticky top-[104px]  h-full overflow-y-auto ">
+      <div className="hidden sm:block w-1/4 border-r border-gray-300 p-4 sticky top-[104px]  h-full overflow-y-auto ">
         {filteredEducations.map((edu, index) => (
           <DraggableHeaderItem
             key={edu._id}
@@ -186,7 +186,7 @@ const EducationDashboard = () => {
       </div>
 
       {/* Main content area showing education details */}
-      <div className="w-3/4 p-4 overflow-y-auto h-full">
+      <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full">
         {filteredEducations?.map((edu, index) => (
           <section
             key={edu._id}
