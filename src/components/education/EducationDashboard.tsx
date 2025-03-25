@@ -368,7 +368,7 @@ const EducationDashboard = () => {
                   ...headerForm,
                 },
               });
-            } else if (isAddNewEducationModalOpen && headerToAction) {
+            } else if (isAddNewEducationModalOpen) {
               createEducation({
                 ...headerForm,
                 order: educations?.length ?? 0,
