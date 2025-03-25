@@ -13,6 +13,7 @@ import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { Education, RoleEnum } from "./../../types/index";
 
@@ -65,9 +66,9 @@ const EducationDashboard = () => {
   if (!user || !educations || !roles) {
     return <Loading />;
   }
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
-    : true;
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const disabledUsers = ![RoleEnum.MANAGER].includes(user?.role?._id);
+  const isDisabledCondition = isEnableEdit && user ? disabledUsers : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
   const { updateEducation, createEducation, deleteEducation } =
@@ -89,7 +90,7 @@ const EducationDashboard = () => {
     useState(false);
   const filteredEducations: Education[] =
     educations?.filter((edu: Education) =>
-      edu?.permissionRoles?.includes(user?.role?._id)
+      isEnableEdit ? true : edu?.permissionRoles?.includes(user?.role?._id)
     ) || [];
   filteredEducations.sort((a, b) => a.order - b.order);
   const [headerForm, setHeaderForm] = useState({
@@ -209,6 +210,12 @@ const EducationDashboard = () => {
 
       {/* Main content area showing education details */}
       <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full">
+        {!disabledUsers && (
+          <div className="w-fit ml-auto flex flex-row gap-2">
+            <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+            <H5 className="w-fit">{t("Enable Edit")}</H5>
+          </div>
+        )}
         {filteredEducations?.map((edu, index) => (
           <section
             key={edu._id}
