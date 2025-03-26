@@ -14,6 +14,7 @@ export const Paths = {
   Activity: "/activity",
   Checkout: "/checkout",
   Games: "/games",
+  CafeActivity: "/visits/cafe-activity",
   Gameplays: "/gameplays",
   Users: "/users",
   User: "/users/me",

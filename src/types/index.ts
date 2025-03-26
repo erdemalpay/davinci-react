@@ -494,7 +494,17 @@ export type Education = {
   order: number;
   subheaders?: EducationSubheaderDto[];
 };
-
+export type CafeActivity = {
+  _id: number;
+  date: string;
+  location: number;
+  hour: string;
+  personCount: number;
+  groupName: string;
+  price?: number;
+  complimentary?: string;
+  isCompleted?: boolean;
+};
 export type Order = {
   _id: number;
   location: number;
