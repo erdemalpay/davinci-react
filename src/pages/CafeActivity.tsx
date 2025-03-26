@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { CheckSwitch } from "../components/common/CheckSwitch";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -20,6 +21,7 @@ import { useGetStoreLocations } from "../utils/api/location";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
+
 const CafeActivity = () => {
   const cafeActivities = useGetCafeActivitys();
   const locations = useGetStoreLocations();
@@ -35,7 +37,7 @@ const CafeActivity = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [showExpiredCafeActivities, setShowExpiredCafeActivities] =
+  const [showCompletedCafeActivities, setShowCompletedActivities] =
     useState(false);
   const isDisabledCondition = false;
   //   user
@@ -43,7 +45,10 @@ const CafeActivity = () => {
   //     : true;
   const allRows =
     cafeActivities
-      ?.filter((cafeActivity) => !cafeActivity.isCompleted)
+      ?.filter(
+        (cafeActivity) =>
+          !cafeActivity.isCompleted || showCompletedCafeActivities
+      )
       ?.map((cafeActivity) => ({
         ...cafeActivity,
         formattedDate: formatAsLocalDate(cafeActivity.date),
@@ -145,19 +150,7 @@ const CafeActivity = () => {
     isDisabled: isDisabledCondition,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
-  const filters = [
-    {
-      label: t("Show Completed Activities"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showExpiredCafeActivities}
-          onChange={setShowExpiredCafeActivities}
-        />
-      ),
-      isDisabled: isDisabledCondition,
-    },
-  ];
+
   const actions = [
     {
       name: t("Delete"),
@@ -205,11 +198,43 @@ const CafeActivity = () => {
       isPath: false,
       isDisabled: isDisabledCondition,
     },
+    {
+      name: t("Toggle Active"),
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2 mr-auto">
+          <CheckSwitch
+            checked={row.isCompleted}
+            onChange={() => {
+              updateCafeActivity({
+                id: row._id,
+                updates: {
+                  isCompleted: !row.isCompleted,
+                },
+              });
+            }}
+          ></CheckSwitch>
+        </div>
+      ),
+    },
+  ];
+  const filters = [
+    {
+      label: t("Show Completed Activities"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showCompletedCafeActivities}
+          onChange={setShowCompletedActivities}
+        />
+      ),
+      isDisabled: isDisabledCondition,
+    },
   ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [cafeActivities, locations, user]);
+  }, [cafeActivities, locations, user, showCompletedCafeActivities]);
   return (
     <>
       <Header showLocationSelector={false} />
