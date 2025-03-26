@@ -120,6 +120,7 @@ export const allRoutes: {
   link?: string;
   element?: () => JSX.Element;
   tabs?: Tab[];
+  children?: typeof allRoutes;
 }[] = [
   {
     name: "Tables",
@@ -157,12 +158,26 @@ export const allRoutes: {
     path: Routes.Reservations,
     element: Reservations,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Reservations",
+        path: Routes.Reservations,
+        element: Reservations,
+        isOnSidebar: true,
+      },
+      {
+        name: "Activities",
+        path: Routes.Activities,
+        element: CafeActivity,
+        isOnSidebar: true,
+      },
+    ],
   },
   {
     name: "Activities",
     path: Routes.Activities,
     element: CafeActivity,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Games",
