@@ -172,8 +172,41 @@ const EducationDashboard = () => {
   return (
     <div
       key={"component" + componentKey}
-      className="flex h-full sticky top-16 "
+      className="flex h-full flex-col sm:flex-row sm:sticky sm:top-16 "
     >
+      {/* Sidebar for small screens: non-sticky, at the top */}
+      <div className="sm:hidden w-full border h-max rounded-lg border-gray-200 bg-white p-2 overflow-x-auto">
+        {filteredEducations.map((edu) => (
+          <div
+            key={edu._id}
+            className="flex flex-row justify-between items-center"
+          >
+            <DraggableHeaderItem
+              education={edu}
+              onDragEnter={handleDragEnter}
+              onSelect={handleSelect}
+            />
+            {!isDisabledCondition && (
+              <HiOutlineTrash
+                className="text-red-500 cursor-pointer text-xl"
+                onClick={() => {
+                  setHeaderToAction(edu);
+                  setIsDeleteConfirmationDialogOpen(true);
+                }}
+              />
+            )}
+          </div>
+        ))}
+        {!isDisabledCondition && (
+          <ButtonFilter
+            buttonName={"+ " + t("Add New Header")}
+            onclick={() => {
+              setHeaderToAction(null);
+              setIsAddNewEducationModalOpen(true);
+            }}
+          />
+        )}
+      </div>
       {/* Sidebar with draggable headers that stays fixed */}
       <div className="hidden sm:block w-1/4 border-r border-gray-300 p-4 sticky top-[104px]  h-full overflow-y-auto ">
         {filteredEducations.map((edu, index) => (
