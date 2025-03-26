@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
@@ -219,15 +220,22 @@ const EducationDashboard = () => {
               onDragEnter={handleDragEnter}
               onSelect={handleSelect}
             />
-            {!isDisabledCondition && (
-              <HiOutlineTrash
-                className="text-red-500 cursor-pointer text-xl  "
-                onClick={() => {
-                  setHeaderToAction(edu);
-                  setIsDeleteConfirmationDialogOpen(true);
-                }}
-              />
-            )}
+            <div className="flex flex-row items-center gap-2">
+              {edu?.updatedAt && (
+                <span className="text-xs text-gray-500">
+                  {format(edu.updatedAt, "dd-MM-yyyy")}
+                </span>
+              )}
+              {!isDisabledCondition && (
+                <HiOutlineTrash
+                  className="text-red-500 cursor-pointer text-xl  "
+                  onClick={() => {
+                    setHeaderToAction(edu);
+                    setIsDeleteConfirmationDialogOpen(true);
+                  }}
+                />
+              )}
+            </div>
           </div>
         ))}
         {!isDisabledCondition && (

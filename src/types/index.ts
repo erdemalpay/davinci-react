@@ -493,6 +493,8 @@ export type Education = {
   header: string;
   order: number;
   subheaders?: EducationSubheaderDto[];
+  createdAt: Date;
+  updatedAt: Date;
 };
 export type CafeActivity = {
   _id: number;
