@@ -32,7 +32,7 @@ const VendorOrder = () => {
         product?.vendor?.includes(vendorOrderFilterPanelFormElements?.vendor)
     )
     ?.map((product) => {
-      const productBaseQuantitiesTotal =
+      const productMinBaseQuantitiesTotal =
         product?.baseQuantities?.reduce((acc, baseQuantity) => {
           if (
             !vendorOrderFilterPanelFormElements?.location?.includes(
@@ -42,6 +42,17 @@ const VendorOrder = () => {
             return acc;
           }
           return acc + baseQuantity?.minQuantity;
+        }, 0) ?? 0;
+      const productMaxBaseQuantitiesTotal =
+        product?.baseQuantities?.reduce((acc, baseQuantity) => {
+          if (
+            !vendorOrderFilterPanelFormElements?.location?.includes(
+              baseQuantity.location
+            )
+          ) {
+            return acc;
+          }
+          return acc + baseQuantity?.maxQuantity;
         }, 0) ?? 0;
 
       const productStocksTotal = stocks
@@ -56,22 +67,23 @@ const VendorOrder = () => {
           }
           return acc + stock.quantity;
         }, 0);
-
       const requiredQuantity =
-        productBaseQuantitiesTotal -
-        (productStocksTotal > 0 ? productStocksTotal : 0);
+        productStocksTotal >= Number(productMinBaseQuantitiesTotal)
+          ? 0
+          : Number(productMaxBaseQuantitiesTotal) > 0
+          ? Number(productMaxBaseQuantitiesTotal) - productStocksTotal
+          : 0;
 
       return {
         ...product,
         stockQuantity: productStocksTotal > 0 ? productStocksTotal : 0,
-        baseQuantity: productBaseQuantitiesTotal,
-        requiredQuantity: requiredQuantity,
+        minBaseQuantity: Number(productMinBaseQuantitiesTotal),
+        maxBaseQuantity: Number(productMaxBaseQuantitiesTotal),
+        requiredQuantity,
       };
     })
     ?.filter((row) => row.requiredQuantity > 0);
-
   const [rows, setRows] = useState(allRows);
-
   const filterPanelInputs = [
     VendorInput({ vendors: vendors }),
     LocationInput({ locations: locations, isMultiple: true }),
@@ -84,9 +96,14 @@ const VendorOrder = () => {
       correspondingKey: "stockQuantity",
     },
     {
-      key: t("Base Quantity"),
+      key: t("Minimum Base Quantity"),
       isSortable: true,
-      correspondingKey: "baseQuantity",
+      correspondingKey: "minBaseQuantity",
+    },
+    {
+      key: t("Maximum Base Quantity"),
+      isSortable: true,
+      correspondingKey: "maxBaseQuantity",
     },
     {
       key: t("Required Quantity"),
@@ -97,7 +114,8 @@ const VendorOrder = () => {
   const rowKeys = [
     { key: "name" },
     { key: "stockQuantity" },
-    { key: "baseQuantity" },
+    { key: "minBaseQuantity" },
+    { key: "maxBaseQuantity" },
     { key: "requiredQuantity" },
   ];
   const filters = [
