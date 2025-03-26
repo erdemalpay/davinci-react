@@ -3,6 +3,7 @@ import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
+import CafeActivity from "../pages/CafeActivity";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
@@ -108,6 +109,7 @@ export enum Routes {
   ExpirationCount = "/expiration/:location/:expirationListId",
   SingleExpirationCountArchive = "/expiration-archive/:archiveId",
   Location = "/location/:locationId",
+  Activities = "/activities",
 }
 
 export const allRoutes: {
@@ -156,7 +158,12 @@ export const allRoutes: {
     element: Reservations,
     isOnSidebar: true,
   },
-
+  {
+    name: "Activities",
+    path: Routes.Activities,
+    element: CafeActivity,
+    isOnSidebar: true,
+  },
   {
     name: "Games",
     path: Routes.Games,
