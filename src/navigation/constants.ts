@@ -158,26 +158,12 @@ export const allRoutes: {
     path: Routes.Reservations,
     element: Reservations,
     isOnSidebar: true,
-    children: [
-      {
-        name: "Reservations",
-        path: Routes.Reservations,
-        element: Reservations,
-        isOnSidebar: true,
-      },
-      {
-        name: "Activities",
-        path: Routes.Activities,
-        element: CafeActivity,
-        isOnSidebar: true,
-      },
-    ],
   },
   {
     name: "Activities",
     path: Routes.Activities,
     element: CafeActivity,
-    isOnSidebar: false,
+    isOnSidebar: true,
   },
   {
     name: "Games",
