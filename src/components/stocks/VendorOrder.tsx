@@ -55,7 +55,7 @@ const VendorOrder = () => {
           return acc + baseQuantity?.maxQuantity;
         }, 0) ?? 0;
 
-      const productStocksTotal = stocks
+      let productStocksTotal = stocks
         ?.filter((stock) => stock.product === product._id)
         ?.reduce((acc, stock) => {
           if (
@@ -67,6 +67,9 @@ const VendorOrder = () => {
           }
           return acc + stock.quantity;
         }, 0);
+      if (productStocksTotal < 0) {
+        productStocksTotal = 0;
+      }
       const requiredQuantity =
         productStocksTotal >= Number(productMinBaseQuantitiesTotal)
           ? 0
@@ -76,7 +79,7 @@ const VendorOrder = () => {
 
       return {
         ...product,
-        stockQuantity: productStocksTotal > 0 ? productStocksTotal : 0,
+        stockQuantity: Number(productStocksTotal),
         minBaseQuantity: Number(productMinBaseQuantitiesTotal),
         maxBaseQuantity: Number(productMaxBaseQuantitiesTotal),
         requiredQuantity,
