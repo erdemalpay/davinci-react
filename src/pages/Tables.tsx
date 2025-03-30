@@ -1161,7 +1161,7 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName="  shadow-none mt-[-4rem] md:mt-0 "
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}
@@ -1246,7 +1246,7 @@ const Tables = () => {
             } as any);
             setIsTakeAwayOrderModalOpen(false);
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}
