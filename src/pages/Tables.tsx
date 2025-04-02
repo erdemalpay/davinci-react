@@ -625,7 +625,7 @@ const Tables = () => {
       (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
     )
       ? "bg-orange-200"
-      : "bg-gray-100";
+      : "bg-red-300";
   };
   const buttons: {
     label: string;
@@ -845,7 +845,7 @@ const Tables = () => {
                             onClick={() =>
                               scrollToSection(`table-${table?._id}`)
                             }
-                            className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                            className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
                               table
                             )}`}
                           >
@@ -865,7 +865,7 @@ const Tables = () => {
                             });
                             setIsCreateTableDialogOpen(true);
                           }}
-                          className={` bg-purple-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-purple-200 text-purple-600 hover:text-white font-medium cursor-pointer`}
+                          className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
                         >
                           {tableName}
                         </a>
@@ -918,7 +918,7 @@ const Tables = () => {
                           onClick={() =>
                             scrollToSection(`table-large-${table?._id}`)
                           }
-                          className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
+                          className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
                             table
                           )}`}
                         >
@@ -938,7 +938,7 @@ const Tables = () => {
                           });
                           setIsCreateTableDialogOpen(true);
                         }}
-                        className={` bg-purple-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-purple-200 text-purple-600 hover:text-white font-medium cursor-pointer`}
+                        className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
                       >
                         {tableName}
                       </a>
