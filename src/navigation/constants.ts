@@ -127,12 +127,32 @@ export const allRoutes: {
     path: Routes.Tables,
     element: Tables,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Tables",
+        path: Routes.Tables,
+        element: Tables,
+        isOnSidebar: true,
+      },
+      {
+        name: "Online Sales",
+        path: Routes.OnlineSales,
+        element: OnlineSales,
+        isOnSidebar: true,
+      },
+    ],
+  },
+  {
+    name: "Tables",
+    path: Routes.Tables,
+    element: Tables,
+    isOnSidebar: false,
   },
   {
     name: "Online Sales",
     path: Routes.OnlineSales,
     element: OnlineSales,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Orders",
@@ -141,16 +161,37 @@ export const allRoutes: {
     isOnSidebar: true,
   },
   {
-    name: "Orders Summary",
+    name: "Orders Details",
     path: Routes.OrdersSummary,
     element: OrdersSummary,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Orders Summary",
+        path: Routes.OrdersSummary,
+        element: OrdersSummary,
+        isOnSidebar: true,
+      },
+      {
+        name: "Order Datas",
+        path: Routes.OrderDatas,
+        element: OrderDatas,
+        isOnSidebar: true,
+        tabs: OrderDataTabs,
+      },
+    ],
+  },
+  {
+    name: "Orders Summary",
+    path: Routes.OrdersSummary,
+    element: OrdersSummary,
+    isOnSidebar: false,
   },
   {
     name: "Order Datas",
     path: Routes.OrderDatas,
     element: OrderDatas,
-    isOnSidebar: true,
+    isOnSidebar: false,
     tabs: OrderDataTabs,
   },
   {
@@ -158,37 +199,100 @@ export const allRoutes: {
     path: Routes.Reservations,
     element: Reservations,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Reservations",
+        path: Routes.Reservations,
+        element: Reservations,
+        isOnSidebar: true,
+      },
+      {
+        name: "Activities",
+        path: Routes.Activities,
+        element: CafeActivity,
+        isOnSidebar: true,
+      },
+      {
+        name: "Memberships",
+        path: Routes.Memberships,
+        element: Memberships,
+        isOnSidebar: true,
+      },
+      {
+        name: "Rewards",
+        path: Routes.Rewards,
+        element: Rewards,
+        isOnSidebar: true,
+      },
+    ],
+  },
+  {
+    name: "Reservations",
+    path: Routes.Reservations,
+    element: Reservations,
+    isOnSidebar: false,
   },
   {
     name: "Activities",
     path: Routes.Activities,
     element: CafeActivity,
-    isOnSidebar: true,
+    isOnSidebar: false,
+  },
+  {
+    name: "Memberships",
+    path: Routes.Memberships,
+    element: Memberships,
+    isOnSidebar: false,
+  },
+  {
+    name: "Rewards",
+    path: Routes.Rewards,
+    element: Rewards,
+    isOnSidebar: false,
   },
   {
     name: "Games",
     path: Routes.Games,
     element: Games,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Games",
+        path: Routes.Games,
+        element: Games,
+        isOnSidebar: true,
+      },
+      {
+        name: "Gameplays",
+        path: Routes.Gameplays,
+        element: Gameplays,
+        isOnSidebar: true,
+      },
+      {
+        name: "Analytics",
+        path: Routes.Analytics,
+        element: Analytics,
+        isOnSidebar: true,
+      },
+    ],
   },
-
+  {
+    name: "Games",
+    path: Routes.Games,
+    element: Games,
+    isOnSidebar: false,
+  },
   {
     name: "Gameplays",
     path: Routes.Gameplays,
     element: Gameplays,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
-    name: "Memberships",
-    path: Routes.Memberships,
-    element: Memberships,
-    isOnSidebar: true,
-  },
-  {
-    name: "Rewards",
-    path: Routes.Rewards,
-    element: Rewards,
-    isOnSidebar: true,
+    name: "Analytics",
+    path: Routes.Analytics,
+    element: Analytics,
+    isOnSidebar: false,
   },
   {
     name: "Shifts",
@@ -201,14 +305,14 @@ export const allRoutes: {
     name: "Notifications",
     path: Routes.Notifications,
     element: Notifications,
-    isOnSidebar: true,
+    isOnSidebar: false,
     tabs: NotificationPageTabs,
   },
   {
     name: "Images",
     path: Routes.Images,
     element: Images,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Single Folder Page",
@@ -222,17 +326,12 @@ export const allRoutes: {
     element: Profile,
     isOnSidebar: true,
   },
-  {
-    name: "Analytics",
-    path: Routes.Analytics,
-    element: Analytics,
-    isOnSidebar: true,
-  },
+
   {
     name: "User Activities",
     path: Routes.UserActivities,
     element: UserActivities,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Count",
@@ -257,12 +356,40 @@ export const allRoutes: {
     path: Routes.CountLists,
     element: CountLists,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Count Lists",
+        path: Routes.CountLists,
+        element: CountLists,
+        isOnSidebar: true,
+      },
+      {
+        name: "Checklists",
+        path: Routes.Checklists,
+        element: Checklists,
+        isOnSidebar: true,
+        tabs: ChecklistTabs,
+      },
+      {
+        name: "Expirations",
+        path: Routes.Expirations,
+        element: Expirations,
+        isOnSidebar: false,
+        tabs: ExpirationTabs,
+      },
+    ],
+  },
+  {
+    name: "Count Lists",
+    path: Routes.CountLists,
+    element: CountLists,
+    isOnSidebar: false,
   },
   {
     name: "Checklists",
     path: Routes.Checklists,
     element: Checklists,
-    isOnSidebar: true,
+    isOnSidebar: false,
     tabs: ChecklistTabs,
   },
   {
@@ -287,7 +414,7 @@ export const allRoutes: {
     name: "Expirations",
     path: Routes.Expirations,
     element: Expirations,
-    isOnSidebar: true,
+    isOnSidebar: false,
     tabs: ExpirationTabs,
   },
   {
@@ -320,6 +447,28 @@ export const allRoutes: {
     path: Routes.Accounting,
     element: Accounting,
     isOnSidebar: true,
+    tabs: AccountingPageTabs,
+    children: [
+      {
+        name: "Constants",
+        path: Routes.Accounting,
+        element: Accounting,
+        isOnSidebar: true,
+        tabs: AccountingPageTabs,
+      },
+      {
+        name: "Images",
+        path: Routes.Images,
+        element: Images,
+        isOnSidebar: true,
+      },
+    ],
+  },
+  {
+    name: "Constants",
+    path: Routes.Accounting,
+    element: Accounting,
+    isOnSidebar: false,
     tabs: AccountingPageTabs,
   },
   {
@@ -361,18 +510,44 @@ export const allRoutes: {
     path: Routes.Menu,
     element: Menu,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Menu",
+        path: Routes.Menu,
+        element: Menu,
+        isOnSidebar: true,
+      },
+      {
+        name: "Menu Price",
+        path: Routes.MenuPrice,
+        element: MenuPrice,
+        isOnSidebar: true,
+      },
+      {
+        name: "Bulk Product Adding",
+        path: Routes.BulkProductAdding,
+        element: BulkProductAdding,
+        isOnSidebar: true,
+      },
+    ],
+  },
+  {
+    name: "Menu",
+    path: Routes.Menu,
+    element: Menu,
+    isOnSidebar: false,
   },
   {
     name: "Menu Price",
     path: Routes.MenuPrice,
     element: MenuPrice,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Bulk Product Adding",
     path: Routes.BulkProductAdding,
     element: BulkProductAdding,
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "User",
@@ -386,12 +561,35 @@ export const allRoutes: {
     element: Expenses,
     isOnSidebar: true,
     tabs: ExpensePageTabs,
+    children: [
+      {
+        name: "Expenses",
+        path: Routes.Expenses,
+        element: Expenses,
+        isOnSidebar: true,
+        tabs: ExpensePageTabs,
+      },
+      {
+        name: "Checkout",
+        path: Routes.Checkout,
+        element: Checkout,
+        isOnSidebar: true,
+        tabs: CheckoutPageTabs,
+      },
+    ],
+  },
+  {
+    name: "Expenses",
+    path: Routes.Expenses,
+    element: Expenses,
+    isOnSidebar: false,
+    tabs: ExpensePageTabs,
   },
   {
     name: "Checkout",
     path: Routes.Checkout,
     element: Checkout,
-    isOnSidebar: true,
+    isOnSidebar: false,
     tabs: CheckoutPageTabs,
   },
   {
@@ -399,18 +597,67 @@ export const allRoutes: {
     path: Routes.Users,
     element: Users,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Users",
+        path: Routes.Users,
+        element: Users,
+        isOnSidebar: true,
+      },
+      {
+        name: "User Activities",
+        path: Routes.UserActivities,
+        element: UserActivities,
+        isOnSidebar: true,
+      },
+    ],
   },
+  {
+    name: "Users",
+    path: Routes.Users,
+    element: Users,
+    isOnSidebar: false,
+  },
+
   {
     name: "Education",
     path: Routes.Education,
     element: Education,
+    isOnSidebar: false,
+  },
+  {
+    name: "Panel",
+    path: Routes.PanelControl,
+    element: PanelControl,
     isOnSidebar: true,
+    children: [
+      {
+        name: "Panel Control",
+        path: Routes.PanelControl,
+        element: PanelControl,
+        isOnSidebar: true,
+        exceptionalRoles: [RoleEnum.MANAGER],
+      },
+      {
+        name: "Education",
+        path: Routes.Education,
+        element: Education,
+        isOnSidebar: true,
+      },
+      {
+        name: "Notifications",
+        path: Routes.Notifications,
+        element: Notifications,
+        isOnSidebar: true,
+        tabs: NotificationPageTabs,
+      },
+    ],
   },
   {
     name: "Panel Control",
     path: Routes.PanelControl,
     element: PanelControl,
-    isOnSidebar: true,
+    isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
@@ -421,19 +668,40 @@ export const allRoutes: {
     exceptionalRoles: [RoleEnum.MANAGER],
   },
   {
+    name: "Links",
+    isOnSidebar: true,
+    children: [
+      {
+        name: "ShiftLink",
+        link: "https://docs.google.com/spreadsheets/d/12I0SfAT97zDFjyLHnujv9pIKCUkCpLUfX36MXPK1Bek/edit",
+        isOnSidebar: true,
+      },
+      {
+        name: "Oyun Bakımı",
+        link: "https://docs.google.com/spreadsheets/d/1r_8gDsQCBNKUJX4VeQtkkfZqUUQAgkQnm1a_NQg8YUA/edit",
+        isOnSidebar: true,
+      },
+      {
+        name: "Activities",
+        link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
+        isOnSidebar: true,
+      },
+    ],
+  },
+  {
     name: "ShiftLink",
     link: "https://docs.google.com/spreadsheets/d/12I0SfAT97zDFjyLHnujv9pIKCUkCpLUfX36MXPK1Bek/edit",
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Oyun Bakımı",
     link: "https://docs.google.com/spreadsheets/d/1r_8gDsQCBNKUJX4VeQtkkfZqUUQAgkQnm1a_NQg8YUA/edit",
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
   {
     name: "Activities",
     link: "https://docs.google.com/spreadsheets/d/13C_TCrb2gkFifWkYkCDyggyAA4RNDmk_aVrCXnZ2P6Q/edit",
-    isOnSidebar: true,
+    isOnSidebar: false,
   },
 ];
 

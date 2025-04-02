@@ -89,6 +89,9 @@ const PagePermissions = () => {
   const fillMissingPages = () => {
     const missedRoutes = [];
     for (const route of allRoutes) {
+      if (route?.children) {
+        continue;
+      }
       const currentPage = pages.find((page) => page.name === route.name);
       const isAllTabsSame =
         route?.tabs?.every((tab) => {

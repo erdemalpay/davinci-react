@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
+import { RxDotsVertical } from "react-icons/rx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -33,15 +34,28 @@ export function PageSelector() {
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
-  const routes = allRoutes?.filter(
-    (route) =>
-      route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
-      pages?.some(
-        (page) =>
-          page.name === route.name &&
-          page.permissionRoles?.includes((user?.role as Role)._id)
-      )
-  );
+  const routes = allRoutes?.filter((route) => {
+    if (!route.children) {
+      return (
+        route?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+        pages?.some(
+          (page) =>
+            page.name === route.name &&
+            page.permissionRoles?.includes((user?.role as Role)._id)
+        )
+      );
+    } else {
+      return route.children.some(
+        (child) =>
+          child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+          pages?.some(
+            (page) =>
+              page.name === child.name &&
+              page.permissionRoles?.includes((user?.role as Role)._id)
+          )
+      );
+    }
+  });
   function logout() {
     localStorage.clear();
     localStorage.setItem("loggedOut", "true");
@@ -65,40 +79,93 @@ export function PageSelector() {
       </MenuHandler>
       <MenuList className="overflow-scroll no-scrollbar h-[95%] max-h-max">
         {routes.map((route) => {
-          if (route.children && route.children.length > 0) {
+          const filteredRouteChildren = route?.children?.filter(
+            (child) =>
+              child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+              pages?.some(
+                (page) =>
+                  page.name === child.name &&
+                  page.permissionRoles?.includes((user?.role as Role)._id)
+              )
+          );
+          if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
             return (
               <div key={route.name}>
                 {/* Custom header element for grouped items */}
-                <div
-                  className="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                <MenuItem
+                  className="flex items-center ml-[-1rem]  cursor-pointer hover:bg-gray-100"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the click from closing the menu
+                    e.stopPropagation(); // Prevent menu from closing
                     toggleGroup(route.name);
                   }}
                 >
-                  {t(route.name)}
-                </div>
+                  <RxDotsVertical className="text-lg" />
+                  <span>{t(route.name)}</span>
+                </MenuItem>
+
                 {openGroups[route.name] &&
-                  route.children.map((child) => (
-                    <MenuItem
-                      key={child.name}
-                      className={`pl-8 ${
-                        child.path === currentRoute
-                          ? "bg-gray-100 text-black"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        if (child.path) {
-                          resetGeneralContext();
-                          navigate(child.path);
-                          window.scrollTo(0, 0);
+                  filteredRouteChildren
+                    .filter((child) => child.isOnSidebar)
+                    .map((child) => (
+                      <MenuItem
+                        key={child.name}
+                        className={`pl-6 ${
+                          child.path === currentRoute
+                            ? "bg-gray-100 text-black"
+                            : ""
                         }
-                      }}
-                    >
-                      {t(child.name)}
-                    </MenuItem>
-                  ))}
+                        ${
+                          child.link &&
+                          "text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+                        }    
+                        `}
+                        onClick={() => {
+                          if (child.link) {
+                            window.location.href = child.link;
+                            return;
+                          }
+                          if (child.path) {
+                            resetGeneralContext();
+                            navigate(child.path);
+                            window.scrollTo(0, 0);
+                          }
+                        }}
+                      >
+                        {t(child.name)}
+                      </MenuItem>
+                    ))}
               </div>
+            );
+          } else if (
+            filteredRouteChildren &&
+            filteredRouteChildren?.length === 1
+          ) {
+            if (!filteredRouteChildren[0].isOnSidebar) return null;
+            return (
+              <MenuItem
+                key={filteredRouteChildren[0].name}
+                className={`${
+                  filteredRouteChildren[0].path === currentRoute
+                    ? "bg-gray-100 text-black"
+                    : ""
+                } ${
+                  filteredRouteChildren[0].link &&
+                  "text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+                }`}
+                onClick={() => {
+                  if (filteredRouteChildren && filteredRouteChildren[0].path) {
+                    resetGeneralContext();
+                    navigate(filteredRouteChildren[0].path);
+                    window.scrollTo(0, 0);
+                  }
+                  if (filteredRouteChildren && filteredRouteChildren[0].link) {
+                    window.location.href = filteredRouteChildren[0].link;
+                    return;
+                  }
+                }}
+              >
+                {t(filteredRouteChildren[0].name)}
+              </MenuItem>
             );
           } else {
             if (!route.isOnSidebar) return null;
