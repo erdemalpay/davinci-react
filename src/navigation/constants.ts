@@ -374,7 +374,7 @@ export const allRoutes: {
         name: "Expirations",
         path: Routes.Expirations,
         element: Expirations,
-        isOnSidebar: false,
+        isOnSidebar: true,
         tabs: ExpirationTabs,
       },
     ],
