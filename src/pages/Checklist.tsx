@@ -57,6 +57,7 @@ const Checklist = () => {
   const [tableKey, setTableKey] = useState(0);
   const [form, setForm] = useState({
     duty: "",
+    description: "",
   });
   const [isLocationEdit, setIsLocationEdit] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -110,6 +111,7 @@ const Checklist = () => {
         dutyRows.push({
           duty: item.duty,
           order: item.order,
+          description: item?.description,
           ...locationEntries,
         });
       }
@@ -149,8 +151,18 @@ const Checklist = () => {
       placeholder: t("Duty"),
       required: true,
     },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "description",
+      label: t("Description"),
+      placeholder: t("Description"),
+      required: false,
+    },
   ];
-  const addDutyFormKeys = [{ key: "duty", type: FormKeyTypeEnum.STRING }];
+  const addDutyFormKeys = [
+    { key: "duty", type: FormKeyTypeEnum.STRING },
+    { key: "description", type: FormKeyTypeEnum.STRING },
+  ];
   const [checkLocationForm, setCheckLocationForm] = useState({
     location: 0,
   });
@@ -185,6 +197,8 @@ const Checklist = () => {
         ),
     });
   });
+  columns.push({ key: t("Description"), isSortable: false });
+  rowKeys.push({ key: "description" });
   if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -215,6 +229,7 @@ const Checklist = () => {
               [];
             const newDuty = {
               duty: form.duty,
+              description: form.description,
               locations:
                 checklists?.find((item) => item._id === checklistId)
                   ?.locations ?? [],
@@ -289,7 +304,10 @@ const Checklist = () => {
           submitItem={updateChecklist as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          constantValues={{ duty: rowToAction.duty }}
+          constantValues={{
+            duty: rowToAction.duty,
+            description: rowToAction.description,
+          }}
           handleUpdate={() => {
             const checklistDuties = () => {
               let dutyRows = [];
@@ -299,6 +317,7 @@ const Checklist = () => {
               );
               const newDuty = {
                 duty: form.duty,
+                description: form.description,
                 order: rowToAction.order,
                 locations:
                   checklists?.find((item) => item._id === checklistId)
