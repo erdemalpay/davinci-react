@@ -1326,6 +1326,7 @@ export const commonDateOptions = [
   { value: "lastWeek", label: "Last Week" },
   { value: "thisMonth", label: "This Month" },
   { value: "lastMonth", label: "Last Month" },
+  { value: "twoMonthsAgo", label: "Two Months Ago" },
   { value: "sameDayLastMonthToToday", label: "Same day Last Month" },
   { value: "thisYear", label: "This Year" },
   { value: "lastYear", label: "Last Year" },
@@ -1338,6 +1339,7 @@ export type DateRangeKey =
   | "lastWeek"
   | "thisMonth"
   | "lastMonth"
+  | "twoMonthsAgo"
   | "sameDayLastMonthToToday"
   | "thisYear"
   | "lastYear";

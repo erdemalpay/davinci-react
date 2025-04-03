@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  commonDateOptions,
   DateRangeKey,
   OrderCollectionStatus,
   TURKISHLIRA,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -17,10 +17,10 @@ import { useGetAllLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
@@ -86,7 +86,6 @@ const DailyIncome = () => {
     className: "font-semibold",
     isSortable: false,
   });
-
   const [rows, setRows] = useState(allRows);
   const paymentMethodColumns = paymentMethods.map((method) => ({
     key: t(method.name),
@@ -97,7 +96,6 @@ const DailyIncome = () => {
     ...paymentMethodColumns,
     { key: t("Total"), isSortable: true },
   ];
-
   const paymentMethodRowKeys = paymentMethods.map((method) => ({
     key: method._id,
     node: (row: any) => {
