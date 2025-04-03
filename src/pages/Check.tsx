@@ -1,3 +1,4 @@
+import { Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -46,6 +47,7 @@ const Check = () => {
       return {
         duty: dutyItem.duty,
         order: dutyItem.order,
+        description: dutyItem?.description ?? "",
         isCompleted:
           currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
             ?.isCompleted ?? false,
@@ -73,7 +75,24 @@ const Check = () => {
     { key: t("Completed"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "duty" },
+    {
+      key: "duty",
+      node: (row: any) => (
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-sm text-red-500">{row.order + 1}-</p>
+          <p>{row.duty}</p>
+          {row.description && (
+            <Tooltip
+              content={row.description}
+              placement="bottom" // shows it below the icon
+              className="bg-gray-50 text-black border border-gray-400 p-2 rounded-md text-sm max-w-xs !z-[999999999999999999999] md:ml-2"
+            >
+              <p className="text-xs text-gray-400 cursor-pointer">(!)</p>
+            </Tooltip>
+          )}
+        </div>
+      ),
+    },
     {
       key: "isCompleted",
       node: (row: any) =>
