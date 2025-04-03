@@ -163,6 +163,7 @@ export type ChecklistType = {
   duties?: {
     duty: string;
     order: number;
+    description?: string;
     locations: number[];
   }[];
 };

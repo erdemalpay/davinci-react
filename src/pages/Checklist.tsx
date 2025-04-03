@@ -178,8 +178,11 @@ const Checklist = () => {
   const checkLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }];
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Description"), isSortable: false },
+  ];
+  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }, { key: "description" }];
   locations.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
@@ -197,8 +200,6 @@ const Checklist = () => {
         ),
     });
   });
-  columns.push({ key: t("Description"), isSortable: false });
-  rowKeys.push({ key: "description" });
   if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
