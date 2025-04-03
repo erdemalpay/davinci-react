@@ -162,6 +162,7 @@ export type ChecklistType = {
   active: boolean;
   duties?: {
     duty: string;
+    order: number;
     locations: number[];
   }[];
 };

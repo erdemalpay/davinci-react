@@ -41,14 +41,17 @@ const Check = () => {
   const checklistDuties = getItem(checklistId, checklists)?.duties?.filter(
     (item) => item.locations.includes(Number(location))
   );
-  const allRows = checklistDuties?.map((dutyItem) => {
-    return {
-      duty: dutyItem.duty,
-      isCompleted:
-        currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
-          ?.isCompleted ?? false,
-    };
-  });
+  const allRows = checklistDuties
+    ?.map((dutyItem) => {
+      return {
+        duty: dutyItem.duty,
+        order: dutyItem.order,
+        isCompleted:
+          currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
+            ?.isCompleted ?? false,
+      };
+    })
+    .sort((a, b) => a.order - b.order);
   const [rows, setRows] = useState(allRows);
   const pageNavigations = [
     {

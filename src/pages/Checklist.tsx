@@ -82,6 +82,7 @@ const Checklist = () => {
             ? currentLocations?.filter((l) => l !== changedLocationId)
             : [...currentLocations, changedLocationId]
           : [],
+        order: row.order,
       },
     ];
     if (!checklistId) return;
@@ -93,7 +94,7 @@ const Checklist = () => {
     toast.success(`${t("Checklist updated successfully")}`);
   }
   const rows = () => {
-    let dutyRows = [];
+    const dutyRows = [];
     const currentChecklist = checklists?.find(
       (item) => item._id === checklistId
     );
@@ -108,20 +109,37 @@ const Checklist = () => {
         );
         dutyRows.push({
           duty: item.duty,
+          order: item.order,
           ...locationEntries,
         });
       }
     }
-    dutyRows = dutyRows.sort((a, b) => {
-      if (a.duty < b.duty) {
-        return -1;
+    const sortedRows = dutyRows.sort((a, b) => a.order - b.order);
+    return sortedRows;
+  };
+  const handleDrag = (DragRow: any, DropRow: any) => {
+    const currentChecklist = checklists?.find(
+      (item) => item._id === checklistId
+    );
+    if (!currentChecklist) return;
+    const newDuties = currentChecklist.duties?.map((item) => {
+      if (item.order === DragRow.order) {
+        return {
+          ...item,
+          order: DropRow.order,
+        };
+      } else if (item.order === DropRow.order) {
+        return {
+          ...item,
+          order: DragRow.order,
+        };
       }
-      if (a.duty > b.duty) {
-        return 1;
-      }
-      return 0;
+      return item;
     });
-    return dutyRows;
+    updateChecklist({
+      id: checklistId,
+      updates: { duties: newDuties },
+    });
   };
   const addDutyInputs = [
     {
@@ -200,6 +218,7 @@ const Checklist = () => {
               locations:
                 checklists?.find((item) => item._id === checklistId)
                   ?.locations ?? [],
+              order: duties?.length ?? 0,
             };
             dutyRows = [...duties, newDuty];
             return dutyRows;
@@ -280,6 +299,7 @@ const Checklist = () => {
               );
               const newDuty = {
                 duty: form.duty,
+                order: rowToAction.order,
                 locations:
                   checklists?.find((item) => item._id === checklistId)
                     ?.locations ?? [],
@@ -385,6 +405,8 @@ const Checklist = () => {
             filters={filters}
             title={checklists?.find((p) => p._id === checklistId)?.name}
             isActionsActive={true}
+            isDraggable={true}
+            onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
           />
         </div>
         {isCheckModalOpen && (
