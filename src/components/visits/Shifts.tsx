@@ -35,6 +35,7 @@ const Shifts = () => {
   const users = useGetUsers();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
+  const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [isCopyShiftIntervalModalOpen, setIsCopyShiftIntervalModalOpen] =
     useState(false);
   const [
@@ -442,6 +443,17 @@ const Shifts = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
     {
+      label: t("Chef Assign"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={isChefAssignOpen}
+          onChange={setIsChefAssignOpen}
+        />
+      ),
+      isDisabled: isDisabledCondition,
+    },
+    {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
@@ -461,13 +473,7 @@ const Shifts = () => {
       }),
       placeholder: t("Date"),
       required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
+      additionalOnChange: ({ value }: { value: string; label: string }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
           setFilterPanelFormElements({

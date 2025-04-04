@@ -414,6 +414,7 @@ export type MenuItem = {
 export type ShiftValue = {
   shift: string;
   user: string[];
+  chefUser?: string;
 };
 
 export type Shift = {

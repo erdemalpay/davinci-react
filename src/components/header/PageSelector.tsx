@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
@@ -93,7 +93,7 @@ export function PageSelector() {
               <div key={route.name}>
                 {/* Custom header element for grouped items */}
                 <MenuItem
-                  className="flex items-center justify-between  cursor-pointer hover:bg-gray-100"
+                  className="group flex items-center justify-between cursor-pointer hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent menu from closing
                     toggleGroup(route.name);
@@ -101,9 +101,9 @@ export function PageSelector() {
                 >
                   <span>{t(route.name)}</span>
                   {openGroups[route.name] ? (
-                    <FiChevronUp className="text-lg" />
-                  ) : (
                     <FiChevronDown className="text-lg" />
+                  ) : (
+                    <FiChevronRight className="text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   )}
                 </MenuItem>
 
