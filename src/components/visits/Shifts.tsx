@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { LuCopyPlus } from "react-icons/lu";
@@ -170,6 +171,12 @@ const Shifts = () => {
           key: shift,
           node: (row: any) => {
             const shiftValue = row[shift];
+            const currentShifts = shifts
+              .find((shift) => shift.day === row.day)
+              ?.shifts?.filter((s) => s.shift === shift);
+            const foundChefUser = currentShifts?.find(
+              (shift) => shift?.chefUser
+            )?.chefUser;
             if (Array.isArray(shiftValue)) {
               return (
                 <div className="flex flex-row gap-1 flex-wrap max-w-40">
@@ -178,13 +185,52 @@ const Shifts = () => {
                     return (
                       <p
                         key={`${row.day}${foundUser?._id}${index}`}
-                        className={
+                        className={` flex flex-row items-center gap-1 ${
                           filterPanelFormElements.user === foundUser?._id
-                            ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
+                            ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit  "
                             : ""
-                        }
+                        } ${
+                          foundChefUser === foundUser?._id
+                            ? "border px-2 border-yellow-500 rounded-md"
+                            : ""
+                        }`}
                       >
                         {foundUser?.name}
+
+                        <span
+                          className="text-yellow-800 cursor-pointer"
+                          onClick={() => {
+                            if (!isChefAssignOpen) return;
+                            const currentShifts = shifts
+                              .find((s) => s.day === row.day)
+                              ?.shifts?.map((shiftObj) => {
+                                return {
+                                  ...shiftObj,
+                                  chefUser:
+                                    shiftObj.shift === shift
+                                      ? shiftObj?.chefUser === foundUser?._id
+                                        ? ""
+                                        : foundUser?._id
+                                      : shiftObj.chefUser,
+                                };
+                              });
+
+                            if (row?._id) {
+                              updateShift({
+                                id: row._id,
+                                updates: {
+                                  shifts: currentShifts,
+                                },
+                              });
+                            }
+                          }}
+                        >
+                          {foundChefUser === foundUser?._id ? (
+                            <FaStar />
+                          ) : isChefAssignOpen ? (
+                            <FaRegStar />
+                          ) : null}
+                        </span>
                       </p>
                     );
                   })}
