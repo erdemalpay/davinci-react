@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { FaBookReader } from "react-icons/fa";
+import { GiAmericanFootballPlayer } from "react-icons/gi";
 import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
@@ -14,6 +15,7 @@ import GameplaysByMentor from "./gameplay/GameplaysByMentor";
 import KnownGamesCount from "./gameplay/KnownGamesCount";
 import LearnedGames from "./gameplay/LearnedGames";
 import { MentorAnalyticChart } from "./gameplay/MentorAnalyticChart";
+import TablePlayerCount from "./gameplay/TablePlayerCount";
 import WhoKnows from "./gameplay/WhoKnows";
 
 export default function GameplayAnalytics() {
@@ -69,34 +71,41 @@ export default function GameplayAnalytics() {
     },
     {
       number: 2,
+      label: t("Table Player Counts"),
+      icon: <GiAmericanFootballPlayer className="text-lg font-thin" />,
+      content: <TablePlayerCount />,
+      isDisabled: false,
+    },
+    {
+      number: 3,
       label: t("Gameplays By Mentors Details"),
       icon: <TbPlayCard className="text-lg font-thin" />,
       content: <GameplaysByMentor />,
       isDisabled: false,
     },
     {
-      number: 3,
+      number: 4,
       label: t("Gameplays By Games"),
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
       isDisabled: false,
     },
     {
-      number: 4,
+      number: 5,
       label: t("Known Games Count"),
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
       isDisabled: false,
     },
     {
-      number: 5,
+      number: 6,
       label: t("Who Knows?"),
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
       isDisabled: false,
     },
     {
-      number: 6,
+      number: 7,
       label: t("Learned Games"),
       icon: <FaBookReader className="text-lg font-thin" />,
       content: <LearnedGames />,

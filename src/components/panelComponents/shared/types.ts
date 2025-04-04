@@ -125,6 +125,7 @@ export enum InputTypes {
   CHECKBOX = "checkbox",
   CUSTOMINPUT = "customInput",
   HOUR = "hour",
+  MONTHYEAR = "monthYear",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",

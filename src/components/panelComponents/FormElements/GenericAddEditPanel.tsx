@@ -16,6 +16,7 @@ import {
   InputTypes,
 } from "../shared/types";
 import HourInput from "./HourInput";
+import MonthYearInput from "./MonthYearInput";
 import SelectInput from "./SelectInput";
 import TextInput from "./TextInput";
 
@@ -457,6 +458,20 @@ const GenericAddEditPanel = <T,>({
                       )}
                       {input.type === InputTypes.HOUR && (
                         <HourInput
+                          key={input.formKey}
+                          value={value}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          onChange={handleChange(input.formKey)}
+                          requiredField={input.required}
+                          isReadOnly={input.isReadOnly ?? false}
+                        />
+                      )}
+                      {input.type === InputTypes.MONTHYEAR && (
+                        <MonthYearInput
                           key={input.formKey}
                           value={value}
                           label={

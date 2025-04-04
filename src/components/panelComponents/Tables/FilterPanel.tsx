@@ -4,10 +4,11 @@ import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState } from "../../../types";
+import MonthYearInput from "../FormElements/MonthYearInput";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
-import { InputTypes, PanelFilterType } from "../shared/types";
 import { H4, H6 } from "../Typography";
+import { InputTypes, PanelFilterType } from "../shared/types";
 
 type OptionType = { value: string; label: string };
 
@@ -216,10 +217,23 @@ const FilterPanel = <T,>({
                 }}
               />
             )}
+            {input.type === InputTypes.MONTHYEAR && (
+              <MonthYearInput
+                key={input.formKey}
+                value={value}
+                label={
+                  input.required && input.label
+                    ? input.label
+                    : input.label ?? ""
+                }
+                onChange={handleChange(input.formKey)}
+                requiredField={input.required}
+                isReadOnly={input.isReadOnly ?? false}
+              />
+            )}
             {input.type === InputTypes.TEXTAREA && (
               <div className="flex flex-col gap-2" key={input.formKey}>
                 <H6>{input.label}</H6>
-
                 <textarea
                   value={value}
                   onChange={(e) => {
