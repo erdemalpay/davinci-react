@@ -23,6 +23,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -45,7 +46,7 @@ const Shifts = () => {
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
-  const { selectedLocationId } = useLocationContext();
+  const { selectedLocationId, setSelectedLocationId } = useLocationContext();
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![
@@ -422,6 +423,19 @@ const Shifts = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const filters = [
+    ...locations.map((location) => {
+      return {
+        isUpperSide: true,
+        node: (
+          <ButtonFilter
+            buttonName={location.name}
+            onclick={() => {
+              setSelectedLocationId(location._id);
+            }}
+          />
+        ),
+      };
+    }),
     {
       label: t("Show Filters"),
       isUpperSide: true,
