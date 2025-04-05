@@ -227,7 +227,7 @@ export function useGetTables() {
 }
 
 export function useGetTablePlayerCounts(month: string, year: string) {
-  return useGetList<Table>(
+  return useGetList<any>(
     `${Paths.Tables}/count?year=${year}&month=${month}`,
     [year, month],
     true

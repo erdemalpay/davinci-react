@@ -25,9 +25,21 @@ const TablePlayerCount = () => {
     useState<FormElementsState>(initialFilterPanelFormElements);
   const [month, year] = filterPanelFormElements.monthYear.split("-");
   const tablePlayerCounts = useGetTablePlayerCounts(month, year);
-  const allRows = tablePlayerCounts;
+  const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
+    return {
+      ...tablePlayerCount,
+      formattedDate: formatAsLocalDate(tablePlayerCount.date),
+      ...locations?.reduce((acc, location) => {
+        acc[location._id.toString()] =
+          tablePlayerCount?.countsByLocation?.[location._id.toString()] ?? "";
+        return acc;
+      }, {} as Record<string, any>),
+    };
+  });
   const [rows, setRows] = useState<any[]>(allRows);
-  const columns = [{ key: t("Date"), isSortable: true }];
+  const columns = [
+    { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+  ];
   const rowKeys = [
     {
       key: "date",
@@ -38,14 +50,15 @@ const TablePlayerCount = () => {
     },
   ];
   for (const location of locations) {
-    columns.push({ key: location?.name, isSortable: true });
-    rowKeys.push({
-      key: String(location._id),
-      node: (row: any) => {
-        return row?.countsByLocation?.[location._id?.toString()] ?? "";
-      },
-      className: `min-w-32`,
+    columns.push({
+      key: location?.name,
+      isSortable: true,
+      correspondingKey: location._id.toString(),
     });
+    rowKeys.push({
+      key: location._id.toString(),
+      className: `min-w-32`,
+    } as any);
   }
   const filters = [
     {
@@ -83,6 +96,8 @@ const TablePlayerCount = () => {
         isActionsActive={false}
         rows={rows}
         filters={filters}
+        isExcel={true}
+        excelFileName={t("TablePlayerCounts.xlsx")}
         title={t("Table Player Counts")}
       />
     </div>
