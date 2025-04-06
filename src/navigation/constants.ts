@@ -628,6 +628,7 @@ export const allRoutes: {
   {
     name: "Panel",
     path: Routes.PanelControl,
+    exceptionalRoles: [RoleEnum.MANAGER],
     element: PanelControl,
     isOnSidebar: true,
     children: [
