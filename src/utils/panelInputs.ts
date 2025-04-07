@@ -235,11 +235,13 @@ export function PaymentMethodInput({
 export function LocationInput({
   required = true,
   isMultiple = false,
+  isDisabled = false,
   locations,
 }: {
+  locations: Location[];
   required?: boolean;
   isMultiple?: boolean;
-  locations: Location[];
+  isDisabled?: boolean;
 }) {
   const { t } = useTranslation();
   return {
@@ -255,6 +257,7 @@ export function LocationInput({
     placeholder: t("Location"),
     isMultiple: isMultiple,
     required: required,
+    isDisabled: isDisabled,
   };
 }
 
