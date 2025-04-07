@@ -514,7 +514,7 @@ export function TableCard({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: orderForm?.stockLocation ?? selectedLocationId,
+        location: selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -535,7 +535,7 @@ export function TableCard({
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: orderForm?.stockLocation ?? selectedLocationId,
+        location: selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ

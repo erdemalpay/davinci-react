@@ -537,7 +537,7 @@ const Tables = () => {
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: orderForm?.stockLocation ?? selectedLocationId,
+        location: selectedLocationId,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
           : selectedMenuItem.price,
@@ -556,7 +556,7 @@ const Tables = () => {
     if (selectedMenuItem && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: orderForm?.stockLocation ?? selectedLocationId,
+        location: selectedLocationId,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
           : OrderStatus.PENDING,
