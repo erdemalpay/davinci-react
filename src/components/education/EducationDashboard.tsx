@@ -23,6 +23,12 @@ interface DraggableHeaderItemProps {
   onDragEnter: (dragged: Education, target: Education) => void;
   onSelect: (id: number) => void;
 }
+enum ComponentTypeEnum {
+  UPIMAGE = "UPIMAGE",
+  LEFTIMAGE = "LEFTIMAGE",
+  RIGHTIMAGE = "RIGHTIMAGE",
+  DOWNIMAGE = "DOWNIMAGE",
+}
 
 const DraggableHeaderItem: React.FC<DraggableHeaderItemProps> = ({
   education,
@@ -101,8 +107,28 @@ const EducationDashboard = () => {
   const [updateForm, setUpdateForm] = useState({
     subHeader: "",
     paragraph: "",
+    imageUrl: "",
   });
   const subHeaderInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "componentType",
+      label: t("Component Type"),
+      options: [
+        { value: ComponentTypeEnum.UPIMAGE, label: t("Image Up") },
+        { value: ComponentTypeEnum.LEFTIMAGE, label: t("Image Left") },
+        { value: ComponentTypeEnum.RIGHTIMAGE, label: t("Image Right") },
+        { value: ComponentTypeEnum.DOWNIMAGE, label: t("Image Down") },
+      ],
+      required: false,
+    },
+    {
+      type: InputTypes.IMAGE,
+      formKey: "imageUrl",
+      label: "Image",
+      required: false,
+      folderName: "menu",
+    },
     {
       type: InputTypes.TEXT,
       formKey: "subHeader",
@@ -116,12 +142,14 @@ const EducationDashboard = () => {
       label: t("Paragraph"),
       placeholder: t("Paragraph"),
       required: false,
-      inputClassName: "h-64",
+      inputClassName: "h-52",
     },
   ];
   const subHeaderFormKeys = [
     { key: "subHeader", type: FormKeyTypeEnum.STRING },
     { key: "paragraph", type: FormKeyTypeEnum.STRING },
+    { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+    { key: "componentType", type: FormKeyTypeEnum.STRING },
   ];
   const headerInputs = [
     {
@@ -400,33 +428,83 @@ const EducationDashboard = () => {
                       />
                     )}
                   </div>
+                  <div
+                    className={`w-full flex gap-2 ${
+                      [
+                        ComponentTypeEnum.UPIMAGE,
+                        ComponentTypeEnum.DOWNIMAGE,
+                      ].includes(sub?.componentType as ComponentTypeEnum)
+                        ? "flex-col"
+                        : (sub?.componentType as ComponentTypeEnum) ===
+                            ComponentTypeEnum.LEFTIMAGE ||
+                          (sub?.componentType as ComponentTypeEnum) ===
+                            ComponentTypeEnum.RIGHTIMAGE
+                        ? "flex-row"
+                        : ""
+                    }`}
+                  >
+                    {/* Image First (UP or LEFT) */}
+                    {sub.imageUrl &&
+                      [
+                        ComponentTypeEnum.UPIMAGE,
+                        ComponentTypeEnum.LEFTIMAGE,
+                      ].includes(sub?.componentType as ComponentTypeEnum) && (
+                        <img
+                          src={sub.imageUrl}
+                          alt={sub.subHeader}
+                          className={`object-contain ${
+                            [
+                              ComponentTypeEnum.LEFTIMAGE,
+                              ComponentTypeEnum.RIGHTIMAGE,
+                            ].includes(sub?.componentType as ComponentTypeEnum)
+                              ? "w-64 h-auto"
+                              : "w-[60%] h-96 mx-auto"
+                          }`}
+                        />
+                      )}
 
-                  {sub.paragraph && (
-                    <p
-                      onClick={() => {
-                        if (isDisabledCondition) return;
-                        setHeaderToAction(edu);
-                        setSubHeaderToAction(sub);
-                        setIsUpdateSubHeaderModalOpen(true);
-                      }}
-                      className="mt-1"
-                    >
-                      {sub.paragraph}
-                    </p>
-                  )}
-                  {sub.imageUrl && (
-                    <img
-                      src={sub.imageUrl}
-                      alt={sub.subHeader}
-                      className="mt-2"
-                      style={{
-                        height: sub.style?.imageHeight,
-                        width: sub.style?.imageWidth,
-                        borderRadius: sub.style?.imageBorderRadius,
-                        margin: sub.style?.imageMargin,
-                      }}
-                    />
-                  )}
+                    {/* Paragraph */}
+                    {sub.paragraph && (
+                      <p
+                        onClick={() => {
+                          if (isDisabledCondition) return;
+                          setHeaderToAction(edu);
+                          setSubHeaderToAction(sub);
+                          setIsUpdateSubHeaderModalOpen(true);
+                        }}
+                        className={`${
+                          [
+                            ComponentTypeEnum.LEFTIMAGE,
+                            ComponentTypeEnum.RIGHTIMAGE,
+                          ].includes(sub?.componentType as ComponentTypeEnum)
+                            ? "flex-1"
+                            : ""
+                        }`}
+                      >
+                        {sub.paragraph}
+                      </p>
+                    )}
+
+                    {/* Image Last (DOWN or RIGHT) */}
+                    {sub.imageUrl &&
+                      [
+                        ComponentTypeEnum.DOWNIMAGE,
+                        ComponentTypeEnum.RIGHTIMAGE,
+                      ].includes(sub?.componentType as ComponentTypeEnum) && (
+                        <img
+                          src={sub.imageUrl}
+                          alt={sub.subHeader}
+                          className={`object-contain ${
+                            [
+                              ComponentTypeEnum.LEFTIMAGE,
+                              ComponentTypeEnum.RIGHTIMAGE,
+                            ].includes(sub?.componentType as ComponentTypeEnum)
+                              ? "w-64 h-auto"
+                              : "w-[60%] h-96 mx-auto"
+                          }`}
+                        />
+                      )}
+                  </div>
                 </div>
               ))}
           </section>
@@ -507,6 +585,7 @@ const EducationDashboard = () => {
               }
             }}
             topClassName="flex flex-col gap-2  "
+            generalClassName=" overflow-visible  no-scrollbar"
           />
         )}
       {isDeleteConfirmationDialogOpen && headerToAction && (
