@@ -4,6 +4,7 @@ import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState } from "../../../types";
+import HourInput from "../FormElements/HourInput";
 import MonthYearInput from "../FormElements/MonthYearInput";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
@@ -243,6 +244,20 @@ const FilterPanel = <T,>({
                   className="border text-sm border-gray-300 rounded-md p-2"
                 />
               </div>
+            )}
+            {input.type === InputTypes.HOUR && (
+              <HourInput
+                key={input.formKey}
+                value={value}
+                label={
+                  input.required && input.label
+                    ? input.label
+                    : input.label ?? ""
+                }
+                onChange={handleChange(input.formKey)}
+                requiredField={input.required}
+                isReadOnly={input.isReadOnly ?? false}
+              />
             )}
           </div>
         );

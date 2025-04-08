@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  commonDateOptions,
   DateRangeKey,
   OrderCollectionStatus,
   Table,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -26,11 +26,11 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const Collections = () => {
   const { t } = useTranslation();
@@ -255,6 +255,12 @@ const Collections = () => {
       required: true,
     },
     {
+      type: InputTypes.HOUR,
+      formKey: "hour",
+      label: t("Hour"),
+      required: false,
+    },
+    {
       type: InputTypes.SELECT,
       formKey: "date",
       label: t("Date"),
@@ -375,6 +381,9 @@ const Collections = () => {
     const filteredRows = allRows.filter((row) => {
       if (!row?.date) {
         return false;
+      }
+      if (filterPanelFormElements.hour) {
+        return filterPanelFormElements.hour >= row.hour;
       }
       return (
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
