@@ -6,6 +6,7 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
   useGetAccountStocks,
+  useUpdateIkasStocksMutation,
 } from "../../utils/api/account/stock";
 import {
   useGetIkasProducts,
@@ -13,6 +14,7 @@ import {
 } from "../../utils/api/ikas";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
 const IkasStockComparision = () => {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ const IkasStockComparision = () => {
   const items = useGetMenuItems();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
+  const { mutate: updateIkasStocks } = useUpdateIkasStocksMutation();
   const { mutate: updateIkasProductStock } =
     useUpdateIkasProductStockMutation();
   const { updateAccountStock } = useAccountStockMutations();
@@ -100,6 +103,20 @@ const IkasStockComparision = () => {
       },
     },
   ];
+  const filters = [
+    {
+      // label: t("Update Ikas Stocks"),
+      isUpperSide: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Update Ikas Stocks")}
+          onclick={() => {
+            updateIkasStocks();
+          }}
+        />
+      ),
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -113,6 +130,7 @@ const IkasStockComparision = () => {
           columns={columns}
           rows={rows}
           title={t("Ikas Stock Comparision")}
+          filters={filters}
           isActionsActive={true}
           actions={actions}
           rowClassNameFunction={(row: any) => {

@@ -7,10 +7,10 @@ import { toast } from "react-toastify";
 import { useStockContext } from "../../context/Stock.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  commonDateOptions,
   DateRangeKey,
   RoleEnum,
   StockHistoryStatusEnum,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -19,7 +19,6 @@ import {
   useAccountStockMutations,
   useGetFilteredStocks,
   useStockTransferMutation,
-  useUpdateIkasStocksMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -36,15 +35,14 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
   InputTypes,
 } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const Stock = () => {
   const { t } = useTranslation();
@@ -59,7 +57,6 @@ const Stock = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const expenseTypes = useGetAccountExpenseTypes();
-  const { mutate: updateIkasStocks } = useUpdateIkasStocksMutation();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -386,18 +383,6 @@ const Stock = () => {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-    {
-      // label: t("Update Ikas Stocks"),
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Update Ikas Stocks")}
-          onclick={() => {
-            updateIkasStocks();
-          }}
-        />
-      ),
     },
   ];
 
