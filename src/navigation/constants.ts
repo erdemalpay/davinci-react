@@ -33,6 +33,7 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
+import ButtonCalls from "../pages/ButtonCalls";
 import Service from "../pages/Service";
 import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
@@ -103,6 +104,7 @@ export enum Routes {
   BulkProductAdding = "/bulk-product-adding",
   Checklists = "/checklists",
   Checklist = "/checklist/:checklistId",
+  ButtonCalls = "/button-calls",
   Notifications = "/notifications",
   Expirations = "/expirations",
   ExpirationList = "/expiration-list/:expirationListId",
@@ -110,6 +112,7 @@ export enum Routes {
   SingleExpirationCountArchive = "/expiration-archive/:archiveId",
   Location = "/location/:locationId",
   Activities = "/activities",
+
 }
 
 export const allRoutes: {
@@ -281,6 +284,12 @@ export const allRoutes: {
     path: Routes.Games,
     element: Games,
     isOnSidebar: false,
+  },
+  {
+    name: "Button Calls",
+    path: Routes.ButtonCalls,
+    element: ButtonCalls,
+    isOnSidebar: true,
   },
   {
     name: "Gameplays",
