@@ -21,7 +21,6 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -73,31 +72,12 @@ const CategoryBasedSalesReport = () => {
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
     ?.reduce((acc, order) => {
       if (!order || order.paidQuantity === 0) return acc;
-
-      // Location filter
-      if (
-        filterPanelFormElements.location !== "" &&
-        filterPanelFormElements.location !== order.location
-      ) {
-        return acc;
-      }
-
       // Date filters
       const zonedTime = toZonedTime(order.createdAt, "UTC");
       const orderDate = new Date(zonedTime);
-      if (
-        filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements?.category?.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        )
-      ) {
-        return acc;
-      }
-
       const existingEntry = acc.find(
         (item) => item?.categoryId === getItem(order?.item, items)?.category
       );
-
       if (existingEntry) {
         existingEntry.paidQuantity +=
           order.status !== OrderStatus.RETURNED
@@ -147,7 +127,6 @@ const CategoryBasedSalesReport = () => {
                 : -order.quantity,
           });
         }
-
         existingEntry.collapsible = {
           collapsibleHeader: t("Products"),
           collapsibleColumns: [
@@ -222,7 +201,6 @@ const CategoryBasedSalesReport = () => {
               : (order?.discountAmount ?? 0) * order.paidQuantity),
         });
       }
-
       return acc;
     }, [] as OrderWithPaymentInfo[]);
   if (allRows.length > 0) {
@@ -317,9 +295,8 @@ const CategoryBasedSalesReport = () => {
       },
     },
   ];
-
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",

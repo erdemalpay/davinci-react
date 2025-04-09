@@ -27,7 +27,6 @@ import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -93,7 +92,6 @@ const OrdersReport = () => {
       if (!order || !order?.createdAt) {
         return null;
       }
-
       return {
         _id: order?._id,
         isReturned: order?.isReturned,
@@ -150,6 +148,19 @@ const OrdersReport = () => {
       };
     })
     ?.filter((item) => item !== null);
+  const totalRow = {
+    _id: "total",
+    className: "font-semibold",
+    isSortable: false,
+    quantity: allRows?.reduce((acc, row: any) => acc + row.quantity, 0),
+    amount: allRows?.reduce((acc, row: any) => acc + row.amount, 0),
+    discountAmount: allRows?.reduce(
+      (acc, row: any) => acc + row.discountAmount,
+      0
+    ),
+    formattedDate: "Total",
+  };
+  allRows?.push(totalRow as any);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
@@ -284,7 +295,7 @@ const OrdersReport = () => {
     { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -511,40 +522,7 @@ const OrdersReport = () => {
     },
   ];
   useEffect(() => {
-    const filteredRows = allRows.filter((row: any) => {
-      return (
-        passesFilter(filterPanelFormElements.location, row.locationId) &&
-        passesFilter(filterPanelFormElements.createdBy, row.createdByUserId) &&
-        passesFilter(
-          filterPanelFormElements.preparedBy,
-          row.preparedByUserId
-        ) &&
-        passesFilter(
-          filterPanelFormElements.deliveredBy,
-          row.deliveredByUserId
-        ) &&
-        passesFilter(
-          filterPanelFormElements.cancelledBy,
-          row.cancelledByUserId
-        ) &&
-        passesFilter(filterPanelFormElements.discount, row.discountId) &&
-        passesFilter(filterPanelFormElements.status, row.status)
-      );
-    });
-    const totalRow = {
-      _id: "total",
-      className: "font-semibold",
-      isSortable: false,
-      quantity: filteredRows?.reduce((acc, row: any) => acc + row.quantity, 0),
-      amount: filteredRows?.reduce((acc, row: any) => acc + row.amount, 0),
-      discountAmount: filteredRows?.reduce(
-        (acc, row: any) => acc + row.discountAmount,
-        0
-      ),
-      formattedDate: "Total",
-    };
-    filteredRows?.push(totalRow as any);
-    setRows(filteredRows);
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [
     orders,

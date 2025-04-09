@@ -1,5 +1,5 @@
-import { Paths } from "../utils/api/factory";
 import { SocketEventType } from "../types";
+import { Paths } from "../utils/api/factory";
 
 export const socketEventListeners: SocketEventType[] = [
   {
@@ -189,5 +189,37 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "buttonCallChanged",
     invalidateKeys: [`${Paths.ButtonCalls}`],
-  }
+  },
+  {
+    event: "shiftChanged",
+    invalidateKeys: [`${Paths.Shift}`],
+  },
+  {
+    event: "expirationListChanged",
+    invalidateKeys: [`${Paths.Expiration}/lists`],
+  },
+  {
+    event: "expirationCountChanged",
+    invalidateKeys: [`${Paths.Expiration}/counts`],
+  },
+  {
+    event: "notificationRemoved",
+    invalidateKeys: [
+      `${Paths.Notification}/new`,
+      `${Paths.Notification}/all`,
+      `${Paths.Notification}/event`,
+    ],
+  },
+  {
+    event: "authorizationChanged",
+    invalidateKeys: [`${Paths.Authorization}`],
+  },
+  {
+    event: "educationChanged",
+    invalidateKeys: [`${Paths.Education}`],
+  },
+  {
+    event: "cafeActivityChanged",
+    invalidateKeys: [`${Paths.CafeActivity}`],
+  },
 ];

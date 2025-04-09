@@ -29,23 +29,31 @@ const IkasStockComparision = () => {
   const ikasItemProducts = products?.filter((product) =>
     ikasItemsProductsIds.includes(product._id)
   );
-  const allRows = ikasItemProducts?.map((ikasItemProduct) => {
-    const foundStock = stocks.find(
-      (stock) => stock.product === ikasItemProduct._id && stock.location === 6
-    );
-    return {
-      ...ikasItemProduct,
-      ikasStock: ikasProducts?.find(
-        (ikasProduct) =>
-          ikasProduct.id ===
-          items.find((item) => item?.matchedProduct === ikasItemProduct._id)
-            ?.ikasId
-      )?.variants[0]?.stocks[0]?.stockCount,
-      storeStock: foundStock?.quantity,
-      storeStockId: foundStock?._id,
-      foundStock: foundStock,
-    };
-  });
+  const allRows = ikasItemProducts
+    ?.map((ikasItemProduct) => {
+      const foundStock = stocks.find(
+        (stock) => stock.product === ikasItemProduct._id && stock.location === 6
+      );
+      return {
+        ...ikasItemProduct,
+        ikasStock: ikasProducts?.find(
+          (ikasProduct) =>
+            ikasProduct.id ===
+            items.find((item) => item?.matchedProduct === ikasItemProduct._id)
+              ?.ikasId
+        )?.variants[0]?.stocks[0]?.stockCount,
+        storeStock: foundStock?.quantity,
+        storeStockId: foundStock?._id,
+        foundStock: foundStock,
+      };
+    })
+    .sort((a, b) => {
+      const isAEqual = a.ikasStock === a.storeStock;
+      const isBEqual = b.ikasStock === b.storeStock;
+      if (isAEqual && !isBEqual) return 1;
+      if (!isAEqual && isBEqual) return -1;
+      return 0;
+    });
   const [rows, setRows] = useState(allRows);
   const [tableKey, setTableKey] = useState(0);
   const columns = [

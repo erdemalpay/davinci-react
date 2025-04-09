@@ -20,7 +20,7 @@ export default function ButtonTooltip({ children, content }: Props) {
         <div
           style={{
             position: "absolute",
-            transform: "translateX(-20%)",
+            transform: "translateX(-30%)",
             bottom: "100%",
             width: "max-content",
             padding: "4px 10px",

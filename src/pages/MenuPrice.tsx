@@ -122,7 +122,7 @@ const MenuPrice = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[98%] mx-auto my-10">
+      <div className="w-[95%] mx-auto my-10">
         <GenericTable
           key={tableKey}
           rows={rows}

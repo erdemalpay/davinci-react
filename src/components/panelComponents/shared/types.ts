@@ -5,6 +5,9 @@ export interface Tab {
   icon?: React.ReactNode | null;
   label: string;
   isDisabled: boolean;
+  onOpenAction?: () => void;
+  onCloseAction?: () => void;
+  adjustedNumber?: number;
 }
 
 export interface BreadCrumbItem {
@@ -70,6 +73,7 @@ export interface PanelFilterType {
   setFormElements: Dispatch<SetStateAction<FormElementsState>>; // Add this to update the form state
   closeFilters: () => void;
   isApplyButtonActive?: boolean;
+  isFilterPanelCoverTable?: boolean;
   additionalFilterCleanFunction?: () => void;
   isCloseButtonActive?: boolean;
 }
@@ -120,6 +124,8 @@ export enum InputTypes {
   COLOR = "color",
   CHECKBOX = "checkbox",
   CUSTOMINPUT = "customInput",
+  HOUR = "hour",
+  MONTHYEAR = "monthYear",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",

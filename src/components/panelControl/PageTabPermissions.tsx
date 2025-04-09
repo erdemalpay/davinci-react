@@ -9,8 +9,8 @@ import {
 } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { CheckSwitch } from "../common/CheckSwitch";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 const PageTabPermissions = () => {
   const { t } = useTranslation();
   const { pageDetailsId } = useParams();
@@ -59,30 +59,16 @@ const PageTabPermissions = () => {
         node: (row: any) => {
           const hasPermission = row?.permissionRoles?.includes(role._id);
           return isEnableEdit ? (
-            <div
-              className={` ${
-                currentPage?.permissionRoles?.length === 1
-                  ? "flex justify-center"
-                  : ""
-              } `}
-            >
+            <div>
               <CheckSwitch
                 checked={hasPermission}
                 onChange={() => handleRolePermission(row, role._id)}
               />
             </div>
           ) : hasPermission ? (
-            <IoCheckmark
-              className={`text-blue-500 text-2xl ${
-                currentPage?.permissionRoles?.length === 1 ? "mx-auto" : ""
-              }`}
-            />
+            <IoCheckmark className={`text-blue-500 text-2xl `} />
           ) : (
-            <IoCloseOutline
-              className={`text-red-800 text-2xl ${
-                currentPage?.permissionRoles?.length === 1 ? "mx-auto" : ""
-              }`}
-            />
+            <IoCloseOutline className={`text-red-800 text-2xl `} />
           );
         },
       });

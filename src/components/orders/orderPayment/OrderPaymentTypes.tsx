@@ -1,5 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { debounce } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaHistory } from "react-icons/fa";
@@ -33,6 +34,7 @@ type Props = {
   givenDateOrders?: Order[];
   givenDateCollections?: OrderCollection[];
   user: User;
+  selectedActivityUser: string;
 };
 const OrderPaymentTypes = ({
   tableOrders,
@@ -41,6 +43,7 @@ const OrderPaymentTypes = ({
   givenDateCollections,
   givenDateOrders,
   user,
+  selectedActivityUser,
 }: Props) => {
   const { t } = useTranslation();
   const paymentTypes = useGetAccountPaymentMethods();
@@ -67,7 +70,9 @@ const OrderPaymentTypes = ({
     (collection) =>
       ((collection.table as Table)?._id === table?._id ||
         collection.table === table?._id) &&
-      collection.status !== OrderCollectionStatus.CANCELLED
+      collection.status !== OrderCollectionStatus.CANCELLED &&
+      (selectedActivityUser === "" ||
+        collection?.activityPlayer === selectedActivityUser)
   );
   const { paymentAmount, temporaryOrders, resetOrderContext } =
     useOrderContext();
@@ -199,6 +204,7 @@ const OrderPaymentTypes = ({
                 ...(newOrders && { newOrders: newOrders }),
                 createdBy: user._id,
                 tableDate: table ? new Date(table.date) : new Date(),
+                activityPlayer: selectedActivityUser,
               };
               createOrderCollection(createdCollection);
               const totalMoney =
@@ -274,7 +280,7 @@ const OrderPaymentTypes = ({
                   </div>
                 )}
 
-                <div className="flex flex-row gap-2 ">
+                <div className="flex flex-row gap-2 justify-center items-center">
                   <p className="min-w-9">{collection.amount.toFixed(2)} ₺</p>
                   <p>
                     {collection.paymentMethod
@@ -284,6 +290,11 @@ const OrderPaymentTypes = ({
                         )
                       : ""}
                   </p>
+                  {collection?.activityPlayer && (
+                    <p className="text-gray-600">
+                      {"(" + collection?.activityPlayer + ")"}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -291,7 +302,7 @@ const OrderPaymentTypes = ({
               {!table?.finishHour && (
                 <HiOutlineTrash
                   className="text-red-600 cursor-pointer text-lg"
-                  onClick={() => {
+                  onClick={debounce(() => {
                     if (isMutating) {
                       return;
                     }
@@ -322,6 +333,17 @@ const OrderPaymentTypes = ({
                         })
                         ?.filter((item): item is Order => item !== null);
                     }
+                    if (
+                      collection.amount === totalMoneySpend &&
+                      collection?.table
+                    ) {
+                      newOrders = tableOrders?.map((tableOrder) => {
+                        return {
+                          ...tableOrder,
+                          paidQuantity: 0,
+                        };
+                      });
+                    }
                     updateOrderCollection({
                       id: collection._id,
                       updates: {
@@ -333,7 +355,7 @@ const OrderPaymentTypes = ({
                       } as Partial<OrderCollection>,
                     });
                     resetOrderContext();
-                  }}
+                  }, 250)}
                 />
               )}
             </div>

@@ -3,8 +3,13 @@ import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoReceipt } from "react-icons/io5";
-import { MdBorderColor, MdBrunchDining } from "react-icons/md";
+import { BsWrenchAdjustableCircle } from "react-icons/bs";
+import { IoCloseOutline, IoReceipt } from "react-icons/io5";
+import {
+  MdBorderColor,
+  MdBrunchDining,
+  MdOutlineAddCircleOutline,
+} from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -18,10 +23,10 @@ import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
+  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -30,10 +35,11 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
+  useCombineTableMutation,
   useCreateMultipleOrderMutation,
   useGetTableOrders,
   useOrderMutations,
-  useTransferTableMutation,
+  useTransferTableMutations,
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -42,19 +48,21 @@ import {
   useTableMutations,
 } from "../../utils/api/table";
 import { getItem } from "../../utils/getItem";
+import { LocationInput } from "../../utils/panelInputs";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import { EditableText } from "../common/EditableText";
 import { InputWithLabel } from "../common/InputWithLabel";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { CreateGameplayDialog } from "./CreateGameplayDialog";
 import { EditGameplayDialog } from "./EditGameplayDialog";
 import GameplayCard from "./GameplayCard";
 import OrderCard from "./OrderCard";
 import OrderListForPanel from "./OrderListForPanel";
+
 export interface TableCardProps {
   table: Table;
   mentors: User[];
@@ -80,7 +88,6 @@ export function TableCard({
     isTableNameEditConfirmationDialogOpen,
     setIsTableNameEditConfirmationDialogOpen,
   ] = useState(false);
-  const [newTableName, setNewTableName] = useState(table?.name);
   const [isEditGameplayDialogOpen, setIsEditGameplayDialogOpen] =
     useState(false);
   let tableOrders: Order[] = [];
@@ -90,11 +97,13 @@ export function TableCard({
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
+  const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { updateTable } = useTableMutations();
   const { mutate: reopenTable } = useReopenTableMutation();
-  const { mutate: transferTable } = useTransferTableMutation();
+  const { mutate: combineTable } = useCombineTableMutation();
+  const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const discounts = useGetOrderDiscounts()?.filter(
@@ -108,13 +117,17 @@ export function TableCard({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
+    location: selectedLocationId,
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    activityTableName: "",
+    activityPlayer: "",
   };
   const locations = useGetStockLocations();
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext } = useOrderContext();
@@ -122,8 +135,14 @@ export function TableCard({
   const { user } = useUserContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const [tableCombineForm, setTableCombineForm] = useState({
+    table: "",
+  });
   const [tableTransferForm, setTableTransferForm] = useState({
     table: "",
+  });
+  const [activityTableForm, setActivityTableForm] = useState({
+    name: [],
   });
   const menuItems = useGetMenuItems();
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
@@ -155,17 +174,51 @@ export function TableCard({
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
       };
     });
-
+  const activeTables = tables.filter((t) => !t.finishHour);
+  const inactiveTableInputs = getItem(selectedLocationId, locations)
+    ?.tableNames?.filter((t) => !activeTables.some((table) => table.name === t))
+    ?.map((t) => {
+      return {
+        value: t,
+        label: t,
+      };
+    });
   const filteredDiscounts = discounts.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
   const isOnlinePrice = () => {
-    const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+    const menuItem = getItem(orderForm.item, menuItems);
     if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
       return true;
     }
     return false;
   };
+  const activityTableInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "name",
+      label: t("Name"),
+      options: locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t || table?.tables?.includes(t)) &&
+              !table?.finishHour
+          );
+        })
+        ?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      placeholder: t("Name"),
+      isMultiple: true,
+      required: true,
+    },
+  ];
+  const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -259,12 +312,17 @@ export function TableCard({
         true,
       isOnClearActive: true,
     },
+    LocationInput({
+      locations: locations,
+      required: table?.type === TableTypes.ONLINE,
+      isDisabled: table?.type !== TableTypes.ONLINE,
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: locations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -278,7 +336,11 @@ export function TableCard({
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.CHECKBOX,
@@ -288,6 +350,28 @@ export function TableCard({
       required: isOnlinePrice(),
       isDisabled: !isOnlinePrice(),
       isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "activityTableName",
+      label: t("Table"),
+      options: table.tables?.map((tableName) => {
+        return {
+          value: tableName,
+          label: tableName,
+        };
+      }),
+      placeholder: t("Table"),
+      required: false,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "activityPlayer",
+      label: t("Player Number"),
+      placeholder: t("Player Number"),
+      required: false,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
       type: InputTypes.TEXTAREA,
@@ -306,9 +390,11 @@ export function TableCard({
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "activityTableName", type: FormKeyTypeEnum.STRING },
+    { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
-  const tableTransferInputs = [
+  const tableCombineInputs = [
     {
       type: InputTypes.SELECT,
       formKey: "table",
@@ -328,10 +414,20 @@ export function TableCard({
       required: true,
     },
   ];
+  const tableCombineFormKeys = [{ key: "table", type: FormKeyTypeEnum.STRING }];
+  const tableTransferInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "table",
+      label: t("Table"),
+      options: inactiveTableInputs,
+      placeholder: t("Table"),
+      required: true,
+    },
+  ];
   const tableTransferFormKeys = [
     { key: "table", type: FormKeyTypeEnum.STRING },
   ];
-
   const bgColor = table.finishHour
     ? "bg-gray-500"
     : tableOrders?.some(
@@ -425,7 +521,7 @@ export function TableCard({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: selectedLocationId,
+        location: orderForm?.location ?? selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -446,7 +542,7 @@ export function TableCard({
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: selectedLocationId,
+        location: orderForm?.location ?? selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -475,18 +571,7 @@ export function TableCard({
       <div
         className={`${bgColor} rounded-tl-md rounded-tr-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-between mb-2 max-h-12`}
       >
-        <p className="text-base font-semibold cursor-pointer w-full">
-          <EditableText
-            name="name"
-            text={table.name}
-            onUpdate={(e: FormEvent<HTMLInputElement>) => {
-              const target = e.target as HTMLInputElement;
-              if (!target.value) return;
-              setNewTableName(target.value);
-              setIsTableNameEditConfirmationDialogOpen(true);
-            }}
-          />
-        </p>
+        <p className="text-base font-semibold  w-full">{table.name}</p>
         <div className="justify-end w-3/4 gap-6 sm:gap-2  flex lg:hidden lg:group-hover:flex ">
           {!table.finishHour && !table?.isOnlineSale && (
             <Tooltip content={t("Add Gameplay")}>
@@ -508,7 +593,7 @@ export function TableCard({
             </Tooltip>
           )}
 
-          <Tooltip content={t("Check")}>
+          <Tooltip content={t("Table Check")}>
             <span>
               <CardAction
                 // onClick={() => setIsCloseConfirmationDialogOpen(true)}
@@ -619,6 +704,47 @@ export function TableCard({
             </div>
           </div>
         )}
+        {/* table tables for activity table type */}
+        {table?.type === TableTypes.ACTIVITY && table?.tables && (
+          <div
+            className={`${
+              table?.tables &&
+              table?.tables?.length > 0 &&
+              "pb-3 border-b-[1px] border-b-gray-300"
+            }`}
+          >
+            <p className="text-gray-800 text-[13px]">{t("Tables")}</p>
+            {/* tables */}
+            <div className="flex flex-row flex-wrap gap-2 mt-2">
+              {table.tables.map((tableName) => {
+                return (
+                  <div
+                    key={tableName}
+                    className="flex flex-row  gap-2 px-2 py-1 bg-gray-200 rounded-md"
+                  >
+                    <p className="text-sm font-semibold">{tableName}</p>
+                    <ButtonTooltip content={t("Delete")}>
+                      <IoCloseOutline
+                        className="cursor-pointer font-bold"
+                        onClick={() => {
+                          const updatedTables = table?.tables?.filter(
+                            (foundTable) => foundTable !== tableName
+                          );
+                          updateTable({
+                            id: table._id,
+                            updates: {
+                              tables: updatedTables,
+                            },
+                          });
+                        }}
+                      />
+                    </ButtonTooltip>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {/* table orders */}
         {tableOrders && tableOrders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2 ">
@@ -697,6 +823,7 @@ export function TableCard({
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+            location: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
@@ -727,7 +854,15 @@ export function TableCard({
                 const orderObject = handleOrderObject();
                 if (orderObject) {
                   createMultipleOrder({
-                    orders: [...orderCreateBulk, orderObject],
+                    orders: [
+                      ...orderCreateBulk.map((orderCreateBulkItem) => {
+                        return {
+                          ...orderCreateBulkItem,
+                          tableDate: table ? new Date(table?.date) : new Date(),
+                        };
+                      }),
+                      orderObject,
+                    ],
                     table: table,
                   });
                   setOrderForm(initialOrderForm);
@@ -736,7 +871,12 @@ export function TableCard({
                 }
               }
               createMultipleOrder({
-                orders: orderCreateBulk,
+                orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                  return {
+                    ...orderCreateBulkItem,
+                    tableDate: table ? new Date(table?.date) : new Date(),
+                  };
+                }),
                 table: table,
               });
             }
@@ -746,7 +886,7 @@ export function TableCard({
               setIsCreateOrderDialogOpen(false);
             }
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}
@@ -756,14 +896,36 @@ export function TableCard({
         className={`${bgColor} rounded-bl-md rounded-br-md px-4 lg:px-6 lg:py-4 py-6 flex items-center justify-end mb-2  h-9`}
       >
         <div className="justify-end w-3/4 gap-6 sm:gap-2 flex lg:hidden lg:group-hover:flex ">
-          <Tooltip content={t("Table Transfer")}>
-            <span>
-              <CardAction
-                onClick={() => setIsTableTransferOpen(true)}
-                IconComponent={RiFileTransferFill}
-              />
-            </span>
-          </Tooltip>
+          {table.type !== TableTypes.ACTIVITY && (
+            <Tooltip content={t("Table Combine")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsTableCombineOpen(true)}
+                  IconComponent={BsWrenchAdjustableCircle}
+                />
+              </span>
+            </Tooltip>
+          )}
+          {table.type !== TableTypes.ACTIVITY && (
+            <Tooltip content={t("Table Transfer")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsTableTransferOpen(true)}
+                  IconComponent={RiFileTransferFill}
+                />
+              </span>
+            </Tooltip>
+          )}
+          {table.type === TableTypes.ACTIVITY && (
+            <Tooltip content={t("Add Table")}>
+              <span>
+                <CardAction
+                  onClick={() => setIsAddActivityTableOpen(true)}
+                  IconComponent={MdOutlineAddCircleOutline}
+                />
+              </span>
+            </Tooltip>
+          )}
           <Tooltip content={t("Delete")}>
             <span>
               <CardAction
@@ -786,6 +948,27 @@ export function TableCard({
           }}
         />
       )}
+      {isTableCombineOpen && (
+        <GenericAddEditPanel
+          isOpen={isTableCombineOpen}
+          close={() => setIsTableCombineOpen(false)}
+          inputs={tableCombineInputs}
+          formKeys={tableCombineFormKeys}
+          submitItem={combineTable as any}
+          submitFunction={() => {
+            combineTable({
+              orders: tableOrders,
+              oldTableId: table._id,
+              transferredTableId: Number(tableCombineForm.table),
+            });
+          }}
+          isCreateConfirmationDialogExist={true}
+          createConfirmationDialogHeader={t("Transfer Combine")}
+          createConfirmationDialogText={t("Are you sure to combine the table?")}
+          setForm={setTableCombineForm}
+          topClassName="flex flex-col gap-2 "
+        />
+      )}
       {isTableTransferOpen && (
         <GenericAddEditPanel
           isOpen={isTableTransferOpen}
@@ -797,15 +980,38 @@ export function TableCard({
             transferTable({
               orders: tableOrders,
               oldTableId: table._id,
-              transferredTableId: Number(tableTransferForm.table),
+              transferredTableName: tableTransferForm.table,
             });
           }}
           isCreateConfirmationDialogExist={true}
-          createConfirmationDialogHeader={t("Transfer Table")}
+          createConfirmationDialogHeader={t("Transfer Transfer")}
           createConfirmationDialogText={t(
             "Are you sure to transfer the table?"
           )}
           setForm={setTableTransferForm}
+          topClassName="flex flex-col gap-2 "
+        />
+      )}
+      {isAddActivityTableOpen && (
+        <GenericAddEditPanel
+          isOpen={isAddActivityTableOpen}
+          close={() => setIsAddActivityTableOpen(false)}
+          inputs={activityTableInputs}
+          formKeys={activityTableFormKeys}
+          submitItem={updateTable as any}
+          submitFunction={() => {
+            const newTableNames = [
+              ...(table?.tables || []),
+              ...activityTableForm.name,
+            ];
+            updateTable({
+              id: table._id,
+              updates: {
+                tables: newTableNames,
+              },
+            });
+          }}
+          setForm={setActivityTableForm}
           topClassName="flex flex-col gap-2 "
         />
       )}
@@ -817,7 +1023,7 @@ export function TableCard({
             updateTable({
               id: table._id,
               updates: {
-                name: newTableName,
+                name: table?.name,
               },
             });
             setIsTableNameEditConfirmationDialogOpen(false);

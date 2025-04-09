@@ -1,8 +1,6 @@
 {
-    "git.ignoreLimitWarning": true,
-    "editor.codeActionsOnSave": [
-        "source.organizeImports",
-        "source.fixAll"
-    ],
-    "editor.formatOnSave": true
+  "git.ignoreLimitWarning": true,
+  "editor.codeActionsOnSave": ["source.organizeImports", "source.fixAll"],
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

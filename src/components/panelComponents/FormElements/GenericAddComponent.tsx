@@ -349,6 +349,7 @@ const GenericAddComponent = <T,>({
                         options={input.options ?? []}
                         placeholder={input.placeholder ?? ""}
                         requiredField={input.required && showRequired}
+                        isAutoFill={input.isAutoFill ?? true}
                         isMultiple={input.isMultiple ?? false}
                         onChange={handleChangeForSelect(input.formKey)}
                         onClear={() => {
@@ -375,7 +376,7 @@ const GenericAddComponent = <T,>({
                             handleChange(input.formKey)(e.target.value);
                           }}
                           placeholder={input.placeholder ?? ""}
-                          className="border text-sm border-gray-300 rounded-md p-2"
+                          className="border text-sm border-gray-300 rounded-md p-2 min-h-40"
                         />
                       </div>
                     )}

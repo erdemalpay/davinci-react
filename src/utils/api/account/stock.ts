@@ -92,7 +92,29 @@ export function useUpdateIkasStocksMutation() {
     },
   });
 }
-
+export function updateProductBaseStocks() {
+  return post<any, any>({
+    path: `${Paths.Accounting}/stocks/create-all-product`,
+    payload: {},
+  });
+}
+export function useUpdateProductBaseStocks() {
+  const queryKey = [baseUrl];
+  const queryClient = useQueryClient();
+  return useMutation(updateProductBaseStocks, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
 export function useConsumptStockMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();

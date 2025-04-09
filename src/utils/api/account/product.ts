@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { AccountProduct } from "../../../types";
-import { post } from ".././index";
+import { patch, post } from ".././index";
 import { Paths, useGetList, useMutationApi } from "../factory";
 
 const baseUrl = `${Paths.Accounting}/products`;
@@ -19,7 +19,10 @@ export interface CreateBulkProductAndMenuItem {
   image?: string;
   errorNote?: string;
 }
-
+export interface UpdateMultipleBaseQuantities {
+  _id: number;
+  baseQuantities: any[];
+}
 export interface JoinProductsRequest {
   stayedProduct: string;
   removedProduct: string;
@@ -45,35 +48,44 @@ export function createBulkProductAndMenuItem(
   });
 }
 
-export function updateMultipleProduct(
-  updateMultipleProductPayload: CreateBulkProductAndMenuItem[]
+export function updateMultipleBaseQuantities(
+  updates: UpdateMultipleBaseQuantities[]
 ) {
-  return post({
-    path: `${Paths.Accounting}/products/update-multiple`,
-    payload: updateMultipleProductPayload,
+  return patch({
+    path: `${Paths.Accounting}/base-quantities`,
+    payload: updates,
   });
 }
 
-export function updateProductsBaseQuantities(
-  items: { [key: number]: string; name: string }[]
-) {
-  return post({
-    path: `${Paths.Accounting}/product/update-base-quantities`,
-    payload: items,
-  });
-}
-export function useUpdateProductsBaseQuantities() {
-  const queryKey = [allProductsBaseUrl];
+export function useUpdateMultipleBaseQuantitiesMutation() {
+  const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  return useMutation(updateProductsBaseQuantities, {
+  const { setErrorDataForProductBulkCreation } = useGeneralContext();
+  return useMutation(updateMultipleBaseQuantities, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: (response) => {
+      // if (response) {
+      //   setErrorDataForProductBulkCreation(
+      //     response as CreateBulkProductAndMenuItem[]
+      //   );
+      // }
     },
     onError: (_err: any) => {
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
+  });
+}
+
+export function updateMultipleProduct(
+  updateMultipleProductPayload: CreateBulkProductAndMenuItem[]
+) {
+  return post({
+    path: `${Paths.Accounting}/products/update-multiple`,
+    payload: updateMultipleProductPayload,
   });
 }
 export function useCreateBulkProductAndMenuItemMutation() {

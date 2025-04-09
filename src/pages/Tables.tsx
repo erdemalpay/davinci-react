@@ -1,22 +1,22 @@
 import { Tooltip } from "@material-tailwind/react";
-import { subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
-import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import { H5 } from "../components/panelComponents/Typography";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { H5 } from "../components/panelComponents/Typography";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
-import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
@@ -34,10 +34,10 @@ import {
   OrderStatus,
   ReservationStatusEnum,
   StockHistoryStatusEnum,
+  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
@@ -45,9 +45,10 @@ import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
+import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
-  useGetStockLocations,
+  useGetAllLocations,
   useGetStoreLocations,
 } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -62,9 +63,9 @@ import { useGetVisits } from "../utils/api/visit";
 import { useGetActiveButtonCalls } from "../utils/api/buttonCall";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
-import { QuantityInput } from "../utils/panelInputs";
+import { LocationInput, QuantityInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
-import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
+
 const Tables = () => {
   const { t } = useTranslation();
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -83,7 +84,7 @@ const Tables = () => {
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
-  const stockLocations = useGetStockLocations();
+  const allLocations = useGetAllLocations();
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
@@ -117,9 +118,25 @@ const Tables = () => {
     isOnlinePrice: false,
     stockLocation: selectedLocationId,
   };
+  const [tableForm, setTableForm] = useState({
+    name: "",
+    startHour: format(new Date(), "HH:mm"),
+    playerCount: 2,
+    location: selectedLocationId,
+    type: TableTypes.NORMAL,
+    isAutoEntryAdded: false,
+    isOnlineSale: false,
+    tables: [],
+  });
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const tableTypeOptions = Object.values(TableTypes)
+    .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
+    .map((value) => ({
+      value,
+      label: t(value.charAt(0).toUpperCase() + value.slice(1)),
+    }));
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
       const stock = stocks?.find((stock) => {
@@ -147,11 +164,12 @@ const Tables = () => {
       required: true,
     },
     QuantityInput({ required: true }),
+    LocationInput({ locations: allLocations }),
   ];
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemOptions = menuItems
     ?.filter((menuItem) => {
@@ -214,8 +232,8 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: stockLocations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+      options: locations?.map((input) => {
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -229,7 +247,11 @@ const Tables = () => {
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.TEXTAREA,
@@ -350,22 +372,26 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: stockLocations?.map((input) => {
-        const menuItem = menuItems?.find((item) => item._id === orderForm.item);
+      options: locations?.map((input) => {
+        const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
-
         return {
           value: input._id,
           label:
-            input.name + (menuItem ? ` (${t("Stock")}: ${stockQuantity})` : ""),
+            input.name +
+            (menuItem?.itemProduction && menuItem.itemProduction.length > 0
+              ? ` (${t("Stock")}: ${stockQuantity})`
+              : ""),
         };
       }),
-
       placeholder: t("Stock Location"),
-      isDisabled: false,
-      required: true,
+      required:
+        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+      ),
     },
     {
       type: InputTypes.CHECKBOX,
@@ -428,7 +454,17 @@ const Tables = () => {
     defaultUser ? [defaultUser] : []
   );
   const activeTables = tables.filter((table) => !table?.finishHour);
-  const activeTableCount = activeTables.length;
+  const activeTableCount =
+    tables.filter(
+      (table) => !table?.finishHour && table.type === TableTypes.NORMAL
+    ).length +
+    tables
+      .filter(
+        (table) => !table?.finishHour && table.type === TableTypes.ACTIVITY
+      )
+      .reduce((prev, curr) => {
+        return Number(prev) + Number(curr.tables?.length);
+      }, 0);
   const waitingReservations = reservations?.filter(
     (reservation) => reservation.status === ReservationStatusEnum.WAITING
   )?.length;
@@ -438,7 +474,8 @@ const Tables = () => {
   const emptyTableCount =
     (getItem(selectedLocationId, locations)?.tableCount ?? 0) -
     activeTableCount;
-  const totalTableCount = tables.length;
+  const totalTableCount =
+    getItem(selectedLocationId, locations)?.tableCount ?? 0;
 
   const activeCustomerCount = activeTables.reduce(
     (prev: number, curr: Table) => {
@@ -534,21 +571,20 @@ const Tables = () => {
     }
     return null;
   };
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, offset = 100) => {
     const element = document.getElementById(id);
+    if (!element) return;
 
-    if (element) {
-      const offset = -100;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition + offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    const elementPosition =
+      element.getBoundingClientRect().top + window.pageYOffset;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
   };
+
   const cafeInfos: {
     title: string;
     value: any;
@@ -590,7 +626,7 @@ const Tables = () => {
       (tableOrder) => (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
     )
       ? "bg-orange-200"
-      : "bg-gray-100";
+      : "bg-red-300";
   };
   const buttons: {
     label: string;
@@ -602,7 +638,7 @@ const Tables = () => {
       onClick: () => {
         setIsTakeAwayOrderModalOpen(true);
       },
-      hideOnMobile: true,
+      hideOnMobile: false,
     },
     {
       label: t("Loss Product"),
@@ -627,6 +663,10 @@ const Tables = () => {
     {
       label: t("Add table"),
       onClick: () => {
+        setTableForm({
+          ...tableForm,
+          name: "",
+        });
         setIsCreateTableDialogOpen(true);
       },
     },
@@ -657,6 +697,104 @@ const Tables = () => {
       onChange: setShowAllTables,
     },
   ];
+  const tableInputs = [
+    tableForm.type !== TableTypes.ACTIVITY
+      ? {
+          type: InputTypes.SELECT,
+          formKey: "name",
+          label: t("Name"),
+          options: locations
+            .find((location) => location._id === selectedLocationId)
+            ?.tableNames?.filter((t) => {
+              return !tables.find(
+                (table) =>
+                  (table.name === t || table?.tables?.includes(t)) &&
+                  !table?.finishHour
+              );
+            })
+            ?.map((t, index) => {
+              return {
+                value: t,
+                label: t,
+              };
+            }),
+          placeholder: t("Name"),
+          required: true,
+        }
+      : {
+          type: InputTypes.TEXT,
+          formKey: "name",
+          label: t("Name"),
+          required: true,
+        },
+    {
+      type: InputTypes.HOUR,
+      formKey: "startHour",
+      label: t("Start Time"),
+      required: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "playerCount",
+      label: t("Player Count"),
+      placeholder: t("Player Count"),
+      required: false,
+      minNumber: 0,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: tableTypeOptions,
+      placeholder: t("Type"),
+      invalidateKeys: [
+        { key: "name", defaultValue: "" },
+        { key: "tables", defaultValue: "" },
+      ],
+      isDisabled: false,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "tables",
+      label: t("Tables"),
+      options: locations
+        .find((location) => location._id === selectedLocationId)
+        ?.tableNames?.filter((t) => {
+          return !tables.find(
+            (table) =>
+              (table.name === t ||
+                table?.tables?.includes(t) ||
+                tableForm.name === t) &&
+              !table?.finishHour
+          );
+        })
+        ?.map((t, index) => {
+          return {
+            value: t,
+            label: t,
+          };
+        }),
+      placeholder: t("Tables"),
+      isMultiple: true,
+      isDisabled: tableForm.type !== TableTypes.ACTIVITY,
+      required: tableForm.type === TableTypes.ACTIVITY,
+    },
+  ];
+  const tableFormKeys = [
+    { key: "name", type: FormKeyTypeEnum.STRING },
+    { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "startHour", type: FormKeyTypeEnum.STRING },
+    { key: "isAutoEntryAdded", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isOnlineSale", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "type", type: FormKeyTypeEnum.STRING },
+    { key: "tables", type: FormKeyTypeEnum.STRING },
+  ];
+
   return (
     <>
       <Header />
@@ -683,23 +821,59 @@ const Tables = () => {
             </div>
 
             {/* Table name buttons for small screen */}
-            <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
+            <div className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden">
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
-              {tables
-                ?.filter((table) => !table?.finishHour)
-                ?.map((table) => (
-                  <a
-                    key={table?._id + "tableselector"}
-                    onClick={() => scrollToSection(`table-${table?._id}`)}
-                    className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium ${bgColor(
-                      table
-                    )}`}
-                  >
-                    {table?.name}
-                  </a>
-                ))}
+              <div className="flex flex-row gap-2">
+                {/* inactive tables */}
+                <div
+                  key={selectedLocationId + "tables-small"}
+                  className="flex gap-2 flex-wrap"
+                >
+                  {locations
+                    .find((location) => location._id === selectedLocationId)
+                    ?.tableNames?.map((tableName, index) => {
+                      const table = tables.find(
+                        (table) =>
+                          table.name === tableName ||
+                          table?.tables?.includes(tableName)
+                      );
+                      if (table && !table?.finishHour) {
+                        return (
+                          <a
+                            key={table?._id + "tableselector"}
+                            onClick={() =>
+                              scrollToSection(`table-${table?._id}`)
+                            }
+                            className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
+                              table
+                            )}`}
+                          >
+                            {table?.type === TableTypes.ACTIVITY
+                              ? `${tableName} (${table?.name})`
+                              : table?.name}
+                          </a>
+                        );
+                      }
+                      return (
+                        <a
+                          key={index + "tableselector"}
+                          onClick={() => {
+                            setTableForm({
+                              ...tableForm,
+                              name: tableName,
+                            });
+                            setIsCreateTableDialogOpen(true);
+                          }}
+                          className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
+                        >
+                          {tableName}
+                        </a>
+                      );
+                    })}
+                </div>
+              </div>
             </div>
             {/* buttons */}
             <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
@@ -717,24 +891,61 @@ const Tables = () => {
             </div>
           </div>
           {/* Table name buttons for big screen */}
-          <div className="flex flex-col gap-2">
-            <div className=" flex-wrap gap-2 my-4 hidden sm:flex">
+          <div className="sm:flex-col gap-2 hidden sm:flex ">
+            <div className=" flex-wrap gap-2 my-4 ">
+              {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
-              {tables
-                ?.filter((table) => !table?.finishHour)
-                ?.map((table) => (
-                  <a
-                    key={table?._id + "tableselector"}
-                    onClick={() => scrollToSection(`table-large-${table?._id}`)}
-                    className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer ${bgColor(
-                      table
-                    )}`}
-                  >
-                    {table?.name}
-                  </a>
-                ))}
+            </div>
+            <div className="flex flex-row gap-2">
+              {/* inactive tables */}
+              <div
+                key={selectedLocationId + "tables-large"}
+                className="flex gap-2 flex-wrap"
+              >
+                {locations
+                  .find((location) => location._id === selectedLocationId)
+                  ?.tableNames?.map((tableName, index) => {
+                    const table = tables.find(
+                      (table) =>
+                        table.name === tableName ||
+                        table?.tables?.includes(tableName)
+                    );
+                    if (table && !table?.finishHour) {
+                      return (
+                        <a
+                          key={table?._id + "tableselector"}
+                          onClick={() =>
+                            scrollToSection(`table-large-${table?._id}`)
+                          }
+                          className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
+                            table
+                          )}`}
+                        >
+                          {table?.type === TableTypes.ACTIVITY
+                            ? `${tableName} (${table?.name})`
+                            : table?.name}
+                        </a>
+                      );
+                    }
+                    return (
+                      <a
+                        key={index}
+                        onClick={() => {
+                          setTableForm({
+                            ...tableForm,
+                            name: tableName,
+                          });
+                          setIsCreateTableDialogOpen(true);
+                        }}
+                        className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
+                      >
+                        {tableName}
+                      </a>
+                    );
+                  })}
+              </div>
             </div>
           </div>
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
@@ -848,10 +1059,58 @@ const Tables = () => {
         </div>
       </div>
       {isCreateTableDialogOpen && (
-        <CreateTableDialog
+        <GenericAddEditPanel
           isOpen={isCreateTableDialogOpen}
           close={() => setIsCreateTableDialogOpen(false)}
-          type={TableTypes.NORMAL}
+          inputs={tableInputs}
+          setForm={setTableForm}
+          formKeys={tableFormKeys}
+          constantValues={{
+            startHour: format(new Date(), "HH:mm"),
+            name: tableForm.name,
+            location: selectedLocationId,
+            playerCount: 2,
+            type: TableTypes.NORMAL,
+            isOnlineSale: false,
+            isAutoEntryAdded: false,
+          }}
+          additionalButtons={
+            tableForm?.type !== TableTypes.ACTIVITY
+              ? [
+                  {
+                    label: t("Create Without Entry"),
+                    isInputRequirementCheck: true,
+                    isInputNeedToBeReset: false,
+                    onClick: () => {
+                      createTable({
+                        tableDto: {
+                          ...tableForm,
+                          date: format(new Date(), "yyyy-MM-dd"),
+                          isAutoEntryAdded: false,
+                        },
+                      } as any);
+                      setIsCreateTableDialogOpen(false);
+                    },
+                  },
+                ]
+              : []
+          }
+          submitItem={createTable as any}
+          submitFunction={() => {
+            createTable({
+              tableDto: {
+                ...tableForm,
+                date: format(new Date(), "yyyy-MM-dd"),
+                isAutoEntryAdded: tableForm.type !== TableTypes.ACTIVITY,
+              },
+            } as any);
+          }}
+          buttonName={
+            tableForm.type !== TableTypes.ACTIVITY
+              ? t("Create With Entry")
+              : t("Create")
+          }
+          topClassName="flex flex-col gap-2 "
         />
       )}
       {isConsumptModalOpen && (
@@ -903,7 +1162,7 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName="  shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}
@@ -972,7 +1231,7 @@ const Tables = () => {
             const orderObject = handleOrderObject();
             const tableData = {
               name: "Takeaway",
-              date: selectedDate,
+              date: format(new Date(), "yyyy-MM-dd"),
               location: selectedLocationId,
               playerCount: 0,
               startHour: formattedTime,
@@ -988,7 +1247,7 @@ const Tables = () => {
             } as any);
             setIsTakeAwayOrderModalOpen(false);
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}

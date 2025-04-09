@@ -26,7 +26,11 @@ export function InputWithLabel({
   ...props
 }: InputWithLabelProps) {
   return (
-    <div className={`relative mt-4 w-full ${hidden ? "hidden" : ""}`}>
+    <div
+      className={`relative mt-4 w-full ${
+        hidden ? "hidden" : ""
+      } __className_a182b8`}
+    >
       <input
         id={id}
         min={min}

@@ -33,7 +33,7 @@ const TabPanel: React.FC<Props> = ({
     .map((tab, index) => {
       return {
         ...tab,
-        number: index,
+        adjustedNumber: index,
       };
     });
 
@@ -61,18 +61,22 @@ const TabPanel: React.FC<Props> = ({
       });
     }
 
-    if (
-      !adjustedTabs.find((tab) => tab.number === activeTab) &&
-      tabs?.filter((tab) => tab.isDisabled)?.length > 0
-    ) {
-      setActiveTab(tabs[0]?.number);
+    if (activeTab > adjustedTabs.length - 1) {
+      setActiveTab(
+        adjustedTabs.find((tab) => tab.number === activeTab)?.adjustedNumber ||
+          0
+      );
     }
   }, [activeTab, tabs.length, i18n.language]);
 
   const handleTabChange = (tab: Tab) => {
     additionalClickAction && additionalClickAction();
     resetGeneralContext();
-    setActiveTab(tab.number);
+    adjustedTabs
+      ?.find((tab) => tab.adjustedNumber === activeTab)
+      ?.onCloseAction?.();
+    setActiveTab(tab?.adjustedNumber ?? tab.number);
+    tab?.onOpenAction?.();
   };
 
   return (
@@ -95,7 +99,7 @@ const TabPanel: React.FC<Props> = ({
                 key={index}
                 ref={(el) => (tabsRef.current[index] = el)}
                 className={`px-4  flex flex-row items-center gap-2 cursor-pointer ${
-                  activeTab === tab.number ? "text-blue-500" : ""
+                  activeTab === tab.adjustedNumber ? "text-blue-500" : ""
                 }`}
                 onClick={() => handleTabChange(tab)}
               >
@@ -115,10 +119,14 @@ const TabPanel: React.FC<Props> = ({
         </div>
         {filters && filters.map((filter) => filter)}
       </div>
-      {adjustedTabs.find((tab) => tab.number === activeTab)?.content &&
-        !adjustedTabs.find((tab) => tab.number === activeTab)?.isDisabled && (
+      {adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)?.content &&
+        !adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
+          ?.isDisabled && (
           <div className={`${topClassName ? "pt-3" : "py-6"}`}>
-            {adjustedTabs.find((tab) => tab.number === activeTab)?.content}
+            {
+              adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
+                ?.content
+            }
           </div>
         )}
     </div>

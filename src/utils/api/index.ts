@@ -20,17 +20,6 @@ export interface UpdatePayload<P> {
   additionalInvalidates?: QueryKey[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function printStackTrace() {
-  const error = new Error();
-  const stack = error.stack
-    ?.split("\n")
-    .slice(2)
-    .map((line: string) => line.replace(/\s+at\s+/, ""))
-    .join("\n");
-  console.log(stack);
-}
-
 // P = payload, R = ResponseType
 export async function get<R>({ path }: BaseRequest): Promise<R> {
   const headers: HeadersInit = { "Content-Type": "application/json" };

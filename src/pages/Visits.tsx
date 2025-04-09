@@ -1,29 +1,92 @@
-import { Tooltip } from "@material-tailwind/react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { MdOutlineBackupTable } from "react-icons/md";
+import { CiViewTable } from "react-icons/ci";
+import { FaPhoenixFramework } from "react-icons/fa";
+import { GiEgyptianWalk } from "react-icons/gi";
+import { MdOutlineSchedule } from "react-icons/md";
+import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
+import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import AllVisits from "../components/visits/AllVisits";
 import DailyVisit from "../components/visits/DailyVisit";
+import Shifts from "../components/visits/Shifts";
 import VisitChart from "../components/visits/VisitChart";
+import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
+import { useGeneralContext } from "../context/General.context";
+import { useUserContext } from "../context/User.context";
+import { VisitPageTabEnum } from "../types";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
+export const VisitPageTabs = [
+  {
+    number: VisitPageTabEnum.DAILYVISIT,
+    label: "Daily Visit",
+    icon: <CiViewTable className="text-lg font-thin" />,
+    content: <DailyVisit />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.VISITCHART,
+    label: "Visit Chart",
+    icon: <SlCalender className="text-lg font-thin" />,
+    content: <VisitChart />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.VISITSCHEDULEOVERVIEW,
+    label: "Visit Schedule Overview",
+    icon: <MdOutlineSchedule className="text-lg font-thin" />,
+    content: <VisitScheduleOverview />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.ALLVISITS,
+    label: "All Visits",
+    icon: <GiEgyptianWalk className="text-lg font-thin" />,
+    content: <AllVisits />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.SHIFTS,
+    label: "Shifts",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    content: <Shifts />,
+    isDisabled: false,
+  },
+];
 export default function Visits() {
-  const [selectedView, setSelectedView] = useState(true);
-  const { t } = useTranslation();
+  const { setCurrentPage, setSearchQuery } = useGeneralContext();
+  const [activeTab, setActiveTab] = useState(VisitPageTabEnum.DAILYVISIT);
+  const currentPageId = "shifts";
+  const pages = useGetPanelControlPages();
+  const { user } = useUserContext();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = VisitPageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+    };
+  });
   return (
     <>
       <Header showLocationSelector={true} />
-      <div className="w-[95%] mt-4 flex justify-end">
-        <Tooltip content={t("Switch View")} placement="top">
-          <span>
-            <MdOutlineBackupTable
-              className="w-10 h-10 cursor-pointer"
-              onClick={() => setSelectedView(!selectedView)}
-            />
-          </span>
-        </Tooltip>
+      <div className="flex flex-col gap-2 mt-5 ">
+        <TabPanel
+          tabs={tabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          additionalOpenAction={() => {
+            setCurrentPage(1);
+            setSearchQuery("");
+          }}
+        />
       </div>
-
-      {selectedView ? <DailyVisit /> : <VisitChart />}
     </>
   );
 }

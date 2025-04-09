@@ -7,6 +7,7 @@ import { useOrderContext } from "../../context/Order.context";
 import {
   commonDateOptions,
   DateRangeKey,
+  orderFilterStatusOptions,
   OrderStatus,
   TURKISHLIRA,
 } from "../../types";
@@ -16,9 +17,10 @@ import { useGetAllLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
+import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -46,6 +48,8 @@ const SingleProductSalesReport = () => {
   const categories = useGetCategories();
   const locations = useGetAllLocations();
   const items = useGetMenuItems();
+  const users = useGetUsers();
+  const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   if (!orders || !categories || !locations) {
     return null;
@@ -62,22 +66,6 @@ const SingleProductSalesReport = () => {
     ?.filter((order) => order.status !== OrderStatus.CANCELLED)
     ?.reduce((acc, order) => {
       if (!order || order?.paidQuantity === 0) return acc;
-      // location filter
-      if (
-        filterPanelFormElements?.location !== "" &&
-        filterPanelFormElements?.location !== order?.location
-      ) {
-        return acc;
-      }
-      // other filters
-      if (
-        filterPanelFormElements?.category?.length > 0 &&
-        !filterPanelFormElements?.category?.some((category: any) =>
-          passesFilter(category, getItem(order?.item, items)?.category)
-        )
-      ) {
-        return acc;
-      }
       const zonedTime = toZonedTime(order.createdAt, "UTC");
       const orderDate = new Date(zonedTime);
       acc.push({
@@ -216,21 +204,7 @@ const SingleProductSalesReport = () => {
   ];
 
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "category",
-      label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category?._id,
-          label: category?.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Category"),
-      required: true,
-    },
+    LocationInput({ locations: locations, required: true, isMultiple: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -279,6 +253,98 @@ const SingleProductSalesReport = () => {
       invalidateKeys: [{ key: "date", defaultValue: "" }],
       isOnClearActive: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "status",
+      label: t("Status"),
+      options: orderFilterStatusOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Status"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "category",
+      label: t("Category"),
+      options: categories?.map((category) => {
+        return {
+          value: category?._id,
+          label: category?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discount",
+      label: t("Discount"),
+      options: discounts.map((discount) => {
+        return {
+          value: discount._id,
+          label: discount.name,
+        };
+      }),
+      placeholder: t("Discount"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "createdBy",
+      label: t("Created By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Created By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "preparedBy",
+      label: t("Prepared By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Prepared By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "deliveredBy",
+      label: t("Delivered By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Delivered By"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "cancelledBy",
+      label: t("Cancelled By"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Cancelled By"),
+      required: true,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showOrderDataFilters,
@@ -319,7 +385,14 @@ const SingleProductSalesReport = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, categories, filterPanelFormElements, locations]);
+  }, [
+    orders,
+    categories,
+    filterPanelFormElements,
+    locations,
+    users,
+    discounts,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

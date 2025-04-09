@@ -12,6 +12,7 @@ import {
   OrderCollectionStatus,
   OrderStatus,
   Table,
+  TableTypes,
   TURKISHLIRA,
   User,
 } from "../../../types";
@@ -47,7 +48,7 @@ import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
 
-type OptionType = { value: number; label: string };
+type OptionType = { value: string; label: string };
 
 type Props = {
   close: () => void;
@@ -99,7 +100,7 @@ const OrderPaymentModal = ({
   const getTable = (tableId: number) => {
     if (orders?.length > 0) {
       return orders[0]?.table as Table;
-    } else if (tables && tables.some((table) => table._id === tableId)) {
+    } else if (tables && tables.some((table) => table?._id === tableId)) {
       return getItem(tableId, tables) as Table;
     }
   };
@@ -110,6 +111,7 @@ const OrderPaymentModal = ({
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
+  const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { createOrder } = useOrderMutations();
   const initialOrderForm = {
@@ -121,6 +123,8 @@ const OrderPaymentModal = ({
     discountNote: "",
     isOnlinePrice: false,
     stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    activityTableName: "",
+    activityPlayer: "",
   };
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -131,11 +135,19 @@ const OrderPaymentModal = ({
   const tableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED
+      order.status !== OrderStatus.CANCELLED &&
+      (selectedActivityUser === "" ||
+        order.activityPlayer === selectedActivityUser)
   );
+
   const collectionsTotalAmount = Number(
     collections
-      ?.filter((collection) => (collection?.table as Table)?._id === tableId)
+      ?.filter(
+        (collection) =>
+          (collection?.table as Table)?._id === tableId &&
+          (selectedActivityUser === "" ||
+            collection?.activityPlayer === selectedActivityUser)
+      )
       ?.reduce((acc, collection) => {
         if (collection?.status === OrderCollectionStatus.CANCELLED) {
           return acc;
@@ -308,6 +320,17 @@ const OrderPaymentModal = ({
     setIsCloseConfirmationDialogOpen(false);
     toast.success(t("Table {{tableName}} closed", { tableName: table?.name }));
   }
+  const activityUsers = Array.from(
+    new Set(
+      orders
+        ?.filter(
+          (order) =>
+            order.status !== OrderStatus.CANCELLED &&
+            order?.activityPlayer !== ""
+        )
+        ?.map((order) => order?.activityPlayer) || []
+    )
+  );
   const orderInputs = [
     {
       type: InputTypes.SELECT,
@@ -420,7 +443,33 @@ const OrderPaymentModal = ({
         };
       }),
       placeholder: t("Stock Location"),
-      required: true,
+      required:
+        (getItem(orderForm.item, items)?.itemProduction?.length ?? 0) > 0,
+      isDisabled: !(
+        getItem(orderForm.item, items)?.itemProduction?.length ?? 0 > 0
+      ),
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "activityTableName",
+      label: t("Table"),
+      options: table?.tables?.map((tableName) => {
+        return {
+          value: tableName,
+          label: tableName,
+        };
+      }),
+      placeholder: t("Table"),
+      required: false,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "activityPlayer",
+      label: t("Player Number"),
+      placeholder: t("Player Number"),
+      required: false,
+      isDisabled: table?.type !== TableTypes.ACTIVITY,
     },
     {
       type: InputTypes.TEXTAREA,
@@ -438,6 +487,8 @@ const OrderPaymentModal = ({
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "activityTableName", type: FormKeyTypeEnum.STRING },
+    { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   const handleOrderObject = () => {
@@ -461,7 +512,7 @@ const OrderPaymentModal = ({
         createdBy: selectedUser._id,
         createdAt: new Date(),
         location: selectedLocationId,
-        table: table._id,
+        table: table?._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
           : selectedMenuItem.price,
@@ -473,7 +524,7 @@ const OrderPaymentModal = ({
         status: OrderStatus.AUTOSERVED,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
-        tableDate: new Date(table.date),
+        tableDate: new Date(table?.date),
       };
     }
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
@@ -482,7 +533,7 @@ const OrderPaymentModal = ({
         createdAt: new Date(),
         createdBy: selectedUser._id,
         location: selectedLocationId,
-        table: table._id,
+        table: table?._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
           : OrderStatus.PENDING,
@@ -492,7 +543,7 @@ const OrderPaymentModal = ({
         paidQuantity: 0,
         kitchen: selectedMenuItemCategory?.kitchen,
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
-        tableDate: new Date(table.date),
+        tableDate: new Date(table?.date),
       };
     }
     return null;
@@ -565,6 +616,7 @@ const OrderPaymentModal = ({
                     ...orderCreateBulk.map((orderCreateBulkItem) => {
                       return {
                         ...orderCreateBulkItem,
+                        tableDate: table ? new Date(table?.date) : new Date(),
                         createdBy: selectedUser._id,
                       };
                     }),
@@ -582,6 +634,7 @@ const OrderPaymentModal = ({
                 ...orderCreateBulk.map((orderCreateBulkItem) => {
                   return {
                     ...orderCreateBulkItem,
+                    tableDate: table ? new Date(table?.date) : new Date(),
                     createdBy: selectedUser._id,
                   };
                 }),
@@ -593,7 +646,7 @@ const OrderPaymentModal = ({
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
         }}
-        generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0"
+        generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
         topClassName="flex flex-col gap-2   "
       />
     );
@@ -663,29 +716,65 @@ const OrderPaymentModal = ({
                     <span className="font-semibold">{t("Table")}</span>:{" "}
                     {table?.name}
                   </h1>
-                  {userOptions && userOptions?.length > 0 ? (
-                    <div className="z-50">
-                      <SelectInput
-                        value={{
-                          value: selectedUser._id,
-                          label: selectedUser.name,
-                        }}
-                        options={userOptions as any}
-                        isMultiple={false}
-                        onChange={(value) => {
+                  <div className="flex flex-row gap-2 justify-center items-center">
+                    {table?.type === TableTypes.ACTIVITY && (
+                      <div className="z-50">
+                        <SelectInput
+                          value={{
+                            value: selectedActivityUser,
+                            label:
+                              selectedActivityUser === ""
+                                ? t("All")
+                                : selectedActivityUser,
+                          }}
+                          options={
+                            [
+                              ...activityUsers.map((u) => {
+                                return {
+                                  value: u,
+                                  label: u,
+                                };
+                              }),
+                              { value: "", label: t("All") },
+                            ] as any
+                          }
+                          isMultiple={false}
+                          onChange={(value) => {
+                            setSelectedActivityUser(
+                              (value as OptionType).value
+                            );
+                          }}
+                          isOnClearActive={true}
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-row flex-wrap gap-2">
+                      {userOptions && userOptions?.length > 0 ? (
+                        userOptions?.map((userOption) => {
                           const foundUser = getItem(
-                            String((value as OptionType).value),
+                            String(userOption?.value),
                             users
                           );
-                          if (foundUser) {
-                            setSelectedUser(foundUser);
-                          }
-                        }}
-                      />
+                          if (!foundUser) return null;
+                          return (
+                            <a
+                              key={foundUser._id}
+                              onClick={() => setSelectedUser(foundUser)}
+                              className={`  px-4 py-2 rounded-lg focus:outline-none cursor-pointer  font-medium ${
+                                foundUser._id === selectedUser._id
+                                  ? "bg-gray-200 hover:bg-gray-300 text-red-300 hover:text-red-500 shadow-md focus:outline-none"
+                                  : "bg-white hover:bg-gray-200 text-gray-600 hover:text-red-500"
+                              } `}
+                            >
+                              {foundUser?.name}
+                            </a>
+                          );
+                        })
+                      ) : (
+                        <h1 className="font-medium">{user.name}</h1>
+                      )}
                     </div>
-                  ) : (
-                    <h1 className="font-medium">{user.name}</h1>
-                  )}
+                  </div>
                 </div>
                 {/* buttons */}
                 <div className="flex flex-row gap-2 sm:gap-5 ml-auto mr-6 ">
@@ -721,6 +810,7 @@ const OrderPaymentModal = ({
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  selectedActivityUser={selectedActivityUser}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
                   user={selectedUser}

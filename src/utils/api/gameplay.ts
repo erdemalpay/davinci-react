@@ -54,6 +54,11 @@ interface GameplayPersonalCreatePayload {
   gameplayCount: number;
   createdBy: string;
 }
+interface GameplayPersonalMentoredPayload {
+  gameplayCount: number;
+  mentoredBy: string;
+  totalNarrationDurationPoint: number;
+}
 
 export interface GameplayFilter {
   game?: number;
@@ -430,6 +435,19 @@ export function useGetPersonalGameplayCreateData() {
     `${BASE_URL_GAMEPLAYS}/create_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
     [
       `${{ BASE_URL_GAMEPLAYS }}/create_count`,
+      filterPanelFormElements.after,
+      filterPanelFormElements.before,
+    ],
+    true
+  );
+}
+
+export function useGetPersonalGameplayMentoredData() {
+  const { filterPanelFormElements } = useOrderContext();
+  return useGetList<GameplayPersonalMentoredPayload>(
+    `${BASE_URL_GAMEPLAYS}/mentored_count?after=${filterPanelFormElements.after}&before=${filterPanelFormElements.before}`,
+    [
+      `${{ BASE_URL_GAMEPLAYS }}/mentored_count`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
     ],

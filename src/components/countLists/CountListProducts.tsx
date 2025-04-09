@@ -7,33 +7,46 @@ import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
+import { ExpenseTypeInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { RowKeyType } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type Props = {};
+type FormElementsState = {
+  [key: string]: any;
+};
 
-const CountListProducts = (props: Props) => {
+const CountListProducts = () => {
   const { t } = useTranslation();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      expenseType: "",
+    });
+  const [showFilters, setShowFilters] = useState(false);
+  const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
   const { updateAccountCountList } = useAccountCountListMutations();
-  const allRows = products.map((product) => ({
-    product: product._id,
-    name: product.name,
-  }));
+  const allRows = products.filter((product) => {
+    return (
+      filterPanelFormElements.expenseType === "" ||
+      product.expenseType?.includes(filterPanelFormElements.expenseType)
+    );
+  });
 
   const [rows, setRows] = useState(allRows);
   function handleCountListUpdate(row: any, countList: AccountCountList) {
-    if (countList?.products?.find((item) => item.product === row.product)) {
+    if (countList?.products?.find((item) => item.product === row._id)) {
       const newProducts = countList.products.filter(
-        (item) => item.product !== row.product
+        (item) => item.product !== row._id
       );
       updateAccountCountList({
         id: countList._id,
@@ -42,7 +55,7 @@ const CountListProducts = (props: Props) => {
     } else {
       const newProducts = countList.products || [];
       newProducts.push({
-        product: row.product,
+        product: row._id,
         locations: locations.map((location) => location._id),
       });
       updateAccountCountList({
@@ -65,7 +78,7 @@ const CountListProducts = (props: Props) => {
     {
       key: "name",
       node: (row) => {
-        const className = checkProductIsInCountLists(row.product)
+        const className = checkProductIsInCountLists(row._id)
           ? ""
           : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
         return <div className={className}>{row.name}</div>;
@@ -80,7 +93,7 @@ const CountListProducts = (props: Props) => {
       key: countList._id,
       node: (row: any) => {
         const isChecked = countList?.products?.some(
-          (item) => item.product === row.product
+          (item) => item.product === row._id
         );
         return isEnableEdit ? (
           <div
@@ -115,11 +128,23 @@ const CountListProducts = (props: Props) => {
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
   ];
+  const filterPanel = {
+    isFilterPanelActive: showFilters,
+    inputs: filterPanelInputs,
+    formElements: filterPanelFormElements,
+    setFormElements: setFilterPanelFormElements,
+    closeFilters: () => setShowFilters(false),
+  };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [countLists, locations, products]);
+  }, [countLists, locations, products, filterPanelFormElements, expenseTypes]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -129,6 +154,7 @@ const CountListProducts = (props: Props) => {
           columns={columns}
           filters={filters}
           rows={rows}
+          filterPanel={filterPanel}
           title={t("Count List Products")}
           isActionsActive={false}
         />

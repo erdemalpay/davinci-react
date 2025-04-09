@@ -25,10 +25,16 @@ interface CreateOrderForDivide {
     orderId: number;
   }[];
 }
-interface TransferTablePayload {
+interface CombineTablePayload {
   orders: Order[];
   oldTableId: number;
   transferredTableId: number;
+}
+
+interface TransferTablePayload {
+  orders: Order[];
+  oldTableId: number;
+  transferredTableName: string;
 }
 interface ReturnOrderPayload {
   orderId: number;
@@ -79,6 +85,12 @@ export function updateOrders(orders: Order[]) {
   return patch({
     path: `/order/update_bulk`,
     payload: { orders },
+  });
+}
+export function combineTable(payload: CombineTablePayload) {
+  return post({
+    path: `/order/table_combine`,
+    payload: payload,
   });
 }
 export function transferTable(payload: TransferTablePayload) {
@@ -138,20 +150,33 @@ export function useUpdateOrderForCancelMutation() {
     },
   });
 }
-
-export function useTransferTableMutation() {
+export function useTransferTableMutations() {
+  const queryKey = [`${Paths.Tables}`];
+  const queryClient = useQueryClient();
+  return useMutation(transferTable, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+export function useCombineTableMutation() {
   const tableBaseUrl = `${Paths.Tables}`;
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
   const queryKey = [tableBaseUrl, selectedLocationId, selectedDate];
   const queryClient = useQueryClient();
 
-  return useMutation(transferTable, {
+  return useMutation(combineTable, {
     onMutate: async ({
       orders,
       oldTableId,
       transferredTableId,
-    }: TransferTablePayload) => {
+    }: CombineTablePayload) => {
       // Cancel any outgoing refetches to prevent overwriting the optimistic update
       await queryClient.cancelQueries(queryKey);
 
@@ -353,15 +378,38 @@ export function useUpdateMultipleOrderMutation() {
 export function useGetOrders() {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
-  if (filterPanelFormElements?.before) {
-    url = url.concat(`&before=${filterPanelFormElements.before}`);
-  }
+  const parameters = [
+    "before",
+    "discount",
+    "createdBy",
+    "preparedBy",
+    "deliveredBy",
+    "cancelledBy",
+    "status",
+    "category",
+    "location",
+  ];
+  parameters.forEach((param) => {
+    if (filterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
+      );
+    }
+  });
   return useGetList<Order>(
     url,
     [
       `${Paths.Order}/query`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.discount,
+      filterPanelFormElements.createdBy,
+      filterPanelFormElements.preparedBy,
+      filterPanelFormElements.deliveredBy,
+      filterPanelFormElements.cancelledBy,
+      filterPanelFormElements.status,
+      filterPanelFormElements.category,
+      filterPanelFormElements.location,
     ],
     true
   );

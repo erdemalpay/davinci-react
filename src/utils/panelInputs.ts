@@ -21,7 +21,10 @@ export function NameInput({ required = true } = {}) {
     required: required,
   };
 }
-export function QuantityInput({ required = true } = {}) {
+export function QuantityInput({
+  required = true,
+  isNumberButtonActive = false,
+} = {}) {
   const { t } = useTranslation();
   return {
     type: InputTypes.NUMBER,
@@ -29,6 +32,7 @@ export function QuantityInput({ required = true } = {}) {
     label: t("Quantity"),
     placeholder: t("Quantity"),
     required: required,
+    isNumberButtonActive: isNumberButtonActive,
   };
 }
 export function BackgroundColorInput({ required = true } = {}) {
@@ -231,11 +235,13 @@ export function PaymentMethodInput({
 export function LocationInput({
   required = true,
   isMultiple = false,
+  isDisabled = false,
   locations,
 }: {
+  locations: Location[];
   required?: boolean;
   isMultiple?: boolean;
-  locations: Location[];
+  isDisabled?: boolean;
 }) {
   const { t } = useTranslation();
   return {
@@ -251,6 +257,7 @@ export function LocationInput({
     placeholder: t("Location"),
     isMultiple: isMultiple,
     required: required,
+    isDisabled: isDisabled,
   };
 }
 

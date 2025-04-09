@@ -1,10 +1,14 @@
+import { MdOutlineNotificationsNone } from "react-icons/md";
 import { Link } from "react-router-dom";
 import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
+import { useGeneralContext } from "../../context/General.context";
 import { Routes } from "../../navigation/constants";
+import { useGetUserNewNotifications } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
 import { LocationSelector } from "./LocationSelector";
-import { PageSelector } from "./PageSelector";
 import logo from "./logo.svg";
+import NotificationModal from "./NotificationModal";
+import { PageSelector } from "./PageSelector";
 
 interface HeaderProps {
   showLocationSelector?: boolean;
@@ -16,11 +20,14 @@ export function Header({
   allowedLocations,
 }: HeaderProps) {
   const user = useGetUser();
+  const notifications = useGetUserNewNotifications();
+  const { isNotificationOpen, setIsNotificationOpen } = useGeneralContext();
   const handleScrollToTop = () => {
     if (location.pathname === Routes.Tables) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">
@@ -50,6 +57,30 @@ export function Header({
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />
             )}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsNotificationOpen(!isNotificationOpen);
+              }}
+              className="relative cursor-pointer hover:scale-105"
+            >
+              <MdOutlineNotificationsNone className="text-2xl text-white " />
+              {notifications.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white  text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border ">
+                  {notifications.length}
+                </span>
+              )}
+            </div>
+            {isNotificationOpen && (
+              <div className="absolute top-12 right-2 flex flex-col gap-2 bg-white rounded-md py-4 px-2 mx-auto border-t border-gray-200 drop-shadow-lg z-10 w-[90%] sm:w-[35%]">
+                <NotificationModal
+                  onClose={() => {
+                    setIsNotificationOpen(false);
+                  }}
+                />
+              </div>
+            )}
+
             <span className="text-white ml-2">{user?.name}</span>
             <PageSelector />
           </div>

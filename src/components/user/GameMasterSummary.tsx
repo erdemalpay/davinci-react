@@ -2,17 +2,23 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaGamepad } from "react-icons/fa";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
-import { GiStorkDelivery } from "react-icons/gi";
+import { GiMasterOfArms, GiStorkDelivery } from "react-icons/gi";
 import { MdOutlineFastfood } from "react-icons/md";
+import { PiPersonArmsSpreadFill } from "react-icons/pi";
+import { SiPointy } from "react-icons/si";
 import { useOrderContext } from "../../context/Order.context";
 import { commonDateOptions, DateRangeKey } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
-import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
+import {
+  useGetPersonalGameplayCreateData,
+  useGetPersonalGameplayMentoredData,
+} from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import InfoCard from "../common/InfoCard";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -28,6 +34,7 @@ const GameMasterSummary = ({ userId }: Props) => {
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   //   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
+  const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const users = useGetUsers();
   const [showFilters, setShowFilters] = useState(false);
   const games = useGetGames();
@@ -47,14 +54,37 @@ const GameMasterSummary = ({ userId }: Props) => {
     const foundPersonalCollectionData = personalCollectionDatas?.find(
       (data) => data.createdBy === userId
     );
-    // const foundTableData = tableCreateDatas?.find(
-    //   (tableData) => tableData.createdBy === userId
-    // );
+    const foundGameplayMentoredData = gameplayMentoredDatas.find(
+      (gameplayData) => gameplayData.mentoredBy === userId
+    );
+    const userLearnedGamesTotalPoints =
+      getItem(userId, users)?.userGames?.reduce((acc, item) => {
+        const foundGame = games?.find((game) => game._id === item.game);
+
+        if (!foundGame?.narrationDurationPoint) return acc;
+
+        const beforeFilter =
+          !filterPanelFormElements.before ||
+          item?.learnDate <= filterPanelFormElements.before;
+        const afterFilter =
+          !filterPanelFormElements.after ||
+          item?.learnDate >= filterPanelFormElements.after;
+
+        if (beforeFilter && afterFilter) {
+          return acc + foundGame.narrationDurationPoint;
+        }
+
+        return acc;
+      }, 0) || 0;
     return {
       createdByCount: foundPersonalOrderDatas?.createdByCount || 0,
       deliveredByCount: foundPersonalOrderDatas?.deliveredByCount || 0,
       gameplayCount: foundGameplayData?.gameplayCount || 0,
       collectionCount: foundPersonalCollectionData?.totalCollections || 0,
+      mentoredGameplayCount: foundGameplayMentoredData?.gameplayCount || 0,
+      mentoredGamesTotalPoints:
+        foundGameplayMentoredData?.totalNarrationDurationPoint || 0,
+      userLearnedGamesTotalPoints,
     };
   };
   const userInfoCards = [
@@ -77,10 +107,28 @@ const GameMasterSummary = ({ userId }: Props) => {
       color: "orange",
     },
     {
+      icon: <PiPersonArmsSpreadFill />,
+      title: t("Mentored Gameplay Count"),
+      value: allUserInfos().mentoredGameplayCount.toString(),
+      color: "purple",
+    },
+    {
       icon: <FaMoneyBill1Wave />,
       title: t("Collection Count"),
       value: allUserInfos().collectionCount.toString(),
       color: "red",
+    },
+    {
+      icon: <SiPointy />,
+      title: t("Learned Games Total Points"),
+      value: allUserInfos().userLearnedGamesTotalPoints.toString(),
+      color: "pink",
+    },
+    {
+      icon: <GiMasterOfArms />,
+      title: t("Mentored Games Total Points"),
+      value: allUserInfos().mentoredGamesTotalPoints.toString(),
+      color: "brown",
     },
   ];
   const filterPanelInputs = [
@@ -164,13 +212,13 @@ const GameMasterSummary = ({ userId }: Props) => {
       },
     },
   ];
-
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    isFilterPanelCoverTable: true,
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -200,13 +248,29 @@ const GameMasterSummary = ({ userId }: Props) => {
     personalOrderDatas,
     personalCollectionDatas,
     // tableCreateDatas,
+    gameplayMentoredDatas,
     gameplayDatas,
     games,
     users,
   ]);
   return (
-    <div key={tableKey} className="w-full  h-fit flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+    <div
+      key={tableKey}
+      className="w-full grid grid-cols-1 md:grid-cols-3 gap-4"
+    >
+      <div className="border p-2 rounded-lg border-gray-200 bg-white col-span-1">
+        <GenericTable
+          key={tableKey}
+          columns={columns}
+          filterPanel={filterPanel}
+          filters={filters}
+          rows={rows}
+          rowKeys={rowKeys}
+          title={t("Learned Games")}
+          isActionsActive={false}
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
         {userInfoCards.map((card, index) => (
           <InfoCard
             key={index}
@@ -217,18 +281,7 @@ const GameMasterSummary = ({ userId }: Props) => {
           />
         ))}
       </div>
-      <GenericTable
-        key={tableKey}
-        columns={columns}
-        filterPanel={filterPanel}
-        filters={filters}
-        rows={rows}
-        rowKeys={rowKeys}
-        title={t("Learned Games")}
-        isActionsActive={false}
-      />
     </div>
   );
 };
-
 export default GameMasterSummary;

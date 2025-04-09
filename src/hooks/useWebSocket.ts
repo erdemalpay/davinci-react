@@ -60,7 +60,8 @@ export function useWebSocket() {
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
           OrderStatus.RETURNED,
-        ].includes(order?.status as OrderStatus)
+        ].includes(order?.status as OrderStatus) ||
+        order?.location !== selectedLocationId
       ) {
         return;
       }
@@ -91,6 +92,19 @@ export function useWebSocket() {
         data.collection.table,
       ]);
     });
+
+    socket.on("notificationChanged", (data) => {
+      if (
+        data?.selectedUsers?.includes(user?._id) ||
+        (data?.selectedRoles?.includes(user?.role?._id) &&
+          !data?.notification?.seenUsers?.includes(user?._id))
+      ) {
+        queryClient.invalidateQueries([`${Paths.Notification}/new`]);
+        queryClient.invalidateQueries([`${Paths.Notification}/all`]);
+        queryClient.invalidateQueries([`${Paths.Notification}/event`]);
+      }
+    });
+
     socket.on("singleTableChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
     });
@@ -113,7 +127,10 @@ export function useWebSocket() {
         return;
       }
 
-      if (data?.soundRoles?.includes(user?.role?._id)) {
+      if (
+        data?.soundRoles?.includes(user?.role?._id) &&
+        data.location === selectedLocationId
+      ) {
         orderCreatedSound
           .play()
           .catch((error) => console.error("Error playing sound:", error));

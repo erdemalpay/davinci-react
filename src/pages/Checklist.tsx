@@ -11,14 +11,14 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import {
   FormKeyTypeEnum,
   InputTypes,
   RowKeyType,
 } from "../components/panelComponents/shared/types";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ChecklistType, RoleEnum } from "../types";
@@ -42,6 +42,9 @@ const Checklist = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    : true;
   const { createCheck } = useCheckMutations();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -54,6 +57,7 @@ const Checklist = () => {
   const [tableKey, setTableKey] = useState(0);
   const [form, setForm] = useState({
     duty: "",
+    description: "",
   });
   const [isLocationEdit, setIsLocationEdit] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -79,6 +83,7 @@ const Checklist = () => {
             ? currentLocations?.filter((l) => l !== changedLocationId)
             : [...currentLocations, changedLocationId]
           : [],
+        order: row.order,
       },
     ];
     if (!checklistId) return;
@@ -90,12 +95,12 @@ const Checklist = () => {
     toast.success(`${t("Checklist updated successfully")}`);
   }
   const rows = () => {
-    let dutyRows = [];
+    const dutyRows = [];
     const currentChecklist = checklists?.find(
       (item) => item._id === checklistId
     );
     if (currentChecklist && currentChecklist.duties) {
-      for (let item of currentChecklist.duties) {
+      for (const item of currentChecklist.duties) {
         const locationEntries = locations?.reduce<LocationEntries>(
           (acc, location) => {
             acc[location._id] = item.locations?.includes(location._id) ?? false;
@@ -105,20 +110,38 @@ const Checklist = () => {
         );
         dutyRows.push({
           duty: item.duty,
+          order: item.order,
+          description: item?.description,
           ...locationEntries,
         });
       }
     }
-    dutyRows = dutyRows.sort((a, b) => {
-      if (a.duty < b.duty) {
-        return -1;
+    const sortedRows = dutyRows.sort((a, b) => a.order - b.order);
+    return sortedRows;
+  };
+  const handleDrag = (DragRow: any, DropRow: any) => {
+    const currentChecklist = checklists?.find(
+      (item) => item._id === checklistId
+    );
+    if (!currentChecklist) return;
+    const newDuties = currentChecklist.duties?.map((item) => {
+      if (item.order === DragRow.order) {
+        return {
+          ...item,
+          order: DropRow.order,
+        };
+      } else if (item.order === DropRow.order) {
+        return {
+          ...item,
+          order: DragRow.order,
+        };
       }
-      if (a.duty > b.duty) {
-        return 1;
-      }
-      return 0;
+      return item;
     });
-    return dutyRows;
+    updateChecklist({
+      id: checklistId,
+      updates: { duties: newDuties },
+    });
   };
   const addDutyInputs = [
     {
@@ -128,8 +151,18 @@ const Checklist = () => {
       placeholder: t("Duty"),
       required: true,
     },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "description",
+      label: t("Description"),
+      placeholder: t("Description"),
+      required: false,
+    },
   ];
-  const addDutyFormKeys = [{ key: "duty", type: FormKeyTypeEnum.STRING }];
+  const addDutyFormKeys = [
+    { key: "duty", type: FormKeyTypeEnum.STRING },
+    { key: "description", type: FormKeyTypeEnum.STRING },
+  ];
   const [checkLocationForm, setCheckLocationForm] = useState({
     location: 0,
   });
@@ -145,8 +178,11 @@ const Checklist = () => {
   const checkLocationFormKeys = [
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }];
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Description"), isSortable: false },
+  ];
+  const rowKeys: RowKeyType<any>[] = [{ key: "duty" }, { key: "description" }];
   locations.forEach((item) => {
     columns.push({ key: item.name, isSortable: true });
     rowKeys.push({
@@ -164,10 +200,7 @@ const Checklist = () => {
         ),
     });
   });
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-  ) {
+  if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
@@ -182,7 +215,9 @@ const Checklist = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={addDutyInputs}
         formKeys={addDutyFormKeys}
-        submitItem={() => {}}
+        submitItem={() => {
+          return null;
+        }}
         isEditMode={true}
         buttonName={t("Add")}
         setForm={setForm}
@@ -195,9 +230,11 @@ const Checklist = () => {
               [];
             const newDuty = {
               duty: form.duty,
+              description: form.description,
               locations:
                 checklists?.find((item) => item._id === checklistId)
                   ?.locations ?? [],
+              order: duties?.length ?? 0,
             };
             dutyRows = [...duties, newDuty];
             return dutyRows;
@@ -268,7 +305,10 @@ const Checklist = () => {
           submitItem={updateChecklist as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "
-          constantValues={{ duty: rowToAction.duty }}
+          constantValues={{
+            duty: rowToAction.duty,
+            description: rowToAction.description,
+          }}
           handleUpdate={() => {
             const checklistDuties = () => {
               let dutyRows = [];
@@ -278,6 +318,8 @@ const Checklist = () => {
               );
               const newDuty = {
                 duty: form.duty,
+                description: form.description,
+                order: rowToAction.order,
                 locations:
                   checklists?.find((item) => item._id === checklistId)
                     ?.locations ?? [],
@@ -315,10 +357,8 @@ const Checklist = () => {
     },
     {
       label: t("Location Edit"),
-      isUpperSide: true,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-        : true,
+      isUpperSide: false,
+      isDisabled: isDisabledCondition,
       node: (
         <Switch
           checked={isLocationEdit}
@@ -378,25 +418,15 @@ const Checklist = () => {
             key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
-            isToolTipEnabled={false}
+            isToolTipEnabled={true}
             rows={rows()}
-            actions={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-                user.role._id
-              )
-                ? actions
-                : undefined
-            }
-            addButton={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-                user.role._id
-              )
-                ? addButton
-                : undefined
-            }
+            actions={!isDisabledCondition ? actions : undefined}
+            addButton={!isDisabledCondition ? addButton : undefined}
             filters={filters}
             title={checklists?.find((p) => p._id === checklistId)?.name}
             isActionsActive={true}
+            isDraggable={true}
+            onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
           />
         </div>
         {isCheckModalOpen && (
@@ -405,7 +435,9 @@ const Checklist = () => {
             close={() => setIsCheckModalOpen(false)}
             inputs={checkLocationInputs}
             formKeys={checkLocationFormKeys}
-            submitItem={() => {}}
+            submitItem={() => {
+              return null;
+            }}
             submitFunction={async () => {
               if (checkLocationForm.location === 0 || !user) return;
               if (

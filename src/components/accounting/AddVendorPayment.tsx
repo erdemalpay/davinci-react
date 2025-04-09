@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useAccountPaymentMutations } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
@@ -13,7 +14,6 @@ const AddVendorPayment = () => {
   const vendors = useGetAccountVendors();
   const paymentMethods = useGetAccountPaymentMethods();
   const locations = useGetStockLocations();
-
   const inputs = [
     {
       type: InputTypes.SELECT,
@@ -63,6 +63,7 @@ const AddVendorPayment = () => {
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
+    { key: "date", type: FormKeyTypeEnum.STRING },
   ];
 
   return (
@@ -70,6 +71,7 @@ const AddVendorPayment = () => {
       inputs={inputs}
       header={t("Add Vendor Payment")}
       formKeys={formKeys}
+      constantValues={{ date: format(new Date(), "yyyy-MM-dd") }}
       submitItem={createAccountPayment as any}
       buttonName={t("Submit")}
       topClassName="flex flex-col gap-2 "

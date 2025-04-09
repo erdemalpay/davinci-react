@@ -225,3 +225,11 @@ export function useGetTables() {
     [Paths.Tables, selectedLocationId, selectedDate]
   );
 }
+
+export function useGetTablePlayerCounts(month: string, year: string) {
+  return useGetList<any>(
+    `${Paths.Tables}/count?year=${year}&month=${month}`,
+    [year, month],
+    true
+  );
+}

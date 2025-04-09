@@ -9,6 +9,13 @@ export type Gameplay = {
   location: number;
   createdBy: User;
 };
+export type Authorization = {
+  _id: number;
+  path: string;
+  method: string;
+  roles: number[];
+  relatedPages?: string[];
+};
 
 export type Location = {
   _id: number;
@@ -18,6 +25,8 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
+  shifts?: string[];
+  tableNames?: string[];
 };
 
 export type Table = {
@@ -30,6 +39,7 @@ export type Table = {
   startHour: string;
   finishHour?: string;
   orders?: number[];
+  tables?: string[];
   gameplays: Gameplay[];
   status?: string;
   isOnlineSale?: boolean;
@@ -96,7 +106,8 @@ export type AccountProduct = {
   deleted?: boolean;
   baseQuantities?: {
     location: number;
-    quantity: number;
+    minQuantity: number;
+    maxQuantity: number;
   }[];
 };
 export type AccountService = {
@@ -108,6 +119,16 @@ export type AccountService = {
 };
 
 export type AccountCountList = {
+  _id: string;
+  name: string;
+  locations: number[];
+  products?: {
+    product: string;
+    locations: number[];
+  }[];
+  active: boolean;
+};
+export type ExpirationListType = {
   _id: string;
   name: string;
   locations: number[];
@@ -141,6 +162,8 @@ export type ChecklistType = {
   active: boolean;
   duties?: {
     duty: string;
+    order: number;
+    description?: string;
     locations: number[];
   }[];
 };
@@ -393,6 +416,19 @@ export type MenuItem = {
   shownInMenu?: boolean;
   ikasDiscountedPrice?: number;
 };
+export type ShiftValue = {
+  shift: string;
+  user: string[];
+  chefUser?: string;
+};
+
+export type Shift = {
+  _id: number;
+  day: string;
+  location?: number;
+  shifts: ShiftValue[];
+};
+
 export type CheckoutIncome = {
   _id: number;
   user: string;
@@ -437,6 +473,48 @@ export type PanelControlCheckoutCash = {
   user: User;
   location: number;
 };
+
+export type StyleDto = {
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  textAlign?: string;
+  imageHeight?: string;
+  imageWidth?: string;
+  imageBorderRadius?: string;
+  imageMargin?: string;
+};
+
+export type EducationSubheaderDto = {
+  componentType?: string;
+  subHeader?: string;
+  paragraph?: string;
+  imageUrl?: string;
+  style?: StyleDto;
+  order: number;
+};
+
+export type Education = {
+  _id: number;
+  permissionRoles: number[];
+  header: string;
+  order: number;
+  subheaders?: EducationSubheaderDto[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+export type CafeActivity = {
+  _id: number;
+  date: string;
+  location: number;
+  hour: string;
+  personCount: number;
+  groupName: string;
+  price?: number;
+  complimentary?: string;
+  isCompleted?: boolean;
+};
 export type Order = {
   _id: number;
   location: number;
@@ -470,6 +548,8 @@ export type Order = {
   ikasId?: string;
   paymentMethod?: string;
   tableDate?: Date;
+  activityTableName?: string;
+  activityPlayer?: string;
 };
 
 export type OrderCollection = {
@@ -488,6 +568,7 @@ export type OrderCollection = {
   table?: Table | number;
   ikasId?: string;
   tableDate?: Date;
+  activityPlayer?: string;
 };
 
 export type OrderCollectionItem = {
@@ -541,7 +622,27 @@ export type Reservation = {
   callCount: number;
   finishHour: string;
   status: ReservationStatusEnum;
+  order: number;
+  note?: string;
 };
+export type Notification = {
+  _id: number;
+  createdAt: Date;
+  message?: string;
+  type: string;
+  createdBy?: string;
+  selectedUsers?: string[];
+  selectedRoles?: number[];
+  selectedLocations?: number[];
+  seenBy?: string[];
+};
+export enum NotificationType {
+  INFORMATION = "INFORMATION",
+  WARNING = "WARNING",
+  ERROR = "ERROR",
+  SUCCESS = "SUCCESS",
+  ORDER = "ORDER",
+}
 
 export type TagType<T> = {
   _id: string | number;
@@ -654,6 +755,19 @@ export enum ExpensesPageTabEnum {
   ADDVENDORPAYMENT,
   BULKEXPENSECREATE,
 }
+
+export enum VisitPageTabEnum {
+  DAILYVISIT,
+  VISITCHART,
+  VISITSCHEDULEOVERVIEW,
+  ALLVISITS,
+  SHIFTS,
+}
+export enum NotificationPageTabEnum {
+  CREATENOTIFICATION,
+  ALLNOTIFICATIONS,
+  ASSIGNEDNOTIFICATIONS,
+}
 export enum CountListPageTabEnum {
   COUNTARCHIVE,
   COUNTLISTS,
@@ -663,8 +777,35 @@ export enum ChecklistPageTabEnum {
   CHECKARCHIVE,
   CHECKLISTS,
 }
+export type DateQuantitiesType = {
+  expirationDate: string;
+  quantity: number;
+};
+
+export type ExpirationCountProductType = {
+  product: string;
+  dateQuantities: DateQuantitiesType[];
+};
+
+export type ExpirationCountType = {
+  _id: string;
+  user: string;
+  location: number;
+  expirationList: string;
+  createdAt: Date;
+  completedAt?: Date;
+  isCompleted: boolean;
+  products: ExpirationCountProductType[];
+};
+export enum ExpirationPageTabEnum {
+  COUNTARCHIVE,
+  EXPIRATIONLISTS,
+  EXPIRATIONLISTPRODUCTS,
+}
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
+  ROUTEAUTHORIZATIONPERMISSIONS,
+  EDUCATIONPERMISSIONS,
   CHECKOUTCASH,
   PANELSETTINGS,
   USERACTIVITIES,
@@ -712,7 +853,9 @@ export enum ProductPageTabEnum {
   PRODUCTEXPENSES,
   PRODUCTSTOCKHISTORY,
 }
-
+export enum LocationPageTabEnum {
+  TABLENAMES,
+}
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,
   VENDORSERVICES,
@@ -760,6 +903,7 @@ export enum OrderDataTabEnum {
   COLLECTIONS,
   ORDERS,
   IKASORDERS,
+  FARMBURGER,
   PERSONALORDERDATAS,
 }
 export const stockHistoryStatuses = [
@@ -884,8 +1028,8 @@ export enum TableTypes {
   NORMAL = "normal",
   TAKEOUT = "takeout",
   ONLINE = "online",
+  ACTIVITY = "activity",
 }
-
 export enum OrderCollectionStatus {
   PAID = "paid",
   CANCELLED = "cancelled",
@@ -1188,6 +1332,7 @@ export const commonDateOptions = [
   { value: "lastWeek", label: "Last Week" },
   { value: "thisMonth", label: "This Month" },
   { value: "lastMonth", label: "Last Month" },
+  { value: "twoMonthsAgo", label: "Two Months Ago" },
   { value: "sameDayLastMonthToToday", label: "Same day Last Month" },
   { value: "thisYear", label: "This Year" },
   { value: "lastYear", label: "Last Year" },
@@ -1200,6 +1345,7 @@ export type DateRangeKey =
   | "lastWeek"
   | "thisMonth"
   | "lastMonth"
+  | "twoMonthsAgo"
   | "sameDayLastMonthToToday"
   | "thisYear"
   | "lastYear";
@@ -1237,3 +1383,10 @@ export const orderFilterStatusOptions = [
   { value: OrderStatus.WASTED, label: "Loss Product" },
   { value: OrderStatus.RETURNED, label: "Returned" },
 ];
+export const NotificationBackgroundColors: Record<NotificationType, string> = {
+  [NotificationType.INFORMATION]: "#79a8ce",
+  [NotificationType.WARNING]: "#e8c185",
+  [NotificationType.ERROR]: "#e56d64",
+  [NotificationType.SUCCESS]: "#92e895",
+  [NotificationType.ORDER]: "#de8dec",
+};

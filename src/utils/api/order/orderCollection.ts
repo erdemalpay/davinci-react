@@ -67,12 +67,19 @@ export function useGetAllOrderCollections() {
   if (filterPanelFormElements?.before) {
     url = url.concat(`&before=${filterPanelFormElements.before}`);
   }
+  if (
+    filterPanelFormElements?.location &&
+    filterPanelFormElements?.location !== ""
+  ) {
+    url = url.concat(`&location=${filterPanelFormElements.location}`);
+  }
   return useGetList<OrderCollection>(
     url,
     [
       `${Paths.Order}/collection/query`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
+      filterPanelFormElements.location,
     ],
     true
   );

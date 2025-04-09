@@ -57,16 +57,16 @@ const OrderCard = ({ order, table }: Props) => {
   return (
     <div
       key={order?._id}
-      className={`flex justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor(
+      className={`flex flex-wrap justify-between text-xs  rounded-lg items-center px-2 py-1 ${orderBgColor(
         order
       )}`}
     >
-      <div className="flex w-5/6 gap-1">
+      <div className="flex w-4/6 gap-1">
         <p>{getItem(order?.item, items)?.name} </p>
         <h1 className="text-xs">({order?.quantity})</h1>
       </div>
 
-      <div className="flex flex-row ">
+      <div className="flex flex-row  ">
         {order?.status !== OrderStatus.PENDING &&
           (order?.status === OrderStatus.READYTOSERVE ? (
             <ButtonTooltip content={t("Served")}>
@@ -98,6 +98,11 @@ const OrderCard = ({ order, table }: Props) => {
           </div>
         )}
       </div>
+      {order?.activityTableName && (
+        <p className="text-gray-600 ml-auto">
+          {"(" + t("Table") + " " + order?.activityTableName + ")"}
+        </p>
+      )}
     </div>
   );
 };

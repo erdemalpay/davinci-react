@@ -1,6 +1,7 @@
 import { BiCategory } from "react-icons/bi";
 import { BsClipboard2Data } from "react-icons/bs";
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import { PiHamburgerBold } from "react-icons/pi";
 import { SiFampay } from "react-icons/si";
 import {
   TbCategoryPlus,
@@ -14,6 +15,7 @@ import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSale
 import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
+import FarmBurgerData from "../components/orderDatas/FarmBurgerData";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import IkasOrders from "../components/orderDatas/IkasOrders";
 import OrdersReport from "../components/orderDatas/OrdersReport";
@@ -22,6 +24,7 @@ import SingleProductSalesReport from "../components/orderDatas/SingleProductSale
 import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
+import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -91,6 +94,13 @@ export const OrderDataTabs = [
     isDisabled: false,
   },
   {
+    number: OrderDataTabEnum.FARMBURGER,
+    label: "Farm Burger",
+    icon: <PiHamburgerBold className="text-lg font-thin" />,
+    content: <FarmBurgerData />,
+    isDisabled: false,
+  },
+  {
     number: OrderDataTabEnum.PERSONALORDERDATAS,
     label: "Personal Order Datas",
     icon: <BsClipboard2Data className="text-lg font-thin" />,
@@ -105,6 +115,8 @@ const OrderDatas = () => {
     orderDataActiveTab,
     setOrderDataActiveTab,
   } = useGeneralContext();
+  const { setFilterPanelFormElements, filterPanelFormElements } =
+    useOrderContext();
   const currentPageId = "order_datas";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
@@ -120,6 +132,20 @@ const OrderDatas = () => {
         ?.permissionRoles?.includes(user.role._id)
         ? false
         : true,
+      ...(tab.number === OrderDataTabEnum.FARMBURGER && {
+        onOpenAction: () => {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            category: [30],
+          });
+        },
+        onCloseAction: () => {
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            category: [],
+          });
+        },
+      }),
     };
   });
   return (

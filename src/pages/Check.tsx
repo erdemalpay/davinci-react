@@ -1,3 +1,4 @@
+import { Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,6 +18,7 @@ import { ChecklistPageTabEnum } from "../types";
 import { useCheckMutations, useGetChecks } from "../utils/api/checklist/check";
 import { useGetChecklists } from "../utils/api/checklist/checklist";
 import { getItem } from "../utils/getItem";
+
 const Check = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
@@ -37,20 +39,21 @@ const Check = () => {
       item.checklist === checklistId
     );
   });
-  const checklistDuties = getItem(checklistId, checklists)?.duties;
+  const checklistDuties = getItem(checklistId, checklists)?.duties?.filter(
+    (item) => item.locations.includes(Number(location))
+  );
   const allRows = checklistDuties
     ?.map((dutyItem) => {
-      if (location && dutyItem.locations.includes(Number(location))) {
-        return {
-          duty: dutyItem.duty,
-          isCompleted:
-            currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
-              ?.isCompleted ?? false,
-        };
-      }
-      return null;
+      return {
+        duty: dutyItem.duty,
+        order: dutyItem.order,
+        description: dutyItem?.description ?? "",
+        isCompleted:
+          currentCheck?.duties?.find((item) => item.duty === dutyItem.duty)
+            ?.isCompleted ?? false,
+      };
     })
-    ?.filter((item) => item !== null);
+    .sort((a, b) => a.order - b.order);
   const [rows, setRows] = useState(allRows);
   const pageNavigations = [
     {
@@ -72,7 +75,24 @@ const Check = () => {
     { key: t("Completed"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "duty" },
+    {
+      key: "duty",
+      node: (row: any) => (
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-sm text-red-500">{row.order + 1}-</p>
+          <p>{row.duty}</p>
+          {row.description && (
+            <Tooltip
+              content={row.description}
+              placement="bottom" // shows it below the icon
+              className="bg-gray-50 text-black border border-gray-400 p-2 rounded-md text-sm max-w-xs !z-[999999999999999999999] md:ml-2"
+            >
+              <p className="text-xs text-gray-400 cursor-pointer">(!)</p>
+            </Tooltip>
+          )}
+        </div>
+      ),
+    },
     {
       key: "isCompleted",
       node: (row: any) =>
@@ -110,9 +130,25 @@ const Check = () => {
   };
   const completeCheck = () => {
     if (!currentCheck) return;
+    const updatedDuties = currentCheck.duties;
+    if (checklistDuties) {
+      for (const item of checklistDuties) {
+        if (
+          !currentCheck?.duties?.some(
+            (currentCheckDutyItem) => currentCheckDutyItem.duty === item.duty
+          )
+        ) {
+          updatedDuties.push({
+            duty: item.duty,
+            isCompleted: false,
+          });
+        }
+      }
+    }
     updateCheck({
       id: currentCheck?._id,
       updates: {
+        duties: updatedDuties,
         isCompleted: true,
         completedAt: new Date(),
       },

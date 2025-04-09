@@ -27,13 +27,13 @@ import {
 } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
 } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -223,18 +223,8 @@ const GameStock = () => {
     },
   ];
   if ((user && ![RoleEnum.MANAGER].includes(user?.role?._id)) || !showPrices) {
-    const splicedColumns = [
-      "Unit Price",
-      "Menu Price",
-      "Online Price",
-      "Total Price",
-    ];
-    const splicedRowKeys = [
-      "unitPrice",
-      "menuPrice",
-      "onlineMenuPrice",
-      "totalGroupPrice",
-    ];
+    const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
+    const splicedRowKeys = ["unitPrice", "onlineMenuPrice", "totalGroupPrice"];
     splicedColumns.forEach((item) => {
       columns.splice(
         columns.findIndex((column) => column.key === item),

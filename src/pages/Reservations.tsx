@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCheck, FaPhone } from "react-icons/fa6";
@@ -14,31 +15,34 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { AddReservationDialog } from "../components/reservations/AddReservationDialog";
 import { ReservationCallDialog } from "../components/reservations/ReservationCallDialog";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
+import { useLocationContext } from "../context/Location.context";
 import { Routes } from "../navigation/constants";
 import { Reservation, ReservationStatusEnum, TableTypes } from "../types/index";
 import {
   useGetReservations,
   useReservationCallMutations,
   useReservationMutations,
+  useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
+
 export default function Reservations() {
   const { t } = useTranslation();
   const reservations = useGetReservations();
   const navigate = useNavigate();
   const [tableKey, setTableKey] = useState(0);
+  const { mutate: updateReservationsOrder } =
+    useUpdateReservationsOrderMutation();
   const [hideCompletedReservations, setHideCompletedReservations] =
     useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isCreateReservationDialogOpen, setIsCreateReservationDialogOpen] =
-    useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Reservation>();
   const { updateReservation, createReservation } = useReservationMutations();
   const [selectedReservation, setSelectedReservation] = useState<Reservation>();
   const { updateReservationCall } = useReservationCallMutations();
-
+  const { selectedLocationId } = useLocationContext();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
@@ -82,6 +86,12 @@ export default function Reservations() {
         return "bg-yellow-100";
     }
   }
+  const handleDrag = (DragRow: Reservation, DropRow: Reservation) => {
+    updateReservationsOrder({
+      id: DragRow._id,
+      newOrder: DropRow.order,
+    });
+  };
   const inputs = [
     {
       type: InputTypes.TEXT,
@@ -118,6 +128,16 @@ export default function Reservations() {
       label: t("Player Count"),
       placeholder: t("Player Count"),
       required: false,
+      minNumber: 0,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: false,
     },
   ];
   const formKeys = [
@@ -126,6 +146,8 @@ export default function Reservations() {
     { key: "reservationHour", type: FormKeyTypeEnum.STRING },
     { key: "reservedTable", type: FormKeyTypeEnum.STRING },
     { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "note", type: FormKeyTypeEnum.STRING },
   ];
 
   const columns = [
@@ -137,6 +159,7 @@ export default function Reservations() {
     { key: t("Call Hour"), isSortable: true },
     { key: t("Approved Hour"), isSortable: true },
     { key: t("Status"), isSortable: true },
+    { key: t("Note"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
@@ -164,6 +187,10 @@ export default function Reservations() {
     { key: "approvedHour" },
     {
       key: "status",
+      className: "min-w-32",
+    },
+    {
+      key: "note",
       className: "min-w-32",
     },
   ];
@@ -293,20 +320,29 @@ export default function Reservations() {
     },
   ];
   const addButton = {
-    name: t("Add Reservation"),
+    name: t(`Add Reservation`),
     isModal: true,
     modal: (
-      <AddReservationDialog
-        isOpen={isCreateReservationDialogOpen}
-        close={() => setIsCreateReservationDialogOpen(false)}
-        createReservation={createReservation}
+      <GenericAddEditPanel
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        inputs={inputs}
+        formKeys={formKeys}
+        constantValues={{
+          location: selectedLocationId,
+          reservationHour: format(new Date(), "HH:mm"),
+          playerCount: 0,
+        }}
+        submitItem={createReservation as any}
+        topClassName="flex flex-col gap-2 "
       />
     ),
-    isModalOpen: isCreateReservationDialogOpen,
-    setIsModal: setIsCreateReservationDialogOpen,
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: false,
   };
   const filteredReservations = () => {
     if (hideCompletedReservations) {
@@ -334,6 +370,8 @@ export default function Reservations() {
           title={t("Reservations")}
           addButton={addButton}
           rowClassNameFunction={getBgColor}
+          isDraggable={true}
+          onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
         />
         {isReservationCalledDialogOpen && (
           <ReservationCallDialog

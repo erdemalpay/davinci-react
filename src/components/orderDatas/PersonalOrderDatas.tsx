@@ -5,7 +5,10 @@ import { useOrderContext } from "../../context/Order.context";
 import { commonDateOptions, DateRangeKey, Order, User } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetPersonalGameplayCreateData } from "../../utils/api/gameplay";
+import {
+  useGetPersonalGameplayCreateData,
+  useGetPersonalGameplayMentoredData,
+} from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -68,6 +71,7 @@ const PersonalOrderDatas = () => {
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
+  const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const [tableKey, setTableKey] = useState(0);
   const roles = useGetAllUserRoles();
   const discounts = useGetOrderDiscounts();
@@ -92,12 +96,18 @@ const PersonalOrderDatas = () => {
     const foundPersonalCollectionData = personalCollectionDatas.find(
       (data) => data.createdBy === personalOrderData.user
     );
+    const foundGameplayMentoredData = gameplayMentoredDatas.find(
+      (gameplayData) => gameplayData.mentoredBy === personalOrderData.user
+    );
     return {
       ...personalOrderData,
       userInfo: getItem(personalOrderData.user, users),
       tableCount: foundTableData?.tableCount || 0,
       gameplayCount: foundGameplayData?.gameplayCount || 0,
       collectionCount: foundPersonalCollectionData?.totalCollections,
+      mentoredGameplayCount: foundGameplayMentoredData?.gameplayCount || 0,
+      mentoredGamesTotalPoints:
+        foundGameplayMentoredData?.totalNarrationDurationPoint || 0,
     };
   });
 
@@ -113,8 +123,10 @@ const PersonalOrderDatas = () => {
     { key: t("Cancelled By Count"), isSortable: true },
     { key: t("Table Count"), isSortable: true },
     { key: t("Created Table Count"), isSortable: true },
-    { key: t("Created Gameplay Count"), isSortable: true },
     { key: t("Collection Count"), isSortable: true },
+    { key: t("Created Gameplay Count"), isSortable: true },
+    { key: t("Mentored Gameplay Count"), isSortable: true },
+    { key: t("Mentored Games Total Points"), isSortable: true },
   ];
   const rowKeys = [
     {
@@ -132,8 +144,10 @@ const PersonalOrderDatas = () => {
     { key: "cancelledByCount" },
     { key: "cancelledByTableCount" },
     { key: "tableCount" },
-    { key: "gameplayCount" },
     { key: "collectionCount" },
+    { key: "gameplayCount" },
+    { key: "mentoredGameplayCount" },
+    { key: "mentoredGamesTotalPoints" },
   ];
   const filterPanelInputs = [
     {
@@ -264,6 +278,7 @@ const PersonalOrderDatas = () => {
     personalCollectionDatas,
     tableCreateDatas,
     gameplayDatas,
+    gameplayMentoredDatas,
     roles,
     filterPanelFormElements,
     discounts,

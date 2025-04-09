@@ -3,11 +3,16 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { TbIndentIncrease } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { ChecklistType, RoleEnum } from "../../types";
+import {
+  useCheckMutations,
+  useGetChecks,
+} from "../../utils/api/checklist/check";
 import {
   useChecklistMutations,
   useGetChecklists,
@@ -16,10 +21,14 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, RowKeyType } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import {
+  FormKeyTypeEnum,
+  InputTypes,
+  RowKeyType,
+} from "../panelComponents/shared/types";
 
 const ChecklistsTab = () => {
   const { t } = useTranslation();
@@ -33,6 +42,38 @@ const ChecklistsTab = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<ChecklistType>();
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    : true;
+  const { createCheck } = useCheckMutations();
+  const checks = useGetChecks();
+  const [checkLocationForm, setCheckLocationForm] = useState({
+    location: 0,
+  });
+  const checkLocationFormKeys = [
+    { key: "location", type: FormKeyTypeEnum.STRING },
+  ];
+  const checkLocationInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: (rowToAction
+        ? locations.filter((lctn) => {
+            return rowToAction?.locations?.includes(lctn._id);
+          })
+        : locations
+      )?.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
+      placeholder: t("Location"),
+      required: true,
+    },
+  ];
   const { resetGeneralContext } = useGeneralContext();
   const [
     isCloseAllConfirmationDialogOpen,
@@ -91,12 +132,7 @@ const ChecklistsTab = () => {
         ),
     });
   }
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-  ) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
+  columns.push({ key: t("Actions"), isSortable: false });
   const inputs = [NameInput()];
   const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 
@@ -145,9 +181,7 @@ const ChecklistsTab = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),
@@ -185,18 +219,11 @@ const ChecklistsTab = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Toggle Active"),
-      isDisabled:
-        !showInactiveChecklists ||
-        (user &&
-          ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-            user.role._id
-          )),
+      isDisabled: isDisabledCondition,
       isModal: false,
       isPath: false,
       icon: null,
@@ -217,13 +244,65 @@ const ChecklistsTab = () => {
         </div>
       ),
     },
+    {
+      name: t("Checkit"),
+      icon: <TbIndentIncrease />,
+      className: "cursor-pointer text-xl  ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isCheckModalOpen}
+          close={() => setIsCheckModalOpen(false)}
+          inputs={checkLocationInputs}
+          formKeys={checkLocationFormKeys}
+          // eslint-disable-next-line
+          submitItem={() => {}}
+          submitFunction={async () => {
+            if (checkLocationForm.location === 0 || !user) return;
+            if (
+              checks?.filter((item) => {
+                return (
+                  item.isCompleted === false &&
+                  item.location === checkLocationForm.location &&
+                  item.user === user._id &&
+                  item.checklist === rowToAction._id
+                );
+              }).length > 0
+            ) {
+              resetGeneralContext();
+              navigate(
+                `/check/${checkLocationForm.location}/${rowToAction._id}`
+              );
+            } else {
+              createCheck({
+                location: checkLocationForm.location,
+                checklist: rowToAction._id,
+                isCompleted: false,
+                createdAt: new Date(),
+                user: user._id,
+              });
+              resetGeneralContext();
+              navigate(
+                `/check/${checkLocationForm.location}/${rowToAction._id}`
+              );
+            }
+          }}
+          setForm={setCheckLocationForm}
+          isEditMode={false}
+          topClassName="flex flex-col gap-2 "
+          buttonName={t("Submit")}
+        />
+      ) : null,
+      isModalOpen: isCheckModalOpen,
+      setIsModal: setIsCheckModalOpen,
+      isPath: false,
+    },
   ];
   const filters = [
     {
       label: t("Show Inactive Checklists"),
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -234,13 +313,13 @@ const ChecklistsTab = () => {
     },
     {
       label: t("Location Edit"),
-      isUpperSide: true,
+      isUpperSide: false,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
   ];
   useEffect(
     () => setTableKey((prev) => prev + 1),
-    [checklists, locations, showInactiveChecklists]
+    [checklists, locations, showInactiveChecklists, checks]
   );
 
   return (
@@ -250,32 +329,16 @@ const ChecklistsTab = () => {
           key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
-          isActionsActive={
-            user
-              ? [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
-                  user.role._id
-                )
-              : false
-          }
+          isActionsActive={true}
           columns={columns}
-          filters={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? filters
-              : []
-          }
+          filters={!isDisabledCondition ? filters : []}
           rows={
             showInactiveChecklists
               ? checklists
               : checklists?.filter((checklist) => checklist.active)
           }
           title={t("Checklists")}
-          addButton={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
-              ? addButton
-              : undefined
-          }
+          addButton={!isDisabledCondition ? addButton : undefined}
         />
       </div>
     </>

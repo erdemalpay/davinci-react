@@ -7,29 +7,30 @@ import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
-  useUpdateProductsBaseQuantities,
+  useUpdateMultipleBaseQuantitiesMutation,
 } from "../../utils/api/account/product";
+import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
 };
 interface Quantities {
-  [key: string]: number;
+  [key: string]: any;
 }
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
+  const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
   const [showFilters, setShowFilters] = useState(false);
-  const { mutate: updateProductsBaseQuantities } =
-    useUpdateProductsBaseQuantities();
   const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
@@ -37,13 +38,19 @@ const BaseQuantityByLocation = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { mutate: updateMultipleBaseQuantities } =
+    useUpdateMultipleBaseQuantitiesMutation();
   const { updateAccountProduct } = useAccountProductMutations();
   const allRows = products?.map((product) => {
     const quantitiesObject = locations?.reduce<Quantities>((acc, location) => {
-      acc[`${location._id}`] =
-        product?.baseQuantities?.find(
-          (baseQuantity) => baseQuantity?.location === location._id
-        )?.quantity ?? 0;
+      const foundBaseQuantity = product?.baseQuantities?.find(
+        (baseQuantity) => baseQuantity?.location === location._id
+      );
+      acc[`${location._id}`] = `min=${
+        foundBaseQuantity?.minQuantity ?? 0
+      } / max=${foundBaseQuantity?.maxQuantity ?? 0}`;
+      acc[`${location._id}min`] = `${foundBaseQuantity?.minQuantity ?? 0}`;
+      acc[`${location._id}max`] = `${foundBaseQuantity?.maxQuantity ?? 0}`;
       return acc;
     }, {});
     return {
@@ -52,23 +59,35 @@ const BaseQuantityByLocation = () => {
     };
   });
   const initialFormState = locations.reduce((acc: any, location) => {
-    acc[location._id.toString()] = 1;
+    acc[location._id.toString() + "min"] = 1;
+    acc[location._id.toString() + "max"] = 1;
     return acc;
   }, {});
 
   const [form, setForm] = useState(initialFormState);
-  const editInputs = locations?.map((location) => {
-    return {
+  const editInputs = locations?.flatMap((location) => [
+    {
       type: InputTypes.NUMBER,
-      formKey: location._id.toString(),
+      formKey: location._id.toString() + "min",
       label: location.name,
-      placeholder: location.name,
+      placeholder: "Min",
       isNumberButtonsActive: true,
       required: false,
-    };
-  });
-  const editFormKeys = locations?.map((location) => {
-    return { key: String(location._id), type: FormKeyTypeEnum.NUMBER };
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: location._id.toString() + "max",
+      placeholder: "Max",
+      isNumberButtonsActive: true,
+      required: false,
+    },
+  ]);
+
+  const editFormKeys = locations?.flatMap((location) => {
+    return [
+      { key: String(location._id) + "min", type: FormKeyTypeEnum.NUMBER },
+      { key: String(location._id) + "max", type: FormKeyTypeEnum.NUMBER },
+    ];
   });
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -85,14 +104,20 @@ const BaseQuantityByLocation = () => {
   ];
   const rowKeys = [{ key: "name" }];
   locations?.forEach((location) => {
-    columns.push({
-      key: location.name,
-      isSortable: true,
-      correspondingKey: `${location._id}`,
-    });
-    rowKeys.push({
-      key: `${location._id}`,
-    });
+    columns.push(
+      {
+        key: location.name + "Min",
+        isSortable: true,
+        correspondingKey: `${location._id}min`,
+      },
+      {
+        key: location.name + "Max",
+        isSortable: true,
+        correspondingKey: `${location._id}max`,
+      }
+    );
+
+    rowKeys.push({ key: `${location._id}min` }, { key: `${location._id}max` });
   });
 
   columns.push({ key: t("Action"), isSortable: false } as any);
@@ -114,7 +139,35 @@ const BaseQuantityByLocation = () => {
       }
       return accum;
     }, []);
-    updateProductsBaseQuantities(items);
+    const result: any[] = [];
+
+    items.forEach((data) => {
+      const foundProduct = products.find(
+        (product) => product.name === data.name
+      );
+      if (!foundProduct) {
+        return;
+      }
+      const baseQuantities: any[] = [];
+      Object.keys(data).forEach((key) => {
+        if (key.endsWith("min")) {
+          const location = key.replace("min", "");
+          const minQuantity = data[key];
+          const maxQuantity = data[`${location}max`];
+
+          baseQuantities.push({
+            location: parseInt(location, 10),
+            minQuantity,
+            maxQuantity,
+          });
+        }
+      });
+      result.push({
+        _id: foundProduct._id,
+        baseQuantities,
+      });
+    });
+    updateMultipleBaseQuantities(result);
   };
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -154,10 +207,11 @@ const BaseQuantityByLocation = () => {
           constantValues={rowToAction}
           setForm={setForm}
           submitFunction={() => {
-            const newBaseQuantities = locations.map((location) => {
+            const newBaseQuantities = locations?.map((location) => {
               return {
                 location: location._id,
-                quantity: Number(form[location._id]),
+                minQuantity: Number(form[`${location._id}min`]),
+                maxQuantity: Number(form[`${location._id}max`]),
               };
             });
             updateAccountProduct({
@@ -196,6 +250,18 @@ const BaseQuantityByLocation = () => {
             <FaFileUpload />
           </ButtonTooltip>
         </div>
+      ),
+    },
+    {
+      isUpperSide: false,
+      isDisabled: false,
+      node: (
+        <ButtonFilter
+          buttonName={t("Set Base Quantities")}
+          onclick={() => {
+            updateProductBaseStocks();
+          }}
+        />
       ),
     },
     {
