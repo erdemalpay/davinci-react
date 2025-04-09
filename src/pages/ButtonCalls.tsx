@@ -1,6 +1,6 @@
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { ButtonCall, commonDateOptions } from "../types";
+import { ButtonCall } from "../types";
 import { formatAsLocalDate } from "../utils/format";
 import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { StockLocationInput } from "../utils/panelInputs";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
+import { passesFilter } from "../utils/passesFilter";
+import { size } from "lodash";
 
 type FormElementsState = {
   [key: string]: any;
@@ -19,14 +21,15 @@ type FormElementsState = {
 export default function ButtonCalls() {
   const { t } = useTranslation();
   const locations = useGetAllLocations();
+  const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const buttonCalls = useGetButtonCalls();
   const [showFilters, setShowFilters] = useState(true);
   const allRows = useGetButtonCalls().map((buttonCall) => {
       return {
         ...buttonCall,
-        location: getItem(buttonCall.location, locations)?.name ?? 0,
-        cancelledBy: getItem(buttonCall.cancelledBy, users)?.name ?? '',
+        locationName: getItem(buttonCall.location, locations)?.name ?? 0,
+        cancelledByName: getItem(buttonCall.cancelledBy, users)?.name ?? '',
       };
     })
     ?.sort((a, b) => {
@@ -48,16 +51,26 @@ export default function ButtonCalls() {
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
+      formKey: "cancelledBy",
+      label: t("Cancelled By"),
+      options: users.map((user) => ({
+        value: user._id,
+        label: user.name,
+      })),
+      placeholder: t("Brand"),
+      isDisabled: false,
+      isMultiple: true,
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "tableName",
+      label: t("Table Name"),
+      placeholder: t("Table Name"),
       required: true,
+      isDatePicker: false,
+      invalidateKeys: [{ key: "tableName", defaultValue: "" }],
+      isOnClearActive: false,
     },
     {
       type: InputTypes.DATE,
@@ -86,6 +99,7 @@ export default function ButtonCalls() {
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    isApplyButtonActive: true,
   };
 
   const tableFilters = [
@@ -108,7 +122,7 @@ export default function ButtonCalls() {
       key: "location",
       className: "min-w-32",
       node: (row: ButtonCall) => {
-        return row.location;
+        return row.locationName;
       },
     },
     { key: "tableName", className: "min-w-40 pr-1" },
@@ -144,14 +158,32 @@ export default function ButtonCalls() {
       key: "cancelledBy",
       className: "min-w-32",
       node: (row: ButtonCall) => {
-        return row.cancelledBy;
+        return row.cancelledByName;
       },
     },
   ];
 
   useEffect(() => {
-    setRows(allRows);
-    console.log(allRows);
+    const filteredRows = allRows.filter((row) => {
+      if (!row?.date) {
+        return false;
+      }
+      console.log(size(filterPanelFormElements.cancelledBy));
+      console.log(filterPanelFormElements.cancelledBy, " - ", row.cancelledBy);
+      return (
+        (filterPanelFormElements.before === "" ||
+          row.date <= filterPanelFormElements.before) &&
+        (filterPanelFormElements.after === "" ||
+          row.date >= filterPanelFormElements.after) &&
+        (!filterPanelFormElements.tableName ||
+        passesFilter(filterPanelFormElements.tableName, row.tableName)) &&
+        (size(filterPanelFormElements.cancelledBy) == 0 ||
+          filterPanelFormElements.cancelledBy.includes(row.cancelledBy)) &&
+        passesFilter(filterPanelFormElements.location, row.location)
+      );
+    });
+    setRows(filteredRows);
+    setTableKey((prev) => prev + 1);
   }, [
     filterPanelFormElements,
     locations,
@@ -174,6 +206,7 @@ export default function ButtonCalls() {
       <Header showLocationSelector={true} />
       <div className="w-[98%] mx-auto my-10">
         <GenericTable
+          key={tableKey}
           rowKeys={rowKeys}
           filters={tableFilters}
           isActionsActive={false}

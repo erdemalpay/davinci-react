@@ -301,11 +301,13 @@ export type ButtonCall = {
   _id: string;
   tableName: string;
   location: number;
+  locationName?: string;
   date: string;
   startHour: string;
   finishHour?: string;
   createdBy: string;
   cancelledBy?: string;
+  cancelledByName?: string;
   duration?: number;
   callCount: number;
 };
