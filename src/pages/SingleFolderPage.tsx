@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi";
+import { IoCopyOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import { Routes } from "../navigation/constants";
@@ -37,7 +39,7 @@ function SingleFolderPage() {
       <PageNavigator navigations={pageNavigations} />
       <div
         key={componentKey}
-        className="flex flex-row flex-wrap gap-4 w-[95%] mx-auto mt-5"
+        className="flex flex-row flex-wrap gap-4 w-[95%] mx-auto mt-5 items-center"
       >
         {folderImages?.map((image) => (
           <div key={image.url} className="flex flex-col gap-2">
@@ -45,11 +47,20 @@ function SingleFolderPage() {
             <img
               src={image.url}
               alt={image.publicId}
-              className="w-32 h-32 rounded-md shadow-sm"
+              className="w-full max-w-40 h-32 rounded-md shadow-sm"
             />
-            <p>{image.publicId}</p>
-            {/* buttons */}
-            <div className="ml-auto">
+            <div className="flex flex-row gap-1 ">
+              <p>{image.publicId}</p>
+              {/* buttons */}
+              <button
+                className="text-2xl cursor-pointer  text-gray-500 hover:text-gray-800  transform transition duration-300 hover:scale-105 "
+                onClick={() => {
+                  navigator.clipboard.writeText(image.publicId);
+                  toast.success(t("Image ID copied to clipboard"));
+                }}
+              >
+                <IoCopyOutline />
+              </button>
               <button
                 className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105 "
                 onClick={() => {
