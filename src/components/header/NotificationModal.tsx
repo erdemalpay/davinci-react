@@ -69,9 +69,15 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
             {/* date and mark as read */}
             <div className="flex flex-row justify-between gap-2 ">
               {/* date */}
-              <p className="text-white text-sm">
-                {format(notification.createdAt, "dd-MM-yyyy")}
-              </p>
+              <div className="flex flex-row justify-center items-center gap-1">
+                <p className="text-white text-sm">
+                  {format(notification.createdAt, "dd-MM-yyyy")}
+                </p>
+                <p className="text-white text-sm">
+                  {format(notification.createdAt, "HH:mm")}
+                </p>
+              </div>
+
               {/* mark as read */}
               <MdOutlineCheckBoxOutlineBlank
                 onClick={() => {

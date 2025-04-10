@@ -2,19 +2,19 @@ import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  commonDateOptions,
   DateRangeKey,
   NotificationBackgroundColors,
   NotificationType,
+  commonDateOptions,
 } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../../utils/api/location";
 import { useGetUserAllNotifications } from "../../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import GenericTable from "../Tables/GenericTable";
 import SwitchButton from "../common/SwitchButton";
 import { InputTypes } from "../shared/types";
-import GenericTable from "../Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -42,15 +42,18 @@ const UserNotifications = () => {
       ...notification,
       createdBy: getItem(notification?.createdBy, users)?.name ?? "",
       formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
+      hour: format(new Date(notification.createdAt), "HH:mm"),
     };
   });
   const [rows, setRows] = useState(allRows);
   const columns = [
+    { key: t("Date"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Message"), isSortable: true },
   ];
   const rowKeys = [
     { key: "formattedDate" },
+    { key: "hour" },
     {
       key: "message",
       node: (row: any) => {

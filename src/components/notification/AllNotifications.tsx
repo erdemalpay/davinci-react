@@ -1,15 +1,15 @@
 import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commonDateOptions, DateRangeKey } from "../../types";
+import { DateRangeKey, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useGetNotifications } from "../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type FormElementsState = {
   [key: string]: any;
@@ -37,12 +37,14 @@ const AllNotifications = () => {
       ...notification,
       createdBy: getItem(notification?.createdBy, users)?.name ?? "",
       formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
+      hour: format(new Date(notification.createdAt), "HH:mm"),
       type: t(notification.type),
     };
   });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Created By"), isSortable: true },
+    { key: t("Date"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Type"), isSortable: true },
     { key: t("Message"), isSortable: true },
@@ -53,6 +55,7 @@ const AllNotifications = () => {
   const rowKeys = [
     { key: "createdBy" },
     { key: "formattedDate" },
+    { key: "hour" },
     { key: "type" },
     { key: "message" },
     {
