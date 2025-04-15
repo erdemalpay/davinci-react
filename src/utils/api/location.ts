@@ -18,6 +18,11 @@ export function useGetStockLocations() {
   return useGetList<Location>(url);
 }
 
+export function useGetSellLocations() {
+  const url = `${Paths.Location}/sell`;
+  return useGetList<Location>(url);
+}
+
 export function useGetAllLocations() {
   const url = `${Paths.Location}/all`;
   return useGetList<Location>(url);

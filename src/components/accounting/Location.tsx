@@ -21,14 +21,21 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const LocationPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const pages=useGetPanelControlPages()
-  const navigate=useNavigate()
-  const {resetGeneralContext}=useGeneralContext()
+  const pages = useGetPanelControlPages();
+  const navigate = useNavigate();
+  const { resetGeneralContext } = useGeneralContext();
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
+  const isDisabledCondition = user
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)
+    : true;
   const [shiftForm, setShiftForm] = useState({
     hour: "",
   });
@@ -48,6 +55,9 @@ const LocationPage = () => {
     if (type.includes(2)) {
       return t("Stock");
     }
+    if (type.includes(3)) {
+      return t("Online");
+    }
   };
   const [form, setForm] = useState(initialForm as Partial<Location>);
   const { updateLocation, createStockLocation } = useLocationMutations();
@@ -59,12 +69,7 @@ const LocationPage = () => {
     { key: t("Shifts"), isSortable: false },
     { key: "Ikas ID", isSortable: false },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
-  ) {
+  if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
   const rowKeys = [
@@ -76,12 +81,13 @@ const LocationPage = () => {
         pages &&
         pages
           ?.find((page) => page._id === "location")
-          ?.permissionRoles?.includes(user.role._id) &&row.type.includes(1)? (
+          ?.permissionRoles?.includes(user.role._id) &&
+        row.type.includes(1) ? (
           <p
-className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
             onClick={() => {
-              if(!row.type.includes(1)) return;
-              resetGeneralContext()
+              if (!row.type.includes(1)) return;
+              resetGeneralContext();
               navigate(`/location/${row._id}`);
             }}
           >
@@ -194,13 +200,7 @@ className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-t
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-    isDisabled: user
-      ? ![
-          RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
-          RoleEnum.GAMEMANAGER,
-        ].includes(user?.role?._id)
-      : true,
+    isDisabled: isDisabledCondition,
   };
   const actions = [
     {
@@ -226,13 +226,7 @@ className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-t
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Add Shift"),
@@ -240,7 +234,7 @@ className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-t
       className: "text-2xl mt-1   cursor-pointer",
       isModal: true,
       setRow: setRowToAction,
-      modal: (
+      modal: rowToAction ? (
         <GenericAddEditPanel
           isOpen={isAddShiftModalOpen}
           close={() => setIsAddShiftModalOpen(false)}
@@ -273,17 +267,11 @@ className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-t
             }
           }}
         />
-      ),
+      ) : null,
       isModalOpen: isAddShiftModalOpen,
       setIsModal: setIsAddShiftModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
   ];
   useEffect(() => {
@@ -301,15 +289,7 @@ className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-t
           rows={rows}
           title={t("Locations")}
           addButton={addButton}
-          isActionsActive={
-            user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
-              : false
-          }
+          isActionsActive={!isDisabledCondition}
         />
       </div>
     </>

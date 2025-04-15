@@ -17,7 +17,10 @@ import {
   User,
 } from "../../../types";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
-import { useGetStockLocations } from "../../../utils/api/location";
+import {
+  useGetSellLocations,
+  useGetStockLocations,
+} from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -74,6 +77,7 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
+  const sellLocations = useGetSellLocations();
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
@@ -122,7 +126,8 @@ const OrderPaymentModal = ({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    location: table?.isOnlineSale ? 4 : selectedLocationId,
+    stockLocation: selectedLocationId,
     activityTableName: "",
     activityPlayer: "",
   };
@@ -511,7 +516,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdBy: selectedUser._id,
         createdAt: new Date(),
-        location: selectedLocationId,
+        location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -532,7 +537,7 @@ const OrderPaymentModal = ({
         ...orderForm,
         createdAt: new Date(),
         createdBy: selectedUser._id,
-        location: selectedLocationId,
+        location: table?.isOnlineSale ? 4 : selectedLocationId,
         table: table?._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -564,7 +569,8 @@ const OrderPaymentModal = ({
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
         constantValues={{
           quantity: 1,
-          stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+          stockLocation: selectedLocationId,
+          location: table?.isOnlineSale ? 4 : selectedLocationId,
         }}
         isConfirmationDialogRequired={() => {
           const menuItem = items?.find((item) => item._id === orderForm.item);

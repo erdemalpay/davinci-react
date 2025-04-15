@@ -48,7 +48,6 @@ import {
   useTableMutations,
 } from "../../utils/api/table";
 import { getItem } from "../../utils/getItem";
-import { LocationInput } from "../../utils/panelInputs";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -117,8 +116,8 @@ export function TableCard({
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    location: selectedLocationId,
-    stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+    location: table?.isOnlineSale ? 4 : selectedLocationId,
+    stockLocation: selectedLocationId,
     activityTableName: "",
     activityPlayer: "",
   };
@@ -312,11 +311,6 @@ export function TableCard({
         true,
       isOnClearActive: true,
     },
-    LocationInput({
-      locations: locations,
-      required: table?.type === TableTypes.ONLINE,
-      isDisabled: table?.type !== TableTypes.ONLINE,
-    }),
     {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
@@ -521,7 +515,9 @@ export function TableCard({
       return {
         ...orderForm,
         createdAt: new Date(),
-        location: orderForm?.location ?? selectedLocationId,
+        location: table?.isOnlineSale
+          ? 4
+          : orderForm?.location ?? selectedLocationId,
         table: table._id,
         unitPrice: orderForm?.isOnlinePrice
           ? selectedMenuItem?.onlinePrice ?? selectedMenuItem.price
@@ -542,7 +538,9 @@ export function TableCard({
     if (selectedMenuItem && table && !selectedMenuItemCategory?.isAutoServed) {
       return {
         ...orderForm,
-        location: orderForm?.location ?? selectedLocationId,
+        location: table?.isOnlineSale
+          ? 4
+          : orderForm?.location ?? selectedLocationId,
         table: table._id,
         status: isOrderConfirmationRequired
           ? OrderStatus.CONFIRMATIONREQ
@@ -823,7 +821,7 @@ export function TableCard({
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-            location: selectedLocationId,
+            location: table?.isOnlineSale ? 4 : selectedLocationId,
           }}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
