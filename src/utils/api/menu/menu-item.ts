@@ -31,6 +31,13 @@ export function updateBulkItems(payload: UpdateBulkItemsPayload) {
   });
 }
 
+export function updateItemsSlugs() {
+  return post({
+    path: `${Paths.MenuItems}/slug`,
+    payload: {},
+  });
+}
+
 export function createMultipleIkasProduct(itemIds: number[]) {
   return post({
     path: `${Paths.MenuItems}/create-ikas-products`,
@@ -64,6 +71,24 @@ export function useUpdateBulkItemsMutation() {
   const queryKey = [`${Paths.MenuItems}`];
   const queryClient = useQueryClient();
   return useMutation(updateBulkItems, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useUpdateItemsSlugsMutation() {
+  const queryKey = [`${Paths.MenuItems}`];
+  const queryClient = useQueryClient();
+  return useMutation(updateItemsSlugs, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },

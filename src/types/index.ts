@@ -395,6 +395,7 @@ export type MenuItem = {
   name: string;
   description: string;
   imageUrl: string;
+  slug?: string;
   category: number;
   order: number;
   itemProduction?: {

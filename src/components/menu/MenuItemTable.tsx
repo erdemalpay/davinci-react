@@ -31,6 +31,7 @@ import {
   useMenuItemMutations,
   useUpdateBulkItemsMutation,
   useUpdateItemsOrderMutation,
+  useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
 import { formatPrice } from "../../utils/formatPrice";
@@ -45,6 +46,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -75,6 +77,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
+  const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
   const productCategories = useGetIkasCategories();
   const vendors = useGetAccountVendors();
@@ -836,6 +839,16 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           onChange={() => {
             setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
           }}
+        />
+      ),
+    },
+    {
+      isUpperSide: true,
+      isDisabled: isDisabledCondition,
+      node: (
+        <ButtonFilter
+          buttonName={t("Update Items Slugs")}
+          onclick={updateItemsSlugs}
         />
       ),
     },
