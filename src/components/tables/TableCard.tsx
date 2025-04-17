@@ -884,7 +884,7 @@ export function TableCard({
               setIsCreateOrderDialogOpen(false);
             }
           }}
-          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
+          generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll  no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}
