@@ -187,7 +187,11 @@ const GameStock = () => {
   const columns = [
     { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
     { key: t("Quantity"), isSortable: true, correspondingKey: "totalQuantity" },
-    { key: t("Unit Price"), isSortable: true },
+    {
+      key: t("Unit Price"),
+      isSortable: true,
+      correspondingKey: "unitPrice",
+    },
     { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
     { key: t("Online Price"), isSortable: true, correspondingKey: "menuPrice" },
     { key: t("Total Price"), isSortable: true },
