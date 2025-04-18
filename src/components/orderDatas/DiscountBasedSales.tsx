@@ -6,15 +6,15 @@ import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  commonDateOptions,
   DateRangeKey,
-  orderFilterStatusOptions,
   OrderStatus,
   Table,
+  commonDateOptions,
+  orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetSellLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -25,10 +25,10 @@ import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type ItemQuantity = {
   itemId: number;
@@ -55,7 +55,7 @@ const DiscountBasedSales = () => {
   const { t } = useTranslation();
   const discounts = useGetOrderDiscounts();
   const orders = useGetOrders();
-  const locations = useGetAllLocations();
+  const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const items = useGetMenuItems();
   const users = useGetUsers();
@@ -65,7 +65,7 @@ const DiscountBasedSales = () => {
   const [selectedTableId, setSelectedTableId] = useState<number>(0);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const tables = useGetTables();
-  if (!orders || !locations || !discounts || !items || !tables) {
+  if (!orders || !sellLocations || !discounts || !items || !tables) {
     return null;
   }
   const {
@@ -314,7 +314,11 @@ const DiscountBasedSales = () => {
     },
   ];
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true, isMultiple: true }),
+    LocationInput({
+      locations: sellLocations,
+      required: true,
+      isMultiple: true,
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -500,7 +504,7 @@ const DiscountBasedSales = () => {
     filterPanelFormElements,
     discounts,
     items,
-    locations,
+    sellLocations,
     tables,
     users,
     categories,

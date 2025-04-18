@@ -14,7 +14,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetSellLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import {
@@ -36,7 +36,7 @@ const Collections = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const orders = useGetOrders();
-  const locations = useGetAllLocations();
+  const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
@@ -52,7 +52,7 @@ const Collections = () => {
     showOrderDataFilters,
     setShowOrderDataFilters,
   } = useOrderContext();
-  if (!collections || !orders || !locations || !users || !paymentMethods) {
+  if (!collections || !orders || !sellLocations || !users || !paymentMethods) {
     return null;
   }
   const collectionStatus = [
@@ -97,7 +97,7 @@ const Collections = () => {
         paymentMethodId: collection?.paymentMethod,
         tableId: (collection?.table as Table)?._id,
         tableName: (collection?.table as Table)?.name,
-        locationName: getItem(collection?.location, locations)?.name,
+        locationName: getItem(collection?.location, sellLocations)?.name,
         collapsible: {
           collapsibleHeader: t("Orders"),
           collapsibleColumns: [
@@ -230,7 +230,11 @@ const Collections = () => {
       placeholder: t("Cancelled By"),
       required: true,
     },
-    LocationInput({ locations: locations, required: true, isMultiple: true }),
+    LocationInput({
+      locations: sellLocations,
+      required: true,
+      isMultiple: true,
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "paymentMethod",
@@ -427,7 +431,7 @@ const Collections = () => {
   }, [
     collections,
     orders,
-    locations,
+    sellLocations,
     users,
     filterPanelFormElements,
     paymentMethods,

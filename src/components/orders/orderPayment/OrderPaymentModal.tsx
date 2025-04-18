@@ -17,10 +17,7 @@ import {
   User,
 } from "../../../types";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
-import {
-  useGetSellLocations,
-  useGetStockLocations,
-} from "../../../utils/api/location";
+import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -77,7 +74,6 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
-  const sellLocations = useGetSellLocations();
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();

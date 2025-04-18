@@ -5,15 +5,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  commonDateOptions,
   DateRangeKey,
-  orderFilterStatusOptions,
   OrderStatus,
   TURKISHLIRA,
+  commonDateOptions,
+  orderFilterStatusOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetSellLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetUpperCategories } from "../../utils/api/menu/upperCategory";
@@ -22,10 +22,10 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type OrderWithPaymentInfo = {
   item: number;
@@ -45,10 +45,10 @@ const UpperCategoryBasedSalesReport = () => {
   const categories = useGetCategories();
   const items = useGetMenuItems();
   const users = useGetUsers();
-  const locations = useGetAllLocations();
+  const sellLocations = useGetSellLocations();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
-  if (!orders || !categories || !locations || !upperCategories) {
+  if (!orders || !categories || !sellLocations || !upperCategories) {
     return null;
   }
   const {
@@ -336,7 +336,11 @@ const UpperCategoryBasedSalesReport = () => {
   ];
 
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true, isMultiple: true }),
+    LocationInput({
+      locations: sellLocations,
+      required: true,
+      isMultiple: true,
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -521,7 +525,7 @@ const UpperCategoryBasedSalesReport = () => {
     orders,
     categories,
     filterPanelFormElements,
-    locations,
+    sellLocations,
     items,
     upperCategories,
     users,

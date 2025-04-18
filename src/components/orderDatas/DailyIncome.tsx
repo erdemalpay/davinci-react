@@ -13,7 +13,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
 import { LocationInput } from "../../utils/panelInputs";
@@ -25,10 +25,10 @@ const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
   const [tableKey, setTableKey] = useState(0);
-  const locations = useGetAllLocations();
+  const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
-  if (!collections || !locations || !paymentMethods) {
+  if (!collections || !sellLocations || !paymentMethods) {
     return null;
   }
   const {
@@ -128,7 +128,11 @@ const DailyIncome = () => {
     },
   ];
   const filterPanelInputs = [
-    LocationInput({ locations: locations, required: true, isMultiple: true }),
+    LocationInput({
+      locations: sellLocations,
+      required: true,
+      isMultiple: true,
+    }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -217,7 +221,7 @@ const DailyIncome = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [collections, locations, filterPanelFormElements, paymentMethods]);
+  }, [collections, filterPanelFormElements, paymentMethods, sellLocations]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
