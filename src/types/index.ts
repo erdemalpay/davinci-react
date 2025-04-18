@@ -495,13 +495,18 @@ export type EducationSubheaderDto = {
   style?: StyleDto;
   order: number;
 };
-
+export type EducationUpdateHistoryDto = {
+  user: string;
+  updatedAt: Date;
+  updates?: string[];
+};
 export type Education = {
   _id: number;
   permissionRoles: number[];
   header: string;
   order: number;
   subheaders?: EducationSubheaderDto[];
+  updateHistory?: EducationUpdateHistoryDto[];
   createdAt: Date;
   updatedAt: Date;
 };

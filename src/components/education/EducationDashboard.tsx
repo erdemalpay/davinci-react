@@ -249,9 +249,23 @@ const EducationDashboard = () => {
               onSelect={handleSelect}
             />
             <div className="flex flex-row items-center gap-2">
-              {edu?.updatedAt && (
+              {edu?.updateHistory && (
                 <span className="text-xs text-gray-500">
-                  {format(edu.updatedAt, "dd-MM-yyyy")}
+                  {edu.updateHistory.length > 0
+                    ? format(
+                        new Date(
+                          edu.updateHistory.reduce((latest, curr) =>
+                            new Date(curr.updatedAt) >
+                            new Date(latest.updatedAt)
+                              ? curr
+                              : latest
+                          ).updatedAt
+                        ),
+                        "dd-MM-yyyy"
+                      )
+                    : edu?.createdAt
+                    ? format(edu?.createdAt, "dd-MM-yyyy")
+                    : ""}
                 </span>
               )}
               {!isDisabledCondition && (
