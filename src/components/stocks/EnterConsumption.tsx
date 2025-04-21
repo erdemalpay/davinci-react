@@ -30,10 +30,10 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const EnterConsumption = () => {
   const { t } = useTranslation();
@@ -70,27 +70,25 @@ const EnterConsumption = () => {
   const locations = useGetStockLocations();
   const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const allRows = stockHistoriesPayload?.data
-    ?.map((stockHistory) => {
-      if (!stockHistory?.createdAt) {
-        return null;
-      }
-      const date = new Date(stockHistory.createdAt);
-      return {
-        ...stockHistory,
-        prdct: getItem(stockHistory.product, products)?.name,
-        lctn: getItem(stockHistory?.location, locations)?.name,
-        usr: getItem(stockHistory?.user, users)?.name,
-        newQuantity:
-          (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
-        date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
-        formattedDate: formatAsLocalDate(
-          format(stockHistory?.createdAt, "yyyy-MM-dd")
-        ),
-        hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-      };
-    })
-    .filter((item) => item !== null);
+  const allRows = stockHistoriesPayload?.data?.map((stockHistory) => {
+    if (!stockHistory?.createdAt) {
+      return null;
+    }
+    const date = new Date(stockHistory.createdAt);
+    return {
+      ...stockHistory,
+      prdct: getItem(stockHistory.product, products)?.name,
+      lctn: getItem(stockHistory?.location, locations)?.name,
+      usr: getItem(stockHistory?.user, users)?.name,
+      newQuantity:
+        (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
+      date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
+      formattedDate: formatAsLocalDate(
+        format(stockHistory?.createdAt, "yyyy-MM-dd")
+      ),
+      hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+    };
+  });
   const [rows, setRows] = useState(allRows);
   const isDisabledCondition = !(
     user &&

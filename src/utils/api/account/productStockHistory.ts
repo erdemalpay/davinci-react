@@ -13,11 +13,26 @@ const baseUrl = `${Paths.Accounting}/product-stock-histories`;
 export function useGetAccountProductStockHistorys(
   page: number,
   limit: number,
-  filterPanelElements: FormElementsState
+  filters: FormElementsState
 ) {
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    filters.product && `product=${filters.product}`,
+    filters.expenseType && `expenseType=${filters.expenseType}`,
+    filters.location && `location=${filters.location}`,
+    filters.status && `status=${filters.status}`,
+    filters.before && `before=${filters.before}`,
+    filters.after && `after=${filters.after}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+    filters.vendor && `vendor=${filters.vendor}`,
+    filters.brand && `brand=${filters.brand}`,
+  ];
+  const queryString = parts.filter(Boolean).join("&");
   return useGet<StockHistoryPayload>(
-    `${baseUrl}?page=${page}&limit=${limit}&product=${filterPanelElements.product}&expenseType=${filterPanelElements.expenseType}&location=${filterPanelElements.location}&status=${filterPanelElements.status}&before=${filterPanelElements.before}&after=${filterPanelElements.after}&sort=${filterPanelElements.sort}&asc=${filterPanelElements.asc}&vendor=${filterPanelElements.vendor}&brand=${filterPanelElements.brand}`,
-    [baseUrl, page, limit, filterPanelElements],
+    `${baseUrl}?${queryString}`,
+    [baseUrl, page, limit, filters],
     true
   );
 }
