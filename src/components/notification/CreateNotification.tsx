@@ -9,6 +9,9 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 export enum NotificationEventType {
   COMPLETECOUNT = "COMPLETECOUNT",
+  NEGATIVESTOCK = "NEGATIVESTOCK",
+  ZEROSTOCK = "ZEROSTOCK",
+  LOSSPRODUCT = "LOSSPRODUCT",
 }
 
 const CreateNotification = () => {
@@ -29,6 +32,18 @@ const CreateNotification = () => {
     {
       value: NotificationEventType.COMPLETECOUNT,
       label: t("Complete Count"),
+    },
+    {
+      value: NotificationEventType.NEGATIVESTOCK,
+      label: t("Negative Stock"),
+    },
+    {
+      value: NotificationEventType.ZEROSTOCK,
+      label: t("Zero Stock"),
+    },
+    {
+      value: NotificationEventType.LOSSPRODUCT,
+      label: t("Loss Product"),
     },
   ];
   const inputs = [

@@ -83,7 +83,10 @@ function Orders() {
     );
   }, [ordersActiveTab, tabs]);
   const tabPanelFilters = [
-    <div className="flex flex-row items-center w-fit ml-auto text-3xl  ">
+    <div
+      key={"tabPanelFilters"}
+      className="flex flex-row items-center w-fit ml-auto text-3xl  "
+    >
       <IoIosArrowBack
         className="text-xl"
         onClick={() => {
