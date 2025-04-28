@@ -387,7 +387,7 @@ const Collections = () => {
         return false;
       }
       if (filterPanelFormElements.hour) {
-        return filterPanelFormElements.hour >= row.hour;
+        return filterPanelFormElements.hour <= row.hour;
       }
       return (
         passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
