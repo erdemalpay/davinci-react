@@ -17,6 +17,7 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { Education, RoleEnum } from "./../../types/index";
+import UpdateHistory from "./UpdateHistory";
 
 interface DraggableHeaderItemProps {
   education: Education;
@@ -70,6 +71,8 @@ const EducationDashboard = () => {
   const { user } = useUserContext();
   const educations = useGetEducations();
   const roles = useGetAllUserRoles();
+  const [isUpdateHistoryOpen, setIsUpdateHistoryOpen] = useState(false);
+  const [selectedUpdateHistory, setSelectedUpdateHistory] = useState<any>(null);
   if (!user || !educations || !roles) {
     return <Loading />;
   }
@@ -198,6 +201,14 @@ const EducationDashboard = () => {
   useEffect(() => {
     setComponentKey((prevKey) => prevKey + 1);
   }, [educations, user, roles]);
+  if (isUpdateHistoryOpen && selectedUpdateHistory) {
+    return (
+      <UpdateHistory
+        updateHistory={selectedUpdateHistory}
+        setIsUpdateHistoryOpen={setIsUpdateHistoryOpen}
+      />
+    );
+  }
   return (
     <div
       key={"component" + componentKey}
@@ -250,7 +261,16 @@ const EducationDashboard = () => {
             />
             <div className="flex flex-row items-center gap-2">
               {edu?.updateHistory && (
-                <span className="text-xs text-gray-500">
+                <span
+                  onClick={() => {
+                    if (disabledUsers) return;
+                    setSelectedUpdateHistory(edu?.updateHistory);
+                    setIsUpdateHistoryOpen(true);
+                  }}
+                  className={`text-xs text-gray-500 ${
+                    !disabledUsers && "cursor-pointer hover:text-blue-500"
+                  }`}
+                >
                   {edu.updateHistory.length > 0
                     ? format(
                         new Date(
