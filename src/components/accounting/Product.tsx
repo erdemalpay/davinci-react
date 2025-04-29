@@ -11,7 +11,7 @@ import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
-  useGetAccountProducts,
+  useGetAllAccountProducts,
   useJoinProductsMutation,
 } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -28,13 +28,14 @@ import {
   NameInput,
   VendorInput,
 } from "../../utils/panelInputs";
+import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -42,13 +43,14 @@ type FormElementsState = {
 const Product = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const products = useGetAccountProducts();
+  const products = useGetAllAccountProducts();
   const [tableKey, setTableKey] = useState(0);
   const items = useGetMenuItems();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const categories = useGetCategories();
   const navigate = useNavigate();
+  const [showInactiveProducts, setShowInactiveProducts] = useState(false);
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isMenuItemAddModalOpen, setIsMenuItemAddModalOpen] = useState(false);
@@ -86,7 +88,10 @@ const Product = () => {
   ] = useState(false);
   const { createAccountProduct, deleteAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
-  const [rows, setRows] = useState(products);
+  const allRows = showInactiveProducts
+    ? products
+    : products.filter((product) => !product.deleted);
+  const [rows, setRows] = useState(allRows);
   const joinProductInputs = [
     {
       type: InputTypes.SELECT,
@@ -496,10 +501,33 @@ const Product = () => {
           ].includes(user?.role?._id)
         : true,
     },
+    {
+      name: t("Toggle Active"),
+      isDisabled: !showInactiveProducts,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2 mr-auto">
+          <CheckSwitch
+            checked={!row?.deleted}
+            onChange={() => {
+              updateAccountProduct({
+                id: row._id,
+                updates: {
+                  deleted: !row?.deleted,
+                },
+              });
+            }}
+          ></CheckSwitch>
+        </div>
+      ),
+    },
   ];
   useEffect(() => {
     setRows(
       products.filter((product) => {
+        if (!showInactiveProducts && product.deleted) return false;
         return (
           (filterPanelFormElements.brand === "" ||
             product.brand?.includes(filterPanelFormElements.brand)) &&
@@ -510,17 +538,34 @@ const Product = () => {
         );
       })
     );
+
     if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [products, filterPanelFormElements, items, categories]);
+  }, [
+    products,
+    filterPanelFormElements,
+    items,
+    categories,
+    showInactiveProducts,
+  ]);
 
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+    },
+    {
+      label: t("Show Inactive Products"),
+      isUpperSide: false,
+      node: (
+        <SwitchButton
+          checked={showInactiveProducts}
+          onChange={setShowInactiveProducts}
+        />
+      ),
     },
     {
       isUpperSide: false,
