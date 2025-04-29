@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NotificationType } from "../../types";
+import { NotificationType, notificationEventsOptions } from "../../types";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useNotificationMutations } from "../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
-export enum NotificationEventType {
-  COMPLETECOUNT = "COMPLETECOUNT",
-  NEGATIVESTOCK = "NEGATIVESTOCK",
-  ZEROSTOCK = "ZEROSTOCK",
-  LOSSPRODUCT = "LOSSPRODUCT",
-}
 
 const CreateNotification = () => {
   const { t } = useTranslation();
@@ -28,24 +21,7 @@ const CreateNotification = () => {
     message: "",
     event: "",
   });
-  const notificationEventsOptions = [
-    {
-      value: NotificationEventType.COMPLETECOUNT,
-      label: t("Complete Count"),
-    },
-    {
-      value: NotificationEventType.NEGATIVESTOCK,
-      label: t("Negative Stock"),
-    },
-    {
-      value: NotificationEventType.ZEROSTOCK,
-      label: t("Zero Stock"),
-    },
-    {
-      value: NotificationEventType.LOSSPRODUCT,
-      label: t("Loss Product"),
-    },
-  ];
+
   const inputs = [
     {
       type: InputTypes.SELECT,
@@ -107,7 +83,12 @@ const CreateNotification = () => {
       type: InputTypes.SELECT,
       formKey: "event",
       label: t("Triggered Event"),
-      options: notificationEventsOptions,
+      options: notificationEventsOptions.map((notificationEvent) => {
+        return {
+          value: notificationEvent.value,
+          label: t(notificationEvent.label),
+        };
+      }),
       placeholder: t("Triggered Event"),
       required: false,
       isAutoFill: false,

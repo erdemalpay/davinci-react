@@ -1402,3 +1402,28 @@ export const NotificationBackgroundColors: Record<NotificationType, string> = {
   [NotificationType.SUCCESS]: "#92e895",
   [NotificationType.ORDER]: "#de8dec",
 };
+
+export enum NotificationEventType {
+  COMPLETECOUNT = "COMPLETECOUNT",
+  NEGATIVESTOCK = "NEGATIVESTOCK",
+  ZEROSTOCK = "ZEROSTOCK",
+  LOSSPRODUCT = "LOSSPRODUCT",
+}
+export const notificationEventsOptions = [
+  {
+    value: NotificationEventType.COMPLETECOUNT,
+    label: "Complete Count",
+  },
+  {
+    value: NotificationEventType.NEGATIVESTOCK,
+    label: "Negative Stock",
+  },
+  {
+    value: NotificationEventType.ZEROSTOCK,
+    label: "Zero Stock",
+  },
+  {
+    value: NotificationEventType.LOSSPRODUCT,
+    label: "Loss Product",
+  },
+];

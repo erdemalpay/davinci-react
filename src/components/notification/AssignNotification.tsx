@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { NotificationType } from "../../types";
+import { NotificationType, notificationEventsOptions } from "../../types";
 import { useGetAllLocations } from "../../utils/api/location";
 import {
   useGetEventNotifications,
@@ -15,7 +15,6 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import { NotificationEventType } from "./CreateNotification";
 
 const AssignNotification = () => {
   const { t } = useTranslation();
@@ -34,9 +33,9 @@ const AssignNotification = () => {
   const allRows = notifications.map((notification) => {
     return {
       ...notification,
-      createdBy: getItem(notification?.createdBy, users)?.name ?? "",
+      createdByForRowKey: getItem(notification?.createdBy, users)?.name ?? "",
       formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
-      type: t(notification.type),
+      typeForRowKey: t(notification.type),
     };
   });
 
@@ -48,12 +47,7 @@ const AssignNotification = () => {
     message: "",
     event: "",
   });
-  const notificationEventsOptions = [
-    {
-      value: NotificationEventType.COMPLETECOUNT,
-      label: t("Complete Count"),
-    },
-  ];
+
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Created By"), isSortable: true },
@@ -67,10 +61,10 @@ const AssignNotification = () => {
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
-    { key: "createdBy" },
+    { key: "createdByForRowKey" },
     { key: "formattedDate" },
     { key: "event" },
-    { key: "type" },
+    { key: "typeForRowKey" },
     { key: "message" },
     {
       key: "selectedUsers",
@@ -185,7 +179,12 @@ const AssignNotification = () => {
       type: InputTypes.SELECT,
       formKey: "event",
       label: t("Triggered Event"),
-      options: notificationEventsOptions,
+      options: notificationEventsOptions.map((notificationEvent) => {
+        return {
+          value: notificationEvent.value,
+          label: t(notificationEvent.label),
+        };
+      }),
       placeholder: t("Triggered Event"),
       required: false,
       isAutoFill: false,
@@ -243,6 +242,7 @@ const AssignNotification = () => {
           inputs={inputs}
           setForm={setForm}
           formKeys={formKeys}
+          constantValues={{ ...rowToAction }}
           submitItem={updateNotification as any}
           isEditMode={true}
           topClassName="flex flex-col gap-2 "

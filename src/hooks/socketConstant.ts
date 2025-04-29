@@ -222,4 +222,5 @@ export const socketEventListeners: SocketEventType[] = [
     event: "cafeActivityChanged",
     invalidateKeys: [`${Paths.CafeActivity}`],
   },
+  { event: "notificationChanged", invalidateKeys: [`${Paths.Notification}`] },
 ];
