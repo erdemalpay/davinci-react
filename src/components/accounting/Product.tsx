@@ -58,6 +58,13 @@ const Product = () => {
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const pages = useGetPanelControlPages();
   const [showFilters, setShowFilters] = useState(false);
+  const isDisabledCondition = user
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.CATERINGMANAGER,
+        RoleEnum.GAMEMANAGER,
+      ].includes(user?.role?._id)
+    : true;
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const { createItem } = useMenuItemMutations();
@@ -232,7 +239,6 @@ const Product = () => {
     { key: t("Matched Menu Item"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
-
   const rowKeys = [
     {
       key: "name",
@@ -344,14 +350,7 @@ const Product = () => {
       },
     },
   ];
-  if (
-    user &&
-    ![
-      RoleEnum.MANAGER,
-      RoleEnum.CATERINGMANAGER,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
-  ) {
+  if (isDisabledCondition) {
     columns.splice(
       columns.findIndex((column) => column.key === "Unit Price"),
       1
@@ -391,13 +390,7 @@ const Product = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     icon: null,
-    isDisabled: user
-      ? ![
-          RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
-          RoleEnum.GAMEMANAGER,
-        ].includes(user?.role?._id)
-      : true,
+    isDisabled: isDisabledCondition,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const actions = [
@@ -422,13 +415,7 @@ const Product = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t(`Add Item`),
@@ -493,13 +480,7 @@ const Product = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Toggle Active"),
@@ -560,6 +541,7 @@ const Product = () => {
     {
       label: t("Show Inactive Products"),
       isUpperSide: false,
+      isDisabled: isDisabledCondition,
       node: (
         <SwitchButton
           checked={showInactiveProducts}
@@ -569,13 +551,7 @@ const Product = () => {
     },
     {
       isUpperSide: false,
-      isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
       node: (
         <ButtonFilter
           buttonName={t("Join Products")}
@@ -608,15 +584,7 @@ const Product = () => {
           filters={filters}
           filterPanel={filterPanel}
           isExcel={true}
-          isActionsActive={
-            user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
-              : false
-          }
+          isActionsActive={!isDisabledCondition}
         />
         {isJoinProductModalOpen && (
           <GenericAddEditPanel
