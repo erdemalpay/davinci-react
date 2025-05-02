@@ -4,6 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
+import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -35,12 +36,10 @@ import {
   GenericInputType,
 } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const GameStock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
+  const GAMEEXPENSETYPE = "oys";
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
@@ -50,11 +49,18 @@ const GameStock = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const {
+    showGameStockFilters,
+    setShowGameStockFilters,
+    filterGameStockPanelFormElements,
+    setFilterGameStockPanelFormElements,
+    showGameStockPrices,
+    setShowGameStockPrices,
+    isGameStockEnableEdit,
+    setIsGameStockEnableEdit,
+  } = useFilterContext();
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [rowToAction, setRowToAction] = useState<any>();
-  const [showPrices, setShowPrices] = useState(false);
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [stockTransferForm, setStockTransferForm] = useState({
@@ -67,7 +73,9 @@ const GameStock = () => {
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes("oys")
+        getItem(stock?.product, products)?.expenseType?.includes(
+          GAMEEXPENSETYPE
+        )
       )
       .reduce((acc, stock) => {
         const expense = parseFloat(
@@ -79,11 +87,6 @@ const GameStock = () => {
         return acc + expense;
       }, 0);
   });
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      location: "",
-    });
   const [form, setForm] = useState({
     product: "",
     location: "",
@@ -95,11 +98,12 @@ const GameStock = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-
   const [rows, setRows] = useState(() => {
     const groupedProducts = stocks
       ?.filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes("oys")
+        getItem(stock?.product, products)?.expenseType?.includes(
+          GAMEEXPENSETYPE
+        )
       )
       ?.reduce((acc: any, stock) => {
         const rowProduct = getItem(stock?.product, products);
@@ -125,7 +129,7 @@ const GameStock = () => {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
                 { key: t("Quantity"), isSortable: true },
-                isEnableEdit
+                isGameStockEnableEdit
                   ? { key: t("Actions"), isSortable: false }
                   : undefined,
               ].filter(Boolean),
@@ -136,7 +140,6 @@ const GameStock = () => {
         }
         acc[productName].totalGroupPrice += totalPrice;
         acc[productName].totalQuantity += quantity;
-
         acc[productName].collapsible.collapsibleRows.push({
           stockId: stock?._id,
           stockProduct: stock?.product,
@@ -152,13 +155,12 @@ const GameStock = () => {
       }, {});
     return Object.values(groupedProducts);
   });
-
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
   const inputs = [
     ProductInput({
       products: products?.filter((product) =>
-        product?.expenseType?.includes("oys")
+        product?.expenseType?.includes(GAMEEXPENSETYPE)
       ),
       required: true,
     }),
@@ -226,7 +228,10 @@ const GameStock = () => {
       node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
     },
   ];
-  if ((user && ![RoleEnum.MANAGER].includes(user?.role?._id)) || !showPrices) {
+  if (
+    (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) ||
+    !showGameStockPrices
+  ) {
     const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "onlineMenuPrice", "totalGroupPrice"];
     splicedColumns.forEach((item) => {
@@ -391,39 +396,70 @@ const GameStock = () => {
     {
       label: t("Show Prices"),
       isUpperSide: true,
-      node: <SwitchButton checked={showPrices} onChange={setShowPrices} />,
+      node: (
+        <SwitchButton
+          checked={showGameStockPrices}
+          onChange={() => {
+            setShowGameStockPrices(!showGameStockPrices);
+          }}
+        />
+      ),
       isDisabled: isDisabledCondition,
     },
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isGameStockEnableEdit}
+          onChange={() => {
+            setIsGameStockEnableEdit(!isGameStockEnableEdit);
+          }}
+        />
+      ),
       isDisabled: isDisabledCondition,
     },
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showGameStockFilters}
+          onChange={() => {
+            setShowGameStockFilters(!showGameStockFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes("oys")
+        getItem(stock?.product, products)?.expenseType?.includes(
+          GAMEEXPENSETYPE
+        )
       )
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
         console.log(rowProduct);
         return (
-          passesFilter(filterPanelFormElements?.location, stock?.location) &&
-          (!filterPanelFormElements?.product?.length ||
-            filterPanelFormElements?.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, stock?.product)
+          passesFilter(
+            filterGameStockPanelFormElements?.location,
+            stock?.location
+          ) &&
+          (!filterGameStockPanelFormElements?.product?.length ||
+            filterGameStockPanelFormElements?.product?.some(
+              (panelProduct: string) =>
+                passesFilter(panelProduct, stock?.product)
             )) &&
-          (!filterPanelFormElements?.vendor ||
-            rowProduct?.vendor?.includes(filterPanelFormElements?.vendor)) &&
-          (!filterPanelFormElements?.brand ||
-            rowProduct?.brand?.includes(filterPanelFormElements?.brand))
+          (!filterGameStockPanelFormElements?.vendor ||
+            rowProduct?.vendor?.includes(
+              filterGameStockPanelFormElements?.vendor
+            )) &&
+          (!filterGameStockPanelFormElements?.brand ||
+            rowProduct?.brand?.includes(
+              filterGameStockPanelFormElements?.brand
+            ))
         );
       })
       ?.reduce((acc: any, stock) => {
@@ -450,7 +486,7 @@ const GameStock = () => {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
                 { key: t("Quantity"), isSortable: true },
-                isEnableEdit
+                isGameStockEnableEdit
                   ? { key: t("Actions"), isSortable: false }
                   : undefined,
               ].filter(Boolean),
@@ -487,17 +523,17 @@ const GameStock = () => {
     setTableKey((prev) => prev + 1);
   }, [
     stocks,
-    filterPanelFormElements,
+    filterGameStockPanelFormElements,
     products,
     locations,
     user,
-    isEnableEdit,
+    isGameStockEnableEdit,
     items,
   ]);
   const filterPanelInputs = [
     ProductInput({
       products: products?.filter((product) =>
-        product?.expenseType?.includes("oys")
+        product?.expenseType?.includes(GAMEEXPENSETYPE)
       ),
       required: true,
       isMultiple: true,
@@ -507,11 +543,11 @@ const GameStock = () => {
     StockLocationInput({ locations: locations }),
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showGameStockFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterGameStockPanelFormElements,
+    setFormElements: setFilterGameStockPanelFormElements,
+    closeFilters: () => setShowGameStockFilters(false),
   };
   return (
     <>
@@ -519,7 +555,7 @@ const GameStock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          collapsibleActions={isEnableEdit ? collapsibleActions : []}
+          collapsibleActions={isGameStockEnableEdit ? collapsibleActions : []}
           filters={filters}
           columns={columns}
           rows={rows}

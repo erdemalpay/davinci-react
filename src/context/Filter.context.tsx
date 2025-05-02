@@ -16,6 +16,14 @@ type FilterContextType = {
   setShowServiceFilters: (state: boolean) => void;
   showStockFilters: boolean;
   setShowStockFilters: (state: boolean) => void;
+  showGameStockFilters: boolean;
+  setShowGameStockFilters: (state: boolean) => void;
+  filterGameStockPanelFormElements: FormElementsState;
+  setFilterGameStockPanelFormElements: (state: FormElementsState) => void;
+  showGameStockPrices: boolean;
+  setShowGameStockPrices: (state: boolean) => void;
+  isGameStockEnableEdit: boolean;
+  setIsGameStockEnableEdit: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -47,11 +55,25 @@ const FilterContext = createContext<FilterContextType>({
     date: "",
   },
   setFilterStockPanelFormElements: () => {},
+  showGameStockFilters: false,
+  setShowGameStockFilters: () => {},
+  filterGameStockPanelFormElements: {
+    product: [],
+    location: "",
+  },
+  setFilterGameStockPanelFormElements: () => {},
+  showGameStockPrices: false,
+  setShowGameStockPrices: () => {},
+  isGameStockEnableEdit: false,
+  setIsGameStockEnableEdit: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showProductFilters, setShowProductFilters] = useState(false);
   const [showServiceFilters, setShowServiceFilters] = useState(false);
   const [showStockFilters, setShowStockFilters] = useState(false);
+  const [showGameStockFilters, setShowGameStockFilters] = useState(false);
+  const [showGameStockPrices, setShowGameStockPrices] = useState(false);
+  const [isGameStockEnableEdit, setIsGameStockEnableEdit] = useState(false);
   const [filterStockPanelFormElements, setFilterStockPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -73,6 +95,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
       expenseType: "",
       name: "",
     });
+  const [
+    filterGameStockPanelFormElements,
+    setFilterGameStockPanelFormElements,
+  ] = useState<FormElementsState>({ product: [], location: "" });
   return (
     <FilterContext.Provider
       value={{
@@ -88,6 +114,15 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowStockFilters: setShowStockFilters,
         filterStockPanelFormElements: filterStockPanelFormElements,
         setFilterStockPanelFormElements: setFilterStockPanelFormElements,
+        showGameStockFilters: showGameStockFilters,
+        setShowGameStockFilters: setShowGameStockFilters,
+        filterGameStockPanelFormElements: filterGameStockPanelFormElements,
+        setFilterGameStockPanelFormElements:
+          setFilterGameStockPanelFormElements,
+        showGameStockPrices: showGameStockPrices,
+        setShowGameStockPrices: setShowGameStockPrices,
+        isGameStockEnableEdit: isGameStockEnableEdit,
+        setIsGameStockEnableEdit: setIsGameStockEnableEdit,
       }}
     >
       {children}
