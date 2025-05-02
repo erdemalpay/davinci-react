@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
-  commonDateOptions,
   ExpenseTypes,
   NOTPAID,
+  commonDateOptions,
 } from "../../types";
 import {
   useAccountExpenseMutations,
@@ -47,9 +48,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-type FormElementsState = {
-  [key: string]: any;
-};
 
 const ServiceInvoice = () => {
   const { t } = useTranslation();
@@ -61,27 +59,18 @@ const ServiceInvoice = () => {
     setCurrentPage,
   } = useGeneralContext();
   const locations = useGetStockLocations();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: ExpenseTypes.NONSTOCKABLE,
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: "",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      search: "",
-    });
+  const {
+    filterServiceInvoicePanelFormElements,
+    setFilterServiceInvoicePanelFormElements,
+    showServiceInvoiceFilters,
+    setShowServiceInvoiceFilters,
+    isServiceInvoiceEnableEdit,
+    setIsServiceInvoiceEnableEdit,
+  } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterServiceInvoicePanelFormElements
   );
   const invoices = invoicesPayload?.data;
   const expenseTypes = useGetAccountExpenseTypes();
@@ -91,9 +80,7 @@ const ServiceInvoice = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [currentRow, setCurrentRow] = useState<any>();
   const [isExpenseTypeEditModalOpen, setIsExpenseTypeEditModalOpen] =
     useState(false);
@@ -111,7 +98,6 @@ const ServiceInvoice = () => {
     vendor: [],
     expenseType: [],
   });
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -272,7 +258,6 @@ const ServiceInvoice = () => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
   ];
-
   const columns = [
     {
       key: "ID",
@@ -293,34 +278,34 @@ const ServiceInvoice = () => {
     {
       key: t("Vendor"),
       isSortable: true,
-      isAddable: isEnableEdit,
+      isAddable: isServiceInvoiceEnableEdit,
       onClick: () => setIsAddVendorOpen(true),
       correspondingKey: "vendor",
     },
     {
       key: t("Location"),
       isSortable: true,
-      isAddable: isEnableEdit,
+      isAddable: isServiceInvoiceEnableEdit,
       correspondingKey: "location",
     },
     {
       key: t("Expense Type"),
-      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      className: `${isServiceInvoiceEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
-      isAddable: isEnableEdit,
+      isAddable: isServiceInvoiceEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
       correspondingKey: "expenseType",
     },
     {
       key: t("Service"),
       isSortable: true,
-      isAddable: isEnableEdit,
+      isAddable: isServiceInvoiceEnableEdit,
       onClick: () => setIsAddServiceModalOpen(true),
       correspondingKey: "service",
     },
     {
       key: t("Payment Method"),
-      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      className: `${isServiceInvoiceEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: true,
       correspondingKey: "paymentMethod",
     },
@@ -352,14 +337,14 @@ const ServiceInvoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isServiceInvoiceEnableEdit) return;
               setIsVendorEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={` min-w-32 pr-2 ${
-                isEnableEdit
+                isServiceInvoiceEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
               }`}
@@ -386,14 +371,14 @@ const ServiceInvoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isServiceInvoiceEnableEdit) return;
               setIsExpenseTypeEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
-                isEnableEdit
+                isServiceInvoiceEnableEdit
                   ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : "text-white"
               }`}
@@ -414,14 +399,14 @@ const ServiceInvoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isServiceInvoiceEnableEdit) return;
               setIsServiceEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={`${
-                isEnableEdit
+                isServiceInvoiceEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
               }`}
@@ -539,7 +524,7 @@ const ServiceInvoice = () => {
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isServiceInvoiceEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -562,7 +547,7 @@ const ServiceInvoice = () => {
     },
     {
       name: t("Edit"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isServiceInvoiceEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
@@ -646,20 +631,34 @@ const ServiceInvoice = () => {
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isServiceInvoiceEnableEdit}
+          onChange={() => {
+            setIsServiceInvoiceEnableEdit(!isServiceInvoiceEnableEdit);
+          }}
+        />
+      ),
     },
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showServiceInvoiceFilters}
+          onChange={() => {
+            setShowServiceInvoiceFilters(!showServiceInvoiceFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showServiceInvoiceFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterServiceInvoicePanelFormElements,
+    setFormElements: setFilterServiceInvoicePanelFormElements,
+    closeFilters: () => setShowServiceInvoiceFilters(false),
   };
   const pagination = invoicesPayload
     ? {
@@ -668,34 +667,34 @@ const ServiceInvoice = () => {
       }
     : null;
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterServiceInvoicePanelFormElements,
+    setFilterPanelFormElements: setFilterServiceInvoicePanelFormElements,
   };
   const outsideSearch = () => {
     return (
       <TextInput
         placeholder={t("Search")}
         type="text"
-        value={filterPanelFormElements.search}
+        value={filterServiceInvoicePanelFormElements.search}
         isDebounce={true}
         onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
+          setFilterServiceInvoicePanelFormElements({
+            ...filterServiceInvoicePanelFormElements,
             search: value,
-          }))
+          })
         }
       />
     );
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterServiceInvoicePanelFormElements]);
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(allRows);
   }, [
     invoicesPayload,
-    filterPanelFormElements,
+    filterServiceInvoicePanelFormElements,
     locations,
     vendors,
     expenseTypes,
@@ -711,9 +710,9 @@ const ServiceInvoice = () => {
           filters={tableFilters}
           outsideSortProps={outsideSort}
           isActionsActive={false}
-          isActionsAtFront={isEnableEdit}
+          isActionsAtFront={isServiceInvoiceEnableEdit}
           columns={
-            isEnableEdit
+            isServiceInvoiceEnableEdit
               ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }

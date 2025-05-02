@@ -1,12 +1,13 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
-  commonDateOptions,
   ExpenseTypes,
   NOTPAID,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
@@ -52,27 +53,16 @@ const AllExpenses = () => {
     allExpenseForm,
     setAllExpenseForm,
   } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: "",
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: "",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      search: "",
-    });
+  const {
+    filterAllExpensesPanelFormElements,
+    setFilterAllExpensesPanelFormElements,
+    showAllExpensesFilters,
+    setShowAllExpensesFilters,
+  } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterAllExpensesPanelFormElements
   );
   const invoices = invoicesPayload?.data;
   const locations = useGetStockLocations();
@@ -83,7 +73,6 @@ const AllExpenses = () => {
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
   const { createAccountExpense } = useAccountExpenseMutations();
   const allRows = invoices
     ?.map((invoice) => {
@@ -128,13 +117,15 @@ const AllExpenses = () => {
     ProductInput({
       products: products,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+      isDisabled:
+        filterAllExpensesPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
     }),
 
     ServiceInput({
       services: services,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
+      isDisabled:
+        filterAllExpensesPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
     }),
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
@@ -591,15 +582,22 @@ const AllExpenses = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showAllExpensesFilters}
+          onChange={() => {
+            setShowAllExpensesFilters(!showAllExpensesFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showAllExpensesFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterAllExpensesPanelFormElements,
+    setFormElements: setFilterAllExpensesPanelFormElements,
+    closeFilters: () => setShowAllExpensesFilters(false),
   };
   const pagination = invoicesPayload
     ? {
@@ -608,34 +606,34 @@ const AllExpenses = () => {
       }
     : null;
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterAllExpensesPanelFormElements,
+    setFilterPanelFormElements: setFilterAllExpensesPanelFormElements,
   };
   const outsideSearch = () => {
     return (
       <TextInput
         placeholder={t("Search")}
         type="text"
-        value={filterPanelFormElements.search}
+        value={filterAllExpensesPanelFormElements.search}
         isDebounce={true}
         onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
+          setFilterAllExpensesPanelFormElements({
+            ...filterAllExpensesPanelFormElements,
             search: value,
-          }))
+          })
         }
       />
     );
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterAllExpensesPanelFormElements]);
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(allRows);
   }, [
     invoicesPayload,
-    filterPanelFormElements,
+    filterAllExpensesPanelFormElements,
     searchQuery,
     products,
     products,

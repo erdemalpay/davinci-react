@@ -92,6 +92,16 @@ type FilterContextType = {
   setShowInvoieFilters: (state: boolean) => void;
   filterPanelInvoiceFormElements: FormElementsState;
   setFilterPanelInvoiceFormElements: (state: FormElementsState) => void;
+  isServiceInvoiceEnableEdit: boolean;
+  setIsServiceInvoiceEnableEdit: (state: boolean) => void;
+  showServiceInvoiceFilters: boolean;
+  setShowServiceInvoiceFilters: (state: boolean) => void;
+  filterServiceInvoicePanelFormElements: FormElementsState;
+  setFilterServiceInvoicePanelFormElements: (state: FormElementsState) => void;
+  showAllExpensesFilters: boolean;
+  setShowAllExpensesFilters: (state: boolean) => void;
+  filterAllExpensesPanelFormElements: FormElementsState;
+  setFilterAllExpensesPanelFormElements: (state: FormElementsState) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -268,6 +278,46 @@ const FilterContext = createContext<FilterContextType>({
     search: "",
   },
   setFilterPanelInvoiceFormElements: () => {},
+  isServiceInvoiceEnableEdit: false,
+  setIsServiceInvoiceEnableEdit: () => {},
+  showServiceInvoiceFilters: false,
+  setShowServiceInvoiceFilters: () => {},
+  filterServiceInvoicePanelFormElements: {
+    product: [],
+    service: [],
+    type: ExpenseTypes.NONSTOCKABLE,
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "",
+    location: "",
+    date: "",
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+    search: "",
+  },
+  setFilterServiceInvoicePanelFormElements: () => {},
+  showAllExpensesFilters: false,
+  setShowAllExpensesFilters: () => {},
+  filterAllExpensesPanelFormElements: {
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "",
+    location: "",
+    date: "",
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+    search: "",
+  },
+  setFilterAllExpensesPanelFormElements: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -287,12 +337,19 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showShiftsFilters, setShowShiftsFilters] = useState(false);
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
+  const [showServiceInvoiceFilters, setShowServiceInvoiceFilters] =
+    useState(false);
+  const [isServiceInvoiceEnableEdit, setIsServiceInvoiceEnableEdit] =
+    useState(false);
+
   const [
     showVisitScheduleOverviewFilters,
     setShowVisitScheduleOverviewFilters,
   ] = useState(false);
   const [showInvoiceFilters, setShowInvoiceFilters] = useState(false);
   const [isInvoiceEnableEdit, setIsInvoiceEnableEdit] = useState(false);
+  const [showAllExpensesFilters, setShowAllExpensesFilters] = useState(false);
+
   const [
     filterAllVisitsPanelFormElements,
     setFilterAllVisitsPanelFormElements,
@@ -302,6 +359,44 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     before: "",
     user: "",
     location: "",
+  });
+  const [
+    filterAllExpensesPanelFormElements,
+    setFilterAllExpensesPanelFormElements,
+  ] = useState<FormElementsState>({
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "",
+    location: "",
+    date: "",
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+    search: "",
+  });
+  const [
+    filterServiceInvoicePanelFormElements,
+    setFilterServiceInvoicePanelFormElements,
+  ] = useState<FormElementsState>({
+    product: [],
+    service: [],
+    type: ExpenseTypes.NONSTOCKABLE,
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "",
+    location: "",
+    date: "",
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+    search: "",
   });
   const [filterPanelInvoiceFormElements, setFilterPanelInvoiceFormElements] =
     useState<FormElementsState>({
@@ -543,6 +638,19 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowInvoieFilters: setShowInvoiceFilters,
         filterPanelInvoiceFormElements: filterPanelInvoiceFormElements,
         setFilterPanelInvoiceFormElements: setFilterPanelInvoiceFormElements,
+        isServiceInvoiceEnableEdit: isServiceInvoiceEnableEdit,
+        setIsServiceInvoiceEnableEdit: setIsServiceInvoiceEnableEdit,
+        showServiceInvoiceFilters: showServiceInvoiceFilters,
+        setShowServiceInvoiceFilters: setShowServiceInvoiceFilters,
+        filterServiceInvoicePanelFormElements:
+          filterServiceInvoicePanelFormElements,
+        setFilterServiceInvoicePanelFormElements:
+          setFilterServiceInvoicePanelFormElements,
+        showAllExpensesFilters: showAllExpensesFilters,
+        setShowAllExpensesFilters: setShowAllExpensesFilters,
+        filterAllExpensesPanelFormElements: filterAllExpensesPanelFormElements,
+        setFilterAllExpensesPanelFormElements:
+          setFilterAllExpensesPanelFormElements,
       }}
     >
       {children}
