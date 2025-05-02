@@ -45,10 +45,11 @@ import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
-import { useGetButtonCalls } from "../utils/api/buttonCall";
+import { useGetActiveButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
   useGetAllLocations,
+  useGetStockLocations,
   useGetStoreLocations,
 } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -60,7 +61,6 @@ import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
-import { useGetActiveButtonCalls } from "../utils/api/buttonCall";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
 import { LocationInput, QuantityInput } from "../utils/panelInputs";
@@ -88,6 +88,7 @@ const Tables = () => {
   const navigate = useNavigate();
   const games = useGetGames();
   const visits = useGetVisits();
+  const stockLocations = useGetStockLocations();
   const buttonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
@@ -232,7 +233,7 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: stockLocations?.map((input) => {
         const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
@@ -372,7 +373,7 @@ const Tables = () => {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
-      options: locations?.map((input) => {
+      options: stockLocations?.map((input) => {
         const menuItem = getItem(orderForm.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
