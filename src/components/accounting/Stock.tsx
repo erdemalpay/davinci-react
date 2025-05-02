@@ -59,14 +59,16 @@ const Stock = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const {
     showStockFilters,
     setShowStockFilters,
     filterStockPanelFormElements,
     setFilterStockPanelFormElements,
+    isStockEnableEdit,
+    setIsStockEnableEdit,
+    showStockPrices,
+    setShowStockPrices,
   } = useFilterContext();
-  const [showPrices, setShowPrices] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
@@ -123,7 +125,7 @@ const Stock = () => {
             collapsibleColumns: [
               { key: t("Location"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
-              isEnableEdit
+              isStockEnableEdit
                 ? { key: t("Actions"), isSortable: false }
                 : undefined,
             ].filter(Boolean),
@@ -208,7 +210,10 @@ const Stock = () => {
       node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
     },
   ];
-  if ((user && ![RoleEnum.MANAGER].includes(user?.role?._id)) || !showPrices) {
+  if (
+    (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) ||
+    !showStockPrices
+  ) {
     const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "menuPrice", "totalGroupPrice"];
     splicedColumns.forEach((item) => {
@@ -373,13 +378,27 @@ const Stock = () => {
     {
       label: t("Show Prices"),
       isUpperSide: true,
-      node: <SwitchButton checked={showPrices} onChange={setShowPrices} />,
+      node: (
+        <SwitchButton
+          checked={showStockPrices}
+          onChange={() => {
+            setShowStockPrices(!showStockPrices);
+          }}
+        />
+      ),
       isDisabled: isDisabledCondition,
     },
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isStockEnableEdit}
+          onChange={() => {
+            setIsStockEnableEdit(!isStockEnableEdit);
+          }}
+        />
+      ),
       isDisabled: isDisabledCondition,
     },
     {
@@ -534,7 +553,7 @@ const Stock = () => {
               collapsibleColumns: [
                 { key: t("Location"), isSortable: true },
                 { key: t("Quantity"), isSortable: true },
-                isEnableEdit
+                isStockEnableEdit
                   ? { key: t("Actions"), isSortable: false }
                   : undefined,
               ].filter(Boolean),
@@ -576,7 +595,7 @@ const Stock = () => {
     products,
     locations,
     user,
-    isEnableEdit,
+    isStockEnableEdit,
     items,
     expenseTypes,
     vendors,
@@ -588,7 +607,7 @@ const Stock = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          collapsibleActions={isEnableEdit ? collapsibleActions : []}
+          collapsibleActions={isStockEnableEdit ? collapsibleActions : []}
           filters={filters}
           columns={columns}
           rows={rows}

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import * as XLSX from "xlsx";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
@@ -19,10 +20,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
-type FormElementsState = {
-  [key: string]: any;
-};
 interface Quantities {
   [key: string]: any;
 }
@@ -30,11 +27,16 @@ const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
   const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
-  const [showFilters, setShowFilters] = useState(false);
   const locations = useGetAllLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const [rowToAction, setRowToAction] = useState<any>();
+  const {
+    filterBaseQuantityPanelFormElements,
+    setFilterBaseQuantityPanelFormElements,
+    showBaseQuantityFilters,
+    setShowBaseQuantityFilters,
+  } = useFilterContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -89,11 +91,7 @@ const BaseQuantityByLocation = () => {
       { key: String(location._id) + "max", type: FormKeyTypeEnum.NUMBER },
     ];
   });
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      expenseType: [],
-      vendor: [],
-    });
+
   const [rows, setRows] = useState(allRows);
   const filterPanelInputs = [
     ExpenseTypeInput({ expenseTypes: expenseTypes, isMultiple: true }),
@@ -267,32 +265,45 @@ const BaseQuantityByLocation = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showBaseQuantityFilters}
+          onChange={() => {
+            setShowBaseQuantityFilters(!showBaseQuantityFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showBaseQuantityFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterBaseQuantityPanelFormElements,
+    setFormElements: setFilterBaseQuantityPanelFormElements,
+    closeFilters: () => setShowBaseQuantityFilters(false),
   };
   useEffect(() => {
     const filteredRows = allRows?.filter((row) => {
-      if (filterPanelFormElements.expenseType.length !== 0) {
+      if (filterBaseQuantityPanelFormElements.expenseType.length !== 0) {
         return row.expenseType?.some((expense) =>
-          filterPanelFormElements.expenseType.includes(expense)
+          filterBaseQuantityPanelFormElements.expenseType.includes(expense)
         );
-      } else if (filterPanelFormElements.vendor.length !== 0) {
+      } else if (filterBaseQuantityPanelFormElements.vendor.length !== 0) {
         return row.vendor?.some((vendor) =>
-          filterPanelFormElements.vendor.includes(vendor)
+          filterBaseQuantityPanelFormElements.vendor.includes(vendor)
         );
       }
       return true;
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [products, locations, expenseTypes, filterPanelFormElements, vendors]);
+  }, [
+    products,
+    locations,
+    expenseTypes,
+    filterBaseQuantityPanelFormElements,
+    vendors,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

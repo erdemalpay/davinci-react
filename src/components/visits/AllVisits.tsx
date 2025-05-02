@@ -1,7 +1,8 @@
 import { format, startOfMonth } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commonDateOptions, DateRangeKey } from "../../types";
+import { useFilterContext } from "../../context/Filter.context";
+import { DateRangeKey, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
@@ -9,17 +10,13 @@ import { useGetFilteredVisits } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const AllVisits = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
   const users = useGetUsers();
   const locations = useGetStoreLocations();
   const initialFilterPanelFormElements = {
@@ -29,19 +26,23 @@ const AllVisits = () => {
     user: "",
     location: "",
   };
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>(initialFilterPanelFormElements);
+  const {
+    filterAllVisitsPanelFormElements,
+    setFilterAllVisitsPanelFormElements,
+    showAllVisitsFilters,
+    setShowAllVisitsFilters,
+  } = useFilterContext();
   const visits = useGetFilteredVisits(
-    filterPanelFormElements.after,
-    filterPanelFormElements.before
+    filterAllVisitsPanelFormElements.after,
+    filterAllVisitsPanelFormElements.before
   );
   const allRows = visits
     ?.filter((visit) => {
-      if (filterPanelFormElements.user !== "") {
-        return visit.user === filterPanelFormElements.user;
+      if (filterAllVisitsPanelFormElements.user !== "") {
+        return visit.user === filterAllVisitsPanelFormElements.user;
       }
-      if (filterPanelFormElements.location !== "") {
-        return visit.location === filterPanelFormElements.location;
+      if (filterAllVisitsPanelFormElements.location !== "") {
+        return visit.location === filterAllVisitsPanelFormElements.location;
       }
       return true;
     })
@@ -83,7 +84,14 @@ const AllVisits = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showAllVisitsFilters}
+          onChange={() => {
+            setShowAllVisitsFilters(!showAllVisitsFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanelInputs = [
@@ -108,8 +116,8 @@ const AllVisits = () => {
       }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setFilterAllVisitsPanelFormElements({
+            ...filterAllVisitsPanelFormElements,
             ...dateRange(),
           });
         }
@@ -151,19 +159,19 @@ const AllVisits = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showAllVisitsFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterAllVisitsPanelFormElements,
+    setFormElements: setFilterAllVisitsPanelFormElements,
+    closeFilters: () => setShowAllVisitsFilters(false),
     additionalFilterCleanFunction: () => {
-      setFilterPanelFormElements(initialFilterPanelFormElements);
+      setFilterAllVisitsPanelFormElements(initialFilterPanelFormElements);
     },
   };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [visits, filterPanelFormElements, users, locations]);
+  }, [visits, filterAllVisitsPanelFormElements, users, locations]);
   return (
     <>
       <div className="w-[95%] my-5 mx-auto ">

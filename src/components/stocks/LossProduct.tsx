@@ -1,16 +1,16 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
-  FormElementsState,
   MenuItem,
   OrderStatus,
   RoleEnum,
   StockHistoryStatusEnum,
-  stockHistoryStatuses,
   TURKISHLIRA,
+  stockHistoryStatuses,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -34,10 +34,10 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const LossProduct = () => {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
@@ -55,24 +55,17 @@ const LossProduct = () => {
   const { createOrder } = useOrderMutations();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      expenseType: "",
-      location: selectedLocationId,
-      status: StockHistoryStatusEnum.LOSSPRODUCT,
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      vendor: "",
-      brand: "",
-    });
+  const {
+    filterLossProductPanelFormElements,
+    setFilterLossProductPanelFormElements,
+    showLossProductFilters,
+    setShowLossProductFilters,
+  } = useFilterContext();
   const user = useGetUser();
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterLossProductPanelFormElements
   );
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
@@ -85,7 +78,6 @@ const LossProduct = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const items = useGetMenuItems();
-  const [showFilters, setShowFilters] = useState(false);
   const isDisabledCondition = !(
     user &&
     [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
@@ -407,7 +399,14 @@ const LossProduct = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showLossProductFilters}
+          onChange={() => {
+            setShowLossProductFilters(!showLossProductFilters);
+          }}
+        />
+      ),
     },
   ];
   const pagination = stockHistoriesPayload
@@ -417,19 +416,19 @@ const LossProduct = () => {
       }
     : null;
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showLossProductFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterLossProductPanelFormElements,
+    setFormElements: setFilterLossProductPanelFormElements,
+    closeFilters: () => setShowLossProductFilters(false),
   };
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterLossProductPanelFormElements,
+    setFilterPanelFormElements: setFilterLossProductPanelFormElements,
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterLossProductPanelFormElements]);
 
   useEffect(() => {
     setRows(allRows);

@@ -1,7 +1,8 @@
 import { format, startOfMonth } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commonDateOptions, DateRangeKey } from "../../types";
+import { useFilterContext } from "../../context/Filter.context";
+import { DateRangeKey, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
@@ -9,17 +10,13 @@ import { useGetUniqueVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const VisitScheduleOverview = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
   const users = useGetUsers();
   const locations = useGetStoreLocations();
   const initialFilterPanelFormElements = {
@@ -29,19 +26,26 @@ const VisitScheduleOverview = () => {
     user: "",
     location: "",
   };
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>(initialFilterPanelFormElements);
+  const {
+    filterVisitScheduleOverviewPanelFormElements,
+    setFilterVisitScheduleOverviewPanelFormElements,
+    showVisitScheduleOverviewFilters,
+    setShowVisitScheduleOverviewFilters,
+  } = useFilterContext();
   const visits = useGetUniqueVisits(
-    filterPanelFormElements.after,
-    filterPanelFormElements.before
+    filterVisitScheduleOverviewPanelFormElements.after,
+    filterVisitScheduleOverviewPanelFormElements.before
   );
   const allRows = visits
     ?.filter((visit) => {
-      if (filterPanelFormElements.user !== "") {
-        return visit.user === filterPanelFormElements.user;
+      if (filterVisitScheduleOverviewPanelFormElements.user !== "") {
+        return visit.user === filterVisitScheduleOverviewPanelFormElements.user;
       }
-      if (filterPanelFormElements.location !== "") {
-        return visit.location === filterPanelFormElements.location;
+      if (filterVisitScheduleOverviewPanelFormElements.location !== "") {
+        return (
+          visit.location ===
+          filterVisitScheduleOverviewPanelFormElements.location
+        );
       }
       return true;
     })
@@ -90,7 +94,16 @@ const VisitScheduleOverview = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showVisitScheduleOverviewFilters}
+          onChange={() => {
+            setShowVisitScheduleOverviewFilters(
+              !showVisitScheduleOverviewFilters
+            );
+          }}
+        />
+      ),
     },
   ];
   const filterPanelInputs = [
@@ -115,8 +128,8 @@ const VisitScheduleOverview = () => {
       }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setFilterVisitScheduleOverviewPanelFormElements({
+            ...filterVisitScheduleOverviewPanelFormElements,
             ...dateRange(),
           });
         }
@@ -158,19 +171,21 @@ const VisitScheduleOverview = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showVisitScheduleOverviewFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterVisitScheduleOverviewPanelFormElements,
+    setFormElements: setFilterVisitScheduleOverviewPanelFormElements,
+    closeFilters: () => setShowVisitScheduleOverviewFilters(false),
     additionalFilterCleanFunction: () => {
-      setFilterPanelFormElements(initialFilterPanelFormElements);
+      setFilterVisitScheduleOverviewPanelFormElements(
+        initialFilterPanelFormElements
+      );
     },
   };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [visits, filterPanelFormElements, users, locations]);
+  }, [visits, filterVisitScheduleOverviewPanelFormElements, users, locations]);
   return (
     <>
       <div className="w-[95%] my-5 mx-auto ">

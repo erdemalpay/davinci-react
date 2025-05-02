@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
+import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -24,9 +25,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const GameStockLocation = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
@@ -40,19 +38,12 @@ const GameStockLocation = () => {
   const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      bahceliMin: "",
-      bahceliMax: "",
-      neoramaMin: "",
-      neoramaMax: "",
-      amazonMin: "",
-      amazonMax: "",
-      neoDepoMin: "",
-      neoDepoMax: "",
-    });
+  const {
+    filtershowGameStockLocationFiltersPanelFormElements,
+    setFiltershowGameStockLocationFiltersPanelFormElements,
+    showGameStockLocationFilters,
+    setShowGameStockLocationFilters,
+  } = useFilterContext();
   const [rows, setRows] = useState(() => {
     const groupedProducts = stocks
       ?.filter((stock) =>
@@ -258,7 +249,14 @@ const GameStockLocation = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showGameStockLocationFilters}
+          onChange={() => {
+            setShowGameStockLocationFilters(!showGameStockLocationFilters);
+          }}
+        />
+      ),
     },
   ];
   const actions = [
@@ -311,9 +309,10 @@ const GameStockLocation = () => {
       )
       ?.filter((stock) => {
         return (
-          !filterPanelFormElements?.product?.length ||
-          filterPanelFormElements?.product?.some((panelProduct: string) =>
-            passesFilter(panelProduct, stock?.product)
+          !filtershowGameStockLocationFiltersPanelFormElements?.product
+            ?.length ||
+          filtershowGameStockLocationFiltersPanelFormElements?.product?.some(
+            (panelProduct: string) => passesFilter(panelProduct, stock?.product)
           )
         );
       })
@@ -346,8 +345,8 @@ const GameStockLocation = () => {
       for (const filter of filters) {
         const { minKey, maxKey, locationIndex } = filter;
         const locationKey = `location_${locationIndex}`;
-        const min = filterPanelFormElements[minKey];
-        const max = filterPanelFormElements[maxKey];
+        const min = filtershowGameStockLocationFiltersPanelFormElements[minKey];
+        const max = filtershowGameStockLocationFiltersPanelFormElements[maxKey];
         const value = row[locationKey];
         if (min !== "" && min > value) {
           return false;
@@ -360,14 +359,21 @@ const GameStockLocation = () => {
     });
     setRows(Object.values(filteredRows));
     setTableKey((prev) => prev + 1);
-  }, [stocks, filterPanelFormElements, products, locations, user, items]);
+  }, [
+    stocks,
+    filtershowGameStockLocationFiltersPanelFormElements,
+    products,
+    locations,
+    user,
+    items,
+  ]);
 
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showGameStockLocationFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filtershowGameStockLocationFiltersPanelFormElements,
+    setFormElements: setFiltershowGameStockLocationFiltersPanelFormElements,
+    closeFilters: () => setShowGameStockLocationFilters(false),
     isApplyButtonActive: true,
   };
 

@@ -1,8 +1,9 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { FormElementsState, stockHistoryStatuses } from "../../types";
+import { stockHistoryStatuses } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -28,23 +29,16 @@ import { InputTypes } from "../panelComponents/shared/types";
 const ProductStockHistory = () => {
   const { t } = useTranslation();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      expenseType: "",
-      location: "",
-      status: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      vendor: "",
-      brand: "",
-    });
+  const {
+    filterProductStockHistoryPanelFormElements,
+    setFilterProductStockHistoryPanelFormElements,
+    showProductStockHistoryFilters,
+    setShowProductStockHistoryFilters,
+  } = useFilterContext();
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterProductStockHistoryPanelFormElements
   );
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
@@ -54,7 +48,6 @@ const ProductStockHistory = () => {
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
-  const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data
     ?.map((stockHistory) => {
@@ -221,7 +214,14 @@ const ProductStockHistory = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showProductStockHistoryFilters}
+          onChange={() => {
+            setShowProductStockHistoryFilters(!showProductStockHistoryFilters);
+          }}
+        />
+      ),
     },
   ];
   const pagination = stockHistoriesPayload
@@ -231,19 +231,19 @@ const ProductStockHistory = () => {
       }
     : null;
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showProductStockHistoryFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterProductStockHistoryPanelFormElements,
+    setFormElements: setFilterProductStockHistoryPanelFormElements,
+    closeFilters: () => setShowProductStockHistoryFilters(false),
   };
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterProductStockHistoryPanelFormElements,
+    setFilterPanelFormElements: setFilterProductStockHistoryPanelFormElements,
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterProductStockHistoryPanelFormElements]);
 
   useEffect(() => {
     setRows(allRows);

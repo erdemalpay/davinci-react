@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../../context/Filter.context";
 import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetTablePlayerCounts } from "../../../utils/api/table";
 import { formatAsLocalDate } from "../../../utils/format";
@@ -7,23 +8,18 @@ import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const TablePlayerCount = () => {
   const { t } = useTranslation();
-  const now = new Date();
-  const currentMonth = (now.getMonth() + 1).toString().padStart(2, "0");
-  const currentYear = now.getFullYear().toString();
-  const initialFilterPanelFormElements = {
-    monthYear: currentMonth + "-" + currentYear,
-  };
-  const [showFilters, setShowFilters] = useState(false);
   const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>(initialFilterPanelFormElements);
-  const [month, year] = filterPanelFormElements.monthYear.split("-");
+  const {
+    filterTablePlayerCountPanelFormElements,
+    setFilterTablePlayerCountPanelFormElements,
+    showTablePlayerCountFilters,
+    setShowTablePlayerCountFilters,
+  } = useFilterContext();
+  const [month, year] =
+    filterTablePlayerCountPanelFormElements.monthYear.split("-");
   const tablePlayerCounts = useGetTablePlayerCounts(month, year);
   const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
     return {
@@ -64,7 +60,14 @@ const TablePlayerCount = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showTablePlayerCountFilters}
+          onChange={() => {
+            setShowTablePlayerCountFilters(!showTablePlayerCountFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanelInputs = [
@@ -76,16 +79,16 @@ const TablePlayerCount = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showTablePlayerCountFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterTablePlayerCountPanelFormElements,
+    setFormElements: setFilterTablePlayerCountPanelFormElements,
+    closeFilters: () => setShowTablePlayerCountFilters(false),
   };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [tablePlayerCounts, locations, filterPanelFormElements]);
+  }, [tablePlayerCounts, locations, filterTablePlayerCountPanelFormElements]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

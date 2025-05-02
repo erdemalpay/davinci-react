@@ -1,15 +1,11 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import {
-  FormElementsState,
-  RoleEnum,
-  StockHistoryStatusEnum,
-  stockHistoryStatuses,
-} from "../../types";
+import { RoleEnum, stockHistoryStatuses } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
@@ -41,23 +37,16 @@ const EnterConsumption = () => {
   const { selectedLocationId } = useLocationContext();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      expenseType: "",
-      location: selectedLocationId,
-      status: StockHistoryStatusEnum.CONSUMPTION,
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      vendor: "",
-      brand: "",
-    });
+  const {
+    filterEnterConsumptionPanelFormElements,
+    setFilterEnterConsumptionPanelFormElements,
+    showEnterConsumptionFilters,
+    setShowEnterConsumptionFilters,
+  } = useFilterContext();
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterEnterConsumptionPanelFormElements
   );
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
@@ -68,7 +57,6 @@ const EnterConsumption = () => {
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
-  const [showFilters, setShowFilters] = useState(false);
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data?.map((stockHistory) => {
     if (!stockHistory?.createdAt) {
@@ -281,7 +269,14 @@ const EnterConsumption = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showEnterConsumptionFilters}
+          onChange={() => {
+            setShowEnterConsumptionFilters(!showEnterConsumptionFilters);
+          }}
+        />
+      ),
     },
   ];
   const pagination = stockHistoriesPayload
@@ -291,20 +286,20 @@ const EnterConsumption = () => {
       }
     : null;
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showEnterConsumptionFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterEnterConsumptionPanelFormElements,
+    setFormElements: setFilterEnterConsumptionPanelFormElements,
+    closeFilters: () => setShowEnterConsumptionFilters(false),
   };
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterEnterConsumptionPanelFormElements,
+    setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
   };
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterEnterConsumptionPanelFormElements]);
 
   useEffect(() => {
     setRows(allRows);

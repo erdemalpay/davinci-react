@@ -1,30 +1,26 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useFilterContext } from "../../../context/Filter.context";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
 import { passesFilter } from "../../../utils/passesFilter";
+import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
-import GenericTable from "../../panelComponents/Tables/GenericTable";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const LearnedGames = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   if (!users) return null;
   const [tableKey, setTableKey] = useState(0);
   const games = useGetGames();
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      user: "",
-      game: "",
-      after: "",
-      before: "",
-    });
+  const {
+    filterLearnedGamesPanelFormElements,
+    setFilterLearnedGamesPanelFormElements,
+    showLearnedGamesFilters,
+    setShowLearnedGamesFilters,
+  } = useFilterContext();
   const allRows = users
     .flatMap((user) =>
       user?.userGames?.map((item) => {
@@ -106,17 +102,24 @@ const LearnedGames = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showLearnedGamesFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterLearnedGamesPanelFormElements,
+    setFormElements: setFilterLearnedGamesPanelFormElements,
+    closeFilters: () => setShowLearnedGamesFilters(false),
   };
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showLearnedGamesFilters}
+          onChange={() => {
+            setShowLearnedGamesFilters(!showLearnedGamesFilters);
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {
@@ -125,17 +128,17 @@ const LearnedGames = () => {
         return false;
       }
       return (
-        (filterPanelFormElements.before === "" ||
-          row.learnDate <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row.learnDate >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.user, row.userId) &&
-        passesFilter(filterPanelFormElements.game, row.gameId)
+        (filterLearnedGamesPanelFormElements.before === "" ||
+          row.learnDate <= filterLearnedGamesPanelFormElements.before) &&
+        (filterLearnedGamesPanelFormElements.after === "" ||
+          row.learnDate >= filterLearnedGamesPanelFormElements.after) &&
+        passesFilter(filterLearnedGamesPanelFormElements.user, row.userId) &&
+        passesFilter(filterLearnedGamesPanelFormElements.game, row.gameId)
       );
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [users, games, filterPanelFormElements]);
+  }, [users, games, filterLearnedGamesPanelFormElements]);
 
   return (
     <div className="w-[95%] mx-auto ">

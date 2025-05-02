@@ -10,9 +10,6 @@ import { LocationInput, VendorInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const VendorOrder = () => {
   const { t } = useTranslation();
   const vendors = useGetAccountVendors();

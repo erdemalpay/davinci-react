@@ -3,14 +3,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpense,
   AccountExpenseType,
   AccountProduct,
-  commonDateOptions,
   ExpenseTypes,
   NOTPAID,
+  commonDateOptions,
 } from "../../types";
 import {
   useAccountBrandMutations,
@@ -48,15 +49,12 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../panelComponents/FormElements/TextInput";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
-type FormElementsState = {
-  [key: string]: any;
-};
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Invoice = () => {
   const { t } = useTranslation();
@@ -68,27 +66,18 @@ const Invoice = () => {
     setProductExpenseForm,
   } = useGeneralContext();
   const locations = useGetStockLocations();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: ExpenseTypes.STOCKABLE,
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: "",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      search: "",
-    });
+  const {
+    filterPanelInvoiceFormElements,
+    setFilterPanelInvoiceFormElements,
+    isInvoiceEnableEdit,
+    setIsInvoiceEnableEdit,
+    showInvoieFilters,
+    setShowInvoieFilters,
+  } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterPanelInvoiceFormElements
   );
   const invoices = invoicesPayload?.data;
   const expenseTypes = useGetAccountExpenseTypes();
@@ -109,9 +98,7 @@ const Invoice = () => {
   const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isAddExpenseTypeOpen, setIsAddExpenseTypeOpen] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountExpense>();
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { createAccountProduct, updateAccountProduct } =
     useAccountProductMutations();
   const { createAccountBrand, updateAccountBrand } = useAccountBrandMutations();
@@ -332,7 +319,7 @@ const Invoice = () => {
       key: t("Brand"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      isAddable: isEnableEdit,
+      isAddable: isInvoiceEnableEdit,
       onClick: () => setIsAddBrandOpen(true),
       correspondingKey: "brand",
     },
@@ -340,20 +327,20 @@ const Invoice = () => {
       key: t("Vendor"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      isAddable: isEnableEdit,
+      isAddable: isInvoiceEnableEdit,
       onClick: () => setIsAddVendorOpen(true),
       correspondingKey: "vendor",
     },
     {
       key: t("Location"),
       isSortable: false,
-      isAddable: isEnableEdit,
+      isAddable: isInvoiceEnableEdit,
       correspondingKey: "location",
     },
     {
       key: t("Expense Type"),
       isSortable: false,
-      isAddable: isEnableEdit,
+      isAddable: isInvoiceEnableEdit,
       onClick: () => setIsAddExpenseTypeOpen(true),
       correspondingKey: "expenseType",
     },
@@ -361,13 +348,13 @@ const Invoice = () => {
       key: t("Product"),
       className: "min-w-32 pr-2",
       isSortable: false,
-      isAddable: isEnableEdit,
+      isAddable: isInvoiceEnableEdit,
       onClick: () => setIsAddProductOpen(true),
       correspondingKey: "product",
     },
     {
       key: t("Payment Method"),
-      className: `${isEnableEdit ? "min-w-40" : "min-w-32 "}`,
+      className: `${isInvoiceEnableEdit ? "min-w-40" : "min-w-32 "}`,
       isSortable: false,
       correspondingKey: "paymentMethod",
     },
@@ -399,14 +386,14 @@ const Invoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isInvoiceEnableEdit) return;
               setIsBrandEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={` min-w-32 pr-2 ${
-                isEnableEdit
+                isInvoiceEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
               }`}
@@ -423,14 +410,14 @@ const Invoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isInvoiceEnableEdit) return;
               setIsVendorEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={`min-w-32 pr-2 ${
-                isEnableEdit
+                isInvoiceEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
               }`}
@@ -457,7 +444,7 @@ const Invoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isInvoiceEnableEdit) return;
               setIsExpenseTypeEditModalOpen(true);
               setCurrentRow(row);
             }}
@@ -465,7 +452,7 @@ const Invoice = () => {
           >
             <p
               className={`w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold  ${
-                isEnableEdit
+                isInvoiceEnableEdit
                   ? "text-blue-700 w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : "text-white"
               }`}
@@ -485,14 +472,14 @@ const Invoice = () => {
         return (
           <div
             onClick={() => {
-              if (!isEnableEdit) return;
+              if (!isInvoiceEnableEdit) return;
               setIsProductEditModalOpen(true);
               setCurrentRow(row);
             }}
           >
             <p
               className={` min-w-32 pr-2 ${
-                isEnableEdit
+                isInvoiceEnableEdit
                   ? "text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
                   : ""
               }`}
@@ -611,7 +598,7 @@ const Invoice = () => {
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isInvoiceEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -634,7 +621,7 @@ const Invoice = () => {
     },
     {
       name: t("Edit"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isInvoiceEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl ",
       isModal: true,
@@ -727,20 +714,34 @@ const Invoice = () => {
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isInvoiceEnableEdit}
+          onChange={() => {
+            setIsInvoiceEnableEdit(!isInvoiceEnableEdit);
+          }}
+        />
+      ),
     },
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showInvoieFilters}
+          onChange={() => {
+            setShowInvoieFilters(!showInvoieFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showInvoieFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterPanelInvoiceFormElements,
+    setFormElements: setFilterPanelInvoiceFormElements,
+    closeFilters: () => setShowInvoieFilters(false),
   };
   const pagination = invoicesPayload
     ? {
@@ -753,24 +754,24 @@ const Invoice = () => {
       <TextInput
         placeholder={t("Search")}
         type="text"
-        value={filterPanelFormElements.search}
+        value={filterPanelInvoiceFormElements.search}
         isDebounce={true}
         onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
+          setFilterPanelInvoiceFormElements({
+            ...filterPanelInvoiceFormElements,
             search: value,
-          }))
+          })
         }
       />
     );
   };
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterPanelInvoiceFormElements,
+    setFilterPanelFormElements: setFilterPanelInvoiceFormElements,
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterPanelInvoiceFormElements]);
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(allRows);
@@ -790,14 +791,14 @@ const Invoice = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          isActionsAtFront={isEnableEdit}
+          isActionsAtFront={isInvoiceEnableEdit}
           actions={actions}
           filters={tableFilters}
           outsideSortProps={outsideSort}
           outsideSearch={outsideSearch}
           isActionsActive={false} //this seems wrong but for actions to appear in the first column it should be like this
           columns={
-            isEnableEdit
+            isInvoiceEnableEdit
               ? [{ key: t("Action"), isSortable: false }, ...columns]
               : columns
           }

@@ -8,13 +8,14 @@ import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import StarRating from "../components/common/StarRating";
 import { AddGameDialog } from "../components/games/AddGameDialog";
 import { Header } from "../components/header/Header";
-import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useFilterContext } from "../context/Filter.context";
 import type { Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 import { useGetStoreLocations } from "../utils/api/location";
@@ -27,7 +28,7 @@ export default function Games() {
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetStoreLocations();
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { isGameEnableEdit, setIsGameEnableEdit } = useFilterContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Game>();
@@ -82,7 +83,7 @@ export default function Games() {
       key: location.name,
       node: (row: any) => {
         const isExist = row?.locations?.includes(location._id);
-        if (isEnableEdit) {
+        if (isGameEnableEdit) {
           return (
             <CheckSwitch
               checked={isExist}
@@ -101,7 +102,7 @@ export default function Games() {
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isGameEnableEdit,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -124,7 +125,7 @@ export default function Games() {
     },
     {
       name: t("Edit"),
-      isDisabled: !isEnableEdit,
+      isDisabled: !isGameEnableEdit,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -147,7 +148,7 @@ export default function Games() {
     },
     {
       name: "Star Rating",
-      isDisabled: !isEnableEdit,
+      isDisabled: !isGameEnableEdit,
       node: (row: any) => {
         return (
           <StarRating
@@ -167,7 +168,14 @@ export default function Games() {
     {
       label: t("Enable Edit"),
       isUpperSide: false,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isGameEnableEdit}
+          onChange={() => {
+            setIsGameEnableEdit(!isGameEnableEdit);
+          }}
+        />
+      ),
     },
   ];
   const addButton = {
@@ -188,7 +196,7 @@ export default function Games() {
   };
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [games, isEnableEdit, locations]);
+  }, [games, isGameEnableEdit, locations]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -198,9 +206,9 @@ export default function Games() {
           rows={games}
           rowKeys={rowKeys}
           actions={actions}
-          isActionsActive={isEnableEdit}
+          isActionsActive={isGameEnableEdit}
           columns={
-            isEnableEdit
+            isGameEnableEdit
               ? [...columns, { key: t("Action"), isSortable: false }]
               : columns
           }

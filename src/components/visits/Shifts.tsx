@@ -5,6 +5,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { LuCopyPlus } from "react-icons/lu";
 import { MultiValue } from "react-select";
+import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
@@ -34,9 +35,8 @@ const Shifts = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
-  const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [isCopyShiftIntervalModalOpen, setIsCopyShiftIntervalModalOpen] =
     useState(false);
   const [
@@ -45,7 +45,6 @@ const Shifts = () => {
   ] = useState(false);
   const locations = useGetStoreLocations();
   const shifts = useGetShifts();
-  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { selectedLocationId, setSelectedLocationId } = useLocationContext();
@@ -59,7 +58,14 @@ const Shifts = () => {
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateShift, createShift, deleteShift } = useShiftMutations();
-  const [showFilters, setShowFilters] = useState(false);
+  const {
+    showShiftsFilters,
+    setShowShiftsFilters,
+    isShiftsEnableEdit,
+    setIsShiftsEnableEdit,
+    isChefAssignOpen,
+    setIsChefAssignOpen,
+  } = useFilterContext();
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -166,7 +172,10 @@ const Shifts = () => {
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
       columns.push({ key: shift, isSortable: false, correspondingKey: shift });
-      if (isDisabledCondition || (!isEnableEdit && !isDisabledCondition)) {
+      if (
+        isDisabledCondition ||
+        (!isShiftsEnableEdit && !isDisabledCondition)
+      ) {
         rowKeys.push({
           key: shift,
           node: (row: any) => {
@@ -347,7 +356,7 @@ const Shifts = () => {
       type: FormKeyTypeEnum.STRING,
     })),
   ];
-  if (isEnableEdit) {
+  if (isShiftsEnableEdit) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
   const actions = [
@@ -359,8 +368,8 @@ const Shifts = () => {
       setRow: setRowToAction,
       modal: (
         <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
+          isOpen={isShiftsEditModalOpen}
+          close={() => setIsShiftsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
           constantValues={rowToAction}
@@ -397,8 +406,8 @@ const Shifts = () => {
           topClassName="flex flex-col gap-2  "
         />
       ),
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
+      isModalOpen: isShiftsEditModalOpen,
+      setIsModal: setIsShiftsEditModalOpen,
       isPath: false,
       isDisabled: isDisabledCondition,
     },
@@ -486,7 +495,14 @@ const Shifts = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showShiftsFilters}
+          onChange={() => {
+            setShowShiftsFilters(!showShiftsFilters);
+          }}
+        />
+      ),
     },
     {
       label: t("Chef Assign"),
@@ -494,7 +510,9 @@ const Shifts = () => {
       node: (
         <SwitchButton
           checked={isChefAssignOpen}
-          onChange={setIsChefAssignOpen}
+          onChange={() => {
+            setIsChefAssignOpen(!isChefAssignOpen);
+          }}
         />
       ),
       isDisabled: isDisabledCondition,
@@ -502,7 +520,14 @@ const Shifts = () => {
     {
       label: t("Enable Edit"),
       isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      node: (
+        <SwitchButton
+          checked={isShiftsEnableEdit}
+          onChange={() => {
+            setIsShiftsEnableEdit(!isShiftsEnableEdit);
+          }}
+        />
+      ),
       isDisabled: isDisabledCondition,
     },
   ];
@@ -563,11 +588,11 @@ const Shifts = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showShiftsFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowShiftsFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
@@ -585,8 +610,8 @@ const Shifts = () => {
         columns={columns}
         addButton={copyShiftIntervalButton}
         rows={rows}
-        isActionsActive={isEnableEdit}
-        actions={isEnableEdit ? actions : []}
+        isActionsActive={isShiftsEnableEdit}
+        actions={isShiftsEnableEdit ? actions : []}
         filters={filters}
         title={
           getItem(selectedLocationId, locations)?.name +
