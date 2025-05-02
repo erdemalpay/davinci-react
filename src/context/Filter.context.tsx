@@ -4,6 +4,8 @@ type FormElementsState = {
 };
 
 type FilterContextType = {
+  filterStockPanelFormElements: FormElementsState;
+  setFilterStockPanelFormElements: (state: FormElementsState) => void;
   filterProductPanelFormElements: FormElementsState;
   setFilterProductPanelFormElements: (state: FormElementsState) => void;
   filterServicePanelFormElements: FormElementsState;
@@ -12,6 +14,8 @@ type FilterContextType = {
   setShowProductFilters: (state: boolean) => void;
   showServiceFilters: boolean;
   setShowServiceFilters: (state: boolean) => void;
+  showStockFilters: boolean;
+  setShowStockFilters: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -33,10 +37,29 @@ const FilterContext = createContext<FilterContextType>({
     name: "",
   },
   setFilterServicePanelFormElements: () => {},
+  showStockFilters: false,
+  setShowStockFilters: () => {},
+  filterStockPanelFormElements: {
+    product: [],
+    location: "",
+    expenseType: "",
+    after: "",
+    date: "",
+  },
+  setFilterStockPanelFormElements: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showProductFilters, setShowProductFilters] = useState(false);
   const [showServiceFilters, setShowServiceFilters] = useState(false);
+  const [showStockFilters, setShowStockFilters] = useState(false);
+  const [filterStockPanelFormElements, setFilterStockPanelFormElements] =
+    useState<FormElementsState>({
+      product: [],
+      location: "",
+      expenseType: "",
+      after: "",
+      date: "",
+    });
   const [filterServicePanelFormElements, setFilterServicePanelFormElements] =
     useState<FormElementsState>({
       vendor: "",
@@ -61,6 +84,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowServiceFilters: setShowServiceFilters,
         filterServicePanelFormElements: filterServicePanelFormElements,
         setFilterServicePanelFormElements: setFilterServicePanelFormElements,
+        showStockFilters: showStockFilters,
+        setShowStockFilters: setShowStockFilters,
+        filterStockPanelFormElements: filterStockPanelFormElements,
+        setFilterStockPanelFormElements: setFilterStockPanelFormElements,
       }}
     >
       {children}

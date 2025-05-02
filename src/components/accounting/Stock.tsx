@@ -4,7 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
-import { useStockContext } from "../../context/Stock.context";
+import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import {
   DateRangeKey,
@@ -60,7 +60,12 @@ const Stock = () => {
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const {
+    showStockFilters,
+    setShowStockFilters,
+    filterStockPanelFormElements,
+    setFilterStockPanelFormElements,
+  } = useFilterContext();
   const [showPrices, setShowPrices] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
@@ -77,8 +82,6 @@ const Stock = () => {
       return acc + expense;
     }, 0);
   });
-  const { filterPanelFormElements, setFilterPanelFormElements } =
-    useStockContext();
   const [form, setForm] = useState({
     product: "",
     location: "",
@@ -382,7 +385,14 @@ const Stock = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showStockFilters}
+          onChange={() => {
+            setShowStockFilters(!showStockFilters);
+          }}
+        />
+      ),
     },
   ];
 
@@ -406,8 +416,8 @@ const Stock = () => {
         label: string;
       }) => {
         if (value) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setFilterStockPanelFormElements({
+            ...filterStockPanelFormElements,
             expenseType: value,
             product: [],
           });
@@ -416,10 +426,12 @@ const Stock = () => {
       required: true,
     },
     ProductInput({
-      products: !filterPanelFormElements?.expenseType
+      products: !filterStockPanelFormElements?.expenseType
         ? products
         : products?.filter((product) =>
-            product?.expenseType?.includes(filterPanelFormElements.expenseType)
+            product?.expenseType?.includes(
+              filterStockPanelFormElements.expenseType
+            )
           ),
       required: true,
       isMultiple: true,
@@ -448,8 +460,8 @@ const Stock = () => {
       }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setFilterStockPanelFormElements({
+            ...filterStockPanelFormElements,
             ...dateRange(),
           });
         }
@@ -467,29 +479,35 @@ const Stock = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showStockFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterStockPanelFormElements,
+    setFormElements: setFilterStockPanelFormElements,
+    closeFilters: () => setShowStockFilters(false),
   };
   useEffect(() => {
     const processedRows = stocks
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
         return (
-          passesFilter(filterPanelFormElements?.location, stock?.location) &&
-          (!filterPanelFormElements?.expenseType ||
+          passesFilter(
+            filterStockPanelFormElements?.location,
+            stock?.location
+          ) &&
+          (!filterStockPanelFormElements?.expenseType ||
             rowProduct?.expenseType.includes(
-              filterPanelFormElements?.expenseType
+              filterStockPanelFormElements?.expenseType
             )) &&
-          (!filterPanelFormElements?.vendor ||
-            rowProduct?.vendor?.includes(filterPanelFormElements?.vendor)) &&
-          (!filterPanelFormElements?.brand ||
-            rowProduct?.brand?.includes(filterPanelFormElements?.brand)) &&
-          (!filterPanelFormElements?.product?.length ||
-            filterPanelFormElements?.product?.some((panelProduct: string) =>
-              passesFilter(panelProduct, stock?.product)
+          (!filterStockPanelFormElements?.vendor ||
+            rowProduct?.vendor?.includes(
+              filterStockPanelFormElements?.vendor
+            )) &&
+          (!filterStockPanelFormElements?.brand ||
+            rowProduct?.brand?.includes(filterStockPanelFormElements?.brand)) &&
+          (!filterStockPanelFormElements?.product?.length ||
+            filterStockPanelFormElements?.product?.some(
+              (panelProduct: string) =>
+                passesFilter(panelProduct, stock?.product)
             ))
         );
       })
@@ -554,7 +572,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [
     stocks,
-    filterPanelFormElements,
+    filterStockPanelFormElements,
     products,
     locations,
     user,

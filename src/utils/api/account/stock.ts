@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { useFilterContext } from "../../../context/Filter.context";
 import { AccountStock } from "../../../types";
 import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { post } from "../index";
 import { useOrderContext } from "./../../../context/Order.context";
-import { useStockContext } from "./../../../context/Stock.context";
 
 interface ConsumptStockPayload {
   product: string;
@@ -37,10 +37,10 @@ export function useAccountStockMutations() {
 }
 
 export function useGetFilteredStocks() {
-  const { filterPanelFormElements } = useStockContext();
+  const { filterStockPanelFormElements } = useFilterContext();
   return useGetList<AccountStock>(
-    `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`,
-    [`${Paths.Accounting}/stocks/query`, filterPanelFormElements.after]
+    `${Paths.Accounting}/stocks/query?after=${filterStockPanelFormElements.after}`,
+    [`${Paths.Accounting}/stocks/query`, filterStockPanelFormElements.after]
   );
 }
 
@@ -135,12 +135,12 @@ export function useConsumptStockMutation() {
 export function useStockTransferMutation() {
   const queryKey = [baseUrl];
   const queryClient = useQueryClient();
-  const { filterPanelFormElements } = useStockContext();
+  const { filterStockPanelFormElements } = useFilterContext();
   return useMutation(stockTransfer, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
       await queryClient.cancelQueries([
-        `${Paths.Accounting}/stocks/query?after=${filterPanelFormElements.after}`,
+        `${Paths.Accounting}/stocks/query?after=${filterStockPanelFormElements.after}`,
       ]);
     },
 

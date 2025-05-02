@@ -14,7 +14,6 @@ import { GeneralContextProvider } from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
-import { StockContextProvider } from "./context/Stock.context";
 import { UserContextProvider } from "./context/User.context";
 import { usePageVisibility } from "./hooks/usePageVisibility";
 import { useWebSocket } from "./hooks/useWebSocket";
@@ -58,13 +57,11 @@ function Wrapper() {
           <UserContextProvider>
             <GeneralContextProvider>
               <OrderContextProvider>
-                <StockContextProvider>
-                  <ShiftContextProvider>
-                    <FilterContextProvider>
-                      <App />
-                    </FilterContextProvider>
-                  </ShiftContextProvider>
-                </StockContextProvider>
+                <ShiftContextProvider>
+                  <FilterContextProvider>
+                    <App />
+                  </FilterContextProvider>
+                </ShiftContextProvider>
               </OrderContextProvider>
             </GeneralContextProvider>
           </UserContextProvider>
