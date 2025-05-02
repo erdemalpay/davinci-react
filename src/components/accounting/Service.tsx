@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountService, RoleEnum } from "../../types";
@@ -19,11 +20,11 @@ import {
   VendorInput,
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -40,15 +41,14 @@ const Service = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountService>();
-  const [showFilters, setShowFilters] = useState(false);
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      vendor: "",
-      expenseType: "",
-      name: "",
-    });
+  const {
+    showServiceFilters,
+    setShowServiceFilters,
+    filterServicePanelFormElements,
+    setFilterServicePanelFormElements,
+  } = useFilterContext();
   const [inputForm, setInputForm] = useState({
     vendor: [],
     expenseType: [],
@@ -304,11 +304,13 @@ const Service = () => {
       services
         .filter((service) => {
           return (
-            (filterPanelFormElements.vendor === "" ||
-              service.vendor?.includes(filterPanelFormElements.vendor)) &&
-            (filterPanelFormElements.expenseType === "" ||
+            (filterServicePanelFormElements.vendor === "" ||
+              service.vendor?.includes(
+                filterServicePanelFormElements.vendor
+              )) &&
+            (filterServicePanelFormElements.expenseType === "" ||
               service.expenseType?.includes(
-                filterPanelFormElements.expenseType
+                filterServicePanelFormElements.expenseType
               ))
           );
         })
@@ -318,25 +320,36 @@ const Service = () => {
           };
         })
     );
-    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+    if (
+      Object.values(filterServicePanelFormElements).some(
+        (value) => value !== ""
+      )
+    ) {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
-  }, [services, filterPanelFormElements]);
+  }, [services, filterServicePanelFormElements]);
 
   const filters = [
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showServiceFilters}
+          onChange={() => {
+            setShowServiceFilters(!showServiceFilters);
+          }}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showServiceFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterServicePanelFormElements,
+    setFormElements: setFilterServicePanelFormElements,
+    closeFilters: () => setShowServiceFilters(false),
   };
   return (
     <>
