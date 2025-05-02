@@ -9,6 +9,7 @@ import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "./components/common/Loading";
 import { DateContextProvider } from "./context/Date.context";
+import { FilterContextProvider } from "./context/Filter.context";
 import { GeneralContextProvider } from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
@@ -59,7 +60,9 @@ function Wrapper() {
               <OrderContextProvider>
                 <StockContextProvider>
                   <ShiftContextProvider>
-                    <App />
+                    <FilterContextProvider>
+                      <App />
+                    </FilterContextProvider>
                   </ShiftContextProvider>
                 </StockContextProvider>
               </OrderContextProvider>

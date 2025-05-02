@@ -4,6 +4,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { AccountProduct, RoleEnum } from "../../types";
@@ -37,9 +38,6 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Product = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -57,7 +55,6 @@ const Product = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const pages = useGetPanelControlPages();
-  const [showFilters, setShowFilters] = useState(false);
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,
@@ -70,13 +67,12 @@ const Product = () => {
   const { createItem } = useMenuItemMutations();
   const { mutate: joinProducts } = useJoinProductsMutation();
   const [isJoinProductModalOpen, setIsJoinProductModalOpen] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      brand: "",
-      vendor: "",
-      expenseType: "",
-      name: "",
-    });
+  const {
+    filterProductPanelFormElements,
+    setFilterProductPanelFormElements,
+    showProductFilters,
+    setShowProductFilters,
+  } = useFilterContext();
   const [form, setForm] = useState({
     stayedProduct: "",
     removedProduct: "",
@@ -510,23 +506,29 @@ const Product = () => {
       products.filter((product) => {
         if (!showInactiveProducts && product.deleted) return false;
         return (
-          (filterPanelFormElements.brand === "" ||
-            product.brand?.includes(filterPanelFormElements.brand)) &&
-          (filterPanelFormElements.vendor === "" ||
-            product.vendor?.includes(filterPanelFormElements.vendor)) &&
-          (filterPanelFormElements.expenseType === "" ||
-            product.expenseType?.includes(filterPanelFormElements.expenseType))
+          (filterProductPanelFormElements.brand === "" ||
+            product.brand?.includes(filterProductPanelFormElements.brand)) &&
+          (filterProductPanelFormElements.vendor === "" ||
+            product.vendor?.includes(filterProductPanelFormElements.vendor)) &&
+          (filterProductPanelFormElements.expenseType === "" ||
+            product.expenseType?.includes(
+              filterProductPanelFormElements.expenseType
+            ))
         );
       })
     );
 
-    if (Object.values(filterPanelFormElements).some((value) => value !== "")) {
+    if (
+      Object.values(filterProductPanelFormElements).some(
+        (value) => value !== ""
+      )
+    ) {
       setCurrentPage(1);
     }
     setTableKey((prev) => prev + 1);
   }, [
     products,
-    filterPanelFormElements,
+    filterProductPanelFormElements,
     items,
     categories,
     showInactiveProducts,
@@ -536,7 +538,14 @@ const Product = () => {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showProductFilters}
+          onChange={() => {
+            setShowProductFilters(!showProductFilters);
+          }}
+        />
+      ),
     },
     {
       label: t("Show Inactive Products"),
@@ -563,11 +572,11 @@ const Product = () => {
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showProductFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    formElements: filterProductPanelFormElements,
+    setFormElements: setFilterProductPanelFormElements,
+    closeFilters: () => setShowProductFilters(false),
   };
 
   return (
