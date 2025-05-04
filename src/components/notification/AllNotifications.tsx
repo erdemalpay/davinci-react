@@ -1,7 +1,12 @@
 import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DateRangeKey, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  NotificationType,
+  commonDateOptions,
+  notificationEventsOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useGetNotifications } from "../../utils/api/notification";
@@ -22,12 +27,16 @@ const AllNotifications = () => {
   const initialFilterPanelFormElements = {
     before: "",
     after: format(startOfYear(new Date()), "yyyy-MM-dd"),
+    type: "",
+    event: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
   const notifications = useGetNotifications({
     after: filterPanelFormElements.after,
     before: filterPanelFormElements.before,
+    type: filterPanelFormElements.type,
+    event: filterPanelFormElements.event,
   });
   const [showFilters, setShowFilters] = useState(false);
   const locations = useGetAllLocations();
@@ -111,6 +120,34 @@ const AllNotifications = () => {
     },
   ];
   const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: Object.values(NotificationType)?.map((notificationType) => {
+        return {
+          value: notificationType,
+          label: t(notificationType),
+        };
+      }),
+      placeholder: t("Type"),
+      isMultiple: false,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "event",
+      label: t("Triggered Event"),
+      options: notificationEventsOptions.map((notificationEvent) => {
+        return {
+          value: notificationEvent.value,
+          label: t(notificationEvent.label),
+        };
+      }),
+      placeholder: t("Triggered Event"),
+      required: false,
+      isAutoFill: false,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "date",

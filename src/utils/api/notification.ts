@@ -20,14 +20,24 @@ export function useNotificationMutations() {
 export function useGetNotifications({
   after,
   before,
+  type,
+  event,
 }: {
   after: string;
   before?: string;
+  type?: string;
+  event?: string;
 }) {
   let url = `${baseUrl}?after=${after}`;
   if (before) url += `&before=${before}`;
+  if (type) url += `&type=${type}`;
+  if (event) url += `&event=${event}`;
 
-  return useGetList<Notification>(url, [baseUrl, after, before ?? null], true);
+  return useGetList<Notification>(
+    url,
+    [baseUrl, after, before, type, event ?? null],
+    true
+  );
 }
 
 export function useGetUserNewNotifications() {
