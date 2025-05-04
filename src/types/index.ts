@@ -1105,6 +1105,7 @@ export enum ActivityType {
   CREATE_RESERVATION = "CREATE_RESERVATION",
   UPDATE_RESERVATION = "UPDATE_RESERVATION",
   UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION",
+  UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
 }
 export const activityTypeDetails = [
   {
@@ -1331,6 +1332,11 @@ export const activityTypeDetails = [
     value: ActivityType.UPDATE_AUTHORIZATION,
     label: "Update Authorization",
     bgColor: "bg-yellow-900",
+  },
+  {
+    value: ActivityType.UPDATE_ACCOUNT_PRODUCT,
+    label: "Update Account Product",
+    bgColor: "bg-purple-900",
   },
 ];
 
