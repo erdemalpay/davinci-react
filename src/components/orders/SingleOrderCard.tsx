@@ -136,7 +136,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         {/* buttons */}
         <div className="  flex flex-row justify-between gap-2  ">
           {/* cancel button */}
-          {order?.paidQuantity === 0 && (
+          {order?.paidQuantity === 0 && !order?.isPaymentMade && (
             <button
               onClick={() => {
                 updateOrder({

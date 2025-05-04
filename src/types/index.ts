@@ -556,6 +556,7 @@ export type Order = {
   tableDate?: Date;
   activityTableName?: string;
   activityPlayer?: string;
+  isPaymentMade?: boolean;
 };
 
 export type OrderCollection = {
