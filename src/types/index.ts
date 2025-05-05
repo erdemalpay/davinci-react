@@ -25,9 +25,17 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
-  shifts?: string[];
+  shifts?: {
+    shift: string;
+    isActive: boolean;
+    type: string;
+  }[];
   tableNames?: string[];
 };
+export enum LocationShiftType {
+  FULLTIME = "fulltime",
+  PARTTIME = "parttime",
+}
 
 export type Table = {
   _id: number;
@@ -862,6 +870,7 @@ export enum ProductPageTabEnum {
 }
 export enum LocationPageTabEnum {
   TABLENAMES,
+  SHIFTS,
 }
 export enum VendorPageTabEnum {
   VENDORPRODUCTS,

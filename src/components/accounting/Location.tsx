@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -173,15 +172,7 @@ const LocationPage = () => {
     { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
     { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
-  const addShiftInputs = [
-    {
-      type: InputTypes.HOUR,
-      formKey: "hour",
-      label: t("Hour"),
-      required: true,
-    },
-  ];
-  const addShiftFormKeys = [{ key: "hour", type: FormKeyTypeEnum.STRING }];
+
   const addButton = {
     name: t(`Add Stock Location`),
     isModal: true,
@@ -225,51 +216,6 @@ const LocationPage = () => {
 
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-      isPath: false,
-      isDisabled: isDisabledCondition,
-    },
-    {
-      name: t("Add Shift"),
-      icon: <CiCirclePlus />,
-      className: "text-2xl mt-1   cursor-pointer",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isAddShiftModalOpen}
-          close={() => setIsAddShiftModalOpen(false)}
-          inputs={addShiftInputs}
-          formKeys={addShiftFormKeys}
-          submitItem={updateLocation as any}
-          isEditMode={true}
-          setForm={setShiftForm}
-          topClassName="flex flex-col gap-2  "
-          handleUpdate={() => {
-            if (rowToAction) {
-              const updatedShifts = [
-                ...(rowToAction.shifts || []),
-                shiftForm.hour,
-              ];
-              updatedShifts.sort((a, b) => {
-                const [aHour, aMinute] = a.split(":").map(Number);
-                const [bHour, bMinute] = b.split(":").map(Number);
-                const totalMinutesA = aHour * 60 + aMinute;
-                const totalMinutesB = bHour * 60 + bMinute;
-                return totalMinutesA - totalMinutesB;
-              });
-              updateLocation({
-                id: Number(rowToAction._id),
-                updates: {
-                  shifts: updatedShifts,
-                },
-              });
-              setIsAddShiftModalOpen(false);
-            }
-          }}
-        />
-      ) : null,
-      isModalOpen: isAddShiftModalOpen,
-      setIsModal: setIsAddShiftModalOpen,
       isPath: false,
       isDisabled: isDisabledCondition,
     },

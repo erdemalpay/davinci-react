@@ -76,7 +76,7 @@ const Shifts = () => {
     day: "",
     ...(foundLocation?.shifts?.reduce<Record<string, string[]>>(
       (acc, shift) => {
-        acc[shift] = [];
+        acc[shift.shift] = [];
         return acc;
       },
       {}
@@ -171,25 +171,30 @@ const Shifts = () => {
   ];
   if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
     for (const shift of foundLocation.shifts) {
-      columns.push({ key: shift, isSortable: false, correspondingKey: shift });
+      const locationShift = shift.shift;
+      columns.push({
+        key: locationShift,
+        isSortable: false,
+        correspondingKey: shift.shift,
+      });
       if (
         isDisabledCondition ||
         (!isShiftsEnableEdit && !isDisabledCondition)
       ) {
         rowKeys.push({
-          key: shift,
+          key: locationShift,
           node: (row: any) => {
-            const shiftValue = row[shift];
+            const shiftValue = row[shift.shift];
             const currentShifts = shifts
-              .find((shift) => shift.day === row.day)
-              ?.shifts?.filter((s) => s.shift === shift);
+              ?.find((shift) => shift.day === row.day)
+              ?.shifts?.filter((s) => s.shift === shift.shift);
             const foundChefUser = currentShifts?.find(
               (shift) => shift?.chefUser
             )?.chefUser;
             if (Array.isArray(shiftValue)) {
               return (
                 <div className="flex flex-row gap-1 flex-wrap max-w-40">
-                  {shiftValue.map((user: string, index: number) => {
+                  {shiftValue?.map((user: string, index: number) => {
                     const foundUser = getItem(user, users);
                     return (
                       <p
@@ -211,12 +216,12 @@ const Shifts = () => {
                           onClick={() => {
                             if (!isChefAssignOpen) return;
                             const currentShifts = shifts
-                              .find((s) => s.day === row.day)
+                              ?.find((s) => s.day === row.day)
                               ?.shifts?.map((shiftObj) => {
                                 return {
                                   ...shiftObj,
                                   chefUser:
-                                    shiftObj.shift === shift
+                                    shiftObj.shift === shift.shift
                                       ? shiftObj?.chefUser === foundUser?._id
                                         ? ""
                                         : foundUser?._id
@@ -265,9 +270,9 @@ const Shifts = () => {
         });
       } else {
         rowKeys.push({
-          key: shift,
+          key: locationShift,
           node: (row: any) => {
-            const shiftValue = row[shift];
+            const shiftValue = row[shift.shift];
             const normalizedValue = Array.isArray(shiftValue)
               ? shiftValue.map((userId: string) => ({
                   value: userId,
@@ -298,9 +303,11 @@ const Shifts = () => {
                     const updatedShifts = foundLocation?.shifts?.map(
                       (foundShift) => {
                         return {
-                          shift: foundShift,
+                          shift: foundShift.shift,
                           user:
-                            foundShift !== shift ? row[foundShift] : newValue,
+                            foundShift.shift !== shift.shift
+                              ? row[foundShift.shift]
+                              : newValue,
                         };
                       }
                     );
@@ -338,8 +345,8 @@ const Shifts = () => {
     },
     ...(foundLocation?.shifts ?? []).map((shift) => ({
       type: InputTypes.SELECT,
-      formKey: shift,
-      label: shift,
+      formKey: shift.shift,
+      label: shift.shift,
       options: (users ?? []).map((user) => ({
         value: user._id,
         label: user.name,
@@ -352,7 +359,7 @@ const Shifts = () => {
   const formKeys = [
     { key: "day", type: FormKeyTypeEnum.DATE },
     ...(foundLocation?.shifts ?? []).map((shift) => ({
-      key: shift,
+      key: shift.shift,
       type: FormKeyTypeEnum.STRING,
     })),
   ];
@@ -380,8 +387,8 @@ const Shifts = () => {
             // handle create
             if (!rowToAction?._id && foundLocation) {
               const shifts = foundLocation?.shifts?.map((shift) => ({
-                shift,
-                user: form?.[shift],
+                shift: shift.shift,
+                user: form?.[shift.shift],
               }));
               createShift({
                 shifts,
@@ -392,8 +399,8 @@ const Shifts = () => {
             // handle update
             else {
               const shifts = foundLocation?.shifts?.map((shift) => ({
-                shift,
-                user: form?.[shift],
+                shift: shift.shift,
+                user: form?.[shift.shift],
               }));
               updateShift({
                 id: rowToAction?._id,

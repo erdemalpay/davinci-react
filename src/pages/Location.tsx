@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaPhoenixFramework } from "react-icons/fa";
 import { MdOutlineTableRestaurant } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
+import Shifts from "../components/location/Shifts";
 import TableNames from "../components/location/TableNames";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
@@ -20,6 +22,12 @@ export const LocationPageTabs = [
     number: LocationPageTabEnum.TABLENAMES,
     label: "Tables",
     icon: <MdOutlineTableRestaurant className="text-lg font-thin" />,
+    isDisabled: false,
+  },
+  {
+    number: LocationPageTabEnum.SHIFTS,
+    label: "Shifts",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
     isDisabled: false,
   },
 ];
@@ -71,6 +79,16 @@ export default function LocationPage() {
       return {
         ...tab,
         content: <TableNames locationId={Number(locationId)} />,
+        isDisabled: currentPageTabs
+          ?.find((item) => item.name === tab.label)
+          ?.permissionRoles?.includes(user.role._id)
+          ? false
+          : true,
+      };
+    } else if (tab.number === LocationPageTabEnum.SHIFTS) {
+      return {
+        ...tab,
+        content: <Shifts locationId={Number(locationId)} />,
         isDisabled: currentPageTabs
           ?.find((item) => item.name === tab.label)
           ?.permissionRoles?.includes(user.role._id)
