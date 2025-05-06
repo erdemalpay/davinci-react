@@ -27,7 +27,6 @@ const LocationPage = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,
@@ -35,9 +34,6 @@ const LocationPage = () => {
         RoleEnum.GAMEMANAGER,
       ].includes(user?.role?._id)
     : true;
-  const [shiftForm, setShiftForm] = useState({
-    hour: "",
-  });
   const [rowToAction, setRowToAction] = useState<Location>();
   const initialForm = {
     type: [],
@@ -109,18 +105,18 @@ const LocationPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2 max-w-40 flex-wrap ">
-            {row?.shifts?.map((shift: string, index: number) => (
+            {row?.shifts?.map((shift: any, index: number) => (
               <div
                 key={index}
                 className="flex flex-row px-1 py-0.5 bg-red-400 rounded-md text-white"
               >
-                <p>{shift}</p>
+                <p>{shift.shift}</p>
                 <ButtonTooltip content={t("Delete")}>
                   <IoCloseOutline
                     className="cursor-pointer font-bold"
                     onClick={() => {
                       const updatedShifts = row.shifts.filter(
-                        (foundShift: string) => foundShift !== shift
+                        (foundShift: string) => foundShift !== shift.shift
                       );
                       updatedShifts?.sort((a: string, b: string) => {
                         const [aHour, aMinute] = a.split(":").map(Number);

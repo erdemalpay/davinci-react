@@ -102,6 +102,8 @@ type FilterContextType = {
   setShowAllExpensesFilters: (state: boolean) => void;
   filterAllExpensesPanelFormElements: FormElementsState;
   setFilterAllExpensesPanelFormElements: (state: FormElementsState) => void;
+  showInactiveShifts: boolean;
+  setShowInactiveShifts: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -318,6 +320,8 @@ const FilterContext = createContext<FilterContextType>({
     search: "",
   },
   setFilterAllExpensesPanelFormElements: () => {},
+  showInactiveShifts: false,
+  setShowInactiveShifts: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -337,11 +341,12 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showShiftsFilters, setShowShiftsFilters] = useState(false);
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
+
   const [showServiceInvoiceFilters, setShowServiceInvoiceFilters] =
     useState(false);
   const [isServiceInvoiceEnableEdit, setIsServiceInvoiceEnableEdit] =
     useState(false);
-
+  const [showInactiveShifts, setShowInactiveShifts] = useState(false);
   const [
     showVisitScheduleOverviewFilters,
     setShowVisitScheduleOverviewFilters,
@@ -651,6 +656,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         filterAllExpensesPanelFormElements: filterAllExpensesPanelFormElements,
         setFilterAllExpensesPanelFormElements:
           setFilterAllExpensesPanelFormElements,
+        showInactiveShifts: showInactiveShifts,
+        setShowInactiveShifts: setShowInactiveShifts,
       }}
     >
       {children}

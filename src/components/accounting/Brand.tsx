@@ -23,9 +23,9 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -167,7 +167,7 @@ const Brand = () => {
           text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
         />
       ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ml-auto ",
+      className: "text-red-500 cursor-pointer text-2xl ",
       isModal: true,
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
