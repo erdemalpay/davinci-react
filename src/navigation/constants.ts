@@ -3,6 +3,7 @@ import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
 import BulkProductAdding from "../pages/BulkProductAdding";
+import ButtonCalls from "../pages/ButtonCalls";
 import CafeActivity from "../pages/CafeActivity";
 import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
@@ -11,6 +12,7 @@ import Checkout from "../pages/Checkout";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
+import DailySummary from "../pages/DailySummary";
 import Education from "../pages/Education";
 import Expenses from "../pages/Expenses";
 import Expirations, { ExpirationTabs } from "../pages/Expiration";
@@ -33,7 +35,6 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
-import ButtonCalls from "../pages/ButtonCalls";
 import Service from "../pages/Service";
 import SingleCheckArchive from "../pages/SingleCheckArchive";
 import SingleCountArchive from "../pages/SingleCountArchive";
@@ -112,7 +113,7 @@ export enum Routes {
   SingleExpirationCountArchive = "/expiration-archive/:archiveId",
   Location = "/location/:locationId",
   Activities = "/activities",
-
+  DailySummary = "/daily-summary",
 }
 
 export const allRoutes: {
@@ -156,6 +157,12 @@ export const allRoutes: {
     path: Routes.OnlineSales,
     element: OnlineSales,
     isOnSidebar: false,
+  },
+  {
+    name: "Daily Summary",
+    path: Routes.DailySummary,
+    element: DailySummary,
+    isOnSidebar: true,
   },
   {
     name: "Orders",
