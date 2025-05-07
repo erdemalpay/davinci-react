@@ -64,6 +64,7 @@ const DailySummary = () => {
       header: t("Average Preparation Time"),
       rows:
         [{ value: summary?.orderPreparationStats?.average?.formatted }] ?? [],
+      valueClassName: "mx-auto text-2xl font-medium",
     },
     {
       header: t("Longest Order Preparation Times"),
@@ -78,6 +79,7 @@ const DailySummary = () => {
     {
       header: t("Average Button Call Time"),
       rows: [{ value: summary?.buttonCallStats?.averageDuration }],
+      valueClassName: "mx-auto text-2xl font-medium",
     },
     {
       header: t("Longest Button Call Times"),
@@ -100,7 +102,7 @@ const DailySummary = () => {
         }) ?? [],
     },
     {
-      header: "Top Complex Game",
+      header: t("Top Complex Game"),
       rows:
         summary?.gameplayStats?.topComplexGames?.map((o) => {
           return {
@@ -120,18 +122,12 @@ const DailySummary = () => {
       type: InputTypes.SELECT,
       formKey: "location",
       label: t("Location"),
-      options: [
-        {
-          value: "",
-          label: t("All Locations"),
-        },
-        ...locations.map((input) => {
-          return {
-            value: input._id,
-            label: input.name,
-          };
-        }),
-      ],
+      options: locations.map((input) => {
+        return {
+          value: input._id,
+          label: input.name,
+        };
+      }),
       placeholder: t("Location"),
       required: true,
     },
@@ -225,7 +221,10 @@ const DailySummary = () => {
           })}
         </div>
         {/* summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <div
+          key={componentKey}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+        >
           {rows &&
             rows.map((row, index) => {
               return (
@@ -233,6 +232,7 @@ const DailySummary = () => {
                   key={index}
                   header={row.header}
                   rows={row?.rows as any}
+                  valueClassName={row?.valueClassName}
                 />
               );
             })}
