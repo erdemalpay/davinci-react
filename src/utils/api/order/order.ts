@@ -30,6 +30,55 @@ interface CombineTablePayload {
   oldTableId: number;
   transferredTableId: number;
 }
+interface DailySummary {
+  topOrderCreators: Array<{
+    orderCount: number;
+    userId: string;
+    userName: string;
+  }>;
+  topOrderDeliverers: Array<{
+    orderCount: number;
+    userId: string;
+    userName: string;
+  }>;
+  topCollectionCreators: Array<{
+    collectionCount: number;
+    userId: string;
+    userName: string;
+  }>;
+  orderPreparationStats: {
+    average: {
+      ms: number;
+      minutes: number;
+      hours: number;
+    };
+    topOrders: Array<{
+      orderId: number;
+      ms: number;
+      minutes: number;
+      hours: number;
+    }>;
+  };
+  buttonCallStats: {
+    averageDuration: string;
+    longestCalls: Array<{
+      tableName: string;
+      duration: string;
+    }>;
+  };
+  gameplayStats: {
+    topMentors: Array<{
+      gameplayCount: number;
+      mentoredBy: string;
+    }>;
+    topComplexGames: Array<{
+      mentors: string[];
+      gameId: number;
+      name: string;
+      narrationDurationPoint: number;
+    }>;
+  };
+}
 
 interface TransferTablePayload {
   orders: Order[];
@@ -469,6 +518,13 @@ export function useGetTodayOrders() {
     selectedDate,
   ]);
 }
+export function useGetDailySummary(date: string, location: number) {
+  return useGetList<DailySummary>(
+    `${baseUrl}/daily-summary?date=${date}&location=${location}`,
+    [`${baseUrl}/daily-summary`, date, location]
+  );
+}
+
 export function useGetGivenDateOrders() {
   const { todaysOrderDate } = useOrderContext();
   return useGetList<Order>(`${baseUrl}/today?after=${todaysOrderDate}`, [
