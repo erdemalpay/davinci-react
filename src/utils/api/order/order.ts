@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { Paths, useGetList, useMutationApi } from "../factory";
+import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
@@ -49,14 +49,16 @@ interface DailySummary {
   orderPreparationStats: {
     average: {
       ms: number;
-      minutes: number;
-      hours: number;
+      formatted: string;
     };
     topOrders: Array<{
-      orderId: number;
+      order: {
+        _id: number;
+        item: number;
+        table: number;
+      };
       ms: number;
-      minutes: number;
-      hours: number;
+      formatted: string;
     }>;
   };
   buttonCallStats: {
@@ -518,8 +520,9 @@ export function useGetTodayOrders() {
     selectedDate,
   ]);
 }
+
 export function useGetDailySummary(date: string, location: number) {
-  return useGetList<DailySummary>(
+  return useGet<DailySummary>(
     `${baseUrl}/daily-summary?date=${date}&location=${location}`,
     [`${baseUrl}/daily-summary`, date, location]
   );

@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
+import SummaryCard from "../components/common/SummaryCard";
 import { Header } from "../components/header/Header";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
 import { useGetStoreLocations } from "../utils/api/location";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDailySummary } from "../utils/api/order/order";
+import { useGetUsers } from "../utils/api/user";
+import { getItem } from "../utils/getItem";
 
 type OptionType = { value: number; label: string };
 
@@ -17,10 +22,99 @@ const DailySummary = () => {
     setFilterDailySummaryPanelFormElements,
   } = useFilterContext();
   const locations = useGetStoreLocations();
-  const summaries = useGetDailySummary(
+  const items = useGetMenuItems();
+  const users = useGetUsers();
+  const [componentKey, setComponentKey] = useState(0);
+  const summary = useGetDailySummary(
     filterDailySummaryPanelFormElements.date,
     filterDailySummaryPanelFormElements.location
   );
+  const allRows = [
+    {
+      header: t("Top Order Creators"),
+      rows:
+        summary?.topOrderCreators.map((creator) => {
+          return {
+            title: creator.userName,
+            value: creator.orderCount,
+          };
+        }) ?? [],
+    },
+    {
+      header: t("Top Order Deliverers"),
+      rows:
+        summary?.topOrderDeliverers.map((deliverer) => {
+          return {
+            title: deliverer.userName,
+            value: deliverer.orderCount,
+          };
+        }) ?? [],
+    },
+    {
+      header: t("Top Collection Creators"),
+      rows:
+        summary?.topCollectionCreators.map((creator) => {
+          return {
+            title: creator.userName,
+            value: creator.collectionCount,
+          };
+        }) ?? [],
+    },
+    {
+      header: t("Average Preparation Time"),
+      rows:
+        [{ value: summary?.orderPreparationStats?.average?.formatted }] ?? [],
+    },
+    {
+      header: t("Longest Order Preparation Times"),
+      rows:
+        summary?.orderPreparationStats?.topOrders?.map((o) => {
+          return {
+            title: getItem(o?.order?.item, items)?.name,
+            value: "Table: " + o?.order?.table + "-" + o?.formatted,
+          };
+        }) ?? [],
+    },
+    {
+      header: t("Average Button Call Time"),
+      rows: [{ value: summary?.buttonCallStats?.averageDuration }],
+    },
+    {
+      header: t("Longest Button Call Times"),
+      rows:
+        summary?.buttonCallStats?.longestCalls?.map((o) => {
+          return {
+            title: "Table: " + o.tableName,
+            value: o.duration,
+          };
+        }) ?? [],
+    },
+    {
+      header: t("Top 3 Mentors"),
+      rows:
+        summary?.gameplayStats?.topMentors?.map((o) => {
+          return {
+            title: getItem(o?.mentoredBy, users)?.name,
+            value: o.gameplayCount,
+          };
+        }) ?? [],
+    },
+    {
+      header: "Top Complex Game",
+      rows:
+        summary?.gameplayStats?.topComplexGames?.map((o) => {
+          return {
+            title: o.name,
+            value: o?.mentors
+              ?.map((mentor) => {
+                return getItem(mentor, users)?.name;
+              })
+              ?.join(","),
+          };
+        }) ?? [],
+    },
+  ];
+  const [rows, setRows] = useState(allRows);
   const filterInputs = [
     {
       type: InputTypes.SELECT,
@@ -81,6 +175,10 @@ const DailySummary = () => {
         }
       }
     };
+  useEffect(() => {
+    setComponentKey((prev) => prev + 1);
+    setRows(allRows);
+  }, [locations, items, users, summary]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -125,6 +223,19 @@ const DailySummary = () => {
             }
             return null;
           })}
+        </div>
+        {/* summary cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {rows &&
+            rows.map((row, index) => {
+              return (
+                <SummaryCard
+                  key={index}
+                  header={row.header}
+                  rows={row?.rows as any}
+                />
+              );
+            })}
         </div>
       </div>
     </>
