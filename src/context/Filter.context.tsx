@@ -36,6 +36,8 @@ type FilterContextType = {
   setShowBaseQuantityFilters: (state: boolean) => void;
   filterBaseQuantityPanelFormElements: FormElementsState;
   setFilterBaseQuantityPanelFormElements: (state: FormElementsState) => void;
+  filterDailySummaryPanelFormElements: FormElementsState;
+  setFilterDailySummaryPanelFormElements: (state: FormElementsState) => void;
   showGameStockLocationFilters: boolean;
   setShowGameStockLocationFilters: (state: boolean) => void;
   filtershowGameStockLocationFiltersPanelFormElements: FormElementsState;
@@ -322,6 +324,11 @@ const FilterContext = createContext<FilterContextType>({
   setFilterAllExpensesPanelFormElements: () => {},
   showInactiveShifts: false,
   setShowInactiveShifts: () => {},
+  filterDailySummaryPanelFormElements: {
+    location: "",
+    date: "",
+  },
+  setFilterDailySummaryPanelFormElements: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -354,7 +361,13 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showInvoiceFilters, setShowInvoiceFilters] = useState(false);
   const [isInvoiceEnableEdit, setIsInvoiceEnableEdit] = useState(false);
   const [showAllExpensesFilters, setShowAllExpensesFilters] = useState(false);
-
+  const [
+    filterDailySummaryPanelFormElements,
+    setFilterDailySummaryPanelFormElements,
+  ] = useState<FormElementsState>({
+    location: selectedLocationId,
+    date: format(new Date(), "yyyy-MM-dd"),
+  });
   const [
     filterAllVisitsPanelFormElements,
     setFilterAllVisitsPanelFormElements,
@@ -658,6 +671,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           setFilterAllExpensesPanelFormElements,
         showInactiveShifts: showInactiveShifts,
         setShowInactiveShifts: setShowInactiveShifts,
+        filterDailySummaryPanelFormElements:
+          filterDailySummaryPanelFormElements,
+        setFilterDailySummaryPanelFormElements:
+          setFilterDailySummaryPanelFormElements,
       }}
     >
       {children}

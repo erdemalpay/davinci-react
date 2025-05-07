@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { Header } from "../components/header/Header";
-import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
 import CategorySummaryChart from "../components/orderSummary/CategorySummaryChart";
+import SummaryCard from "../components/orders/ordersSummary/SummaryCard";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
@@ -144,7 +144,7 @@ const OrdersSummary = () => {
           {filterInputs.map((input: any) => {
             if (input.type === InputTypes.DATE) {
               return (
-                <div className="sm:mt-2 w-full">
+                <div key={input.formKey} className="sm:mt-2 w-full">
                   <TextInput
                     key={input.formKey}
                     type={input.type}
@@ -163,7 +163,7 @@ const OrdersSummary = () => {
                   option.value === filterSummaryFormElements[input.formKey]
               );
               return (
-                <div className="w-full ">
+                <div key={input.formKey} className="w-full ">
                   <SelectInput
                     key={input.formKey}
                     value={selectedValue}
