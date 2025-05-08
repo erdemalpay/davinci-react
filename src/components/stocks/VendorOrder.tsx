@@ -38,7 +38,7 @@ const VendorOrder = () => {
           ) {
             return acc;
           }
-          return acc + baseQuantity?.minQuantity;
+          return acc + Number(baseQuantity?.minQuantity);
         }, 0) ?? 0;
       const productMaxBaseQuantitiesTotal =
         product?.baseQuantities?.reduce((acc, baseQuantity) => {
@@ -49,7 +49,7 @@ const VendorOrder = () => {
           ) {
             return acc;
           }
-          return acc + baseQuantity?.maxQuantity;
+          return acc + Number(baseQuantity?.maxQuantity);
         }, 0) ?? 0;
 
       let productStocksTotal = stocks
@@ -62,18 +62,25 @@ const VendorOrder = () => {
           ) {
             return acc;
           }
-          return acc + stock.quantity;
+          return acc + Number(stock.quantity);
         }, 0);
       if (productStocksTotal < 0) {
         productStocksTotal = 0;
       }
-      const requiredQuantity =
-        productStocksTotal >= Number(productMinBaseQuantitiesTotal)
-          ? 0
-          : Number(productMaxBaseQuantitiesTotal) > 0
-          ? Number(productMaxBaseQuantitiesTotal) - productStocksTotal
-          : 0;
-
+      let requiredQuantity = 0;
+      if (
+        productMinBaseQuantitiesTotal === 0 &&
+        productMaxBaseQuantitiesTotal === 0
+      ) {
+        requiredQuantity = 0;
+      } else if (
+        productStocksTotal >= productMinBaseQuantitiesTotal &&
+        productStocksTotal <= productMaxBaseQuantitiesTotal
+      ) {
+        requiredQuantity = 0;
+      } else if (productStocksTotal < productMinBaseQuantitiesTotal) {
+        requiredQuantity = productMinBaseQuantitiesTotal - productStocksTotal;
+      }
       return {
         ...product,
         stockQuantity: Number(productStocksTotal),
