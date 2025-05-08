@@ -102,7 +102,7 @@ const DailySummary = () => {
         }) ?? [],
     },
     {
-      header: t("Top Complex Game"),
+      header: t("Top Complex Games"),
       rows:
         summary?.gameplayStats?.topComplexGames?.map((o) => {
           return {
