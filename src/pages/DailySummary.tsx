@@ -1,3 +1,4 @@
+import { isToday } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
@@ -6,11 +7,14 @@ import { Header } from "../components/header/Header";
 import SelectInput from "../components/panelComponents/FormElements/SelectInput";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
+import { ActiveVisitList } from "../components/tables/ActiveVisitList";
+import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useFilterContext } from "../context/Filter.context";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDailySummary } from "../utils/api/order/order";
 import { useGetUsers } from "../utils/api/user";
+import { useGetGivenDateLocationVisits } from "../utils/api/visit";
 import { getItem } from "../utils/getItem";
 
 type OptionType = { value: number; label: string };
@@ -21,6 +25,10 @@ const DailySummary = () => {
     filterDailySummaryPanelFormElements,
     setFilterDailySummaryPanelFormElements,
   } = useFilterContext();
+  const visits = useGetGivenDateLocationVisits(
+    filterDailySummaryPanelFormElements.date,
+    filterDailySummaryPanelFormElements.location
+  );
   const locations = useGetStoreLocations();
   const items = useGetMenuItems();
   const users = useGetUsers();
@@ -72,7 +80,11 @@ const DailySummary = () => {
         summary?.orderPreparationStats?.topOrders?.map((o) => {
           return {
             title: getItem(o?.order?.item, items)?.name,
-            value: "Table: " + o?.order?.table + "-" + o?.formatted,
+            value:
+              `${t("Table")}:` +
+              o?.order?.orderTable?.name +
+              "-" +
+              o?.formatted,
           };
         }) ?? [],
     },
@@ -86,7 +98,7 @@ const DailySummary = () => {
       rows:
         summary?.buttonCallStats?.longestCalls?.map((o) => {
           return {
-            title: "Table: " + o.tableName,
+            title: `${t("Table")}:` + o.tableName,
             value: o.duration,
           };
         }) ?? [],
@@ -174,57 +186,69 @@ const DailySummary = () => {
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
     setRows(allRows);
-  }, [locations, items, users, summary]);
+  }, [locations, items, users, summary, visits]);
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-full px-4 flex flex-col gap-4 my-10">
-        {/* filter */}
-        <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
-          {filterInputs.map((input: any) => {
-            if (input.type === InputTypes.DATE) {
-              return (
-                <div key={input.formKey} className="sm:mt-2 w-full">
-                  <TextInput
-                    key={input.formKey}
-                    type={input.type}
-                    value={
-                      filterDailySummaryPanelFormElements[input.formKey] ?? ""
-                    }
-                    label={input.label ?? ""}
-                    isDatePickerLabel={false}
-                    placeholder={input.placeholder ?? ""}
-                    onChange={handleChange(input.formKey)}
-                    isDatePicker={input?.isDatePicker ?? false}
-                  />
-                </div>
-              );
-            } else if (input.type === InputTypes.SELECT) {
-              const selectedValue = input.options?.find(
-                (option: any) =>
-                  option.value ===
-                  filterDailySummaryPanelFormElements[input.formKey]
-              );
-              return (
-                <div key={input.formKey} className="w-full ">
-                  <SelectInput
-                    key={input.formKey}
-                    value={selectedValue}
-                    options={input.options ?? []}
-                    placeholder={input.placeholder ?? ""}
-                    onChange={handleChangeForSelect(input.formKey)}
-                  />
-                </div>
-              );
-            }
-            return null;
-          })}
+      <div key={componentKey} className="w-full px-4 flex flex-col gap-4 my-10">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* who is/was at the cafe */}
+          {filterDailySummaryPanelFormElements.date &&
+          isToday(filterDailySummaryPanelFormElements.date) ? (
+            <ActiveVisitList
+              suggestions={users}
+              name="employees"
+              label={t("Who's at cafe?")}
+              visits={visits}
+            />
+          ) : (
+            <PreviousVisitList visits={visits} isLabel={false} />
+          )}
+          {/* filter */}
+          <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
+            {filterInputs.map((input: any) => {
+              if (input.type === InputTypes.DATE) {
+                return (
+                  <div key={input.formKey} className="sm:mt-2 w-full">
+                    <TextInput
+                      key={input.formKey}
+                      type={input.type}
+                      value={
+                        filterDailySummaryPanelFormElements[input.formKey] ?? ""
+                      }
+                      label={input.label ?? ""}
+                      isDatePickerLabel={false}
+                      placeholder={input.placeholder ?? ""}
+                      onChange={handleChange(input.formKey)}
+                      isDatePicker={input?.isDatePicker ?? false}
+                    />
+                  </div>
+                );
+              } else if (input.type === InputTypes.SELECT) {
+                const selectedValue = input.options?.find(
+                  (option: any) =>
+                    option.value ===
+                    filterDailySummaryPanelFormElements[input.formKey]
+                );
+                return (
+                  <div key={input.formKey} className="w-full ">
+                    <SelectInput
+                      key={input.formKey}
+                      value={selectedValue}
+                      options={input.options ?? []}
+                      placeholder={input.placeholder ?? ""}
+                      onChange={handleChangeForSelect(input.formKey)}
+                    />
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
         </div>
+
         {/* summary cards */}
-        <div
-          key={componentKey}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {rows &&
             rows.map((row, index) => {
               return (

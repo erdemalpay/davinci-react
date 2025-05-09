@@ -55,7 +55,7 @@ interface DailySummary {
       order: {
         _id: number;
         item: number;
-        table: number;
+        orderTable: Table;
       };
       ms: number;
       formatted: string;

@@ -32,6 +32,12 @@ export function useGetVisits() {
     [Paths.Visits, selectedLocationId, selectedDate]
   );
 }
+export function useGetGivenDateLocationVisits(date: string, location: number) {
+  return useGetList<Visit>(
+    `${Paths.Visits}?location=${location}&date=${date}`,
+    [Paths.Visits, location, date]
+  );
+}
 
 export function useGetFilteredVisits(startDate: string, endDate?: string) {
   let url = `${Paths.Visits}/kalender?start-date=${startDate}`;

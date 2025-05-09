@@ -6,9 +6,13 @@ import { getItem } from "../../utils/getItem";
 
 interface PreviousVisitListProps {
   visits: Visit[];
+  isLabel?: boolean;
 }
 
-export function PreviousVisitList({ visits }: PreviousVisitListProps) {
+export function PreviousVisitList({
+  visits,
+  isLabel = true,
+}: PreviousVisitListProps) {
   const { t } = useTranslation();
   const users = useGetUsers();
   const usersVisits = visits.reduce((acc, visit) => {
@@ -21,24 +25,24 @@ export function PreviousVisitList({ visits }: PreviousVisitListProps) {
   if (!users) return <></>;
   return visits?.length ? (
     <div className="flex flex-col lg:flex-row w-full gap-2">
-      <label
-        htmlFor="mentors"
-        className="flex text-gray-800 dark:text-gray-100 text-sm items-center"
-      >
-        {t("Who was at cafe")}?
-      </label>
+      {isLabel && (
+        <label
+          htmlFor="mentors"
+          className="flex text-gray-800 dark:text-gray-100 text-sm items-center"
+        >
+          {t("Who was at cafe")}?
+        </label>
+      )}
       <div
         className="flex flex-wrap gap-2 mt-2 justify-center items-center"
         id="mentors"
       >
-       {Object.entries(usersVisits).map(([user, userVisits]) => (
+        {Object.entries(usersVisits).map(([user, userVisits]) => (
           <Tooltip
             key={user}
-            content= {userVisits.map((visit, index) => (
-            <div key={index}>
-              {visit}
-            </div>
-          ))}
+            content={userVisits.map((visit, index) => (
+              <div key={index}>{visit}</div>
+            ))}
           >
             <Chip
               value={getItem(user, users)?.name}
