@@ -16,6 +16,7 @@ function SingleFolderPage() {
   const { mutate: deleteImage } = useDeleteImageMutation();
   const [componentKey, setComponentKey] = useState(0);
   const folderImages = useGetFolderImages(folderName as string);
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
   }, [folderImages]);
@@ -37,41 +38,59 @@ function SingleFolderPage() {
     <>
       <Header showLocationSelector={false} />
       <PageNavigator navigations={pageNavigations} />
-      <div
-        key={componentKey}
-        className="flex flex-row flex-wrap gap-4 w-[95%] mx-auto mt-5 items-center"
-      >
-        {folderImages?.map((image) => (
-          <div key={image.url} className="flex flex-col gap-2">
-            {/* image */}
-            <img
-              src={image.url}
-              alt={image.publicId}
-              className="w-full max-w-40 h-32 rounded-md shadow-sm"
-            />
-            <div className="flex flex-row gap-1 ">
-              <p>{image.publicId}</p>
-              {/* buttons */}
-              <button
-                className="text-2xl cursor-pointer  text-gray-500 hover:text-gray-800  transform transition duration-300 hover:scale-105 "
-                onClick={() => {
-                  navigator.clipboard.writeText(image.publicId);
-                  toast.success(t("Image ID copied to clipboard"));
-                }}
-              >
-                <IoCopyOutline />
-              </button>
-              <button
-                className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105 "
-                onClick={() => {
-                  deleteImage(image.url);
-                }}
-              >
-                <HiOutlineTrash />
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="flex flex-col gap-2 w-[95%] mx-auto mt-5 ">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          placeholder={t("Search")}
+          className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
+        />
+        <div
+          key={componentKey}
+          className="flex flex-row flex-wrap gap-4 items-center w-full mt-4"
+        >
+          {folderImages
+            ?.filter((image) => {
+              if (searchQuery === "") return true;
+              return image.publicId
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase());
+            })
+            ?.map((image) => (
+              <div key={image.url} className="flex flex-col gap-2">
+                {/* image */}
+                <img
+                  src={image.url}
+                  alt={image.publicId}
+                  className="w-full max-w-40 h-32 rounded-md shadow-sm"
+                />
+                <div className="flex flex-row gap-1 ">
+                  <p>{image.publicId}</p>
+                  {/* buttons */}
+                  <button
+                    className="text-2xl cursor-pointer  text-gray-500 hover:text-gray-800  transform transition duration-300 hover:scale-105 "
+                    onClick={() => {
+                      navigator.clipboard.writeText(image.publicId);
+                      toast.success(t("Image ID copied to clipboard"));
+                    }}
+                  >
+                    <IoCopyOutline />
+                  </button>
+                  <button
+                    className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105 "
+                    onClick={() => {
+                      deleteImage(image.url);
+                    }}
+                  >
+                    <HiOutlineTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
     </>
   );

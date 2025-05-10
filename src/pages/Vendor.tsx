@@ -56,8 +56,7 @@ export const VendorPageTabs = [
 export default function Vendor() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<number>(0);
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const [selectedVendor, setSelectedVendor] = useState<AccountVendor>();
   const { vendorId } = useParams();
@@ -82,10 +81,7 @@ export default function Vendor() {
       path: Routes.Accounting,
       canBeClicked: true,
       additionalSubmitFunction: () => {
-        setCurrentPage(1);
-        // setRowsPerPage(RowPerPageEnum.FIRST);
-        setSortConfigKey(null);
-        setSearchQuery("");
+        resetGeneralContext();
       },
     },
     {
@@ -132,12 +128,9 @@ export default function Vendor() {
                 setSelectedVendor(
                   vendors?.find((i) => i._id === selectedOption?.value)
                 );
-                setCurrentPage(1);
-                // setRowsPerPage(RowPerPageEnum.FIRST);
-                setSearchQuery("");
+                resetGeneralContext();
                 setTabPanelKey(tabPanelKey + 1);
                 setActiveTab(0);
-                setSortConfigKey(null);
                 navigate(`/vendor/${selectedOption?.value}`);
               }}
               placeholder={t("Select a Vendor")}
@@ -150,8 +143,7 @@ export default function Vendor() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           additionalOpenAction={() => {
-            setCurrentPage(1);
-            setSearchQuery("");
+            resetGeneralContext();
           }}
         />
       </div>
