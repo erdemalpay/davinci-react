@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
+import SearchInput from "../components/panelComponents/common/SearchInput";
 import { Routes } from "../navigation/constants";
 import { useDeleteImageMutation, useGetFolderImages } from "../utils/api/asset";
 
@@ -39,14 +40,11 @@ function SingleFolderPage() {
       <Header showLocationSelector={false} />
       <PageNavigator navigations={pageNavigations} />
       <div className="flex flex-col gap-2 w-[95%] mx-auto mt-5 ">
-        <input
-          type="text"
+        <SearchInput
           value={searchQuery}
           onChange={(e) => {
-            setSearchQuery(e.target.value);
+            setSearchQuery(e);
           }}
-          placeholder={t("Search")}
-          className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
         />
         <div
           key={componentKey}
