@@ -12,7 +12,7 @@ import {
 } from "../../utils/api/account/product";
 import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetAllLocations } from "../../utils/api/location";
+import { useGetStockLocations } from "../../utils/api/location";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -27,7 +27,7 @@ const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
   const products = useGetAccountProducts();
   const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
-  const locations = useGetAllLocations();
+  const locations = useGetStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
   const [rowToAction, setRowToAction] = useState<any>();
