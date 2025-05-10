@@ -8,6 +8,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
   DateRangeKey,
+  OrderStatus,
   Table,
   commonDateOptions,
   orderFilterStatusOptions,
@@ -66,12 +67,23 @@ const IkasOrders = () => {
     return null;
   }
   const allRows = orders
-    ?.filter(
-      (order) =>
+    ?.filter((order) => {
+      if (
         order?.ikasId !== null &&
         order?.ikasId !== undefined &&
         order?.ikasId !== ""
-    )
+      ) {
+        if (filterPanelFormElements?.cancelHour !== "") {
+          return (
+            order?.status === OrderStatus.CANCELLED &&
+            order?.cancelledAt &&
+            format(order?.cancelledAt, "HH:mm") >=
+              filterPanelFormElements?.cancelHour
+          );
+        }
+        return true;
+      }
+    })
     ?.map((order) => {
       if (!order || !order?.createdAt) {
         return null;
@@ -299,6 +311,12 @@ const IkasOrders = () => {
       isDatePicker: true,
       invalidateKeys: [{ key: "date", defaultValue: "" }],
       isOnClearActive: false,
+    },
+    {
+      type: InputTypes.HOUR,
+      formKey: "cancelHour",
+      label: t("Cancel Hour"),
+      required: true,
     },
     {
       type: InputTypes.SELECT,

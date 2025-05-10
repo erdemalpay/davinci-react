@@ -144,6 +144,7 @@ const OrderContext = createContext<OrderContextType>({
     preparedBy: "",
     role: [],
     eliminatedDiscounts: [],
+    cancelHour: "",
   },
   filterPanelFormElements: {
     location: "",
@@ -163,6 +164,7 @@ const OrderContext = createContext<OrderContextType>({
     preparedBy: "",
     role: [],
     eliminatedDiscounts: [],
+    cancelHour: "",
   },
   setFilterPanelFormElements: () => {},
   isTransferProductOpen: false,
@@ -218,6 +220,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     preparedBy: "",
     role: [],
     eliminatedDiscounts: [],
+    cancelHour: "",
   };
   const [todaysOrderDate, setTodaysOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
