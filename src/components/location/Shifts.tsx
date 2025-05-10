@@ -111,7 +111,10 @@ const Shifts = ({ locationId }: Props) => {
               isActive: true,
               type: shiftForm.type,
             },
-          ];
+          ].sort(
+            (a, b) =>
+              parseInt(a.shift as string, 10) - parseInt(b.shift as string, 10)
+          );
           updateLocation({
             id: Number(locationId),
             updates: {
@@ -180,16 +183,22 @@ const Shifts = ({ locationId }: Props) => {
             const foundLocation = locations.find(
               (location) => location._id === locationId
             );
-            const updatedShifts = foundLocation?.shifts?.map((shift) => {
-              if (shift.shift === rowToAction.shift) {
-                return {
-                  ...shift,
-                  shift: shiftForm.hour,
-                  type: shiftForm.type,
-                };
-              }
-              return shift;
-            });
+            const updatedShifts = foundLocation?.shifts
+              ?.map((shift) => {
+                if (shift.shift === rowToAction.shift) {
+                  return {
+                    ...shift,
+                    shift: shiftForm.hour,
+                    type: shiftForm.type,
+                  };
+                }
+                return shift;
+              })
+              .sort(
+                (a, b) =>
+                  parseInt(a.shift as string, 10) -
+                  parseInt(b.shift as string, 10)
+              );
             updateLocation({
               id: Number(locationId),
               updates: {
