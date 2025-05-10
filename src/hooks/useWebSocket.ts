@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { useEffect, useRef } from "react";
+import { Socket, io } from "socket.io-client";
 import { Order, TableTypes } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -12,6 +12,12 @@ import { getItem } from "./../utils/getItem";
 import { socketEventListeners } from "./socketConstant";
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
+const GESTURE_EVENTS = [
+  "click",
+  "pointerdown",
+  "touchstart",
+  "keydown",
+] as const;
 
 export function useWebSocket() {
   const queryClient = useQueryClient();
@@ -23,21 +29,46 @@ export function useWebSocket() {
     setTakeawayTableId,
   } = useOrderContext();
   const categories = useGetCategories();
+
+  // a ref to track if we've unlocked audio
+  const audioReadyRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement>();
+  const audioContextRef = useRef<AudioContext>();
+  const gainNodeRef = useRef<GainNode>();
+
   useEffect(() => {
-    // Load the audio files
-    const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
-    // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
-    orderCreatedSound.volume = 1;
-    const audioContext = new window.AudioContext();
-    const gainNode = audioContext.createGain();
+    // 1) AUDIO INITIALIZATION (once)
+    audioRef.current = new Audio("/sounds/orderCreateSound.mp3");
+    audioRef.current.volume = 1;
 
-    // Set the gain to 2 (double the volume)
-    gainNode.gain.value = 2;
-    const source = audioContext.createMediaElementSource(orderCreatedSound);
+    audioContextRef.current = new AudioContext();
+    gainNodeRef.current = audioContextRef.current.createGain();
+    gainNodeRef.current.gain.value = 2;
 
-    // Connect the source to the gain node, and the gain node to the destination
-    source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    const source = audioContextRef.current.createMediaElementSource(
+      audioRef.current
+    );
+    source.connect(gainNodeRef.current);
+    gainNodeRef.current.connect(audioContextRef.current.destination);
+
+    // 2) RESUME AUDIO on first user gesture
+    const handleFirstGesture = async () => {
+      try {
+        if (audioContextRef.current?.state === "suspended") {
+          await audioContextRef.current.resume();
+        }
+        audioReadyRef.current = true;
+        console.log("🎵 Audio unlocked!");
+      } catch (err) {
+        console.warn("Could not resume AudioContext:", err);
+      }
+    };
+    GESTURE_EVENTS.forEach((evt) =>
+      document.addEventListener(evt, handleFirstGesture, {
+        once: true,
+        passive: true,
+      })
+    );
 
     const socket: Socket = io(SOCKET_URL, {
       path: "/socket.io",
@@ -65,7 +96,6 @@ export function useWebSocket() {
       ) {
         return;
       }
-      // Play order created sound
 
       const foundCategory = getItem((order?.item as any)?.category, categories);
       if (
@@ -73,19 +103,23 @@ export function useWebSocket() {
         order?.status !== OrderStatus.CANCELLED &&
         (order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
       ) {
-        orderCreatedSound
-          .play()
-          .catch((error) => console.error("Error playing sound:", error));
+        if (audioReadyRef && audioRef.current) {
+          audioRef.current
+            .play()
+            .catch((error) => console.error("Error playing sound:", error));
+        }
       }
     });
+
     socket.on("orderUpdated", (data) => {
       const tableId =
         typeof data?.order?.table === "number"
           ? data?.order?.table
           : data?.order?.table._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
-      queryClient.invalidateQueries([`${Paths.Order}/today`]); //TODO:here this today data in orders page is taken twice so we need to check it
+      queryClient.invalidateQueries([`${Paths.Order}/today`]);
     });
+
     socket.on("collectionChanged", (data) => {
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
@@ -108,13 +142,16 @@ export function useWebSocket() {
     socket.on("singleTableChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
     });
+
     socket.on("stockChanged", (data) => {
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks`]);
       queryClient.invalidateQueries([`${Paths.Accounting}/stocks/query`]);
     });
+
     socket.on("createMultipleOrder", (data) => {
       queryClient.invalidateQueries([`${Paths.Order}/table`, data.table._id]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
+
       if (
         data?.table?.type === TableTypes.TAKEOUT &&
         data?.socketUser._id === user?._id
@@ -123,17 +160,18 @@ export function useWebSocket() {
         setTakeawayTableId(data.table._id);
         setOrderCreateBulk([]);
       }
-      if (data.socketUser._id === user?._id) {
-        return;
-      }
+
+      if (data.socketUser._id === user?._id) return;
 
       if (
         data?.soundRoles?.includes(user?.role?._id) &&
         data.location === selectedLocationId
       ) {
-        orderCreatedSound
-          .play()
-          .catch((error) => console.error("Error playing sound:", error));
+        if (audioReadyRef && audioRef.current) {
+          audioRef.current
+            .play()
+            .catch((error) => console.error("Error playing sound:", error));
+        }
       }
     });
 
