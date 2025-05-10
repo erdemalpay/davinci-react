@@ -15,6 +15,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -100,7 +101,14 @@ const BaseQuantityByLocation = () => {
   const columns = [
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
   ];
-  const rowKeys = [{ key: "name" }];
+  const rowKeys = [
+    {
+      key: "name",
+      node: (row: any) => {
+        return <p>{row.name}</p>;
+      },
+    },
+  ];
   locations?.forEach((location) => {
     columns.push(
       {
@@ -115,7 +123,103 @@ const BaseQuantityByLocation = () => {
       }
     );
 
-    rowKeys.push({ key: `${location._id}min` }, { key: `${location._id}max` });
+    rowKeys.push(
+      {
+        key: `${location._id}min`,
+        node: (row: any) => {
+          return (
+            <div>
+              <TextInput
+                key={`${location._id}min`}
+                type={"number"}
+                value={row?.[`${location._id}min`] ?? 0}
+                label={""}
+                placeholder={""}
+                inputWidth="w-32 md:w-40"
+                onChange={(value) => {
+                  console.log("changed");
+
+                  console.log("value", value);
+                  if (value === "") {
+                    return;
+                  }
+                  const newBaseQuantities = locations.map((l) => {
+                    return {
+                      location: l._id,
+                      minQuantity:
+                        Number(l._id) === Number(location._id)
+                          ? Number(value)
+                          : Number(row[`${l._id}min`]),
+                      maxQuantity: Number(row[`${l._id}max`]),
+                    };
+                  });
+                  updateAccountProduct({
+                    id: row._id,
+                    updates: {
+                      baseQuantities: newBaseQuantities,
+                    },
+                  });
+                }}
+                isDebounce={true}
+                isOnClearActive={true}
+                isNumberButtonsActive={true}
+                isDateInitiallyOpen={false}
+                isTopFlexRow={false}
+                minNumber={0}
+                isMinNumber={true}
+                className="w-16 h-10 text-center"
+              />
+            </div>
+          );
+        },
+      },
+      {
+        key: `${location._id}max`,
+        node: (row: any) => {
+          return (
+            <div>
+              <TextInput
+                key={`${location._id}max`}
+                type={"number"}
+                value={row?.[`${location._id}max`] ?? 0}
+                label={""}
+                placeholder={""}
+                inputWidth="w-32 md:w-40"
+                onChange={(value) => {
+                  if (value === "") {
+                    return;
+                  }
+                  const newBaseQuantities = locations.map((l) => {
+                    return {
+                      location: l._id,
+                      minQuantity: Number(row[`${l._id}min`]),
+                      maxQuantity:
+                        Number(l._id) === Number(location._id)
+                          ? Number(value)
+                          : Number(row[`${l._id}max`]),
+                    };
+                  });
+                  updateAccountProduct({
+                    id: row._id,
+                    updates: {
+                      baseQuantities: newBaseQuantities,
+                    },
+                  });
+                }}
+                isDebounce={true}
+                isOnClearActive={true}
+                isNumberButtonsActive={true}
+                isDateInitiallyOpen={false}
+                isTopFlexRow={false}
+                minNumber={0}
+                isMinNumber={true}
+                className="w-16 h-10 text-center"
+              />
+            </div>
+          );
+        },
+      }
+    );
   });
 
   columns.push({ key: t("Action"), isSortable: false } as any);
