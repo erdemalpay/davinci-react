@@ -20,7 +20,7 @@ const UserShifts = () => {
   const locations = useGetStoreLocations();
   const { selectedLocationId } = useLocationContext();
   const user = useGetUser();
-  if(!user) return <Loading/>
+  if (!user) return <Loading />;
   const shifts = useGetUserShifts(user?._id);
   const [showFilters, setShowFilters] = useState(false);
   const {
@@ -28,23 +28,33 @@ const UserShifts = () => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useShiftContext();
-  const allRows = shifts?.map((shift) => {
-    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-      weekday: "long",
-    });
-    return {
-      ...shift,
-      formattedDay:
-        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-    };
-  });
+  const allRows = Object.values(
+    (shifts || []).reduce<Record<string, any>>((acc, shift) => {
+      const dayKey = shift.day;
+      if (!acc[dayKey]) {
+        const dayName = new Date(dayKey).toLocaleDateString("en-US", {
+          weekday: "long",
+        });
+        acc[dayKey] = {
+          day: dayKey,
+          formattedDay: convertDateFormat(dayKey) + "  (" + t(dayName) + ")",
+        };
+      }
+      if (shift.location != null) {
+        acc[dayKey][shift.location] = shift.shifts;
+      }
+
+      return acc;
+    }, {})
+  ).sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
+
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
   ];
   const rowKeys = [
     {
-      key: "day",
+      key: "formattedDay",
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
   ];
@@ -55,17 +65,15 @@ const UserShifts = () => {
       correspondingKey: `${location._id}`,
     });
     rowKeys.push({
-      key: `${location._id}`,
+      key: location?._id.toString(),
       node: (row: any) => {
-        if (row.location === location._id) {
-          return row?.shifts?.filter((shift:any)=>shift.user?.includes(user._id))
-            ?.map((shiftItem: any) => shiftItem.shift)
-            .join(', ');
-        }
-      }
+        return row?.[location?._id.toString()]
+          ?.filter((shift: any) => shift.user?.includes(user._id))
+          ?.map((shiftItem: any) => shiftItem.shift)
+          .join(", ");
+      },
     });
-    
-  })
+  });
   const filters = [
     {
       label: t("Show Filters"),
@@ -147,10 +155,7 @@ const UserShifts = () => {
         rows={rows}
         isActionsActive={false}
         filters={filters}
-        title={
-          user.name + " "+
-          t("Shifts")
-        }
+        title={user.name + " " + t("Shifts")}
         filterPanel={filterPanel as any}
       />
     </div>

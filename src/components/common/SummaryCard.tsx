@@ -26,7 +26,7 @@ const SummaryCard = ({
     >
       {header && (
         <h1
-          className={`font-semibold text-gray-500 px-4 pt-4 ${headerClassName}`}
+          className={`font-semibold text-gray-800 px-4 pt-4 ${headerClassName}`}
         >
           {header}
         </h1>

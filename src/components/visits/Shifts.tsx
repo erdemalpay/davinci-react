@@ -124,6 +124,7 @@ const Shifts = () => {
   const copyShiftFormKeys = [
     { key: "copiedDay", type: FormKeyTypeEnum.STRING },
     { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
   ];
   const copyShifIntervaltInputs = [
     {
@@ -158,6 +159,7 @@ const Shifts = () => {
     { key: "startCopiedDay", type: FormKeyTypeEnum.STRING },
     { key: "endCopiedDay", type: FormKeyTypeEnum.STRING },
     { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
   ];
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -455,7 +457,10 @@ const Shifts = () => {
           formKeys={copyShiftFormKeys}
           submitItem={copyShift as any}
           isEditMode={false}
-          constantValues={{ selectedDay: rowToAction?.day }}
+          constantValues={{
+            selectedDay: rowToAction?.day,
+            location: selectedLocationId,
+          }}
           topClassName="flex flex-col gap-2  "
         />
       ) : null,
@@ -472,6 +477,7 @@ const Shifts = () => {
       <GenericAddEditPanel
         isOpen={isCopyShiftIntervalModalOpen}
         close={() => setIsCopyShiftIntervalModalOpen(false)}
+        constantValues={{ location: selectedLocationId }}
         inputs={copyShifIntervaltInputs}
         formKeys={copyShiftIntervalFormKeys}
         submitItem={copyShiftInterval as any}

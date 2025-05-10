@@ -51,9 +51,9 @@ export function useGetShifts() {
   );
 }
 
-export function useGetUserShifts(user:string) {
+export function useGetUserShifts(user: string) {
   const { filterPanelFormElements } = useShiftContext();
-  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&user=${user}`;
+  let url = `${Paths.Shift}/user?after=${filterPanelFormElements.after}&user=${user}`;
   const parameters = ["before"];
   parameters.forEach((param) => {
     if (filterPanelFormElements[param]) {
@@ -68,7 +68,7 @@ export function useGetUserShifts(user:string) {
       `${Paths.Shift}`,
       filterPanelFormElements.after,
       filterPanelFormElements.before,
-      user
+      user,
     ],
     true
   );
