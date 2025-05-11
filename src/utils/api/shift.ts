@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { post } from ".";
-import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { Shift } from "./../../types/index";
 import { Paths, useGetList, useMutationApi } from "./factory";
@@ -27,26 +26,21 @@ export function useShiftMutations() {
 
   return { deleteShift, updateShift, createShift };
 }
-export function useGetShifts() {
-  const { filterPanelFormElements } = useShiftContext();
-  const { selectedLocationId } = useLocationContext();
-  let url = `${Paths.Shift}?after=${filterPanelFormElements.after}&location=${selectedLocationId}`;
-  const parameters = ["before"];
-  parameters.forEach((param) => {
-    if (filterPanelFormElements[param]) {
-      url = url.concat(
-        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
-      );
-    }
-  });
+export function useGetShifts(
+  after: string,
+  before?: string,
+  location?: number
+) {
+  let url = `${Paths.Shift}?after=${after}`;
+  if (before) {
+    url = url.concat(`&before=${before}`);
+  }
+  if (location) {
+    url = url.concat(`&location=${location}`);
+  }
   return useGetList<Shift>(
     url,
-    [
-      `${Paths.Shift}`,
-      filterPanelFormElements.after,
-      filterPanelFormElements.before,
-      selectedLocationId,
-    ],
+    [`${Paths.Shift}`, after, before, location],
     true
   );
 }

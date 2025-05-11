@@ -3,14 +3,17 @@ import { useTranslation } from "react-i18next";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
 import { MdOutlineFastfood } from "react-icons/md";
+import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
-import { commonDateOptions, DateRangeKey } from "../../types";
+import { DateRangeKey, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
+import { useGetShifts } from "../../utils/api/shift";
+import { useGetFilteredVisits } from "../../utils/api/visit";
 import InfoCard from "../common/InfoCard";
-import { InputTypes } from "../panelComponents/shared/types";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
+import { InputTypes } from "../panelComponents/shared/types";
 
 type Props = {
   userId: string;
@@ -20,25 +23,30 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
   const personalOrderDatas = useGetPersonalOrderDatas();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
-  const [showFilters, setShowFilters] = useState(false);
-  //   const tableCreateDatas = useGetPersonalTableCreateData();
+  const { showPersonalSummaryFilters, setShowPersonalSummaryFilters } =
+    useFilterContext();
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useOrderContext();
+  const shifts = useGetShifts(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before
+  );
+  const visits = useGetFilteredVisits(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before,
+    userId
+  );
   const [tableKey, setTableKey] = useState(0);
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
       (item) => item.user === userId
     );
-
     const foundPersonalCollectionData = personalCollectionDatas?.find(
       (data) => data.createdBy === userId
     );
-    // const foundTableData = tableCreateDatas?.find(
-    //   (tableData) => tableData.createdBy === userId
-    // );
     return {
       createdByCount: foundPersonalOrderDatas?.createdByCount || 0,
       deliveredByCount: foundPersonalOrderDatas?.deliveredByCount || 0,
@@ -117,18 +125,14 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [
-    personalOrderDatas,
-    personalCollectionDatas,
-    // tableCreateDatas,
-  ]);
+  }, [personalOrderDatas, personalCollectionDatas, shifts, visits]);
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showPersonalSummaryFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
     isCloseButtonActive: false,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowPersonalSummaryFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },

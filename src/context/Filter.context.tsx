@@ -1,6 +1,10 @@
 import { format, startOfMonth } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { ExpenseTypes, StockHistoryStatusEnum } from "../types";
+import {
+  ExpenseTypes,
+  StockHistoryStatusEnum,
+  VisitPageTabEnum,
+} from "../types";
 import { useLocationContext } from "./Location.context";
 
 type FormElementsState = {
@@ -106,6 +110,10 @@ type FilterContextType = {
   setFilterAllExpensesPanelFormElements: (state: FormElementsState) => void;
   showInactiveShifts: boolean;
   setShowInactiveShifts: (state: boolean) => void;
+  visitsActiveTab: number;
+  setVisitsActiveTab: (state: number) => void;
+  showPersonalSummaryFilters: boolean;
+  setShowPersonalSummaryFilters: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -329,6 +337,10 @@ const FilterContext = createContext<FilterContextType>({
     date: "",
   },
   setFilterDailySummaryPanelFormElements: () => {},
+  visitsActiveTab: VisitPageTabEnum.DAILYVISIT,
+  setVisitsActiveTab: () => {},
+  showPersonalSummaryFilters: false,
+  setShowPersonalSummaryFilters: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -348,7 +360,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showShiftsFilters, setShowShiftsFilters] = useState(false);
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
-
+  const [showPersonalSummaryFilters, setShowPersonalSummaryFilters] =
+    useState(false);
   const [showServiceInvoiceFilters, setShowServiceInvoiceFilters] =
     useState(false);
   const [isServiceInvoiceEnableEdit, setIsServiceInvoiceEnableEdit] =
@@ -397,6 +410,9 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     asc: 1,
     search: "",
   });
+  const [visitsActiveTab, setVisitsActiveTab] = useState<number>(
+    VisitPageTabEnum.DAILYVISIT
+  );
   const [
     filterServiceInvoicePanelFormElements,
     setFilterServiceInvoicePanelFormElements,
@@ -675,6 +691,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           filterDailySummaryPanelFormElements,
         setFilterDailySummaryPanelFormElements:
           setFilterDailySummaryPanelFormElements,
+        visitsActiveTab: visitsActiveTab,
+        setVisitsActiveTab: setVisitsActiveTab,
+        showPersonalSummaryFilters: showPersonalSummaryFilters,
+        setShowPersonalSummaryFilters: setShowPersonalSummaryFilters,
       }}
     >
       {children}

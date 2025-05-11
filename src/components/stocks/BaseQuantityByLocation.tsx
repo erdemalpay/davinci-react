@@ -222,7 +222,7 @@ const BaseQuantityByLocation = () => {
     );
   });
 
-  columns.push({ key: t("Action"), isSortable: false } as any);
+  columns.push({ key: t("Actions"), isSortable: false } as any);
   const processExcelData = (data: any[]) => {
     const headers = data[0];
     const columnKeys = columns.map((column) => column.key);

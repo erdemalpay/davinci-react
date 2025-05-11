@@ -39,12 +39,19 @@ export function useGetGivenDateLocationVisits(date: string, location: number) {
   );
 }
 
-export function useGetFilteredVisits(startDate: string, endDate?: string) {
+export function useGetFilteredVisits(
+  startDate: string,
+  endDate?: string,
+  user?: string
+) {
   let url = `${Paths.Visits}/kalender?start-date=${startDate}`;
   if (endDate) {
     url = url.concat(`&end-date=${endDate}`);
   }
-  return useGetList<Visit>(url, [Paths.Visits, startDate, endDate]);
+  if (user) {
+    url = url.concat(`&user=${user}`);
+  }
+  return useGetList<Visit>(url, [Paths.Visits, startDate, endDate, user]);
 }
 export function useGetUniqueVisits(startDate: string, endDate?: string) {
   let url = `${Paths.Visits}/panel?start-date=${startDate}`;

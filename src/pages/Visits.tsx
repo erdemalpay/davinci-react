@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { CiViewTable } from "react-icons/ci";
 import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
@@ -11,6 +10,7 @@ import DailyVisit from "../components/visits/DailyVisit";
 import Shifts from "../components/visits/Shifts";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
+import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { VisitPageTabEnum } from "../types";
@@ -54,8 +54,8 @@ export const VisitPageTabs = [
   },
 ];
 export default function Visits() {
-  const { setCurrentPage, setSearchQuery } = useGeneralContext();
-  const [activeTab, setActiveTab] = useState(VisitPageTabEnum.DAILYVISIT);
+  const { resetGeneralContext } = useGeneralContext();
+  const { visitsActiveTab, setVisitsActiveTab } = useFilterContext();
   const currentPageId = "shifts";
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
@@ -79,11 +79,10 @@ export default function Visits() {
       <div className="flex flex-col gap-2 mt-5 ">
         <TabPanel
           tabs={tabs}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          activeTab={visitsActiveTab}
+          setActiveTab={setVisitsActiveTab}
           additionalOpenAction={() => {
-            setCurrentPage(1);
-            setSearchQuery("");
+            resetGeneralContext();
           }}
         />
       </div>

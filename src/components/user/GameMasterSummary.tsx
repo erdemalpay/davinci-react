@@ -7,7 +7,7 @@ import { MdOutlineFastfood } from "react-icons/md";
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
 import { SiPointy } from "react-icons/si";
 import { useOrderContext } from "../../context/Order.context";
-import { commonDateOptions, DateRangeKey } from "../../types";
+import { DateRangeKey, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetGames } from "../../utils/api/game";
 import {
@@ -16,13 +16,15 @@ import {
 } from "../../utils/api/gameplay";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
+import { useGetShifts } from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
+import { useGetFilteredVisits } from "../../utils/api/visit";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import InfoCard from "../common/InfoCard";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type Props = {
   userId: string;
@@ -32,7 +34,6 @@ const GameMasterSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
   const personalOrderDatas = useGetPersonalOrderDatas();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
-  //   const tableCreateDatas = useGetPersonalTableCreateData();
   const gameplayDatas = useGetPersonalGameplayCreateData();
   const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const users = useGetUsers();
@@ -43,6 +44,15 @@ const GameMasterSummary = ({ userId }: Props) => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useOrderContext();
+  const shifts = useGetShifts(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before
+  );
+  const visits = useGetFilteredVisits(
+    filterPanelFormElements.after,
+    filterPanelFormElements.before,
+    userId
+  );
   const [tableKey, setTableKey] = useState(0);
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
@@ -247,11 +257,12 @@ const GameMasterSummary = ({ userId }: Props) => {
   }, [
     personalOrderDatas,
     personalCollectionDatas,
-    // tableCreateDatas,
     gameplayMentoredDatas,
     gameplayDatas,
     games,
     users,
+    shifts,
+    visits,
   ]);
   return (
     <div

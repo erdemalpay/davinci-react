@@ -44,10 +44,19 @@ const Shifts = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const locations = useGetStoreLocations();
-  const shifts = useGetShifts();
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { selectedLocationId, setSelectedLocationId } = useLocationContext();
+  const {
+    filterPanelFormElements,
+    setFilterPanelFormElements,
+    initialFilterPanelFormElements,
+  } = useShiftContext();
+  const shifts = useGetShifts(
+    filterPanelFormElements?.after,
+    filterPanelFormElements?.before,
+    selectedLocationId
+  );
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![
@@ -66,11 +75,7 @@ const Shifts = () => {
     isChefAssignOpen,
     setIsChefAssignOpen,
   } = useFilterContext();
-  const {
-    filterPanelFormElements,
-    setFilterPanelFormElements,
-    initialFilterPanelFormElements,
-  } = useShiftContext();
+
   const foundLocation = getItem(selectedLocationId, locations);
   const initialFormState: Record<string, any> = {
     day: "",

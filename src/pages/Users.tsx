@@ -54,8 +54,7 @@ export default function Users() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { user } = useUserContext();
-  const { setCurrentPage, setRowsPerPage, setSearchQuery, setSortConfigKey } =
-    useGeneralContext();
+  const { resetGeneralContext } = useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
   const { resetPassword } = useResetPasswordMutation();
@@ -153,10 +152,7 @@ export default function Users() {
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
-            setCurrentPage(1);
-            // setRowsPerPage(RowPerPageEnum.FIRST);
-            setSearchQuery("");
-            setSortConfigKey(null);
+            resetGeneralContext();
             navigate(`/user/${row._id}`);
           }}
         >
