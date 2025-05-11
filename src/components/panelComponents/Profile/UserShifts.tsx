@@ -21,13 +21,18 @@ const UserShifts = () => {
   const { selectedLocationId } = useLocationContext();
   const user = useGetUser();
   if (!user) return <Loading />;
-  const shifts = useGetUserShifts(user?._id);
-  const [showFilters, setShowFilters] = useState(false);
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useShiftContext();
+  const shifts = useGetUserShifts(
+    filterPanelFormElements?.after,
+    filterPanelFormElements?.before,
+    user?._id
+  );
+  const [showFilters, setShowFilters] = useState(false);
+
   const allRows = Object.values(
     (shifts || []).reduce<Record<string, any>>((acc, shift) => {
       const dayKey = shift.day;

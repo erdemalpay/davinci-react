@@ -45,27 +45,22 @@ export function useGetShifts(
   );
 }
 
-export function useGetUserShifts(user: string) {
-  const { filterPanelFormElements } = useShiftContext();
-  let url = `${Paths.Shift}/user?after=${filterPanelFormElements.after}&user=${user}`;
-  const parameters = ["before"];
-  parameters.forEach((param) => {
-    if (filterPanelFormElements[param]) {
-      url = url.concat(
-        `&${param}=${encodeURIComponent(filterPanelFormElements[param])}`
-      );
-    }
-  });
-  return useGetList<Shift>(
-    url,
-    [
-      `${Paths.Shift}`,
-      filterPanelFormElements.after,
-      filterPanelFormElements.before,
-      user,
-    ],
-    true
-  );
+export function useGetUserShifts(
+  after?: string,
+  before?: string,
+  user?: string
+) {
+  let url = `${Paths.Shift}/user?`;
+  if (after) {
+    url = url.concat(`after=${after}`);
+  }
+  if (before) {
+    url = url.concat(`&before=${before}`);
+  }
+  if (location) {
+    url = url.concat(`&location=${location}`);
+  }
+  return useGetList<Shift>(url, [`${Paths.Shift}`, after, before, user], true);
 }
 export function useGetLocationShifts(location: number) {
   const { filterPanelFormElements } = useShiftContext();

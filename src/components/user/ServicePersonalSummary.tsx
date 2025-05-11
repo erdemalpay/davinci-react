@@ -2,14 +2,20 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
-import { MdOutlineFastfood } from "react-icons/md";
+import { LuTimerOff } from "react-icons/lu";
+import { MdOutlineFastfood, MdOutlineTimelapse, MdTimer } from "react-icons/md";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
-import { DateRangeKey, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  LocationShiftType,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
-import { useGetShifts } from "../../utils/api/shift";
+import { useGetUserShifts } from "../../utils/api/shift";
 import { useGetFilteredVisits } from "../../utils/api/visit";
 import InfoCard from "../common/InfoCard";
 import FilterPanel from "../panelComponents/Tables/FilterPanel";
@@ -30,7 +36,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useOrderContext();
-  const shifts = useGetShifts(
+  const shifts = useGetUserShifts(
     filterPanelFormElements.after,
     filterPanelFormElements.before
   );
@@ -39,7 +45,41 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     filterPanelFormElements.before,
     userId
   );
+  const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
+  let fullTimeAttendance = 0;
+  let partTimeAttendance = 0;
+  let unknownAttendance = 0;
+  visits?.forEach((visit) => {
+    const foundShift = shifts
+      ?.find(
+        (shift) =>
+          shift.day === visit.date &&
+          shift.location === visit.location &&
+          shift.shifts?.some((s) => s.user?.includes(userId))
+      )
+      ?.shifts?.find((shift) => shift.user?.includes(userId));
+    if (foundShift) {
+      const foundLocation = locations?.find(
+        (location) => location._id === visit.location
+      );
+      if (foundLocation) {
+        const foundShiftType = foundLocation.shifts?.find(
+          (shift) => shift.shift === foundShift.shift && shift.isActive
+        )?.type;
+        if (foundShiftType === LocationShiftType.FULLTIME) {
+          fullTimeAttendance++;
+        } else if (foundShiftType === LocationShiftType.PARTTIME) {
+          partTimeAttendance++;
+        } else {
+          unknownAttendance++;
+        }
+      }
+    } else {
+      unknownAttendance++;
+    }
+  });
+  const attendancePoint = fullTimeAttendance + partTimeAttendance * 0.5;
   const allUserInfos = () => {
     const foundPersonalOrderDatas = personalOrderDatas?.find(
       (item) => item.user === userId
@@ -55,21 +95,60 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   };
   const userInfoCards = [
     {
+      icon: <MdTimer />,
+      title: t("Days of Full-time Attendance"),
+      value: fullTimeAttendance,
+      color: "green",
+    },
+    {
+      icon: <MdOutlineTimelapse />,
+      title: t("Days of Part-time Attendance"),
+      value: partTimeAttendance,
+      color: "purple",
+    },
+    {
+      icon: <LuTimerOff />,
+      title: t("Unknown Attendance"),
+      value: unknownAttendance,
+      color: "red",
+    },
+    {
       icon: <MdOutlineFastfood />,
       title: t("Order Created Count"),
-      value: allUserInfos().createdByCount.toString(),
+      value: allUserInfos().createdByCount,
+      isAverage: true,
+      averageValue:
+        unknownAttendance === 0 && attendancePoint > 0
+          ? (allUserInfos().createdByCount / attendancePoint)
+              .toFixed(2)
+              .replace(/\.?0+$/, "")
+          : "",
       color: "blue",
     },
     {
       icon: <GiStorkDelivery />,
       title: t("Order Delivered Count"),
-      value: allUserInfos().deliveredByCount.toString(),
+      value: allUserInfos().deliveredByCount,
+      isAverage: true,
+      averageValue:
+        unknownAttendance === 0 && attendancePoint > 0
+          ? (allUserInfos().deliveredByCount / attendancePoint)
+              .toFixed(2)
+              .replace(/\.?0+$/, "")
+          : "",
       color: "green",
     },
     {
       icon: <FaMoneyBill1Wave />,
       title: t("Collection Count"),
-      value: allUserInfos().collectionCount.toString(),
+      value: allUserInfos().collectionCount,
+      isAverage: true,
+      averageValue:
+        unknownAttendance === 0 && attendancePoint > 0
+          ? (allUserInfos().collectionCount / attendancePoint)
+              .toFixed(2)
+              .replace(/\.?0+$/, "")
+          : "",
       color: "red",
     },
   ];
@@ -125,7 +204,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
   ];
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [personalOrderDatas, personalCollectionDatas, shifts, visits]);
+  }, [personalOrderDatas, personalCollectionDatas, shifts, visits, locations]);
   const filterPanel = {
     isFilterPanelActive: showPersonalSummaryFilters,
     inputs: filterPanelInputs,
