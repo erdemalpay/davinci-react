@@ -45,7 +45,7 @@ const TransferTableScreen = ({ tables, table }: Props) => {
     };
 
   return (
-    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar  ">
+    <div className="flex flex-col h-[60%] min-h-64 overflow-scroll no-scrollbar  ">
       <div className="px-2 ">
         <OrderScreenHeader header="Table Select" />
         {/* selection */}
