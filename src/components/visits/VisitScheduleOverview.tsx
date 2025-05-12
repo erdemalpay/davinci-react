@@ -68,7 +68,6 @@ const VisitScheduleOverview = () => {
       return true;
     })
     ?.reduce((acc: any, curr: any) => {
-      console.log(curr);
       const foundShift = shifts
         ?.find(
           (s) =>
@@ -124,7 +123,6 @@ const VisitScheduleOverview = () => {
 
       return acc;
     }, []);
-  console.log("allRows", allRows);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("User"), isSortable: true, correspondingKey: "userName" },
