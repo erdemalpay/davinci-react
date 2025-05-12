@@ -356,6 +356,7 @@ const GenericAddEditPanel = <T,>({
                   const changedInput = inputs.find(
                     (input) => input.formKey === key
                   );
+                  setFormElements((prev) => ({ ...prev, [key]: value }));
                   if (changedInput?.invalidateKeys) {
                     changedInput.invalidateKeys.forEach((key) => {
                       setFormElements((prev) => ({
@@ -364,7 +365,6 @@ const GenericAddEditPanel = <T,>({
                       }));
                     });
                   }
-                  setFormElements((prev) => ({ ...prev, [key]: value }));
                 };
 
                 const handleChangeForSelect =
@@ -515,6 +515,7 @@ const GenericAddEditPanel = <T,>({
                           isMultiple={input.isMultiple ?? false}
                           requiredField={input.required}
                           onChange={handleChangeForSelect(input.formKey)}
+                          onChangeTrigger={input?.onChangeTrigger}
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isReadOnly={input.isReadOnly ?? false}
                           onClear={() => {

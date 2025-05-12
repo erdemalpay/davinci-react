@@ -9,6 +9,13 @@ interface CopyShiftPayload {
   selectedDay: string;
 }
 
+interface AddShiftPayload {
+  day: string;
+  location: number;
+  shift: string;
+  userId: string;
+}
+
 interface CopyShiftIntervalPayload {
   startCopiedDay: string;
   endCopiedDay: string;
@@ -92,6 +99,13 @@ function copyShift(payload: CopyShiftPayload) {
   });
 }
 
+function addShift(payload: AddShiftPayload) {
+  return post({
+    path: `/shift/add`,
+    payload,
+  });
+}
+
 function copyShiftInterval(payload: CopyShiftIntervalPayload) {
   return post({
     path: `/shift/copy-interval`,
@@ -102,6 +116,20 @@ function copyShiftInterval(payload: CopyShiftIntervalPayload) {
 export function useCopyShiftMutation() {
   const queryClient = useQueryClient();
   return useMutation(copyShift, {
+    onMutate: async () => {
+      await queryClient.cancelQueries([`${Paths.Shift}`]);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}
+
+export function useAddShiftMutation() {
+  const queryClient = useQueryClient();
+  return useMutation(addShift, {
     onMutate: async () => {
       await queryClient.cancelQueries([`${Paths.Shift}`]);
     },

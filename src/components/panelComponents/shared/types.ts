@@ -100,6 +100,7 @@ export interface GenericInputType {
   isDebounce?: boolean;
   isDatePickerLabel?: boolean;
   additionalOnChange?: (value: any) => void;
+  onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;
   invalidateKeys?: {
     key: string;

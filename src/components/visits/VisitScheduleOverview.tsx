@@ -1,24 +1,32 @@
 import { format, startOfMonth } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CiCirclePlus } from "react-icons/ci";
 import { useFilterContext } from "../../context/Filter.context";
-import { DateRangeKey, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  LocationShiftType,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useAddShiftMutation, useGetUserShifts } from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
 import { useGetUniqueVisits } from "../../utils/api/visit";
-import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const VisitScheduleOverview = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const locations = useGetStoreLocations();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
   const initialFilterPanelFormElements = {
     date: "",
     after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
@@ -32,10 +40,20 @@ const VisitScheduleOverview = () => {
     showVisitScheduleOverviewFilters,
     setShowVisitScheduleOverviewFilters,
   } = useFilterContext();
+  const { mutate: addShift } = useAddShiftMutation();
+  const shifts = useGetUserShifts(
+    filterVisitScheduleOverviewPanelFormElements.after,
+    filterVisitScheduleOverviewPanelFormElements.before
+  );
   const visits = useGetUniqueVisits(
     filterVisitScheduleOverviewPanelFormElements.after,
     filterVisitScheduleOverviewPanelFormElements.before
   );
+  const [addShiftForm, setAddShiftForm] = useState({
+    day: "",
+    location: "",
+    shift: "",
+  });
   const allRows = visits
     ?.filter((visit) => {
       if (filterVisitScheduleOverviewPanelFormElements.user !== "") {
@@ -49,46 +67,138 @@ const VisitScheduleOverview = () => {
       }
       return true;
     })
-    ?.map((visit) => {
-      const foundUser = getItem(visit.user, users);
-      if (!foundUser) return null;
-      const isPartTime = visit.startHour >= "14:30";
-      return {
-        visitDate: formatAsLocalDate(visit.date),
-        userName: foundUser.name,
-        userType: isPartTime ? "PartTime" : "FullTime",
-      };
-    })
-    ?.filter((row) => row !== null)
     ?.reduce((acc: any, curr: any) => {
-      let userEntry = acc.find(
-        (entry: any) => entry.userName === curr.userName
-      );
-      if (!userEntry) {
-        userEntry = {
-          userName: curr.userName,
-          partTime: 0,
-          fullTime: 0,
-        };
-        acc.push(userEntry);
-      }
-      if (curr.userType === "PartTime") {
-        userEntry.partTime += 1;
+      console.log(curr);
+      const foundShift = shifts
+        ?.find(
+          (s) =>
+            s.day === curr.date &&
+            s.location === curr.location &&
+            s.shifts?.some((x) => x.user?.includes(curr.user))
+        )
+        ?.shifts?.find((x) => x.user?.includes(curr.user));
+      let fullTime = 0,
+        partTime = 0,
+        unknown = 0;
+      if (foundShift) {
+        const loc = locations?.find((l) => l._id === curr.location);
+        const type = loc?.shifts?.find(
+          (s) => s.shift === foundShift.shift && s.isActive
+        )?.type;
+        if (type === LocationShiftType.FULLTIME) fullTime = 1;
+        else if (type === LocationShiftType.PARTTIME) partTime = 1;
+        else unknown = 1;
       } else {
-        userEntry.fullTime += 1;
+        unknown = 1;
       }
+      const userName = getItem(curr.user, users)?.name || "Unknown";
+      const existing = acc.find((r: any) => r.userName === userName);
+      if (existing) {
+        existing.fullTime += fullTime;
+        existing.partTime += partTime;
+        existing.unknown += unknown;
+        if (unknown > 0) {
+          existing.unknownDates.push({
+            date: curr.date,
+            location: curr.location,
+          });
+        }
+      } else {
+        acc.push({
+          ...curr,
+          userName,
+          fullTime,
+          partTime,
+          unknown,
+          unknownDates:
+            unknown > 0
+              ? [
+                  {
+                    date: curr.date,
+                    location: curr.location,
+                  },
+                ]
+              : [],
+        });
+      }
+
       return acc;
     }, []);
+  console.log("allRows", allRows);
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("User"), isSortable: true, correspondingKey: "userName" },
     { key: "Part Time", isSortable: true, correspondingKey: "partTime" },
     { key: "Full Time", isSortable: true, correspondingKey: "fullTime" },
+    { key: t("Unknown"), isSortable: true, correspondingKey: "unknown" },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "userName" },
     { key: "partTime" },
     { key: "fullTime" },
+    { key: "unknown" },
+  ];
+  const addShiftInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "day",
+      label: t("Day"),
+      placeholder: t("Day"),
+      options: rowToAction?.unknownDates?.map((unknownDatesItem: any) => {
+        return {
+          value: unknownDatesItem.date,
+          label: unknownDatesItem.date,
+        };
+      }),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      placeholder: t("Location"),
+      options: locations
+        ?.filter?.(
+          (location) =>
+            location._id ===
+            rowToAction?.unknownDates?.find(
+              (unknownDatesItem: any) =>
+                unknownDatesItem?.date === addShiftForm.day
+            )?.location
+        )
+        .map((location) => {
+          return {
+            value: location._id,
+            label: location.name,
+          };
+        }),
+      required: true,
+      isReadOnly: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "shift",
+      label: t("Shift"),
+      options: (
+        locations?.find(
+          (location) => location._id === Number(addShiftForm.location)
+        )?.shifts ?? []
+      )?.map((shift) => {
+        return {
+          value: shift.shift,
+          label: shift.shift,
+        };
+      }),
+      placeholder: t("Shift"),
+      isMultiple: false,
+      required: false,
+    },
+  ];
+  const addShiftFormKeys = [
+    { key: "day", type: FormKeyTypeEnum.STRING },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
+    { key: "shift", type: FormKeyTypeEnum.NUMBER },
   ];
   const filters = [
     {
@@ -170,6 +280,39 @@ const VisitScheduleOverview = () => {
       required: true,
     },
   ];
+  const actions = [
+    {
+      name: t("Add Shift"),
+      icon: <CiCirclePlus />,
+      className: "text-2xl mt-1 cursor-pointer",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddShiftModalOpen}
+          close={() => setIsAddShiftModalOpen(false)}
+          inputs={addShiftInputs}
+          formKeys={addShiftFormKeys}
+          submitItem={addShift as any}
+          isEditMode={false}
+          setForm={setAddShiftForm}
+          topClassName="flex flex-col gap-2  "
+          submitFunction={() => {
+            addShift({
+              day: addShiftForm.day,
+              location: Number(addShiftForm.location),
+              shift: addShiftForm.shift,
+              userId: rowToAction.user,
+            });
+            setIsAddShiftModalOpen(false);
+          }}
+        />
+      ),
+      isModalOpen: isAddShiftModalOpen,
+      setIsModal: setIsAddShiftModalOpen,
+      isPath: false,
+    },
+  ];
   const filterPanel = {
     isFilterPanelActive: showVisitScheduleOverviewFilters,
     inputs: filterPanelInputs,
@@ -182,10 +325,17 @@ const VisitScheduleOverview = () => {
       );
     },
   };
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [visits, filterVisitScheduleOverviewPanelFormElements, users, locations]);
+  }, [
+    visits,
+    filterVisitScheduleOverviewPanelFormElements,
+    users,
+    locations,
+    shifts,
+  ]);
   return (
     <>
       <div className="w-[95%] my-5 mx-auto ">
@@ -194,7 +344,8 @@ const VisitScheduleOverview = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          isActionsActive={false}
+          actions={actions}
+          isActionsActive={true}
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}

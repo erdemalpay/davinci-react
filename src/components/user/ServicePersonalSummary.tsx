@@ -227,6 +227,8 @@ const ServicePersonalSummary = ({ userId }: Props) => {
             title={card.title}
             value={card.value}
             color={card.color}
+            isAverage={card.isAverage}
+            averageValue={card.averageValue}
           />
         ))}
       </div>

@@ -39,6 +39,10 @@ interface SelectInputProps {
     actionMeta: ActionMeta<OptionType>
   ) => void;
   onClear?: () => void;
+  onChangeTrigger?: (
+    value: SingleValue<OptionType> | MultiValue<OptionType>,
+    actionMeta: ActionMeta<OptionType>
+  ) => void;
   placeholder?: string;
   isMultiple?: boolean;
   requiredField?: boolean;
@@ -74,6 +78,7 @@ const SelectInput = ({
   options,
   value,
   onChange,
+  onChangeTrigger,
   isMultiple,
   placeholder,
   onClear,
@@ -86,7 +91,7 @@ const SelectInput = ({
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const [sortedOptions, setSortedOptions] = useState<OptionType[]>(
-    options.sort((a, b) => a?.label?.localeCompare(b.label))
+    options?.sort((a, b) => a?.label?.localeCompare(b?.label))
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState("300px"); // Default max height
@@ -185,6 +190,7 @@ const SelectInput = ({
         option: options[0],
       };
       onChange(options[0], actionMeta);
+      onChangeTrigger && onChangeTrigger(options[0], actionMeta);
     }
   }, [options, value, onChange]);
 
@@ -209,7 +215,10 @@ const SelectInput = ({
             <Select
               isMulti
               options={options}
-              onChange={onChange}
+              onChange={(value, actionMeta) => {
+                onChange(value, actionMeta);
+                onChangeTrigger && onChangeTrigger(value, actionMeta);
+              }}
               value={value}
               components={{ Option: CustomOption, DropdownIndicator }}
               placeholder={placeholder}
@@ -229,6 +238,7 @@ const SelectInput = ({
               options={sortedOptions}
               onChange={(value, actionMeta) => {
                 onChange(value, actionMeta);
+                onChangeTrigger && onChangeTrigger(value, actionMeta);
                 setIsSearchable(false);
                 setIsDownIconClicked(false);
               }}
