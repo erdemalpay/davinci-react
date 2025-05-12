@@ -100,6 +100,8 @@ const VisitScheduleOverview = () => {
           existing.unknownDates.push({
             date: curr.date,
             location: curr.location,
+            startHour: curr.startHour,
+            endHour: curr.endHour,
           });
         }
       } else {
@@ -115,6 +117,8 @@ const VisitScheduleOverview = () => {
                   {
                     date: curr.date,
                     location: curr.location,
+                    startHour: curr.startHour,
+                    endHour: curr.endHour,
                   },
                 ]
               : [],
@@ -176,6 +180,26 @@ const VisitScheduleOverview = () => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "startHour",
+      label: t("Start Hour"),
+      placeholder: t("Start Hour"),
+      options: [
+        {
+          value: rowToAction?.unknownDates?.find(
+            (unknownDatesItem: any) =>
+              unknownDatesItem?.date === addShiftForm.day
+          )?.startHour,
+          label: rowToAction?.unknownDates?.find(
+            (unknownDatesItem: any) =>
+              unknownDatesItem?.date === addShiftForm.day
+          )?.startHour,
+        },
+      ],
+      required: true,
+      isReadOnly: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "shift",
       label: t("Shift"),
       options: (
@@ -197,6 +221,7 @@ const VisitScheduleOverview = () => {
     { key: "day", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.NUMBER },
     { key: "shift", type: FormKeyTypeEnum.NUMBER },
+    { key: "startHour", type: FormKeyTypeEnum.STRING },
   ];
   const filters = [
     {
