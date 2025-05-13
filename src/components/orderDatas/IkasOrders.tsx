@@ -207,11 +207,6 @@ const IkasOrders = () => {
     },
     { key: t("Location"), isSortable: true, correspondingKey: "location" },
     { key: t("Status"), isSortable: true, correspondingKey: "statusLabel" },
-    {
-      key: t("Paid Quantity"),
-      isSortable: true,
-      correspondingKey: "paidQuantity",
-    },
 
     { key: t("Actions"), isSortable: false },
   ];
@@ -255,7 +250,6 @@ const IkasOrders = () => {
     { key: "cancelledAt" },
     { key: "cancelledBy" },
     { key: "location" },
-    { key: "paidQuantity", className: "min-w-32 pr-2" },
     { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
   const filterPanelInputs = [

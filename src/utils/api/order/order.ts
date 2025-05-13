@@ -121,6 +121,10 @@ export function useOrderMutations() {
   const { updateItem: updateOrder, createItem: createOrder } =
     useMutationApi<Order>({
       baseQuery: baseUrl,
+      additionalInvalidates: [
+        [`${Paths.Order}/query`],
+        [`${Paths.Order}/collection/query`],
+      ],
     });
 
   return { updateOrder, createOrder };

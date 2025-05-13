@@ -529,6 +529,14 @@ export type CafeActivity = {
   complimentary?: string;
   isCompleted?: boolean;
 };
+export type IkasCustomer = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  location: number;
+};
 export type Order = {
   _id: number;
   location: number;
@@ -565,6 +573,8 @@ export type Order = {
   activityTableName?: string;
   activityPlayer?: string;
   isPaymentMade?: boolean;
+  ikasCustomer?: IkasCustomer;
+  isIkasCustomerPicked?: boolean;
 };
 
 export type OrderCollection = {

@@ -247,7 +247,7 @@ export function useMutationApi<T extends { _id: number | string }>({
         if (isInvalidate) {
           queryClient.invalidateQueries(queryKey);
         }
-        if (isAdditionalInvalidate) {
+        if (isAdditionalInvalidate || additionalInvalidates) {
           additionalInvalidates?.forEach((key) => {
             queryClient.invalidateQueries(key);
           });

@@ -20,6 +20,7 @@ import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
+import IkasPickUp from "../pages/IkasPickUp";
 import Images from "../pages/Images";
 import LocationPage, { LocationPageTabs } from "../pages/Location";
 import Memberships from "../pages/Memberships";
@@ -114,6 +115,7 @@ export enum Routes {
   Location = "/location/:locationId",
   Activities = "/activities",
   DailySummary = "/daily-summary",
+  IkasPickUp = "/ikas-pickup",
 }
 
 export const allRoutes: {
@@ -203,6 +205,12 @@ export const allRoutes: {
     element: OrderDatas,
     isOnSidebar: false,
     tabs: OrderDataTabs,
+  },
+  {
+    name: "Ikas Pick Up",
+    path: Routes.IkasPickUp,
+    element: IkasPickUp,
+    isOnSidebar: true,
   },
   {
     name: "Reservations",

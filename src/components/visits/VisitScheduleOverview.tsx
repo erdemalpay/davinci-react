@@ -124,7 +124,6 @@ const VisitScheduleOverview = () => {
               : [],
         });
       }
-
       return acc;
     }, []);
   const [rows, setRows] = useState(allRows);
@@ -145,8 +144,8 @@ const VisitScheduleOverview = () => {
     {
       type: InputTypes.SELECT,
       formKey: "day",
-      label: t("Day"),
-      placeholder: t("Day"),
+      label: t("Date"),
+      placeholder: t("Date"),
       options: rowToAction?.unknownDates?.map((unknownDatesItem: any) => {
         return {
           value: unknownDatesItem.date,
@@ -348,7 +347,6 @@ const VisitScheduleOverview = () => {
       );
     },
   };
-
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
