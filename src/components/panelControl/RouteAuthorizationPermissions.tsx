@@ -61,8 +61,10 @@ const RouteAuthorizationPermissions = () => {
     });
   const [showFilters, setShowFilters] = useState(false);
   const allRows = authorizations?.filter((row: Authorization) => {
-    const method = filterPanelFormElements.method;
-    return method ? row.method === method : true;
+    if (filterPanelFormElements.method) {
+      return row.method === filterPanelFormElements.method;
+    }
+    return true;
   });
   const [rows, setRows] = useState(allRows);
   const methodOptions = [
