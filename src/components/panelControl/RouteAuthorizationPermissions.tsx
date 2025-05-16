@@ -111,7 +111,7 @@ const RouteAuthorizationPermissions = () => {
       newPermissionRoles.splice(index, 1);
     }
     updateAuthorization({
-      id: row._id,
+      id: Number(row._id),
       updates: { roles: newPermissionRoles },
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
@@ -121,7 +121,7 @@ const RouteAuthorizationPermissions = () => {
     const newPermissionRoles = hasAllRoles ? [] : roles.map((role) => role._id);
 
     updateAuthorization({
-      id: row._id,
+      id: Number(row._id),
       updates: { roles: newPermissionRoles },
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
@@ -269,6 +269,7 @@ const RouteAuthorizationPermissions = () => {
   };
   useEffect(() => {
     setRows(allRows);
+    console.log("allRows", allRows);
     setTableKey((prev) => prev + 1);
   }, [authorizations, roles, filterPanelFormElements, pages]);
 
