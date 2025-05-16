@@ -269,8 +269,6 @@ const RouteAuthorizationPermissions = () => {
   };
   useEffect(() => {
     setRows(allRows);
-    console.log("allRows", allRows);
-    console.log("authorizations", authorizations);
     setTableKey((prev) => prev + 1);
   }, [authorizations, roles, filterPanelFormElements, pages]);
 
