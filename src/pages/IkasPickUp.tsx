@@ -54,9 +54,6 @@ const IkasPickUp = () => {
   }
   const allRows = orders
     ?.filter((order) => {
-      if (!showPickedOrders) {
-        return order?.isIkasCustomerPicked === false;
-      }
       if (
         order?.ikasId !== null &&
         order?.ikasId !== undefined &&
@@ -64,6 +61,9 @@ const IkasPickUp = () => {
         order?.ikasCustomer &&
         order?.status !== OrderStatus.CANCELLED
       ) {
+        if (!showPickedOrders) {
+          return !order?.isIkasCustomerPicked;
+        }
         return true;
       }
     })
