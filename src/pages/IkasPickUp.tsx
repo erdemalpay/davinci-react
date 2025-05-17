@@ -46,12 +46,17 @@ const IkasPickUp = () => {
     initialFilterPanelFormElements,
     showOrderDataFilters,
     setShowOrderDataFilters,
+    showPickedOrders,
+    setShowPickedOrders,
   } = useOrderContext();
   if (!orders || !locations || !users || !user) {
     return <></>;
   }
   const allRows = orders
     ?.filter((order) => {
+      if (!showPickedOrders) {
+        return order?.isIkasCustomerPicked === false;
+      }
       if (
         order?.ikasId !== null &&
         order?.ikasId !== undefined &&
@@ -341,6 +346,18 @@ const IkasPickUp = () => {
       ),
     },
     {
+      label: t("Show Picked Orders"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showPickedOrders}
+          onChange={() => {
+            setShowPickedOrders(!showPickedOrders);
+          }}
+        />
+      ),
+    },
+    {
       label: t("Show Filters"),
       isUpperSide: true,
       node: (
@@ -365,6 +382,7 @@ const IkasPickUp = () => {
     items,
     categories,
     user,
+    showPickedOrders,
   ]);
   return (
     <>

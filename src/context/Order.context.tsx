@@ -74,6 +74,8 @@ type OrderContextType = {
   isTableSelectOpen: boolean;
   setIsTableSelectOpen: (isTableSelectOpen: boolean) => void;
   resetOrderContext: () => void;
+  showPickedOrders: boolean;
+  setShowPickedOrders: (showPickedOrders: boolean) => void;
 };
 
 const OrderContext = createContext<OrderContextType>({
@@ -173,6 +175,8 @@ const OrderContext = createContext<OrderContextType>({
   setSelectedTableTransfer: () => {},
   orderCreateBulk: [],
   setOrderCreateBulk: () => {},
+  showPickedOrders: false,
+  setShowPickedOrders: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -191,6 +195,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isOrderDivisionActive, setIsOrderDivisionActive] = useState(false);
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
+  const [showPickedOrders, setShowPickedOrders] = useState(false);
   const [
     vendorOrderFilterPanelFormElements,
     setVendorOrderFilterPanelFormElements,
@@ -315,6 +320,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setFilterSummaryFormElements,
         orderCreateBulk,
         setOrderCreateBulk,
+        showPickedOrders,
+        setShowPickedOrders,
       }}
     >
       {children}
