@@ -54,16 +54,25 @@ export function useGetEventNotifications() {
 export function useGetUserAllNotifications({
   after,
   before,
+  type,
+  event,
 }: {
   after: string;
   before?: string;
+  type?: string;
+  event?: string;
 }) {
   let url = `${baseUrl}/all?after=${after}`;
   if (before) url += `&before=${before}`;
+  if (type) url += `&type=${type}`;
+  if (event) url += `&event=${event}`;
+
   return useGetList<Notification>(url, [
     `${Paths.Notification}/all`,
     after,
-    before ?? null,
+    before,
+    type,
+    event ?? null,
   ]);
 }
 

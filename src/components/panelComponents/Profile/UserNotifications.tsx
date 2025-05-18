@@ -6,6 +6,7 @@ import {
   NotificationBackgroundColors,
   NotificationType,
   commonDateOptions,
+  notificationEventsOptions,
 } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../../utils/api/location";
@@ -27,12 +28,16 @@ const UserNotifications = () => {
   const initialFilterPanelFormElements = {
     before: "",
     after: format(startOfYear(new Date()), "yyyy-MM-dd"),
+    type: "",
+    event: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
   const notifications = useGetUserAllNotifications({
     after: filterPanelFormElements.after,
     before: filterPanelFormElements.before,
+    type: filterPanelFormElements.type,
+    event: filterPanelFormElements.event,
   });
   const [showFilters, setShowFilters] = useState(false);
   const locations = useGetAllLocations();
@@ -50,6 +55,8 @@ const UserNotifications = () => {
     { key: t("Date"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Message"), isSortable: true },
+    { key: t("Type"), isSortable: true },
+    { key: t("Triggered Event"), isSortable: true },
   ];
   const rowKeys = [
     { key: "formattedDate" },
@@ -71,8 +78,45 @@ const UserNotifications = () => {
         );
       },
     },
+    {
+      key: "type",
+      node: (row: any) => {
+        return t(row?.type);
+      },
+    },
+    {
+      key: "event",
+    },
   ];
   const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: Object.values(NotificationType)?.map((notificationType) => {
+        return {
+          value: notificationType,
+          label: t(notificationType),
+        };
+      }),
+      placeholder: t("Type"),
+      isMultiple: false,
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "event",
+      label: t("Triggered Event"),
+      options: notificationEventsOptions.map((notificationEvent) => {
+        return {
+          value: notificationEvent.value,
+          label: t(notificationEvent.label),
+        };
+      }),
+      placeholder: t("Triggered Event"),
+      required: false,
+      isAutoFill: false,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "date",

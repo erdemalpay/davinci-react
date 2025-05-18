@@ -56,6 +56,7 @@ const AllNotifications = () => {
     { key: t("Date"), isSortable: true },
     { key: t("Created At"), isSortable: true },
     { key: t("Type"), isSortable: true },
+    { key: t("Triggered Event"), isSortable: true },
     { key: t("Message"), isSortable: true },
     { key: t("Selected Users"), isSortable: true },
     { key: t("Selected Roles"), isSortable: true },
@@ -65,7 +66,15 @@ const AllNotifications = () => {
     { key: "createdBy" },
     { key: "formattedDate" },
     { key: "hour" },
-    { key: "type" },
+    {
+      key: "type",
+      node: (row: any) => {
+        return t(row?.type);
+      },
+    },
+    {
+      key: "event",
+    },
     { key: "message" },
     {
       key: "selectedUsers",
