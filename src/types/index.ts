@@ -1434,6 +1434,7 @@ export enum NotificationEventType {
   NEGATIVESTOCK = "NEGATIVESTOCK",
   ZEROSTOCK = "ZEROSTOCK",
   LOSSPRODUCT = "LOSSPRODUCT",
+  IKASTAKEAWAY = "IKASTAKEAWAY",
 }
 export const notificationEventsOptions = [
   {
@@ -1451,5 +1452,9 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.LOSSPRODUCT,
     label: "Loss Product",
+  },
+  {
+    value: NotificationEventType.IKASTAKEAWAY,
+    label: "Ikas Takeaway",
   },
 ];
