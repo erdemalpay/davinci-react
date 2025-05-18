@@ -7,10 +7,13 @@ import { LuTimerOff } from "react-icons/lu";
 import { MdOutlineFastfood, MdOutlineTimelapse, MdTimer } from "react-icons/md";
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
 import { SiPointy } from "react-icons/si";
+import { useNavigate } from "react-router-dom";
+import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
   DateRangeKey,
   LocationShiftType,
+  VisitPageTabEnum,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -31,6 +34,7 @@ import InfoCard from "../common/InfoCard";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type Props = {
   userId: string;
 };
@@ -38,11 +42,17 @@ type Props = {
 const GameMasterSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
   const personalOrderDatas = useGetPersonalOrderDatas();
+  const navigate = useNavigate();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const gameplayDatas = useGetPersonalGameplayCreateData();
   const gameplayMentoredDatas = useGetPersonalGameplayMentoredData();
   const [tableKey, setTableKey] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const {
+    setFilterVisitScheduleOverviewPanelFormElements,
+    setShowVisitScheduleOverviewFilters,
+    setVisitsActiveTab,
+  } = useFilterContext();
   const users = useGetUsers();
   const games = useGetGames();
   const {
@@ -154,7 +164,22 @@ const GameMasterSummary = ({ userId }: Props) => {
       title: t("Unknown Attendance"),
       value: unknownAttendance,
       color: "red",
+      ...(Number(unknownAttendance) > 0 && {
+        onClick: () => {
+          setFilterVisitScheduleOverviewPanelFormElements({
+            date: "",
+            after: filterPanelFormElements.after,
+            before: filterPanelFormElements.before,
+            user: userId,
+            location: "",
+          });
+          setShowVisitScheduleOverviewFilters(true);
+          setVisitsActiveTab(VisitPageTabEnum.VISITSCHEDULEOVERVIEW);
+          navigate(`/visits`);
+        },
+      }),
     },
+
     {
       icon: <MdOutlineFastfood />,
       title: t("Order Created Count"),
@@ -390,15 +415,7 @@ const GameMasterSummary = ({ userId }: Props) => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2 h-fit">
         {userInfoCards.map((card, index) => (
-          <InfoCard
-            key={index}
-            icon={card.icon}
-            title={card.title}
-            value={card.value}
-            color={card.color}
-            isAverage={card?.isAverage ?? false}
-            averageValue={card?.averageValue ?? ""}
-          />
+          <InfoCard key={index} {...card} />
         ))}
       </div>
     </div>

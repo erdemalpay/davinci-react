@@ -4,11 +4,13 @@ import { FaMoneyBill1Wave } from "react-icons/fa6";
 import { GiStorkDelivery } from "react-icons/gi";
 import { LuTimerOff } from "react-icons/lu";
 import { MdOutlineFastfood, MdOutlineTimelapse, MdTimer } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
   DateRangeKey,
   LocationShiftType,
+  VisitPageTabEnum,
   commonDateOptions,
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
@@ -28,6 +30,7 @@ type Props = {
 const ServicePersonalSummary = ({ userId }: Props) => {
   const { t } = useTranslation();
   const personalOrderDatas = useGetPersonalOrderDatas();
+  const navigate = useNavigate();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const { showPersonalSummaryFilters, setShowPersonalSummaryFilters } =
     useFilterContext();
@@ -36,6 +39,11 @@ const ServicePersonalSummary = ({ userId }: Props) => {
     setFilterPanelFormElements,
     initialFilterPanelFormElements,
   } = useOrderContext();
+  const {
+    setFilterVisitScheduleOverviewPanelFormElements,
+    setShowVisitScheduleOverviewFilters,
+    setVisitsActiveTab,
+  } = useFilterContext();
   const shifts = useGetUserShifts(
     filterPanelFormElements.after,
     filterPanelFormElements.before
@@ -111,6 +119,20 @@ const ServicePersonalSummary = ({ userId }: Props) => {
       title: t("Unknown Attendance"),
       value: unknownAttendance,
       color: "red",
+      ...(Number(unknownAttendance) > 0 && {
+        onClick: () => {
+          setFilterVisitScheduleOverviewPanelFormElements({
+            date: "",
+            after: filterPanelFormElements.after,
+            before: filterPanelFormElements.before,
+            user: userId,
+            location: "",
+          });
+          setShowVisitScheduleOverviewFilters(true);
+          setVisitsActiveTab(VisitPageTabEnum.VISITSCHEDULEOVERVIEW);
+          navigate(`/visits`);
+        },
+      }),
     },
     {
       icon: <MdOutlineFastfood />,
@@ -221,15 +243,7 @@ const ServicePersonalSummary = ({ userId }: Props) => {
       <FilterPanel {...filterPanel} />
       <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 h-32 ">
         {userInfoCards.map((card, index) => (
-          <InfoCard
-            key={index}
-            icon={card.icon}
-            title={card.title}
-            value={card.value}
-            color={card.color}
-            isAverage={card.isAverage}
-            averageValue={card.averageValue}
-          />
+          <InfoCard key={index} {...card} />
         ))}
       </div>
     </div>
