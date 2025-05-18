@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { Header } from "../components/header/Header";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { useGetAccountStocks } from "../utils/api/account/stock";
 import { useGetCategories } from "../utils/api/menu/category";
 import {
   useGetMenuItems,
@@ -16,15 +17,27 @@ const MenuPrice = () => {
   const { t } = useTranslation();
   const items = useGetMenuItems();
   const categories = useGetCategories();
+  const stocks = useGetAccountStocks();
   const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate: updateItems } = useUpdateItemsMutation();
+  const getProductTotalStock = (productId: string) => {
+    const foundStockTotal = stocks
+      ?.filter((stock) => stock.product === productId)
+      ?.reduce((acc, stock) => {
+        return acc + (stock.quantity ?? 0);
+      }, 0);
+    return foundStockTotal;
+  };
   const allRows = items?.map((item) => ({
     ...item,
     category: getItem(item.category, categories)?.name,
     onlinePrice: item?.onlinePrice ?? "",
     ikasId: item?.ikasId ?? "",
     ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
+    totalStock: item?.matchedProduct
+      ? getProductTotalStock(item.matchedProduct)
+      : "",
   }));
   const [rows, setRows] = useState(allRows);
   const columns = [
@@ -42,6 +55,7 @@ const MenuPrice = () => {
       correspondingKey: "ikasDiscountedPrice",
     },
     { key: t("Category"), isSortable: true, correspondingKey: "category" },
+    { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
     { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
   ];
   const rowKeys = [
@@ -51,6 +65,7 @@ const MenuPrice = () => {
     { key: "onlinePrice" },
     { key: "ikasDiscountedPrice" },
     { key: "category" },
+    { key: "totalStock" },
     { key: "ikasId" },
   ];
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,11 +107,6 @@ const MenuPrice = () => {
       inputRef.current.click();
     }
   };
-
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [items, categories]);
   const filters = [
     {
       isUpperSide: false,
@@ -119,6 +129,10 @@ const MenuPrice = () => {
       ),
     },
   ];
+  useEffect(() => {
+    setRows(allRows);
+    setTableKey((prev) => prev + 1);
+  }, [items, categories, stocks]);
   return (
     <>
       <Header showLocationSelector={false} />
