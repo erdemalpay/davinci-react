@@ -180,7 +180,8 @@ const OrderPaymentTypes = ({
               }
               const createdCollection = {
                 table: table?._id,
-                location: selectedLocationId,
+                location:
+                  table?.type === TableTypes.ONLINE ? 4 : selectedLocationId,
                 paymentMethod: paymentType._id,
                 amount:
                   Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0),
