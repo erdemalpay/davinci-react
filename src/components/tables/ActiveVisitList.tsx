@@ -1,4 +1,5 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useLocationContext } from "../../context/Location.context";
 import { User, Visit } from "../../types";
@@ -10,6 +11,7 @@ import {
 import { getItem } from "../../utils/getItem";
 import { Autocomplete } from "../common/Autocomplete";
 import { InputWithLabelProps } from "../common/InputWithLabel";
+
 interface ActiveMentorListProps extends InputWithLabelProps {
   suggestions: User[];
   visits: Visit[];
@@ -43,9 +45,14 @@ export function ActiveVisitList({
   }
 
   function handleSelection(item: User) {
+    const now = new Date();
+    const startHour = format(now, "HH:mm");
+    const date = format(now, "yyyy-MM-dd");
     if (!item || isUserActive(item._id)) return;
     createVisit({
       location: selectedLocationId,
+      date,
+      startHour,
     });
     // setItems([...items, item]);
   }
