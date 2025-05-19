@@ -5,6 +5,7 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { NO_IMAGE_URL } from "../../navigation/constants";
@@ -27,7 +28,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useCreateMultipleIkasProductMutation,
-  useGetMenuItems,
+  useGetAllMenuItems,
   useMenuItemMutations,
   useUpdateBulkItemsMutation,
   useUpdateItemsOrderMutation,
@@ -75,7 +76,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
+  const { showDeletedItems, setShowDeletedItems } = useFilterContext();
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
@@ -117,7 +119,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     vendor: [],
     expenseType: [],
   });
-  const allRows = singleItemGroup?.items.map((item) => {
+  const usedItems = showDeletedItems
+    ? items.filter((item) => item.category === singleItemGroup.category._id)
+    : singleItemGroup?.items;
+  const allRows = usedItems?.map((item) => {
     return {
       ...item,
       matchedProductName: getItem(item?.matchedProduct, products)?.name,
@@ -804,6 +809,29 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         );
       },
     },
+    {
+      name: t("Toggle Active"),
+      isDisabled: !showDeletedItems,
+      isModal: false,
+      isPath: false,
+      icon: null,
+      node: (row: any) => (
+        <div className="mt-2 mr-auto">
+          <CheckSwitch
+            checked={!row?.deleted}
+            onChange={() => {
+              updateItem({
+                id: row?._id,
+                updates: {
+                  ...row,
+                  deleted: !row?.deleted,
+                },
+              });
+            }}
+          ></CheckSwitch>
+        </div>
+      ),
+    },
   ];
   const filters = [
     {
@@ -838,6 +866,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           checked={isMenuShowIkasCategories}
           onChange={() => {
             setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
+          }}
+        />
+      ),
+    },
+    {
+      label: t("Show Deleted Items"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showDeletedItems}
+          onChange={() => {
+            setShowDeletedItems(!showDeletedItems);
           }}
         />
       ),
@@ -948,6 +988,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     productCategories,
     items,
     ikasCategories,
+    showDeletedItems,
   ]);
 
   return (

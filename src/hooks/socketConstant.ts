@@ -24,7 +24,7 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "itemChanged",
-    invalidateKeys: [`${Paths.MenuItems}`],
+    invalidateKeys: [`${Paths.MenuItems}`, `${Paths.MenuItems}/all`],
   },
   {
     event: "upperCategoryChanged",

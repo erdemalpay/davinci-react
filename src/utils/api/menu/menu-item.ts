@@ -173,8 +173,12 @@ export function useUpdateItemsOrderMutation() {
     },
   });
 }
-
+//this returns undeletedMenuItems
 export function useGetMenuItems() {
   // return useGetList<MenuItem>(Paths.MenuItems, [Paths.MenuItems], true);
   return useGetList<MenuItem>(Paths.MenuItems);
+}
+
+export function useGetAllMenuItems() {
+  return useGetList<MenuItem>(`${Paths.MenuItems}/all`);
 }

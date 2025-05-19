@@ -6,8 +6,8 @@ import ClosedItems from "../components/menu/ClosedItems";
 import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
-import { Tab } from "../components/panelComponents/shared/types";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -42,21 +42,23 @@ export default function Menu() {
     setIsCategoryTabChanged(true);
   };
   const handleTabChange = () => {
+    const seenCategories = new Set<number>();
+
     const itemCategories = items
       .map((item) => item.category)
-      .filter((category) => {
-        if (seenCategories.hasOwnProperty(category)) {
+      .filter((category): category is number => {
+        if (seenCategories.has(category)) {
           return false;
-        } else {
-          seenCategories[category] = true;
-          return true;
         }
+        seenCategories.add(category);
+        return true;
       })
-      .sort(
-        (a, b) =>
-          (getItem(a, categories)?.order as number) -
-          (getItem(b, categories)?.order as number)
-      );
+      .sort((a, b) => {
+        const orderA = getItem(a, categories)?.order ?? 0;
+        const orderB = getItem(b, categories)?.order ?? 0;
+        return orderA - orderB;
+      });
+
     const emptyCategories = categories?.filter(
       (category) =>
         itemCategories.filter((itemCategory) => itemCategory === category?._id)
@@ -83,32 +85,31 @@ export default function Menu() {
     itemGroups.sort((a, b) => (a.order > b.order ? 1 : -1));
     setTabs(
       [
-        ...itemGroups?.map((itemGroup, index) => ({
+        ...(itemGroups ?? []).map((itemGroup, index) => ({
           number: index,
-          label: itemGroup.category?.name,
+          label: itemGroup.category?.name ?? "",
           icon: null,
           content: (
             <MenuItemTable
-              key={
-                itemGroup.category?.name +
-                tableKeys +
-                itemGroup.category?.locations.length
-              }
+              key={`${itemGroup.category?.name ?? ""}-${tableKeys}-${
+                itemGroup.category?.locations?.length ?? 0
+              }`}
               singleItemGroup={itemGroup}
               popularItems={popularItems}
             />
           ),
           isDisabled: false,
         })),
-
         ...(emptyCategories.length > 0
-          ? emptyCategories?.map((category, index) => ({
-              number: itemGroups?.length + index,
+          ? emptyCategories.map((category, index) => ({
+              number: (itemGroups?.length ?? 0) + index,
               label: category.name,
               icon: null,
               content: (
                 <MenuItemTable
-                  key={category.name + tableKeys + category.locations?.length}
+                  key={`${category.name}-${tableKeys}-${
+                    category.locations?.length ?? 0
+                  }`}
                   singleItemGroup={{
                     category,
                     order: category.order,
