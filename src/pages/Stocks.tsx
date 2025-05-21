@@ -4,7 +4,7 @@ import {
   GiGreatPyramid,
 } from "react-icons/gi";
 // import CountArchive from "../components/accounting/CountArchive";
-import { BsTrash2Fill } from "react-icons/bs";
+import { BsBookshelf, BsTrash2Fill } from "react-icons/bs";
 import { CiMoneyCheck1 } from "react-icons/ci";
 import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
@@ -19,6 +19,7 @@ import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation"
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
+import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
 import VendorOrder from "../components/stocks/VendorOrder";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
@@ -52,6 +53,13 @@ export const StockPageTabs = [
     label: "Base Quantity By Location",
     icon: <DiDatabase className="text-lg font-thin" />,
     content: <BaseQuantityByLocation />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.PRODUCTSHELFINFO,
+    label: "Product Shelf Info",
+    icon: <BsBookshelf className="text-lg font-thin" />,
+    content: <ProductShelfInfo />,
     isDisabled: false,
   },
   {

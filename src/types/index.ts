@@ -117,6 +117,10 @@ export type AccountProduct = {
     minQuantity: number;
     maxQuantity: number;
   }[];
+  shelfInfo?: {
+    location: number;
+    shelf: string;
+  }[];
 };
 export type AccountService = {
   _id: string;
@@ -866,6 +870,7 @@ export enum StocksPageTabEnum {
   GAMESTOCK,
   GAMESTOCKBYLOCATION,
   BASEQUANTITYBYLOCATION,
+  PRODUCTSHELFINFO,
   VENDORORDER,
   IKASSTOCKCOMPARISION,
   ENTERCONSUMPTION,

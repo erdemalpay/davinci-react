@@ -116,6 +116,8 @@ type FilterContextType = {
   setShowPersonalSummaryFilters: (state: boolean) => void;
   showDeletedItems: boolean;
   setShowDeletedItems: (state: boolean) => void;
+  isEnableProductShelfEdit: boolean;
+  setIsEnableProductShelfEdit: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -345,6 +347,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowPersonalSummaryFilters: () => {},
   showDeletedItems: false,
   setShowDeletedItems: () => {},
+  isEnableProductShelfEdit: false,
+  setIsEnableProductShelfEdit: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -365,6 +369,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
+  const [isEnableProductShelfEdit, setIsEnableProductShelfEdit] =
+    useState(false);
   const [showPersonalSummaryFilters, setShowPersonalSummaryFilters] =
     useState(false);
   const [showServiceInvoiceFilters, setShowServiceInvoiceFilters] =
@@ -702,6 +708,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowPersonalSummaryFilters: setShowPersonalSummaryFilters,
         showDeletedItems: showDeletedItems,
         setShowDeletedItems: setShowDeletedItems,
+        isEnableProductShelfEdit: isEnableProductShelfEdit,
+        setIsEnableProductShelfEdit: setIsEnableProductShelfEdit,
       }}
     >
       {children}

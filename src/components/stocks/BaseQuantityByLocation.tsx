@@ -137,9 +137,6 @@ const BaseQuantityByLocation = () => {
                 placeholder={""}
                 inputWidth="w-32 md:w-40"
                 onChange={(value) => {
-                  console.log("changed");
-
-                  console.log("value", value);
                   if (value === "") {
                     return;
                   }
