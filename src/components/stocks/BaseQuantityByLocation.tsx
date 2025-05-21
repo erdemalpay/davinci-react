@@ -387,18 +387,22 @@ const BaseQuantityByLocation = () => {
     closeFilters: () => setShowBaseQuantityFilters(false),
   };
   useEffect(() => {
+    const { expenseType: expenseFilter, vendor: vendorFilter } =
+      filterBaseQuantityPanelFormElements;
     const filteredRows = allRows?.filter((row) => {
-      if (filterBaseQuantityPanelFormElements.expenseType.length !== 0) {
-        return row.expenseType?.some((expense) =>
-          filterBaseQuantityPanelFormElements.expenseType.includes(expense)
-        );
-      } else if (filterBaseQuantityPanelFormElements.vendor.length !== 0) {
-        return row.vendor?.some((vendor) =>
-          filterBaseQuantityPanelFormElements.vendor.includes(vendor)
-        );
+      let matchesExpense = true;
+      let matchesVendor = true;
+      if (expenseFilter.length > 0) {
+        matchesExpense =
+          row.expenseType?.some((e) => expenseFilter.includes(e)) ?? false;
       }
-      return true;
+      if (vendorFilter.length > 0) {
+        matchesVendor =
+          row.vendor?.some((v) => vendorFilter.includes(v)) ?? false;
+      }
+      return matchesExpense && matchesVendor;
     });
+
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [
