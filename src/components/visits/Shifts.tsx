@@ -47,6 +47,19 @@ const Shifts = () => {
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { selectedLocationId, setSelectedLocationId } = useLocationContext();
+  const [copyShiftForm, setCopyShiftForm] = useState({
+    copiedDay: "",
+    selectedDay: "",
+    location: "",
+    selectedUsers: [],
+  });
+  const [copyShiftIntervalForm, setCopyShiftIntervalForm] = useState({
+    startCopiedDay: "",
+    endCopiedDay: "",
+    selectedDay: "",
+    location: "",
+    selectedUsers: [],
+  });
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -125,10 +138,33 @@ const Shifts = () => {
       isOnClearActive: false,
       isDisabled: true,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "selectedUsers",
+      label: t("Selected Users"),
+      options: users
+        ?.filter((user) => {
+          if (copyShiftForm?.copiedDay) {
+            return shifts
+              ?.filter((shift) => shift.day === copyShiftForm?.copiedDay)
+              ?.map((shift) => shift?.shifts)
+              ?.flat()
+              ?.some((shift) => shift?.user?.includes(user._id));
+          }
+        })
+        ?.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Selected Users"),
+      isMultiple: true,
+      required: false,
+    },
   ];
   const copyShiftFormKeys = [
     { key: "copiedDay", type: FormKeyTypeEnum.STRING },
     { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+    { key: "selectedUsers", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.NUMBER },
   ];
   const copyShifIntervaltInputs = [
@@ -159,11 +195,44 @@ const Shifts = () => {
       isDatePicker: true,
       isOnClearActive: false,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "selectedUsers",
+      label: t("Selected Users"),
+      options: users
+        ?.filter((user) => {
+          if (
+            copyShiftIntervalForm?.startCopiedDay &&
+            copyShiftIntervalForm?.endCopiedDay
+          ) {
+            return shifts
+              ?.filter((shift) => {
+                const startDate = new Date(
+                  copyShiftIntervalForm?.startCopiedDay
+                );
+                const endDate = new Date(copyShiftIntervalForm?.endCopiedDay);
+                const shiftDate = new Date(shift.day);
+                return shiftDate >= startDate && shiftDate <= endDate;
+              })
+              ?.map((shift) => shift?.shifts)
+              ?.flat()
+              ?.some((shift) => shift?.user?.includes(user._id));
+          }
+        })
+        ?.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("Selected Users"),
+      isMultiple: true,
+      required: false,
+    },
   ];
   const copyShiftIntervalFormKeys = [
     { key: "startCopiedDay", type: FormKeyTypeEnum.STRING },
     { key: "endCopiedDay", type: FormKeyTypeEnum.STRING },
     { key: "selectedDay", type: FormKeyTypeEnum.STRING },
+    { key: "selectedUsers", type: FormKeyTypeEnum.STRING },
     { key: "location", type: FormKeyTypeEnum.NUMBER },
   ];
   const [rows, setRows] = useState(allRows);
@@ -291,7 +360,6 @@ const Shifts = () => {
                   label: getItem(shiftValue, users)?.name ?? "",
                 }
               : null;
-
             return (
               <div key={`${row.day}${shiftValue}`} className="overflow-visible">
                 <SelectInput
@@ -459,6 +527,7 @@ const Shifts = () => {
           isOpen={isCopyShiftModalOpen}
           close={() => setIsCopyShiftModalOpen(false)}
           inputs={copyShiftInputs}
+          setForm={setCopyShiftForm}
           formKeys={copyShiftFormKeys}
           submitItem={copyShift as any}
           isEditMode={false}
@@ -482,6 +551,7 @@ const Shifts = () => {
       <GenericAddEditPanel
         isOpen={isCopyShiftIntervalModalOpen}
         close={() => setIsCopyShiftIntervalModalOpen(false)}
+        setForm={setCopyShiftIntervalForm}
         constantValues={{ location: selectedLocationId }}
         inputs={copyShifIntervaltInputs}
         formKeys={copyShiftIntervalFormKeys}

@@ -7,6 +7,7 @@ import { Paths, useGetList, useMutationApi } from "./factory";
 interface CopyShiftPayload {
   copiedDay: string;
   selectedDay: string;
+  selectedUsers?: string[];
 }
 
 interface AddShiftPayload {
@@ -20,6 +21,7 @@ interface CopyShiftIntervalPayload {
   startCopiedDay: string;
   endCopiedDay: string;
   selectedDay: string;
+  selectedUsers?: string[];
 }
 
 export function useShiftMutations() {
