@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
+import { ExpenseTypeInput, ProductInput } from "../../utils/panelInputs";
 import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -15,22 +17,42 @@ const ProductShelfInfo = () => {
   const { t } = useTranslation();
   const locations = useGetStockLocations();
   const products = useGetAccountProducts();
+  const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
-  const { isEnableProductShelfEdit, setIsEnableProductShelfEdit } =
-    useFilterContext();
+  const {
+    isEnableProductShelfEdit,
+    setIsEnableProductShelfEdit,
+    filterProductShelfInfoFormElements,
+    setFilterProductShelfInfoFormElements,
+    showProductShelfInfoFilters,
+    setShowProductShelfInfoFilters,
+  } = useFilterContext();
   const { updateAccountProduct } = useAccountProductMutations();
-  const allRows = products?.map((product) => {
-    const shelfFields = (product.shelfInfo ?? [])?.reduce<
-      Record<string, string>
-    >((acc, si) => {
-      acc[String(si.location)] = si.shelf;
-      return acc;
-    }, {});
-    return {
-      ...product,
-      ...shelfFields,
-    };
-  });
+  const allRows = products
+    ?.filter((product) => {
+      const matchesExpense =
+        filterProductShelfInfoFormElements?.expenseType?.length === 0 ||
+        product?.expenseType?.some((exp) =>
+          filterProductShelfInfoFormElements?.expenseType?.includes(exp)
+        );
+
+      const matchesProduct =
+        filterProductShelfInfoFormElements?.product?.length === 0 ||
+        filterProductShelfInfoFormElements?.product?.includes(product._id);
+      return matchesExpense && matchesProduct;
+    })
+    ?.map((product) => {
+      const shelfFields = (product.shelfInfo ?? [])?.reduce<
+        Record<string, string>
+      >((acc, si) => {
+        acc[String(si.location)] = si.shelf;
+        return acc;
+      }, {});
+      return {
+        ...product,
+        ...shelfFields,
+      };
+    });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
@@ -90,7 +112,29 @@ const ProductShelfInfo = () => {
       },
     });
   });
+  const filterPanelInputs = [
+    ProductInput({
+      products: products,
+      isMultiple: true,
+    }),
+    ExpenseTypeInput({
+      expenseTypes: expenseTypes,
+      isMultiple: true,
+    }),
+  ];
   const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showProductShelfInfoFilters}
+          onChange={() => {
+            setShowProductShelfInfoFilters(!showProductShelfInfoFilters);
+          }}
+        />
+      ),
+    },
     {
       label: t("Enable Edit"),
       isUpperSide: false,
@@ -104,10 +148,17 @@ const ProductShelfInfo = () => {
       ),
     },
   ];
+  const filterPanel = {
+    isFilterPanelActive: showProductShelfInfoFilters,
+    inputs: filterPanelInputs,
+    formElements: filterProductShelfInfoFormElements,
+    setFormElements: setFilterProductShelfInfoFormElements,
+    closeFilters: () => setShowProductShelfInfoFilters(false),
+  };
   useEffect(() => {
     setRows(allRows);
     setTableKey((prevKey) => prevKey + 1);
-  }, [locations, products]);
+  }, [locations, products, expenseTypes, filterProductShelfInfoFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -120,7 +171,7 @@ const ProductShelfInfo = () => {
           filters={filters}
           isActionsActive={false}
           isExcel={true}
-          //   filterPanel={filterPanel}
+          filterPanel={filterPanel}
           excelFileName={t("ProductShelfInfo.xlsx")}
         />
       </div>

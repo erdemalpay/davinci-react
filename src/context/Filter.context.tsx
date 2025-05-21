@@ -1,5 +1,6 @@
 import { format, startOfMonth } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { GAMEEXPENSETYPE } from "../components/accounting/GameStock";
 import {
   ExpenseTypes,
   StockHistoryStatusEnum,
@@ -118,6 +119,10 @@ type FilterContextType = {
   setShowDeletedItems: (state: boolean) => void;
   isEnableProductShelfEdit: boolean;
   setIsEnableProductShelfEdit: (state: boolean) => void;
+  filterProductShelfInfoFormElements: FormElementsState;
+  setFilterProductShelfInfoFormElements: (state: FormElementsState) => void;
+  showProductShelfInfoFilters: boolean;
+  setShowProductShelfInfoFilters: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -333,6 +338,11 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     search: "",
   },
+  filterProductShelfInfoFormElements: {
+    product: [],
+    expenseType: [GAMEEXPENSETYPE],
+  },
+  setFilterProductShelfInfoFormElements: () => {},
   setFilterAllExpensesPanelFormElements: () => {},
   showInactiveShifts: false,
   setShowInactiveShifts: () => {},
@@ -349,6 +359,8 @@ const FilterContext = createContext<FilterContextType>({
   setShowDeletedItems: () => {},
   isEnableProductShelfEdit: false,
   setIsEnableProductShelfEdit: () => {},
+  showProductShelfInfoFilters: false,
+  setShowProductShelfInfoFilters: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -369,6 +381,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
+  const [showProductShelfInfoFilters, setShowProductShelfInfoFilters] =
+    useState(false);
   const [isEnableProductShelfEdit, setIsEnableProductShelfEdit] =
     useState(false);
   const [showPersonalSummaryFilters, setShowPersonalSummaryFilters] =
@@ -391,6 +405,13 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   ] = useState<FormElementsState>({
     location: selectedLocationId,
     date: format(new Date(), "yyyy-MM-dd"),
+  });
+  const [
+    filterProductShelfInfoFormElements,
+    setFilterProductShelfInfoFormElements,
+  ] = useState<FormElementsState>({
+    product: [],
+    expenseType: [GAMEEXPENSETYPE],
   });
   const [
     filterAllVisitsPanelFormElements,
@@ -710,6 +731,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowDeletedItems: setShowDeletedItems,
         isEnableProductShelfEdit: isEnableProductShelfEdit,
         setIsEnableProductShelfEdit: setIsEnableProductShelfEdit,
+        filterProductShelfInfoFormElements: filterProductShelfInfoFormElements,
+        setFilterProductShelfInfoFormElements:
+          setFilterProductShelfInfoFormElements,
+        showProductShelfInfoFilters: showProductShelfInfoFilters,
+        setShowProductShelfInfoFilters: setShowProductShelfInfoFilters,
       }}
     >
       {children}

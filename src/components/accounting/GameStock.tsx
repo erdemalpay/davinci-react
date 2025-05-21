@@ -35,11 +35,10 @@ import {
   FormKeyTypeEnum,
   GenericInputType,
 } from "../panelComponents/shared/types";
-
+export const GAMEEXPENSETYPE = "oys";
 const GameStock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();
-  const GAMEEXPENSETYPE = "oys";
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
@@ -188,14 +187,22 @@ const GameStock = () => {
   ];
   const columns = [
     { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
-    { key: t("Quantity"), isSortable: true, correspondingKey: "totalQuantity" },
+    {
+      key: t("Quantity"),
+      isSortable: true,
+      correspondingKey: "totalQuantity",
+    },
     {
       key: t("Unit Price"),
       isSortable: true,
       correspondingKey: "unitPrice",
     },
     { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
-    { key: t("Online Price"), isSortable: true, correspondingKey: "menuPrice" },
+    {
+      key: t("Online Price"),
+      isSortable: true,
+      correspondingKey: "menuPrice",
+    },
     { key: t("Total Price"), isSortable: true },
   ];
   const rowKeys = [
