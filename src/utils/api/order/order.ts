@@ -528,7 +528,8 @@ export function useGetTodayOrders() {
 export function useGetDailySummary(date: string, location: number) {
   return useGet<DailySummary>(
     `${baseUrl}/daily-summary?date=${date}&location=${location}`,
-    [`${baseUrl}/daily-summary`, date, location]
+    [`${baseUrl}/daily-summary`, date, location],
+    true
   );
 }
 
