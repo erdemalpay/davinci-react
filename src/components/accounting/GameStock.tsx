@@ -6,7 +6,7 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, StockHistoryStatusEnum } from "../../types";
+import { GAMEEXPENSETYPE, RoleEnum, StockHistoryStatusEnum } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
@@ -35,7 +35,7 @@ import {
   FormKeyTypeEnum,
   GenericInputType,
 } from "../panelComponents/shared/types";
-export const GAMEEXPENSETYPE = "oys";
+
 const GameStock = () => {
   const { t } = useTranslation();
   const stocks = useGetAccountStocks();

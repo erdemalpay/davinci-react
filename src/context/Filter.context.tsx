@@ -1,8 +1,8 @@
 import { format, startOfMonth } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { GAMEEXPENSETYPE } from "../components/accounting/GameStock";
 import {
   ExpenseTypes,
+  GAMEEXPENSETYPE,
   StockHistoryStatusEnum,
   VisitPageTabEnum,
 } from "../types";

@@ -1463,3 +1463,5 @@ export const notificationEventsOptions = [
     label: "Ikas Takeaway",
   },
 ];
+
+export const GAMEEXPENSETYPE = "oys";
