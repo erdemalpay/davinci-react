@@ -430,7 +430,7 @@ export function useUpdateMultipleOrderMutation() {
   });
 }
 
-export function useGetOrders() {
+export function useGetOrders(category?: number[]) {
   const { filterPanelFormElements } = useOrderContext();
   let url = `${baseUrl}/query?after=${filterPanelFormElements.after}`;
   const parameters = [
@@ -444,6 +444,9 @@ export function useGetOrders() {
     "category",
     "location",
   ];
+  if (category) {
+    url = url.concat(`&category=${category}`);
+  }
   parameters.forEach((param) => {
     if (filterPanelFormElements[param]) {
       url = url.concat(

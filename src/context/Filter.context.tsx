@@ -123,6 +123,14 @@ type FilterContextType = {
   setFilterProductShelfInfoFormElements: (state: FormElementsState) => void;
   showProductShelfInfoFilters: boolean;
   setShowProductShelfInfoFilters: (state: boolean) => void;
+  showDesertStockFilters: boolean;
+  setShowDesertStockFilters: (state: boolean) => void;
+  filterDesertStockPanelFormElements: FormElementsState;
+  setFilterDesertStockPanelFormElements: (state: FormElementsState) => void;
+  showDesertStockPrices: boolean;
+  setShowDesertStockPrices: (state: boolean) => void;
+  isDesertStockEnableEdit: boolean;
+  setIsDesertStockEnableEdit: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -361,6 +369,17 @@ const FilterContext = createContext<FilterContextType>({
   setIsEnableProductShelfEdit: () => {},
   showProductShelfInfoFilters: false,
   setShowProductShelfInfoFilters: () => {},
+  showDesertStockFilters: false,
+  setShowDesertStockFilters: () => {},
+  filterDesertStockPanelFormElements: {
+    product: [],
+    location: "",
+  },
+  setFilterDesertStockPanelFormElements: () => {},
+  showDesertStockPrices: false,
+  setShowDesertStockPrices: () => {},
+  isDesertStockEnableEdit: false,
+  setIsDesertStockEnableEdit: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -396,6 +415,18 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     showVisitScheduleOverviewFilters,
     setShowVisitScheduleOverviewFilters,
   ] = useState(false);
+
+  const [showDesertStockFilters, setShowDesertStockFilters] = useState(false);
+  const [isDesertStockEnableEdit, setIsDesertStockEnableEdit] = useState(false);
+  const [showDesertStockPrices, setShowDesertStockPrices] = useState(false);
+  const [
+    filterDesertStockPanelFormElements,
+    setFilterDesertStockPanelFormElements,
+  ] = useState<FormElementsState>({
+    product: [],
+    location: "",
+  });
+
   const [showInvoiceFilters, setShowInvoiceFilters] = useState(false);
   const [isInvoiceEnableEdit, setIsInvoiceEnableEdit] = useState(false);
   const [showAllExpensesFilters, setShowAllExpensesFilters] = useState(false);
@@ -736,6 +767,15 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           setFilterProductShelfInfoFormElements,
         showProductShelfInfoFilters: showProductShelfInfoFilters,
         setShowProductShelfInfoFilters: setShowProductShelfInfoFilters,
+        showDesertStockFilters: showDesertStockFilters,
+        setShowDesertStockFilters: setShowDesertStockFilters,
+        filterDesertStockPanelFormElements: filterDesertStockPanelFormElements,
+        setFilterDesertStockPanelFormElements:
+          setFilterDesertStockPanelFormElements,
+        showDesertStockPrices: showDesertStockPrices,
+        setShowDesertStockPrices: setShowDesertStockPrices,
+        isDesertStockEnableEdit: isDesertStockEnableEdit,
+        setIsDesertStockEnableEdit: setIsDesertStockEnableEdit,
       }}
     >
       {children}

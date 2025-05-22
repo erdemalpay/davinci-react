@@ -30,7 +30,7 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 const FarmBurgerData = () => {
   const { t } = useTranslation();
-  const orders = useGetOrders();
+  const orders = useGetOrders([30]);
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
@@ -534,13 +534,14 @@ const FarmBurgerData = () => {
     discounts,
     items,
     categories,
+    tables,
   ]);
   return (
     <>
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}
-          title={"Farm Burger"}
+          title={"Farm Burgers"}
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}

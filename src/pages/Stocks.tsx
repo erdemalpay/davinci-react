@@ -8,6 +8,7 @@ import { BsBookshelf, BsTrash2Fill } from "react-icons/bs";
 import { CiMoneyCheck1 } from "react-icons/ci";
 import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
+import { LuDessert } from "react-icons/lu";
 import { MdOutlineCompare } from "react-icons/md";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
@@ -16,6 +17,7 @@ import Stock from "../components/accounting/Stock";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation";
+import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
@@ -39,6 +41,13 @@ export const StockPageTabs = [
     label: "Game Stocks",
     icon: <FaGamepad className="text-lg font-thin" />,
     content: <GameStock />,
+    isDisabled: false,
+  },
+  {
+    number: StocksPageTabEnum.DESSERTSTOCK,
+    label: "Dessert Stocks",
+    icon: <LuDessert className="text-lg font-thin" />,
+    content: <DessertStock />,
     isDisabled: false,
   },
   {

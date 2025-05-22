@@ -868,6 +868,7 @@ export enum CheckoutPageTabEnum {
 export enum StocksPageTabEnum {
   STOCK,
   GAMESTOCK,
+  DESSERTSTOCK,
   GAMESTOCKBYLOCATION,
   BASEQUANTITYBYLOCATION,
   PRODUCTSHELFINFO,
@@ -1465,3 +1466,4 @@ export const notificationEventsOptions = [
 ];
 
 export const GAMEEXPENSETYPE = "oys";
+export const DESSERTEXPENSETYPE = "tat";
