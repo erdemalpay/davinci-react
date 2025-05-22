@@ -4,17 +4,17 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
-import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
+import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
+import GenericTable from "../components/panelComponents/Tables/GenericTable";
+import { H5 } from "../components/panelComponents/Typography";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
-import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { H5 } from "../components/panelComponents/Typography";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -66,12 +66,13 @@ const Count = () => {
       ?.find((cl) => cl?._id === countListId)
       ?.products?.map((countListProduct) => {
         if (location && countListProduct.locations.includes(Number(location))) {
+          const foundProduct = products?.find(
+            (p) => p?._id === countListProduct.product
+          );
           return {
             products: currentCount?.products,
             productId: countListProduct.product,
-            product:
-              products?.find((p) => p?._id === countListProduct.product)
-                ?.name || "",
+            product: foundProduct?.name || "",
             countQuantity: currentCount?.products?.find(
               (countProduct) =>
                 countProduct.product === countListProduct.product
@@ -80,6 +81,10 @@ const Count = () => {
               (countProduct) =>
                 countProduct.product === countListProduct.product
             )?.productDeleteRequest,
+            shelfInfo:
+              foundProduct?.shelfInfo?.find(
+                (shelf) => shelf.location === Number(location)
+              )?.shelf || "",
           };
         }
         return { product: "", countQuantity: 0 };
@@ -126,6 +131,7 @@ const Count = () => {
 
   const columns = [
     { key: t("Product"), isSortable: true },
+    { key: t("Shelf"), isSortable: true },
     { key: t("Quantity"), isSortable: true, className: "mx-auto" },
   ];
   if (isEnableEdit) {
@@ -243,6 +249,7 @@ const Count = () => {
         );
       },
     },
+    { key: "shelfInfo" },
     {
       key: "countQuantity",
       node: (row: any) => {
@@ -384,12 +391,13 @@ const Count = () => {
             location &&
             countListProduct.locations.includes(Number(location))
           ) {
+            const foundProduct = products?.find(
+              (p) => p?._id === countListProduct.product
+            );
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
-              product:
-                products?.find((p) => p?._id === countListProduct.product)
-                  ?.name || "",
+              product: foundProduct?.name || "",
               countQuantity: currentCount?.products?.find(
                 (countProduct) =>
                   countProduct.product === countListProduct.product
@@ -398,6 +406,10 @@ const Count = () => {
                 (countProduct) =>
                   countProduct.product === countListProduct.product
               )?.productDeleteRequest,
+              shelfInfo:
+                foundProduct?.shelfInfo?.find(
+                  (shelf) => shelf.location === Number(location)
+                )?.shelf || "",
             };
           }
           return { product: "", countQuantity: 0 };

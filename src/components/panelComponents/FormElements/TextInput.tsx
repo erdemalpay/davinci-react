@@ -128,7 +128,7 @@ const TextInput = ({
     }
   };
   const inputClassName = `${className} ${
-    inputWidth ? "border-gray-100" : ""
+    inputWidth ? "border-gray-200" : ""
   } w-full text-sm ${
     type === "number" ? "inputHideNumberArrows" : ""
   } text-base`;
