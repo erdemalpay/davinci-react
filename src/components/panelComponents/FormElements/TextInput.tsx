@@ -9,7 +9,7 @@ import { format, parseISO } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css"; // Ensure to import CSS for DayPicker
+import "react-day-picker/dist/style.css";
 import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";

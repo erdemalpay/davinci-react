@@ -16,6 +16,7 @@ import {
   TURKISHLIRA,
   User,
 } from "../../../types";
+import { useGetAllAccountProducts } from "../../../utils/api/account/product";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
 import { useGetCategories } from "../../../utils/api/menu/category";
@@ -111,6 +112,7 @@ const OrderPaymentModal = ({
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
+  const products = useGetAllAccountProducts();
   const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { createOrder } = useOrderMutations();
@@ -431,16 +433,21 @@ const OrderPaymentModal = ({
       label: t("Stock Location"),
       options: locations?.map((input) => {
         const menuItem = getItem(orderForm.item, items);
+        const foundProduct = getItem(menuItem?.matchedProduct, products);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
+        const shelfInfo = foundProduct?.shelfInfo?.find(
+          (shelf) => shelf.location === input._id
+        );
         return {
           value: input._id,
           label:
             input.name +
             (menuItem?.itemProduction && menuItem.itemProduction.length > 0
               ? ` (${t("Stock")}: ${stockQuantity})`
-              : ""),
+              : "") +
+            (shelfInfo?.shelf ? ` (${t("Shelf")}: ${shelfInfo?.shelf})` : ""),
         };
       }),
       placeholder: t("Stock Location"),

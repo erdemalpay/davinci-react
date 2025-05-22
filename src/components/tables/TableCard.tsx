@@ -29,6 +29,7 @@ import {
   TableTypes,
   User,
 } from "../../types";
+import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
@@ -105,6 +106,7 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
+  const products = useGetAllAccountProducts();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -317,16 +319,21 @@ export function TableCard({
       label: t("Stock Location"),
       options: locations?.map((input) => {
         const menuItem = getItem(orderForm.item, menuItems);
+        const foundProduct = getItem(menuItem?.matchedProduct, products);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
+        const shelfInfo = foundProduct?.shelfInfo?.find(
+          (shelf) => shelf.location === input._id
+        );
         return {
           value: input._id,
           label:
             input.name +
             (menuItem?.itemProduction && menuItem.itemProduction.length > 0
               ? ` (${t("Stock")}: ${stockQuantity})`
-              : ""),
+              : "") +
+            (shelfInfo?.shelf ? ` (${t("Shelf")}: ${shelfInfo?.shelf})` : ""),
         };
       }),
       placeholder: t("Stock Location"),

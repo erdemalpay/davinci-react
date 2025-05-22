@@ -234,7 +234,7 @@ const Tables = () => {
       formKey: "stockLocation",
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
-        const menuItem = getItem(orderForm.item, menuItems);
+        const menuItem = getItem(orderForm?.item, menuItems);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
@@ -249,9 +249,9 @@ const Tables = () => {
       }),
       placeholder: t("Stock Location"),
       required:
-        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+        (getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0) > 0,
       isDisabled: !(
-        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+        getItem(orderForm?.item, menuItems)?.itemProduction?.length ?? 0 > 0
       ),
     },
     {
@@ -375,16 +375,21 @@ const Tables = () => {
       label: t("Stock Location"),
       options: stockLocations?.map((input) => {
         const menuItem = getItem(orderForm.item, menuItems);
+        const foundProduct = getItem(menuItem?.matchedProduct, products);
         const stockQuantity = menuItem
           ? menuItemStockQuantity(menuItem, input._id)
           : null;
+        const shelfInfo = foundProduct?.shelfInfo?.find(
+          (shelf) => shelf.location === input._id
+        );
         return {
           value: input._id,
           label:
             input.name +
             (menuItem?.itemProduction && menuItem.itemProduction.length > 0
               ? ` (${t("Stock")}: ${stockQuantity})`
-              : ""),
+              : "") +
+            (shelfInfo?.shelf ? ` (${t("Shelf")}: ${shelfInfo?.shelf})` : ""),
         };
       }),
       placeholder: t("Stock Location"),
