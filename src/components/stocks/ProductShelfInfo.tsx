@@ -53,6 +53,7 @@ const ProductShelfInfo = () => {
         ...shelfFields,
       };
     });
+
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
