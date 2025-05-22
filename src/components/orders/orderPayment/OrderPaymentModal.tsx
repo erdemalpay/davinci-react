@@ -721,11 +721,18 @@ const OrderPaymentModal = ({
               <div className="flex flex-row justify-between items-center px-4 bg-blue-gray-50 rounded-t-lg py-1">
                 {/* header */}
                 <div className="flex flex-col gap-1">
-                  <h1 className="font-medium">
-                    <span className="font-semibold">{t("Table")}</span>:{" "}
-                    {table?.name}
-                  </h1>
-                  <div className="flex flex-row gap-2 justify-center items-center">
+                  <div className="flex flex-row gap-4 ">
+                    <h1 className="font-medium">
+                      <span className="font-semibold">{t("Table")}</span>:{" "}
+                      {table?.name}
+                    </h1>
+                    <div className="font-medium">
+                      <span>{format(table?.date, "dd/mm/yyyy")}-</span>
+                      <span>{table?.startHour}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row gap-2  items-center">
                     {table?.type === TableTypes.ACTIVITY && (
                       <div className="z-50">
                         <SelectInput
