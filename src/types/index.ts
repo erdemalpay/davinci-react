@@ -31,6 +31,7 @@ export type Location = {
     type: string;
   }[];
   tableNames?: string[];
+  isShelfInfoRequired?: boolean;
 };
 export enum LocationShiftType {
   FULLTIME = "fulltime",

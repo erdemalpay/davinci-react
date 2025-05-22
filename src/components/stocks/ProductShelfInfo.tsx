@@ -66,53 +66,55 @@ const ProductShelfInfo = () => {
       },
     },
   ];
-  locations?.forEach((location) => {
-    columns.push({
-      key: location.name,
-      isSortable: true,
-      correspondingKey: `${location._id}`,
-    });
-    rowKeys.push({
-      key: `${location._id}`,
-      node: (row: any) => {
-        return isEnableProductShelfEdit ? (
-          <div>
-            <TextInput
-              key={`${location._id}`}
-              type={InputTypes.TEXT}
-              value={row?.[`${location._id}`] ?? ""}
-              label={""}
-              placeholder={""}
-              inputWidth="w-32"
-              onChange={(value) => {
-                const newShelfInfo = locations?.map((l) => {
-                  if (l._id === location._id) {
+  locations
+    ?.filter((location) => location?.isShelfInfoRequired)
+    ?.forEach((location) => {
+      columns.push({
+        key: location.name,
+        isSortable: true,
+        correspondingKey: `${location._id}`,
+      });
+      rowKeys.push({
+        key: `${location._id}`,
+        node: (row: any) => {
+          return isEnableProductShelfEdit ? (
+            <div>
+              <TextInput
+                key={`${location._id}`}
+                type={InputTypes.TEXT}
+                value={row?.[`${location._id}`] ?? ""}
+                label={""}
+                placeholder={""}
+                inputWidth="w-32"
+                onChange={(value) => {
+                  const newShelfInfo = locations?.map((l) => {
+                    if (l._id === location._id) {
+                      return {
+                        location: l._id,
+                        shelf: value,
+                      };
+                    }
                     return {
                       location: l._id,
-                      shelf: value,
+                      shelf: row[`${l._id}`],
                     };
-                  }
-                  return {
-                    location: l._id,
-                    shelf: row[`${l._id}`],
-                  };
-                });
-                updateAccountProduct({
-                  id: row._id,
-                  updates: {
-                    shelfInfo: newShelfInfo,
-                  },
-                });
-              }}
-              isDebounce={true}
-            />
-          </div>
-        ) : (
-          <p>{row?.[`${location._id}`] ?? ""}</p>
-        );
-      },
+                  });
+                  updateAccountProduct({
+                    id: row._id,
+                    updates: {
+                      shelfInfo: newShelfInfo,
+                    },
+                  });
+                }}
+                isDebounce={true}
+              />
+            </div>
+          ) : (
+            <p>{row?.[`${location._id}`] ?? ""}</p>
+          );
+        },
+      });
     });
-  });
   const filterPanelInputs = [
     ProductInput({
       products: products,

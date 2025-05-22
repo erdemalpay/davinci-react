@@ -13,6 +13,7 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { NameInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const LocationPage = () => {
@@ -59,6 +60,7 @@ const LocationPage = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Type"), isSortable: false },
     { key: t("Table Count"), isSortable: false },
+    { key: t("Shelf Info"), isSortable: false },
     { key: t("Shifts"), isSortable: false },
     { key: "Ikas ID", isSortable: false },
   ];
@@ -98,6 +100,24 @@ const LocationPage = () => {
       },
     },
     { key: "tableCount" },
+    {
+      key: "isShelfInfoRequired",
+      node: (row: any) => {
+        return (
+          <SwitchButton
+            checked={row?.isShelfInfoRequired}
+            onChange={() => {
+              updateLocation({
+                id: row._id,
+                updates: {
+                  isShelfInfoRequired: !row?.isShelfInfoRequired,
+                },
+              });
+            }}
+          />
+        );
+      },
+    },
     {
       key: "shifts",
       node: (row: any) => {
