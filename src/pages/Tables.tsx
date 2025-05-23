@@ -516,9 +516,9 @@ const Tables = () => {
       }
     });
   }, [defaultUser, visits]);
-  useEffect(() => {
-    setTableNamesKey((prev) => prev + 1);
-  }, [tables, selectedLocationId]);
+  // useEffect(() => {
+  //   setTableNamesKey((prev) => prev + 1);
+  // }, [tables, selectedLocationId]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
