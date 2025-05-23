@@ -840,9 +840,9 @@ const Tables = () => {
                   className="flex gap-2 flex-wrap"
                 >
                   {locations
-                    .find((location) => location._id === selectedLocationId)
+                    ?.find((location) => location._id === selectedLocationId)
                     ?.tableNames?.map((tableName, index) => {
-                      const table = tables.find(
+                      const table = tables?.find(
                         (table) =>
                           table.name === tableName ||
                           table?.tables?.includes(tableName)
@@ -910,10 +910,10 @@ const Tables = () => {
               {/* inactive tables */}
               <div
                 key={selectedLocationId + "tables-large"}
-                className="flex gap-2 flex-wrap"
+                className="flex gap-2 flex-wrap "
               >
                 {locations
-                  .find((location) => location._id === selectedLocationId)
+                  ?.find((location) => location._id === selectedLocationId)
                   ?.tableNames?.map((tableName, index) => {
                     const table = tables.find(
                       (table) =>
