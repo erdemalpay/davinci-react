@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { FaPhoenixFramework, FaRegUserCircle } from "react-icons/fa";
+import {
+  FaPhoenixFramework,
+  FaRegListAlt,
+  FaRegUserCircle,
+} from "react-icons/fa";
 import { IoIosSettings, IoMdNotifications } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
@@ -11,8 +15,10 @@ import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
 import UserShifts from "../components/panelComponents/Profile/UserShifts";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
+import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { RoleEnum } from "../types";
@@ -26,6 +32,8 @@ export enum ProfileTabEnum {
   SETTINGS,
   MENTORED_GAMES,
   KNOWN_GAMES,
+  GAMEMASTERUSERSUMMARY,
+  SERVICEPERSONALUSERSUMMARY,
   SHIFTS,
   NOTIFICATIONS,
 }
@@ -99,6 +107,34 @@ export default function Profile() {
         user?.role._id === RoleEnum.GAMEMASTER ||
         user?.role._id === RoleEnum.GAMEMANAGER ||
         user?.role._id === RoleEnum.MANAGER
+      ),
+    },
+    {
+      number: ProfileTabEnum.GAMEMASTERUSERSUMMARY,
+      label: `${t("User Summary")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <GameMasterSummary userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.GAMEMANAGER ||
+        user?.role._id === RoleEnum.GAMEMASTER
+      ),
+    },
+    {
+      number: ProfileTabEnum.SERVICEPERSONALUSERSUMMARY,
+      label: `${t("User Summary")}`,
+      icon: <FaRegListAlt className="text-lg font-thin" />,
+      content: user && (
+        <div className="px-4 w-full">
+          <ServicePersonalSummary userId={user._id} />
+        </div>
+      ),
+      isDisabled: !(
+        user?.role._id === RoleEnum.BARISTA ||
+        user?.role._id === RoleEnum.SERVICE
       ),
     },
     {
