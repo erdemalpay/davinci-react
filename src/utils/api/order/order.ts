@@ -441,10 +441,9 @@ export function useGetOrders(category?: number[]) {
     "deliveredBy",
     "cancelledBy",
     "status",
-    "category",
     "location",
   ];
-  if (category) {
+  if (category || filterPanelFormElements.category !== "") {
     url = url.concat(`&category=${category}`);
   }
   parameters.forEach((param) => {
