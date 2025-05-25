@@ -459,13 +459,13 @@ const Tables = () => {
   const [mentors, setMentors] = useState<User[]>(
     defaultUser ? [defaultUser] : []
   );
-  const activeTables = tables.filter((table) => !table?.finishHour);
+  const activeTables = tables?.filter((table) => !table?.finishHour);
   const activeTableCount =
     tables.filter(
       (table) => !table?.finishHour && table.type === TableTypes.NORMAL
     ).length +
     tables
-      .filter(
+      ?.filter(
         (table) => !table?.finishHour && table.type === TableTypes.ACTIVITY
       )
       .reduce((prev, curr) => {
@@ -515,9 +515,6 @@ const Tables = () => {
       }
     });
   }, [defaultUser, visits]);
-  // useEffect(() => {
-  //   setTableNamesKey((prev) => prev + 1);
-  // }, [tables, selectedLocationId]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -829,7 +826,10 @@ const Tables = () => {
             </div>
 
             {/* Table name buttons for small screen */}
-            <div className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden">
+            <div
+              key={activeTableCount + "small"}
+              className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
+            >
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
@@ -899,7 +899,10 @@ const Tables = () => {
             </div>
           </div>
           {/* Table name buttons for big screen */}
-          <div className="sm:flex-col gap-2 hidden sm:flex">
+          <div
+            key={activeTableCount + "big"}
+            className="sm:flex-col gap-2 hidden sm:flex"
+          >
             <div className="flex-wrap gap-2 my-4">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
