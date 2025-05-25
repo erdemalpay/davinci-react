@@ -239,7 +239,6 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
-              menuPortalTarget={!isMobile ? document.body : undefined}
             />
           ) : (
             <Select
@@ -266,7 +265,6 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
-              menuPortalTarget={!isMobile ? document.body : undefined}
             />
           )}
         </div>
