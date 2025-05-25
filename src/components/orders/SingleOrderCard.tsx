@@ -59,7 +59,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         orderCreatedSound
           .play()
           .catch((error) => console.error("Error playing sound:", error));
-      }, 30000);
+      }, 10000);
     }
 
     return () => {
