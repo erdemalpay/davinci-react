@@ -850,7 +850,7 @@ const Tables = () => {
                       if (table && !table?.finishHour) {
                         return (
                           <a
-                            key={table?._id + "tableselector"}
+                            key={table?.tables?.length + "tableselector"}
                             onClick={() =>
                               scrollToSection(`table-${table?._id}`)
                             }
@@ -915,7 +915,7 @@ const Tables = () => {
                 {locations
                   ?.find((location) => location._id === selectedLocationId)
                   ?.tableNames?.map((tableName, index) => {
-                    const table = tables.find(
+                    const table = tables?.find(
                       (table) =>
                         table.name === tableName ||
                         table?.tables?.includes(tableName)
@@ -923,7 +923,7 @@ const Tables = () => {
                     if (table && !table?.finishHour) {
                       return (
                         <a
-                          key={table?._id + "tableselector"}
+                          key={table?.tables?.length + "tableselector"}
                           onClick={() =>
                             scrollToSection(`table-large-${table?._id}`)
                           }

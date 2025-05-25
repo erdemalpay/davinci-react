@@ -444,7 +444,9 @@ export function useGetOrders(category?: number[]) {
     "location",
   ];
   if (category || filterPanelFormElements.category !== "") {
-    url = url.concat(`&category=${category}`);
+    url = url.concat(
+      `&category=${category || filterPanelFormElements.category}`
+    );
   }
   parameters.forEach((param) => {
     if (filterPanelFormElements[param]) {
