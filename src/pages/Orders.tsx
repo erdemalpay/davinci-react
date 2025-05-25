@@ -1,6 +1,8 @@
 import { subDays } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { CheckSwitch } from "../components/common/CheckSwitch";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
@@ -8,6 +10,11 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
+import { RoleEnum } from "../types";
+import {
+  useCategoryMutations,
+  useGetCategories,
+} from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
@@ -27,18 +34,27 @@ function Orders() {
     ordersActiveTab,
     setOrdersActiveTab,
   } = useGeneralContext();
+  const { t } = useTranslation();
   const currentPageId = "orders";
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const kitchens = useGetKitchens();
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
+  const { updateCategory } = useCategoryMutations();
+  const categories = useGetCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
+  const FARMBURGERCATEGORYID = 30;
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
     setTodaysOrderDate(formatDate(newDate));
   };
+  const farmBurgerCategory = useMemo(() => {
+    return categories?.find(
+      (category) => category._id === FARMBURGERCATEGORYID
+    );
+  }, [categories, FARMBURGERCATEGORYID]);
   const handleIncrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = new Date(date);
@@ -48,7 +64,6 @@ function Orders() {
   const [tabs, setTabs] = useState<OrderTabType[]>([]);
   useEffect(() => {
     if (!user || pages.length === 0 || !kitchens || !orders) return;
-
     const currentPageTabs = pages.find(
       (page) => page._id === currentPageId
     )?.tabs;
@@ -60,7 +75,6 @@ function Orders() {
       isDisabled: false,
       kitchen: kitchen,
     }));
-
     const filteredTabs = orderTabs
       ?.filter((tab) =>
         currentPageTabs
@@ -71,38 +85,54 @@ function Orders() {
         ...tab,
         number: index,
       }));
-
     setTabs(filteredTabs ?? []);
     setTabPanelKey((prev) => prev + 1);
   }, [orders, kitchens, pages, user, todaysOrderDate]);
-
   const allowedLocations = useMemo(() => {
     return (
       tabs.find((tab) => tab.number === ordersActiveTab)?.kitchen?.locations ||
       []
     );
-  }, [ordersActiveTab, tabs]);
+  }, [ordersActiveTab, tabs, categories]);
   const tabPanelFilters = [
     <div
       key={"tabPanelFilters"}
-      className="flex flex-row items-center w-fit ml-auto text-3xl  "
+      className="flex flex-row gap-4 items-center ml-auto"
     >
-      <IoIosArrowBack
-        className="text-xl"
-        onClick={() => {
-          handleDecrementDate(todaysOrderDate ?? "");
-        }}
-      />
-      <DateInput
-        date={parseDate(todaysOrderDate)}
-        setDate={setTodaysOrderDate}
-      />
-      <IoIosArrowForward
-        className="text-xl"
-        onClick={() => {
-          handleIncrementDate(todaysOrderDate ?? "");
-        }}
-      />
+      {user?.role?._id === RoleEnum.KITCHEN2 && (
+        <div className="flex flex-row items-center gap-2">
+          <p className="font-medium text-md">{t("Farm Burger Activity")}</p>
+          <CheckSwitch
+            checked={farmBurgerCategory?.active ?? false}
+            onChange={() => {
+              updateCategory({
+                id: FARMBURGERCATEGORYID,
+                updates: {
+                  active: !farmBurgerCategory?.active,
+                },
+              });
+            }}
+          />
+        </div>
+      )}
+      <div className="flex flex-row items-center w-fit ml-auto text-3xl  ">
+        <IoIosArrowBack
+          className="text-xl"
+          onClick={() => {
+            handleDecrementDate(todaysOrderDate ?? "");
+          }}
+        />
+        <DateInput
+          date={parseDate(todaysOrderDate)}
+          setDate={setTodaysOrderDate}
+        />
+        <IoIosArrowForward
+          className="text-xl"
+          onClick={() => {
+            handleIncrementDate(todaysOrderDate ?? "");
+          }}
+        />
+      </div>
     </div>,
   ];
   return (
