@@ -94,6 +94,7 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+  const [tableNamesKey, setTableNamesKey] = useState(0);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
     useState(false);
   const {
@@ -515,9 +516,9 @@ const Tables = () => {
       }
     });
   }, [defaultUser, visits]);
-  // useEffect(() => {
-  //   setTableNamesKey((prev) => prev + 1);
-  // }, [tables, selectedLocationId]);
+  useEffect(() => {
+    setTableNamesKey((prev) => prev + 1);
+  }, [tables]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -829,7 +830,10 @@ const Tables = () => {
             </div>
 
             {/* Table name buttons for small screen */}
-            <div className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden">
+            <div
+              key={tableNamesKey + "small"}
+              className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
+            >
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
@@ -899,7 +903,10 @@ const Tables = () => {
             </div>
           </div>
           {/* Table name buttons for big screen */}
-          <div className="sm:flex-col gap-2 hidden sm:flex ">
+          <div
+            key={tableNamesKey + "big"}
+            className="sm:flex-col gap-2 hidden sm:flex "
+          >
             <div className=" flex-wrap gap-2 my-4 ">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
