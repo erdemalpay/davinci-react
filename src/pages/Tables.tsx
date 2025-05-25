@@ -94,7 +94,6 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
-  const [tableNamesKey, setTableNamesKey] = useState(0);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
     useState(false);
   const {
@@ -516,9 +515,9 @@ const Tables = () => {
       }
     });
   }, [defaultUser, visits]);
-  useEffect(() => {
-    setTableNamesKey((prev) => prev + 1);
-  }, [tables]);
+  // useEffect(() => {
+  //   setTableNamesKey((prev) => prev + 1);
+  // }, [tables, selectedLocationId]);
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);
@@ -830,10 +829,7 @@ const Tables = () => {
             </div>
 
             {/* Table name buttons for small screen */}
-            <div
-              key={tableNamesKey + "small"}
-              className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
-            >
+            <div className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden">
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
@@ -903,58 +899,51 @@ const Tables = () => {
             </div>
           </div>
           {/* Table name buttons for big screen */}
-          <div
-            key={tableNamesKey + "big"}
-            className="sm:flex-col gap-2 hidden sm:flex "
-          >
-            <div className=" flex-wrap gap-2 my-4 ">
+          <div className="sm:flex-col gap-2 hidden sm:flex">
+            <div className="flex-wrap gap-2 my-4">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
                 <ActiveButtonCallsList buttonCalls={buttonCalls} />
               </div>
             </div>
+
             <div className="flex flex-row gap-2">
               {/* inactive tables */}
-              <div
-                key={selectedLocationId + "tables-large"}
-                className="flex gap-2 flex-wrap "
-              >
+              <div className="flex gap-2 flex-wrap">
                 {locations
                   ?.find((location) => location._id === selectedLocationId)
-                  ?.tableNames?.map((tableName, index) => {
+                  ?.tableNames?.map((tableName) => {
                     const table = tables?.find(
-                      (table) =>
-                        table.name === tableName ||
-                        table?.tables?.includes(tableName)
+                      (t) =>
+                        t.name === tableName || t.tables?.includes(tableName)
                     );
-                    if (table && !table?.finishHour) {
+
+                    if (table && !table.finishHour) {
                       return (
                         <a
-                          key={table?.tables?.length + "tableselector"}
+                          key={table._id}
                           onClick={() =>
-                            scrollToSection(`table-large-${table?._id}`)
+                            scrollToSection(`table-large-${table._id}`)
                           }
-                          className={` bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
+                          className={`bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColor(
                             table
                           )}`}
                         >
-                          {table?.type === TableTypes.ACTIVITY
-                            ? `${tableName} (${table?.name})`
-                            : table?.name}
+                          {table.type === TableTypes.ACTIVITY
+                            ? `${tableName} (${table.name})`
+                            : table.name}
                         </a>
                       );
                     }
+
                     return (
                       <a
-                        key={index}
+                        key={tableName}
                         onClick={() => {
-                          setTableForm({
-                            ...tableForm,
-                            name: tableName,
-                          });
+                          setTableForm({ ...tableForm, name: tableName });
                           setIsCreateTableDialogOpen(true);
                         }}
-                        className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
+                        className="bg-gray-100 px-4 py-2 rounded-lg focus:outline-none hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer"
                       >
                         {tableName}
                       </a>
@@ -963,6 +952,7 @@ const Tables = () => {
               </div>
             </div>
           </div>
+
           <div className="flex flex-col  md:flex-row  items-center  mt-4 md:mt-2">
             {/*Cafe info opentables ...  */}
             {(activeTableCount > 0 ||
