@@ -73,6 +73,19 @@ const customFilterOption = (
   return normalizedLabel.includes(normalizedSearch);
 };
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < breakpoint
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
 const SelectInput = ({
   label,
   options,
@@ -94,7 +107,7 @@ const SelectInput = ({
     options?.sort((a, b) => a?.label?.localeCompare(b?.label))
   );
   const selectRef = useRef<HTMLDivElement>(null);
-
+  const isMobile = useIsMobile(768);
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -132,6 +145,7 @@ const SelectInput = ({
       fontSize: "16px",
     }),
   };
+
   useEffect(() => {
     const sorted = options.sort((a, b) => {
       const aStartsWith = normalizeText(a.label).startsWith(
@@ -223,8 +237,9 @@ const SelectInput = ({
               }}
               isDisabled={isReadOnly}
               menuShouldScrollIntoView={true}
-              menuPlacement="auto"
-              menuPosition="fixed"
+              menuPlacement={isMobile ? "bottom" : "auto"}
+              menuPosition={isMobile ? "absolute" : "fixed"}
+              menuPortalTarget={!isMobile ? document.body : undefined}
             />
           ) : (
             <Select
@@ -249,8 +264,9 @@ const SelectInput = ({
               }}
               isDisabled={isReadOnly}
               menuShouldScrollIntoView={true}
-              menuPlacement="auto"
-              menuPosition="fixed"
+              menuPlacement={isMobile ? "bottom" : "auto"}
+              menuPosition={isMobile ? "absolute" : "fixed"}
+              menuPortalTarget={!isMobile ? document.body : undefined}
             />
           )}
         </div>
