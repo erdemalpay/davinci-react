@@ -311,6 +311,7 @@ const OrderPaymentModal = ({
       if (!farmCategoryActivity) {
         return item?.category !== FARMBURGERCATEGORYID;
       }
+      return true;
     })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
