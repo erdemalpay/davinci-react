@@ -27,6 +27,7 @@ import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
   ButtonCallType,
+  FARMBURGERCATEGORYID,
   Game,
   MenuItem,
   Order,
@@ -94,6 +95,10 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+  const farmCategoryActivity = getItem(
+    FARMBURGERCATEGORYID,
+    categories
+  )?.active;
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
     useState(false);
   const {
@@ -1181,6 +1186,9 @@ const Tables = () => {
             setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
             setIsTakeAwayOrderModalOpen(false);
           }}
+          {...(!farmCategoryActivity
+            ? { upperMessage: t("Farm Category is not active") }
+            : {})}
           inputs={orderInputsForTakeAway}
           formKeys={orderFormKeysForTakeAway}
           submitItem={createTable as any}

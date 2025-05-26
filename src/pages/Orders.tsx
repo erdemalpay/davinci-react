@@ -10,7 +10,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum } from "../types";
+import { FARMBURGERCATEGORYID, RoleEnum } from "../types";
 import {
   useCategoryMutations,
   useGetCategories,
@@ -44,7 +44,6 @@ function Orders() {
   const categories = useGetCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
-  const FARMBURGERCATEGORYID = 30;
   const handleDecrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = subDays(date, 1);

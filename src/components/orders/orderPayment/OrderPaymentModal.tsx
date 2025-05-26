@@ -8,12 +8,13 @@ import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
+  FARMBURGERCATEGORYID,
   MenuItem,
   OrderCollectionStatus,
   OrderStatus,
+  TURKISHLIRA,
   Table,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../../../types";
 import { useGetAllAccountProducts } from "../../../utils/api/account/product";
@@ -45,9 +46,9 @@ import {
 } from "../../panelComponents/shared/types";
 import OrderListForPanel from "../../tables/OrderListForPanel";
 import CollectionModal from "./CollectionModal";
-import OrderLists from "./orderList/OrderLists";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
+import OrderLists from "./orderList/OrderLists";
 
 type OptionType = { value: string; label: string };
 
@@ -142,7 +143,10 @@ const OrderPaymentModal = ({
       (selectedActivityUser === "" ||
         order.activityPlayer === selectedActivityUser)
   );
-
+  const farmCategoryActivity = getItem(
+    FARMBURGERCATEGORYID,
+    categories
+  )?.active;
   const collectionsTotalAmount = Number(
     collections
       ?.filter(
@@ -565,6 +569,9 @@ const OrderPaymentModal = ({
           setIsCreateOrderDialogOpen(false);
         }}
         inputs={orderInputs}
+        {...(!farmCategoryActivity
+          ? { upperMessage: t("Farm Category is not active") }
+          : {})}
         formKeys={orderFormKeys}
         submitItem={createOrder as any}
         setForm={setOrderForm}

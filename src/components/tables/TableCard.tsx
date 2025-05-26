@@ -17,6 +17,7 @@ import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  FARMBURGERCATEGORYID,
   Game,
   Gameplay,
   MenuItem,
@@ -136,6 +137,10 @@ export function TableCard({
   const { user } = useUserContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
+  const farmCategoryActivity = getItem(
+    FARMBURGERCATEGORYID,
+    categories
+  )?.active;
   const [tableCombineForm, setTableCombineForm] = useState({
     table: "",
   });
@@ -802,6 +807,9 @@ export function TableCard({
           }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
+          {...(!farmCategoryActivity
+            ? { upperMessage: t("Farm Category is not active") }
+            : {})}
           submitItem={createOrder as any}
           isConfirmationDialogRequired={() => {
             const menuItem = menuItems?.find(

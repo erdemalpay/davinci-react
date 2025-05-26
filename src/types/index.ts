@@ -1468,3 +1468,4 @@ export const notificationEventsOptions = [
 
 export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
+export const FARMBURGERCATEGORYID = 30;
