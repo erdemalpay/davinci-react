@@ -861,7 +861,9 @@ const Tables = () => {
                       if (table && !table?.finishHour) {
                         return (
                           <a
-                            key={table?.tables?.length + "tableselector"}
+                            key={
+                              table?.tables?.length + "tableselector" + "small"
+                            }
                             onClick={() =>
                               scrollToSection(`table-${table?._id}`)
                             }
@@ -877,7 +879,7 @@ const Tables = () => {
                       }
                       return (
                         <a
-                          key={index + "tableselector"}
+                          key={index + "tableselector" + "big"}
                           onClick={() => {
                             setTableForm({
                               ...tableForm,

@@ -20,7 +20,7 @@ import {
 import { useGetAllAccountProducts } from "../../../utils/api/account/product";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
-import { useGetCategories } from "../../../utils/api/menu/category";
+import { useGetAllCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import {
@@ -107,7 +107,7 @@ const OrderPaymentModal = ({
     }
   };
   const table = getTable(tableId) as Table;
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
@@ -739,10 +739,12 @@ const OrderPaymentModal = ({
                       <span className="font-semibold">{t("Table")}</span>:{" "}
                       {table?.name}
                     </h1>
-                    <div className="font-medium">
-                      <span>{format(table?.date, "dd/mm/yyyy")}-</span>
-                      <span>{table?.startHour}</span>
-                    </div>
+                    {table && (
+                      <div className="font-medium">
+                        <span>{format(table?.date, "dd/mm/yyyy")}-</span>
+                        <span>{table?.startHour}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-row gap-2  items-center">
