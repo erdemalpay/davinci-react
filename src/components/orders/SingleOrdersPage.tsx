@@ -1,7 +1,7 @@
 import { FaRegClock } from "react-icons/fa6";
 import { useLocationContext } from "../../context/Location.context";
 import { Kitchen, Order, OrderStatus } from "../../types";
-import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import OrderStatusContainer from "../orders/OrderStatusContainer";
@@ -12,7 +12,7 @@ type Props = {
 };
 const SingleOrdersPage = ({ kitchen, orders }: Props) => {
   const { selectedLocationId } = useLocationContext();
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const items = useGetMenuItems();
   if (!orders || !categories || !items) return <></>;
   const filteredOrders = orders?.filter(
