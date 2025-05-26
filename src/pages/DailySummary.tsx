@@ -248,7 +248,7 @@ const DailySummary = () => {
         </div>
 
         {/* summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center">
           {rows &&
             rows.map((row, index) => {
               return (
