@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
+import { useGeneralContext } from "../../context/General.context";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
@@ -19,6 +20,7 @@ const ProductShelfInfo = () => {
   const products = useGetAccountProducts();
   const expenseTypes = useGetAccountExpenseTypes();
   const [tableKey, setTableKey] = useState(0);
+  const { currentPage } = useGeneralContext();
   const {
     isEnableProductShelfEdit,
     setIsEnableProductShelfEdit,
@@ -78,7 +80,7 @@ const ProductShelfInfo = () => {
         key: `${location._id}`,
         node: (row: any) => {
           return isEnableProductShelfEdit ? (
-            <div>
+            <div key={currentPage + row._id + row?.[`${location._id}`]}>
               <TextInput
                 key={`${location._id}`}
                 type={InputTypes.TEXT}
@@ -161,7 +163,13 @@ const ProductShelfInfo = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prevKey) => prevKey + 1);
-  }, [locations, products, expenseTypes, filterProductShelfInfoFormElements]);
+  }, [
+    locations,
+    products,
+    expenseTypes,
+    filterProductShelfInfoFormElements,
+    isEnableProductShelfEdit,
+  ]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
