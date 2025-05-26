@@ -168,6 +168,11 @@ export function TableCard({
         !orderForm.category || menuItem.category === Number(orderForm.category)
       );
     })
+    ?.filter((item) => {
+      if (!farmCategoryActivity) {
+        return item?.category !== FARMBURGERCATEGORYID;
+      }
+    })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
       table?.isOnlineSale

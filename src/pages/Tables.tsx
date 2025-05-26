@@ -183,6 +183,11 @@ const Tables = () => {
         !orderForm.category || menuItem.category === Number(orderForm.category)
       );
     })
+    ?.filter((item) => {
+      if (!farmCategoryActivity) {
+        return item?.category !== FARMBURGERCATEGORYID;
+      }
+    })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.map((menuItem) => {
       return {
