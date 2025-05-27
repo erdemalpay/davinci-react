@@ -12,8 +12,8 @@ import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { FARMBURGERCATEGORYID, RoleEnum } from "../types";
 import {
-  useCategoryMutations,
   useGetCategories,
+  useUpdateFarmCategoryMutation,
 } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetGivenDateOrders } from "../utils/api/order/order";
@@ -40,7 +40,7 @@ function Orders() {
   const kitchens = useGetKitchens();
   const pages = useGetPanelControlPages();
   const { user } = useUserContext();
-  const { updateCategory } = useCategoryMutations();
+  const { mutate: updateFarmCategory } = useUpdateFarmCategoryMutation();
   const categories = useGetCategories();
   const { todaysOrderDate, setTodaysOrderDate } = useOrderContext();
   const orders = useGetGivenDateOrders();
@@ -104,7 +104,7 @@ function Orders() {
           <CheckSwitch
             checked={farmBurgerCategory?.active ?? false}
             onChange={() => {
-              updateCategory({
+              updateFarmCategory({
                 id: FARMBURGERCATEGORYID,
                 updates: {
                   active: !farmBurgerCategory?.active,

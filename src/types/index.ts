@@ -1132,6 +1132,8 @@ export enum ActivityType {
   UPDATE_RESERVATION = "UPDATE_RESERVATION",
   UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION",
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
+  FARM_BURGER_ACTIVATED = "FARM_BURGER_ACTIVATED",
+  FARM_BURGER_DEACTIVATED = "FARM_BURGER_DEACTIVATED",
 }
 export const activityTypeDetails = [
   {
@@ -1363,6 +1365,16 @@ export const activityTypeDetails = [
     value: ActivityType.UPDATE_ACCOUNT_PRODUCT,
     label: "Update Account Product",
     bgColor: "bg-purple-900",
+  },
+  {
+    value: ActivityType.FARM_BURGER_ACTIVATED,
+    label: "Farm Burger Activated",
+    bgColor: "bg-green-800",
+  },
+  {
+    value: ActivityType.FARM_BURGER_DEACTIVATED,
+    label: "Farm Burger Deactivated",
+    bgColor: "bg-red-800",
   },
 ];
 

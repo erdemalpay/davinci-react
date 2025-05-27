@@ -23,6 +23,37 @@ export function useGetAllCategories() {
   return useGetList<MenuCategory>(`${Paths.Menu}/categories-all`);
 }
 
+export function updateFarmCategory({
+  id,
+  updates,
+}: {
+  id: number;
+  updates: Partial<MenuCategory>;
+}) {
+  return patch({
+    path: `${Paths.Menu}/categories-farm/${id}`,
+    payload: updates,
+  });
+}
+export function useUpdateFarmCategoryMutation() {
+  const queryKey = [`${Paths.MenuCategories}`];
+  const queryClient = useQueryClient();
+  return useMutation(updateFarmCategory, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries(queryKey);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKey);
+    },
+  });
+}
+
 export function updateCategoriesOrder({
   id,
   newOrder,
