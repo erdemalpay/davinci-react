@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
   FaPhoenixFramework,
   FaRegListAlt,
@@ -21,8 +20,8 @@ import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
+import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 import { useGetUser } from "../utils/api/user";
 
 export enum ProfileTabEnum {
@@ -37,10 +36,82 @@ export enum ProfileTabEnum {
   SHIFTS,
   NOTIFICATIONS,
 }
+export const ProfilePageTabs = [
+  {
+    number: ProfileTabEnum.PHOTO,
+    label: "Photo",
+    icon: <FaRegUserCircle className="text-lg font-thin" />,
+    content: <ProfileCard />,
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.PERSONAL_DETAILS,
+    label: "Personal Details",
+    icon: <TbListDetails className="text-lg font-thin" />,
+    content: null, // needs updatedUser prop
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.CHANGE_PASSWORD,
+    label: "Change Password",
+    icon: <MdOutlineEventNote className="text-lg font-thin" />,
+    content: <ChangePassword />,
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.SETTINGS,
+    label: "Settings",
+    icon: <IoIosSettings className="text-lg font-thin" />,
+    content: <Settings />,
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.MENTORED_GAMES,
+    label: "Mentored Games",
+    icon: <MdOutlineEventNote className="text-lg font-thin" />,
+    content: null, // needs data prop
+    isDisabled: true, // default until we check role
+  },
+  {
+    number: ProfileTabEnum.KNOWN_GAMES,
+    label: "Known Games",
+    icon: <MdOutlineEventNote className="text-lg font-thin" />,
+    content: null, // needs user + translate count
+    isDisabled: true,
+  },
+  {
+    number: ProfileTabEnum.GAMEMASTERUSERSUMMARY,
+    label: "User Summary(Game)",
+    icon: <FaRegListAlt className="text-lg font-thin" />,
+    content: null, // needs data prop
+    isDisabled: true,
+  },
+  {
+    number: ProfileTabEnum.SERVICEPERSONALUSERSUMMARY,
+    label: "User Summary(Service)",
+    icon: <FaRegListAlt className="text-lg font-thin" />,
+    content: null, // needs user + role
+    isDisabled: true,
+  },
+  {
+    number: ProfileTabEnum.SHIFTS,
+    label: "Shifts",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    content: <UserShifts />,
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.NOTIFICATIONS,
+    label: "Notifications",
+    icon: <IoMdNotifications className="text-lg font-thin" />,
+    content: <UserNotifications />,
+    isDisabled: false,
+  },
+];
+
 export default function Profile() {
   const updatedUser = useGetUser();
   const { user } = useUserContext();
-  const { t } = useTranslation();
   const { data } = useGetMentorGamePlays(user?._id ?? "");
   const {
     setCurrentPage,
@@ -48,110 +119,55 @@ export default function Profile() {
     profileActiveTab,
     setProfileActiveTab,
   } = useGeneralContext();
-  const tabs = [
-    {
-      number: ProfileTabEnum.PHOTO,
-      label: "Photo",
-      icon: <FaRegUserCircle className="text-lg font-thin" />,
-      content: <ProfileCard />,
-      isDisabled: false,
-    },
-    {
-      number: ProfileTabEnum.PERSONAL_DETAILS,
-      label: "Personal Details",
-      icon: <TbListDetails className="text-lg font-thin" />,
-      content: updatedUser && (
-        <PersonalDetails isEditable={true} user={updatedUser} />
-      ),
-      isDisabled: false,
-    },
-    {
-      number: ProfileTabEnum.CHANGE_PASSWORD,
-      label: "Change Password",
-      icon: <MdOutlineEventNote className="text-lg font-thin" />,
-      content: <ChangePassword />,
-      isDisabled: false,
-    },
-    {
-      number: ProfileTabEnum.SETTINGS,
-      label: "Settings",
-      icon: <IoIosSettings className="text-lg font-thin" />,
-      content: <Settings />,
-      isDisabled: false,
-    },
-    {
-      number: ProfileTabEnum.MENTORED_GAMES,
-      label: "Mentored Games",
-      icon: <MdOutlineEventNote className="text-lg font-thin" />,
-      content: data && (
-        <div className="px-4 w-full ">
-          <GamesIMentored data={data} />,
-        </div>
-      ),
-      isDisabled: !(
-        user?.role._id === RoleEnum.GAMEMASTER ||
-        user?.role._id === RoleEnum.GAMEMANAGER ||
-        user?.role._id === RoleEnum.MANAGER
-      ),
-    },
-    {
-      number: ProfileTabEnum.KNOWN_GAMES,
-      label: `${t("Known Games")} (${user?.userGames.length})`,
-      icon: <MdOutlineEventNote className="text-lg font-thin" />,
-      content: (
-        <div className="px-4 w-full ">
-          {user && <GamesIKnow userId={user._id} />}
-        </div>
-      ),
-      isDisabled: !(
-        user?.role._id === RoleEnum.GAMEMASTER ||
-        user?.role._id === RoleEnum.GAMEMANAGER ||
-        user?.role._id === RoleEnum.MANAGER
-      ),
-    },
-    {
-      number: ProfileTabEnum.GAMEMASTERUSERSUMMARY,
-      label: `${t("User Summary")}`,
-      icon: <FaRegListAlt className="text-lg font-thin" />,
-      content: user && (
-        <div className="px-4 w-full">
-          <GameMasterSummary userId={user._id} />
-        </div>
-      ),
-      isDisabled: !(
-        user?.role._id === RoleEnum.GAMEMANAGER ||
-        user?.role._id === RoleEnum.GAMEMASTER
-      ),
-    },
-    {
-      number: ProfileTabEnum.SERVICEPERSONALUSERSUMMARY,
-      label: `${t("User Summary")}`,
-      icon: <FaRegListAlt className="text-lg font-thin" />,
-      content: user && (
-        <div className="px-4 w-full">
-          <ServicePersonalSummary userId={user._id} />
-        </div>
-      ),
-      isDisabled: !(
-        user?.role._id === RoleEnum.BARISTA ||
-        user?.role._id === RoleEnum.SERVICE
-      ),
-    },
-    {
-      number: ProfileTabEnum.SHIFTS,
-      label: "Shifts",
-      icon: <FaPhoenixFramework className="text-lg font-thin" />,
-      content: <UserShifts />,
-      isDisabled: false,
-    },
-    {
-      number: ProfileTabEnum.NOTIFICATIONS,
-      label: t("Notifications"),
-      icon: <IoMdNotifications className="text-lg font-thin" />,
-      content: <UserNotifications />,
-      isDisabled: false,
-    },
-  ];
+  const currentPageId = "profile";
+  const pages = useGetPanelControlPages();
+  if (!user || pages.length === 0) return <></>;
+  const currentPageTabs = pages.find(
+    (page) => page._id === currentPageId
+  )?.tabs;
+  const tabs = ProfilePageTabs.map((tab) => {
+    return {
+      ...tab,
+      isDisabled: currentPageTabs
+        ?.find((item) => item.name === tab.label)
+        ?.permissionRoles?.includes(user.role._id)
+        ? false
+        : true,
+      ...(tab.number === ProfileTabEnum.PERSONAL_DETAILS && {
+        content: updatedUser && (
+          <PersonalDetails isEditable={true} user={updatedUser} />
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.MENTORED_GAMES && {
+        content: data && (
+          <div className="px-4 w-full ">
+            <GamesIMentored data={data} />,
+          </div>
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.KNOWN_GAMES && {
+        content: (
+          <div className="px-4 w-full ">
+            {user && <GamesIKnow userId={user._id} />}
+          </div>
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.GAMEMASTERUSERSUMMARY && {
+        content: user && (
+          <div className="px-4 w-full">
+            <GameMasterSummary userId={user._id} />
+          </div>
+        ),
+      }),
+      ...(tab.number === ProfileTabEnum.SERVICEPERSONALUSERSUMMARY && {
+        content: user && (
+          <div className="px-4 w-full">
+            <ServicePersonalSummary userId={user._id} />
+          </div>
+        ),
+      }),
+    };
+  });
 
   return (
     <>

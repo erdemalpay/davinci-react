@@ -33,7 +33,7 @@ import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
 import Product from "../pages/Product";
-import Profile from "../pages/Profile";
+import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
 import Rewards from "../pages/Rewards";
 import Service from "../pages/Service";
@@ -349,6 +349,7 @@ export const allRoutes: {
     path: Routes.Profile,
     element: Profile,
     isOnSidebar: true,
+    tabs: ProfilePageTabs,
   },
 
   {
