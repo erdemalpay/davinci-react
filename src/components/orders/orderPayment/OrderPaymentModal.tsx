@@ -606,7 +606,7 @@ const OrderPaymentModal = ({
           "Stock Quantity is not enough. Do you want to continue?"
         )}
         cancelButtonLabel="Close"
-        anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-5/6 md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
+        anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
         anotherPanel={<OrderListForPanel table={table} />}
         additionalButtons={[
           {
@@ -741,7 +741,17 @@ const OrderPaymentModal = ({
                     </h1>
                     {table && (
                       <div className="font-medium">
-                        <span>{format(table?.date, "dd/mm/yyyy")}-</span>
+                        <span>
+                          {table?.date
+                            ? format(
+                                // make sure it’s a Date instance
+                                typeof table.date === "string"
+                                  ? new Date(table.date)
+                                  : table.date,
+                                "dd/MM/yyyy"
+                              )
+                            : "-"}
+                        </span>
                         <span>{table?.startHour}</span>
                       </div>
                     )}
