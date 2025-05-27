@@ -37,7 +37,7 @@ const ProductStockHistory = () => {
       product: selectedProduct?._id,
       expenseType: "",
       location: "",
-      status: "",
+      status: [],
       before: "",
       after: "",
       sort: "",
@@ -95,6 +95,7 @@ const ProductStockHistory = () => {
         };
       }),
       placeholder: t("Status"),
+      isMultiple: true,
       required: true,
     },
     {

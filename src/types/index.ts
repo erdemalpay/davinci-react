@@ -902,7 +902,19 @@ export enum BrandPageTabEnum {
 export enum ServicePageTabEnum {
   SERVICEEXPENSES,
 }
-
+export enum OrderDataTabEnum {
+  DAILYINCOME,
+  GROUPEDPRODUCTSALESREPORT,
+  SINGLEPRODUCTSALESREPORT,
+  UPPERCATEGORYBASEDSALESREPORT,
+  CATEGORYBASEDSALESREPORT,
+  DISCOUNTBASEDSALES,
+  COLLECTIONS,
+  ORDERS,
+  IKASORDERS,
+  FARMBURGER,
+  PERSONALORDERDATAS,
+}
 export enum StockHistoryStatusEnum {
   EXPENSEENTRY = "EXPENSEENTRY",
   EXPENSEDELETE = "EXPENSEDELETE",
@@ -925,20 +937,10 @@ export enum StockHistoryStatusEnum {
   LOSSPRODUCT = "LOSSPRODUCT",
   ORDERRETURN = "ORDERRETURN",
   IKASORDERCREATE = "IKASORDERCREATE",
+  LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
+  CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
 }
-export enum OrderDataTabEnum {
-  DAILYINCOME,
-  GROUPEDPRODUCTSALESREPORT,
-  SINGLEPRODUCTSALESREPORT,
-  UPPERCATEGORYBASEDSALESREPORT,
-  CATEGORYBASEDSALESREPORT,
-  DISCOUNTBASEDSALES,
-  COLLECTIONS,
-  ORDERS,
-  IKASORDERS,
-  FARMBURGER,
-  PERSONALORDERDATAS,
-}
+
 export const stockHistoryStatuses = [
   {
     value: StockHistoryStatusEnum.EXPENSEENTRY,
@@ -1044,6 +1046,16 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.IKASORDERCREATE,
     label: "Ikas Order Create",
     backgroundColor: "bg-pink-800",
+  },
+  {
+    value: StockHistoryStatusEnum.LOSSPRODUCTCANCEL,
+    label: "Loss Product Cancel",
+    backgroundColor: "bg-gray-800",
+  },
+  {
+    value: StockHistoryStatusEnum.CONSUMPTIONCANCEL,
+    label: "Consumption Cancel",
+    backgroundColor: "bg-teal-800",
   },
 ];
 

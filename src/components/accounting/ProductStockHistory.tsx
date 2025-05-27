@@ -105,6 +105,7 @@ const ProductStockHistory = () => {
         };
       }),
       placeholder: t("Status"),
+      isMultiple: true,
       required: true,
     },
     {
