@@ -744,13 +744,12 @@ const OrderPaymentModal = ({
                         <span>
                           {table?.date
                             ? format(
-                                // make sure it’s a Date instance
                                 typeof table.date === "string"
                                   ? new Date(table.date)
                                   : table.date,
                                 "dd/MM/yyyy"
-                              )
-                            : "-"}
+                              ) + "-"
+                            : ""}
                         </span>
                         <span>{table?.startHour}</span>
                       </div>
