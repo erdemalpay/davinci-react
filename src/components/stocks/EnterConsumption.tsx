@@ -1,16 +1,22 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, stockHistoryStatuses } from "../../types";
+import {
+  RoleEnum,
+  StockHistoryStatusEnum,
+  stockHistoryStatuses,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   StockHistoryPayload,
+  useAccountProductStockHistoryMutations,
   useGetAccountProductStockHistorys,
 } from "../../utils/api/account/productStockHistory";
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
@@ -26,6 +32,7 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -37,6 +44,10 @@ const EnterConsumption = () => {
   const { selectedLocationId } = useLocationContext();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>({});
+  const { updateAccountProductStockHistory } =
+    useAccountProductStockHistoryMutations();
   const {
     filterEnterConsumptionPanelFormElements,
     setFilterEnterConsumptionPanelFormElements,
@@ -180,6 +191,10 @@ const EnterConsumption = () => {
       isSortable: false,
       correspondingKey: "status",
     },
+    {
+      key: t("Actions"),
+      isSortable: false,
+    },
   ];
   const addButton = {
     name: t("Add Consumption"),
@@ -296,7 +311,37 @@ const EnterConsumption = () => {
     filterPanelFormElements: filterEnterConsumptionPanelFormElements,
     setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
   };
-
+  const actions = [
+    {
+      name: t("Cancel"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCancelOrderModalOpen}
+          close={() => setIsCancelOrderModalOpen(false)}
+          confirm={() => {
+            updateAccountProductStockHistory({
+              id: rowToAction._id,
+              updates: {
+                status:
+                  rowToAction.status === StockHistoryStatusEnum.CONSUMPTION
+                    ? StockHistoryStatusEnum.CONSUMPTIONCANCEL
+                    : StockHistoryStatusEnum.CONSUMPTION,
+              },
+            });
+            setIsCancelOrderModalOpen(false);
+          }}
+          title={t("Consumption Cancel")}
+          text={`${t("Consumption")} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      isModal: true,
+      isModalOpen: isCancelOrderModalOpen,
+      setIsModal: setIsCancelOrderModalOpen,
+    },
+  ];
   useEffect(() => {
     setCurrentPage(1);
   }, [filterEnterConsumptionPanelFormElements]);
@@ -329,7 +374,8 @@ const EnterConsumption = () => {
           isSearch={false}
           addButton={addButton}
           title={t("Consumption History")}
-          isActionsActive={false}
+          isActionsActive={true}
+          actions={actions}
           {...(pagination && { pagination })}
         />
       </div>

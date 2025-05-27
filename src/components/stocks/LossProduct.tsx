@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -17,6 +18,7 @@ import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   StockHistoryPayload,
+  useAccountProductStockHistoryMutations,
   useGetAccountProductStockHistorys,
 } from "../../utils/api/account/productStockHistory";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
@@ -34,13 +36,16 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+
 const LossProduct = () => {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
+  const [rowToAction, setRowToAction] = useState<any>({});
   const initialOrderForm = {
     item: 0,
     quantity: 0,
@@ -51,9 +56,12 @@ const LossProduct = () => {
     isOnlinePrice: false,
     stockLocation: selectedLocationId,
   };
+  const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { createOrder } = useOrderMutations();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const { updateAccountProductStockHistory } =
+    useAccountProductStockHistoryMutations();
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const {
     filterLossProductPanelFormElements,
@@ -284,55 +292,12 @@ const LossProduct = () => {
       isSortable: false,
       correspondingKey: "status",
     },
+    {
+      key: t("Actions"),
+      isSortable: false,
+    },
   ];
-  const addButton = {
-    name: t("Add Loss Product"),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isLossProductModalOpen}
-        close={() => setIsLossProductModalOpen(false)}
-        inputs={orderInputs}
-        formKeys={orderFormKeys}
-        submitItem={createOrder as any}
-        setForm={setOrderForm}
-        isCreateCloseActive={false}
-        constantValues={{
-          quantity: 1,
-          stockLocation: selectedLocationId,
-        }}
-        cancelButtonLabel="Close"
-        submitFunction={() => {
-          const selectedMenuItem = getItem(orderForm?.item, items);
-          const selectedMenuItemCategory = getItem(
-            selectedMenuItem?.category,
-            categories
-          );
-          if (selectedMenuItem && user) {
-            createOrder({
-              ...orderForm,
-              location: selectedLocationId,
-              unitPrice: selectedMenuItem.price,
-              paidQuantity: 0,
-              status: OrderStatus.WASTED,
-              kitchen: selectedMenuItemCategory?.kitchen,
-              stockLocation: selectedLocationId,
-              stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
-              tableDate: new Date(),
-            });
-          }
-          setOrderForm(initialOrderForm);
-        }}
-        generalClassName="  shadow-none mt-[-4rem] md:mt-0"
-        topClassName="flex flex-col gap-2   "
-      />
-    ),
-    isModalOpen: isLossProductModalOpen,
-    setIsModal: setIsLossProductModalOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-  };
+
   const rowKeys = [
     {
       key: "date",
@@ -395,6 +360,54 @@ const LossProduct = () => {
       },
     },
   ];
+  const addButton = {
+    name: t("Add Loss Product"),
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isOpen={isLossProductModalOpen}
+        close={() => setIsLossProductModalOpen(false)}
+        inputs={orderInputs}
+        formKeys={orderFormKeys}
+        submitItem={createOrder as any}
+        setForm={setOrderForm}
+        isCreateCloseActive={false}
+        constantValues={{
+          quantity: 1,
+          stockLocation: selectedLocationId,
+        }}
+        cancelButtonLabel="Close"
+        submitFunction={() => {
+          const selectedMenuItem = getItem(orderForm?.item, items);
+          const selectedMenuItemCategory = getItem(
+            selectedMenuItem?.category,
+            categories
+          );
+          if (selectedMenuItem && user) {
+            createOrder({
+              ...orderForm,
+              location: selectedLocationId,
+              unitPrice: selectedMenuItem.price,
+              paidQuantity: 0,
+              status: OrderStatus.WASTED,
+              kitchen: selectedMenuItemCategory?.kitchen,
+              stockLocation: selectedLocationId,
+              stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
+              tableDate: new Date(),
+            });
+          }
+          setOrderForm(initialOrderForm);
+        }}
+        generalClassName="  shadow-none mt-[-4rem] md:mt-0"
+        topClassName="flex flex-col gap-2   "
+      />
+    ),
+    isModalOpen: isLossProductModalOpen,
+    setIsModal: setIsLossProductModalOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+  };
   const filters = [
     {
       label: t("Show Filters"),
@@ -429,7 +442,37 @@ const LossProduct = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [filterLossProductPanelFormElements]);
-
+  const actions = [
+    {
+      name: t("Cancel"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCancelOrderModalOpen}
+          close={() => setIsCancelOrderModalOpen(false)}
+          confirm={() => {
+            updateAccountProductStockHistory({
+              id: rowToAction._id,
+              updates: {
+                status:
+                  rowToAction.status === StockHistoryStatusEnum.LOSSPRODUCT
+                    ? StockHistoryStatusEnum.LOSSPRODUCTCANCEL
+                    : StockHistoryStatusEnum.LOSSPRODUCT,
+              },
+            });
+            setIsCancelOrderModalOpen(false);
+          }}
+          title={t("Cancel Loss Product")}
+          text={`${t("Loss Product")} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      isModal: true,
+      isModalOpen: isCancelOrderModalOpen,
+      setIsModal: setIsCancelOrderModalOpen,
+    },
+  ];
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
@@ -460,7 +503,8 @@ const LossProduct = () => {
           isSearch={false}
           addButton={addButton}
           title={t("Loss Product")}
-          isActionsActive={false}
+          actions={actions}
+          isActionsActive={true}
           {...(pagination && { pagination })}
         />
       </div>

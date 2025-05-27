@@ -1,5 +1,6 @@
 import { AccountProductStockHistory, FormElementsState } from "../../../types";
-import { Paths, useGet } from "../factory";
+import { Paths, useGet, useMutationApi } from "../factory";
+
 export interface StockHistoryPayload {
   data: AccountProductStockHistory[];
   totalNumber: number;
@@ -9,6 +10,17 @@ export interface StockHistoryPayload {
 }
 
 const baseUrl = `${Paths.Accounting}/product-stock-histories`;
+
+export function useAccountProductStockHistoryMutations() {
+  const { updateItem: updateAccountProductStockHistory } =
+    useMutationApi<AccountProductStockHistory>({
+      baseQuery: baseUrl,
+    });
+
+  return {
+    updateAccountProductStockHistory,
+  };
+}
 
 export function useGetAccountProductStockHistorys(
   page: number,
