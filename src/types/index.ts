@@ -665,6 +665,7 @@ export type Notification = {
   selectedRoles?: number[];
   selectedLocations?: number[];
   seenBy?: string[];
+  isAssigned?: boolean;
 };
 export enum NotificationType {
   INFORMATION = "INFORMATION",
@@ -1466,6 +1467,10 @@ export enum NotificationEventType {
   ZEROSTOCK = "ZEROSTOCK",
   LOSSPRODUCT = "LOSSPRODUCT",
   IKASTAKEAWAY = "IKASTAKEAWAY",
+  LATESHIFTSTART = "LATESHIFTSTART",
+  FARMBURGERACTIVATED = "FARMBURGERACTIVATED",
+  FARMBURGERDEACTIVATED = "FARMBURGERDEACTIVATED",
+  FARMNOTCONFIRMED = "FARMNOTCONFIRMED",
 }
 export const notificationEventsOptions = [
   {
@@ -1487,6 +1492,22 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.IKASTAKEAWAY,
     label: "Ikas Takeaway",
+  },
+  {
+    value: NotificationEventType.LATESHIFTSTART,
+    label: "Late Shift Start",
+  },
+  {
+    value: NotificationEventType.FARMBURGERACTIVATED,
+    label: "Farm Burger Activated",
+  },
+  {
+    value: NotificationEventType.FARMBURGERDEACTIVATED,
+    label: "Farm Burger Deactivated",
+  },
+  {
+    value: NotificationEventType.FARMNOTCONFIRMED,
+    label: "Farm Not Confirmed",
   },
 ];
 

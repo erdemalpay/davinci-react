@@ -20,6 +20,7 @@ const CreateNotification = () => {
     type: "",
     message: "",
     event: "",
+    isAssigned: false,
   });
 
   const inputs = [
@@ -118,6 +119,12 @@ const CreateNotification = () => {
       setForm={setForm}
       constantValues={{ type: NotificationType.INFORMATION }}
       submitItem={createNotification as any}
+      submitFunction={() => {
+        createNotification({
+          ...form,
+          isAssigned: form?.event !== "" ? true : false,
+        });
+      }}
       buttonName={t("Submit")}
       topClassName="flex flex-col gap-2 "
     />
