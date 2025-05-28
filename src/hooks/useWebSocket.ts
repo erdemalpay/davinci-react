@@ -27,6 +27,8 @@ export function useWebSocket() {
     setIsTakeAwayPaymentModalOpen,
     setOrderCreateBulk,
     setTakeawayTableId,
+    setIsNewOrderDiscountScreenOpen,
+    setSelectedNewOrders,
   } = useOrderContext();
   const categories = useGetCategories();
 
@@ -159,6 +161,8 @@ export function useWebSocket() {
         setIsTakeAwayPaymentModalOpen(true);
         setTakeawayTableId(data.table._id);
         setOrderCreateBulk([]);
+        setIsNewOrderDiscountScreenOpen(false);
+        setSelectedNewOrders([]);
       }
 
       if (data.socketUser._id === user?._id) return;

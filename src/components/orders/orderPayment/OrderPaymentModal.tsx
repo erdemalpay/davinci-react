@@ -84,7 +84,12 @@ const OrderPaymentModal = ({
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
     )
     ?.map((visit) => visit.user);
-  const { isCollectionModalOpen, setIsCollectionModalOpen } = useOrderContext();
+  const {
+    isCollectionModalOpen,
+    setIsCollectionModalOpen,
+    setIsNewOrderDiscountScreenOpen,
+    setSelectedNewOrders,
+  } = useOrderContext();
   if (!orders || !users || !user) return null;
   const [selectedUser, setSelectedUser] = useState<User>(user);
   const userOptions = activeUsers
@@ -573,6 +578,8 @@ const OrderPaymentModal = ({
         close={() => {
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
+          setIsNewOrderDiscountScreenOpen(false);
+          setSelectedNewOrders([]);
         }}
         inputs={orderInputs}
         {...(!farmCategoryActivity
@@ -648,6 +655,8 @@ const OrderPaymentModal = ({
                 });
                 setOrderForm(initialOrderForm);
                 setOrderCreateBulk([]);
+                setIsNewOrderDiscountScreenOpen(false);
+                setSelectedNewOrders([]);
                 return;
               }
             }
@@ -667,6 +676,8 @@ const OrderPaymentModal = ({
           setOrderForm(initialOrderForm);
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
+          setIsNewOrderDiscountScreenOpen(false);
+          setSelectedNewOrders([]);
         }}
         generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
         topClassName="flex flex-col gap-2   "
