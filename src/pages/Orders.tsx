@@ -5,6 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
+import FarmMenu from "../components/menu/FarmMenu";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -49,6 +50,7 @@ function Orders() {
     const newDate = subDays(date, 1);
     setTodaysOrderDate(formatDate(newDate));
   };
+
   const farmBurgerCategory = useMemo(() => {
     return categories?.find(
       (category) => category._id === FARMBURGERCATEGORYID
@@ -67,13 +69,22 @@ function Orders() {
       (page) => page._id === currentPageId
     )?.tabs;
 
-    const orderTabs = kitchens?.map((kitchen, index) => ({
-      number: index,
-      label: kitchen.name,
-      content: <SingleOrdersPage kitchen={kitchen} orders={orders} />,
-      isDisabled: false,
-      kitchen: kitchen,
-    }));
+    const orderTabs = [
+      ...(kitchens?.map((kitchen, index) => ({
+        number: index,
+        label: kitchen.name,
+        content: <SingleOrdersPage kitchen={kitchen} orders={orders} />,
+        isDisabled: false,
+        kitchen: kitchen,
+      })) ?? []),
+      {
+        number: kitchens?.length ?? 0,
+        label: "Farm Menu",
+        content: <FarmMenu />,
+        isDisabled: false,
+        kitchen: null,
+      },
+    ];
     const filteredTabs = orderTabs
       ?.filter((tab) =>
         currentPageTabs

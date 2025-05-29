@@ -43,7 +43,6 @@ export default function Menu() {
   };
   const handleTabChange = () => {
     const seenCategories = new Set<number>();
-
     const itemCategories = items
       .map((item) => item.category)
       .filter((category): category is number => {
