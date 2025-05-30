@@ -1511,6 +1511,11 @@ export const notificationEventsOptions = [
   },
 ];
 
+export type PopularDiscounts = {
+  item: number;
+  discounts: number[];
+};
+
 export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
 export const FARMBURGERCATEGORYID = 30;

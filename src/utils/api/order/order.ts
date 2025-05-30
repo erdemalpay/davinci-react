@@ -5,7 +5,12 @@ import { patch, post } from "../index";
 import { useDateContext } from "./../../../context/Date.context";
 import { useLocationContext } from "./../../../context/Location.context";
 import { useOrderContext } from "./../../../context/Order.context";
-import { Order, PersonalOrderDataType, Table } from "./../../../types/index";
+import {
+  Order,
+  PersonalOrderDataType,
+  PopularDiscounts,
+  Table,
+} from "./../../../types/index";
 
 interface CreateOrderForDiscount {
   orders: {
@@ -585,4 +590,9 @@ export function useGetCategorySummary(
     [url, category, location, upperCategory],
     true
   );
+}
+export function useGetPopularDiscounts() {
+  return useGetList<PopularDiscounts>(`${baseUrl}/popular-discounts`, [
+    `${baseUrl}/popular-discounts`,
+  ]);
 }
