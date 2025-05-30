@@ -18,7 +18,7 @@ import {
   useGetShifts,
   useShiftMutations,
 } from "../../utils/api/shift";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -44,6 +44,7 @@ const Shifts = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const locations = useGetStoreLocations();
+  const roles = useGetAllUserRoles();
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
   const { selectedLocationId, setSelectedLocationId } = useLocationContext();
@@ -104,7 +105,14 @@ const Shifts = () => {
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
       if (shiftValue.shift && shiftValue.user) {
-        acc[shiftValue.shift] = shiftValue.user;
+        acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+          const foundUser = getItem(userId, users);
+          return (
+            foundUser &&
+            (filterPanelFormElements?.role?.length === 0 ||
+              filterPanelFormElements?.role?.includes(foundUser?.role?._id))
+          );
+        });
       }
       return acc;
     }, {} as { [key: string]: string[] });
@@ -664,6 +672,20 @@ const Shifts = () => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "role",
+      label: t("Roles"),
+      options: roles?.map((role) => {
+        return {
+          value: role._id,
+          label: role.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Roles"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "user",
       label: t("User"),
       options: users?.map((user) => {
@@ -688,7 +710,14 @@ const Shifts = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [shifts, users, locations, selectedLocationId]);
+  }, [
+    shifts,
+    users,
+    locations,
+    selectedLocationId,
+    roles,
+    filterPanelFormElements,
+  ]);
 
   return (
     <div className="w-[95%] my-5 mx-auto">

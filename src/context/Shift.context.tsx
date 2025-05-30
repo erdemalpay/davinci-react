@@ -20,6 +20,7 @@ const ShiftContext = createContext<ShiftContextType>({
     before: "",
     user: "",
     date: "",
+    role: [],
   },
   initialFilterPanelFormElements: {},
   setFilterPanelFormElements: () => {},
@@ -33,6 +34,7 @@ export const ShiftContextProvider = ({ children }: PropsWithChildren) => {
     before: format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
     user: "",
     date: "",
+    role: [],
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
