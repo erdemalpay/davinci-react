@@ -36,7 +36,7 @@ export function useShiftMutations() {
   return { deleteShift, updateShift, createShift };
 }
 export function useGetShifts(
-  after: string,
+  after?: string,
   before?: string,
   location?: number
 ) {

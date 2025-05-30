@@ -19,6 +19,7 @@ import {
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
+import ShiftList from "../components/tables/ShiftList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { useLocationContext } from "../context/Location.context";
@@ -1013,12 +1014,18 @@ const Tables = () => {
             <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
-                <ActiveVisitList
-                  suggestions={users}
-                  name="employees"
-                  label={t("Who's at cafe?")}
-                  visits={visits}
-                />
+                <div className="flex flex-col gap-2">
+                  <ActiveVisitList
+                    suggestions={users}
+                    name="employees"
+                    label={t("Who's at cafe?")}
+                    visits={visits}
+                  />
+                  <ShiftList
+                    key={selectedDate + selectedLocationId + "active"}
+                    visits={visits}
+                  />
+                </div>
               ) : (
                 <PreviousVisitList visits={visits} />
               )}
