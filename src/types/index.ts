@@ -1471,6 +1471,7 @@ export enum NotificationEventType {
   FARMBURGERACTIVATED = "FARMBURGERACTIVATED",
   FARMBURGERDEACTIVATED = "FARMBURGERDEACTIVATED",
   FARMNOTCONFIRMED = "FARMNOTCONFIRMED",
+  NIGHTOPENTABLE = "NIGHTOPENTABLE",
 }
 export const notificationEventsOptions = [
   {
@@ -1508,6 +1509,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.FARMNOTCONFIRMED,
     label: "Farm Not Confirmed",
+  },
+  {
+    value: NotificationEventType.NIGHTOPENTABLE,
+    label: "Night Open Table",
   },
 ];
 

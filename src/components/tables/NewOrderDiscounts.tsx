@@ -45,7 +45,7 @@ const NewOrderDiscounts = () => {
       selectedOrders
         ?.map(
           (o) =>
-            popularDiscounts.find((pd) => pd.item === o.item)?.discounts ?? []
+            popularDiscounts?.find((pd) => pd.item === o.item)?.discounts ?? []
         )
         .flat()
     )

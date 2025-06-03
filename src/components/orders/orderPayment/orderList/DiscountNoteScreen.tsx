@@ -3,9 +3,7 @@ import { useOrderContext } from "../../../../context/Order.context";
 import { H6 } from "../../../panelComponents/Typography";
 import OrderScreenHeader from "./OrderScreenHeader";
 
-type Props = {};
-
-const DiscountNoteScreen = (props: Props) => {
+const DiscountNoteScreen = () => {
   const { discountNote, setDiscountNote } = useOrderContext();
   const { t } = useTranslation();
   return (
