@@ -109,8 +109,8 @@ const Tables = () => {
     setIsTakeAwayPaymentModalOpen,
     takeawayTableId,
     setTakeawayTableId,
-    setIsNewOrderDiscountScreenOpen,
     setSelectedNewOrders,
+    selectedNewOrders,
   } = useOrderContext();
   const menuItems = useGetMenuItems();
   const tables = useGetTables()
@@ -1202,7 +1202,6 @@ const Tables = () => {
           close={() => {
             setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
             setIsTakeAwayOrderModalOpen(false);
-            setIsNewOrderDiscountScreenOpen(false);
             setSelectedNewOrders([]);
           }}
           {...(!farmCategoryActivity
@@ -1251,6 +1250,10 @@ const Tables = () => {
                 if (orderObject) {
                   setOrderCreateBulk([...orderCreateBulk, orderObject]);
                 }
+                setSelectedNewOrders([
+                  ...selectedNewOrders,
+                  orderCreateBulk.length,
+                ]);
                 setOrderForm(initialOrderForm);
               },
             },
@@ -1281,7 +1284,6 @@ const Tables = () => {
               orders: ordersData,
             } as any);
             setIsTakeAwayOrderModalOpen(false);
-            setIsNewOrderDiscountScreenOpen(false);
             setSelectedNewOrders([]);
           }}
           generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"

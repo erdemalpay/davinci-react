@@ -12,18 +12,9 @@ const NewOrderDiscounts = () => {
   );
   const popularDiscounts = useGetPopularDiscounts();
   const [showAllDiscounts, setShowAllDiscounts] = useState(false);
-  const {
-    orderCreateBulk,
-    setOrderCreateBulk,
-    isNewOrderDiscountScreenOpen,
-    setIsNewOrderDiscountScreenOpen,
-    selectedNewOrders,
-  } = useOrderContext();
-  if (!discounts || !popularDiscounts) return null;
+  const { orderCreateBulk, setOrderCreateBulk, selectedNewOrders } =
+    useOrderContext();
   const handleDiscountClick = (discount: OrderDiscount) => {
-    if (!isNewOrderDiscountScreenOpen) {
-      setIsNewOrderDiscountScreenOpen(true);
-    }
     const newOrders = orderCreateBulk?.map((order, index) => {
       if (selectedNewOrders?.includes(index)) {
         return {
@@ -34,9 +25,7 @@ const NewOrderDiscounts = () => {
       return order;
     });
     setOrderCreateBulk(newOrders);
-    setIsNewOrderDiscountScreenOpen(false);
   };
-
   const selectedOrders = orderCreateBulk?.filter((order, index) =>
     selectedNewOrders?.includes(index)
   );
@@ -47,9 +36,10 @@ const NewOrderDiscounts = () => {
           (o) =>
             popularDiscounts?.find((pd) => pd.item === o.item)?.discounts ?? []
         )
-        .flat()
+        ?.flat()
     )
   );
+
   const filteredDiscounts = discounts?.filter((discount) => {
     return (
       discount?.isStoreOrder &&
@@ -94,14 +84,6 @@ const NewOrderDiscounts = () => {
           {showAllDiscounts
             ? t("Show Popular Discounts")
             : t("Show All Discounts")}
-        </button>
-        <button
-          onClick={() => {
-            setIsNewOrderDiscountScreenOpen(false);
-          }}
-          className={`inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer  w-fit`}
-        >
-          {t("Back")}
         </button>
       </div>
     </div>

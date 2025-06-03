@@ -1,21 +1,15 @@
 import { useState } from "react";
-import { useOrderContext } from "../../context/Order.context";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
-import NewOrderDiscounts from "./NewOrderDiscounts";
 import NewOrderListPanel from "./NewOrderListPanel";
 
 const OrderTakeawayPanel = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const { isNewOrderDiscountScreenOpen } = useOrderContext();
+
   const tabs = [
     {
       number: 0,
       label: "New Orders",
-      content: isNewOrderDiscountScreenOpen ? (
-        <NewOrderDiscounts />
-      ) : (
-        <NewOrderListPanel />
-      ),
+      content: <NewOrderListPanel />,
       isDisabled: false,
     },
   ];

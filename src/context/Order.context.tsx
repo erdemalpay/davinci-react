@@ -53,10 +53,6 @@ type OrderContextType = {
   isDiscountScreenOpen: boolean;
   setIsDiscountScreenOpen: (isDiscountScreenOpen: boolean) => void;
   isProductDivideOpen: boolean;
-  isNewOrderDiscountScreenOpen: boolean;
-  setIsNewOrderDiscountScreenOpen: (
-    isNewOrderDiscountScreenOpen: boolean
-  ) => void;
   setIsProductDivideOpen: (isProductDivideOpen: boolean) => void;
   temporaryOrders: {
     order: Order;
@@ -183,8 +179,6 @@ const OrderContext = createContext<OrderContextType>({
   setOrderCreateBulk: () => {},
   showPickedOrders: false,
   setShowPickedOrders: () => {},
-  isNewOrderDiscountScreenOpen: false,
-  setIsNewOrderDiscountScreenOpen: () => {},
   selectedNewOrders: [],
   setSelectedNewOrders: () => {},
 });
@@ -206,8 +200,6 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [showPickedOrders, setShowPickedOrders] = useState(false);
-  const [isNewOrderDiscountScreenOpen, setIsNewOrderDiscountScreenOpen] =
-    useState(false);
   const [
     vendorOrderFilterPanelFormElements,
     setVendorOrderFilterPanelFormElements,
@@ -335,8 +327,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setOrderCreateBulk,
         showPickedOrders,
         setShowPickedOrders,
-        isNewOrderDiscountScreenOpen,
-        setIsNewOrderDiscountScreenOpen,
+
         selectedNewOrders,
         setSelectedNewOrders,
       }}

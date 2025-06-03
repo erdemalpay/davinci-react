@@ -87,8 +87,8 @@ const OrderPaymentModal = ({
   const {
     isCollectionModalOpen,
     setIsCollectionModalOpen,
-    setIsNewOrderDiscountScreenOpen,
     setSelectedNewOrders,
+    selectedNewOrders,
   } = useOrderContext();
   if (!orders || !users || !user) return null;
   const [selectedUser, setSelectedUser] = useState<User>(user);
@@ -578,7 +578,6 @@ const OrderPaymentModal = ({
         close={() => {
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
-          setIsNewOrderDiscountScreenOpen(false);
           setSelectedNewOrders([]);
         }}
         inputs={orderInputs}
@@ -625,6 +624,10 @@ const OrderPaymentModal = ({
               if (orderObject) {
                 setOrderCreateBulk([...orderCreateBulk, orderObject]);
               }
+              setSelectedNewOrders([
+                ...selectedNewOrders,
+                orderCreateBulk.length,
+              ]);
               setOrderForm(initialOrderForm);
             },
           },
@@ -655,7 +658,6 @@ const OrderPaymentModal = ({
                 });
                 setOrderForm(initialOrderForm);
                 setOrderCreateBulk([]);
-                setIsNewOrderDiscountScreenOpen(false);
                 setSelectedNewOrders([]);
                 return;
               }
@@ -676,7 +678,6 @@ const OrderPaymentModal = ({
           setOrderForm(initialOrderForm);
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
-          setIsNewOrderDiscountScreenOpen(false);
           setSelectedNewOrders([]);
         }}
         generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"

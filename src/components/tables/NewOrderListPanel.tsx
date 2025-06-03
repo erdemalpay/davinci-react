@@ -11,19 +11,17 @@ import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus } from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { getItem } from "../../utils/getItem";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
+import NewOrderDiscounts from "./NewOrderDiscounts";
+
 const NewOrderListPanel = () => {
   const items = useGetMenuItems();
   const { t } = useTranslation();
-  const discounts = useGetOrderDiscounts();
   const { user } = useUserContext();
-  if (!items || !user || !discounts) return null;
   const {
     orderCreateBulk,
     setOrderCreateBulk,
-    setIsNewOrderDiscountScreenOpen,
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
@@ -133,14 +131,7 @@ const NewOrderListPanel = () => {
       </div>
       {/* discounts button */}
       {orderCreateBulk?.length > 0 && selectedNewOrders?.length > 0 && (
-        <button
-          onClick={() => {
-            setIsNewOrderDiscountScreenOpen(true);
-          }}
-          className={`inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer ml-auto w-fit`}
-        >
-          {t("Discount")}
-        </button>
+        <NewOrderDiscounts />
       )}
     </div>
   );

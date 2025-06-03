@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus, Table } from "../../types";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
-import NewOrderDiscounts from "./NewOrderDiscounts";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
 
@@ -13,18 +11,13 @@ type Props = { table: Table };
 const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState(0);
-  const { isNewOrderDiscountScreenOpen } = useOrderContext();
   if (!table || !user) return null;
   const { t } = useTranslation();
   const tabs = [
     {
       number: 0,
       label: "New Orders",
-      content: isNewOrderDiscountScreenOpen ? (
-        <NewOrderDiscounts />
-      ) : (
-        <NewOrderListPanel />
-      ),
+      content: <NewOrderListPanel />,
       isDisabled: false,
     },
     {

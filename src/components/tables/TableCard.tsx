@@ -132,11 +132,8 @@ export function TableCard({
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
-  const {
-    resetOrderContext,
-    setIsNewOrderDiscountScreenOpen,
-    setSelectedNewOrders,
-  } = useOrderContext();
+  const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
+    useOrderContext();
   const { setExpandedRows } = useGeneralContext();
   const { user } = useUserContext();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
@@ -814,7 +811,6 @@ export function TableCard({
           close={() => {
             setOrderCreateBulk([]);
             setIsCreateOrderDialogOpen(false);
-            setIsNewOrderDiscountScreenOpen(false);
             setSelectedNewOrders([]);
           }}
           inputs={orderInputs}
@@ -863,6 +859,10 @@ export function TableCard({
                 if (orderObject) {
                   setOrderCreateBulk([...orderCreateBulk, orderObject]);
                 }
+                setSelectedNewOrders([
+                  ...selectedNewOrders,
+                  orderCreateBulk.length,
+                ]);
                 setOrderForm(initialOrderForm);
               },
             },
@@ -892,7 +892,6 @@ export function TableCard({
                   });
                   setOrderForm(initialOrderForm);
                   setOrderCreateBulk([]);
-                  setIsNewOrderDiscountScreenOpen(false);
                   setSelectedNewOrders([]);
                   return;
                 }
@@ -908,7 +907,6 @@ export function TableCard({
               });
             }
             setOrderForm(initialOrderForm);
-            setIsNewOrderDiscountScreenOpen(false);
             setSelectedNewOrders([]);
             setOrderCreateBulk([]);
             if (table.type === TableTypes.TAKEOUT) {
