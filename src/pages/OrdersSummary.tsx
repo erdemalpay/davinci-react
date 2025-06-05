@@ -9,7 +9,7 @@ import SelectInput from "../components/panelComponents/FormElements/SelectInput"
 import TextInput from "../components/panelComponents/FormElements/TextInput";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
-import { MenuCategory, TURKISHLIRA, UpperCategory } from "../types";
+import { MenuCategory, OptionType, TURKISHLIRA, UpperCategory } from "../types";
 import { useGetSummaryStockTotal } from "../utils/api/account/stock";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
@@ -17,7 +17,7 @@ import { useGetUpperCategories } from "../utils/api/menu/upperCategory";
 import { useGetSummaryCollectionTotal } from "../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../utils/format";
 import { formatPrice } from "../utils/formatPrice";
-type OptionType = { value: number; label: string };
+
 const OrdersSummary = () => {
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);

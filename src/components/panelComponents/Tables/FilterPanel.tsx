@@ -3,15 +3,13 @@ import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useGeneralContext } from "../../../context/General.context";
-import { FormElementsState } from "../../../types";
+import { FormElementsState, OptionType } from "../../../types";
 import HourInput from "../FormElements/HourInput";
 import MonthYearInput from "../FormElements/MonthYearInput";
 import SelectInput from "../FormElements/SelectInput";
 import TextInput from "../FormElements/TextInput";
 import { H4, H6 } from "../Typography";
 import { InputTypes, PanelFilterType } from "../shared/types";
-
-type OptionType = { value: string; label: string };
 
 const FilterPanel = <T,>({
   inputs,

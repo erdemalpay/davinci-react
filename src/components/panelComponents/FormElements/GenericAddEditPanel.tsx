@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
+import { OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { H6 } from "../Typography";
@@ -57,7 +58,6 @@ type Props<T> = {
     updates: T;
   };
 };
-type OptionType = { value: string; label: string };
 
 type FormElementsState = {
   [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.

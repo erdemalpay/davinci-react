@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next";
 import { FaImages } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
+import { OptionType } from "../../types";
 import { postWithHeader } from "../../utils/api";
 import { useGetFolderNames } from "../../utils/api/asset";
 import SelectInput from "../panelComponents/FormElements/SelectInput";
-
-type OptionType = { value: number; label: string };
 
 interface FileWithPreview extends File {
   preview: string;

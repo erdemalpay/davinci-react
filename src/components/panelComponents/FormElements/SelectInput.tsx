@@ -12,6 +12,7 @@ import Select, {
   SingleValue,
   components,
 } from "react-select";
+import { OptionType } from "../../../types";
 import { H6 } from "../Typography";
 
 const CustomOption = (
@@ -29,7 +30,6 @@ const CustomOption = (
   </components.Option>
 );
 
-type OptionType = { value: any; label: string };
 interface SelectInputProps {
   label?: string;
   options: OptionType[];

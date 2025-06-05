@@ -10,14 +10,13 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { useFilterContext } from "../context/Filter.context";
+import { OptionType } from "../types";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetDailySummary } from "../utils/api/order/order";
 import { useGetUsers } from "../utils/api/user";
 import { useGetGivenDateLocationVisits } from "../utils/api/visit";
 import { getItem } from "../utils/getItem";
-
-type OptionType = { value: number; label: string };
 
 const DailySummary = () => {
   const { t } = useTranslation();

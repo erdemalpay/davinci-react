@@ -9,7 +9,12 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
-import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
+import {
+  DateRangeKey,
+  OptionType,
+  RoleEnum,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
@@ -28,8 +33,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
-type OptionType = { value: any; label: string };
 
 const Shifts = () => {
   const { t } = useTranslation();

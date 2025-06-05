@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useOrderContext } from "../../../../context/Order.context";
-import { Table } from "../../../../types";
+import { OptionType, Table } from "../../../../types";
 import SelectInput from "../../../panelComponents/FormElements/SelectInput";
 import OrderScreenHeader from "./OrderScreenHeader";
 
-type OptionType = { value: number; label: string };
 type Props = {
   tables: Table[];
   table: Table;

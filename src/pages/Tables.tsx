@@ -430,7 +430,6 @@ const Tables = () => {
       required: false,
     },
   ];
-
   const orderFormKeysForTakeAway = [
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
@@ -520,7 +519,6 @@ const Tables = () => {
         }
       });
     }
-
     setMentors((mentors) => {
       if (isEqual(mentors, newMentors)) {
         return mentors;
@@ -571,7 +569,6 @@ const Tables = () => {
         stockLocation: orderForm?.stockLocation ?? selectedLocationId,
       };
     }
-
     // Check if the menu item is not automatically served
     if (selectedMenuItem && !selectedMenuItemCategory?.isAutoServed) {
       return {
@@ -813,7 +810,6 @@ const Tables = () => {
     { key: "type", type: FormKeyTypeEnum.STRING },
     { key: "tables", type: FormKeyTypeEnum.STRING },
   ];
-
   return (
     <>
       <Header />
@@ -838,7 +834,6 @@ const Tables = () => {
                 }}
               />
             </div>
-
             {/* Table name buttons for small screen */}
             <div
               key={activeTableCount + "small"}
@@ -1010,7 +1005,6 @@ const Tables = () => {
                 </div>
               </div>
             )}
-
             <div className="flex flex-col md:ml-8 justify-between w-full px-2 md:px-0 mt-2 md:mt-0">
               {/* who is/was at the cafe */}
               {selectedDate && isToday(selectedDate) ? (
@@ -1029,7 +1023,6 @@ const Tables = () => {
               ) : (
                 <PreviousVisitList visits={visits} />
               )}
-
               {/* filters */}
               <div className="grid grid-cols-2 md:flex md:flex-row md:gap-4 justify-end mt-4">
                 {switchFilters.map((filter, index) => (
@@ -1045,7 +1038,6 @@ const Tables = () => {
             </div>
           </div>
         </div>
-
         <div className="h-full hidden lg:grid grid-cols-4 mt-6 gap-x-8 ">
           {tableColumns?.map((tablesColumns, idx) => (
             <div key={idx + "tablecolumns"}>

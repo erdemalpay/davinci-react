@@ -100,6 +100,8 @@ type GeneralContextType = {
   setIsMenuShowIkasCategories: (isShown: boolean) => void;
   isMenuLocationEdit: boolean;
   setIsMenuLocationEdit: (isShown: boolean) => void;
+  isTapInputScreenOpen: boolean;
+  setIsTapInputScreenOpen: (isOpen: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -214,6 +216,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setIsShownInMenu: () => {},
   isMenuLocationEdit: false,
   setIsMenuLocationEdit: () => {},
+  isTapInputScreenOpen: false,
+  setIsTapInputScreenOpen: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -224,6 +228,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
+  const [isTapInputScreenOpen, setIsTapInputScreenOpen] =
+    useState<boolean>(false);
   const [userPageActiveTab, setUserPageActiveTab] = useState<number>(0);
   const [isMenuCategoryLocationEdit, setIsMenuCategoryLocationEdit] =
     useState<boolean>(false);
@@ -294,6 +300,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setSearchQuery("");
     setCurrentPage(1);
     setIsNotificationOpen(false);
+    setIsTapInputScreenOpen(false);
   };
 
   return (
@@ -368,6 +375,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setIsShownInMenu,
         checklistActiveTab,
         setChecklistActiveTab,
+        isTapInputScreenOpen,
+        setIsTapInputScreenOpen,
       }}
     >
       {children}

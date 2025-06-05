@@ -10,6 +10,7 @@ import { useUserContext } from "../../../context/User.context";
 import {
   FARMBURGERCATEGORYID,
   MenuItem,
+  OptionType,
   OrderCollectionStatus,
   OrderStatus,
   TURKISHLIRA,
@@ -49,8 +50,6 @@ import CollectionModal from "./CollectionModal";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
 import OrderLists from "./orderList/OrderLists";
-
-type OptionType = { value: string; label: string };
 
 type Props = {
   close: () => void;
