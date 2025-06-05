@@ -151,9 +151,6 @@ const TextInput = ({
           {requiredField && (
             <>
               <span className="text-red-400">* </span>
-              <span className="text-xs  text-gray-400">
-                {"("} {t("required")} {")"}
-              </span>
             </>
           )}
         </H6>
@@ -190,9 +187,6 @@ const TextInput = ({
             {requiredField && (
               <>
                 <span className="text-red-400">* </span>
-                <span className="text-xs  text-gray-400">
-                  {"("} {t("required")} {")"}
-                </span>
               </>
             )}
           </H6>
@@ -284,9 +278,6 @@ const TextInput = ({
           {requiredField && (
             <>
               <span className="text-red-400">* </span>
-              <span className="text-xs text-gray-400">
-                {"("} {t("required")} {")"}
-              </span>
             </>
           )}
         </H6>
@@ -322,9 +313,6 @@ const TextInput = ({
         {requiredField && (
           <>
             <span className="text-red-400">* </span>
-            <span className="text-xs  text-gray-400">
-              {"("} {t("required")} {")"}
-            </span>
           </>
         )}
       </H6>

@@ -49,6 +49,7 @@ interface SelectInputProps {
   isAutoFill?: boolean;
   isOnClearActive?: boolean;
   isReadOnly?: boolean;
+  isTopFlexRow?: boolean;
 }
 
 const normalizeText = (text: string) => {
@@ -99,6 +100,7 @@ const SelectInput = ({
   isAutoFill = true,
   requiredField = false,
   isReadOnly = false,
+  isTopFlexRow = false,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -202,15 +204,17 @@ const SelectInput = ({
   const { t } = useTranslation();
 
   return (
-    <div ref={selectRef} className="flex flex-col gap-2 __className_a182b8 ">
+    <div
+      ref={selectRef}
+      className={`flex ${
+        isTopFlexRow ? "flex-row items-center" : "flex-col"
+      } gap-2 __className_a182b8 `}
+    >
       <H6>
         {label}
         {requiredField && (
           <>
             <span className="text-red-400">* </span>
-            <span className="text-xs  text-gray-400">
-              {"("} {t("required")} {")"}
-            </span>
           </>
         )}
       </H6>

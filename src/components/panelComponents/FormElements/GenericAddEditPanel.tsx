@@ -522,6 +522,7 @@ const GenericAddEditPanel = <T,>({
                           isMultiple={input.isMultiple ?? false}
                           requiredField={input.required}
                           onChange={handleChangeForSelect(input.formKey)}
+                          isTopFlexRow={input.isTopFlexRow ?? false}
                           onChangeTrigger={input?.onChangeTrigger}
                           isOnClearActive={input?.isOnClearActive ?? true}
                           isReadOnly={input.isReadOnly ?? false}

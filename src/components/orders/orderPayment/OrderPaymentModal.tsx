@@ -612,7 +612,7 @@ const OrderPaymentModal = ({
           "Stock Quantity is not enough. Do you want to continue?"
         )}
         cancelButtonLabel="Close"
-        anotherPanelTopClassName="h-full sm:h-auto flex flex-col gap-2 sm:gap-0  sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
+        anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
         anotherPanel={<OrderListForPanel table={table} />}
         additionalButtons={[
           {
@@ -680,7 +680,7 @@ const OrderPaymentModal = ({
           setIsCreateOrderDialogOpen(false);
           setSelectedNewOrders([]);
         }}
-        generalClassName=" md:rounded-l-none shadow-none mt-[-4rem] md:mt-0 overflow-scroll sm:overflow-visible no-scrollbar"
+        generalClassName=" md:rounded-l-none shadow-none overflow-scroll sm:overflow-visible no-scrollbar"
         topClassName="flex flex-col gap-2   "
       />
     );
