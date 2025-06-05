@@ -279,7 +279,7 @@ export function TableCard({
       isTopFlexRow: true,
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
       options: orderForm?.item

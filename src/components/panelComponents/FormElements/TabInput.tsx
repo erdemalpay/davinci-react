@@ -3,9 +3,8 @@ import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
 import { OptionType } from "../../../types";
 import { H6 } from "../Typography";
-import TapInputScreen from "./TapInputScreen";
 
-interface TapInputProps {
+interface TabInputProps {
   label?: string;
   options: OptionType[];
   value: OptionType | null;
@@ -19,7 +18,7 @@ interface TapInputProps {
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
 }
-const TapInput: React.FC<TapInputProps> = ({
+const TabInput: React.FC<TabInputProps> = ({
   label,
   options,
   value,
@@ -30,15 +29,29 @@ const TapInput: React.FC<TapInputProps> = ({
   isReadOnly = false,
   isTopFlexRow = false,
 }) => {
-  const { isTapInputScreenOpen, setIsTapInputScreenOpen } = useGeneralContext();
+  const {
+    setIsTabInputScreenOpen,
+    setTabInputScreenOptions,
+    setTabInputOnChange,
+    setTabInputSelectedValue,
+  } = useGeneralContext();
   useEffect(() => {
     if (options.length === 1 && !value) {
       onChange(options[0], { action: "select-option", option: options[0] });
     }
   }, [options, value, onChange]);
-  const openTapScreen = () => {
+  const openTabScreen = () => {
     if (isReadOnly) return;
-    setIsTapInputScreenOpen(true);
+    setIsTabInputScreenOpen(true);
+    setTabInputScreenOptions(
+      options.map((o) => ({
+        value: o.value,
+        label: o.label,
+        imageUrl: o.imageUrl,
+      }))
+    );
+    setTabInputSelectedValue(value);
+    setTabInputOnChange(onChange);
   };
   return (
     <div
@@ -66,7 +79,7 @@ const TapInput: React.FC<TapInputProps> = ({
           </div>
         ) : (
           <button
-            onClick={openTapScreen}
+            onClick={openTabScreen}
             className={`
               flex items-center w-full border border-gray-300 rounded px-3 py-2 
               text-gray-500 hover:border-gray-400
@@ -77,23 +90,8 @@ const TapInput: React.FC<TapInputProps> = ({
           </button>
         )}
       </div>
-      {isTapInputScreenOpen && (
-        <TapInputScreen
-          options={options.map((o) => ({
-            value: o.value,
-            label: o.label,
-            imageUrl: o.imageUrl,
-          }))}
-          selectedValue={
-            value ? { value: value.value, label: value.label } : null
-          }
-          onChange={(opt, actionMeta) => {
-            onChange(opt as OptionType, actionMeta);
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default TapInput;
+export default TabInput;

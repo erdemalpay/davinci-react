@@ -2,35 +2,46 @@ import { IoIosClose } from "react-icons/io";
 import { MdOutlineDone } from "react-icons/md";
 import { useGeneralContext } from "../../../context/General.context";
 
-export type TapOption = {
+export type TabOption = {
   value: any;
   label: string;
   imageUrl?: string;
 };
 
 interface Props {
-  options: TapOption[];
+  options: TabOption[];
   selectedValue: { value: any; label: string } | null;
   onChange: (
-    option: TapOption,
-    actionMeta: { action: "select-option"; option: TapOption }
+    option: TabOption,
+    actionMeta: { action: "select-option"; option: TabOption }
   ) => void;
 }
-const TapInputScreen = ({ options, selectedValue, onChange }: Props) => {
-  const { isTapInputScreenOpen, setIsTapInputScreenOpen } = useGeneralContext();
+const TabInputScreen = ({ options, selectedValue, onChange }: Props) => {
+  const {
+    isTabInputScreenOpen,
+    setIsTabInputScreenOpen,
+    setTabInputOnChange,
+    setTabInputScreenOptions,
+    setTabInputSelectedValue,
+  } = useGeneralContext();
 
-  if (!isTapInputScreenOpen) {
+  if (!isTabInputScreenOpen) {
     return null;
   }
 
   const handleClose = () => {
-    setIsTapInputScreenOpen(false);
+    setIsTabInputScreenOpen(false);
+    setTabInputScreenOptions([]);
+    setTabInputOnChange(() => () => {
+      // Reset the onChange function to avoid memory leaks
+    });
+    setTabInputSelectedValue(null);
   };
 
-  const handleSelect = (option: TapOption) => {
+  const handleSelect = (option: TabOption) => {
     const actionMeta = { action: "select-option" as const, option };
     onChange(option, actionMeta);
-    setIsTapInputScreenOpen(false);
+    setIsTabInputScreenOpen(false);
   };
 
   return (
@@ -92,4 +103,4 @@ const TapInputScreen = ({ options, selectedValue, onChange }: Props) => {
   );
 };
 
-export default TapInputScreen;
+export default TabInputScreen;

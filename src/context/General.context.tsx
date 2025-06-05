@@ -8,12 +8,12 @@ import {
   AccountServiceInvoice,
   ExpensesPageTabEnum,
   MenuItem,
+  OptionType,
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
 import { CreateMultipleExpense } from "../utils/api/account/expense";
 import { CreateBulkProductAndMenuItem } from "../utils/api/account/product";
-
 import { useUserContext } from "./User.context";
 
 type GeneralContextType = {
@@ -100,8 +100,24 @@ type GeneralContextType = {
   setIsMenuShowIkasCategories: (isShown: boolean) => void;
   isMenuLocationEdit: boolean;
   setIsMenuLocationEdit: (isShown: boolean) => void;
-  isTapInputScreenOpen: boolean;
-  setIsTapInputScreenOpen: (isOpen: boolean) => void;
+  isTabInputScreenOpen: boolean;
+  setIsTabInputScreenOpen: (isOpen: boolean) => void;
+  tabInputScreenOptions: OptionType[];
+  setTabInputScreenOptions: (options: OptionType[]) => void;
+  tabInputOnChange: (
+    option: OptionType,
+    actionMeta: { action: "select-option"; option: OptionType }
+  ) => void;
+  setTabInputOnChange: (
+    onChange: (
+      option: OptionType,
+      actionMeta: { action: "select-option"; option: OptionType }
+    ) => void
+  ) => void;
+  tabInputSelectedValue: { value: any; label: string } | null;
+  setTabInputSelectedValue: (
+    value: { value: any; label: string } | null
+  ) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -216,8 +232,14 @@ const GeneralContext = createContext<GeneralContextType>({
   setIsShownInMenu: () => {},
   isMenuLocationEdit: false,
   setIsMenuLocationEdit: () => {},
-  isTapInputScreenOpen: false,
-  setIsTapInputScreenOpen: () => {},
+  isTabInputScreenOpen: false,
+  setIsTabInputScreenOpen: () => {},
+  tabInputScreenOptions: [],
+  setTabInputScreenOptions: () => {},
+  tabInputOnChange: () => {},
+  setTabInputOnChange: () => {},
+  tabInputSelectedValue: null,
+  setTabInputSelectedValue: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -228,7 +250,16 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
-  const [isTapInputScreenOpen, setIsTapInputScreenOpen] =
+  const [tabInputOnChange, setTabInputOnChange] = useState<
+    (
+      option: OptionType,
+      actionMeta: { action: "select-option"; option: OptionType }
+    ) => void
+  >(() => {});
+  const [tabInputScreenOptions, setTabInputScreenOptions] = useState<
+    OptionType[]
+  >([]);
+  const [isTabInputScreenOpen, setIsTabInputScreenOpen] =
     useState<boolean>(false);
   const [userPageActiveTab, setUserPageActiveTab] = useState<number>(0);
   const [isMenuCategoryLocationEdit, setIsMenuCategoryLocationEdit] =
@@ -249,6 +280,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
+  const [tabInputSelectedValue, setTabInputSelectedValue] = useState<{
+    value: any;
+    label: string;
+  } | null>(null);
   const [tableColumns, setTableColumns] = useState<{
     [key: string]: ColumnType[];
   }>({});
@@ -300,7 +335,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setSearchQuery("");
     setCurrentPage(1);
     setIsNotificationOpen(false);
-    setIsTapInputScreenOpen(false);
+    setIsTabInputScreenOpen(false);
+    setTabInputScreenOptions([]);
+    setTabInputOnChange(() => () => {});
+    setTabInputSelectedValue(null);
   };
 
   return (
@@ -375,8 +413,14 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setIsShownInMenu,
         checklistActiveTab,
         setChecklistActiveTab,
-        isTapInputScreenOpen,
-        setIsTapInputScreenOpen,
+        isTabInputScreenOpen,
+        setIsTabInputScreenOpen,
+        tabInputScreenOptions,
+        setTabInputScreenOptions,
+        tabInputOnChange,
+        setTabInputOnChange,
+        tabInputSelectedValue,
+        setTabInputSelectedValue,
       }}
     >
       {children}

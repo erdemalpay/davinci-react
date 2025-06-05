@@ -127,6 +127,7 @@ export enum InputTypes {
   CUSTOMINPUT = "customInput",
   HOUR = "hour",
   MONTHYEAR = "monthYear",
+  TAB = "tab",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",

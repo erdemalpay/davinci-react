@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../../context/General.context";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
@@ -19,6 +20,8 @@ import {
 import HourInput from "./HourInput";
 import MonthYearInput from "./MonthYearInput";
 import SelectInput from "./SelectInput";
+import TabInput from "./TabInput";
+import TabInputScreen from "./TabInputScreen";
 import TextInput from "./TextInput";
 
 type Props<T> = {
@@ -106,6 +109,9 @@ const GenericAddEditPanel = <T,>({
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
+  const { isTabInputScreenOpen, tabInputScreenOptions, tabInputOnChange } =
+    useGeneralContext();
+
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [resetTextInput, setResetTextInput] = useState(false);
@@ -302,6 +308,21 @@ const GenericAddEditPanel = <T,>({
   };
 
   const renderGenericAddEditModal = () => {
+    if (isTabInputScreenOpen) {
+      return (
+        <TabInputScreen
+          options={tabInputScreenOptions.map((o) => ({
+            value: o.value,
+            label: o.label,
+            imageUrl: o.imageUrl,
+          }))}
+          selectedValue={null}
+          onChange={(opt, actionMeta) => {
+            tabInputOnChange(opt as OptionType, actionMeta);
+          }}
+        />
+      );
+    }
     return (
       <div
         onClick={(e) => e.stopPropagation()}
@@ -383,9 +404,9 @@ const GenericAddEditPanel = <T,>({
                     actionMeta: ActionMeta<OptionType>
                   ) => {
                     if (
-                      actionMeta.action === "select-option" ||
-                      actionMeta.action === "remove-value" ||
-                      actionMeta.action === "clear"
+                      actionMeta?.action === "select-option" ||
+                      actionMeta?.action === "remove-value" ||
+                      actionMeta?.action === "clear"
                     ) {
                       if (Array.isArray(selectedValue)) {
                         const values = selectedValue.map(
@@ -525,6 +546,29 @@ const GenericAddEditPanel = <T,>({
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           onChangeTrigger={input?.onChangeTrigger}
                           isOnClearActive={input?.isOnClearActive ?? true}
+                          isReadOnly={input.isReadOnly ?? false}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
+                      {input.type === InputTypes.TAB && (
+                        <TabInput
+                          key={input.formKey + formElements[input.formKey]}
+                          value={input.options?.find(
+                            (option) =>
+                              option?.value === formElements[input.formKey]
+                          )}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          options={input.options ?? []}
+                          placeholder={input.placeholder ?? ""}
+                          requiredField={input.required}
+                          onChange={handleChangeForSelect(input.formKey)}
+                          isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
                           onClear={() => {
                             handleInputClear(input);
