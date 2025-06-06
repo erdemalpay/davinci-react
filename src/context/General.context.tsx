@@ -1,11 +1,11 @@
-import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { ColumnType } from "../components/panelComponents/shared/types";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
-  AccountingPageTabEnum,
   AccountInvoice,
   AccountOverallExpense,
   AccountServiceInvoice,
+  AccountingPageTabEnum,
   ExpensesPageTabEnum,
   MenuItem,
   OptionType,
@@ -104,20 +104,8 @@ type GeneralContextType = {
   setIsTabInputScreenOpen: (isOpen: boolean) => void;
   tabInputScreenOptions: OptionType[];
   setTabInputScreenOptions: (options: OptionType[]) => void;
-  tabInputOnChange: (
-    option: OptionType,
-    actionMeta: { action: "select-option"; option: OptionType }
-  ) => void;
-  setTabInputOnChange: (
-    onChange: (
-      option: OptionType,
-      actionMeta: { action: "select-option"; option: OptionType }
-    ) => void
-  ) => void;
-  tabInputSelectedValue: { value: any; label: string } | null;
-  setTabInputSelectedValue: (
-    value: { value: any; label: string } | null
-  ) => void;
+  tabInputFormKey: string;
+  setTabInputFormKey: (key: string) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -236,10 +224,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setIsTabInputScreenOpen: () => {},
   tabInputScreenOptions: [],
   setTabInputScreenOptions: () => {},
-  tabInputOnChange: () => {},
-  setTabInputOnChange: () => {},
-  tabInputSelectedValue: null,
-  setTabInputSelectedValue: () => {},
+  tabInputFormKey: "",
+  setTabInputFormKey: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -250,12 +236,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [isMenuLocationEdit, setIsMenuLocationEdit] = useState<boolean>(false);
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
-  const [tabInputOnChange, setTabInputOnChange] = useState<
-    (
-      option: OptionType,
-      actionMeta: { action: "select-option"; option: OptionType }
-    ) => void
-  >(() => {});
+  const [tabInputFormKey, setTabInputFormKey] = useState<string>("");
   const [tabInputScreenOptions, setTabInputScreenOptions] = useState<
     OptionType[]
   >([]);
@@ -280,10 +261,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(
     user?.rowsPerPage ?? RowPerPageEnum.THIRD
   );
-  const [tabInputSelectedValue, setTabInputSelectedValue] = useState<{
-    value: any;
-    label: string;
-  } | null>(null);
+
   const [tableColumns, setTableColumns] = useState<{
     [key: string]: ColumnType[];
   }>({});
@@ -337,8 +315,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setIsNotificationOpen(false);
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
-    setTabInputOnChange(() => () => {});
-    setTabInputSelectedValue(null);
+    setTabInputFormKey("");
   };
 
   return (
@@ -417,10 +394,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setIsTabInputScreenOpen,
         tabInputScreenOptions,
         setTabInputScreenOptions,
-        tabInputOnChange,
-        setTabInputOnChange,
-        tabInputSelectedValue,
-        setTabInputSelectedValue,
+        tabInputFormKey,
+        setTabInputFormKey,
       }}
     >
       {children}

@@ -323,6 +323,7 @@ const Tables = () => {
       ],
       placeholder: t("Product"),
       required: true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.NUMBER,
@@ -333,9 +334,10 @@ const Tables = () => {
       required: true,
       isNumberButtonsActive: true,
       isOnClearActive: false,
+      isTopFlexRow: true,
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
       options: orderForm?.item
@@ -360,6 +362,7 @@ const Tables = () => {
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.TEXT,

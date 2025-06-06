@@ -1,77 +1,63 @@
 import { IoIosClose } from "react-icons/io";
-import { MdOutlineDone } from "react-icons/md";
 import { useGeneralContext } from "../../../context/General.context";
+import { FormElementsState } from "../../../types";
 
 export type TabOption = {
   value: any;
   label: string;
   imageUrl?: string;
 };
-
 interface Props {
   options: TabOption[];
-  selectedValue: { value: any; label: string } | null;
-  onChange: (
-    option: TabOption,
-    actionMeta: { action: "select-option"; option: TabOption }
-  ) => void;
+  topClassName?: string;
+  formElements: FormElementsState;
+  setFormElements: (value: FormElementsState) => void;
 }
-const TabInputScreen = ({ options, selectedValue, onChange }: Props) => {
+const TabInputScreen = ({
+  options,
+  topClassName,
+  formElements,
+  setFormElements,
+}: Props) => {
   const {
     isTabInputScreenOpen,
     setIsTabInputScreenOpen,
-    setTabInputOnChange,
     setTabInputScreenOptions,
-    setTabInputSelectedValue,
+    tabInputFormKey,
   } = useGeneralContext();
-
   if (!isTabInputScreenOpen) {
     return null;
   }
-
   const handleClose = () => {
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
-    setTabInputOnChange(() => () => {
-      // Reset the onChange function to avoid memory leaks
-    });
-    setTabInputSelectedValue(null);
   };
-
   const handleSelect = (option: TabOption) => {
-    const actionMeta = { action: "select-option" as const, option };
-    onChange(option, actionMeta);
     setIsTabInputScreenOpen(false);
+    setTabInputScreenOptions([]);
+    setFormElements({
+      ...formElements,
+      [tabInputFormKey]: option.value,
+    });
   };
-
   return (
-    <div
-      className="
-        fixed inset-0 z-50 
-        bg-black bg-opacity-40 
-        flex flex-col items-center justify-center
-      "
-    >
-      <div className="relative bg-white w-11/12 max-w-md h-5/6 rounded-lg shadow-lg overflow-hidden">
-        {/* Header bar with title + close button */}
-        <div className="flex items-center justify-between px-4 py-2 border-b">
-          <h2 className="text-lg font-semibold">Choose an option</h2>
-          <button
-            onClick={handleClose}
-            className="text-2xl text-gray-600 hover:text-gray-900"
-          >
-            <IoIosClose />
-          </button>
-        </div>
-        <div className="p-4 overflow-y-auto h-full">
-          <div className="grid grid-cols-2 gap-4">
-            {options.map((opt) => {
-              const isSelected = selectedValue?.value === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  onClick={() => handleSelect(opt)}
-                  className={`
+    <div className={`${topClassName}`}>
+      {/*  close button */}
+      <div className="w-full  px-2 flex justify-end">
+        <button onClick={handleClose}>
+          <IoIosClose className="w-8 h-8  p-1 cursor-pointer  hover:bg-gray-50 hover:rounded-full mt-2 ml-auto " />
+        </button>
+      </div>
+
+      <div className="p-4 overflow-scroll no-scrollbar max-h-[45vh]   ">
+        <div className="grid grid-cols-2 gap-4">
+          {options?.map((opt) => {
+            const isSelected = formElements?.[tabInputFormKey] === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => handleSelect(opt)}
+                className={`
                     relative flex flex-col items-center justify-center 
                     border rounded-lg p-3 
                     hover:shadow-lg focus:outline-none
@@ -81,22 +67,18 @@ const TabInputScreen = ({ options, selectedValue, onChange }: Props) => {
                         : "border-gray-200 bg-white"
                     }
                   `}
-                >
-                  {opt.imageUrl && (
-                    <img
-                      src={opt.imageUrl}
-                      alt={opt.label}
-                      className="w-16 h-16 object-cover rounded-md mb-2"
-                    />
-                  )}
-                  <span className="text-gray-800 text-center">{opt.label}</span>
-                  {isSelected && (
-                    <MdOutlineDone className="absolute top-2 right-2 text-blue-700 text-xl" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+              >
+                {opt.imageUrl && (
+                  <img
+                    src={opt.imageUrl}
+                    alt={opt.label}
+                    className="w-16 h-16 object-cover rounded-md mb-2"
+                  />
+                )}
+                <span className="text-gray-800 text-center">{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

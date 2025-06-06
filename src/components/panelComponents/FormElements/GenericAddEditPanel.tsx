@@ -7,7 +7,7 @@ import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
-import { OptionType } from "../../../types";
+import { FormElementsState, OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { H6 } from "../Typography";
@@ -62,10 +62,6 @@ type Props<T> = {
   };
 };
 
-type FormElementsState = {
-  [key: string]: any; // this is the type of the form elements it can be string, number, boolean, etc.
-};
-
 type AdditionalButtonProps = {
   onClick: () => void;
   label: string;
@@ -109,9 +105,7 @@ const GenericAddEditPanel = <T,>({
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
-  const { isTabInputScreenOpen, tabInputScreenOptions, tabInputOnChange } =
-    useGeneralContext();
-
+  const { isTabInputScreenOpen, tabInputScreenOptions } = useGeneralContext();
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [resetTextInput, setResetTextInput] = useState(false);
@@ -161,7 +155,6 @@ const GenericAddEditPanel = <T,>({
     }
     return mergedInitialState;
   });
-
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
@@ -208,7 +201,6 @@ const GenericAddEditPanel = <T,>({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, input: GenericInputType) => {
       setImageFormKey(input.formKey);
@@ -252,7 +244,6 @@ const GenericAddEditPanel = <T,>({
       finalSubmitFunction();
     }
   };
-
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
@@ -306,7 +297,6 @@ const GenericAddEditPanel = <T,>({
       handleSubmit();
     }
   };
-
   const renderGenericAddEditModal = () => {
     if (isTabInputScreenOpen) {
       return (
@@ -316,10 +306,9 @@ const GenericAddEditPanel = <T,>({
             label: o.label,
             imageUrl: o.imageUrl,
           }))}
-          selectedValue={null}
-          onChange={(opt, actionMeta) => {
-            tabInputOnChange(opt as OptionType, actionMeta);
-          }}
+          topClassName={generalClassName}
+          formElements={formElements}
+          setFormElements={setFormElements}
         />
       );
     }
@@ -394,7 +383,6 @@ const GenericAddEditPanel = <T,>({
                     });
                   }
                 };
-
                 const handleChangeForSelect =
                   (key: string) =>
                   (
@@ -564,10 +552,10 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          formKey={input.formKey}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}
                           requiredField={input.required}
-                          onChange={handleChangeForSelect(input.formKey)}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
                           onClear={() => {
@@ -591,7 +579,6 @@ const GenericAddEditPanel = <T,>({
                               </>
                             )}
                           </div>
-
                           <textarea
                             value={value}
                             onChange={(e) => {
@@ -682,7 +669,6 @@ const GenericAddEditPanel = <T,>({
       </div>
     );
   };
-
   return (
     <div
       className={`__className_a182b8 fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 ${
@@ -690,7 +676,7 @@ const GenericAddEditPanel = <T,>({
       }`}
     >
       {anotherPanel ? (
-        <div className={`${anotherPanelTopClassName}`}>
+        <div className={`${anotherPanelTopClassName} rounded-md bg-white`}>
           {anotherPanel}
           {renderGenericAddEditModal()}
         </div>
