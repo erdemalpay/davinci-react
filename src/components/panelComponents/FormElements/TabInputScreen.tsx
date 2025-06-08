@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState } from "../../../types";
@@ -7,12 +8,25 @@ export type TabOption = {
   label: string;
   imageUrl?: string;
 };
+
 interface Props {
   options: TabOption[];
   topClassName?: string;
   formElements: FormElementsState;
   setFormElements: (value: FormElementsState) => void;
 }
+
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/i̇/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+
 const TabInputScreen = ({
   options,
   topClassName,
@@ -24,49 +38,76 @@ const TabInputScreen = ({
     setIsTabInputScreenOpen,
     setTabInputScreenOptions,
     tabInputFormKey,
+    tabInputInvalidateKeys,
   } = useGeneralContext();
-  if (!isTabInputScreenOpen) {
-    return null;
-  }
+  const [searchTerm, setSearchTerm] = useState("");
+  if (!isTabInputScreenOpen) return null;
   const handleClose = () => {
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
   };
   const handleSelect = (option: TabOption) => {
+    setFormElements((prev: FormElementsState) => ({
+      ...prev,
+      [tabInputFormKey]: option.value,
+    }));
+    if (tabInputInvalidateKeys) {
+      tabInputInvalidateKeys.forEach((key) => {
+        setFormElements((prev: FormElementsState) => ({
+          ...prev,
+          [key.key]: key.defaultValue,
+        }));
+      });
+    }
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
-    setFormElements({
-      ...formElements,
-      [tabInputFormKey]: option.value,
-    });
   };
+  const filtered = options.filter((opt) =>
+    normalizeText(opt.label).includes(normalizeText(searchTerm))
+  );
+  const lower = normalizeText(searchTerm);
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    const aStarts = normalizeText(a.label).startsWith(lower);
+    const bStarts = normalizeText(b.label).startsWith(lower);
+    if (aStarts && !bStarts) return -1;
+    if (bStarts && !aStarts) return 1;
+    return a.label.localeCompare(b.label);
+  });
   return (
-    <div className={`${topClassName}`}>
-      {/*  close button */}
-      <div className="w-full  px-2 flex justify-end">
+    <div className={topClassName}>
+      {/* header: search + close */}
+      <div className="w-full px-2 flex justify-between items-center">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoFocus
+          placeholder="Search..."
+          className="flex-1 border border-gray-300 rounded px-3 py-2 mr-2 mt-2"
+        />
         <button onClick={handleClose}>
-          <IoIosClose className="w-8 h-8  p-1 cursor-pointer  hover:bg-gray-50 hover:rounded-full mt-2 ml-auto " />
+          <IoIosClose className="w-8 h-8 p-1 cursor-pointer hover:bg-gray-50 hover:rounded-full" />
         </button>
       </div>
 
-      <div className="p-4 overflow-scroll no-scrollbar max-h-[45vh]   ">
+      <div className="p-2 overflow-y-auto no-scrollbar max-h-[45vh]">
         <div className="grid grid-cols-2 gap-4">
-          {options?.map((opt) => {
-            const isSelected = formElements?.[tabInputFormKey] === opt.value;
+          {sortedFiltered.map((opt) => {
+            const isSelected = formElements[tabInputFormKey] === opt.value;
             return (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(opt)}
                 className={`
-                    relative flex flex-col items-center justify-center 
-                    border rounded-lg p-3 
-                    hover:shadow-lg focus:outline-none
-                    ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-white"
-                    }
-                  `}
+                  relative flex flex-col items-center justify-center
+                  border rounded-lg p-3
+                  hover:shadow-lg focus:outline-none
+                  ${
+                    isSelected
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 bg-white"
+                  }
+                `}
               >
                 {opt.imageUrl && (
                   <img

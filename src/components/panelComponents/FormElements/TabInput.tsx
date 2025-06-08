@@ -14,6 +14,10 @@ interface TabInputProps {
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
   formKey: string;
+  invalidateKeys?: {
+    key: string;
+    defaultValue: string | boolean | number | undefined;
+  }[];
 }
 const TabInput: React.FC<TabInputProps> = ({
   label,
@@ -25,17 +29,20 @@ const TabInput: React.FC<TabInputProps> = ({
   isReadOnly = false,
   isTopFlexRow = false,
   formKey,
+  invalidateKeys = [],
 }) => {
   const {
     setIsTabInputScreenOpen,
     setTabInputScreenOptions,
     setTabInputFormKey,
+    setTabInputInvalidateKeys,
   } = useGeneralContext();
   const openTabScreen = () => {
     if (isReadOnly) return;
     setTabInputScreenOptions(options);
     setIsTabInputScreenOpen(true);
     setTabInputFormKey(formKey);
+    setTabInputInvalidateKeys(invalidateKeys ?? []);
   };
   return (
     <div

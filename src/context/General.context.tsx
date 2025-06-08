@@ -106,6 +106,16 @@ type GeneralContextType = {
   setTabInputScreenOptions: (options: OptionType[]) => void;
   tabInputFormKey: string;
   setTabInputFormKey: (key: string) => void;
+  tabInputInvalidateKeys?: {
+    key: string;
+    defaultValue: any;
+  }[];
+  setTabInputInvalidateKeys: (
+    keys: {
+      key: string;
+      defaultValue: any;
+    }[]
+  ) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -226,6 +236,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setTabInputScreenOptions: () => {},
   tabInputFormKey: "",
   setTabInputFormKey: () => {},
+  tabInputInvalidateKeys: [],
+  setTabInputInvalidateKeys: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -237,6 +249,9 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [showStockFilters, setShowStockFilters] = useState<boolean>(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   const [tabInputFormKey, setTabInputFormKey] = useState<string>("");
+  const [tabInputInvalidateKeys, setTabInputInvalidateKeys] = useState<
+    { key: string; defaultValue: any }[]
+  >([]);
   const [tabInputScreenOptions, setTabInputScreenOptions] = useState<
     OptionType[]
   >([]);
@@ -316,6 +331,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
     setTabInputFormKey("");
+    setTabInputInvalidateKeys([]);
   };
 
   return (
@@ -396,6 +412,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTabInputScreenOptions,
         tabInputFormKey,
         setTabInputFormKey,
+        tabInputInvalidateKeys,
+        setTabInputInvalidateKeys,
       }}
     >
       {children}

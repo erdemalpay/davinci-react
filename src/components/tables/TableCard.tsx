@@ -249,7 +249,7 @@ export function TableCard({
       isDisabled: true,
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "item",
       label: t("Product"),
       options: menuItemOptions?.map((option) => {
@@ -262,6 +262,7 @@ export function TableCard({
         { key: "discount", defaultValue: undefined },
         { key: "discountNote", defaultValue: "" },
         { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
       ],
       placeholder: t("Product"),
       required: true,

@@ -365,7 +365,7 @@ const OrderPaymentModal = ({
       isDisabled: true, // remove this line and make category selection visible again
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "item",
       label: t("Product"),
       options: menuItemOptions?.map((option) => {
@@ -378,6 +378,7 @@ const OrderPaymentModal = ({
         { key: "discount", defaultValue: undefined },
         { key: "discountNote", defaultValue: "" },
         { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
       ],
       placeholder: t("Product"),
       required: true,

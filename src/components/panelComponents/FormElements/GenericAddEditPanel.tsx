@@ -555,6 +555,7 @@ const GenericAddEditPanel = <T,>({
                           formKey={input.formKey}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}
+                          invalidateKeys={input.invalidateKeys}
                           requiredField={input.required}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
