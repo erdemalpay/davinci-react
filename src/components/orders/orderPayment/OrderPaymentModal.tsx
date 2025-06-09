@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import {
@@ -74,6 +75,7 @@ const OrderPaymentModal = ({
   const orders = useGetTableOrders(tableId);
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
+  const { setIsTabInputScreenOpen } = useGeneralContext();
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
@@ -593,6 +595,7 @@ const OrderPaymentModal = ({
         close={() => {
           setOrderCreateBulk([]);
           setIsCreateOrderDialogOpen(false);
+          setIsTabInputScreenOpen(false);
           setSelectedNewOrders([]);
         }}
         inputs={orderInputs}

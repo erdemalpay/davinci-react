@@ -22,6 +22,7 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import ShiftList from "../components/tables/ShiftList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
+import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
@@ -82,6 +83,7 @@ const Tables = () => {
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
+  const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
@@ -1177,7 +1179,10 @@ const Tables = () => {
       )}
       {isConsumptModalOpen && (
         <GenericAddEditPanel
-          close={() => setIsConsumptModalOpen(false)}
+          close={() => {
+            setIsConsumptModalOpen(false);
+            setIsTabInputScreenOpen(false);
+          }}
           inputs={consumptInputs}
           constantValues={{
             location: selectedLocationId,
@@ -1192,7 +1197,10 @@ const Tables = () => {
       {isLossProductModalOpen && (
         <GenericAddEditPanel
           isOpen={isLossProductModalOpen}
-          close={() => setIsLossProductModalOpen(false)}
+          close={() => {
+            setIsTabInputScreenOpen(false);
+            setIsLossProductModalOpen(false);
+          }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
@@ -1235,6 +1243,7 @@ const Tables = () => {
             setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
             setIsTakeAwayOrderModalOpen(false);
             setSelectedNewOrders([]);
+            setIsTabInputScreenOpen(false);
           }}
           {...(!farmCategoryActivity
             ? { upperMessage: t("Farm Category is not active") }
@@ -1329,6 +1338,7 @@ const Tables = () => {
           close={() => {
             setIsTakeAwayPaymentModalOpen(false);
             setTakeawayTableId(0);
+            setIsTabInputScreenOpen(false);
           }}
         />
       )}

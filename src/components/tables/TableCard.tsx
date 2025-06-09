@@ -134,7 +134,7 @@ export function TableCard({
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
     useOrderContext();
-  const { setExpandedRows } = useGeneralContext();
+  const { setExpandedRows, setIsTabInputScreenOpen } = useGeneralContext();
   const user = useGetUser();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
@@ -829,6 +829,7 @@ export function TableCard({
             setOrderCreateBulk([]);
             setIsCreateOrderDialogOpen(false);
             setSelectedNewOrders([]);
+            setIsTabInputScreenOpen(false);
           }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
