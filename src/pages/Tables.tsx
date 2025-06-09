@@ -222,11 +222,11 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
-        ?.map((option) => {
+        ?.map((category) => {
           return {
-            value: option._id,
-            label: option.name,
-            imageUrl: option?.imageUrl,
+            value: category._id,
+            label: category.name,
+            imageUrl: category?.imageUrl,
           };
         }),
       invalidateKeys: [
@@ -239,6 +239,29 @@ const Tables = () => {
       placeholder: t("Category"),
       required: false,
       isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      triggerTabOpenOnChangeFor: "item",
+      handleTriggerTabOptions: (value: any) => {
+        return menuItems
+          ?.filter((menuItem) => {
+            return menuItem.category === value;
+          })
+          ?.filter((item) => {
+            if (!farmCategoryActivity) {
+              return item?.category !== FARMBURGERCATEGORYID;
+            }
+            return true;
+          })
+          ?.filter((menuItem) =>
+            menuItem?.locations?.includes(selectedLocationId)
+          )
+          ?.map((menuItem) => {
+            return {
+              value: menuItem?._id,
+              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              imageUrl: menuItem?.imageUrl,
+            };
+          });
+      },
       isTopFlexRow: true,
     },
     {
@@ -329,11 +352,11 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
-        ?.map((option) => {
+        ?.map((category) => {
           return {
-            value: option._id,
-            label: option.name,
-            imageUrl: option?.imageUrl,
+            value: category._id,
+            label: category.name,
+            imageUrl: category?.imageUrl,
           };
         }),
       invalidateKeys: [
@@ -346,6 +369,29 @@ const Tables = () => {
       placeholder: t("Category"),
       required: false,
       isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      triggerTabOpenOnChangeFor: "item",
+      handleTriggerTabOptions: (value: any) => {
+        return menuItems
+          ?.filter((menuItem) => {
+            return menuItem.category === value;
+          })
+          ?.filter((item) => {
+            if (!farmCategoryActivity) {
+              return item?.category !== FARMBURGERCATEGORYID;
+            }
+            return true;
+          })
+          ?.filter((menuItem) =>
+            menuItem?.locations?.includes(selectedLocationId)
+          )
+          ?.map((menuItem) => {
+            return {
+              value: menuItem?._id,
+              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              imageUrl: menuItem?.imageUrl,
+            };
+          });
+      },
       isTopFlexRow: true,
     },
     {
@@ -1237,8 +1283,8 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName="   overflow-scroll sm:overflow-visible no-scrollbar"
-          topClassName="flex flex-col gap-2   "
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
+          topClassName="flex flex-col gap-2  "
         />
       )}
       {isTakeAwayOrderModalOpen && (
@@ -1332,8 +1378,8 @@ const Tables = () => {
             setIsTakeAwayOrderModalOpen(false);
             setSelectedNewOrders([]);
           }}
-          generalClassName=" md:rounded-l-none shadow-none  overflow-scroll sm:overflow-visible no-scrollbar"
-          topClassName="flex flex-col gap-2   "
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
+          topClassName="flex flex-col gap-2  "
         />
       )}
       {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (

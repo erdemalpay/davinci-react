@@ -361,11 +361,11 @@ const OrderPaymentModal = ({
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
-        ?.map((option) => {
+        ?.map((category) => {
           return {
-            value: option._id,
-            label: option.name,
-            imageUrl: option?.imageUrl,
+            value: category._id,
+            label: category.name,
+            imageUrl: category?.imageUrl,
           };
         }),
       invalidateKeys: [
@@ -378,6 +378,34 @@ const OrderPaymentModal = ({
       placeholder: t("Category"),
       required: false,
       isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      triggerTabOpenOnChangeFor: "item",
+      handleTriggerTabOptions: (value: any) => {
+        return items
+          ?.filter((menuItem) => {
+            return menuItem.category === value;
+          })
+          ?.filter((item) => {
+            if (!farmCategoryActivity) {
+              return item?.category !== FARMBURGERCATEGORYID;
+            }
+            return true;
+          })
+          ?.filter((menuItem) =>
+            menuItem?.locations?.includes(selectedLocationId)
+          )
+          ?.filter((menuItem) =>
+            table?.isOnlineSale
+              ? getItem(menuItem.category, categories)?.isOnlineOrder
+              : true
+          )
+          ?.map((menuItem) => {
+            return {
+              value: menuItem?._id,
+              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              imageUrl: menuItem?.imageUrl,
+            };
+          });
+      },
       isTopFlexRow: true,
     },
     {

@@ -99,6 +99,12 @@ export interface GenericInputType {
   isMinNumber?: boolean;
   isDebounce?: boolean;
   isDatePickerLabel?: boolean;
+  triggerTabOpenOnChangeFor?: string;
+  handleTriggerTabOptions?: (value: any) => {
+    value: any;
+    label: string;
+    imageUrl?: string;
+  }[];
   additionalOnChange?: (value: any) => void;
   onChangeTrigger?: (value: any) => void;
   isReadOnly?: boolean;

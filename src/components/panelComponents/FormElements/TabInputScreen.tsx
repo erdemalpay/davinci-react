@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState } from "../../../types";
+import { GenericInputType, InputTypes } from "../shared/types";
 
 export type TabOption = {
   value: any;
@@ -14,6 +15,8 @@ interface Props {
   topClassName?: string;
   formElements: FormElementsState;
   setFormElements: (value: FormElementsState) => void;
+  inputs: GenericInputType[];
+  setForm?: (value: FormElementsState) => void;
 }
 
 const normalizeText = (text: string) =>
@@ -32,6 +35,8 @@ const TabInputScreen = ({
   topClassName,
   formElements,
   setFormElements,
+  inputs,
+  setForm,
 }: Props) => {
   const {
     isTabInputScreenOpen,
@@ -39,6 +44,8 @@ const TabInputScreen = ({
     setTabInputScreenOptions,
     tabInputFormKey,
     tabInputInvalidateKeys,
+    setTabInputFormKey,
+    setTabInputInvalidateKeys,
   } = useGeneralContext();
   const [searchTerm, setSearchTerm] = useState("");
   if (!isTabInputScreenOpen) return null;
@@ -51,6 +58,11 @@ const TabInputScreen = ({
       ...prev,
       [tabInputFormKey]: option.value,
     }));
+
+    setForm?.((prev: FormElementsState) => ({
+      ...prev,
+      [tabInputFormKey]: option.value,
+    }));
     if (tabInputInvalidateKeys) {
       tabInputInvalidateKeys.forEach((key) => {
         setFormElements((prev: FormElementsState) => ({
@@ -59,8 +71,28 @@ const TabInputScreen = ({
         }));
       });
     }
-    setIsTabInputScreenOpen(false);
-    setTabInputScreenOptions([]);
+    const changedInput = inputs.find(
+      (input) => input.formKey === tabInputFormKey
+    );
+    if (
+      changedInput?.triggerTabOpenOnChangeFor &&
+      changedInput?.handleTriggerTabOptions
+    ) {
+      const targetKey = changedInput.triggerTabOpenOnChangeFor;
+      const targetInput = inputs.find((i) => i.formKey === targetKey);
+      if (targetInput?.type === InputTypes.TAB) {
+        setTabInputScreenOptions(
+          changedInput?.handleTriggerTabOptions(option.value) ??
+            targetInput.options
+        );
+        setIsTabInputScreenOpen(true);
+        setTabInputFormKey(targetInput.formKey);
+        setTabInputInvalidateKeys(targetInput.invalidateKeys ?? []);
+      }
+    } else {
+      setIsTabInputScreenOpen(false);
+      setTabInputScreenOptions([]);
+    }
   };
   const filtered = options.filter((opt) =>
     normalizeText(opt.label).includes(normalizeText(searchTerm))
@@ -81,7 +113,6 @@ const TabInputScreen = ({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          autoFocus
           placeholder="Search..."
           className="flex-1 border border-gray-300 rounded px-3 py-2 mr-2 mt-2"
         />

@@ -188,6 +188,7 @@ export function TableCard({
         imageUrl: menuItem?.imageUrl,
       };
     });
+
   const activeTables = tables.filter((t) => !t.finishHour);
   const inactiveTableInputs = getItem(selectedLocationId, locations)
     ?.tableNames?.filter((t) => !activeTables.some((table) => table.name === t))
@@ -261,6 +262,34 @@ export function TableCard({
       placeholder: t("Category"),
       required: false,
       isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      triggerTabOpenOnChangeFor: "item",
+      handleTriggerTabOptions: (value: any) => {
+        return menuItems
+          ?.filter((menuItem) => {
+            return menuItem.category === value;
+          })
+          ?.filter((item) => {
+            if (!farmCategoryActivity) {
+              return item?.category !== FARMBURGERCATEGORYID;
+            }
+            return true;
+          })
+          ?.filter((menuItem) =>
+            menuItem?.locations?.includes(selectedLocationId)
+          )
+          ?.filter((menuItem) =>
+            table?.isOnlineSale
+              ? getItem(menuItem.category, categories)?.isOnlineOrder
+              : true
+          )
+          ?.map((menuItem) => {
+            return {
+              value: menuItem?._id,
+              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              imageUrl: menuItem?.imageUrl,
+            };
+          });
+      },
       isTopFlexRow: true,
     },
     {

@@ -105,7 +105,14 @@ const GenericAddEditPanel = <T,>({
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
   const [imageFormKey, setImageFormKey] = useState<string>("");
-  const { isTabInputScreenOpen, tabInputScreenOptions } = useGeneralContext();
+  const {
+    isTabInputScreenOpen,
+    tabInputScreenOptions,
+    setTabInputFormKey,
+    setTabInputInvalidateKeys,
+    setIsTabInputScreenOpen,
+    setTabInputScreenOptions,
+  } = useGeneralContext();
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [resetTextInput, setResetTextInput] = useState(false);
@@ -185,6 +192,7 @@ const GenericAddEditPanel = <T,>({
     if (setForm) {
       setForm(formElements as T);
     }
+    console.log("Form elements updated:", formElements);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
   useEffect(() => {
@@ -309,6 +317,8 @@ const GenericAddEditPanel = <T,>({
           topClassName={generalClassName}
           formElements={formElements}
           setFormElements={setFormElements}
+          inputs={inputs}
+          setForm={setForm as any}
         />
       );
     }
@@ -514,7 +524,7 @@ const GenericAddEditPanel = <T,>({
                                     option.value
                                   )
                                 )
-                              : input.options?.find(
+                              : input?.options?.find(
                                   (option) =>
                                     option?.value ===
                                     formElements[input.formKey]
