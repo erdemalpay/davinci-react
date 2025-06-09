@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState } from "../../../types";
@@ -53,6 +53,7 @@ const TabInputScreen = ({
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
   };
+  const listRef = useRef<HTMLDivElement>(null);
   const handleSelect = (option: TabOption) => {
     setFormElements((prev: FormElementsState) => ({
       ...prev,
@@ -85,7 +86,7 @@ const TabInputScreen = ({
           changedInput?.handleTriggerTabOptions(option.value) ??
             targetInput.options
         );
-        setIsTabInputScreenOpen(true);
+        listRef?.current?.scrollTo({ top: 0, behavior: "smooth" });
         setTabInputFormKey(targetInput.formKey);
         setTabInputInvalidateKeys(targetInput.invalidateKeys ?? []);
       }
@@ -94,6 +95,7 @@ const TabInputScreen = ({
       setTabInputScreenOptions([]);
     }
   };
+
   const filtered = options.filter((opt) =>
     normalizeText(opt.label).includes(normalizeText(searchTerm))
   );
@@ -121,7 +123,10 @@ const TabInputScreen = ({
         </button>
       </div>
 
-      <div className="p-2 overflow-y-auto no-scrollbar max-h-[45vh] sm:max-h-full">
+      <div
+        ref={listRef}
+        className="p-2 overflow-y-auto no-scrollbar max-h-[45vh] sm:max-h-full"
+      >
         <div className="grid grid-cols-2 gap-4">
           {sortedFiltered.map((opt) => {
             const isSelected = formElements[tabInputFormKey] === opt.value;
