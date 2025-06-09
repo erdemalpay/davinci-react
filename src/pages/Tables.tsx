@@ -208,6 +208,7 @@ const Tables = () => {
       return {
         value: menuItem?._id,
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+        imageUrl: menuItem?.imageUrl,
       };
     });
   const orderInputs = [
@@ -221,10 +222,11 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
-        ?.map((category) => {
+        ?.map((option) => {
           return {
-            value: category._id,
-            label: category.name,
+            value: option._id,
+            label: option.name,
+            imageUrl: option?.imageUrl,
           };
         }),
       invalidateKeys: [
@@ -247,6 +249,7 @@ const Tables = () => {
         return {
           value: option.value,
           label: option.label,
+          imageUrl: option?.imageUrl,
         };
       }),
       invalidateKeys: [
@@ -326,10 +329,11 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
-        ?.map((category) => {
+        ?.map((option) => {
           return {
-            value: category._id,
-            label: category.name,
+            value: option._id,
+            label: option.name,
+            imageUrl: option?.imageUrl,
           };
         }),
       invalidateKeys: [
@@ -352,6 +356,7 @@ const Tables = () => {
         return {
           value: option.value,
           label: option.label,
+          imageUrl: option?.imageUrl,
         };
       }),
       invalidateKeys: [
@@ -1260,7 +1265,7 @@ const Tables = () => {
           }}
           buttonName={t("Payment")}
           cancelButtonLabel="Close"
-          anotherPanelTopClassName="h-full sm:h-auto flex flex-col  sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-1/2 overflow-scroll no-scrollbar sm:overflow-visible  "
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderTakeawayPanel />}
           isConfirmationDialogRequired={() => {
             const menuItem = menuItems?.find(
