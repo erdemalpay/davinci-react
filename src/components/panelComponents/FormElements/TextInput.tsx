@@ -147,7 +147,7 @@ const TextInput = ({
     return (
       <div
         className={` flex ${
-          isTopFlexRow ? "flex-row" : "flex-col"
+          isTopFlexRow ? "flex-row sm:flex-col" : "flex-col"
         } gap-2  w-full items-center`}
       >
         <H6 className="min-w-10">
@@ -182,7 +182,7 @@ const TextInput = ({
     return (
       <div
         className={` flex ${
-          isTopFlexRow ? "flex-row" : "flex-col"
+          isTopFlexRow ? "flex-row sm:flex-col" : "flex-col"
         } gap-2  w-full `}
       >
         {isDatePickerLabel && (
