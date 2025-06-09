@@ -14,6 +14,10 @@ import { useTranslation } from "react-i18next";
 import { FiMinusCircle } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import { IoIosClose } from "react-icons/io";
+import {
+  MdOutlineCheckBox,
+  MdOutlineCheckBoxOutlineBlank,
+} from "react-icons/md";
 import { H6 } from "../Typography";
 
 type TextInputProps = {
@@ -272,33 +276,30 @@ const TextInput = ({
   }
   if (type === "checkbox") {
     return (
-      <div className={`flex  "flex-row gap-4 w-full`}>
-        <H6 className={`min-w-fit my-auto`}>
+      <div className="flex justify-between items-center w-full">
+        {/* Label on the left */}
+        <H6 className="my-auto">
           {label}
-          {requiredField && (
-            <>
-              <span className="text-red-400">* </span>
-            </>
-          )}
+          {requiredField && <span className="text-red-400">*</span>}
         </H6>
-        <div
-          className={`flex flex-row gap-2 items-center ${
-            inputWidth ? inputWidth : "w-full"
-          }`}
+
+        {/* Icon on the right */}
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => {
+            const newValue = !(localValue ?? value);
+            setLocalValue(newValue);
+            onChange(newValue);
+          }}
+          className="focus:outline-none"
         >
-          <input
-            ref={inputRef}
-            type="checkbox"
-            checked={localValue ? localValue : value}
-            onChange={(e) => {
-              const newValue = e.target.checked;
-              setLocalValue(newValue);
-              onChange(newValue);
-            }}
-            className={inputClassName}
-            disabled={disabled}
-          />
-        </div>
+          {localValue ?? value ? (
+            <MdOutlineCheckBox className="h-6 w-6" />
+          ) : (
+            <MdOutlineCheckBoxOutlineBlank className="h-6 w-6" />
+          )}
+        </button>
       </div>
     );
   }
