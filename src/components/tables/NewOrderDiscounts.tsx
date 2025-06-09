@@ -49,7 +49,7 @@ const NewOrderDiscounts = () => {
     );
   });
   return (
-    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar px-2 pb-2  ">
+    <div className="flex flex-col h-[60%]  sm:h-full justify-between overflow-scroll no-scrollbar px-2 pb-2 sm:min-h-[23rem]  ">
       {/* discounts */}
       <div className="grid grid-cols-3 gap-4">
         {filteredDiscounts?.map((discount) => {
@@ -74,7 +74,7 @@ const NewOrderDiscounts = () => {
         })}
       </div>
 
-      <div className="flex flex-row items-center ml-auto gap-2 mt-2">
+      <div className="flex flex-row items-center ml-auto gap-2 mt-2 ">
         <button
           onClick={() => {
             setShowAllDiscounts(!showAllDiscounts);

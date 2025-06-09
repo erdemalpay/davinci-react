@@ -49,7 +49,7 @@ const OrderListForPanel = ({ table }: Props) => {
   ];
   return (
     <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100]  ">
-      <div className="flex flex-col gap-2 px-4 py-6">
+      <div className="flex flex-col gap-2 px-4 py-6 ">
         {/* header */}
         <h1 className="font-medium">
           {t("Table")}: {table.name}
@@ -59,7 +59,7 @@ const OrderListForPanel = ({ table }: Props) => {
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          topClassName="min-h-64 max-h-64 sm:max-h-80 sm:min-h-80 overflow-scroll no-scrollbar   "
+          topClassName="min-h-64 max-h-64 sm:max-h-[32rem] sm:min-h-[32rem] overflow-scroll no-scrollbar h-full  "
         />
       </div>
     </div>

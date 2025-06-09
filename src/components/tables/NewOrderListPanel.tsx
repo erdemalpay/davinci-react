@@ -26,9 +26,9 @@ const NewOrderListPanel = () => {
     selectedNewOrders,
   } = useOrderContext();
   return (
-    <div className="flex flex-col justify-between h-full px-2  gap-3">
+    <div className="flex flex-col justify-between  px-2   gap-3 ">
       {/* orders */}
-      <div className="flex flex-col gap-1  text-sm ">
+      <div className="flex flex-col  gap-1  text-sm ">
         {orderCreateBulk?.map((order, index) => {
           const orderItem = getItem(order.item, items);
           return (

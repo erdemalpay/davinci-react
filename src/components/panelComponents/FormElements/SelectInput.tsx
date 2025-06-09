@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
@@ -200,8 +199,6 @@ const SelectInput = ({
       onChangeTrigger && onChangeTrigger(options[0], actionMeta);
     }
   }, [options, value, onChange]);
-
-  const { t } = useTranslation();
 
   return (
     <div
