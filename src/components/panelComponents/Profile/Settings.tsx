@@ -4,6 +4,8 @@ import { useGeneralContext } from "../../../context/General.context";
 import { languageOptions, RowPerPageEnum } from "../../../types";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
 import CommonSelectInput from "../../common/SelectInput";
+import TextInput from "../FormElements/TextInput";
+import { InputTypes } from "../shared/types";
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
@@ -69,6 +71,21 @@ const Settings = () => {
             },
           });
           setRowsPerPage(Number(selectedOption?.value));
+        }}
+      />
+      <TextInput
+        type={InputTypes.CHECKBOX}
+        value={user?.settings?.orderCategoryOn ?? false}
+        label={t("Order Category On")}
+        onChange={(val) => {
+          updateUser({
+            id: user._id,
+            updates: {
+              settings: {
+                orderCategoryOn: !user?.settings?.orderCategoryOn ?? true,
+              },
+            },
+          });
         }}
       />
     </div>

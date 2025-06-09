@@ -15,7 +15,6 @@ import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
-import { useUserContext } from "../../context/User.context";
 import {
   FARMBURGERCATEGORYID,
   Game,
@@ -49,6 +48,7 @@ import {
   useReopenTableMutation,
   useTableMutations,
 } from "../../utils/api/table";
+import { useGetUser } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
@@ -135,7 +135,7 @@ export function TableCard({
   const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
     useOrderContext();
   const { setExpandedRows } = useGeneralContext();
-  const { user } = useUserContext();
+  const user = useGetUser();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const farmCategoryActivity = getItem(
@@ -234,15 +234,21 @@ export function TableCard({
   const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
   const orderInputs = [
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "category",
       label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category._id,
-          label: category.name,
-        };
-      }),
+      options: categories
+        ?.filter((category) => {
+          return (
+            category.active && category?.locations?.includes(selectedLocationId)
+          );
+        })
+        ?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
       invalidateKeys: [
         { key: "item", defaultValue: 0 },
         { key: "discount", defaultValue: undefined },
@@ -253,6 +259,7 @@ export function TableCard({
       placeholder: t("Category"),
       required: false,
       isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.TAB,

@@ -6,7 +6,6 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
-import { useUserContext } from "../../../context/User.context";
 import {
   FARMBURGERCATEGORYID,
   MenuItem,
@@ -35,7 +34,7 @@ import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
-import { useGetUsers } from "../../../utils/api/user";
+import { useGetUser, useGetUsers } from "../../../utils/api/user";
 import { useGetVisits } from "../../../utils/api/visit";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -69,7 +68,7 @@ const OrderPaymentModal = ({
   isAddOrderActive = true,
 }: Props) => {
   const { t } = useTranslation();
-  const { user } = useUserContext();
+  const user = useGetUser();
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
@@ -350,19 +349,32 @@ const OrderPaymentModal = ({
   );
   const orderInputs = [
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "category",
       label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category._id,
-          label: category.name,
-        };
-      }),
-      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      options: categories
+        ?.filter((category) => {
+          return (
+            category.active && category?.locations?.includes(selectedLocationId)
+          );
+        })
+        ?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+      invalidateKeys: [
+        { key: "item", defaultValue: 0 },
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
+      ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true, // remove this line and make category selection visible again
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.TAB,
@@ -382,6 +394,7 @@ const OrderPaymentModal = ({
       ],
       placeholder: t("Product"),
       required: true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.NUMBER,
@@ -392,9 +405,10 @@ const OrderPaymentModal = ({
       required: true,
       isNumberButtonsActive: true,
       isOnClearActive: false,
+      isTopFlexRow: true,
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "discount",
       label: t("Discount"),
       options: orderForm?.item
@@ -419,6 +433,7 @@ const OrderPaymentModal = ({
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.TEXT,

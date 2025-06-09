@@ -24,7 +24,6 @@ import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
-import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
   ButtonCallType,
@@ -61,7 +60,7 @@ import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUser, useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
@@ -75,7 +74,7 @@ const Tables = () => {
   const stocks = useGetAccountStocks();
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
-  const { user } = useUserContext();
+  const user = useGetUser();
   const reservations = useGetReservations();
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
@@ -201,19 +200,32 @@ const Tables = () => {
     });
   const orderInputs = [
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "category",
       label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category._id,
-          label: category.name,
-        };
-      }),
-      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      options: categories
+        ?.filter((category) => {
+          return (
+            category.active && category?.locations?.includes(selectedLocationId)
+          );
+        })
+        ?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+      invalidateKeys: [
+        { key: "item", defaultValue: 0 },
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
+      ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true, // remove this line and make category selection visible again
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.SELECT,
@@ -232,6 +244,7 @@ const Tables = () => {
       ],
       placeholder: t("Product"),
       required: true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.NUMBER,
@@ -292,19 +305,32 @@ const Tables = () => {
   };
   const orderInputsForTakeAway = [
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "category",
       label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category._id,
-          label: category.name,
-        };
-      }),
-      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      options: categories
+        ?.filter((category) => {
+          return (
+            category.active && category?.locations?.includes(selectedLocationId)
+          );
+        })
+        ?.map((category) => {
+          return {
+            value: category._id,
+            label: category.name,
+          };
+        }),
+      invalidateKeys: [
+        { key: "item", defaultValue: 0 },
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
+      ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.TAB,
