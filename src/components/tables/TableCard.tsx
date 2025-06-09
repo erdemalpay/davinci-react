@@ -243,10 +243,16 @@ export function TableCard({
           label: category.name,
         };
       }),
-      invalidateKeys: [{ key: "item", defaultValue: 0 }],
+      invalidateKeys: [
+        { key: "item", defaultValue: 0 },
+        { key: "discount", defaultValue: undefined },
+        { key: "discountNote", defaultValue: "" },
+        { key: "isOnlinePrice", defaultValue: false },
+        { key: "stockLocation", defaultValue: selectedLocationId },
+      ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: true,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
     },
     {
       type: InputTypes.TAB,

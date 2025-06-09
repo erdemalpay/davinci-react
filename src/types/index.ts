@@ -93,6 +93,9 @@ export type User = {
       learnDate: string;
     }
   ];
+  settings?: {
+    orderCategoryOn?: boolean;
+  };
 };
 
 export type Game = {
