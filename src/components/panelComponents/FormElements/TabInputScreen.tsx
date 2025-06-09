@@ -90,7 +90,7 @@ const TabInputScreen = ({
         </button>
       </div>
 
-      <div className="p-2 overflow-y-auto no-scrollbar max-h-[45vh]">
+      <div className="p-2 overflow-y-auto no-scrollbar max-h-[45vh] sm:max-h-full">
         <div className="grid grid-cols-2 gap-4">
           {sortedFiltered.map((opt) => {
             const isSelected = formElements[tabInputFormKey] === opt.value;
@@ -113,7 +113,7 @@ const TabInputScreen = ({
                   <img
                     src={opt.imageUrl}
                     alt={opt.label}
-                    className="w-16 h-16 object-cover rounded-md mb-2"
+                    className="w-16 h-16 object-cover rounded-md mb-2 hidden sm:block"
                   />
                 )}
                 <span className="text-gray-800 text-center">{opt.label}</span>

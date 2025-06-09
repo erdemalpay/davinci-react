@@ -327,7 +327,7 @@ const GenericAddEditPanel = <T,>({
             <H6>{upperMessage}</H6>
           </div>
         )}
-        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between">
+        <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between  h-full">
           <div
             className={`${
               topClassName
@@ -596,7 +596,7 @@ const GenericAddEditPanel = <T,>({
               })}
             </div>
           </div>
-          <div className="ml-auto flex flex-row gap-4">
+          <div className="ml-auto flex flex-row gap-4 mt-auto ">
             <button
               onClick={() => {
                 isCancelConfirmationDialogExist

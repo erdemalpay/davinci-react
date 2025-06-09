@@ -318,20 +318,16 @@ const TextInput = ({
         )}
       </H6>
       <div
-        className={`flex items-center ${
+        className={`flex items-center justify-end ${
           isNumberButtonsActive ? "gap-4" : "gap-2"
         } ${inputWidth ? inputWidth : "w-full"}`}
       >
-        {isNumberButtonsActive && (
-          <FiMinusCircle
-            className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
-            onClick={handleDecrement}
-          />
-        )}
         <input
           ref={inputRef}
           type={type}
-          style={{ fontSize: "16px" }}
+          style={{
+            fontSize: "16px",
+          }}
           placeholder={placeholder}
           disabled={disabled || isReadOnly}
           value={localValue}
@@ -340,6 +336,12 @@ const TextInput = ({
           {...(isMinNumber && (type === "number" ? { min: minNumber } : {}))}
           onWheel={type === "number" ? handleWheel : undefined}
         />
+        {isNumberButtonsActive && (
+          <FiMinusCircle
+            className="w-8 h-8 flex-shrink-0 text-red-500 hover:text-red-800 cursor-pointer focus:outline-none"
+            onClick={handleDecrement}
+          />
+        )}
         {isNumberButtonsActive && (
           <GoPlusCircle
             className="w-8 h-8 flex-shrink-0 text-green-500 hover:text-green-800 cursor-pointer focus:outline-none"

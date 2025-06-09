@@ -50,7 +50,7 @@ const TabInput: React.FC<TabInputProps> = ({
         isTopFlexRow
           ? "flex-row items-center sm:flex-col sm:items-baseline "
           : "flex-col"
-      } gap-2`}
+      } gap-2 `}
     >
       <H6>
         {label}
