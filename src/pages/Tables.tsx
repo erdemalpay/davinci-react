@@ -64,7 +64,7 @@ import { useGetUser, useGetUsers } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
-import { LocationInput, QuantityInput } from "../utils/panelInputs";
+import { LocationInput } from "../utils/panelInputs";
 import { sortTable } from "../utils/sort";
 
 const Tables = () => {
@@ -170,9 +170,19 @@ const Tables = () => {
       }),
       placeholder: t("Product"),
       required: true,
+      isTopFlexRow: true,
     },
-    QuantityInput({ required: true }),
-    LocationInput({ locations: allLocations }),
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 0,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+    LocationInput({ locations: allLocations, isTopFlexRow: true }),
   ];
   const consumptFormKeys = [
     { key: "product", type: FormKeyTypeEnum.STRING },
@@ -228,7 +238,7 @@ const Tables = () => {
       isTopFlexRow: true,
     },
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "item",
       label: t("Product"),
       options: menuItemOptions?.map((option) => {
@@ -1214,7 +1224,7 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName=" md:rounded-l-none shadow-none  overflow-scroll sm:overflow-visible no-scrollbar"
+          generalClassName="   overflow-scroll sm:overflow-visible no-scrollbar"
           topClassName="flex flex-col gap-2   "
         />
       )}

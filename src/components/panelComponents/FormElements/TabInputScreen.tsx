@@ -74,7 +74,7 @@ const TabInputScreen = ({
     return a.label.localeCompare(b.label);
   });
   return (
-    <div className={topClassName}>
+    <div className={`${topClassName} bg-white rounded-lg shadow-lg p-2`}>
       {/* header: search + close */}
       <div className="w-full px-2 flex justify-between items-center">
         <input

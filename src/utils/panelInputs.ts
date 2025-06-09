@@ -236,12 +236,14 @@ export function LocationInput({
   required = true,
   isMultiple = false,
   isDisabled = false,
+  isTopFlexRow = false,
   locations,
 }: {
   locations: Location[];
   required?: boolean;
   isMultiple?: boolean;
   isDisabled?: boolean;
+  isTopFlexRow?: boolean;
 }) {
   const { t } = useTranslation();
   return {
@@ -258,6 +260,7 @@ export function LocationInput({
     isMultiple: isMultiple,
     required: required,
     isDisabled: isDisabled,
+    isTopFlexRow: isTopFlexRow,
   };
 }
 
