@@ -189,6 +189,18 @@ const GenericAddEditPanel = <T,>({
       },
     }
   );
+  const triggerOnTriggerTabInput = () => {
+    if (!onOpenTriggerTabInputFormKey) return;
+    const input = inputs.find(
+      (i) => i.formKey === onOpenTriggerTabInputFormKey
+    );
+    if (input) {
+      setTabInputScreenOptions(input.options ?? []);
+      setIsTabInputScreenOpen(true);
+      setTabInputFormKey(onOpenTriggerTabInputFormKey);
+      setTabInputInvalidateKeys(input?.invalidateKeys ?? []);
+    }
+  };
   useEffect(() => {
     if (setForm) {
       setForm(formElements as T);
@@ -204,20 +216,7 @@ const GenericAddEditPanel = <T,>({
       }
     }
     document.addEventListener("keydown", handleKeyDown);
-
-    // open-on-mount _or_ whenever the trigger key/value changes:
-    if (onOpenTriggerTabInputFormKey) {
-      const input = inputs.find(
-        (i) => i.formKey === onOpenTriggerTabInputFormKey
-      );
-      if (input) {
-        setTabInputScreenOptions(input.options ?? []);
-        setIsTabInputScreenOpen(true);
-        setTabInputFormKey(onOpenTriggerTabInputFormKey);
-        setTabInputInvalidateKeys(input?.invalidateKeys ?? []);
-      }
-    }
-
+    triggerOnTriggerTabInput();
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
@@ -647,6 +646,7 @@ const GenericAddEditPanel = <T,>({
                           );
                           setResetTextInput((prev) => !prev);
                         }
+                        triggerOnTriggerTabInput();
                       };
 
                       if (isConfirmationDialogRequired?.()) {
