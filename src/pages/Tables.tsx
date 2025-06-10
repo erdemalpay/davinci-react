@@ -129,6 +129,8 @@ const Tables = () => {
     isOnlinePrice: false,
     stockLocation: selectedLocationId,
   };
+  const tablesLoading = (tables as any)?.isLoading;
+  const [pendingScrollTo, setPendingScrollTo] = useState<string | null>(null);
   const [tableForm, setTableForm] = useState({
     name: "",
     startHour: format(new Date(), "HH:mm"),
@@ -633,7 +635,12 @@ const Tables = () => {
     const newDate = subDays(date, 1);
     setSelectedDate(formatDate(newDate));
   };
-
+  useEffect(() => {
+    if (pendingScrollTo && !tablesLoading) {
+      scrollToSection(pendingScrollTo);
+      setPendingScrollTo(null);
+    }
+  }, [pendingScrollTo, tablesLoading]);
   const handleIncrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = new Date(date);
@@ -700,6 +707,13 @@ const Tables = () => {
       top: offsetPosition,
       behavior: "smooth",
     });
+  };
+  const handleScrollClick = (id: string) => {
+    if (tablesLoading) {
+      setPendingScrollTo(id);
+    } else {
+      scrollToSection(id);
+    }
   };
 
   const cafeInfos: {
@@ -964,7 +978,7 @@ const Tables = () => {
                               table?.tables?.length + "tableselector" + "small"
                             }
                             onClick={() =>
-                              scrollToSection(`table-${table?._id}`)
+                              handleScrollClick(`table-${table?._id}`)
                             }
                             className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
                               table
@@ -1038,7 +1052,7 @@ const Tables = () => {
                         <a
                           key={table._id}
                           onClick={() =>
-                            scrollToSection(`table-large-${table._id}`)
+                            handleScrollClick(`table-large-${table._id}`)
                           }
                           className={`bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColor(
                             table
