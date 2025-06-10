@@ -33,6 +33,7 @@ type Props<T> = {
   onOpenTriggerTabInputFormKey?: string;
   generalClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
+  tabScreenAutoFocus?: boolean;
   setForm?: (item: T) => void;
   handleUpdate?: () => void;
   submitFunction?: () => void;
@@ -103,6 +104,7 @@ const GenericAddEditPanel = <T,>({
   upperMessage,
   setForm,
   submitItem,
+  tabScreenAutoFocus = false,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -326,6 +328,7 @@ const GenericAddEditPanel = <T,>({
             label: o.label,
             imageUrl: o.imageUrl,
           }))}
+          isAutoFocus={tabScreenAutoFocus}
           topClassName={generalClassName}
           formElements={formElements}
           setFormElements={setFormElements}

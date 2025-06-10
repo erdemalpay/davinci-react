@@ -377,7 +377,7 @@ const OrderPaymentModal = ({
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: false,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return items
@@ -634,7 +634,10 @@ const OrderPaymentModal = ({
           ? { upperMessage: t("Farm Category is not active") }
           : {})}
         formKeys={orderFormKeys}
-        onOpenTriggerTabInputFormKey="category"
+        onOpenTriggerTabInputFormKey={
+          user?.settings?.orderCategoryOn ? "category" : "item"
+        }
+        tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
         submitItem={createOrder as any}
         setForm={setOrderForm}
         isCreateCloseActive={false}

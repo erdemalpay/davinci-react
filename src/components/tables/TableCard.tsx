@@ -270,7 +270,7 @@ export function TableCard({
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: false,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return menuItems
@@ -977,7 +977,10 @@ export function TableCard({
                 setIsCreateOrderDialogOpen(false);
               }
             }}
-            onOpenTriggerTabInputFormKey="category"
+            onOpenTriggerTabInputFormKey={
+              user?.settings?.orderCategoryOn ? "category" : "item"
+            }
+            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
             generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
             topClassName="flex flex-col gap-2  "
           />

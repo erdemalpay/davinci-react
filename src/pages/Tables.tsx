@@ -248,7 +248,7 @@ const Tables = () => {
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: false,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return menuItems
@@ -378,7 +378,7 @@ const Tables = () => {
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: false,
+      isDisabled: !user?.settings?.orderCategoryOn ?? true,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return menuItems
@@ -1278,7 +1278,10 @@ const Tables = () => {
               setIsLossProductModalOpen(false);
             }}
             inputs={orderInputs}
-            onOpenTriggerTabInputFormKey="category"
+            onOpenTriggerTabInputFormKey={
+              user?.settings?.orderCategoryOn ? "category" : "item"
+            }
+            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
             formKeys={orderFormKeys}
             submitItem={createOrder as any}
             setForm={setOrderForm}
@@ -1338,7 +1341,10 @@ const Tables = () => {
               quantity: 1,
               stockLocation: selectedLocationId,
             }}
-            onOpenTriggerTabInputFormKey="category"
+            onOpenTriggerTabInputFormKey={
+              user?.settings?.orderCategoryOn ? "category" : "item"
+            }
+            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
             buttonName={t("Payment")}
             cancelButtonLabel="Close"
             anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
