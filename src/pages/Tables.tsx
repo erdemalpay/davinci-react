@@ -232,6 +232,7 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
+        ?.sort((a, b) => a.orderCategoryOrder - b.orderCategoryOrder)
         ?.map((category) => {
           return {
             value: category._id,
@@ -239,6 +240,7 @@ const Tables = () => {
             imageUrl: category?.imageUrl,
           };
         }),
+      isSortDisabled: true,
       invalidateKeys: [
         { key: "item", defaultValue: 0 },
         { key: "discount", defaultValue: undefined },
@@ -362,6 +364,7 @@ const Tables = () => {
             category.active && category?.locations?.includes(selectedLocationId)
           );
         })
+        ?.sort((a, b) => a.orderCategoryOrder - b.orderCategoryOrder)
         ?.map((category) => {
           return {
             value: category._id,
@@ -369,6 +372,7 @@ const Tables = () => {
             imageUrl: category?.imageUrl,
           };
         }),
+      isSortDisabled: true,
       invalidateKeys: [
         { key: "item", defaultValue: 0 },
         { key: "discount", defaultValue: undefined },

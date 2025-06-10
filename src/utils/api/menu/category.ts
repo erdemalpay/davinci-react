@@ -82,3 +82,32 @@ export function useUpdateCategoriesOrderMutation() {
     },
   });
 }
+
+export function updateOrderCategoriesOrder({
+  id,
+  newOrder,
+}: {
+  id: number;
+  newOrder: number;
+}) {
+  return patch({
+    path: `${Paths.Menu}/order_categories_order/${id}`,
+    payload: { newOrder },
+  });
+}
+export function useUpdateOrderCategoriesOrderMutation() {
+  const queryKey = [`${Paths.MenuCategories}`];
+  const queryClient = useQueryClient();
+  return useMutation(updateOrderCategoriesOrder, {
+    onMutate: async () => {
+      await queryClient.cancelQueries(queryKey);
+    },
+
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+      queryClient.invalidateQueries(queryKey);
+    },
+  });
+}

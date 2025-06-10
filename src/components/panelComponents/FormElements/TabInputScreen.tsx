@@ -55,6 +55,9 @@ const TabInputScreen = ({
     setIsTabInputScreenOpen(false);
     setTabInputScreenOptions([]);
   };
+  const changedInput = inputs.find(
+    (input) => input.formKey === tabInputFormKey
+  );
   const listRef = useRef<HTMLDivElement>(null);
   const handleSelect = (option: TabOption) => {
     setFormElements((prev: FormElementsState) => ({
@@ -74,9 +77,6 @@ const TabInputScreen = ({
         }));
       });
     }
-    const changedInput = inputs.find(
-      (input) => input.formKey === tabInputFormKey
-    );
     if (
       changedInput?.triggerTabOpenOnChangeFor &&
       changedInput?.handleTriggerTabOptions
@@ -102,13 +102,15 @@ const TabInputScreen = ({
     normalizeText(opt.label).includes(normalizeText(searchTerm))
   );
   const lower = normalizeText(searchTerm);
-  const sortedFiltered = [...filtered].sort((a, b) => {
-    const aStarts = normalizeText(a.label).startsWith(lower);
-    const bStarts = normalizeText(b.label).startsWith(lower);
-    if (aStarts && !bStarts) return -1;
-    if (bStarts && !aStarts) return 1;
-    return a.label.localeCompare(b.label);
-  });
+  const sortedFiltered = changedInput?.isSortDisabled
+    ? filtered
+    : [...filtered].sort((a, b) => {
+        const aStarts = normalizeText(a.label).startsWith(lower);
+        const bStarts = normalizeText(b.label).startsWith(lower);
+        if (aStarts && !bStarts) return -1;
+        if (bStarts && !aStarts) return 1;
+        return a.label.localeCompare(b.label);
+      });
   return (
     <div className={`${topClassName} bg-white rounded-lg shadow-lg p-2`}>
       {/* header: search + close */}

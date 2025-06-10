@@ -100,6 +100,7 @@ export interface GenericInputType {
   isDebounce?: boolean;
   isDatePickerLabel?: boolean;
   triggerTabOpenOnChangeFor?: string;
+  isSortDisabled?: boolean;
   handleTriggerTabOptions?: (value: any) => {
     value: any;
     label: string;

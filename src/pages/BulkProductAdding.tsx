@@ -17,7 +17,6 @@ const BulkProductAdding = () => {
   const [tableKey, setTableKey] = useState(0);
   const { mutate: createBulkProductAndMenuItem } =
     useCreateBulkProductAndMenuItemMutation();
-  const [actionType, setActionType] = useState("");
   const { mutate: updateMultipleProduct } = useUpdateMultipleProductMutations();
   const {
     errorDataForProductBulkCreation,

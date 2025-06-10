@@ -382,6 +382,7 @@ export type MenuCategory = {
   isOnlineOrder?: boolean;
   discounts?: number[];
   active: boolean;
+  orderCategoryOrder: number;
 };
 
 export type UpperCategory = {
