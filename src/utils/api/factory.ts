@@ -55,7 +55,6 @@ interface Props<T> {
   sortFunction?: (a: Partial<T>, b: Partial<T>) => number;
   additionalInvalidates?: QueryKey[];
 }
-
 export function useGet<T>(
   path: string,
   queryKey?: QueryKey,
@@ -68,13 +67,40 @@ export function useGet<T>(
   });
   return data;
 }
+export function useGetForList<T>(
+  path: string,
+  queryKey?: QueryKey,
+  isStaleTimeZero = false
+) {
+  const fetchKey = queryKey ?? [path];
+  return useQuery<T, Error>(fetchKey, () => get<T>({ path }), {
+    staleTime: isStaleTimeZero ? 0 : Infinity,
+  });
+}
 
 export function useGetList<T>(
   path: string,
   queryKey?: QueryKey,
-  isStaleTimeZero?: boolean
-) {
-  return useGet<T[]>(path, queryKey, isStaleTimeZero) || [];
+  isStaleTimeZero = false
+): T[] & {
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
+} {
+  const { data, isLoading, isError, error, refetch } = useGetForList<T[]>(
+    path,
+    queryKey,
+    isStaleTimeZero
+  );
+
+  const list = data ?? [];
+  (list as any).isLoading = isLoading;
+  (list as any).isError = isError;
+  (list as any).error = error;
+  (list as any).refetch = refetch;
+
+  return list as any;
 }
 
 export function useMutationApi<T extends { _id: number | string }>({

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountService, RoleEnum } from "../../types";
+import { RoleEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountServiceMutations,
@@ -26,9 +26,6 @@ import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Service = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -40,7 +37,7 @@ const Service = () => {
   const vendors = useGetAccountVendors();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [rowToAction, setRowToAction] = useState<AccountService>();
+  const [rowToAction, setRowToAction] = useState<any>();
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
   const {
@@ -60,7 +57,7 @@ const Service = () => {
   ] = useState(false);
   const { createAccountService, deleteAccountService, updateAccountService } =
     useAccountServiceMutations();
-  const [rows, setRows] = useState(services);
+  const [rows, setRows] = useState<any>(services);
 
   const filterPanelInputs = [
     VendorInput({ vendors: vendors }),
@@ -91,7 +88,7 @@ const Service = () => {
     {
       key: "name",
       className: "min-w-32 pr-1",
-      node: (row: AccountService) =>
+      node: (row: any) =>
         user &&
         pages &&
         pages
@@ -116,8 +113,8 @@ const Service = () => {
     {
       key: "expenseType",
       className: "min-w-32",
-      node: (row: AccountService) => {
-        return row.expenseType.map((expType: string, index) => {
+      node: (row: any) => {
+        return row.expenseType.map((expType: string, index: number) => {
           const foundExpenseType = expenseTypes.find(
             (expenseType) => expenseType._id === expType
           );
@@ -136,9 +133,9 @@ const Service = () => {
     {
       key: "vendor",
       className: "min-w-32",
-      node: (row: AccountService) => {
+      node: (row: any) => {
         if (row.vendor) {
-          return row?.vendor?.map((vendor: string, index) => {
+          return row?.vendor?.map((vendor: string, index: number) => {
             const foundVendor = vendors.find((vn) => vn._id === vendor);
             if (!foundVendor)
               return <div key={row._id + "vendor" + index}>-</div>;
@@ -302,7 +299,7 @@ const Service = () => {
   useEffect(() => {
     setRows(
       services
-        .filter((service) => {
+        ?.filter((service) => {
           return (
             (filterServicePanelFormElements.vendor === "" ||
               service.vendor?.includes(
