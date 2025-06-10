@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus, Table } from "../../types";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
@@ -10,6 +11,7 @@ type Props = { table: Table };
 
 const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
+  const { isTabInputScreenOpen } = useGeneralContext();
   const [activeTab, setActiveTab] = useState(0);
   if (!table || !user) return null;
   const { t } = useTranslation();
@@ -48,7 +50,11 @@ const OrderListForPanel = ({ table }: Props) => {
     },
   ];
   return (
-    <div className="bg-white rounded-md md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100]  ">
+    <div
+      className={`bg-white rounded-md  md:rounded-r-none  max-w-full  max-h-[60vh]  sm:max-h-[100vh]  z-[100] ${
+        isTabInputScreenOpen && "hidden sm:block"
+      } `}
+    >
       <div className="flex flex-col gap-2 px-4 py-6 ">
         {/* header */}
         <h1 className="font-medium">

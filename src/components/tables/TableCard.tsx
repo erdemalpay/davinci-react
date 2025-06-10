@@ -964,7 +964,7 @@ export function TableCard({
             }
           }}
           onOpenTriggerTabInputFormKey="category"
-          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
           topClassName="flex flex-col gap-2  "
         />
       )}

@@ -123,10 +123,7 @@ const TabInputScreen = ({
         </button>
       </div>
 
-      <div
-        ref={listRef}
-        className="p-2 overflow-y-auto no-scrollbar max-h-[45vh] sm:max-h-full"
-      >
+      <div ref={listRef} className="p-2 overflow-y-auto no-scrollbar ">
         <div className="grid grid-cols-2 gap-4">
           {sortedFiltered.map((opt) => {
             const isSelected = formElements[tabInputFormKey] === opt.value;
