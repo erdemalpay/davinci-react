@@ -30,6 +30,7 @@ type Props<T> = {
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
+  onOpenTriggerTabInputFormKey?: string;
   generalClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
   setForm?: (item: T) => void;
@@ -98,6 +99,7 @@ const GenericAddEditPanel = <T,>({
   isConfirmationDialogRequired,
   confirmationDialogText,
   confirmationDialogHeader,
+  onOpenTriggerTabInputFormKey,
   upperMessage,
   setForm,
   submitItem,
@@ -178,7 +180,6 @@ const GenericAddEditPanel = <T,>({
       });
       return res;
     },
-
     {
       onSuccess: (data) => {
         setFormElements((prev) => ({ ...prev, [imageFormKey]: data.url }));
@@ -192,7 +193,6 @@ const GenericAddEditPanel = <T,>({
     if (setForm) {
       setForm(formElements as T);
     }
-    console.log("Form elements updated:", formElements);
     setAllRequiredFilled(areRequiredFieldsFilled());
   }, [formElements, inputs]);
   useEffect(() => {
@@ -204,7 +204,20 @@ const GenericAddEditPanel = <T,>({
       }
     }
     document.addEventListener("keydown", handleKeyDown);
-    // Cleanup function
+
+    // open-on-mount _or_ whenever the trigger key/value changes:
+    if (onOpenTriggerTabInputFormKey) {
+      const input = inputs.find(
+        (i) => i.formKey === onOpenTriggerTabInputFormKey
+      );
+      if (input) {
+        setTabInputScreenOptions(input.options ?? []);
+        setIsTabInputScreenOpen(true);
+        setTabInputFormKey(onOpenTriggerTabInputFormKey);
+        setTabInputInvalidateKeys(input?.invalidateKeys ?? []);
+      }
+    }
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };

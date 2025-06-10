@@ -1253,6 +1253,7 @@ const Tables = () => {
             setIsLossProductModalOpen(false);
           }}
           inputs={orderInputs}
+          onOpenTriggerTabInputFormKey="category"
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
           setForm={setOrderForm}
@@ -1309,6 +1310,7 @@ const Tables = () => {
             quantity: 1,
             stockLocation: selectedLocationId,
           }}
+          onOpenTriggerTabInputFormKey="category"
           buttonName={t("Payment")}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "

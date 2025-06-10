@@ -634,6 +634,7 @@ const OrderPaymentModal = ({
           ? { upperMessage: t("Farm Category is not active") }
           : {})}
         formKeys={orderFormKeys}
+        onOpenTriggerTabInputFormKey="category"
         submitItem={createOrder as any}
         setForm={setOrderForm}
         isCreateCloseActive={false}

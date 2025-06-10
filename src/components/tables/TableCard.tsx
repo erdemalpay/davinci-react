@@ -963,6 +963,7 @@ export function TableCard({
               setIsCreateOrderDialogOpen(false);
             }
           }}
+          onOpenTriggerTabInputFormKey="category"
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
           topClassName="flex flex-col gap-2  "
         />
