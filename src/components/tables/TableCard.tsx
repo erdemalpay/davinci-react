@@ -54,7 +54,6 @@ import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabel } from "../common/InputWithLabel";
-import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -129,14 +128,6 @@ export function TableCard({
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
-  const anyLoading =
-    kitchens?.isLoading ||
-    locations?.isLoading ||
-    products?.isLoading ||
-    (discounts as any)?.isLoading ||
-    categories?.isLoading ||
-    (tables as any)?.isLoading ||
-    (tableOrders as any)?.isLoading;
   const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
@@ -865,128 +856,123 @@ export function TableCard({
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
-      {isCreateOrderDialogOpen &&
-        (anyLoading ? (
-          <Loading />
-        ) : (
-          <GenericAddEditPanel
-            isOpen={isCreateOrderDialogOpen}
-            close={() => {
-              setOrderCreateBulk([]);
-              setIsCreateOrderDialogOpen(false);
-              setSelectedNewOrders([]);
-              setIsTabInputScreenOpen(false);
-            }}
-            inputs={orderInputs}
-            formKeys={orderFormKeys}
-            {...(!farmCategoryActivity
-              ? { upperMessage: t("Farm Category is not active") }
-              : {})}
-            submitItem={createOrder as any}
-            isConfirmationDialogRequired={() => {
-              const menuItem = menuItems?.find(
-                (item) => item._id === orderForm.item
-              );
-              const category = categories?.find(
-                (category) => category._id === menuItem?.category
-              );
-              const stockQuantity = menuItem
-                ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
-                : null;
-              if (!category?.isOnlineOrder) {
-                return false;
-              }
-              return !stockQuantity || stockQuantity < orderForm.quantity;
-            }}
-            confirmationDialogHeader={t("Stock Quantity Warning")}
-            confirmationDialogText={t(
-              "Stock Quantity is not enough. Do you want to continue?"
-            )}
-            setForm={setOrderForm}
-            isCreateCloseActive={false}
-            optionalCreateButtonActive={orderCreateBulk?.length > 0}
-            constantValues={{
-              quantity: 1,
-              stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
-              location: table?.isOnlineSale ? 4 : selectedLocationId,
-            }}
-            cancelButtonLabel="Close"
-            anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-            anotherPanel={<OrderListForPanel table={table} />}
-            additionalButtons={[
-              {
-                label: "Add",
-                isInputRequirementCheck: true,
-                isInputNeedToBeReset: true,
-                onClick: () => {
-                  const orderObject = handleOrderObject();
-                  if (orderObject) {
-                    setOrderCreateBulk([...orderCreateBulk, orderObject]);
-                  }
-                  setSelectedNewOrders([
-                    ...selectedNewOrders,
-                    orderCreateBulk.length,
-                  ]);
-                  setOrderForm(initialOrderForm);
-                },
-              },
-            ]}
-            submitFunction={() => {
-              // creating single order
-              if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+      {isCreateOrderDialogOpen && (
+        <GenericAddEditPanel
+          isOpen={isCreateOrderDialogOpen}
+          close={() => {
+            setOrderCreateBulk([]);
+            setIsCreateOrderDialogOpen(false);
+            setSelectedNewOrders([]);
+            setIsTabInputScreenOpen(false);
+          }}
+          inputs={orderInputs}
+          formKeys={orderFormKeys}
+          {...(!farmCategoryActivity
+            ? { upperMessage: t("Farm Category is not active") }
+            : {})}
+          submitItem={createOrder as any}
+          isConfirmationDialogRequired={() => {
+            const menuItem = menuItems?.find(
+              (item) => item._id === orderForm.item
+            );
+            const category = categories?.find(
+              (category) => category._id === menuItem?.category
+            );
+            const stockQuantity = menuItem
+              ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
+              : null;
+            if (!category?.isOnlineOrder) {
+              return false;
+            }
+            return !stockQuantity || stockQuantity < orderForm.quantity;
+          }}
+          confirmationDialogHeader={t("Stock Quantity Warning")}
+          confirmationDialogText={t(
+            "Stock Quantity is not enough. Do you want to continue?"
+          )}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          constantValues={{
+            quantity: 1,
+            stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
+            location: table?.isOnlineSale ? 4 : selectedLocationId,
+          }}
+          cancelButtonLabel="Close"
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
+          anotherPanel={<OrderListForPanel table={table} />}
+          additionalButtons={[
+            {
+              label: "Add",
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: true,
+              onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
-                  createOrder(orderObject);
+                  setOrderCreateBulk([...orderCreateBulk, orderObject]);
                 }
-              } else {
-                if (orderForm?.item) {
-                  const orderObject = handleOrderObject();
-                  if (orderObject) {
-                    createMultipleOrder({
-                      orders: [
-                        ...orderCreateBulk.map((orderCreateBulkItem) => {
-                          return {
-                            ...orderCreateBulkItem,
-                            tableDate: table
-                              ? new Date(table?.date)
-                              : new Date(),
-                          };
-                        }),
-                        orderObject,
-                      ],
-                      table: table,
-                    });
-                    setOrderForm(initialOrderForm);
-                    setOrderCreateBulk([]);
-                    setSelectedNewOrders([]);
-                    return;
-                  }
+                setSelectedNewOrders([
+                  ...selectedNewOrders,
+                  orderCreateBulk.length,
+                ]);
+                setOrderForm(initialOrderForm);
+              },
+            },
+          ]}
+          submitFunction={() => {
+            // creating single order
+            if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                createOrder(orderObject);
+              }
+            } else {
+              if (orderForm?.item) {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  createMultipleOrder({
+                    orders: [
+                      ...orderCreateBulk.map((orderCreateBulkItem) => {
+                        return {
+                          ...orderCreateBulkItem,
+                          tableDate: table ? new Date(table?.date) : new Date(),
+                        };
+                      }),
+                      orderObject,
+                    ],
+                    table: table,
+                  });
+                  setOrderForm(initialOrderForm);
+                  setOrderCreateBulk([]);
+                  setSelectedNewOrders([]);
+                  return;
                 }
-                createMultipleOrder({
-                  orders: orderCreateBulk.map((orderCreateBulkItem) => {
-                    return {
-                      ...orderCreateBulkItem,
-                      tableDate: table ? new Date(table?.date) : new Date(),
-                    };
-                  }),
-                  table: table,
-                });
               }
-              setOrderForm(initialOrderForm);
-              setSelectedNewOrders([]);
-              setOrderCreateBulk([]);
-              if (table.type === TableTypes.TAKEOUT) {
-                setIsCreateOrderDialogOpen(false);
-              }
-            }}
-            onOpenTriggerTabInputFormKey={
-              user?.settings?.orderCategoryOn ? "category" : "item"
+              createMultipleOrder({
+                orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                  return {
+                    ...orderCreateBulkItem,
+                    tableDate: table ? new Date(table?.date) : new Date(),
+                  };
+                }),
+                table: table,
+              });
             }
-            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
-            generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
-            topClassName="flex flex-col gap-2  "
-          />
-        ))}
+            setOrderForm(initialOrderForm);
+            setSelectedNewOrders([]);
+            setOrderCreateBulk([]);
+            if (table.type === TableTypes.TAKEOUT) {
+              setIsCreateOrderDialogOpen(false);
+            }
+          }}
+          onOpenTriggerTabInputFormKey={
+            user?.settings?.orderCategoryOn ? "category" : "item"
+          }
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
+          topClassName="flex flex-col gap-2  "
+        />
+      )}
 
       {/* buttom buttons */}
       <div

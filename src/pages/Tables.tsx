@@ -7,7 +7,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
-import Loading from "../components/common/Loading";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -144,13 +143,6 @@ const Tables = () => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
-  const anyLoading =
-    kitchens?.isLoading ||
-    locations?.isLoading ||
-    products?.isLoading ||
-    (discounts as any)?.isLoading ||
-    categories?.isLoading ||
-    (tables as any)?.isLoading;
   const tableTypeOptions = Object.values(TableTypes)
     .filter((value) => [TableTypes.ACTIVITY, TableTypes.NORMAL].includes(value))
     .map((value) => ({
@@ -1271,157 +1263,151 @@ const Tables = () => {
           topClassName="flex flex-col gap-2 "
         />
       )}
-      {isLossProductModalOpen &&
-        (anyLoading ? (
-          <Loading />
-        ) : (
-          <GenericAddEditPanel
-            isOpen={isLossProductModalOpen}
-            close={() => {
-              setIsTabInputScreenOpen(false);
-              setIsLossProductModalOpen(false);
-            }}
-            inputs={orderInputs}
-            onOpenTriggerTabInputFormKey={
-              user?.settings?.orderCategoryOn ? "category" : "item"
-            }
-            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
-            formKeys={orderFormKeys}
-            submitItem={createOrder as any}
-            setForm={setOrderForm}
-            isCreateCloseActive={false}
-            constantValues={{
-              quantity: 1,
-              stockLocation: selectedLocationId,
-            }}
-            cancelButtonLabel="Close"
-            submitFunction={() => {
-              const selectedMenuItem = getItem(orderForm?.item, menuItems);
-              const selectedMenuItemCategory = getItem(
-                selectedMenuItem?.category,
-                categories
-              );
-              if (selectedMenuItem && user) {
-                createOrder({
-                  ...orderForm,
-                  location: selectedLocationId,
-                  unitPrice: selectedMenuItem.price,
-                  paidQuantity: 0,
-                  status: OrderStatus.WASTED,
-                  kitchen: selectedMenuItemCategory?.kitchen,
-                  stockLocation: selectedLocationId,
-                  stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
-                  tableDate: new Date(),
-                });
-              }
-              setOrderForm(initialOrderForm);
-            }}
-            generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
-            topClassName="flex flex-col gap-2  "
-          />
-        ))}
-      {isTakeAwayOrderModalOpen &&
-        (anyLoading ? (
-          <Loading />
-        ) : (
-          <GenericAddEditPanel
-            isOpen={isTakeAwayOrderModalOpen}
-            close={() => {
-              setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
-              setIsTakeAwayOrderModalOpen(false);
-              setSelectedNewOrders([]);
-              setIsTabInputScreenOpen(false);
-            }}
-            {...(!farmCategoryActivity
-              ? { upperMessage: t("Farm Category is not active") }
-              : {})}
-            inputs={orderInputsForTakeAway}
-            formKeys={orderFormKeysForTakeAway}
-            submitItem={createTable as any}
-            setForm={setOrderForm}
-            isCreateCloseActive={false}
-            optionalCreateButtonActive={orderCreateBulk?.length > 0}
-            constantValues={{
-              quantity: 1,
-              stockLocation: selectedLocationId,
-            }}
-            onOpenTriggerTabInputFormKey={
-              user?.settings?.orderCategoryOn ? "category" : "item"
-            }
-            tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
-            buttonName={t("Payment")}
-            cancelButtonLabel="Close"
-            anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
-            anotherPanel={<OrderTakeawayPanel />}
-            isConfirmationDialogRequired={() => {
-              const menuItem = menuItems?.find(
-                (item) => item._id === orderForm.item
-              );
-              const category = categories?.find(
-                (category) => category._id === menuItem?.category
-              );
-              const stockQuantity = menuItem
-                ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
-                : null;
-              if (!category?.isOnlineOrder) {
-                return false;
-              }
-              return !stockQuantity || stockQuantity < orderForm.quantity;
-            }}
-            confirmationDialogHeader={t("Stock Quantity Warning")}
-            confirmationDialogText={t(
-              "Stock Quantity is not enough. Do you want to continue?"
-            )}
-            additionalButtons={[
-              {
-                label: "Add",
-                isInputRequirementCheck: true,
-                isInputNeedToBeReset: true,
-                onClick: () => {
-                  const orderObject = handleOrderObject();
-                  if (orderObject) {
-                    setOrderCreateBulk([...orderCreateBulk, orderObject]);
-                  }
-                  setSelectedNewOrders([
-                    ...selectedNewOrders,
-                    orderCreateBulk.length,
-                  ]);
-                  setOrderForm(initialOrderForm);
-                },
-              },
-            ]}
-            submitFunction={() => {
-              const currentDate = new Date();
-              const hours = currentDate.getHours().toString().padStart(2, "0");
-              const minutes = currentDate
-                .getMinutes()
-                .toString()
-                .padStart(2, "0");
-              const formattedTime = `${hours}:${minutes}`;
-              const orderObject = handleOrderObject();
-              const tableData = {
-                name: "Takeaway",
-                date: format(new Date(), "yyyy-MM-dd"),
+      {isLossProductModalOpen && (
+        <GenericAddEditPanel
+          isOpen={isLossProductModalOpen}
+          close={() => {
+            setIsTabInputScreenOpen(false);
+            setIsLossProductModalOpen(false);
+          }}
+          inputs={orderInputs}
+          onOpenTriggerTabInputFormKey={
+            user?.settings?.orderCategoryOn ? "category" : "item"
+          }
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          formKeys={orderFormKeys}
+          submitItem={createOrder as any}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId,
+          }}
+          cancelButtonLabel="Close"
+          submitFunction={() => {
+            const selectedMenuItem = getItem(orderForm?.item, menuItems);
+            const selectedMenuItemCategory = getItem(
+              selectedMenuItem?.category,
+              categories
+            );
+            if (selectedMenuItem && user) {
+              createOrder({
+                ...orderForm,
                 location: selectedLocationId,
-                playerCount: 0,
-                startHour: formattedTime,
-                gameplays: [],
-                type: TableTypes.TAKEOUT,
-              };
-              const ordersData = orderObject
-                ? [...orderCreateBulk, orderObject]
-                : orderCreateBulk;
-              createTable({
-                tableDto: tableData,
-                orders: ordersData,
-              } as any);
-              setIsTakeAwayOrderModalOpen(false);
-              setSelectedNewOrders([]);
-            }}
-            generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
-            topClassName="flex flex-col gap-2  "
-          />
-        ))}
+                unitPrice: selectedMenuItem.price,
+                paidQuantity: 0,
+                status: OrderStatus.WASTED,
+                kitchen: selectedMenuItemCategory?.kitchen,
+                stockLocation: selectedLocationId,
+                stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
+                tableDate: new Date(),
+              });
+            }
+            setOrderForm(initialOrderForm);
+          }}
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
+          topClassName="flex flex-col gap-2  "
+        />
+      )}
+      {isTakeAwayOrderModalOpen && (
+        <GenericAddEditPanel
+          isOpen={isTakeAwayOrderModalOpen}
+          close={() => {
+            setOrderCreateBulk([]); //this can be removed if we do not want to loose the bulk order data at close
+            setIsTakeAwayOrderModalOpen(false);
+            setSelectedNewOrders([]);
+            setIsTabInputScreenOpen(false);
+          }}
+          {...(!farmCategoryActivity
+            ? { upperMessage: t("Farm Category is not active") }
+            : {})}
+          inputs={orderInputsForTakeAway}
+          formKeys={orderFormKeysForTakeAway}
+          submitItem={createTable as any}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedLocationId,
+          }}
+          onOpenTriggerTabInputFormKey={
+            user?.settings?.orderCategoryOn ? "category" : "item"
+          }
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          buttonName={t("Payment")}
+          cancelButtonLabel="Close"
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
+          anotherPanel={<OrderTakeawayPanel />}
+          isConfirmationDialogRequired={() => {
+            const menuItem = menuItems?.find(
+              (item) => item._id === orderForm.item
+            );
+            const category = categories?.find(
+              (category) => category._id === menuItem?.category
+            );
+            const stockQuantity = menuItem
+              ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
+              : null;
+            if (!category?.isOnlineOrder) {
+              return false;
+            }
+            return !stockQuantity || stockQuantity < orderForm.quantity;
+          }}
+          confirmationDialogHeader={t("Stock Quantity Warning")}
+          confirmationDialogText={t(
+            "Stock Quantity is not enough. Do you want to continue?"
+          )}
+          additionalButtons={[
+            {
+              label: "Add",
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: true,
+              onClick: () => {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  setOrderCreateBulk([...orderCreateBulk, orderObject]);
+                }
+                setSelectedNewOrders([
+                  ...selectedNewOrders,
+                  orderCreateBulk.length,
+                ]);
+                setOrderForm(initialOrderForm);
+              },
+            },
+          ]}
+          submitFunction={() => {
+            const currentDate = new Date();
+            const hours = currentDate.getHours().toString().padStart(2, "0");
+            const minutes = currentDate
+              .getMinutes()
+              .toString()
+              .padStart(2, "0");
+            const formattedTime = `${hours}:${minutes}`;
+            const orderObject = handleOrderObject();
+            const tableData = {
+              name: "Takeaway",
+              date: format(new Date(), "yyyy-MM-dd"),
+              location: selectedLocationId,
+              playerCount: 0,
+              startHour: formattedTime,
+              gameplays: [],
+              type: TableTypes.TAKEOUT,
+            };
+            const ordersData = orderObject
+              ? [...orderCreateBulk, orderObject]
+              : orderCreateBulk;
+            createTable({
+              tableDto: tableData,
+              orders: ordersData,
+            } as any);
+            setIsTakeAwayOrderModalOpen(false);
+            setSelectedNewOrders([]);
+          }}
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
+          topClassName="flex flex-col gap-2  "
+        />
+      )}
       {isTakeAwayPaymentModalOpen && takeawayTableId !== 0 && (
         <OrderPaymentModal
           tableId={takeawayTableId}

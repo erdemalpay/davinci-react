@@ -29,10 +29,9 @@ export default function Menu() {
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
-  const seenCategories: { [key: string]: boolean } = {};
+  console.log("categories", categories);
   const {
     currentPage,
-
     rowsPerPage,
     resetGeneralContext,
     menuActiveTab,
@@ -46,6 +45,7 @@ export default function Menu() {
     const itemCategories = items
       .map((item) => item.category)
       .filter((category): category is number => {
+        const foundCategory = getItem(category, categories);
         if (seenCategories.has(category)) {
           return false;
         }
@@ -72,7 +72,7 @@ export default function Menu() {
       );
       if (existingGroup) {
         existingGroup.items.push(item);
-      } else {
+      } else if (category?.active) {
         const newGroup = {
           category: category as MenuCategory,
           order: category?.order as number,
