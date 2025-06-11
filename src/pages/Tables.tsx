@@ -22,6 +22,7 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import ShiftList from "../components/tables/ShiftList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
+import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
@@ -78,11 +79,17 @@ const Tables = () => {
   const user = useGetUser();
   const reservations = useGetReservations();
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
+  const {
+    isLossProductModalOpen,
+    setIsLossProductModalOpen,
+    isTakeAwayOrderModalOpen,
+    setIsTakeAwayOrderModalOpen,
+    isConsumptModalOpen,
+    setIsConsumptModalOpen,
+  } = useFilterContext();
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
-  const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
@@ -101,8 +108,6 @@ const Tables = () => {
     FARMBURGERCATEGORYID,
     categories
   )?.active;
-  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
-    useState(false);
   const {
     orderCreateBulk,
     setOrderCreateBulk,

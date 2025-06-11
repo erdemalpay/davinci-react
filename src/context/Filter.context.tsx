@@ -131,6 +131,16 @@ type FilterContextType = {
   setShowDesertStockPrices: (state: boolean) => void;
   isDesertStockEnableEdit: boolean;
   setIsDesertStockEnableEdit: (state: boolean) => void;
+  isTakeAwayOrderModalOpen: boolean;
+  setIsTakeAwayOrderModalOpen: (state: boolean) => void;
+  isLossProductModalOpen: boolean;
+  setIsLossProductModalOpen: (state: boolean) => void;
+  isConsumptModalOpen: boolean;
+  setIsConsumptModalOpen: (state: boolean) => void;
+  isTableCardCreateOrderDialogOpen: boolean;
+  setIsTableCardCreateOrderDialogOpen: (state: boolean) => void;
+  isPaymentModalCreateOrderDialogOpen: boolean;
+  setIsPaymentModalCreateOrderDialogOpen: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -386,6 +396,16 @@ const FilterContext = createContext<FilterContextType>({
   setShowDesertStockPrices: () => {},
   isDesertStockEnableEdit: false,
   setIsDesertStockEnableEdit: () => {},
+  isTakeAwayOrderModalOpen: false,
+  setIsTakeAwayOrderModalOpen: () => {},
+  isLossProductModalOpen: false,
+  setIsLossProductModalOpen: () => {},
+  isConsumptModalOpen: false,
+  setIsConsumptModalOpen: () => {},
+  isTableCardCreateOrderDialogOpen: false,
+  setIsTableCardCreateOrderDialogOpen: () => {},
+  isPaymentModalCreateOrderDialogOpen: false,
+  setIsPaymentModalCreateOrderDialogOpen: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -406,6 +426,18 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
+  const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
+  const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
+  const [
+    isPaymentModalCreateOrderDialogOpen,
+    setIsPaymentModalCreateOrderDialogOpen,
+  ] = useState(false);
+  const [
+    isTableCardCreateOrderDialogOpen,
+    setIsTableCardCreateOrderDialogOpen,
+  ] = useState(false);
+  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
+    useState(false);
   const [showProductShelfInfoFilters, setShowProductShelfInfoFilters] =
     useState(false);
   const [isEnableProductShelfEdit, setIsEnableProductShelfEdit] =
@@ -788,6 +820,19 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         setShowDesertStockPrices: setShowDesertStockPrices,
         isDesertStockEnableEdit: isDesertStockEnableEdit,
         setIsDesertStockEnableEdit: setIsDesertStockEnableEdit,
+        isTakeAwayOrderModalOpen: isTakeAwayOrderModalOpen,
+        setIsTakeAwayOrderModalOpen: setIsTakeAwayOrderModalOpen,
+        isLossProductModalOpen: isLossProductModalOpen,
+        setIsLossProductModalOpen: setIsLossProductModalOpen,
+        isConsumptModalOpen: isConsumptModalOpen,
+        setIsConsumptModalOpen: setIsConsumptModalOpen,
+        isTableCardCreateOrderDialogOpen: isTableCardCreateOrderDialogOpen,
+        setIsTableCardCreateOrderDialogOpen:
+          setIsTableCardCreateOrderDialogOpen,
+        isPaymentModalCreateOrderDialogOpen:
+          isPaymentModalCreateOrderDialogOpen,
+        setIsPaymentModalCreateOrderDialogOpen:
+          setIsPaymentModalCreateOrderDialogOpen,
       }}
     >
       {children}
