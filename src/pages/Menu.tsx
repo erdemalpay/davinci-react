@@ -45,7 +45,6 @@ export default function Menu() {
     const itemCategories = items
       .map((item) => item.category)
       .filter((category): category is number => {
-        const foundCategory = getItem(category, categories);
         if (seenCategories.has(category)) {
           return false;
         }
