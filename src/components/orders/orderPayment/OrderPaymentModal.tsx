@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
-import { useFilterContext } from "../../../context/Filter.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
@@ -116,10 +115,10 @@ const OrderPaymentModal = ({
   const categories = useGetAllCategories();
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
-  const {
+  const [
     isPaymentModalCreateOrderDialogOpen,
     setIsPaymentModalCreateOrderDialogOpen,
-  } = useFilterContext();
+  ] = useState(false);
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();

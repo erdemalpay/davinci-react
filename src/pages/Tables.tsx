@@ -22,7 +22,6 @@ import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import ShiftList from "../components/tables/ShiftList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
-import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
 import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
@@ -78,15 +77,13 @@ const Tables = () => {
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const user = useGetUser();
   const reservations = useGetReservations();
+  const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
+    useState(false);
+  const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
+    useState(false);
+  const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
+  const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const {
-    isLossProductModalOpen,
-    setIsLossProductModalOpen,
-    isTakeAwayOrderModalOpen,
-    setIsTakeAwayOrderModalOpen,
-    isConsumptModalOpen,
-    setIsConsumptModalOpen,
-  } = useFilterContext();
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
@@ -111,8 +108,7 @@ const Tables = () => {
   const {
     orderCreateBulk,
     setOrderCreateBulk,
-    isTakeAwayPaymentModalOpen,
-    setIsTakeAwayPaymentModalOpen,
+
     takeawayTableId,
     setTakeawayTableId,
     setSelectedNewOrders,
