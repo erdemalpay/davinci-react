@@ -649,7 +649,7 @@ const GenericAddEditPanel = <T,>({
                           );
                           setResetTextInput((prev) => !prev);
                         }
-                        triggerOnTriggerTabInput();
+                        // triggerOnTriggerTabInput();
                       };
 
                       if (isConfirmationDialogRequired?.()) {
