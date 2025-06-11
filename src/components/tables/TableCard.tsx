@@ -12,6 +12,7 @@ import {
 } from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -128,7 +129,10 @@ export function TableCard({
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
-  const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const {
+    isTableCardCreateOrderDialogOpen,
+    setIsTableCardCreateOrderDialogOpen,
+  } = useFilterContext();
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -653,7 +657,7 @@ export function TableCard({
               <span>
                 <CardAction
                   onClick={() => {
-                    setIsCreateOrderDialogOpen(true);
+                    setIsTableCardCreateOrderDialogOpen(true);
                   }}
                   IconComponent={MdBorderColor}
                 />
@@ -856,12 +860,14 @@ export function TableCard({
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
-      {isCreateOrderDialogOpen && (
+
+      {isTableCardCreateOrderDialogOpen && (
         <GenericAddEditPanel
-          isOpen={isCreateOrderDialogOpen}
+          isOpen={isTableCardCreateOrderDialogOpen}
           close={() => {
             setOrderCreateBulk([]);
-            setIsCreateOrderDialogOpen(false);
+            setIsTableCardCreateOrderDialogOpen(false);
+
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
@@ -962,7 +968,7 @@ export function TableCard({
             setSelectedNewOrders([]);
             setOrderCreateBulk([]);
             if (table.type === TableTypes.TAKEOUT) {
-              setIsCreateOrderDialogOpen(false);
+              setIsTableCardCreateOrderDialogOpen(false);
             }
           }}
           onOpenTriggerTabInputFormKey={

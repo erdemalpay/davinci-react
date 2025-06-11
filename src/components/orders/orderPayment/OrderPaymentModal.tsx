@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
+import { useFilterContext } from "../../../context/Filter.context";
 import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
@@ -115,7 +116,10 @@ const OrderPaymentModal = ({
   const categories = useGetAllCategories();
   const collections = useGetTableCollections(tableId);
   const { mutate: reopenTable } = useReopenTableMutation();
-  const [isCreateOrderDialogOpen, setIsCreateOrderDialogOpen] = useState(false);
+  const {
+    isPaymentModalCreateOrderDialogOpen,
+    setIsPaymentModalCreateOrderDialogOpen,
+  } = useFilterContext();
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();
@@ -257,7 +261,7 @@ const OrderPaymentModal = ({
     {
       label: t("Add Order"),
       onClick: () => {
-        setIsCreateOrderDialogOpen(true);
+        setIsPaymentModalCreateOrderDialogOpen(true);
       },
       isActive: isAddOrderActive,
     },
@@ -621,13 +625,13 @@ const OrderPaymentModal = ({
     }
     return null;
   };
-  if (isCreateOrderDialogOpen) {
+  if (isPaymentModalCreateOrderDialogOpen) {
     return (
       <GenericAddEditPanel
-        isOpen={isCreateOrderDialogOpen}
+        isOpen={isPaymentModalCreateOrderDialogOpen}
         close={() => {
           setOrderCreateBulk([]);
-          setIsCreateOrderDialogOpen(false);
+          setIsPaymentModalCreateOrderDialogOpen(false);
           setIsTabInputScreenOpen(false);
           setSelectedNewOrders([]);
         }}
@@ -732,7 +736,7 @@ const OrderPaymentModal = ({
           }
           setOrderForm(initialOrderForm);
           setOrderCreateBulk([]);
-          setIsCreateOrderDialogOpen(false);
+          setIsPaymentModalCreateOrderDialogOpen(false);
           setSelectedNewOrders([]);
         }}
         generalClassName=" md:rounded-l-none shadow-none overflow-scroll sm:overflow-visible no-scrollbar"
