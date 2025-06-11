@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 interface UpdateButtonCallPayload {
   location: number,
   tableName: string;
+  hour: string;
 }
 export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedLocationId } = useLocationContext();
