@@ -56,7 +56,7 @@ export function ActiveButtonCallsList({
     startTime.setHours(hours, minutes, seconds, 0);
 
     const now = new Date();
-    return Math.floor((now.getTime() - startTime.getTime()) / 1000) - 10800;
+    return Math.floor((now.getTime() - startTime.getTime()) / 1000);
   };
 
   const formatTimeAgo = (seconds: number): string => {
