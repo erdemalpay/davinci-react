@@ -27,7 +27,10 @@ export function ActiveButtonCallsList({
     const buttonCall = buttonCalls.find(
       (buttonCallItem) => buttonCallItem.tableName == buttonCallId
     );
-    if (buttonCall) finishButtonCall({ location: selectedLocationId, tableName: buttonCall.tableName });
+    const now = new Date();
+    const formattedTime = now.toLocaleTimeString('tr-TR', { hour12: false });
+
+    if (buttonCall) finishButtonCall({ location: selectedLocationId, tableName: buttonCall.tableName, hour: formattedTime });
   }
 
   const [timeAgo, setTimeAgo] = useState<{ [key: string]: string }>({});
