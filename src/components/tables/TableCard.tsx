@@ -12,7 +12,6 @@ import {
 } from "react-icons/md";
 import { RiFileTransferFill } from "react-icons/ri";
 import { toast } from "react-toastify";
-import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
@@ -129,10 +128,10 @@ export function TableCard({
   const stocks = useGetAccountStocks();
   const categories = useGetCategories();
   const kitchens = useGetKitchens();
-  const {
+  const [
     isTableCardCreateOrderDialogOpen,
     setIsTableCardCreateOrderDialogOpen,
-  } = useFilterContext();
+  ] = useState(false);
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
