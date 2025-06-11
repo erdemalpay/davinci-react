@@ -22,10 +22,10 @@ export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
 export function useGetButtonCalls() {
   return useGetList<ButtonCall>(Paths.ButtonCalls);
 }
-export function finishButtonCall({location, tableName }: UpdateButtonCallPayload): Promise<ButtonCall> {
-  return post<Partial<ButtonCall>, ButtonCall>({
+export function finishButtonCall({location, tableName, hour}: UpdateButtonCallPayload): Promise<ButtonCall> {
+  return post<UpdateButtonCallPayload, ButtonCall>({
     path: `${Paths.ButtonCalls}/close-from-panel`,
-    payload: {location: location, tableName: tableName},
+    payload: {location: location, tableName: tableName, hour: hour},
   });
 }
 export function useFinishButtonCallMutation() {
