@@ -1275,7 +1275,7 @@ const Tables = () => {
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
-          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
           formKeys={orderFormKeys}
           submitItem={createOrder as any}
           setForm={setOrderForm}
@@ -1335,7 +1335,7 @@ const Tables = () => {
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
-          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
           buttonName={t("Payment")}
           cancelButtonLabel="Close"
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
