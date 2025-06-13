@@ -39,16 +39,18 @@ const FarmMenu = () => {
       },
     });
   }
-  const columns = [{ key: t("Name"), isSortable: true }];
-  const rowKeys = [{ key: "name" }];
-  const insertIndex = 1;
+  const columns = [
+    { key: t("Name"), isSortable: true },
+    { key: t("Description"), isSortable: false },
+  ];
+  const rowKeys = [{ key: "name" }, { key: "description" }];
   for (const location of locations) {
     if (farmCategory?.locations?.includes(location._id)) {
-      columns.splice(insertIndex, 0, {
+      columns.push({
         key: location.name,
         isSortable: false,
       });
-      (rowKeys as any).splice(insertIndex, 0, {
+      (rowKeys as any).push({
         key: location.name,
         node: (row: any) => {
           const isExist = row?.locations?.includes(location._id);
