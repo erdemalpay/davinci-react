@@ -5,7 +5,7 @@ import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
-import { ButtonCall } from "../types";
+import { ButtonCall, commonDateOptions } from "../types";
 import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
@@ -40,6 +40,8 @@ export default function ButtonCalls() {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       location: "",
+      cancelledBy: [],
+      tableName: "",
       date: "",
       before: "",
       after: "",
@@ -66,8 +68,21 @@ export default function ButtonCalls() {
       placeholder: t("Table Name"),
       required: true,
       isDatePicker: false,
-      invalidateKeys: [{ key: "tableName", defaultValue: "" }],
       isOnClearActive: false,
+      isDebounce: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
     },
     {
       type: InputTypes.DATE,
