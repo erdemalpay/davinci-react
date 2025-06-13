@@ -29,7 +29,6 @@ export default function Menu() {
   const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
-  console.log("categories", categories);
   const {
     currentPage,
     rowsPerPage,

@@ -448,7 +448,6 @@ const GameStock = () => {
       )
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
-        console.log(rowProduct);
         return (
           passesFilter(
             filterGameStockPanelFormElements?.location,

@@ -52,7 +52,6 @@ const UpdateHistory = ({ updateHistory, setIsUpdateHistoryOpen }: Props) => {
   ];
   useEffect(() => {
     setRows(allRows);
-    console.log("allRows", allRows);
     setTableKey((prev) => prev + 1);
   }, [updateHistory, users]);
   return (

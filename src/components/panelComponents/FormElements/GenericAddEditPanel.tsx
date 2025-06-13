@@ -550,6 +550,7 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          isSortDisabled={input.isSortDisabled ?? false}
                           isAutoFill={input?.isAutoFill}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}

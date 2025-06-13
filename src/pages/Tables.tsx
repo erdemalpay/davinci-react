@@ -840,12 +840,14 @@ const Tables = () => {
                   !table?.finishHour
               );
             })
+            ?.sort((a, b) => Number(a) - Number(b))
             ?.map((t, index) => {
               return {
                 value: t,
                 label: t,
               };
             }),
+          isSortDisabled: true,
           placeholder: t("Name"),
           required: true,
         }

@@ -738,8 +738,8 @@ const OrderPaymentModal = ({
           setIsPaymentModalCreateOrderDialogOpen(false);
           setSelectedNewOrders([]);
         }}
-        generalClassName=" md:rounded-l-none shadow-none overflow-scroll sm:overflow-visible no-scrollbar"
-        topClassName="flex flex-col gap-2   "
+        generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
+        topClassName="flex flex-col gap-2  "
       />
     );
   }
