@@ -901,6 +901,7 @@ const Tables = () => {
               !table?.finishHour
           );
         })
+        ?.sort((a, b) => Number(a) - Number(b))
         ?.map((t, index) => {
           return {
             value: t,
@@ -908,6 +909,7 @@ const Tables = () => {
           };
         }),
       placeholder: t("Tables"),
+      isSortDisabled: true,
       isMultiple: true,
       isDisabled: tableForm.type !== TableTypes.ACTIVITY,
       required: tableForm.type === TableTypes.ACTIVITY,

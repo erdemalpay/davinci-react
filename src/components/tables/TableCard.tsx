@@ -225,6 +225,7 @@ export function TableCard({
               !table?.finishHour
           );
         })
+        ?.sort((a, b) => Number(a) - Number(b))
         ?.map((t, index) => {
           return {
             value: t,
@@ -232,6 +233,7 @@ export function TableCard({
           };
         }),
       placeholder: t("Name"),
+      isSortDisabled: true,
       isMultiple: true,
       required: true,
     },
