@@ -124,14 +124,27 @@ const LocationPage = () => {
       node: (row: any) => {
         return (
           <div className="flex flex-row gap-2 max-w-64 flex-wrap ">
-            {row?.closedDays?.map((day: string, index: number) => (
-              <div
-                key={index}
-                className="flex flex-row px-1 py-0.5 bg-gray-400 rounded-md text-white"
-              >
-                <p>{t(day)}</p>
-              </div>
-            ))}
+            {row?.closedDays
+              ?.sort((a: string, b: string) => {
+                const daysOrder = [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ];
+                return daysOrder.indexOf(a) - daysOrder.indexOf(b);
+              })
+              ?.map((day: string, index: number) => (
+                <div
+                  key={index}
+                  className="flex flex-row px-1 py-0.5 bg-gray-400 rounded-md text-white"
+                >
+                  <p>{t(day)}</p>
+                </div>
+              ))}
           </div>
         );
       },
