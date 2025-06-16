@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { post } from ".";
+import { useDateContext } from "../../context/Date.context";
+import { useLocationContext } from "../../context/Location.context";
 import { ButtonCall, ButtonCallType } from "../../types";
 import { Paths, useGetList } from "./factory";
-import { useLocationContext } from "../../context/Location.context";
-import { useDateContext } from "../../context/Date.context";
-import { toast } from "react-toastify";
 
 interface UpdateButtonCallPayload {
-  location: number,
+  location: number;
   tableName: string;
   hour: string;
 }
@@ -22,10 +22,14 @@ export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
 export function useGetButtonCalls() {
   return useGetList<ButtonCall>(Paths.ButtonCalls);
 }
-export function finishButtonCall({location, tableName, hour}: UpdateButtonCallPayload): Promise<ButtonCall> {
+export function finishButtonCall({
+  location,
+  tableName,
+  hour,
+}: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: `${Paths.ButtonCalls}/close-from-panel`,
-    payload: {location: location, tableName: tableName, hour: hour},
+    payload: { location: location, tableName: tableName, hour: hour },
   });
 }
 export function useFinishButtonCallMutation() {
@@ -41,14 +45,15 @@ export function useFinishButtonCallMutation() {
       await queryClient.cancelQueries(queryKey);
 
       // Snapshot the previous value
-      const previousButtonCalls = queryClient.getQueryData<ButtonCall[]>(queryKey) || [];
+      const previousButtonCalls =
+        queryClient.getQueryData<ButtonCall[]>(queryKey) || [];
 
       const updatedButtonCalls = [...previousButtonCalls];
 
       for (let i = 0; i < updatedButtonCalls.length; i++) {
         if (updatedButtonCalls[i].tableName === tableName) {
           updatedButtonCalls[i] = {
-            ...updatedButtonCalls[i]
+            ...updatedButtonCalls[i],
           };
         }
       }
@@ -61,7 +66,9 @@ export function useFinishButtonCallMutation() {
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: any, _newButtonCall, context) => {
-      const previousButtonCallContext = context as { previousButtonCalls: ButtonCall[] };
+      const previousButtonCallContext = context as {
+        previousButtonCalls: ButtonCall[];
+      };
       if (previousButtonCallContext?.previousButtonCalls) {
         const { previousButtonCalls } = previousButtonCallContext;
         queryClient.setQueryData<ButtonCall[]>(queryKey, previousButtonCalls);

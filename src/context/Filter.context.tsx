@@ -65,6 +65,9 @@ type FilterContextType = {
   setFilterProductStockHistoryPanelFormElements: (
     state: FormElementsState
   ) => void;
+  filterActivityFormElements: FormElementsState;
+  initialFilterActivityFormElements: FormElementsState;
+  setFilterActivityFormElements: (state: FormElementsState) => void;
   isGameEnableEdit: boolean;
   setIsGameEnableEdit: (state: boolean) => void;
   showLearnedGamesFilters: boolean;
@@ -141,6 +144,8 @@ type FilterContextType = {
   setIsTableCardCreateOrderDialogOpen: (state: boolean) => void;
   isPaymentModalCreateOrderDialogOpen: boolean;
   setIsPaymentModalCreateOrderDialogOpen: (state: boolean) => void;
+  showActivityFilters: boolean;
+  setShowActivityFilters: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -160,6 +165,13 @@ const FilterContext = createContext<FilterContextType>({
     vendor: "",
     expenseType: "",
     name: "",
+  },
+  initialFilterActivityFormElements: {
+    user: "",
+    date: "thisMonth",
+    type: "",
+    after: "",
+    before: "",
   },
   setFilterServicePanelFormElements: () => {},
   showStockFilters: false,
@@ -259,6 +271,14 @@ const FilterContext = createContext<FilterContextType>({
     brand: "",
   },
   setFilterProductStockHistoryPanelFormElements: () => {},
+  filterActivityFormElements: {
+    after: "",
+    before: "",
+    user: "",
+    date: "thisMonth",
+    type: "",
+  },
+  setFilterActivityFormElements: () => {},
   isGameEnableEdit: false,
   setIsGameEnableEdit: () => {},
   showLearnedGamesFilters: false,
@@ -406,6 +426,8 @@ const FilterContext = createContext<FilterContextType>({
   setIsTableCardCreateOrderDialogOpen: () => {},
   isPaymentModalCreateOrderDialogOpen: false,
   setIsPaymentModalCreateOrderDialogOpen: () => {},
+  showActivityFilters: false,
+  setShowActivityFilters: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -427,6 +449,16 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
+  const [showActivityFilters, setShowActivityFilters] = useState(false);
+  const initialFilterActivityFormElements = {
+    user: "",
+    date: "thisMonth",
+    type: "",
+    after: "",
+    before: "",
+  };
+  const [filterActivityFormElements, setFilterActivityFormElements] =
+    useState<FormElementsState>(initialFilterActivityFormElements);
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [
     isPaymentModalCreateOrderDialogOpen,
@@ -833,6 +865,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           isPaymentModalCreateOrderDialogOpen,
         setIsPaymentModalCreateOrderDialogOpen:
           setIsPaymentModalCreateOrderDialogOpen,
+        filterActivityFormElements: filterActivityFormElements,
+        setFilterActivityFormElements: setFilterActivityFormElements,
+        showActivityFilters: showActivityFilters,
+        setShowActivityFilters: setShowActivityFilters,
+        initialFilterActivityFormElements: initialFilterActivityFormElements,
       }}
     >
       {children}
