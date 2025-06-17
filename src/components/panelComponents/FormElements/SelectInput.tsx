@@ -49,6 +49,7 @@ interface SelectInputProps {
   isOnClearActive?: boolean;
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
+  isSortDisabled?: boolean;
 }
 
 const normalizeText = (text: string) => {
@@ -100,12 +101,15 @@ const SelectInput = ({
   requiredField = false,
   isReadOnly = false,
   isTopFlexRow = false,
+  isSortDisabled = false,
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
   const [sortedOptions, setSortedOptions] = useState<OptionType[]>(
-    options?.sort((a, b) => a?.label?.localeCompare(b?.label))
+    isSortDisabled
+      ? options
+      : options?.sort((a, b) => a?.label?.localeCompare(b?.label))
   );
   const selectRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile(768);
@@ -148,17 +152,19 @@ const SelectInput = ({
   };
 
   useEffect(() => {
-    const sorted = options.sort((a, b) => {
-      const aStartsWith = normalizeText(a.label).startsWith(
-        normalizeText(searchInput)
-      );
-      const bStartsWith = normalizeText(b.label).startsWith(
-        normalizeText(searchInput)
-      );
-      if (aStartsWith && !bStartsWith) return -1;
-      if (bStartsWith && !aStartsWith) return 1;
-      return a?.label?.localeCompare(b.label);
-    });
+    const sorted = isSortDisabled
+      ? options
+      : options.sort((a, b) => {
+          const aStartsWith = normalizeText(a.label).startsWith(
+            normalizeText(searchInput)
+          );
+          const bStartsWith = normalizeText(b.label).startsWith(
+            normalizeText(searchInput)
+          );
+          if (aStartsWith && !bStartsWith) return -1;
+          if (bStartsWith && !aStartsWith) return 1;
+          return a?.label?.localeCompare(b.label);
+        });
     setSortedOptions([...sorted]);
   }, [options, searchInput]);
 

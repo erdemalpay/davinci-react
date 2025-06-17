@@ -225,6 +225,7 @@ export function TableCard({
               !table?.finishHour
           );
         })
+        ?.sort((a, b) => Number(a) - Number(b))
         ?.map((t, index) => {
           return {
             value: t,
@@ -232,6 +233,7 @@ export function TableCard({
           };
         }),
       placeholder: t("Name"),
+      isSortDisabled: true,
       isMultiple: true,
       required: true,
     },
@@ -973,7 +975,7 @@ export function TableCard({
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
-          tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+          tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
           topClassName="flex flex-col gap-2  "
         />

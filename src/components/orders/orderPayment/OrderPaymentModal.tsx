@@ -642,7 +642,7 @@ const OrderPaymentModal = ({
         onOpenTriggerTabInputFormKey={
           user?.settings?.orderCategoryOn ? "category" : "item"
         }
-        tabScreenAutoFocus={!user?.settings?.orderCategoryOn}
+        tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
         submitItem={createOrder as any}
         setForm={setOrderForm}
         isCreateCloseActive={false}
@@ -738,8 +738,8 @@ const OrderPaymentModal = ({
           setIsPaymentModalCreateOrderDialogOpen(false);
           setSelectedNewOrders([]);
         }}
-        generalClassName=" md:rounded-l-none shadow-none overflow-scroll sm:overflow-visible no-scrollbar"
-        topClassName="flex flex-col gap-2   "
+        generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
+        topClassName="flex flex-col gap-2  "
       />
     );
   }

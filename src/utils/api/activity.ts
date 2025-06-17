@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { Activity } from "../../types";
-import { get } from "./index";
+import { Activity, FormElementsState } from "../../types";
+import { useGet } from "./factory";
 
 export interface ActivityFilter {
   user?: string;
@@ -15,46 +14,24 @@ export interface ActivityQueryResult {
   totalCount: number;
   items: Activity[];
 }
-
+export interface ActivityPayload {
+  data: Activity[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
 const BASE_URL_ACTIVITIES = "/activity";
 
-export function useGetActivities(filter: ActivityFilter) {
-  const { user, date, limit, page, sort, asc, type } = filter;
-  let query = `${BASE_URL_ACTIVITIES}/query?page=${page}&limit=${limit}`;
-  if (date) {
-    query += `&date=${date}`;
-  }
-  if (type) {
-    query += `&type=${type}`;
-  }
-  if (user) {
-    query += `&user=${user}`;
-  }
-
-  if (sort) {
-    query += `&sort=${sort}`;
-  }
-  if (asc) {
-    query += `&asc=${asc}`;
-  }
-  const queryKey = [
-    BASE_URL_ACTIVITIES,
-    "query",
-    page,
-    limit,
-    user,
-    type,
-    date,
-    sort,
-    asc,
+export function useGetActivities(filters: FormElementsState) {
+  const parts = [
+    filters.user && `user=${filters.user}`,
+    filters.type && `type=${filters.type}`,
+    filters.date && `date=${filters.date}`,
+    filters.after && `after=${filters.after}`,
+    filters.before && `before=${filters.before}`,
   ];
-  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<ActivityQueryResult>({ path: query })
-  );
-  return {
-    isLoading,
-    error,
-    data,
-    isFetching,
-  };
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${BASE_URL_ACTIVITIES}/query?${queryString}`;
+  return useGet<Activity[]>(url, [url, filters], true);
 }

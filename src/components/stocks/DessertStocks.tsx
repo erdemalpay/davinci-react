@@ -438,7 +438,6 @@ const DessertStock = () => {
       )
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
-        console.log(rowProduct);
         return (
           passesFilter(
             filterDesertStockPanelFormElements?.location,

@@ -27,7 +27,6 @@ export function PrivateRoutes() {
   ) {
     return <Outlet />;
   } else {
-    console.log(allRoutes?.find((route) => route.name === currentRoute?.name));
     toast.error(
       `You don't have rights to see this page ${location.pathname}. Login with a user that has the required permissions.`
     );

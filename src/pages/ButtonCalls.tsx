@@ -5,7 +5,7 @@ import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
-import { ButtonCall } from "../types";
+import { ButtonCall, commonDateOptions } from "../types";
 import { useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
@@ -24,9 +24,9 @@ export default function ButtonCalls() {
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
   const buttonCalls = useGetButtonCalls();
-  const [showFilters, setShowFilters] = useState(true);
+  const [showButtonCallsFilters, setShowButtonCallsFilters] = useState(true);
   const allRows = useGetButtonCalls()
-    .map((buttonCall) => {
+    ?.map((buttonCall) => {
       return {
         ...buttonCall,
         locationName: getItem(buttonCall.location, locations)?.name ?? 0,
@@ -40,6 +40,8 @@ export default function ButtonCalls() {
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       location: "",
+      cancelledBy: [],
+      tableName: "",
       date: "",
       before: "",
       after: "",
@@ -50,7 +52,7 @@ export default function ButtonCalls() {
       type: InputTypes.SELECT,
       formKey: "cancelledBy",
       label: t("Cancelled By"),
-      options: users.map((user) => ({
+      options: users?.map((user) => ({
         value: user._id,
         label: user.name,
       })),
@@ -66,8 +68,21 @@ export default function ButtonCalls() {
       placeholder: t("Table Name"),
       required: true,
       isDatePicker: false,
-      invalidateKeys: [{ key: "tableName", defaultValue: "" }],
       isOnClearActive: false,
+      isDebounce: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
     },
     {
       type: InputTypes.DATE,
@@ -123,15 +138,20 @@ export default function ButtonCalls() {
     {
       label: t("Show Filters"),
       isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      node: (
+        <SwitchButton
+          checked={showButtonCallsFilters}
+          onChange={setShowButtonCallsFilters}
+        />
+      ),
     },
   ];
   const filterPanel = {
-    isFilterPanelActive: showFilters,
+    isFilterPanelActive: showButtonCallsFilters,
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
+    closeFilters: () => setShowButtonCallsFilters(false),
     isApplyButtonActive: false,
   };
   useEffect(() => {
@@ -147,7 +167,7 @@ export default function ButtonCalls() {
         (!filterPanelFormElements.tableName ||
           passesFilter(filterPanelFormElements.tableName, row.tableName)) &&
         (size(filterPanelFormElements.cancelledBy) == 0 ||
-          filterPanelFormElements.cancelledBy.includes(row.cancelledBy)) &&
+          filterPanelFormElements.cancelledBy?.includes(row.cancelledBy)) &&
         passesFilter(filterPanelFormElements.location, row.location)
       );
     });

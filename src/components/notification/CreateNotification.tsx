@@ -31,7 +31,6 @@ const CreateNotification = () => {
     event: "",
     isAssigned: false,
   });
-
   const inputs = [
     {
       type: InputTypes.SELECT,

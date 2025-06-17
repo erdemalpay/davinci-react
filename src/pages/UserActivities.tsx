@@ -1,62 +1,81 @@
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
-import { Input } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Autocomplete } from "../components/common/Autocomplete";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import { Caption, H5 } from "../components/panelComponents/Typography";
-import { useGeneralContext } from "../context/General.context";
-import { Activity, activityTypeDetails, RowPerPageEnum, User } from "../types";
-import { ActivityFilter, useGetActivities } from "../utils/api/activity";
+import SwitchButton from "../components/panelComponents/common/SwitchButton";
+import { InputTypes } from "../components/panelComponents/shared/types";
+import { useFilterContext } from "../context/Filter.context";
+import { activityTypeDetails, commonDateOptions } from "../types";
+import { useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 
 const UserActivities = () => {
   const { t } = useTranslation();
-  const [filterData, setFilterData] = useState<ActivityFilter>({
-    limit: 10,
-    page: 1,
-  });
-  const { setExpandedRows } = useGeneralContext();
-  const { data } = useGetActivities(filterData);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const {
+    filterActivityFormElements,
+    setFilterActivityFormElements,
+    showActivityFilters,
+    setShowActivityFilters,
+    initialFilterActivityFormElements,
+  } = useFilterContext();
+  const activities = useGetActivities(filterActivityFormElements);
   const [tableKey, setTableKey] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
   const users = useGetUsers();
-  const typeSuggestions = activityTypeDetails.map((activity) => {
-    return { _id: activity.value, name: activity.label };
+  const allRows = activities?.map((activity) => {
+    return {
+      ...activity,
+      userName: activity.user.name,
+      userId: activity.user._id,
+      createdDate: activity?.createdAt
+        ? format(activity.createdAt, "yyyy-MM-dd")
+        : "",
+      formattedCreatedDate: activity?.createdAt
+        ? formatAsLocalDate(format(activity.createdAt, "yyyy-MM-dd"))
+        : "",
+      createHour: activity?.createdAt
+        ? format(activity.createdAt, "HH:mm")
+        : "",
+      collapsible: {
+        collapsibleColumns: [{ key: t("Payload"), isSortable: false }],
+        collapsibleRows: activity?.payload
+          ? [
+              {
+                payload: activity.payload,
+              },
+            ]
+          : [],
+        collapsibleRowKeys: [
+          {
+            key: "payload",
+            node: (row: any) => {
+              return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
+            },
+          },
+        ],
+      },
+    };
   });
-
-  const createColumn = (key: string, title: string) => ({
-    key: t(title),
-    isSortable: true,
-    node: () => (
-      <th
-        key={key}
-        className="font-bold text-left cursor-pointer"
-        onClick={() => handleSort(key)}
-      >
-        <div className="flex gap-x-2 pl-3 items-center py-3 min-w-8">
-          <H5>{t(title)}</H5>
-          {filterData.sort === key &&
-            (filterData.asc === 1 ? (
-              <ArrowUpIcon className="h-4 w-4 my-auto" />
-            ) : (
-              <ArrowDownIcon className="h-4 w-4 my-auto" />
-            ))}
-        </div>
-      </th>
-    ),
-  });
+  const [rows, setRows] = useState(allRows);
   const columns = [
-    createColumn("user", "User"),
-    createColumn("type", "Type"),
-    createColumn("date", "Date"),
-    createColumn("hour", "Hour"),
+    {
+      key: t("User"),
+      isSortable: true,
+      correspondingKey: "user",
+    },
+    { key: t("Type"), isSortable: true, correspondingKey: "type" },
+    {
+      key: t("Date"),
+      isSortable: true,
+      correspondingKey: "createdAt",
+    },
+    {
+      key: t("Hour"),
+      isSortable: true,
+      correspondingKey: "hour",
+    },
   ];
-
   const rowKeys = [
     { key: "userName" },
     {
@@ -84,203 +103,107 @@ const UserActivities = () => {
     },
     { key: "createHour" },
   ];
-  function handleDateSelection(event: React.FormEvent<HTMLInputElement>) {
-    setFilterData({
-      ...filterData,
-      date: (event.target as HTMLInputElement).value,
-      page: 1,
-    });
-  }
-  function handleUserSelection(user: User) {
-    if (!user) {
-      setFilterData({ ...filterData, user: undefined, page: 1 });
-    } else {
-      setFilterData({ ...filterData, user: user._id, page: 1 });
-    }
-  }
-  function handleTypeSelection(type: { _id: string; name: string }) {
-    if (!type) {
-      setFilterData({ ...filterData, type: undefined, page: 1 });
-    } else {
-      setFilterData({ ...filterData, type: type._id, page: 1 });
-    }
-  }
-
-  function handleLimitSelection(value: number) {
-    setFilterData({
-      ...filterData,
-      limit: value,
-    });
-  }
-
-  function handlePageChange(value: number) {
-    const newPage = filterData.page + value;
-    if (newPage > 0 && newPage <= Math.ceil(totalItems / filterData.limit)) {
-      setFilterData({
-        ...filterData,
-        page: newPage,
-      });
-    }
-    setExpandedRows({});
-  }
-
-  function handleSort(value: string) {
-    if (filterData.sort === value) {
-      if (filterData.asc === 1) {
-        // if sorted ascending, convert to descending
-        setFilterData({
-          ...filterData,
-          asc: -1,
-        });
-      } else {
-        // if sorted descending remove sort
-        setFilterData({
-          ...filterData,
-          asc: undefined,
-          sort: undefined,
-        });
-      }
-    } else {
-      // if not sorted by this field, sort it by this field
-      setFilterData({
-        ...filterData,
-        asc: 1,
-        sort: value,
-      });
-    }
-  }
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "user",
+      label: t("User"),
+      options: users
+        .filter((user) => user.active)
+        .map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+      placeholder: t("User"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: activityTypeDetails,
+      placeholder: t("Type"),
+      required: false,
+    },
+  ];
+  const filters = [
+    {
+      label: t("Show Filters"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showActivityFilters}
+          onChange={() => {
+            setShowActivityFilters(!showActivityFilters);
+          }}
+        />
+      ),
+    },
+  ];
+  const filterPanel = {
+    isFilterPanelActive: showActivityFilters,
+    inputs: filterPanelInputs,
+    formElements: filterActivityFormElements,
+    setFormElements: setFilterActivityFormElements,
+    additionalFilterCleanFunction: () => {
+      setFilterActivityFormElements(initialFilterActivityFormElements);
+    },
+    closeFilters: () => setShowActivityFilters(false),
+  };
 
   useEffect(() => {
-    if (data) {
-      const { items, totalCount } = data;
-      setActivities(
-        items.map((activity) => {
-          return {
-            ...activity,
-            userName: activity.user.name,
-            userId: activity.user._id,
-            createdDate: activity?.createdAt
-              ? format(activity.createdAt, "yyyy-MM-dd")
-              : "",
-            formattedCreatedDate: activity?.createdAt
-              ? formatAsLocalDate(format(activity.createdAt, "yyyy-MM-dd"))
-              : "",
-            createHour: activity?.createdAt
-              ? format(activity.createdAt, "HH:mm")
-              : "",
-            collapsible: {
-              collapsibleColumns: [{ key: t("Payload"), isSortable: false }],
-              collapsibleRows: activity?.payload
-                ? [
-                    {
-                      payload: activity.payload,
-                    },
-                  ]
-                : [],
-              collapsibleRowKeys: [
-                {
-                  key: "payload",
-                  node: (row: any) => {
-                    return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
-                  },
-                },
-              ],
-            },
-          };
-        })
-      );
-      setTotalItems(totalCount);
-    }
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [data]);
+  }, [activities, users]);
   return (
     <>
       <Header showLocationSelector={false} />
-      <div className="w-[95%] mx-auto my-10 ">
-        <div className="flex flex-col w-full mb-6">
-          <div className="flex flex-col lg:flex-row justify-between w-full gap-x-4">
-            <Autocomplete
-              name="user"
-              label={t("User")}
-              suggestions={users}
-              handleSelection={handleUserSelection}
-              showSelected
-            />
-            <Autocomplete
-              name="type"
-              label={t("Type")}
-              suggestions={typeSuggestions}
-              handleSelection={handleTypeSelection}
-              showSelected
-            />
-            <Input
-              variant="standard"
-              name="startDay"
-              label={t("Date")}
-              type="date"
-              onChange={handleDateSelection}
-            />
-          </div>
-        </div>
+      <div className="w-[95%] mx-auto my-10">
         <GenericTable
           key={tableKey}
-          columns={columns}
-          rows={activities}
           rowKeys={rowKeys}
+          columns={columns}
+          rows={rows ?? []}
+          filterPanel={filterPanel}
+          filters={filters}
+          isSearch={false}
           title={t("User Activities")}
           isActionsActive={false}
-          isSearch={false}
-          isRowsPerPage={false}
-          isPagination={false}
           isCollapsible={true}
         />
-        <div className="ml-auto flex flex-row justify-between w-fit mt-2 gap-4 __className_a182b8">
-          {/* rows per page */}
-          <div className="flex flex-row gap-2 px-6 items-center">
-            <Caption>{t("Rows per page")}:</Caption>
-            <select
-              className=" rounded-md py-2 flex items-center focus:outline-none h-8 text-xs cursor-pointer"
-              value={filterData?.limit}
-              onChange={(value) =>
-                handleLimitSelection(value.target.value as unknown as number)
-              }
-            >
-              <option value={RowPerPageEnum.FIRST}>
-                {RowPerPageEnum.FIRST}
-              </option>
-              <option value={RowPerPageEnum.SECOND}>
-                {RowPerPageEnum.SECOND}
-              </option>
-              <option value={RowPerPageEnum.THIRD}>
-                {RowPerPageEnum.THIRD}
-              </option>
-            </select>
-          </div>
-          {/* pagination */}
-          <div className=" flex flex-row gap-2 items-center">
-            <Caption>
-              {((filterData.page || 1) - 1) * filterData.limit + 1} -{" "}
-              {((filterData.page || 1) - 1) * filterData.limit +
-                activities.length}
-              {" of "}
-              {totalItems}
-            </Caption>
-            <div className="flex flex-row gap-4">
-              <button
-                onClick={() => handlePageChange(-1)}
-                className="cursor-pointer"
-              >
-                {"<"}
-              </button>
-              <button
-                onClick={() => handlePageChange(1)}
-                className="cursor-pointer"
-              >
-                {">"}
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 import { Chip, Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { User, Visit } from "../../types";
 import { useGetUsers } from "../../utils/api/user";
@@ -10,6 +11,7 @@ import {
 } from "../../utils/api/visit";
 import { getItem } from "../../utils/getItem";
 import { Autocomplete } from "../common/Autocomplete";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
@@ -26,13 +28,15 @@ export function ActiveVisitList({
   suggestions,
   visits,
 }: ActiveMentorListProps) {
+  const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
   const users = useGetUsers();
   const { selectedLocationId } = useLocationContext();
-
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
-
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
+  const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
   function handleChipClose(userId: string) {
     if (!isUserActive(userId)) {
       return;
@@ -40,7 +44,11 @@ export function ActiveVisitList({
     const visit = visits.find(
       (visitItem) => visitItem.user === userId && !visitItem?.finishHour
     );
-    if (visit) finishVisit({ id: visit._id });
+    if (visit) {
+      setClosedVisitId(visit._id);
+      setIsConfirmationDialogOpen(true);
+    }
+
     // setItems(items.filter((t) => t._id !== user._id));
   }
 
@@ -83,6 +91,21 @@ export function ActiveVisitList({
     },
     { unique: [], seenUsers: {} }
   ).unique;
+  if (isConfirmationDialogOpen) {
+    return (
+      <ConfirmationDialog
+        isOpen={isConfirmationDialogOpen}
+        close={() => setIsConfirmationDialogOpen(false)}
+        confirm={() => {
+          if (!closedVisitId) return;
+          finishVisit({ id: closedVisitId });
+          setIsConfirmationDialogOpen(false);
+        }}
+        title={t("Close Visit")}
+        text={`${t("Are you sure you want to close this visit?")}`}
+      />
+    );
+  }
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-col lg:flex-row w-full">

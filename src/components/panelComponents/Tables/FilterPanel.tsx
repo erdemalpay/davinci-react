@@ -67,7 +67,7 @@ const FilterPanel = <T,>({
         )}
       </div>
       {inputs.map((input) => {
-        const value = tempFormElements[input.formKey];
+        const value = tempFormElements[input.formKey] ?? "";
         const handleChange = (key: string) => (value: string) => {
           const changedInput = inputs.find((input) => input.formKey === key);
           if (changedInput?.invalidateKeys) {
@@ -167,6 +167,7 @@ const FilterPanel = <T,>({
                 onChange={handleChange(input.formKey)}
                 isDatePicker={input.isDatePicker ?? false}
                 isOnClearActive={input?.isOnClearActive}
+                isDebounce={input?.isDebounce ?? false}
                 onClear={() =>
                   isApplyButtonActive
                     ? setTempFormElements((prev) => ({
