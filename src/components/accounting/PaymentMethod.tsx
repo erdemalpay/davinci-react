@@ -12,8 +12,8 @@ import {
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const PaymentMethods = () => {
   const { t, i18n } = useTranslation();
@@ -42,6 +42,7 @@ const PaymentMethods = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
+    { key: t("Payment Made"), isSortable: false },
     { key: "Ikas ID", isSortable: false },
   ];
   if (
@@ -69,6 +70,15 @@ const PaymentMethods = () => {
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
+    {
+      key: "isPaymentMade",
+      node: (row: any) =>
+        row?.isPaymentMade ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
     { key: "ikasId" },
   ];
   const inputs = [
@@ -78,6 +88,14 @@ const PaymentMethods = () => {
       formKey: "isOnlineOrder",
       label: t("Online Order"),
       placeholder: t("Online Order"),
+      required: true,
+      isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isPaymentMade",
+      label: t("Payment Made"),
+      placeholder: t("Payment Made"),
       required: true,
       isTopFlexRow: true,
     },
@@ -92,6 +110,7 @@ const PaymentMethods = () => {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isPaymentMade", type: FormKeyTypeEnum.BOOLEAN },
     { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
 
@@ -104,6 +123,7 @@ const PaymentMethods = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
+        constantValues={{ isPaymentMade: true, isOnlineOrder: false }}
         submitItem={createAccountPaymentMethod as any}
         topClassName="flex flex-col gap-2 "
       />
@@ -169,10 +189,8 @@ const PaymentMethods = () => {
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
-
       isPath: false,
       isDisabled: user
         ? ![
