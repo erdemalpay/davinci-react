@@ -71,7 +71,7 @@ const DessertStock = () => {
     quantity: 0,
   });
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER, RoleEnum.BARISTA].includes(user?.role?._id)
     : true;
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
