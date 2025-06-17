@@ -1406,6 +1406,7 @@ const Tables = () => {
               tableDto: tableData,
               orders: ordersData,
             } as any);
+            setIsTakeAwayPaymentModalOpen(true);
             setIsTakeAwayOrderModalOpen(false);
             setSelectedNewOrders([]);
           }}
