@@ -1,4 +1,4 @@
-import { isToday } from "date-fns";
+import { format, isToday } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
@@ -82,8 +82,10 @@ const DailySummary = () => {
             value:
               `${t("Table")}:` +
               o?.order?.orderTable?.name +
-              "-" +
-              o?.formatted,
+              t(" Duration: ") +
+              o?.formatted?.replace(/^00:/, "") +
+              " at " +
+              format(o?.order?.deliveredAt, "HH:mm"),
           };
         }) ?? [],
     },
@@ -98,7 +100,7 @@ const DailySummary = () => {
         summary?.buttonCallStats?.longestCalls?.map((o) => {
           return {
             title: `${t("Table")}:` + o.tableName,
-            value: o.duration,
+            value: o.duration + " at " + o?.finishHour,
           };
         }) ?? [],
     },

@@ -61,6 +61,7 @@ interface DailySummary {
         _id: number;
         item: number;
         orderTable: Table;
+        deliveredAt: Date;
       };
       ms: number;
       formatted: string;
@@ -71,6 +72,7 @@ interface DailySummary {
     longestCalls: Array<{
       tableName: string;
       duration: string;
+      finishHour: string;
     }>;
   };
   gameplayStats: {
