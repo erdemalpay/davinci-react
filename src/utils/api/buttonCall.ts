@@ -4,13 +4,28 @@ import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCall, ButtonCallType } from "../../types";
-import { Paths, useGetList } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
 
 interface UpdateButtonCallPayload {
   location: number;
   tableName: string;
   hour: string;
 }
+
+const baseUrl = Paths.ButtonCalls;
+
+export function useButtonCallMutations() {
+  const {
+    deleteItem: deleteButtonCall,
+    updateItem: updateButtonCall,
+    createItem: createButtonCall,
+  } = useMutationApi<ButtonCall>({
+    baseQuery: baseUrl,
+  });
+
+  return { deleteButtonCall, updateButtonCall, createButtonCall };
+}
+
 export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedLocationId } = useLocationContext();
   const { selectedDate } = useDateContext();
