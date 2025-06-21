@@ -18,23 +18,27 @@ const GameplayCard = ({
       className="flex flex-wrap justify-between text-xs cursor-pointer"
       onClick={() => editGameplay(gameplay)}
     >
-      <div className="flex w-4/5">
+      <div className="flex w-full gap-1 justify-between">
         <div className="overflow-hidden whitespace-nowrap text-ellipsis text-xs mr-1">
           {getGameName(gameplay.game as number)}
         </div>
         <h1 className="text-xs">({gameplay.playerCount})</h1>
-      </div>
-      <div className="flex">
-        {gameplay.mentor?._id !== "dv" ? (
-          <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
-            {gameplay.mentor?.name}
-          </div>
-        ) : (
-          <></>
-        )}
-        <h5 className="text-xs whitespace-nowrap">
-          {getDuration(gameplay.date, gameplay.startHour, gameplay?.finishHour)}
-        </h5>
+        <div className="flex gap-2">
+          {gameplay.mentor?._id !== "dv" ? (
+            <div className="bg-gray-300 rounded-full px-2 mr-1 whitespace-nowrap">
+              {gameplay.mentor?.name}
+            </div>
+          ) : (
+            <></>
+          )}
+          <h5 className="text-xs whitespace-nowrap">
+            {getDuration(
+              gameplay.date,
+              gameplay.startHour,
+              gameplay?.finishHour
+            )}
+          </h5>
+        </div>
       </div>
     </div>
   );
