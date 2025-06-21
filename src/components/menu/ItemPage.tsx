@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowForward } from "react-icons/io";
+import { RiDeleteBinLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { TURKISHLIRA } from "../../types";
@@ -9,14 +10,15 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import {
   useCreateDamagedItemMutation,
   useGetMenuItems,
+  useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { Header } from "../header/Header";
 import ImageUpload from "../imageUpload/ImageUpload";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { H5 } from "../panelComponents/Typography";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const ItemPage = () => {
   const { t } = useTranslation();
@@ -27,6 +29,7 @@ const ItemPage = () => {
   const [componentKey, setComponentKey] = useState(0);
   const stockLocations = useGetStockLocations();
   const { mutate: createDamagedItem } = useCreateDamagedItemMutation();
+  const { updateItem } = useMenuItemMutations();
   const [isCreateDamagedItemOpen, setIsCreateDamagedItemOpen] = useState(false);
   if (!categories || !selectedMenuItem) return null;
   const [form, setForm] = useState({
@@ -38,6 +41,19 @@ const ItemPage = () => {
     category: 0,
     itemId: selectedMenuItem?._id,
   });
+  const handleDeleteImage = (image: string) => {
+    if (!foundItem) return;
+    const updatedImages = foundItem?.productImages?.filter(
+      (img) => img !== image
+    );
+    updateItem({
+      id: foundItem._id,
+      updates: {
+        ...foundItem,
+        productImages: updatedImages ?? [],
+      },
+    });
+  };
   const createDamagedItemInputs = [
     NameInput(),
     {
@@ -155,16 +171,23 @@ const ItemPage = () => {
               className="sm:w-[90%] h-96 sm:h-[30rem] rounded-md "
             />
             <div className="flex flex-row gap-2 flex-wrap">
-              {foundItem?.productImages?.map((image) => {
-                return (
+              {foundItem?.productImages?.map((image) => (
+                <div
+                  key={image}
+                  className="relative w-24 h-24 rounded-md overflow-hidden"
+                >
                   <img
-                    key={image}
                     src={image}
                     alt={selectedMenuItem.name}
-                    className="w-24 h-24 rounded-md "
+                    className="w-full h-full object-cover"
                   />
-                );
-              })}
+                  <RiDeleteBinLine
+                    onClick={() => handleDeleteImage(image)}
+                    size={20}
+                    className="absolute bottom-0 right-0 text-red-500 hover:text-red-700 cursor-pointer"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
