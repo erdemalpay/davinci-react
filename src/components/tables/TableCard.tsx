@@ -1,7 +1,7 @@
 import { LockOpenIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "@material-tailwind/react";
 import { format } from "date-fns";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsWrenchAdjustableCircle } from "react-icons/bs";
 import { IoCloseOutline, IoReceipt } from "react-icons/io5";
@@ -107,6 +107,7 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
+  // how to use useMemo to avoid re-rendering
   const products = useGetAllAccountProducts();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -155,302 +156,339 @@ export function TableCard({
     name: [],
   });
   const menuItems = useGetMenuItems();
-  const menuItemStockQuantity = (item: MenuItem, location: number) => {
-    if (item?.matchedProduct) {
-      const stock = stocks?.find((stock) => {
-        return (
-          stock.product === item.matchedProduct && stock.location === location
-        );
-      });
-      return stock?.quantity ?? 0;
-    }
-    return 0;
-  };
-  const menuItemOptions = menuItems
-    ?.filter((menuItem) => {
-      return (
-        !orderForm.category || menuItem.category === Number(orderForm.category)
-      );
-    })
-    ?.filter((item) => {
-      if (!farmCategoryActivity) {
-        return item?.category !== FARMBURGERCATEGORYID;
-      }
-      return true;
-    })
-    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-    ?.filter((menuItem) =>
-      table?.isOnlineSale
-        ? getItem(menuItem.category, categories)?.isOnlineOrder
-        : true
-    )
-    ?.map((menuItem) => {
-      return {
-        value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        imageUrl: menuItem?.imageUrl,
-      };
-    });
-
-  const activeTables = tables.filter((t) => !t.finishHour);
-  const inactiveTableInputs = getItem(selectedLocationId, locations)
-    ?.tableNames?.filter((t) => !activeTables.some((table) => table.name === t))
-    ?.map((t) => {
-      return {
-        value: t,
-        label: t,
-      };
-    });
-  const filteredDiscounts = discounts.filter((discount) =>
-    table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
-  );
-  const isOnlinePrice = () => {
-    const menuItem = getItem(orderForm.item, menuItems);
-    if (getItem(menuItem?.category, categories)?.isOnlineOrder) {
-      return true;
-    }
-    return false;
-  };
-  const activityTableInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "name",
-      label: t("Name"),
-      options: locations
-        .find((location) => location._id === selectedLocationId)
-        ?.tableNames?.filter((t) => {
-          return !tables.find(
-            (table) =>
-              (table.name === t || table?.tables?.includes(t)) &&
-              !table?.finishHour
-          );
-        })
-        ?.sort((a, b) => Number(a) - Number(b))
-        ?.map((t, index) => {
-          return {
-            value: t,
-            label: t,
-          };
-        }),
-      placeholder: t("Name"),
-      isSortDisabled: true,
-      isMultiple: true,
-      required: true,
-    },
-  ];
-  const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-  const orderInputs = [
-    {
-      type: InputTypes.TAB,
-      formKey: "category",
-      label: t("Category"),
-      options: categories
-        ?.filter((category) => {
+  const menuItemStockQuantity = useCallback(
+    (item: MenuItem, location: number) => {
+      if (item?.matchedProduct) {
+        const stock = stocks?.find((stock) => {
           return (
-            category.active && category?.locations?.includes(selectedLocationId)
+            stock.product === item.matchedProduct && stock.location === location
           );
-        })
-        ?.sort((a, b) => a.orderCategoryOrder - b.orderCategoryOrder)
-        ?.map((category) => {
+        });
+        return stock?.quantity ?? 0;
+      }
+      return 0;
+    },
+    [stocks]
+  );
+
+  const menuItemOptions = useMemo(() => {
+    return menuItems
+      ?.filter((menuItem) => {
+        return (
+          !orderForm.category ||
+          menuItem.category === Number(orderForm.category)
+        );
+      })
+      ?.filter((item) => {
+        if (!farmCategoryActivity) {
+          return item?.category !== FARMBURGERCATEGORYID;
+        }
+        return true;
+      })
+      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+      ?.filter((menuItem) =>
+        table?.isOnlineSale
+          ? getItem(menuItem.category, categories)?.isOnlineOrder
+          : true
+      )
+      ?.map((menuItem) => {
+        return {
+          value: menuItem?._id,
+          label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+          imageUrl: menuItem?.imageUrl,
+        };
+      });
+  }, [
+    orderForm.category,
+    farmCategoryActivity,
+    menuItems,
+    selectedLocationId,
+    table?.isOnlineSale,
+    categories,
+  ]);
+  const activeTables = useMemo(
+    () => tables.filter((t) => !t.finishHour),
+    [tables]
+  );
+  const inactiveTableInputs = useMemo(() => {
+    const loc = locations.find((l) => l._id === selectedLocationId);
+    return (
+      loc?.tableNames
+        ?.filter((name) => !activeTables.some((t) => t.name === name))
+        .map((name) => ({ value: name, label: name })) ?? []
+    );
+  }, [locations, selectedLocationId, activeTables]);
+  const filteredDiscounts = useMemo(() => {
+    return discounts?.filter((discount) =>
+      table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
+    );
+  }, [discounts, table?.isOnlineSale]);
+  const isOnlinePrice = useMemo(() => {
+    const menuItem = getItem(orderForm.item, menuItems);
+    return Boolean(
+      menuItem && getItem(menuItem.category, categories)?.isOnlineOrder
+    );
+  }, [orderForm.item, menuItems, categories]);
+  const activityTableInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "name",
+        label: t("Name"),
+        options: locations
+          .find((location) => location._id === selectedLocationId)
+          ?.tableNames?.filter((t) => {
+            return !tables.find(
+              (table) =>
+                (table.name === t || table?.tables?.includes(t)) &&
+                !table?.finishHour
+            );
+          })
+          ?.sort((a, b) => Number(a) - Number(b))
+          ?.map((t, index) => {
+            return {
+              value: t,
+              label: t,
+            };
+          }),
+        placeholder: t("Name"),
+        isSortDisabled: true,
+        isMultiple: true,
+        required: true,
+      },
+    ],
+    [locations, selectedLocationId, tables, t]
+  );
+  const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const orderInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TAB,
+        formKey: "category",
+        label: t("Category"),
+        options: categories
+          ?.filter((category) => {
+            return (
+              category.active &&
+              category?.locations?.includes(selectedLocationId)
+            );
+          })
+          ?.sort((a, b) => a.orderCategoryOrder - b.orderCategoryOrder)
+          ?.map((category) => {
+            return {
+              value: category._id,
+              label: category.name,
+              imageUrl: category?.imageUrl,
+            };
+          }),
+        isSortDisabled: true,
+        invalidateKeys: [
+          { key: "item", defaultValue: 0 },
+          { key: "discount", defaultValue: undefined },
+          { key: "discountNote", defaultValue: "" },
+          { key: "isOnlinePrice", defaultValue: false },
+          { key: "stockLocation", defaultValue: selectedLocationId },
+        ],
+        placeholder: t("Category"),
+        required: false,
+        isDisabled: !user?.settings?.orderCategoryOn ?? true,
+        triggerTabOpenOnChangeFor: "item",
+        handleTriggerTabOptions: (value: any) => {
+          return menuItems
+            ?.filter((menuItem) => {
+              return menuItem.category === value;
+            })
+            ?.filter((item) => {
+              if (!farmCategoryActivity) {
+                return item?.category !== FARMBURGERCATEGORYID;
+              }
+              return true;
+            })
+            ?.filter((menuItem) =>
+              menuItem?.locations?.includes(selectedLocationId)
+            )
+            ?.filter((menuItem) =>
+              table?.isOnlineSale
+                ? getItem(menuItem.category, categories)?.isOnlineOrder
+                : true
+            )
+            ?.map((menuItem) => {
+              return {
+                value: menuItem?._id,
+                label:
+                  menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+                imageUrl: menuItem?.imageUrl,
+              };
+            });
+        },
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.TAB,
+        formKey: "item",
+        label: t("Product"),
+        options: menuItemOptions?.map((option) => {
           return {
-            value: category._id,
-            label: category.name,
-            imageUrl: category?.imageUrl,
+            value: option.value,
+            label: option.label,
+            imageUrl: option?.imageUrl,
           };
         }),
-      isSortDisabled: true,
-      invalidateKeys: [
-        { key: "item", defaultValue: 0 },
-        { key: "discount", defaultValue: undefined },
-        { key: "discountNote", defaultValue: "" },
-        { key: "isOnlinePrice", defaultValue: false },
-        { key: "stockLocation", defaultValue: selectedLocationId },
-      ],
-      placeholder: t("Category"),
-      required: false,
-      isDisabled: !user?.settings?.orderCategoryOn ?? true,
-      triggerTabOpenOnChangeFor: "item",
-      handleTriggerTabOptions: (value: any) => {
-        return menuItems
-          ?.filter((menuItem) => {
-            return menuItem.category === value;
-          })
-          ?.filter((item) => {
-            if (!farmCategoryActivity) {
-              return item?.category !== FARMBURGERCATEGORYID;
-            }
-            return true;
-          })
-          ?.filter((menuItem) =>
-            menuItem?.locations?.includes(selectedLocationId)
-          )
-          ?.filter((menuItem) =>
-            table?.isOnlineSale
-              ? getItem(menuItem.category, categories)?.isOnlineOrder
-              : true
-          )
-          ?.map((menuItem) => {
-            return {
-              value: menuItem?._id,
-              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-              imageUrl: menuItem?.imageUrl,
-            };
-          });
+        invalidateKeys: [
+          { key: "discount", defaultValue: undefined },
+          { key: "discountNote", defaultValue: "" },
+          { key: "isOnlinePrice", defaultValue: false },
+          { key: "stockLocation", defaultValue: selectedLocationId },
+        ],
+        placeholder: t("Product"),
+        required: true,
+        isTopFlexRow: true,
       },
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.TAB,
-      formKey: "item",
-      label: t("Product"),
-      options: menuItemOptions?.map((option) => {
-        return {
-          value: option.value,
-          label: option.label,
-          imageUrl: option?.imageUrl,
-        };
-      }),
-      invalidateKeys: [
-        { key: "discount", defaultValue: undefined },
-        { key: "discountNote", defaultValue: "" },
-        { key: "isOnlinePrice", defaultValue: false },
-        { key: "stockLocation", defaultValue: selectedLocationId },
-      ],
-      placeholder: t("Product"),
-      required: true,
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "quantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      minNumber: 0,
-      required: true,
-      isNumberButtonsActive: true,
-      isOnClearActive: false,
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.TAB,
-      formKey: "discount",
-      label: t("Discount"),
-      options: orderForm?.item
-        ? filteredDiscounts
-            .filter((discount) => {
-              const menuItem = menuItems?.find(
-                (item) => item._id === orderForm.item
-              );
-              return getItem(
-                menuItem?.category,
-                categories
-              )?.discounts?.includes(discount._id);
-            })
-            ?.map((option) => {
-              return {
-                value: option?._id,
-                label: option?.name,
-              };
-            })
-        : [],
-      invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
-      placeholder: t("Discount"),
-      isAutoFill: false,
-      required: false,
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.TEXT,
-      formKey: "discountNote",
-      label: t("Discount Note"),
-      placeholder:
-        orderForm?.discount &&
-        discounts?.find((discount) => discount._id === orderForm.discount)?.note
-          ? discounts?.find((discount) => discount._id === orderForm.discount)
-              ?.note
-          : t("What is the reason for the discount?"),
-      required:
-        (orderForm?.discount &&
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        minNumber: 0,
+        required: true,
+        isNumberButtonsActive: true,
+        isOnClearActive: false,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.TAB,
+        formKey: "discount",
+        label: t("Discount"),
+        options: orderForm?.item
+          ? filteredDiscounts
+              .filter((discount) => {
+                const menuItem = menuItems?.find(
+                  (item) => item._id === orderForm.item
+                );
+                return getItem(
+                  menuItem?.category,
+                  categories
+                )?.discounts?.includes(discount._id);
+              })
+              ?.map((option) => {
+                return {
+                  value: option?._id,
+                  label: option?.name,
+                };
+              })
+          : [],
+        invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+        placeholder: t("Discount"),
+        isAutoFill: false,
+        required: false,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "discountNote",
+        label: t("Discount Note"),
+        placeholder:
+          orderForm?.discount &&
           discounts?.find((discount) => discount._id === orderForm.discount)
-            ?.isNoteRequired) ??
-        false,
-      isDisabled:
-        (orderForm?.discount &&
-          !discounts?.find((discount) => discount._id === orderForm.discount)
-            ?.isNoteRequired) ??
-        true,
-      isOnClearActive: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "stockLocation",
-      label: t("Stock Location"),
-      options: locations?.map((input) => {
-        const menuItem = getItem(orderForm.item, menuItems);
-        const foundProduct = getItem(menuItem?.matchedProduct, products);
-        const stockQuantity = menuItem
-          ? menuItemStockQuantity(menuItem, input._id)
-          : null;
-        const shelfInfo = foundProduct?.shelfInfo?.find(
-          (shelf) => shelf.location === input._id
-        );
-        return {
-          value: input._id,
-          label:
-            input.name +
-            (menuItem?.itemProduction && menuItem.itemProduction.length > 0
-              ? ` (${t("Stock")}: ${stockQuantity})`
-              : "") +
-            (shelfInfo?.shelf ? ` (${t("Shelf")}: ${shelfInfo?.shelf})` : ""),
-        };
-      }),
-      placeholder: t("Stock Location"),
-      required:
-        (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
-      isDisabled: !(
-        getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
-      ),
-    },
-    {
-      type: InputTypes.CHECKBOX,
-      formKey: "isOnlinePrice",
-      label: t("Online Price"),
-      placeholder: t("Online Price"),
-      required: isOnlinePrice(),
-      isDisabled: !isOnlinePrice(),
-      isTopFlexRow: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "activityTableName",
-      label: t("Table"),
-      options: table.tables?.map((tableName) => {
-        return {
-          value: tableName,
-          label: tableName,
-        };
-      }),
-      placeholder: t("Table"),
-      required: false,
-      isDisabled: table?.type !== TableTypes.ACTIVITY,
-    },
-    {
-      type: InputTypes.TEXT,
-      formKey: "activityPlayer",
-      label: t("Player Number"),
-      placeholder: t("Player Number"),
-      required: false,
-      isDisabled: table?.type !== TableTypes.ACTIVITY,
-    },
-    {
-      type: InputTypes.TEXTAREA,
-      formKey: "note",
-      label: t("Note"),
-      placeholder: t("Note"),
-      required: false,
-    },
-  ];
-
+            ?.note
+            ? discounts?.find((discount) => discount._id === orderForm.discount)
+                ?.note
+            : t("What is the reason for the discount?"),
+        required:
+          (orderForm?.discount &&
+            discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.isNoteRequired) ??
+          false,
+        isDisabled:
+          (orderForm?.discount &&
+            !discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.isNoteRequired) ??
+          true,
+        isOnClearActive: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "stockLocation",
+        label: t("Stock Location"),
+        options: locations?.map((input) => {
+          const menuItem = getItem(orderForm.item, menuItems);
+          const foundProduct = getItem(menuItem?.matchedProduct, products);
+          const stockQuantity = menuItem
+            ? menuItemStockQuantity(menuItem, input._id)
+            : null;
+          const shelfInfo = foundProduct?.shelfInfo?.find(
+            (shelf) => shelf.location === input._id
+          );
+          return {
+            value: input._id,
+            label:
+              input.name +
+              (menuItem?.itemProduction && menuItem.itemProduction.length > 0
+                ? ` (${t("Stock")}: ${stockQuantity})`
+                : "") +
+              (shelfInfo?.shelf ? ` (${t("Shelf")}: ${shelfInfo?.shelf})` : ""),
+          };
+        }),
+        placeholder: t("Stock Location"),
+        required:
+          (getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0) > 0,
+        isDisabled: !(
+          getItem(orderForm.item, menuItems)?.itemProduction?.length ?? 0 > 0
+        ),
+      },
+      {
+        type: InputTypes.CHECKBOX,
+        formKey: "isOnlinePrice",
+        label: t("Online Price"),
+        placeholder: t("Online Price"),
+        required: isOnlinePrice,
+        isDisabled: !isOnlinePrice,
+        isTopFlexRow: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "activityTableName",
+        label: t("Table"),
+        options: table.tables?.map((tableName) => {
+          return {
+            value: tableName,
+            label: tableName,
+          };
+        }),
+        placeholder: t("Table"),
+        required: false,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "activityPlayer",
+        label: t("Player Number"),
+        placeholder: t("Player Number"),
+        required: false,
+        isDisabled: table?.type !== TableTypes.ACTIVITY,
+      },
+      {
+        type: InputTypes.TEXTAREA,
+        formKey: "note",
+        label: t("Note"),
+        placeholder: t("Note"),
+        required: false,
+      },
+    ],
+    [
+      orderForm.category,
+      orderForm.item,
+      orderForm.discount,
+      orderForm.stockLocation,
+      orderForm.isOnlinePrice,
+      selectedLocationId,
+      farmCategoryActivity,
+      filteredDiscounts,
+      menuItems,
+      locations,
+      t,
+    ]
+  );
   const orderFormKeys = [
     { key: "category", type: FormKeyTypeEnum.STRING },
     { key: "item", type: FormKeyTypeEnum.STRING },
@@ -463,96 +501,112 @@ export function TableCard({
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
-  const tableCombineInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "table",
-      label: t("Table"),
-      options: tables
-        ?.filter(
-          (filteredTable) =>
-            filteredTable._id !== table._id && !filteredTable?.finishHour
-        )
-        ?.map((tableMap) => {
-          return {
-            value: tableMap?._id,
-            label: tableMap?.name,
-          };
-        }),
-      placeholder: t("Table"),
-      required: true,
-    },
-  ];
+  const tableCombineInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "table",
+        label: t("Table"),
+        options: tables
+          ?.filter(
+            (filteredTable) =>
+              filteredTable._id !== table._id && !filteredTable?.finishHour
+          )
+          ?.map((tableMap) => {
+            return {
+              value: tableMap?._id,
+              label: tableMap?.name,
+            };
+          }),
+        placeholder: t("Table"),
+        required: true,
+      },
+    ],
+    [tables, table, t]
+  );
   const tableCombineFormKeys = [{ key: "table", type: FormKeyTypeEnum.STRING }];
-  const tableTransferInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "table",
-      label: t("Table"),
-      options: inactiveTableInputs,
-      placeholder: t("Table"),
-      required: true,
-    },
-  ];
+  const tableTransferInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "table",
+        label: t("Table"),
+        options: inactiveTableInputs,
+        placeholder: t("Table"),
+        required: true,
+      },
+    ],
+    [inactiveTableInputs, t]
+  );
   const tableTransferFormKeys = [
     { key: "table", type: FormKeyTypeEnum.STRING },
   ];
-  const bgColor = table.finishHour
-    ? "bg-gray-500"
-    : tableOrders?.some(
+  const bgColor = useMemo(() => {
+    if (table.finishHour) return "bg-gray-500";
+    if (
+      tableOrders?.some(
         (tableOrder) =>
           (tableOrder as Order)?.status === OrderStatus.READYTOSERVE
       )
-    ? "bg-orange-200"
-    : "bg-gray-200";
+    )
+      return "bg-orange-200";
+    return "bg-gray-200";
+  }, [table.finishHour, tableOrders]);
 
-  function createGameplay() {
+  const createGameplay = useCallback(() => {
     setSelectedGameplay(undefined);
     setIsGameplayDialogOpen(true);
-  }
+  }, []);
 
-  function getGameName(id: number) {
-    const game = games.find((game) => game._id === id);
-    return game?.name || "";
-  }
+  const getGameName = useCallback(
+    (id: number) => {
+      const game = games.find((game) => game._id === id);
+      return game?.name || "";
+    },
+    [games]
+  );
 
-  function reopenTableBack() {
+  const reopenTableBack = useCallback(() => {
     reopenTable({
       id: table._id,
     });
     toast.success(`Table ${table?.name} reopened`);
-  }
-  function newClose() {
+  }, [reopenTable, table]);
+
+  const newClose = useCallback(() => {
     setIsOrderPaymentModalOpen(true);
-  }
-  const date = table.date;
-  const startHour = format(new Date(), "HH:mm");
+  }, []);
 
-  const gameplayTemplate: Partial<Gameplay> = {
-    date,
-    location: table.location as number,
-    playerCount: table.playerCount,
-    startHour,
-    mentor: mentors[0],
-  };
+  const gameplayTemplate = useMemo(() => {
+    return {
+      date: table.date,
+      location: table.location as number,
+      playerCount: table.playerCount,
+      startHour: format(new Date(), "HH:mm"),
+      mentor: mentors[0],
+    };
+  }, [table.date, table.location, table.playerCount, mentors]);
 
-  function updateTableHandler(event: FormEvent<HTMLInputElement>) {
-    const target = event.target as HTMLInputElement;
-    if (!target.value) return;
+  const updateTableHandler = useCallback(
+    (event: FormEvent<HTMLInputElement>) => {
+      const target = event.target as HTMLInputElement;
+      if (!target.value) return;
 
-    updateTable({
-      id: table._id,
-      updates: { [target.name]: target.value },
-    });
-    toast.success(`Table ${table.name} updated`);
-  }
+      updateTable({
+        id: table._id,
+        updates: { [target.name]: target.value },
+      });
+      toast.success(`Table ${table.name} updated`);
+    },
+    [updateTable, table]
+  );
 
-  function editGameplay(gameplay: Gameplay) {
+  const editGameplay = useCallback((gameplay: Gameplay) => {
     setSelectedGameplay(gameplay);
     setIsEditGameplayDialogOpen(true);
-  }
+  }, []);
 
-  function handleTableCancel() {
+  const handleTableCancel = useCallback(() => {
     if (!table._id) return;
     if (tableOrders) {
       const hasActiveOrders = tableOrders?.some((order) => {
@@ -570,7 +624,8 @@ export function TableCard({
     });
 
     setIsDeleteConfirmationDialogOpen(false);
-  }
+  }, [table._id, tableOrders, updateTable, t]);
+
   const handleOrderObject = () => {
     const selectedMenuItem = getItem(orderForm?.item, menuItems);
     const selectedMenuItemCategory = getItem(
