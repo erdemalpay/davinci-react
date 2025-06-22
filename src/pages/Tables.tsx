@@ -130,7 +130,6 @@ const Tables = () => {
     stockLocation: selectedLocationId,
   };
   const tablesLoading = (tables as any)?.isLoading;
-  const [pendingScrollTo, setPendingScrollTo] = useState<string | null>(null);
   const [tableForm, setTableForm] = useState({
     name: "",
     startHour: format(new Date(), "HH:mm"),
@@ -632,12 +631,7 @@ const Tables = () => {
     const newDate = subDays(date, 1);
     setSelectedDate(formatDate(newDate));
   };
-  useEffect(() => {
-    if (pendingScrollTo && !tablesLoading) {
-      scrollToSection(pendingScrollTo);
-      setPendingScrollTo(null);
-    }
-  }, [pendingScrollTo, tablesLoading]);
+
   const handleIncrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = new Date(date);
@@ -706,11 +700,7 @@ const Tables = () => {
     });
   };
   const handleScrollClick = (id: string) => {
-    if (tablesLoading) {
-      setPendingScrollTo(id);
-    } else {
-      scrollToSection(id);
-    }
+    scrollToSection(id);
   };
 
   const cafeInfos: {
