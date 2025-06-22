@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { MdArrowDropDown, MdOutlineDone } from "react-icons/md";
 import Select, {
@@ -168,12 +168,15 @@ const SelectInput = ({
     setSortedOptions([...sorted]);
   }, [options, searchInput]);
 
-  const handleInputChange = (newValue: string, actionMeta: InputActionMeta) => {
-    if (actionMeta.action === "input-change") {
-      setSearchInput(newValue);
-      return newValue;
-    }
-  };
+  const handleInputChange = useCallback(
+    (newValue: string, actionMeta: InputActionMeta) => {
+      if (actionMeta.action === "input-change") {
+        setSearchInput(newValue);
+        return newValue;
+      }
+    },
+    []
+  );
 
   const DropdownIndicator = (props: any) => {
     return (
@@ -290,4 +293,4 @@ const SelectInput = ({
   );
 };
 
-export default SelectInput;
+export default React.memo(SelectInput);

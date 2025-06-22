@@ -93,4 +93,4 @@ const TabInput: React.FC<TabInputProps> = ({
   );
 };
 
-export default TabInput;
+export default React.memo(TabInput);
