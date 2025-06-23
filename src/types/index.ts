@@ -227,6 +227,7 @@ export type AccountPaymentMethod = {
   isOnlineOrder?: boolean;
   ikasId?: string;
   isPaymentMade?: boolean;
+  isUsedAtExpense?: boolean;
 };
 export type AccountPayment = {
   _id: number;

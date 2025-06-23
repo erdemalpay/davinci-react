@@ -119,6 +119,7 @@ const Invoice = () => {
   const { createAccountExpense, deleteAccountExpense, updateAccountExpense } =
     useAccountExpenseMutations();
   const allRows = invoices?.map((invoice) => {
+    const foundPaymentMethod = getItem(invoice?.paymentMethod, paymentMethods);
     return {
       ...invoice,
       product: getItem(invoice?.product, products)?.name,
@@ -134,9 +135,8 @@ const Invoice = () => {
       brnd: getItem(invoice?.brand, brands),
       vndr: getItem(invoice?.vendor, vendors),
       prdct: getItem(invoice?.product, products),
-      paymentMethodName: t(
-        getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-      ),
+      paymentMethodName: t(foundPaymentMethod?.name ?? ""),
+      foundPaymentMethod: foundPaymentMethod,
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -164,7 +164,7 @@ const Invoice = () => {
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
     }),
     StockLocationInput({ locations: locations }),
@@ -272,7 +272,7 @@ const Invoice = () => {
       required: true,
     }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
     }),
     {
