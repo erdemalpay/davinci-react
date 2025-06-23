@@ -495,14 +495,6 @@ export type PanelSettings = {
   _id: number;
   isHoliday: boolean;
 };
-export type PanelControlCheckoutCash = {
-  _id: number;
-  description?: string;
-  amount: number;
-  date: string;
-  user: User;
-  location: number;
-};
 
 export type StyleDto = {
   color?: string;
