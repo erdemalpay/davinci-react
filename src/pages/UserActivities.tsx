@@ -10,6 +10,7 @@ import { activityTypeDetails, commonDateOptions } from "../types";
 import { useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
+import { getItem } from "../utils/getItem";
 
 const UserActivities = () => {
   const { t } = useTranslation();
@@ -26,7 +27,7 @@ const UserActivities = () => {
   const allRows = activities?.map((activity) => {
     return {
       ...activity,
-      userName: activity.user.name,
+      userName: getItem(activity.user, users)?.name,
       userId: activity.user._id,
       createdDate: activity?.createdAt
         ? format(activity.createdAt, "yyyy-MM-dd")
