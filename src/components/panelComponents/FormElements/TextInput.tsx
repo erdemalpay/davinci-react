@@ -106,8 +106,20 @@ const TextInput = ({
   const handleIncrement = () => {
     if (type === "number") {
       const newValue = Math.max(minNumber, +localValue + 1);
-      setLocalValue(newValue.toString());
-      onChange(newValue.toString());
+      const newValueStr = newValue.toString();
+      setLocalValue(newValueStr);
+
+      if (isDebounce) {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        const timer = setTimeout(() => {
+          onChange(newValueStr);
+        }, 1000);
+        setDebounceTimer(timer);
+      } else {
+        onChange(newValueStr);
+      }
 
       if (inputRef.current) {
         inputRef.current.readOnly = true;
@@ -117,12 +129,24 @@ const TextInput = ({
       }
     }
   };
-
   const handleDecrement = () => {
     if (type === "number" && +localValue > minNumber) {
       const newValue = Math.max(minNumber, +localValue - 1);
-      setLocalValue(newValue.toString());
-      onChange(newValue.toString());
+      const newValueStr = newValue.toString();
+      setLocalValue(newValueStr);
+
+      if (isDebounce) {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        const timer = setTimeout(() => {
+          onChange(newValueStr);
+        }, 1000);
+        setDebounceTimer(timer);
+      } else {
+        onChange(newValueStr);
+      }
+
       if (inputRef.current) {
         inputRef.current.readOnly = true;
         setTimeout(() => {
@@ -131,6 +155,7 @@ const TextInput = ({
       }
     }
   };
+
   const inputClassName = `${className} ${
     inputWidth ? "border-gray-200" : ""
   } w-full text-sm ${
