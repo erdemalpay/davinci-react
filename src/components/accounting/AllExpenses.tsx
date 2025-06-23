@@ -133,6 +133,7 @@ const AllExpenses = () => {
     PaymentMethodInput({
       paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
+      isMultiple: true,
     }),
     StockLocationInput({ locations: locations }),
     {
