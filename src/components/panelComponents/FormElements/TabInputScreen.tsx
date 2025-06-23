@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
+import useIsLargeScreen from "../../../hooks/useIsLargeScreen";
 import { FormElementsState } from "../../../types";
 import { GenericInputType, InputTypes } from "../shared/types";
 
@@ -58,6 +59,7 @@ const TabInputScreen = ({
   const changedInput = inputs.find(
     (input) => input.formKey === tabInputFormKey
   );
+  const isLargeScreen = useIsLargeScreen();
   const listRef = useRef<HTMLDivElement>(null);
   const handleSelect = (option: TabOption) => {
     setFormElements((prev: FormElementsState) => ({
@@ -147,7 +149,7 @@ const TabInputScreen = ({
                   }
                 `}
               >
-                {opt.imageUrl && (
+                {opt?.imageUrl && isLargeScreen && (
                   <img
                     src={opt.imageUrl}
                     alt={opt.label}
@@ -164,4 +166,4 @@ const TabInputScreen = ({
   );
 };
 
-export default TabInputScreen;
+export default React.memo(TabInputScreen);
