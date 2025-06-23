@@ -129,7 +129,6 @@ const Tables = () => {
     isOnlinePrice: false,
     stockLocation: selectedLocationId,
   };
-  const tablesLoading = (tables as any)?.isLoading;
   const [tableForm, setTableForm] = useState({
     name: "",
     startHour: format(new Date(), "HH:mm"),
