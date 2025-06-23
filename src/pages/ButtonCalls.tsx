@@ -6,13 +6,15 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { ButtonCall, commonDateOptions } from "../types";
-import { useGetButtonCalls } from "../utils/api/buttonCall";
+import { useButtonCallMutations, useGetButtonCalls } from "../utils/api/buttonCall";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { StockLocationInput } from "../utils/panelInputs";
 import { passesFilter } from "../utils/passesFilter";
+import { HiOutlineTrash } from "react-icons/hi2";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 
 type FormElementsState = {
   [key: string]: any;
@@ -25,6 +27,7 @@ export default function ButtonCalls() {
   const users = useGetUsers();
   const buttonCalls = useGetButtonCalls();
   const [showButtonCallsFilters, setShowButtonCallsFilters] = useState(true);
+  const [isButtonCallEnableEdit, setIsButtonCallEnableEdit] = useState(false);
   const allRows = useGetButtonCalls()
     ?.map((buttonCall) => {
       return {
@@ -136,6 +139,18 @@ export default function ButtonCalls() {
   ];
   const tableFilters = [
     {
+      label: t("Enable Edit"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={isButtonCallEnableEdit}
+          onChange={() => {
+            setIsButtonCallEnableEdit(!isButtonCallEnableEdit);
+          }}
+        />
+      ),
+    },
+    {
       label: t("Show Filters"),
       isUpperSide: true,
       node: (
@@ -174,6 +189,39 @@ export default function ButtonCalls() {
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
   }, [filterPanelFormElements, locations, buttonCalls]);
+
+  const { deleteButtonCall } =
+    useButtonCallMutations();
+  const [rowToAction, setRowToAction] = useState<any>();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const actions = [
+    {
+      name: t("Delete"),
+      isDisabled: !isButtonCallEnableEdit,
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteButtonCall(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title="Delete Button Call"
+          text={`Table ${rowToAction?.tableName} button call between ${rowToAction?.startHour} - ${rowToAction?.finishHour} will be deleted. Are you sure you want to continue?`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl  ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+  ];
   return (
     <>
       <Header showLocationSelector={true} />
@@ -182,11 +230,17 @@ export default function ButtonCalls() {
           key={tableKey}
           rowKeys={rowKeys}
           filters={tableFilters}
-          isActionsActive={false}
-          columns={columns}
+          columns={
+            isButtonCallEnableEdit
+              ? [{ key: t("Action"), isSortable: false }, ...columns]
+              : columns
+          }
           filterPanel={filterPanel}
           rows={rows ?? []}
           title={t("Button Calls")}
+          actions={actions}
+          isActionsActive={isButtonCallEnableEdit}
+          isActionsAtFront={isButtonCallEnableEdit}
         />
       </div>
     </>
