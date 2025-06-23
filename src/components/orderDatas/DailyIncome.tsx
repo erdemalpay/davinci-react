@@ -61,7 +61,7 @@ const DailyIncome = () => {
           }
         });
         existingEntry.total += !foundPaymentMethod?.isPaymentMade
-          ? Number(collection.amount) * -1
+          ? 0
           : collection?.amount || 0;
       } else {
         const newEntry: any = {
@@ -69,10 +69,9 @@ const DailyIncome = () => {
           formattedDate: formatAsLocalDate(tableDate),
           location: collection.location,
           total: !foundPaymentMethod?.isPaymentMade
-            ? Number(collection.amount) * -1
+            ? 0
             : collection?.amount || 0,
         };
-
         paymentMethods.forEach((method) => {
           newEntry[method._id] =
             collection.paymentMethod === method._id ? collection.amount : 0;
