@@ -469,6 +469,7 @@ export type CheckoutControl = {
   location: number;
   date: string;
   amount: number;
+  baseQuantity?: number;
   createdAt?: Date;
 };
 
