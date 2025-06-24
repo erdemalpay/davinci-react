@@ -43,9 +43,13 @@ const TabInputScreen = ({
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    if (isAutoFocus && inputRef.current) {
-      inputRef.current.focus();
-    }
+    const timer = setTimeout(() => {
+      if (isAutoFocus && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [isAutoFocus]);
   const {
     isTabInputScreenOpen,
