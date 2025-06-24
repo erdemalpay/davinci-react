@@ -45,7 +45,9 @@ const TabInputScreen = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       if (isAutoFocus && inputRef.current) {
-        inputRef.current.focus();
+        inputRef.current?.focus();
+        inputRef.current?.blur();
+        inputRef.current?.focus();
       }
     }, 300);
 
