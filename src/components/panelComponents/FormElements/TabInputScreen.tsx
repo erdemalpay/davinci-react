@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
 import useIsLargeScreen from "../../../hooks/useIsLargeScreen";
@@ -41,18 +41,6 @@ const TabInputScreen = ({
   setForm,
   isAutoFocus = false,
 }: Props) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isAutoFocus && inputRef.current) {
-        inputRef.current?.focus();
-        inputRef.current?.blur();
-        inputRef.current?.focus();
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [isAutoFocus]);
   const {
     isTabInputScreenOpen,
     setIsTabInputScreenOpen,
@@ -130,7 +118,6 @@ const TabInputScreen = ({
       {/* header: search + close */}
       <div className="w-full px-2 flex justify-between items-center">
         <input
-          ref={inputRef}
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
