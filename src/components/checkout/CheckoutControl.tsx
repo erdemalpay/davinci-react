@@ -6,6 +6,7 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutControl, ExpenseTypes, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
 import {
   useCheckoutControlMutations,
@@ -30,6 +31,7 @@ type FormElementsState = {
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
+  const paymentMethods = useGetAccountPaymentMethods();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -453,6 +455,7 @@ const CheckoutControlPage = () => {
     invoicesPayload,
     incomes,
     cashouts,
+    paymentMethods,
   ]);
 
   return (
