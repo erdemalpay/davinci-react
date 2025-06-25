@@ -146,8 +146,9 @@ const ServiceInvoice = () => {
     VendorInput({ vendors: vendors, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
+      isMultiple: true,
     }),
     StockLocationInput({ locations: locations }),
     {
@@ -236,7 +237,7 @@ const ServiceInvoice = () => {
       required: true,
     }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
     }),
     QuantityInput(),

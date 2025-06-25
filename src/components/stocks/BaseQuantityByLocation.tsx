@@ -132,6 +132,7 @@ const BaseQuantityByLocation = () => {
               <TextInput
                 key={`${location._id}min`}
                 type={"number"}
+                isDebounce={true}
                 value={row?.[`${location._id}min`] ?? 0}
                 label={""}
                 placeholder={""}
@@ -157,7 +158,6 @@ const BaseQuantityByLocation = () => {
                     },
                   });
                 }}
-                isDebounce={true}
                 isOnClearActive={true}
                 isNumberButtonsActive={true}
                 isDateInitiallyOpen={false}

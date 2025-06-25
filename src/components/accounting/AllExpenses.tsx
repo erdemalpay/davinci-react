@@ -131,8 +131,9 @@ const AllExpenses = () => {
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
+      isMultiple: true,
     }),
     StockLocationInput({ locations: locations }),
     {
@@ -288,7 +289,7 @@ const AllExpenses = () => {
       required: true,
     }),
     PaymentMethodInput({
-      paymentMethods: paymentMethods?.filter((pm) => pm?.isConstant),
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
     }),
     {

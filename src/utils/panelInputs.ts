@@ -7,7 +7,6 @@ import {
   AccountProduct,
   AccountVendor,
   Location,
-  NOTPAID,
 } from "../types/index";
 import { AccountService } from "./../types/index";
 
@@ -221,10 +220,6 @@ export function PaymentMethodInput({
           label: t(input.name),
         };
       }) || []),
-      {
-        value: NOTPAID,
-        label: t("Not Paid"),
-      },
     ],
     isDisabled: isDisabled,
     placeholder: t("Payment Method"),

@@ -1299,7 +1299,7 @@ const Tables = () => {
             }
             setOrderForm(initialOrderForm);
           }}
-          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
+          generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
           topClassName="flex flex-col gap-2  "
         />
       )}

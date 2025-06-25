@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutControl, commonDateOptions, ExpenseTypes } from "../../types";
+import { CheckoutControl, ExpenseTypes, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
 import {
   useCheckoutControlMutations,
@@ -13,17 +14,16 @@ import {
 } from "../../utils/api/checkout/checkoutControl";
 import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
 import { useGetStockLocations } from "../../utils/api/location";
-import { useGetPanelControlCheckoutCashs } from "../../utils/api/panelControl/checkoutCash";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -31,6 +31,7 @@ type FormElementsState = {
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
+  const paymentMethods = useGetAccountPaymentMethods();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -59,7 +60,6 @@ const CheckoutControlPage = () => {
     (invoice) => invoice.type === ExpenseTypes.NONSTOCKABLE
   );
   const cashouts = useGetCheckoutCashouts();
-  const beginningCashs = useGetPanelControlCheckoutCashs();
   const locations = useGetStockLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
@@ -104,11 +104,7 @@ const CheckoutControlPage = () => {
         formattedDate: formatAsLocalDate(checkoutControl?.date),
         beginningQuantity: closestCheckout
           ? closestCheckout?.amount ?? 0
-          : beginningCashs?.filter(
-              (cash) =>
-                cash.location === checkoutControl?.location &&
-                cash.date <= checkoutControl?.date
-            )?.[0]?.amount ?? 0,
+          : checkoutControl?.baseQuantity ?? 0,
         incomeQuantity: incomes
           ?.filter(
             (item) =>
@@ -459,6 +455,7 @@ const CheckoutControlPage = () => {
     invoicesPayload,
     incomes,
     cashouts,
+    paymentMethods,
   ]);
 
   return (

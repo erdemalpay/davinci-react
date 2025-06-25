@@ -1,10 +1,8 @@
-import { FaCashRegister } from "react-icons/fa6";
 import { IoIosSettings } from "react-icons/io";
 import { MdManageAccounts, MdSchool } from "react-icons/md";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
-import CheckoutCash from "../components/panelControl/CheckoutCash";
 import EducationPermissions from "../components/panelControl/EducationPermissions";
 import PagePermissions from "../components/panelControl/PagePermissions";
 import PanelSettings from "../components/panelControl/PanelSettings";
@@ -38,13 +36,6 @@ const PanelControl = () => {
       label: "Education Permissions",
       icon: <MdSchool className="text-lg font-thin" />,
       content: <EducationPermissions />,
-      isDisabled: false,
-    },
-    {
-      number: PanelControlPageTabEnum.CHECKOUTCASH,
-      label: "Checkout Cash",
-      icon: <FaCashRegister className="text-lg font-thin" />,
-      content: <CheckoutCash />,
       isDisabled: false,
     },
     {

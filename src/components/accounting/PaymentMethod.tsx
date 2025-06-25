@@ -43,6 +43,7 @@ const PaymentMethods = () => {
     { key: t("Name"), isSortable: true },
     { key: t("Online Order"), isSortable: false },
     { key: t("Payment Made"), isSortable: false },
+    { key: t("Used at Expense"), isSortable: false },
     { key: "Ikas ID", isSortable: false },
   ];
   if (
@@ -79,6 +80,15 @@ const PaymentMethods = () => {
           <IoCloseOutline className="text-red-800 text-2xl " />
         ),
     },
+    {
+      key: "isUsedAtExpense",
+      node: (row: any) =>
+        row?.isUsedAtExpense ? (
+          <IoCheckmark className="text-blue-500 text-2xl " />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl " />
+        ),
+    },
     { key: "ikasId" },
   ];
   const inputs = [
@@ -100,6 +110,14 @@ const PaymentMethods = () => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isUsedAtExpense",
+      label: t("Used at Expense"),
+      placeholder: t("Used at Expense"),
+      required: true,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.TEXT,
       formKey: "ikasId",
       label: "Ikas ID",
@@ -111,6 +129,7 @@ const PaymentMethods = () => {
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isPaymentMade", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isUsedAtExpense", type: FormKeyTypeEnum.BOOLEAN },
     { key: "ikasId", type: FormKeyTypeEnum.STRING },
   ];
 

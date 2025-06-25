@@ -16,11 +16,13 @@ import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
 import { formatAsLocalDate } from "../../utils/format";
+import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
@@ -46,6 +48,10 @@ const DailyIncome = () => {
       const zonedTime = toZonedTime(collection.createdAt, "UTC");
       const tableDate = format(zonedTime, "yyyy-MM-dd");
       if (!collection || !tableDate) return acc;
+      const foundPaymentMethod = getItem(
+        collection?.paymentMethod,
+        paymentMethods
+      );
       const existingEntry = acc.find((item) => item.date === tableDate);
       if (existingEntry) {
         paymentMethods.forEach((method) => {
@@ -54,15 +60,18 @@ const DailyIncome = () => {
               (existingEntry[method._id] || 0) + collection.amount;
           }
         });
-        existingEntry.total += collection.amount;
+        existingEntry.total += !foundPaymentMethod?.isPaymentMade
+          ? 0
+          : collection?.amount || 0;
       } else {
         const newEntry: any = {
           date: tableDate,
           formattedDate: formatAsLocalDate(tableDate),
           location: collection.location,
-          total: collection.amount,
+          total: !foundPaymentMethod?.isPaymentMade
+            ? 0
+            : collection?.amount || 0,
         };
-
         paymentMethods.forEach((method) => {
           newEntry[method._id] =
             collection.paymentMethod === method._id ? collection.amount : 0;
