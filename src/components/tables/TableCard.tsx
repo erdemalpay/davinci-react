@@ -1028,7 +1028,6 @@ export function TableCard({
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
           }
-          tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
           topClassName="flex flex-col gap-2  "
         />

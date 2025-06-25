@@ -18,7 +18,6 @@ interface Props {
   setFormElements: (value: FormElementsState) => void;
   inputs: GenericInputType[];
   setForm?: (value: FormElementsState) => void;
-  isAutoFocus?: boolean;
 }
 
 const normalizeText = (text: string) =>
@@ -39,7 +38,6 @@ const TabInputScreen = ({
   setFormElements,
   inputs,
   setForm,
-  isAutoFocus = false,
 }: Props) => {
   const {
     isTabInputScreenOpen,
@@ -121,7 +119,7 @@ const TabInputScreen = ({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          autoFocus={isAutoFocus}
+          autoFocus={sortedFiltered.length > 0}
           placeholder="Search..."
           className="flex-1 border border-gray-300 rounded px-3 py-2 mr-2 mt-2"
         />
