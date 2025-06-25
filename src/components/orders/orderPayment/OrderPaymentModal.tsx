@@ -812,16 +812,10 @@ const OrderPaymentModal = ({
                     {table && (
                       <div className="font-medium">
                         <span>
-                          {table?.date
-                            ? format(
-                                typeof table.date === "string"
-                                  ? new Date(table.date)
-                                  : table.date,
-                                "dd/MM/yyyy"
-                              ) + "-"
-                            : ""}
+                          {table?.date &&
+                            format(new Date(table.date), "dd/MM/yyyy")}
                         </span>
-                        <span>{table?.startHour}</span>
+                        {table?.startHour && <span> - {table?.startHour}</span>}
                       </div>
                     )}
                   </div>
