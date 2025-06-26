@@ -196,6 +196,11 @@ export function TableCard({
           value: menuItem?._id,
           label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
           imageUrl: menuItem?.imageUrl,
+          keywords: [
+            menuItem?.name,
+            ...(menuItem?.sku ? [menuItem.sku] : []),
+            ...(menuItem?.barcode ? [menuItem.barcode] : []),
+          ],
         };
       });
   }, [
@@ -332,6 +337,7 @@ export function TableCard({
             value: option.value,
             label: option.label,
             imageUrl: option?.imageUrl,
+            keywords: option?.keywords,
           };
         }),
         invalidateKeys: [
