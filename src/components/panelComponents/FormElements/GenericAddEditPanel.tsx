@@ -30,6 +30,7 @@ type Props<T> = {
   inputs: GenericInputType[];
   formKeys: FormKeyType[];
   topClassName?: string;
+  nonImageInputsClassName?: string;
   onOpenTriggerTabInputFormKey?: string;
   generalClassName?: string;
   submitItem: (item: T | UpdatePayload<T>) => void;
@@ -103,6 +104,7 @@ const GenericAddEditPanel = <T,>({
   upperMessage,
   setForm,
   submitItem,
+  nonImageInputsClassName,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -387,7 +389,13 @@ const GenericAddEditPanel = <T,>({
                 </div>
               ))}
             </div>
-            <div className="flex flex-col gap-4">
+            <div
+              className={`${
+                nonImageInputsClassName
+                  ? nonImageInputsClassName
+                  : "flex flex-col gap-4"
+              }`}
+            >
               {/* nonimage inputs */}
               {nonImageInputs.map((input) => {
                 const value = formElements[input.formKey];
