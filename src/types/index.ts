@@ -443,6 +443,7 @@ export type MenuItem = {
   barcode?: string;
   shownInMenu?: boolean;
   ikasDiscountedPrice?: number;
+  createdAt?: Date;
 };
 export type ShiftValue = {
   shift: string;

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
@@ -130,6 +131,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const allRows = usedItems?.map((item) => {
     return {
       ...item,
+      formattedCreatedAt: item?.createdAt
+        ? format(item?.createdAt, "dd/MM/yyyy")
+        : "",
       matchedProductName: getItem(item?.matchedProduct, products)?.name,
       collapsible: {
         collapsibleHeader: t("Ingredients"),
@@ -469,6 +473,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
     { key: "Ikas ID", isSortable: true },
+    { key: t("Created At"), isSortable: true },
     ...(showMenuBarcodeInfo
       ? [
           { key: t("Barcode"), isSortable: true },
@@ -572,6 +577,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     {
       key: "ikasId",
       className: "min-w-32 pr-1",
+    },
+    {
+      key: "formattedCreatedAt",
     },
     ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
     { key: "matchedProductName" },
