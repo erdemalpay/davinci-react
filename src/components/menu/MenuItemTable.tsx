@@ -468,7 +468,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ...(isMenuShowIkasCategories
       ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
-    { key: "Ikas ID", isSortable: false },
+    { key: "Ikas ID", isSortable: true },
     ...(showMenuBarcodeInfo
       ? [
           { key: t("Barcode"), isSortable: true },
