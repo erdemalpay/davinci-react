@@ -336,6 +336,7 @@ const OrderPaymentModal = ({
           menuItem?.name,
           ...(menuItem?.sku ? [menuItem.sku] : []),
           ...(menuItem?.barcode ? [menuItem.barcode] : []),
+          getItem(menuItem?.category, categories)?.name || "",
         ],
       };
     });
