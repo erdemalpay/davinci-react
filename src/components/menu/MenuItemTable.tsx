@@ -77,7 +77,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
   const items = useGetAllMenuItems();
-  const { showDeletedItems, setShowDeletedItems } = useFilterContext();
+  const {
+    showDeletedItems,
+    setShowDeletedItems,
+    showMenuBarcodeInfo,
+    setShowMenuBarcodeInfo,
+  } = useFilterContext();
   const { mutate: updateBulkItems } = useUpdateBulkItemsMutation();
   const { mutate: updateItemsSlugs } = useUpdateItemsSlugsMutation();
   const [isEditSelectionCompeted, setIsEditSelectionCompeted] = useState(false);
@@ -419,6 +424,20 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       placeholder: "Ikas ID",
       required: false,
     },
+    {
+      type: InputTypes.TEXT,
+      formKey: "sku",
+      label: "Sku",
+      placeholder: "Sku",
+      required: false,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "barcode",
+      label: t("Barcode"),
+      placeholder: t("Barcode"),
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
@@ -430,6 +449,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
     { key: "productCategories", type: FormKeyTypeEnum.STRING },
     { key: "ikasId", type: FormKeyTypeEnum.STRING },
+    { key: "sku", type: FormKeyTypeEnum.STRING },
+    { key: "barcode", type: FormKeyTypeEnum.STRING },
   ];
   // these are the columns and rowKeys for the table
   const columns = [
@@ -448,6 +469,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
     { key: "Ikas ID", isSortable: false },
+    ...(showMenuBarcodeInfo
+      ? [
+          { key: t("Barcode"), isSortable: true },
+          { key: t("Sku"), isSortable: true },
+        ]
+      : []),
     { key: t("Matched Product"), isSortable: false },
     { key: t("Shown In Menu"), isSortable: false },
   ];
@@ -546,6 +573,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       key: "ikasId",
       className: "min-w-32 pr-1",
     },
+    ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
     { key: "matchedProductName" },
     {
       key: "shownInMenu",
@@ -866,6 +894,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           checked={isMenuShowIkasCategories}
           onChange={() => {
             setIsMenuShowIkasCategories(!isMenuShowIkasCategories);
+          }}
+        />
+      ),
+    },
+    {
+      label: t("Show Barcode Info"),
+      isUpperSide: true,
+      node: (
+        <SwitchButton
+          checked={showMenuBarcodeInfo}
+          onChange={() => {
+            setShowMenuBarcodeInfo(!showMenuBarcodeInfo);
           }}
         />
       ),

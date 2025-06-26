@@ -439,6 +439,8 @@ export type MenuItem = {
   productCategories?: string[];
   productImages?: string[];
   ikasId?: string;
+  sku?: string;
+  barcode?: string;
   shownInMenu?: boolean;
   ikasDiscountedPrice?: number;
 };

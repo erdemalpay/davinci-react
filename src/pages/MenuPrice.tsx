@@ -55,6 +55,8 @@ const MenuPrice = () => {
       correspondingKey: "ikasDiscountedPrice",
     },
     { key: t("Category"), isSortable: true, correspondingKey: "category" },
+    { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+    { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
     { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
     { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
   ];
@@ -65,6 +67,8 @@ const MenuPrice = () => {
     { key: "onlinePrice" },
     { key: "ikasDiscountedPrice" },
     { key: "category" },
+    { key: "sku" },
+    { key: "barcode" },
     { key: "totalStock" },
     { key: "ikasId" },
   ];

@@ -642,7 +642,6 @@ const OrderPaymentModal = ({
         onOpenTriggerTabInputFormKey={
           user?.settings?.orderCategoryOn ? "category" : "item"
         }
-        tabScreenAutoFocus={!user?.settings?.orderCategoryOn ?? true}
         submitItem={createOrder as any}
         setForm={setOrderForm}
         isCreateCloseActive={false}

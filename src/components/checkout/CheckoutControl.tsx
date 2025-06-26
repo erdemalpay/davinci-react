@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutControl, ExpenseTypes, commonDateOptions } from "../../types";
+import { CheckoutControl, Location, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
@@ -50,14 +50,8 @@ const CheckoutControlPage = () => {
       user: "",
     });
   const checkoutControls = useGetCheckoutControls(filterPanelFormElements);
-  const invoicesPayload = useGetAccountExpensesWithoutPagination(
+  const expenses = useGetAccountExpensesWithoutPagination(
     filterPanelFormElements
-  );
-  const invoices = invoicesPayload?.filter(
-    (invoice) => invoice.type === ExpenseTypes.STOCKABLE
-  );
-  const serviceInvoices = invoicesPayload?.filter(
-    (invoice) => invoice.type === ExpenseTypes.NONSTOCKABLE
   );
   const cashouts = useGetCheckoutCashouts();
   const locations = useGetStockLocations();
@@ -81,65 +75,115 @@ const CheckoutControlPage = () => {
     deleteCheckoutControl,
     updateCheckoutControl,
   } = useCheckoutControlMutations();
-  const getPreviousDate = (date: string) => {
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() - 1);
-    return currentDate.toISOString().split("T")[0]; // Convert to "YYYY-MM-DD" format
+  function parseLocalDate(dateString: string): Date {
+    const [y, m, d] = dateString.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+  const isLocationClosedOnDate = (loc: Location, date: Date): boolean => {
+    const dayName = format(date, "EEEE");
+    return loc.closedDays?.includes(dayName) ?? false;
   };
+
+  function findPrevOpenCheckout(
+    index: number,
+    checkoutControls: CheckoutControl[],
+    locationId: number,
+    locations: Location[]
+  ): CheckoutControl | undefined {
+    return checkoutControls
+      .slice(0, index)
+      .reverse()
+      .find((c) => {
+        if (c.location !== locationId) return false;
+        const loc = locations.find((l) => l._id === c.location);
+        if (!loc) return false;
+        const controlDate = parseLocalDate(c.date);
+        return !isLocationClosedOnDate(loc, controlDate);
+      });
+  }
+  function sumRange<T extends { location: number; createdAt?: Date }>(
+    items: T[] | undefined,
+    fromIso: Date,
+    toIso: Date,
+    locationId: number,
+    field: keyof T
+  ): number {
+    console.log(toIso, "toIso");
+    console.log(fromIso, "fromIso");
+    if (!items) return 0;
+    return items
+      .filter((x) => {
+        if (x.location !== locationId) return false;
+        if (!x.createdAt) return false;
+        const created =
+          typeof x.createdAt === "string" ? new Date(x.createdAt) : x.createdAt;
+        console.log(created, "created");
+        return created > fromIso && created <= toIso;
+      })
+      .reduce((sum, x) => sum + Number(x[field] ?? 0), 0);
+  }
   const allRows =
     checkoutControls?.map((checkoutControl, index) => {
-      const checkoutControlUser = getItem(checkoutControl?.user, users);
-      const checkoutControlLocation = getItem(
-        checkoutControl?.location,
-        locations
-      );
-      const closestCheckout = checkoutControls
-        .slice(0, index)
-        .reverse()
-        .find((control) => control.location === checkoutControl?.location);
+      const usr = getItem(checkoutControl.user, users)?.name;
+      const locObj = getItem(checkoutControl.location, locations);
+      const lctn = locObj?.name;
+      const formattedDate = formatAsLocalDate(checkoutControl.date);
+      const prev = locObj
+        ? findPrevOpenCheckout(
+            index,
+            checkoutControls,
+            checkoutControl.location,
+            locations
+          )
+        : undefined;
+      const beginningQuantity = prev
+        ? prev.amount
+        : checkoutControl.baseQuantity ?? 0;
+      let incomeQuantity: number;
+      let expenseQuantity: number;
+      let cashoutQuantity: number;
+      if (prev && prev.createdAt && checkoutControl.createdAt) {
+        incomeQuantity = sumRange(
+          incomes,
+          prev.createdAt,
+          checkoutControl.createdAt,
+          checkoutControl.location,
+          "amount"
+        );
+        console.log(incomeQuantity, "incomeQuantity");
+        console.log(incomes, "incomes");
+        console.log(expenses);
+        expenseQuantity = sumRange(
+          expenses,
+          prev.createdAt,
+          checkoutControl.createdAt,
+          checkoutControl.location,
+          "totalExpense"
+        );
+        cashoutQuantity = sumRange(
+          cashouts,
+          prev.createdAt,
+          checkoutControl.createdAt,
+          checkoutControl.location,
+          "amount"
+        );
+      } else {
+        incomeQuantity = 0;
+        expenseQuantity = 0;
+        cashoutQuantity = 0;
+      }
       return {
         ...checkoutControl,
-        usr: checkoutControlUser?.name,
-        lctn: checkoutControlLocation?.name,
-        formattedDate: formatAsLocalDate(checkoutControl?.date),
-        beginningQuantity: closestCheckout
-          ? closestCheckout?.amount ?? 0
-          : checkoutControl?.baseQuantity ?? 0,
-        incomeQuantity: incomes
-          ?.filter(
-            (item) =>
-              item.date === getPreviousDate(checkoutControl?.date) &&
-              item.location === checkoutControl?.location
-          )
-          ?.reduce((acc, item) => acc + item.amount, 0),
-        expenseQuantity:
-          (invoices
-            ?.filter(
-              (item) =>
-                checkoutControl?.date >= item?.date &&
-                item.date === getPreviousDate(checkoutControl?.date) &&
-                item.location === checkoutControl?.location
-            )
-            ?.reduce((acc, item) => acc + item.totalExpense, 0) ?? 0) +
-          (serviceInvoices
-            ?.filter(
-              (item) =>
-                checkoutControl?.date >= item?.date &&
-                item.date === getPreviousDate(checkoutControl?.date) &&
-                item.location === checkoutControl?.location
-            )
-            ?.reduce((acc, item) => acc + item.totalExpense, 0) ?? 0),
-        cashout: cashouts
-          ?.filter(
-            (item) =>
-              checkoutControl?.date >= item?.date &&
-              item.date === getPreviousDate(checkoutControl?.date) &&
-              item.location === checkoutControl?.location
-          )
-          ?.reduce((acc, item) => acc + item.amount, 0),
+        usr,
+        lctn,
+        formattedDate,
+        beginningQuantity,
+        incomeQuantity,
+        expenseQuantity,
+        cashout: cashoutQuantity,
       };
     }) ?? [];
-  const arrangedAllRows = allRows.map((row) => {
+  const arrangedAllRows = allRows?.map((row) => {
     return {
       ...row,
       expectedQuantity:
@@ -355,8 +399,18 @@ const CheckoutControlPage = () => {
       placeholder: t("Amount"),
       required: true,
     },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "baseQuantity",
+      label: t("Base Quantity"),
+      placeholder: t("Base Quantity"),
+      required: false,
+    },
   ];
-  const formKeys = [{ key: "amount", type: FormKeyTypeEnum.NUMBER }];
+  const formKeys = [
+    { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "baseQuantity", type: FormKeyTypeEnum.NUMBER },
+  ];
   const addButton = {
     name: t(`Add Checkout Control`),
     isModal: true,
@@ -452,7 +506,7 @@ const CheckoutControlPage = () => {
     checkoutControls,
     locations,
     filterPanelFormElements,
-    invoicesPayload,
+    expenses,
     incomes,
     cashouts,
     paymentMethods,
