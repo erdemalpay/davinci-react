@@ -9,6 +9,7 @@ export type TabOption = {
   value: any;
   label: string;
   imageUrl?: string;
+  keywords?: string[];
 };
 
 interface Props {
@@ -64,7 +65,6 @@ const TabInputScreen = ({
       ...prev,
       [tabInputFormKey]: option.value,
     }));
-
     setForm?.((prev: FormElementsState) => ({
       ...prev,
       [tabInputFormKey]: option.value,
@@ -97,9 +97,13 @@ const TabInputScreen = ({
       setTabInputScreenOptions([]);
     }
   };
-
-  const filtered = options.filter((opt) =>
-    normalizeText(opt.label).includes(normalizeText(searchTerm))
+  console.log("TabInputScreen options", options);
+  const filtered = options.filter(
+    (opt) =>
+      normalizeText(opt?.label).includes(normalizeText(searchTerm)) ||
+      opt?.keywords?.some((keyword) =>
+        normalizeText(keyword).includes(normalizeText(searchTerm))
+      )
   );
   const lower = normalizeText(searchTerm);
   const sortedFiltered = changedInput?.isSortDisabled

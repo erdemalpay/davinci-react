@@ -327,6 +327,7 @@ const GenericAddEditPanel = <T,>({
             value: o.value,
             label: o.label,
             imageUrl: o.imageUrl,
+            keywords: o?.keywords,
           }))}
           topClassName={generalClassName}
           formElements={formElements}

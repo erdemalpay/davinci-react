@@ -1,4 +1,5 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { TabOption } from "../components/panelComponents/FormElements/TabInputScreen";
 import { ColumnType } from "../components/panelComponents/shared/types";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
@@ -8,7 +9,6 @@ import {
   AccountingPageTabEnum,
   ExpensesPageTabEnum,
   MenuItem,
-  OptionType,
   RowPerPageEnum,
   StocksPageTabEnum,
 } from "../types";
@@ -102,8 +102,8 @@ type GeneralContextType = {
   setIsMenuLocationEdit: (isShown: boolean) => void;
   isTabInputScreenOpen: boolean;
   setIsTabInputScreenOpen: (isOpen: boolean) => void;
-  tabInputScreenOptions: OptionType[];
-  setTabInputScreenOptions: (options: OptionType[]) => void;
+  tabInputScreenOptions: TabOption[];
+  setTabInputScreenOptions: (options: TabOption[]) => void;
   tabInputFormKey: string;
   setTabInputFormKey: (key: string) => void;
   tabInputInvalidateKeys?: {
@@ -253,7 +253,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
     { key: string; defaultValue: any }[]
   >([]);
   const [tabInputScreenOptions, setTabInputScreenOptions] = useState<
-    OptionType[]
+    TabOption[]
   >([]);
   const [isTabInputScreenOpen, setIsTabInputScreenOpen] =
     useState<boolean>(false);

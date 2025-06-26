@@ -210,6 +210,12 @@ const Tables = () => {
         value: menuItem?._id,
         label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
         imageUrl: menuItem?.imageUrl,
+        keywords: [
+          menuItem?.name,
+          ...(menuItem?.sku ? [menuItem.sku] : []),
+          ...(menuItem?.barcode ? [menuItem.barcode] : []),
+          getItem(menuItem?.category, categories)?.name || "",
+        ],
       };
     });
   const orderInputs = [
@@ -276,6 +282,7 @@ const Tables = () => {
           value: option.value,
           label: option.label,
           imageUrl: option?.imageUrl,
+          keywords: option?.keywords,
         };
       }),
       invalidateKeys: [
@@ -408,6 +415,7 @@ const Tables = () => {
           value: option.value,
           label: option.label,
           imageUrl: option?.imageUrl,
+          keywords: option?.keywords,
         };
       }),
       invalidateKeys: [
