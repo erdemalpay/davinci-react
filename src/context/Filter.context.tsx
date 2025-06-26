@@ -146,6 +146,8 @@ type FilterContextType = {
   setIsPaymentModalCreateOrderDialogOpen: (state: boolean) => void;
   showActivityFilters: boolean;
   setShowActivityFilters: (state: boolean) => void;
+  showMenuBarcodeInfo: boolean;
+  setShowMenuBarcodeInfo: (state: boolean) => void;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -428,6 +430,8 @@ const FilterContext = createContext<FilterContextType>({
   setIsPaymentModalCreateOrderDialogOpen: () => {},
   showActivityFilters: false,
   setShowActivityFilters: () => {},
+  showMenuBarcodeInfo: false,
+  setShowMenuBarcodeInfo: () => {},
 });
 export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const { selectedLocationId } = useLocationContext();
@@ -450,6 +454,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [showDeletedItems, setShowDeletedItems] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showActivityFilters, setShowActivityFilters] = useState(false);
+  const [showMenuBarcodeInfo, setShowMenuBarcodeInfo] = useState(false);
   const initialFilterActivityFormElements = {
     user: "",
     date: "thisMonth",
@@ -870,6 +875,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         showActivityFilters: showActivityFilters,
         setShowActivityFilters: setShowActivityFilters,
         initialFilterActivityFormElements: initialFilterActivityFormElements,
+        showMenuBarcodeInfo: showMenuBarcodeInfo,
+        setShowMenuBarcodeInfo: setShowMenuBarcodeInfo,
       }}
     >
       {children}
