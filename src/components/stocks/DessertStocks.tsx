@@ -19,7 +19,7 @@ import {
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
-import { useGetStockLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
@@ -48,7 +48,7 @@ const DessertStock = () => {
   const items = useGetMenuItems();
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
-  const locations = useGetStockLocations();
+  const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -116,7 +116,7 @@ const DessertStock = () => {
         const unitPrice = rowProduct?.unitPrice ?? 0;
         const quantity = stock?.quantity;
         const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-        if (!productName) {
+        if (!productName || !locationName) {
           return acc;
         }
         if (!acc[productName]) {
@@ -466,7 +466,7 @@ const DessertStock = () => {
         const unitPrice = rowProduct?.unitPrice ?? 0;
         const quantity = stock?.quantity;
         const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-        if (!productName) {
+        if (!productName || !locationName) {
           return acc;
         }
         if (!acc[productName]) {
