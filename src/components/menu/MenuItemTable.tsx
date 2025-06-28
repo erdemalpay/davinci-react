@@ -652,7 +652,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           locations: [1, 2],
         }}
         folderName="menu"
-        generalClassName="overflow-scroll min-w-[90%]"
+        generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
         anotherPanelTopClassName=""
         topClassName="flex flex-col gap-2"
         nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -774,7 +774,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           constantValues={{ category: singleItemGroup?.category }}
           isEditMode={true}
           itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}
-          generalClassName="overflow-scroll min-w-[90%]"
+          generalClassName="overflow-scroll min-w-[90%]  min-h-[95%]"
           anotherPanelTopClassName=""
           topClassName="flex flex-col gap-2"
           nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"

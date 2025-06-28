@@ -949,6 +949,7 @@ export enum StockHistoryStatusEnum {
   LOSSPRODUCT = "LOSSPRODUCT",
   ORDERRETURN = "ORDERRETURN",
   IKASORDERCREATE = "IKASORDERCREATE",
+  IKASORDERCANCEL = "IKASORDERCANCEL",
   LOSSPRODUCTCANCEL = "LOSSPRODUCTCANCEL",
   CONSUMPTIONCANCEL = "CONSUMPTIONCANCEL",
 }
@@ -1068,6 +1069,11 @@ export const stockHistoryStatuses = [
     value: StockHistoryStatusEnum.CONSUMPTIONCANCEL,
     label: "Consumption Cancel",
     backgroundColor: "bg-teal-800",
+  },
+  {
+    value: StockHistoryStatusEnum.IKASORDERCANCEL,
+    label: "Ikas Order Cancel",
+    backgroundColor: "bg-orange-800",
   },
 ];
 
