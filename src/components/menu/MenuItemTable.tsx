@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CiCirclePlus } from "react-icons/ci";
@@ -130,6 +131,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const allRows = usedItems?.map((item) => {
     return {
       ...item,
+      formattedCreatedAt: item?.createdAt
+        ? format(item?.createdAt, "dd/MM/yyyy")
+        : "",
       matchedProductName: getItem(item?.matchedProduct, products)?.name,
       collapsible: {
         collapsibleHeader: t("Ingredients"),
@@ -469,6 +473,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ? [{ key: t("Ikas Categories"), isSortable: false }]
       : []),
     { key: "Ikas ID", isSortable: true },
+    { key: t("Created At"), isSortable: true },
     ...(showMenuBarcodeInfo
       ? [
           { key: t("Barcode"), isSortable: true },
@@ -573,6 +578,9 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       key: "ikasId",
       className: "min-w-32 pr-1",
     },
+    {
+      key: "formattedCreatedAt",
+    },
     ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
     { key: "matchedProductName" },
     {
@@ -644,7 +652,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           locations: [1, 2],
         }}
         folderName="menu"
-        generalClassName="overflow-scroll min-w-[90%]"
+        generalClassName="overflow-scroll min-w-[90%] min-h-[95%]"
         anotherPanelTopClassName=""
         topClassName="flex flex-col gap-2"
         nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -766,7 +774,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           constantValues={{ category: singleItemGroup?.category }}
           isEditMode={true}
           itemToEdit={{ id: rowToAction?._id, updates: rowToAction }}
-          generalClassName="overflow-scroll min-w-[90%]"
+          generalClassName="overflow-scroll min-w-[90%]  min-h-[95%]"
           anotherPanelTopClassName=""
           topClassName="flex flex-col gap-2"
           nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"

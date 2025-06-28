@@ -520,7 +520,6 @@ const AllExpenses = () => {
           { key: "price", type: FormKeyTypeEnum.NUMBER },
           { key: "kdv", type: FormKeyTypeEnum.NUMBER },
         ]}
-        generalClassName="overflow-scroll"
         submitFunction={() => {
           allExpenseForm.price &&
             allExpenseForm.kdv &&
@@ -544,7 +543,10 @@ const AllExpenses = () => {
           setAllExpenseForm({});
         }}
         submitItem={createAccountExpense as any}
-        topClassName="flex flex-col gap-2 "
+        generalClassName="overflow-scroll min-w-[90%]"
+        anotherPanelTopClassName=""
+        topClassName="flex flex-col gap-2"
+        nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
         setForm={setAllExpenseForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),

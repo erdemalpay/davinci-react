@@ -560,7 +560,6 @@ const Invoice = () => {
         additionalCancelFunction={() => {
           setProductExpenseForm({});
         }}
-        generalClassName="overflow-scroll"
         submitFunction={() => {
           productExpenseForm.price &&
             productExpenseForm.kdv &&
@@ -581,7 +580,10 @@ const Invoice = () => {
           setProductExpenseForm({});
         }}
         submitItem={createAccountExpense as any}
-        topClassName="flex flex-col gap-2 "
+        generalClassName="overflow-scroll min-w-[90%]"
+        anotherPanelTopClassName=""
+        topClassName="flex flex-col gap-2"
+        nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
         setForm={setProductExpenseForm}
         constantValues={{
           isStockIncrement: true,
@@ -661,8 +663,10 @@ const Invoice = () => {
           setForm={setProductExpenseForm}
           submitItem={updateAccountExpense as any}
           isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          generalClassName="overflow-scroll"
+          generalClassName="overflow-scroll min-w-[90%]"
+          anotherPanelTopClassName=""
+          topClassName="flex flex-col gap-2"
+          nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
           itemToEdit={{
             id: rowToAction._id,
             updates: {

@@ -484,7 +484,6 @@ const ServiceInvoice = () => {
           { key: "price", type: FormKeyTypeEnum.NUMBER },
           { key: "kdv", type: FormKeyTypeEnum.NUMBER },
         ]}
-        generalClassName="overflow-scroll"
         submitFunction={() => {
           serviceExpenseForm.price &&
             serviceExpenseForm.kdv &&
@@ -505,7 +504,10 @@ const ServiceInvoice = () => {
           setServiceExpenseForm({});
         }}
         submitItem={createAccountExpense as any}
-        topClassName="flex flex-col gap-2 "
+        generalClassName="overflow-scroll min-w-[90%]"
+        anotherPanelTopClassName=""
+        topClassName="flex flex-col gap-2"
+        nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
         setForm={setServiceExpenseForm}
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
@@ -588,8 +590,10 @@ const ServiceInvoice = () => {
             setForm={setServiceExpenseForm}
             submitItem={updateAccountExpense as any}
             isEditMode={true}
-            topClassName="flex flex-col gap-2 "
-            generalClassName="overflow-scroll"
+            generalClassName="overflow-scroll min-w-[90%]"
+            anotherPanelTopClassName=""
+            topClassName="flex flex-col gap-2"
+            nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
             itemToEdit={{
               id: rowToAction._id,
               updates: {

@@ -50,7 +50,11 @@ const GameStockLocation = () => {
         getItem(stock?.product, products)?.expenseType?.includes("oys")
       )
       ?.reduce((acc: any, stock) => {
-        const productName = getItem(stock?.product, products)?.name;
+        const foundProduct = getItem(stock?.product, products);
+        const matchedItem = items?.find(
+          (item) => item?.matchedProduct === stock?.product
+        );
+        const productName = foundProduct?.name;
         const quantity = stock?.quantity;
         if (!productName) {
           return acc;
@@ -59,6 +63,8 @@ const GameStockLocation = () => {
           acc[productName] = {
             ...stock,
             prdct: productName,
+            sku: matchedItem?.sku,
+            barcode: matchedItem?.barcode,
           };
           acc[productName][`location_${stock.location}`] = quantity;
         } else {
@@ -211,8 +217,10 @@ const GameStockLocation = () => {
   ];
   const columns = [
     { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
+    { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+    { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
   ];
-  const rowKeys = [{ key: "prdct" }];
+  const rowKeys = [{ key: "prdct" }, { key: "sku" }, { key: "barcode" }];
   locations.forEach((location) => {
     columns.push({
       key: location.name,
@@ -317,7 +325,11 @@ const GameStockLocation = () => {
         );
       })
       ?.reduce((acc: any, stock) => {
-        const productName = getItem(stock?.product, products)?.name;
+        const foundProduct = getItem(stock?.product, products);
+        const matchedItem = items?.find(
+          (item) => item?.matchedProduct === stock?.product
+        );
+        const productName = foundProduct?.name;
         const quantity = stock?.quantity;
         if (!productName) {
           return acc;
@@ -327,6 +339,8 @@ const GameStockLocation = () => {
           acc[productName] = {
             ...stock,
             prdct: productName,
+            sku: matchedItem?.sku,
+            barcode: matchedItem?.barcode,
           };
           acc[productName][`location_${stock.location}`] = quantity;
         } else {
