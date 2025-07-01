@@ -1,4 +1,4 @@
-import { format, startOfMonth } from "date-fns";
+import { format, startOfMonth, startOfYear } from "date-fns";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { Order, OrderDiscount } from "../types";
 type FormElementsState = {
@@ -68,6 +68,8 @@ type OrderContextType = {
   setVendorOrderFilterPanelFormElements: (state: FormElementsState) => void;
   filterPanelFormElements: FormElementsState;
   initialFilterPanelFormElements: FormElementsState;
+  ikasPickUpFilterPanelFormElements: FormElementsState;
+  setIkasPickUpFilterPanelFormElements: (state: FormElementsState) => void;
   setFilterPanelFormElements: (state: FormElementsState) => void;
   filterSummaryFormElements: FormElementsState;
   setFilterSummaryFormElements: (state: FormElementsState) => void;
@@ -170,6 +172,27 @@ const OrderContext = createContext<OrderContextType>({
     eliminatedDiscounts: [],
     cancelHour: "",
   },
+  ikasPickUpFilterPanelFormElements: {
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: format(startOfYear(new Date()), "yyyy-MM-dd"),
+    date: "",
+    category: "",
+    discount: "",
+    hour: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  },
+  setIkasPickUpFilterPanelFormElements: () => {},
   setFilterPanelFormElements: () => {},
   isTransferProductOpen: false,
   setIsTransferProductOpen: () => {},
@@ -200,6 +223,29 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   const [isTransferProductOpen, setIsTransferProductOpen] = useState(false);
   const [isTableSelectOpen, setIsTableSelectOpen] = useState(false);
   const [showPickedOrders, setShowPickedOrders] = useState(false);
+  const [
+    ikasPickUpFilterPanelFormElements,
+    setIkasPickUpFilterPanelFormElements,
+  ] = useState<FormElementsState>({
+    location: "",
+    user: "",
+    status: "",
+    collectionStatus: "",
+    before: "",
+    after: format(startOfYear(new Date()), "yyyy-MM-dd"),
+    date: "",
+    category: "",
+    discount: "",
+    hour: "",
+    paymentMethod: "",
+    createdBy: "",
+    cancelledBy: "",
+    deliveredBy: "",
+    preparedBy: "",
+    role: [],
+    eliminatedDiscounts: [],
+    cancelHour: "",
+  });
   const [
     vendorOrderFilterPanelFormElements,
     setVendorOrderFilterPanelFormElements,
@@ -327,7 +373,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         setOrderCreateBulk,
         showPickedOrders,
         setShowPickedOrders,
-
+        ikasPickUpFilterPanelFormElements,
+        setIkasPickUpFilterPanelFormElements,
         selectedNewOrders,
         setSelectedNewOrders,
       }}

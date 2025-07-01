@@ -25,13 +25,16 @@ import { Paths } from "../utils/api/factory";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
-import { useGetOrders, useOrderMutations } from "../utils/api/order/order";
+import {
+  useGetIkasPickUpOrders,
+  useOrderMutations,
+} from "../utils/api/order/order";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
 const IkasPickUp = () => {
   const { t } = useTranslation();
-  const orders = useGetOrders();
+  const orders = useGetIkasPickUpOrders();
   const locations = useGetAllLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
@@ -41,8 +44,8 @@ const IkasPickUp = () => {
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const {
-    filterPanelFormElements,
-    setFilterPanelFormElements,
+    ikasPickUpFilterPanelFormElements,
+    setIkasPickUpFilterPanelFormElements,
     initialFilterPanelFormElements,
     showOrderDataFilters,
     setShowOrderDataFilters,
@@ -241,8 +244,8 @@ const IkasPickUp = () => {
       }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setIkasPickUpFilterPanelFormElements({
+            ...ikasPickUpFilterPanelFormElements,
             ...dateRange(),
           });
         }
@@ -325,11 +328,11 @@ const IkasPickUp = () => {
   const filterPanel = {
     isFilterPanelActive: showOrderDataFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
+    formElements: ikasPickUpFilterPanelFormElements,
+    setFormElements: setIkasPickUpFilterPanelFormElements,
     closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
-      setFilterPanelFormElements(initialFilterPanelFormElements);
+      setIkasPickUpFilterPanelFormElements(initialFilterPanelFormElements);
     },
   };
   const filters = [
@@ -378,7 +381,7 @@ const IkasPickUp = () => {
     orders,
     locations,
     users,
-    filterPanelFormElements,
+    ikasPickUpFilterPanelFormElements,
     items,
     categories,
     user,

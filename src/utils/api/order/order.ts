@@ -480,6 +480,51 @@ export function useGetOrders(category?: number[]) {
     true
   );
 }
+export function useGetIkasPickUpOrders(category?: number[]) {
+  const { ikasPickUpFilterPanelFormElements } = useOrderContext();
+  let url = `${baseUrl}/query?after=${ikasPickUpFilterPanelFormElements.after}`;
+  const parameters = [
+    "before",
+    "discount",
+    "createdBy",
+    "preparedBy",
+    "deliveredBy",
+    "cancelledBy",
+    "status",
+    "location",
+  ];
+  if (category || ikasPickUpFilterPanelFormElements.category !== "") {
+    url = url.concat(
+      `&category=${category || ikasPickUpFilterPanelFormElements.category}`
+    );
+  }
+  parameters.forEach((param) => {
+    if (ikasPickUpFilterPanelFormElements[param]) {
+      url = url.concat(
+        `&${param}=${encodeURIComponent(
+          ikasPickUpFilterPanelFormElements[param]
+        )}`
+      );
+    }
+  });
+  return useGetList<Order>(
+    url,
+    [
+      `${Paths.Order}/ikas-pick-up/query`,
+      ikasPickUpFilterPanelFormElements.after,
+      ikasPickUpFilterPanelFormElements.before,
+      ikasPickUpFilterPanelFormElements.discount,
+      ikasPickUpFilterPanelFormElements.createdBy,
+      ikasPickUpFilterPanelFormElements.preparedBy,
+      ikasPickUpFilterPanelFormElements.deliveredBy,
+      ikasPickUpFilterPanelFormElements.cancelledBy,
+      ikasPickUpFilterPanelFormElements.status,
+      ikasPickUpFilterPanelFormElements.category,
+      ikasPickUpFilterPanelFormElements.location,
+    ],
+    true
+  );
+}
 
 export function createOrderForDiscount(payload: CreateOrderForDiscount) {
   return post<CreateOrderForDiscount, Order>({
