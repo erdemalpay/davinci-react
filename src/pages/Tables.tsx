@@ -162,13 +162,17 @@ const Tables = () => {
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const consumptInputs = [
     {
-      type: InputTypes.SELECT,
+      type: InputTypes.TAB,
       formKey: "product",
       label: t("Product"),
       options: products?.map((product) => {
+        const matchedItem = menuItems?.find(
+          (item) => item.matchedProduct === product._id
+        );
         return {
           value: product._id,
           label: product.name,
+          keywords: [matchedItem?.sku || ""],
         };
       }),
       placeholder: t("Product"),
@@ -1262,7 +1266,8 @@ const Tables = () => {
           formKeys={consumptFormKeys}
           submitItem={consumptStock as any}
           buttonName={t("Submit")}
-          topClassName="flex flex-col gap-2 "
+          generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[60%] sm:min-w-[60%]  "
+          topClassName="flex flex-col gap-2  "
         />
       )}
       {isLossProductModalOpen && (

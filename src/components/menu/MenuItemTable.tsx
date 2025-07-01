@@ -579,7 +579,10 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       className: "min-w-32 pr-1",
     },
     {
-      key: "formattedCreatedAt",
+      key: "createdAt",
+      node: (row: any) => {
+        return row?.formattedCreatedAt;
+      },
     },
     ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
     { key: "matchedProductName" },

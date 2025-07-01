@@ -97,7 +97,6 @@ const TabInputScreen = ({
       setTabInputScreenOptions([]);
     }
   };
-  console.log("TabInputScreen options", options);
   const filtered = options.filter(
     (opt) =>
       normalizeText(opt?.label).includes(normalizeText(searchTerm)) ||
