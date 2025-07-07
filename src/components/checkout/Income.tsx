@@ -3,14 +3,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
   CheckoutIncome,
-  commonDateOptions,
   DateRangeKey,
   OrderCollectionStatus,
   RoleEnum,
+  commonDateOptions,
 } from "../../types";
 import {
   useCheckoutIncomeMutations,
@@ -26,10 +27,10 @@ import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -102,6 +103,7 @@ const Income = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Collections Income"), isSortable: true },
+    { key: t("Is After Count"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -183,6 +185,16 @@ const Income = () => {
     { key: "lctn" },
     { key: "amount" },
     { key: "collectionIncome" },
+    {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     columns.splice(
@@ -214,10 +226,19 @@ const Income = () => {
       placeholder: t("Amount"),
       required: true,
     },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   const addButton = {
@@ -231,6 +252,7 @@ const Income = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           location: selectedLocationId,
+          isAfterCount: true,
         }}
         setForm={setForm}
         formKeys={formKeys}

@@ -3,9 +3,8 @@ import { TabOption } from "../components/panelComponents/FormElements/TabInputSc
 import { ColumnType } from "../components/panelComponents/shared/types";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
 import {
-  AccountInvoice,
+  AccountExpense,
   AccountOverallExpense,
-  AccountServiceInvoice,
   AccountingPageTabEnum,
   ExpensesPageTabEnum,
   MenuItem,
@@ -37,7 +36,7 @@ type GeneralContextType = {
   isNotificationOpen: boolean;
   setIsNotificationOpen: (open: boolean) => void;
   setShowStockFilters: (show: boolean) => void;
-  productExpenseForm: Partial<AccountInvoice>;
+  productExpenseForm: Partial<AccountExpense>;
   errorDataForCreateMultipleExpense: CreateMultipleExpense[];
   setErrorDataForCreateMultipleExpense: (data: CreateMultipleExpense[]) => void;
   errorDataForProductBulkCreation: CreateBulkProductAndMenuItem[];
@@ -46,13 +45,13 @@ type GeneralContextType = {
   ) => void;
   selectedMenuItem: MenuItem | null;
   setSelectedMenuItem: (item: MenuItem | null) => void;
-  setProductExpenseForm: (form: Partial<AccountInvoice>) => void;
+  setProductExpenseForm: (form: Partial<AccountExpense>) => void;
   countListOption: CountListOptions;
   setCountListOption: (option: CountListOptions) => void;
-  serviceExpenseForm: Partial<AccountServiceInvoice>;
+  serviceExpenseForm: Partial<AccountExpense>;
   setServiceExpenseForm: (form: Partial<AccountOverallExpense>) => void;
   allExpenseForm: Partial<AccountOverallExpense>;
-  setAllExpenseForm: (form: Partial<AccountInvoice>) => void;
+  setAllExpenseForm: (form: Partial<AccountExpense>) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   isMenuCategoryLocationEdit: boolean;
@@ -287,7 +286,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   );
   const [ordersActiveTab, setOrdersActiveTab] = useState<number>(0);
   const [productExpenseForm, setProductExpenseForm] = useState<
-    Partial<AccountInvoice>
+    Partial<AccountExpense>
   >({});
   const [sortConfigKey, setSortConfigKey] = useState<{
     key: string;
@@ -295,7 +294,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   } | null>(null);
 
   const [serviceExpenseForm, setServiceExpenseForm] = useState<
-    Partial<AccountServiceInvoice>
+    Partial<AccountExpense>
   >({});
   useState<boolean>(false);
   const [expensesActiveTab, setExpensesActiveTab] = useState<number>(

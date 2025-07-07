@@ -240,6 +240,7 @@ export type AccountPayment = {
   date: string;
   amount: number;
   createdAt?: Date;
+  isAfterCount?: boolean;
 };
 export type AccountOverallExpense = {
   _id: number;
@@ -257,25 +258,6 @@ export type AccountOverallExpense = {
   service: string;
   type: string;
   paymentMethod: string;
-  createdAt?: Date;
-};
-
-export type AccountInvoice = {
-  _id: number;
-  product: string;
-  expenseType: string;
-  quantity: number;
-  totalExpense: number;
-  date: string;
-  brand?: string;
-  vendor?: string;
-  note?: string;
-  location: number;
-  price?: number;
-  kdv?: number;
-  paymentMethod: string;
-  isPaid: boolean;
-  isStockIncrement?: boolean;
   createdAt?: Date;
 };
 
@@ -298,24 +280,7 @@ export type AccountExpense = {
   isPaid: boolean;
   isStockIncrement?: boolean;
   createdAt?: Date;
-};
-
-export type AccountServiceInvoice = {
-  _id: number;
-  service: string;
-  expenseType: string;
-  quantity: number;
-  totalExpense: number;
-  date: string;
-  vendor?: string;
-  note?: string;
-  location: number;
-  price?: number;
-  kdv?: number;
-  paymentMethod: string;
-  isPaid: boolean;
-  user: string;
-  createdAt?: Date;
+  isAfterCount?: boolean;
 };
 
 export type AccountStock = {
@@ -465,6 +430,7 @@ export type CheckoutIncome = {
   date: string;
   amount: number;
   createdAt?: Date;
+  isAfterCount?: boolean;
 };
 export type CheckoutControl = {
   _id: number;
@@ -484,6 +450,7 @@ export type CheckoutCashout = {
   amount: number;
   description: string;
   createdAt?: Date;
+  isAfterCount?: boolean;
 };
 export type PanelControlPage = {
   _id: string;
