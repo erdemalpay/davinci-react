@@ -24,7 +24,7 @@ import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
+import { LocationInput, StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -219,6 +219,7 @@ const Income = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
+    LocationInput({ locations: locations }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -237,6 +238,7 @@ const Income = () => {
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];

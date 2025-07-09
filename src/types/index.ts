@@ -280,7 +280,7 @@ export type AccountExpense = {
   isPaid: boolean;
   isStockIncrement?: boolean;
   createdAt?: Date;
-  isAfterCount?: boolean;
+  isAfterCount: boolean;
 };
 
 export type AccountStock = {
