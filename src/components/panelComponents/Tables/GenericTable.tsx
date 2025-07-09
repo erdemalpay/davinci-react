@@ -730,6 +730,7 @@ const GenericTable = <T,>({
           {/* search button */}
           {isSearch && (
             <input
+              id="search"
               type="text"
               value={searchQuery}
               onChange={(e) => {
@@ -801,7 +802,7 @@ const GenericTable = <T,>({
                       className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
                       onClick={generateExcel}
                     >
-                      <ButtonTooltip content={t("Excel")}>
+                      <ButtonTooltip content={"Excel"}>
                         <FaFileExcel />
                       </ButtonTooltip>
                     </div>

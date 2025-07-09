@@ -7,11 +7,11 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { H5 } from "../components/panelComponents/Typography";
+import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -102,10 +102,18 @@ const SingleCountArchive = () => {
             isStockEqualized: option.isStockEqualized ?? false,
           };
         })
-        .filter((row) => row !== null) ?? []
+        .filter((row): row is NonNullable<typeof row> => row !== null)
+        .sort((a, b) => {
+          const rank = (row: typeof a) =>
+            row.stockQuantity > row.countQuantity
+              ? 0
+              : row.stockQuantity < row.countQuantity
+              ? 1
+              : 2;
+          return rank(a) - rank(b);
+        }) ?? []
     );
   };
-
   const [rows, setRows] = useState(allRows());
   const columns = [
     { key: t("Date"), isSortable: true },

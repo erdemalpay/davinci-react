@@ -235,6 +235,7 @@ const FilterPanel = <T,>({
               <div className="flex flex-col gap-2" key={input.formKey}>
                 <H6>{input.label}</H6>
                 <textarea
+                  id={"textarea-input"}
                   value={value}
                   onChange={(e) => {
                     handleChange(input.formKey)(e.target.value);
