@@ -482,7 +482,7 @@ export function useGetOrders(category?: number[]) {
 }
 export function useGetIkasPickUpOrders(category?: number[]) {
   const { ikasPickUpFilterPanelFormElements } = useOrderContext();
-  let url = `${baseUrl}/query?after=${ikasPickUpFilterPanelFormElements.after}`;
+  let url = `${baseUrl}/query?after=${ikasPickUpFilterPanelFormElements.after}&isIkasPickUp=true`;
   const parameters = [
     "before",
     "discount",

@@ -1,8 +1,10 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
+import {
+  MdOutlineCheckBox,
+  MdOutlineCheckBoxOutlineBlank,
+} from "react-icons/md";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
@@ -32,7 +34,6 @@ const IkasPickUp = () => {
   const { t } = useTranslation();
   const orders = useGetIkasPickUpOrders();
   const locations = useGetAllLocations();
-  const queryClient = useQueryClient();
   const users = useGetUsers();
   const { user } = useUserContext();
   const categories = useGetCategories();
@@ -363,7 +364,15 @@ const IkasPickUp = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [orders, locations, users, items, categories]);
+  }, [
+    orders,
+    locations,
+    users,
+    items,
+    categories,
+    showPickedOrders,
+    showOrderDataFilters,
+  ]);
   return (
     <>
       <Header showLocationSelector={false} />
