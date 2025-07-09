@@ -57,6 +57,14 @@ const AddVendorPayment = () => {
       required: true,
       isDatePicker: true,
     },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "vendor", type: FormKeyTypeEnum.STRING },
@@ -64,6 +72,7 @@ const AddVendorPayment = () => {
     { key: "location", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "date", type: FormKeyTypeEnum.STRING },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   return (
@@ -71,7 +80,10 @@ const AddVendorPayment = () => {
       inputs={inputs}
       header={t("Add Vendor Payment")}
       formKeys={formKeys}
-      constantValues={{ date: format(new Date(), "yyyy-MM-dd") }}
+      constantValues={{
+        date: format(new Date(), "yyyy-MM-dd"),
+        isAfterCount: true,
+      }}
       submitItem={createAccountPayment as any}
       buttonName={t("Submit")}
       topClassName="flex flex-col gap-2 "
