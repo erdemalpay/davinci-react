@@ -27,6 +27,7 @@ export type Location = {
   ikasId?: string;
   shifts?: {
     shift: string;
+    shiftEndHour: string;
     isActive: boolean;
     type: string;
   }[];

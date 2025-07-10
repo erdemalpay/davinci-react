@@ -27,6 +27,7 @@ const Shifts = ({ locationId }: Props) => {
   const [shiftForm, setShiftForm] = useState({
     hour: "",
     type: "",
+    shiftEndHour: "",
   });
   const [tableKey, setTableKey] = useState(0);
   const [
@@ -47,23 +48,32 @@ const Shifts = ({ locationId }: Props) => {
       return {
         ...shift,
         hour: shift.shift,
+        shiftEndHour: shift.shiftEndHour,
       };
     });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Shift"), isSortable: true, correspondingKey: "shift" },
+    { key: t("End Hour"), isSortable: true, correspondingKey: "shiftEndHour" },
     { key: t("Type"), isSortable: true, correspondingKey: "type" },
     { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "shift" },
+    { key: "shiftEndHour" },
     { key: "type", node: (row: any) => t(row.type) },
   ];
   const addShiftInputs = [
     {
       type: InputTypes.HOUR,
       formKey: "hour",
-      label: t("Hour"),
+      label: t("Start Hour"),
+      required: true,
+    },
+    {
+      type: InputTypes.HOUR,
+      formKey: "shiftEndHour",
+      label: t("End Hour"),
       required: true,
     },
     {
@@ -83,6 +93,7 @@ const Shifts = ({ locationId }: Props) => {
   ];
   const addShiftFormKeys = [
     { key: "hour", type: FormKeyTypeEnum.STRING },
+    { key: "shiftEndHour", type: FormKeyTypeEnum.STRING },
     { key: "type", type: FormKeyTypeEnum.STRING },
   ];
   const addButton = {
@@ -110,6 +121,7 @@ const Shifts = ({ locationId }: Props) => {
               shift: shiftForm.hour,
               isActive: true,
               type: shiftForm.type,
+              shiftEndHour: shiftForm.shiftEndHour,
             },
           ].sort(
             (a, b) =>
@@ -190,6 +202,7 @@ const Shifts = ({ locationId }: Props) => {
                     ...shift,
                     shift: shiftForm.hour,
                     type: shiftForm.type,
+                    shiftEndHour: shiftForm.shiftEndHour,
                   };
                 }
                 return shift;
