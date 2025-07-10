@@ -520,6 +520,12 @@ const CheckoutControlPage = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const getBgColor = (row: CheckoutControl) => {
+    if (row?.baseQuantity) {
+      return "bg-green-100";
+    }
+    return "";
+  };
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -555,6 +561,7 @@ const CheckoutControlPage = () => {
           isActionsActive={true}
           columns={columns}
           filters={filters}
+          rowClassNameFunction={getBgColor}
           filterPanel={filterPanel}
           rows={rows}
           title={t("Checkout Control")}
