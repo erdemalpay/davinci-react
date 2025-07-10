@@ -14,12 +14,12 @@ import {
   useGetCheckoutControls,
 } from "../../utils/api/checkout/checkoutControl";
 import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
-import { useGetStockLocations } from "../../utils/api/location";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
+import { LocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -33,6 +33,7 @@ const CheckoutControlPage = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
   const paymentMethods = useGetAccountPaymentMethods();
+  const { selectedLocationId } = useLocationContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -42,7 +43,7 @@ const CheckoutControlPage = () => {
       brand: "",
       expenseType: "",
       paymentMethod: "cash",
-      location: "",
+      location: selectedLocationId,
       date: "thisMonth",
       before: "",
       after: "",
@@ -56,10 +57,9 @@ const CheckoutControlPage = () => {
   );
   const vendorPayments = useGetAccountPayments();
   const cashouts = useGetCheckoutCashouts();
-  const locations = useGetStockLocations();
+  const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
-  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
@@ -236,7 +236,7 @@ const CheckoutControlPage = () => {
       placeholder: t("User"),
       required: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -418,6 +418,7 @@ const CheckoutControlPage = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
+    LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -435,6 +436,7 @@ const CheckoutControlPage = () => {
   ];
   const formKeys = [
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
     { key: "baseQuantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const addButton = {
@@ -526,6 +528,10 @@ const CheckoutControlPage = () => {
     closeFilters: () => setShowFilters(false),
   };
   useEffect(() => {
+    setFilterPanelFormElements((prev) => ({
+      ...prev,
+      location: selectedLocationId,
+    }));
     setRows(arrangedAllRows);
     setTableKey((prev) => prev + 1);
   }, [
@@ -536,6 +542,7 @@ const CheckoutControlPage = () => {
     incomes,
     cashouts,
     paymentMethods,
+    selectedLocationId,
   ]);
 
   return (

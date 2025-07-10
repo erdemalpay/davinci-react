@@ -254,7 +254,7 @@ const Income = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           location: selectedLocationId,
-          isAfterCount: true,
+          isAfterCount: false,
         }}
         setForm={setForm}
         formKeys={formKeys}
