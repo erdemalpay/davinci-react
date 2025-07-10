@@ -413,6 +413,7 @@ export type MenuItem = {
 };
 export type ShiftValue = {
   shift: string;
+  shiftEndHour?: string;
   user: string[];
   chefUser?: string;
 };
@@ -1457,6 +1458,7 @@ export enum NotificationEventType {
   FARMBURGERDEACTIVATED = "FARMBURGERDEACTIVATED",
   FARMNOTCONFIRMED = "FARMNOTCONFIRMED",
   NIGHTOPENTABLE = "NIGHTOPENTABLE",
+  EARLYSHIFTEND = "EARLYSHIFTEND",
 }
 export const notificationEventsOptions = [
   {
@@ -1498,6 +1500,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.NIGHTOPENTABLE,
     label: "Night Open Table",
+  },
+  {
+    value: NotificationEventType.EARLYSHIFTEND,
+    label: "Early Shift End",
   },
 ];
 

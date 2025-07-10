@@ -260,7 +260,9 @@ const Shifts = () => {
     for (const shift of foundLocation.shifts) {
       const locationShift = shift.shift;
       columns.push({
-        key: locationShift,
+        key: `${locationShift}${
+          shift.shiftEndHour ? ` - ${shift.shiftEndHour}` : ""
+        }`,
         isSortable: false,
         correspondingKey: shift.shift,
       });
@@ -390,6 +392,9 @@ const Shifts = () => {
                       (foundShift) => {
                         return {
                           shift: foundShift.shift,
+                          ...(foundShift.shiftEndHour && {
+                            shiftEndHour: foundShift.shiftEndHour,
+                          }),
                           user:
                             foundShift.shift !== shift.shift
                               ? row[foundShift.shift]
@@ -474,6 +479,7 @@ const Shifts = () => {
             if (!rowToAction?._id && foundLocation) {
               const shifts = foundLocation?.shifts?.map((shift) => ({
                 shift: shift.shift,
+                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
                 user: form?.[shift.shift],
               }));
               createShift({
@@ -486,6 +492,7 @@ const Shifts = () => {
             else {
               const shifts = foundLocation?.shifts?.map((shift) => ({
                 shift: shift.shift,
+                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
                 user: form?.[shift.shift],
               }));
               updateShift({
