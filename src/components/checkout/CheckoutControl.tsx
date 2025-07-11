@@ -6,14 +6,14 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutControl, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
-import { useGetAccountPayments } from "../../utils/api/account/payment";
+import { useGetQueryPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
-import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
+import { useGetQueryCashouts } from "../../utils/api/checkout/cashout";
 import {
   useCheckoutControlMutations,
   useGetCheckoutControls,
 } from "../../utils/api/checkout/checkoutControl";
-import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
+import { useGetQueryIncomes } from "../../utils/api/checkout/income";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -31,7 +31,6 @@ type FormElementsState = {
 };
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
-  const incomes = useGetCheckoutIncomes();
   const paymentMethods = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -51,12 +50,13 @@ const CheckoutControlPage = () => {
       asc: 1,
       user: "",
     });
+  const incomes = useGetQueryIncomes(filterPanelFormElements);
   const checkoutControls = useGetCheckoutControls(filterPanelFormElements);
   const expenses = useGetAccountExpensesWithoutPagination(
     filterPanelFormElements
   );
-  const vendorPayments = useGetAccountPayments();
-  const cashouts = useGetCheckoutCashouts();
+  const vendorPayments = useGetQueryPayments(filterPanelFormElements);
+  const cashouts = useGetQueryCashouts(filterPanelFormElements);
   const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
@@ -538,17 +538,19 @@ const CheckoutControlPage = () => {
       ...prev,
       location: selectedLocationId,
     }));
+  }, [selectedLocationId]);
+  useEffect(() => {
     setRows(arrangedAllRows);
     setTableKey((prev) => prev + 1);
   }, [
     checkoutControls,
     locations,
-    filterPanelFormElements,
     expenses,
     incomes,
     cashouts,
     paymentMethods,
     selectedLocationId,
+    vendorPayments,
   ]);
 
   return (
