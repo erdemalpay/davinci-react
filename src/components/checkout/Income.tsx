@@ -232,8 +232,9 @@ const Income = () => {
       formKey: "isAfterCount",
       label: t("Is After Count"),
       placeholder: t("Is After Count"),
-      required: true,
+      required: false,
       isTopFlexRow: true,
+      isDisabled: true,
     },
   ];
   const formKeys = [
