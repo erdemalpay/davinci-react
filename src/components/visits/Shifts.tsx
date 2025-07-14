@@ -92,7 +92,6 @@ const Shifts = () => {
     isChefAssignOpen,
     setIsChefAssignOpen,
   } = useFilterContext();
-
   const foundLocation = getItem(selectedLocationId, locations);
   const initialFormState: Record<string, any> = {
     day: "",
@@ -105,6 +104,26 @@ const Shifts = () => {
     ) || {}),
   };
   const [form, setForm] = useState(initialFormState);
+  const unfilteredShiftRows = shifts?.map((shift) => {
+    const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+      if (shiftValue.shift && shiftValue.user) {
+        acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+          const foundUser = getItem(userId, users);
+          return foundUser;
+        });
+      }
+      return acc;
+    }, {} as { [key: string]: string[] });
+    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    return {
+      ...shift,
+      formattedDay:
+        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
+      ...shiftMapping,
+    };
+  });
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
       if (shiftValue.shift && shiftValue.user) {
@@ -361,6 +380,9 @@ const Shifts = () => {
         rowKeys.push({
           key: locationShift,
           node: (row: any) => {
+            const foundRow: any = unfilteredShiftRows.find(
+              (r) => r._id === row._id
+            );
             const shiftValue = row[shift.shift];
             const normalizedValue = Array.isArray(shiftValue)
               ? shiftValue.map((userId: string) => ({
@@ -385,20 +407,27 @@ const Shifts = () => {
                   placeholder=""
                   isOnClearActive={false}
                   onChange={(selectedOption) => {
+                    const foundRow: any = unfilteredShiftRows.find(
+                      (r) => r._id === row._id
+                    );
                     const newValue = (
                       selectedOption as MultiValue<OptionType>
-                    ).map((option) => option.value);
+                    ).map((o) => o.value);
                     const updatedShifts = foundLocation?.shifts?.map(
                       (foundShift) => {
+                        const existing = foundRow
+                          ? foundRow[foundShift.shift]
+                          : row[foundShift.shift];
+                        const user =
+                          foundShift.shift === shift.shift
+                            ? Array.from(new Set([...existing, ...newValue]))
+                            : existing;
                         return {
                           shift: foundShift.shift,
                           ...(foundShift.shiftEndHour && {
                             shiftEndHour: foundShift.shiftEndHour,
                           }),
-                          user:
-                            foundShift.shift !== shift.shift
-                              ? row[foundShift.shift]
-                              : newValue,
+                          user,
                         };
                       }
                     );
@@ -728,7 +757,6 @@ const Shifts = () => {
     roles,
     filterPanelFormElements,
   ]);
-
   return (
     <div className="w-[95%] my-5 mx-auto">
       <GenericTable
