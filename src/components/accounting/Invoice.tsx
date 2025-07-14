@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
@@ -286,6 +287,14 @@ const Invoice = () => {
       isTopFlexRow: true,
     },
     QuantityInput(),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -298,6 +307,7 @@ const Invoice = () => {
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
   const columns = [
     {
@@ -364,6 +374,7 @@ const Invoice = () => {
       isSortable: false,
       correspondingKey: "quantity",
     },
+    { key: t("Is After Count"), isSortable: true },
     { key: t("Unit Price"), isSortable: false },
     {
       key: t("Total Expense"),
@@ -494,6 +505,16 @@ const Invoice = () => {
     { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
+    {
       key: "unitPrice",
       node: (row: any) => {
         return (
@@ -588,6 +609,7 @@ const Invoice = () => {
         constantValues={{
           isStockIncrement: true,
           date: format(new Date(), "yyyy-MM-dd"),
+          isAfterCount: true,
           ...productExpenseForm,
         }}
       />

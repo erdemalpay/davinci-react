@@ -487,7 +487,6 @@ const IkasOrders = () => {
           itemToEdit={{
             id: rowToAction?._id,
             updates: {
-              // amount: rowToAction?.amount,
               paidQuantity: rowToAction?.paidQuantity,
               status: rowToAction?.status,
             },

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
@@ -38,9 +39,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-type FormElementsState = {
-  [key: string]: any;
-};
 
 const AllExpenses = () => {
   const { t } = useTranslation();
@@ -302,6 +300,14 @@ const AllExpenses = () => {
       isTopFlexRow: true,
     },
     QuantityInput(),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -314,6 +320,7 @@ const AllExpenses = () => {
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
   const columns = [
     {
@@ -369,6 +376,11 @@ const AllExpenses = () => {
       key: t("Quantity"),
       isSortable: true,
       correspondingKey: "quantity",
+    },
+    {
+      key: t("Is After Count"),
+      isSortable: true,
+      correspondingKey: "isAfterCount",
     },
     { key: t("Unit Price"), isSortable: false },
     {
@@ -456,6 +468,16 @@ const AllExpenses = () => {
       },
     },
     { key: "quantity", className: "min-w-32" },
+    {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
     {
       key: "unitPrice",
       node: (row: any) => {
@@ -556,6 +578,7 @@ const AllExpenses = () => {
               ? ""
               : allExpenseForm.paymentMethod,
           isPaid: allExpenseForm.paymentMethod === NOTPAID ? false : true,
+          isAfterCount: true,
         }}
       />
     ),

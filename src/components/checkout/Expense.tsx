@@ -2,14 +2,15 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
   AccountExpenseType,
-  commonDateOptions,
   ConstantPaymentMethodsIds,
   ExpenseTypes,
   NOTPAID,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
@@ -306,6 +307,14 @@ const Expenses = () => {
       isTopFlexRow: true,
     },
     QuantityInput(),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -317,6 +326,7 @@ const Expenses = () => {
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "isStockIncrement", type: FormKeyTypeEnum.BOOLEAN },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
   const columns = [
     {
@@ -340,6 +350,7 @@ const Expenses = () => {
       isSortable: true,
       correspondingKey: "note",
     },
+    { key: t("Is After Count"), isSortable: true },
     {
       key: t("Brand"),
       className: "min-w-32 pr-2",
@@ -400,6 +411,16 @@ const Expenses = () => {
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
+    {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
     {
       key: "brand",
       node: (row: any) => {
@@ -583,6 +604,7 @@ const Expenses = () => {
           date: format(new Date(), "yyyy-MM-dd"),
           ...allExpenseForm,
           location: selectedLocationId,
+          isAfterCount: true,
           paymentMethod:
             allExpenseForm.paymentMethod === NOTPAID
               ? ""

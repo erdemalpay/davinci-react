@@ -32,6 +32,7 @@ const BulkExpenseCreate = () => {
             price: 50,
             kdv: 18,
             isStockIncrement: false,
+            isAfterCount: true,
             note: " ",
           },
 
@@ -47,6 +48,7 @@ const BulkExpenseCreate = () => {
             price: 120,
             kdv: 10,
             isStockIncrement: true,
+            isAfterCount: true,
             note: " ",
           },
         ];
@@ -108,6 +110,11 @@ const BulkExpenseCreate = () => {
       correspondingKey: "isStockIncrement",
     },
     {
+      key: `${t("Is After Count")} *`,
+      isSortable: true,
+      correspondingKey: "isAfterCount",
+    },
+    {
       key: t("Note"),
       isSortable: true,
       correspondingKey: "note",
@@ -135,6 +142,7 @@ const BulkExpenseCreate = () => {
     { key: "price" },
     { key: "kdv" },
     { key: "isStockIncrement" },
+    { key: "isAfterCount" },
     { key: "note" },
     ...(errorDataForCreateMultipleExpense?.length > 0
       ? [{ key: "errorNote" }]

@@ -15,6 +15,7 @@ interface AddShiftPayload {
   location: number;
   shift: string;
   userId: string;
+  shiftEndHour?: string;
 }
 
 interface CopyShiftIntervalPayload {

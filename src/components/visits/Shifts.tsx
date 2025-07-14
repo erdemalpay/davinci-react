@@ -92,7 +92,6 @@ const Shifts = () => {
     isChefAssignOpen,
     setIsChefAssignOpen,
   } = useFilterContext();
-
   const foundLocation = getItem(selectedLocationId, locations);
   const initialFormState: Record<string, any> = {
     day: "",
@@ -105,6 +104,26 @@ const Shifts = () => {
     ) || {}),
   };
   const [form, setForm] = useState(initialFormState);
+  const unfilteredShiftRows = shifts?.map((shift) => {
+    const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+      if (shiftValue.shift && shiftValue.user) {
+        acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+          const foundUser = getItem(userId, users);
+          return foundUser;
+        });
+      }
+      return acc;
+    }, {} as { [key: string]: string[] });
+    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    return {
+      ...shift,
+      formattedDay:
+        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
+      ...shiftMapping,
+    };
+  });
   const allRows = shifts?.map((shift) => {
     const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
       if (shiftValue.shift && shiftValue.user) {
@@ -260,7 +279,9 @@ const Shifts = () => {
     for (const shift of foundLocation.shifts) {
       const locationShift = shift.shift;
       columns.push({
-        key: locationShift,
+        key: `${locationShift}${
+          shift.shiftEndHour ? ` - ${shift.shiftEndHour}` : ""
+        }`,
         isSortable: false,
         correspondingKey: shift.shift,
       });
@@ -359,6 +380,9 @@ const Shifts = () => {
         rowKeys.push({
           key: locationShift,
           node: (row: any) => {
+            const foundRow: any = unfilteredShiftRows.find(
+              (r) => r._id === row._id
+            );
             const shiftValue = row[shift.shift];
             const normalizedValue = Array.isArray(shiftValue)
               ? shiftValue.map((userId: string) => ({
@@ -383,17 +407,27 @@ const Shifts = () => {
                   placeholder=""
                   isOnClearActive={false}
                   onChange={(selectedOption) => {
+                    const foundRow: any = unfilteredShiftRows.find(
+                      (r) => r._id === row._id
+                    );
                     const newValue = (
                       selectedOption as MultiValue<OptionType>
-                    ).map((option) => option.value);
+                    ).map((o) => o.value);
                     const updatedShifts = foundLocation?.shifts?.map(
                       (foundShift) => {
+                        const existing = foundRow
+                          ? foundRow[foundShift.shift]
+                          : row[foundShift.shift];
+                        const user =
+                          foundShift.shift === shift.shift
+                            ? Array.from(new Set([...existing, ...newValue]))
+                            : existing;
                         return {
                           shift: foundShift.shift,
-                          user:
-                            foundShift.shift !== shift.shift
-                              ? row[foundShift.shift]
-                              : newValue,
+                          ...(foundShift.shiftEndHour && {
+                            shiftEndHour: foundShift.shiftEndHour,
+                          }),
+                          user,
                         };
                       }
                     );
@@ -474,6 +508,7 @@ const Shifts = () => {
             if (!rowToAction?._id && foundLocation) {
               const shifts = foundLocation?.shifts?.map((shift) => ({
                 shift: shift.shift,
+                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
                 user: form?.[shift.shift],
               }));
               createShift({
@@ -486,6 +521,7 @@ const Shifts = () => {
             else {
               const shifts = foundLocation?.shifts?.map((shift) => ({
                 shift: shift.shift,
+                ...(shift.shiftEndHour && { shiftEndHour: shift.shiftEndHour }),
                 user: form?.[shift.shift],
               }));
               updateShift({
@@ -721,7 +757,6 @@ const Shifts = () => {
     roles,
     filterPanelFormElements,
   ]);
-
   return (
     <div className="w-[95%] my-5 mx-auto">
       <GenericTable

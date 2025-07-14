@@ -348,6 +348,7 @@ const TextInput = ({
         } ${inputWidth ? inputWidth : "w-full"}`}
       >
         <input
+          id={"number-input"}
           ref={inputRef}
           type={type}
           style={{

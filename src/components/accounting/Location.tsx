@@ -159,7 +159,10 @@ const LocationPage = () => {
                 key={index}
                 className="flex flex-row px-1 py-0.5 bg-red-400 rounded-md text-white"
               >
-                <p>{shift.shift}</p>
+                <p>
+                  {shift.shift}
+                  {shift.shiftEndHour && ` - ${shift.shiftEndHour}`}
+                </p>
               </div>
             ))}
           </div>

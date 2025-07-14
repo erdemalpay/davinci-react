@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,7 +7,6 @@ import {
 } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
-import ButtonFilter from "../components/panelComponents/common/ButtonFilter";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
@@ -21,7 +19,6 @@ import {
   orderFilterStatusOptions,
 } from "../types";
 import { dateRanges } from "../utils/api/dateRanges";
-import { Paths } from "../utils/api/factory";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -32,11 +29,11 @@ import {
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { LocationInput } from "../utils/panelInputs";
+
 const IkasPickUp = () => {
   const { t } = useTranslation();
   const orders = useGetIkasPickUpOrders();
   const locations = useGetAllLocations();
-  const queryClient = useQueryClient();
   const users = useGetUsers();
   const { user } = useUserContext();
   const categories = useGetCategories();
@@ -46,17 +43,17 @@ const IkasPickUp = () => {
   const {
     ikasPickUpFilterPanelFormElements,
     setIkasPickUpFilterPanelFormElements,
-    initialFilterPanelFormElements,
+    initialIkasPickUpFilterPanelFormElements,
     showOrderDataFilters,
     setShowOrderDataFilters,
     showPickedOrders,
     setShowPickedOrders,
   } = useOrderContext();
-  if (!orders || !locations || !users || !user) {
-    return <></>;
-  }
   const allRows = orders
     ?.filter((order) => {
+      if (!order || !order?.createdAt) {
+        return false;
+      }
       if (
         order?.ikasId !== null &&
         order?.ikasId !== undefined &&
@@ -71,9 +68,6 @@ const IkasPickUp = () => {
       }
     })
     ?.map((order) => {
-      if (!order || !order?.createdAt) {
-        return null;
-      }
       const createHour = format(order.createdAt, "HH:mm") ?? "";
       const deliveryHour =
         order?.deliveredAt && order?.deliveredAt !== order?.createdAt
@@ -106,8 +100,7 @@ const IkasPickUp = () => {
         )?.label,
         isIkasCustomerPicked: order?.isIkasCustomerPicked ?? false,
       };
-    })
-    ?.filter((item) => item !== null);
+    });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
@@ -122,7 +115,7 @@ const IkasPickUp = () => {
       isSortable: true,
       correspondingKey: "customerLastName",
     },
-    { key: t("Email"), isSortable: true, correspondingKey: "customerEmail" },
+    { key: "Email", isSortable: true, correspondingKey: "customerEmail" },
     { key: t("Phone"), isSortable: true, correspondingKey: "customerPhone" },
     { key: t("Product"), isSortable: true, correspondingKey: "item" },
     { key: t("Quantity"), isSortable: true, correspondingKey: "quantity" },
@@ -189,6 +182,8 @@ const IkasPickUp = () => {
       node: (row: any) => {
         return row?.isIkasCustomerPicked ? (
           <MdOutlineCheckBox
+            id="ikas-pickup-checkbox"
+            key={row._id + "ikas-pickup-checkbox"}
             className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
             onClick={() => {
               updateOrder({
@@ -201,6 +196,8 @@ const IkasPickUp = () => {
           />
         ) : (
           <MdOutlineCheckBoxOutlineBlank
+            id="ikas-pickup-checkbox"
+            key={row._id + "ikas-pickup-checkbox"}
             className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
             onClick={() => {
               updateOrder({
@@ -208,7 +205,7 @@ const IkasPickUp = () => {
                 updates: {
                   isIkasCustomerPicked: true,
                   deliveredAt: new Date(),
-                  deliveredBy: user._id,
+                  deliveredBy: user?._id,
                 },
               });
             }}
@@ -290,8 +287,8 @@ const IkasPickUp = () => {
       formKey: "createdBy",
       label: t("Created By"),
       options: users
-        .filter((user) => user.active)
-        .map((user) => ({
+        ?.filter((user) => user.active)
+        ?.map((user) => ({
           value: user._id,
           label: user.name,
         })),
@@ -303,8 +300,8 @@ const IkasPickUp = () => {
       formKey: "preparedBy",
       label: t("Prepared By"),
       options: users
-        .filter((user) => user.active)
-        .map((user) => ({
+        ?.filter((user) => user.active)
+        ?.map((user) => ({
           value: user._id,
           label: user.name,
         })),
@@ -316,8 +313,8 @@ const IkasPickUp = () => {
       formKey: "deliveredBy",
       label: t("Delivered By"),
       options: users
-        .filter((user) => user.active)
-        .map((user) => ({
+        ?.filter((user) => user.active)
+        ?.map((user) => ({
           value: user._id,
           label: user.name,
         })),
@@ -332,22 +329,12 @@ const IkasPickUp = () => {
     setFormElements: setIkasPickUpFilterPanelFormElements,
     closeFilters: () => setShowOrderDataFilters(false),
     additionalFilterCleanFunction: () => {
-      setIkasPickUpFilterPanelFormElements(initialFilterPanelFormElements);
+      setIkasPickUpFilterPanelFormElements(
+        initialIkasPickUpFilterPanelFormElements
+      );
     },
   };
   const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Refresh Data")}
-          onclick={() => {
-            queryClient.invalidateQueries([`${Paths.Order}/query`]);
-            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
-          }}
-        />
-      ),
-    },
     {
       label: t("Show Picked Orders"),
       isUpperSide: true,
@@ -381,11 +368,10 @@ const IkasPickUp = () => {
     orders,
     locations,
     users,
-    ikasPickUpFilterPanelFormElements,
     items,
     categories,
-    user,
     showPickedOrders,
+    showOrderDataFilters,
   ]);
   return (
     <>
@@ -402,7 +388,7 @@ const IkasPickUp = () => {
             filterPanel={filterPanel}
             filters={filters}
             isExcel={true}
-            excelFileName={t("IkasPickUp.xlsx")}
+            excelFileName={"IkasPickUp.xlsx"}
             rowClassNameFunction={(row: any) => {
               if (row?.isReturned) {
                 return "bg-red-200";

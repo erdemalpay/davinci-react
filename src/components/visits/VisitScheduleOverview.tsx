@@ -53,6 +53,7 @@ const VisitScheduleOverview = () => {
     day: "",
     location: "",
     shift: "",
+    shiftEndHour: "",
   });
   const allRows = visits
     ?.filter((visit) => {
@@ -320,11 +321,18 @@ const VisitScheduleOverview = () => {
           setForm={setAddShiftForm}
           topClassName="flex flex-col gap-2  "
           submitFunction={() => {
+            const foundLocation = locations?.find(
+              (location) => location._id === Number(addShiftForm.location)
+            );
+            const foundEndHour = foundLocation?.shifts?.find(
+              (shift) => shift.shift === addShiftForm.shift
+            )?.shiftEndHour;
             addShift({
               day: addShiftForm.day,
               location: Number(addShiftForm.location),
               shift: addShiftForm.shift,
               userId: rowToAction.user,
+              ...(foundEndHour && { shiftEndHour: foundEndHour }),
             });
             setIsAddShiftModalOpen(false);
           }}

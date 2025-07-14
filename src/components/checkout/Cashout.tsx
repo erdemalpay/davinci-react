@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutCashout } from "../../types";
 import {
@@ -93,6 +94,7 @@ const Cashout = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Description"), isSortable: true },
+    { key: t("Is After Count"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
 
@@ -111,6 +113,16 @@ const Cashout = () => {
     { key: "lctn" },
     { key: "amount" },
     { key: "description" },
+    {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
   ];
   const inputs = [
     {
@@ -135,11 +147,20 @@ const Cashout = () => {
       placeholder: t("Description"),
       required: true,
     },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "description", type: FormKeyTypeEnum.STRING },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   const addButton = {
@@ -153,6 +174,7 @@ const Cashout = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           location: selectedLocationId,
+          isAfterCount: true,
         }}
         formKeys={formKeys}
         submitItem={createCheckoutCashout as any}

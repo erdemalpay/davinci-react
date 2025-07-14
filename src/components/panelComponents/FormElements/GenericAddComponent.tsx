@@ -311,6 +311,7 @@ const GenericAddComponent = <T,>({
                       input.type === InputTypes.DATE ||
                       input.type === InputTypes.TIME ||
                       input.type === InputTypes.COLOR ||
+                      input.type === InputTypes.CHECKBOX ||
                       input.type === InputTypes.PASSWORD) && (
                       <TextInput
                         key={input.formKey + String(textInputKey)}

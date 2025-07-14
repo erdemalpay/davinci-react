@@ -16,3 +16,18 @@ export function useCheckoutIncomeMutations() {
 export function useGetCheckoutIncomes() {
   return useGetList<CheckoutIncome>(baseUrl);
 }
+
+export function useGetQueryIncomes(filter: {
+  after?: string;
+  before?: string;
+  date?: string;
+}) {
+  const url = `${Paths.Checkout}/income/query?after=${
+    filter.after || ""
+  }&before=${filter.before || ""}&date=${filter.date || ""}`;
+  return useGetList<CheckoutIncome>(
+    `${url}`,
+    [url, filter.after, filter.before, filter.date],
+    true
+  );
+}

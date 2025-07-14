@@ -4,21 +4,22 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useLocationContext } from "../../context/Location.context";
-import { CheckoutControl, Location, commonDateOptions } from "../../types";
+import { CheckoutControl, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
+import { useGetQueryPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
-import { useGetCheckoutCashouts } from "../../utils/api/checkout/cashout";
+import { useGetQueryCashouts } from "../../utils/api/checkout/cashout";
 import {
   useCheckoutControlMutations,
   useGetCheckoutControls,
 } from "../../utils/api/checkout/checkoutControl";
-import { useGetCheckoutIncomes } from "../../utils/api/checkout/income";
-import { useGetStockLocations } from "../../utils/api/location";
+import { useGetQueryIncomes } from "../../utils/api/checkout/income";
+import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
+import { LocationInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,8 +31,8 @@ type FormElementsState = {
 };
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
-  const incomes = useGetCheckoutIncomes();
   const paymentMethods = useGetAccountPaymentMethods();
+  const { selectedLocationId } = useLocationContext();
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       product: [],
@@ -41,7 +42,7 @@ const CheckoutControlPage = () => {
       brand: "",
       expenseType: "",
       paymentMethod: "cash",
-      location: "",
+      location: selectedLocationId,
       date: "thisMonth",
       before: "",
       after: "",
@@ -49,15 +50,16 @@ const CheckoutControlPage = () => {
       asc: 1,
       user: "",
     });
+  const incomes = useGetQueryIncomes(filterPanelFormElements);
   const checkoutControls = useGetCheckoutControls(filterPanelFormElements);
   const expenses = useGetAccountExpensesWithoutPagination(
     filterPanelFormElements
   );
-  const cashouts = useGetCheckoutCashouts();
-  const locations = useGetStockLocations();
+  const vendorPayments = useGetQueryPayments(filterPanelFormElements);
+  const cashouts = useGetQueryCashouts(filterPanelFormElements);
+  const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
-  const { selectedLocationId } = useLocationContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
@@ -79,98 +81,101 @@ const CheckoutControlPage = () => {
     const [y, m, d] = dateString.split("-").map(Number);
     return new Date(y, m - 1, d);
   }
-  const isLocationClosedOnDate = (loc: Location, date: Date): boolean => {
-    const dayName = format(date, "EEEE");
-    return loc.closedDays?.includes(dayName) ?? false;
-  };
-
-  function findPrevOpenCheckout(
-    index: number,
-    checkoutControls: CheckoutControl[],
-    locationId: number,
-    locations: Location[]
+  function findPrevCheckout(
+    current: CheckoutControl,
+    allControls: CheckoutControl[]
   ): CheckoutControl | undefined {
-    return checkoutControls
-      .slice(0, index)
-      .reverse()
-      .find((c) => {
-        if (c.location !== locationId) return false;
-        const loc = locations.find((l) => l._id === c.location);
-        if (!loc) return false;
-        const controlDate = parseLocalDate(c.date);
-        return !isLocationClosedOnDate(loc, controlDate);
-      });
+    const currentDate = parseLocalDate(current.date);
+
+    return allControls
+      .filter(
+        (c) =>
+          c.location === current.location &&
+          parseLocalDate(c.date) < currentDate
+      )
+      .sort(
+        (a, b) =>
+          parseLocalDate(b.date).getTime() - parseLocalDate(a.date).getTime()
+      )[0];
   }
-  function sumRange<T extends { location: number; createdAt?: Date }>(
+  function sumRange<
+    T extends {
+      location: number;
+      date: string;
+      isAfterCount?: boolean;
+      [key: string]: any;
+    }
+  >(
     items: T[] | undefined,
-    fromIso: Date,
-    toIso: Date,
+    fromDateStr: string,
+    toDateStr: string,
     locationId: number,
     field: keyof T
   ): number {
-    console.log(toIso, "toIso");
-    console.log(fromIso, "fromIso");
     if (!items) return 0;
     return items
       .filter((x) => {
         if (x.location !== locationId) return false;
-        if (!x.createdAt) return false;
-        const created =
-          typeof x.createdAt === "string" ? new Date(x.createdAt) : x.createdAt;
-        console.log(created, "created");
-        return created > fromIso && created <= toIso;
+        const d = x.date;
+        if (d > fromDateStr && d < toDateStr) {
+          return true;
+        }
+        if (d === fromDateStr && x.isAfterCount && fromDateStr !== toDateStr) {
+          return true;
+        }
+        if (d === toDateStr && x.isAfterCount === false) {
+          return true;
+        }
+        return false;
       })
       .reduce((sum, x) => sum + Number(x[field] ?? 0), 0);
   }
+
   const allRows =
     checkoutControls?.map((checkoutControl, index) => {
       const usr = getItem(checkoutControl.user, users)?.name;
       const locObj = getItem(checkoutControl.location, locations);
       const lctn = locObj?.name;
       const formattedDate = formatAsLocalDate(checkoutControl.date);
-      const prev = locObj
-        ? findPrevOpenCheckout(
-            index,
-            checkoutControls,
-            checkoutControl.location,
-            locations
-          )
-        : undefined;
-      const beginningQuantity = prev
-        ? prev.amount
-        : checkoutControl.baseQuantity ?? 0;
-      let incomeQuantity: number;
-      let expenseQuantity: number;
-      let cashoutQuantity: number;
-      if (prev && prev.createdAt && checkoutControl.createdAt) {
+      const prev = findPrevCheckout(checkoutControl, checkoutControls);
+      const beginningQuantity = checkoutControl.baseQuantity
+        ? checkoutControl.baseQuantity
+        : prev?.amount ?? 0;
+      let incomeQuantity = 0;
+      let expenseQuantity = 0;
+      let cashoutQuantity = 0;
+      let vendorPaymentQuantity = 0;
+      if (checkoutControl.date && !checkoutControl.baseQuantity) {
         incomeQuantity = sumRange(
           incomes,
-          prev.createdAt,
-          checkoutControl.createdAt,
+          prev?.date ?? checkoutControl.date,
+          checkoutControl.date,
           checkoutControl.location,
           "amount"
         );
-        console.log(incomeQuantity, "incomeQuantity");
-        console.log(incomes, "incomes");
-        console.log(expenses);
+
         expenseQuantity = sumRange(
           expenses,
-          prev.createdAt,
-          checkoutControl.createdAt,
+          prev?.date ?? checkoutControl.date,
+          checkoutControl.date,
           checkoutControl.location,
           "totalExpense"
         );
+
         cashoutQuantity = sumRange(
           cashouts,
-          prev.createdAt,
-          checkoutControl.createdAt,
+          prev?.date ?? checkoutControl.date,
+          checkoutControl.date,
           checkoutControl.location,
           "amount"
         );
-      } else {
-        incomeQuantity = 0;
-        expenseQuantity = 0;
-        cashoutQuantity = 0;
+        vendorPaymentQuantity = sumRange(
+          vendorPayments,
+          prev?.date ?? checkoutControl.date,
+          checkoutControl.date,
+          checkoutControl.location,
+          "amount"
+        );
       }
       return {
         ...checkoutControl,
@@ -181,6 +186,7 @@ const CheckoutControlPage = () => {
         incomeQuantity,
         expenseQuantity,
         cashout: cashoutQuantity,
+        vendorPaymentQuantity,
       };
     }) ?? [];
   const arrangedAllRows = allRows?.map((row) => {
@@ -190,13 +196,15 @@ const CheckoutControlPage = () => {
         row.beginningQuantity +
         row.incomeQuantity -
         row.expenseQuantity -
-        row.cashout,
+        row.cashout -
+        row.vendorPaymentQuantity,
       difference:
         row.amount -
         (row.beginningQuantity +
           row.incomeQuantity -
           row.expenseQuantity -
-          row.cashout),
+          row.cashout -
+          row.vendorPaymentQuantity),
     };
   });
   const [rows, setRows] = useState(arrangedAllRows);
@@ -208,6 +216,7 @@ const CheckoutControlPage = () => {
     { key: t("Beginning Quantity"), isSortable: true },
     { key: t("Income Quantity"), isSortable: true },
     { key: t("Expense Quantity"), isSortable: true },
+    { key: t("Vendor Payment Quantity"), isSortable: true },
     { key: t("Cashout"), isSortable: true },
     { key: t("Expected Quantity"), isSortable: true },
     { key: t("Difference"), isSortable: true },
@@ -227,7 +236,7 @@ const CheckoutControlPage = () => {
       placeholder: t("User"),
       required: true,
     },
-    StockLocationInput({ locations: locations, required: true }),
+    LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.SELECT,
       formKey: "date",
@@ -329,6 +338,23 @@ const CheckoutControlPage = () => {
       },
     },
     {
+      key: "vendorPaymentQuantity",
+      node: (row: any) => {
+        return (
+          <div className="flex flex-row gap-2">
+            <p className={`${row?.className} `}>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(row.vendorPaymentQuantity)}{" "}
+              ₺
+            </p>
+          </div>
+        );
+      },
+    },
+    {
       key: "cashout",
       node: (row: any) => {
         return (
@@ -392,6 +418,7 @@ const CheckoutControlPage = () => {
       required: true,
       isDateInitiallyOpen: true,
     },
+    LocationInput({ locations: locations, required: true }),
     {
       type: InputTypes.NUMBER,
       formKey: "amount",
@@ -409,6 +436,7 @@ const CheckoutControlPage = () => {
   ];
   const formKeys = [
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "location", type: FormKeyTypeEnum.NUMBER },
     { key: "baseQuantity", type: FormKeyTypeEnum.NUMBER },
   ];
   const addButton = {
@@ -492,6 +520,12 @@ const CheckoutControlPage = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const getBgColor = (row: CheckoutControl) => {
+    if (row?.baseQuantity) {
+      return "bg-green-100";
+    }
+    return "";
+  };
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -500,16 +534,23 @@ const CheckoutControlPage = () => {
     closeFilters: () => setShowFilters(false),
   };
   useEffect(() => {
+    setFilterPanelFormElements((prev) => ({
+      ...prev,
+      location: selectedLocationId,
+    }));
+  }, [selectedLocationId]);
+  useEffect(() => {
     setRows(arrangedAllRows);
     setTableKey((prev) => prev + 1);
   }, [
     checkoutControls,
     locations,
-    filterPanelFormElements,
     expenses,
     incomes,
     cashouts,
     paymentMethods,
+    selectedLocationId,
+    vendorPayments,
   ]);
 
   return (
@@ -522,6 +563,7 @@ const CheckoutControlPage = () => {
           isActionsActive={true}
           columns={columns}
           filters={filters}
+          rowClassNameFunction={getBgColor}
           filterPanel={filterPanel}
           rows={rows}
           title={t("Checkout Control")}

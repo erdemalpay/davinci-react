@@ -3,7 +3,8 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
-import { User, Visit } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { RoleEnum, User, Visit } from "../../types";
 import { useGetUsers } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
@@ -32,6 +33,7 @@ export function ActiveVisitList({
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
   const users = useGetUsers();
+  const { user } = useUserContext();
   const { selectedLocationId } = useLocationContext();
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
@@ -53,6 +55,9 @@ export function ActiveVisitList({
   }
 
   function handleSelection(item: User) {
+    if (user?.role?._id !== RoleEnum.MANAGER) {
+      return;
+    }
     const now = new Date();
     const startHour = format(now, "HH:mm");
     const date = format(now, "yyyy-MM-dd");
@@ -131,7 +136,8 @@ export function ActiveVisitList({
                 height: "fit-content",
               }}
               color="gray"
-              {...(isUserActive(visit.user)
+              {...(user?.role?._id === RoleEnum.MANAGER &&
+              isUserActive(visit.user)
                 ? { onClose: () => handleChipClose(visit.user) }
                 : {})}
             />

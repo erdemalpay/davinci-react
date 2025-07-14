@@ -131,6 +131,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const allRows = usedItems?.map((item) => {
     return {
       ...item,
+      createdAt: item?.createdAt ? item?.createdAt : "",
       formattedCreatedAt: item?.createdAt
         ? format(item?.createdAt, "dd/MM/yyyy")
         : "",

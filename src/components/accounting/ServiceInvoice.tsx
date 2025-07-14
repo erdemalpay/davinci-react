@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
@@ -241,6 +242,14 @@ const ServiceInvoice = () => {
       required: true,
     }),
     QuantityInput(),
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
   ];
   const formKeys = [
     { key: "date", type: FormKeyTypeEnum.DATE },
@@ -251,6 +260,7 @@ const ServiceInvoice = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "paymentMethod", type: FormKeyTypeEnum.STRING },
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
   const nameInput = [NameInput()]; // same for brand and location inputs
   const nameFormKey = [{ key: "name", type: FormKeyTypeEnum.STRING }];
@@ -315,6 +325,7 @@ const ServiceInvoice = () => {
       isSortable: true,
       correspondingKey: "quantity",
     },
+    { key: t("Is After Count"), isSortable: true },
     { key: t("Unit Price"), isSortable: false },
     {
       key: t("Total Expense"),
@@ -421,6 +432,16 @@ const ServiceInvoice = () => {
     { key: "paymentMethodName", className: "min-w-32" },
     { key: "quantity", className: "min-w-32" },
     {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
+    {
       key: "unitPrice",
       node: (row: any) => {
         return (
@@ -512,6 +533,7 @@ const ServiceInvoice = () => {
         constantValues={{
           date: format(new Date(), "yyyy-MM-dd"),
           ...serviceExpenseForm,
+          isAfterCount: true,
         }}
         additionalCancelFunction={() => {
           setServiceExpenseForm({});
