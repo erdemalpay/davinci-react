@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -103,7 +102,6 @@ const Income = () => {
     { key: t("Location"), isSortable: true },
     { key: t("Amount"), isSortable: true },
     { key: t("Collections Income"), isSortable: true },
-    { key: t("Is After Count"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -185,16 +183,6 @@ const Income = () => {
     { key: "lctn" },
     { key: "amount" },
     { key: "collectionIncome" },
-    {
-      key: "isAfterCount",
-      node: (row: any) => {
-        return row?.isAfterCount ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        );
-      },
-    },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     columns.splice(
