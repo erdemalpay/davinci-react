@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import { RoleEnum, User, Visit } from "../../types";
+import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
 import { useGetUsers } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
@@ -34,7 +35,10 @@ export function ActiveVisitList({
   const { mutate: finishVisit } = useFinishVisitMutation();
   const users = useGetUsers();
   const { user } = useUserContext();
+  const panelSettings = useGetPanelSettings();
   const { selectedLocationId } = useLocationContext();
+  const isDisabledCondition =
+    panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
   const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
@@ -55,7 +59,7 @@ export function ActiveVisitList({
   }
 
   function handleSelection(item: User) {
-    if (user?.role?._id !== RoleEnum.MANAGER) {
+    if (isDisabledCondition) {
       return;
     }
     const now = new Date();
@@ -136,8 +140,7 @@ export function ActiveVisitList({
                 height: "fit-content",
               }}
               color="gray"
-              {...(user?.role?._id === RoleEnum.MANAGER &&
-              isUserActive(visit.user)
+              {...(!isDisabledCondition && isUserActive(visit.user)
                 ? { onClose: () => handleChipClose(visit.user) }
                 : {})}
             />

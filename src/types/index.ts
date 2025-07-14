@@ -466,6 +466,7 @@ export type PanelControlPage = {
 export type PanelSettings = {
   _id: number;
   isHoliday: boolean;
+  isVisitEntryDisabled: boolean;
 };
 
 export type StyleDto = {

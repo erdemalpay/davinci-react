@@ -4,8 +4,8 @@ import {
   useGetPanelSettings,
   useResetRedisMutation,
 } from "../../utils/api/panelControl/panelSettings";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import TextInput from "../panelComponents/FormElements/TextInput";
+import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import { InputTypes } from "../panelComponents/shared/types";
 
 const PanelSettings = () => {
@@ -22,6 +22,16 @@ const PanelSettings = () => {
         value={panelSettigns?.isHoliday ?? false}
         onChange={(value) => {
           createPanelSettings({ isHoliday: value });
+        }}
+      />
+      <TextInput
+        type={InputTypes.CHECKBOX}
+        label={t("Close Visit Entry")}
+        placeholder={t("Close Visit Entry")}
+        isTopFlexRow={true}
+        value={panelSettigns?.isVisitEntryDisabled ?? false}
+        onChange={(value) => {
+          createPanelSettings({ isVisitEntryDisabled: value });
         }}
       />
       <ButtonFilter
