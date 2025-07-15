@@ -121,6 +121,7 @@ interface UpdateMultipleOrder {
 }
 interface CancelIkasOrder {
   ikasId: string;
+  quantity: number;
 }
 
 const baseUrl = `${Paths.Order}`;
