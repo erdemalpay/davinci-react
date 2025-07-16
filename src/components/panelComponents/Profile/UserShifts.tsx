@@ -74,7 +74,12 @@ const UserShifts = () => {
       node: (row: any) => {
         return row?.[location?._id.toString()]
           ?.filter((shift: any) => shift.user?.includes(user._id))
-          ?.map((shiftItem: any) => shiftItem.shift)
+          ?.map(
+            (shiftItem: any) =>
+              `${shiftItem.shift}${
+                shiftItem.shiftEndHour ? ` - ${shiftItem.shiftEndHour}` : ""
+              }`
+          )
           .join(", ");
       },
     });
