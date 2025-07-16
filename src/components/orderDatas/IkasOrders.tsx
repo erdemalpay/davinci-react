@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
@@ -28,14 +29,12 @@ import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
-import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-
 const IkasOrders = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
@@ -46,6 +45,7 @@ const IkasOrders = () => {
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
+  const [cancelForm, setCancelForm] = useState({ quantity: 1 });
   const { updateOrder } = useOrderMutations();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
@@ -252,6 +252,19 @@ const IkasOrders = () => {
     { key: "location" },
     { key: "statusLabel", className: "min-w-32 pr-2" },
   ];
+  const cancelInputs = [
+    {
+      type: InputTypes.NUMBER,
+      formKey: "quantity",
+      label: t("Quantity"),
+      placeholder: t("Quantity"),
+      minNumber: 1,
+      required: true,
+      isNumberButtonsActive: true,
+      isOnClearActive: false,
+    },
+  ];
+  const cancelFormKeys = [{ key: "quantity", type: FormKeyTypeEnum.NUMBER }];
   const filterPanelInputs = [
     LocationInput({
       locations: sellLocations,
@@ -448,17 +461,31 @@ const IkasOrders = () => {
       setRow: setRowToAction,
       className: "text-red-500 cursor-pointer text-2xl  ",
       modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCancelOrderModalOpen}
-          close={() => setIsCancelOrderModalOpen(false)}
-          confirm={() => {
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          topClassName="flex flex-col gap-2 "
+          close={() => setIsEditModalOpen(false)}
+          inputs={cancelInputs}
+          formKeys={cancelFormKeys}
+          setForm={setCancelForm}
+          submitItem={cancelIkasOrder as any}
+          constantValues={{
+            status: rowToAction.status,
+            paidQuantity: rowToAction.paidQuantity,
+          }}
+          submitFunction={() => {
+            if (cancelForm.quantity > rowToAction.quantity) {
+              toast.error(
+                t("Quantity cannot be greater than the order quantity.")
+              );
+              return;
+            }
             cancelIkasOrder({
               ikasId: rowToAction.ikasId,
+              quantity: cancelForm.quantity,
             });
-            setIsCancelOrderModalOpen(false);
           }}
-          title={t("Cancel Order")}
-          text={`Order ${t("GeneralDeleteMessage")}`}
+          isEditMode={false}
         />
       ) : null,
       isModal: true,

@@ -116,6 +116,8 @@ const Stock = () => {
       if (!acc[productName]) {
         acc[productName] = {
           ...stock,
+          sku: rowItem?.sku ?? "",
+          barcode: rowItem?.barcode ?? "",
           prdct: productName,
           unitPrice,
           totalGroupPrice: 0,
@@ -183,6 +185,8 @@ const Stock = () => {
   ];
   const columns = [
     { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
+    { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+    { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
     { key: t("Quantity"), isSortable: true, correspondingKey: "totalQuantity" },
     { key: t("Unit Price"), isSortable: true },
     { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
@@ -191,6 +195,8 @@ const Stock = () => {
 
   const rowKeys = [
     { key: "prdct" },
+    { key: "sku" },
+    { key: "barcode" },
     { key: "totalQuantity" },
     {
       key: "unitPrice",
@@ -544,6 +550,8 @@ const Stock = () => {
         if (!acc[productName]) {
           acc[productName] = {
             ...stock,
+            sku: rowItem?.sku ?? "",
+            barcode: rowItem?.barcode ?? "",
             prdct: productName,
             unitPrice,
             menuPrice: rowItem?.price ?? "",
