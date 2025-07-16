@@ -174,6 +174,12 @@ const Shifts = () => {
       label: t("Selected Users"),
       options: users
         ?.filter((user) => {
+          if (filterPanelFormElements?.role?.length > 0) {
+            return filterPanelFormElements?.role?.includes(user?.role?._id);
+          }
+          return true;
+        })
+        ?.filter((user) => {
           if (copyShiftForm?.copiedDay) {
             return shifts
               ?.filter((shift) => shift.day === copyShiftForm?.copiedDay)
@@ -380,9 +386,6 @@ const Shifts = () => {
         rowKeys.push({
           key: locationShift,
           node: (row: any) => {
-            const foundRow: any = unfilteredShiftRows.find(
-              (r) => r._id === row._id
-            );
             const shiftValue = row[shift.shift];
             const normalizedValue = Array.isArray(shiftValue)
               ? shiftValue.map((userId: string) => ({
@@ -398,30 +401,74 @@ const Shifts = () => {
             return (
               <div key={`${row.day}${shiftValue}`} className="overflow-visible">
                 <SelectInput
-                  options={users?.map((user) => ({
-                    value: user._id,
-                    label: user.name,
-                  }))}
+                  options={users
+                    ?.filter((user) => {
+                      if (filterPanelFormElements?.role?.length > 0) {
+                        return filterPanelFormElements?.role?.includes(
+                          user?.role?._id
+                        );
+                      }
+                      return true;
+                    })
+                    ?.map((user) => ({
+                      value: user._id,
+                      label: user.name,
+                    }))}
                   isMultiple={true}
                   value={normalizedValue}
                   placeholder=""
                   isOnClearActive={false}
                   onChange={(selectedOption) => {
-                    const foundRow: any = unfilteredShiftRows.find(
-                      (r) => r._id === row._id
+                    const foundRow: any = unfilteredShiftRows?.find(
+                      (r) => r._id === row?._id
                     );
                     const newValue = (
                       selectedOption as MultiValue<OptionType>
                     ).map((o) => o.value);
                     const updatedShifts = foundLocation?.shifts?.map(
                       (foundShift) => {
-                        const existing = foundRow
-                          ? foundRow[foundShift.shift]
-                          : row[foundShift.shift];
+                        const existing = (
+                          (foundRow?.[foundShift.shift] ??
+                            row?.[foundShift.shift] ??
+                            []) as string[]
+                        ).filter((userId) => {
+                          if (!filterPanelFormElements?.role?.length)
+                            return true;
+                          const foundUser = getItem(userId, users);
+                          return (
+                            foundUser &&
+                            !filterPanelFormElements.role.includes(
+                              foundUser.role._id
+                            )
+                          );
+                        });
+                        const currentSelectedRoleUsers = (
+                          (foundRow?.[foundShift.shift] ??
+                            row?.[foundShift.shift] ??
+                            []) as string[]
+                        ).filter((userId) => {
+                          if (!filterPanelFormElements?.role?.length)
+                            return false;
+
+                          const foundUser = getItem(userId, users);
+                          return (
+                            foundUser &&
+                            filterPanelFormElements.role.includes(
+                              foundUser.role._id
+                            )
+                          );
+                        });
                         const user =
-                          foundShift.shift === shift.shift
-                            ? Array.from(new Set([...existing, ...newValue]))
-                            : existing;
+                          foundShift?.shift === shift?.shift
+                            ? filterPanelFormElements?.role?.length > 0
+                              ? Array.from(new Set([...existing, ...newValue]))
+                              : newValue
+                            : Array.from(
+                                new Set([
+                                  ...existing,
+                                  ...currentSelectedRoleUsers,
+                                ])
+                              );
                         return {
                           shift: foundShift.shift,
                           ...(foundShift.shiftEndHour && {
@@ -727,12 +774,19 @@ const Shifts = () => {
       type: InputTypes.SELECT,
       formKey: "user",
       label: t("User"),
-      options: users?.map((user) => {
-        return {
-          value: user._id,
-          label: user.name,
-        };
-      }),
+      options: users
+        ?.filter((user) => {
+          if (filterPanelFormElements?.role?.length > 0) {
+            return filterPanelFormElements?.role?.includes(user?.role?._id);
+          }
+          return true;
+        })
+        ?.map((user) => {
+          return {
+            value: user._id,
+            label: user.name,
+          };
+        }),
       placeholder: t("User"),
     },
   ];
