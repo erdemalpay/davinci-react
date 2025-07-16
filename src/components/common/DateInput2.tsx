@@ -46,6 +46,7 @@ export function DateInput({ date, setDate }: Props) {
               }
             }}
             showOutsideDays
+            captionLayout="dropdown"
           />
         </PopoverContent>
       </Popover>
