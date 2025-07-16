@@ -185,6 +185,7 @@ const FilterPanel = <T,>({
               <DateInput
                 key={input.formKey}
                 value={value}
+                mask="__ / __ / ____"
                 label={
                   input.required && input.label
                     ? input.label
@@ -196,6 +197,7 @@ const FilterPanel = <T,>({
                 isOnClearActive={input?.isOnClearActive ?? true}
                 isDateInitiallyOpen={input.isDateInitiallyOpen ?? false}
                 isTopFlexRow={input.isTopFlexRow ?? false}
+                isDebounce={input.isDebounce ?? true}
                 isReadOnly={input.isReadOnly ?? false}
               />
             )}

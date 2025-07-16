@@ -36,24 +36,30 @@ const DateInput = ({
   isReadOnly = false,
   isDateInitiallyOpen = false,
 }: DateInputProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const pickerRef = useRef<HTMLInputElement>(null);
 
-  // Convert value to Dayjs or null
-  const parsedValue = value ? dayjs(value, "YYYY-MM-DD", true) : null;
+  const parsedValue: Dayjs | null = value
+    ? dayjs(value, "YYYY-MM-DD", true)
+    : dayjs();
 
   useEffect(() => {
-    if (isDateInitiallyOpen && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.click();
+    if (isDateInitiallyOpen && pickerRef.current) {
+      pickerRef.current.focus();
+      pickerRef.current.click();
     }
   }, [isDateInitiallyOpen]);
 
-  const handleChange = (newValue: Dayjs | null) => {
+  const handlePickerChange = (newValue: Dayjs | null) => {
     if (newValue && newValue.isValid()) {
       onChange(newValue.format("YYYY-MM-DD"));
     } else {
       onChange(null);
     }
+  };
+
+  const handleClear = () => {
+    onChange(null);
+    onClear?.();
   };
 
   return (
@@ -68,33 +74,21 @@ const DateInput = ({
           {requiredField && <span className="text-red-400">* </span>}
         </H6>
       )}
-
       <div className="flex flex-row gap-2 items-center">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
-            format="DD/MM/YYYY"
             value={parsedValue}
-            onChange={handleChange}
-            disabled={disabled || isReadOnly}
+            onChange={handlePickerChange}
+            onAccept={handlePickerChange}
+            format="DD/MM/YYYY"
             slotProps={{
-              textField: {
-                fullWidth: true,
-                placeholder,
-                inputRef: inputRef,
-                inputProps: {
-                  readOnly: isReadOnly,
-                },
-              },
+              textField: { variant: "filled" },
             }}
           />
         </LocalizationProvider>
-
         {isOnClearActive && value && onClear && (
           <button
-            onClick={() => {
-              onChange(null);
-              onClear?.();
-            }}
+            onClick={handleClear}
             className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
