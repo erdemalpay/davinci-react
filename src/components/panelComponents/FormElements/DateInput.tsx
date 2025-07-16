@@ -1,4 +1,5 @@
 import { TextField } from "@mui/material";
+import { tr } from "date-fns/locale";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +9,6 @@ import { FaRegCalendar } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import InputMask from "react-input-mask";
 import { H6 } from "../Typography";
-
 dayjs.extend(customParseFormat);
 
 type DateInputProps = {
@@ -178,6 +178,7 @@ export default function DateInput({
                 month={month}
                 onMonthChange={setMonth}
                 captionLayout="dropdown"
+                locale={tr}
               />
             </div>
           )}
