@@ -42,7 +42,7 @@ export default function DateInput({
 }: DateInputProps) {
   const [inputText, setInputText] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
-  const [month, setMonth] = useState<Date>(new Date());
+  const [month, setMonth] = useState(new Date());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const todayYear = String(dayjs().year());
@@ -81,21 +81,22 @@ export default function DateInput({
     const y = digits.slice(4, 8) || todayYear;
     const str = `${d}/${m}/${y}`;
     const p = dayjs(str, "DD/MM/YYYY", true);
-    onChange(p.isValid() ? p.format("YYYY-MM-DD") : null);
+    if (p.isValid()) onChange(p.format("YYYY-MM-DD"));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     setInputText(raw);
-    const tryCommit = () => {
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) commit(raw);
-      else onChange(null);
+    const doCommit = () => {
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) {
+        commit(raw);
+      }
     };
     if (isDebounce) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(tryCommit, 1000);
+      timerRef.current = setTimeout(doCommit, 2000);
     } else {
-      tryCommit();
+      doCommit();
     }
   };
 
@@ -134,8 +135,8 @@ export default function DateInput({
           {requiredField && <span className="text-red-400">*</span>}
         </H6>
       )}
-      <div className="flex  flex-row justify-between items-center w-full">
-        <div className="relative flex items-center gap-2 w-full">
+      <div className="flex flex-row items-center justify-between">
+        <div className="relative flex items-center gap-2 w-full ">
           <InputMask
             mask="99/99/9999"
             maskChar=""
@@ -153,14 +154,13 @@ export default function DateInput({
               />
             )}
           </InputMask>
-
           <FaRegCalendar
             className="absolute right-3 cursor-pointer text-gray-500"
             onClick={() => setShowCalendar((v) => !v)}
           />
 
           {showCalendar && (
-            <div className="absolute top-full mt-1 z-10 bg-white shadow-lg rounded-md  p-2">
+            <div className="absolute top-full mt-1 z-10 bg-white shadow-lg rounded-md p-2">
               <DayPicker
                 mode="single"
                 selected={selectedDate}
@@ -175,7 +175,7 @@ export default function DateInput({
         {isOnClearActive && inputText && (
           <button
             onClick={handleClear}
-            className="w-8 h-8 ml-2 text-gray-500 hover:text-red-700"
+            className="w-8 h-8 text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
           </button>
