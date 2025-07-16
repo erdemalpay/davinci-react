@@ -185,7 +185,6 @@ const FilterPanel = <T,>({
               <DateInput
                 key={input.formKey}
                 value={value}
-                mask="__ / __ / ____"
                 label={
                   input.required && input.label
                     ? input.label
