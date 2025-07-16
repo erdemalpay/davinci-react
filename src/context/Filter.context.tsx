@@ -6,6 +6,7 @@ import {
   StockHistoryStatusEnum,
   VisitPageTabEnum,
 } from "../types";
+import { dateRanges } from "../utils/api/dateRanges";
 import { useLocationContext } from "./Location.context";
 
 type FormElementsState = {
@@ -67,6 +68,8 @@ type FilterContextType = {
   ) => void;
   filterActivityFormElements: FormElementsState;
   initialFilterActivityFormElements: FormElementsState;
+  initialFilterPanelServiceInvoiceFormElements: FormElementsState;
+  initialFilterPanelAllExpensesFormElements: FormElementsState;
   setFilterActivityFormElements: (state: FormElementsState) => void;
   isGameEnableEdit: boolean;
   setIsGameEnableEdit: (state: boolean) => void;
@@ -148,6 +151,7 @@ type FilterContextType = {
   setShowActivityFilters: (state: boolean) => void;
   showMenuBarcodeInfo: boolean;
   setShowMenuBarcodeInfo: (state: boolean) => void;
+  initialFilterPanelInvoiceFormElements: FormElementsState;
 };
 
 const FilterContext = createContext<FilterContextType>({
@@ -172,8 +176,8 @@ const FilterContext = createContext<FilterContextType>({
     user: "",
     date: "thisMonth",
     type: "",
-    after: "",
-    before: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
   },
   setFilterServicePanelFormElements: () => {},
   showStockFilters: false,
@@ -207,6 +211,22 @@ const FilterContext = createContext<FilterContextType>({
     expenseType: [],
     vendor: [],
   },
+  initialFilterPanelInvoiceFormElements: {
+    product: [],
+    service: [],
+    type: ExpenseTypes.STOCKABLE,
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: [],
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+  },
   setFilterBaseQuantityPanelFormElements: () => {},
   showGameStockLocationFilters: false,
   setShowGameStockLocationFilters: () => {},
@@ -238,6 +258,38 @@ const FilterContext = createContext<FilterContextType>({
     asc: 1,
     vendor: "",
     brand: "",
+  },
+  initialFilterPanelServiceInvoiceFormElements: {
+    product: [],
+    service: [],
+    type: ExpenseTypes.NONSTOCKABLE,
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: [],
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+  },
+  initialFilterPanelAllExpensesFormElements: {
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: [],
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
   },
   setFilterEnterConsumptionPanelFormElements: () => {},
   showLossProductFilters: false,
@@ -274,8 +326,8 @@ const FilterContext = createContext<FilterContextType>({
   },
   setFilterProductStockHistoryPanelFormElements: () => {},
   filterActivityFormElements: {
-    after: "",
-    before: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
     user: "",
     date: "thisMonth",
     type: "",
@@ -455,12 +507,44 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showActivityFilters, setShowActivityFilters] = useState(false);
   const [showMenuBarcodeInfo, setShowMenuBarcodeInfo] = useState(false);
+  const initialFilterPanelAllExpensesFormElements: FormElementsState = {
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: [],
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+  };
+  const initialFilterPanelInvoiceFormElements: FormElementsState = {
+    product: [],
+    service: [],
+    type: ExpenseTypes.STOCKABLE,
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: [],
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+  };
   const initialFilterActivityFormElements = {
     user: "",
     date: "thisMonth",
     type: "",
-    after: "",
-    before: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
   };
   const [filterActivityFormElements, setFilterActivityFormElements] =
     useState<FormElementsState>(initialFilterActivityFormElements);
@@ -532,29 +616,11 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [
     filterAllExpensesPanelFormElements,
     setFilterAllExpensesPanelFormElements,
-  ] = useState<FormElementsState>({
-    product: [],
-    service: [],
-    type: "",
-    vendor: "",
-    brand: "",
-    expenseType: "",
-    paymentMethod: [],
-    location: "",
-    date: "",
-    before: "",
-    after: "",
-    sort: "",
-    asc: 1,
-    search: "",
-  });
+  ] = useState<FormElementsState>(initialFilterPanelAllExpensesFormElements);
   const [visitsActiveTab, setVisitsActiveTab] = useState<number>(
     VisitPageTabEnum.DAILYVISIT
   );
-  const [
-    filterServiceInvoicePanelFormElements,
-    setFilterServiceInvoicePanelFormElements,
-  ] = useState<FormElementsState>({
+  const initialFilterPanelServiceInvoiceFormElements: FormElementsState = {
     product: [],
     service: [],
     type: ExpenseTypes.NONSTOCKABLE,
@@ -563,31 +629,20 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     expenseType: "",
     paymentMethod: [],
     location: "",
-    date: "",
-    before: "",
-    after: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
     sort: "",
     asc: 1,
     search: "",
-  });
-  const [filterPanelInvoiceFormElements, setFilterPanelInvoiceFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: ExpenseTypes.STOCKABLE,
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: [],
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      search: "",
-    });
+  };
+  const [
+    filterServiceInvoicePanelFormElements,
+    setFilterServiceInvoicePanelFormElements,
+  ] = useState<FormElementsState>(initialFilterPanelServiceInvoiceFormElements);
 
+  const [filterPanelInvoiceFormElements, setFilterPanelInvoiceFormElements] =
+    useState<FormElementsState>(initialFilterPanelInvoiceFormElements);
   const [
     filterVisitScheduleOverviewPanelFormElements,
     setFilterVisitScheduleOverviewPanelFormElements,
@@ -724,6 +779,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <FilterContext.Provider
       value={{
+        initialFilterPanelAllExpensesFormElements:
+          initialFilterPanelAllExpensesFormElements,
         filterProductPanelFormElements: filterProductPanelFormElements,
         setFilterProductPanelFormElements: setFilterProductPanelFormElements,
         showProductFilters: showProductFilters,
@@ -877,6 +934,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
         initialFilterActivityFormElements: initialFilterActivityFormElements,
         showMenuBarcodeInfo: showMenuBarcodeInfo,
         setShowMenuBarcodeInfo: setShowMenuBarcodeInfo,
+        initialFilterPanelInvoiceFormElements:
+          initialFilterPanelInvoiceFormElements,
+        initialFilterPanelServiceInvoiceFormElements:
+          initialFilterPanelServiceInvoiceFormElements,
       }}
     >
       {children}

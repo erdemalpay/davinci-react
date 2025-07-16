@@ -29,12 +29,14 @@ import {
 } from "../utils/api/account/countList";
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetAccountStocks } from "../utils/api/account/stock";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 
 const Count = () => {
   const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const navigate = useNavigate();
   const products = useGetAccountProducts();
+  const items = useGetMenuItems();
   const counts = useGetAccountCounts();
   const stocks = useGetAccountStocks();
   const { updateAccountCount, deleteAccountCount } = useAccountCountMutations();
@@ -69,6 +71,9 @@ const Count = () => {
           const foundProduct = products?.find(
             (p) => p?._id === countListProduct.product
           );
+          const foundMenuItem = items?.find(
+            (item) => item?.matchedProduct === countListProduct.product
+          );
           return {
             products: currentCount?.products,
             productId: countListProduct.product,
@@ -85,6 +90,8 @@ const Count = () => {
               foundProduct?.shelfInfo?.find(
                 (shelf) => shelf.location === Number(location)
               )?.shelf || "",
+            sku: foundMenuItem?.sku || "",
+            barcode: foundMenuItem?.barcode || "",
           };
         }
         return { product: "", countQuantity: 0 };
@@ -132,6 +139,8 @@ const Count = () => {
   const columns = [
     { key: t("Product"), isSortable: true },
     { key: t("Shelf"), isSortable: true },
+    { key: "SKU", isSortable: true },
+    { key: t("Barcode"), isSortable: true },
     { key: t("Quantity"), isSortable: true, className: "mx-auto" },
   ];
   if (isEnableEdit) {
@@ -250,6 +259,8 @@ const Count = () => {
       },
     },
     { key: "shelfInfo" },
+    { key: "sku" },
+    { key: "barcode" },
     {
       key: "countQuantity",
       node: (row: any) => {
@@ -394,6 +405,10 @@ const Count = () => {
             const foundProduct = products?.find(
               (p) => p?._id === countListProduct.product
             );
+            const foundMenuItem = items?.find(
+              (item) => item?.matchedProduct === countListProduct.product
+            );
+
             return {
               products: currentCount?.products,
               productId: countListProduct.product,
@@ -410,6 +425,8 @@ const Count = () => {
                 foundProduct?.shelfInfo?.find(
                   (shelf) => shelf.location === Number(location)
                 )?.shelf || "",
+              sku: foundMenuItem?.sku || "",
+              barcode: foundMenuItem?.barcode || "",
             };
           }
           return { product: "", countQuantity: 0 };
@@ -424,6 +441,7 @@ const Count = () => {
     products,
     stocks,
     counts,
+    items,
     i18n.language,
   ]);
   return (

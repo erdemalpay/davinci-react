@@ -8,6 +8,7 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
+  DateRangeKey,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
@@ -29,6 +30,7 @@ import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -67,6 +69,7 @@ const ServiceInvoice = () => {
     setShowServiceInvoiceFilters,
     isServiceInvoiceEnableEdit,
     setIsServiceInvoiceEnableEdit,
+    initialFilterPanelServiceInvoiceFormElements,
   } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -164,6 +167,21 @@ const ServiceInvoice = () => {
       }),
       placeholder: t("Date"),
       required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterServiceInvoicePanelFormElements({
+            ...filterServiceInvoicePanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
     },
     {
       type: InputTypes.DATE,
@@ -686,6 +704,11 @@ const ServiceInvoice = () => {
     formElements: filterServiceInvoicePanelFormElements,
     setFormElements: setFilterServiceInvoicePanelFormElements,
     closeFilters: () => setShowServiceInvoiceFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterServiceInvoicePanelFormElements(
+        initialFilterPanelServiceInvoiceFormElements
+      );
+    },
   };
   const pagination = invoicesPayload
     ? {
