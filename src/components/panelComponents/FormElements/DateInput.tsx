@@ -45,6 +45,7 @@ export default function DateInput({
   const [month, setMonth] = useState(new Date());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const todayYear = String(dayjs().year());
 
   useEffect(() => {
@@ -57,9 +58,15 @@ export default function DateInput({
     } else {
       setInputText("");
       setMonth(new Date());
-      if (isDateInitiallyOpen) setShowCalendar(true);
     }
-  }, [value, isDateInitiallyOpen]);
+  }, [value]);
+
+  useEffect(() => {
+    if (isDateInitiallyOpen) {
+      setShowCalendar(true);
+      inputRef.current?.focus();
+    }
+  }, [isDateInitiallyOpen]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -81,7 +88,9 @@ export default function DateInput({
     const y = digits.slice(4, 8) || todayYear;
     const str = `${d}/${m}/${y}`;
     const p = dayjs(str, "DD/MM/YYYY", true);
-    if (p.isValid()) onChange(p.format("YYYY-MM-DD"));
+    if (p.isValid()) {
+      onChange(p.format("YYYY-MM-DD"));
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,20 +103,21 @@ export default function DateInput({
     };
     if (isDebounce) {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(doCommit, 2000);
+      timerRef.current = setTimeout(doCommit, 1000);
     } else {
       doCommit();
     }
   };
 
-  const handleSelect = (date: Date | undefined) => {
-    if (!date) return;
-    const p = dayjs(date);
-    const txt = p.format("DD/MM/YYYY");
-    setInputText(txt);
-    onChange(p.format("YYYY-MM-DD"));
-    setMonth(date);
-    setShowCalendar(false);
+  const handleSelect = (date?: Date) => {
+    if (date) {
+      const p = dayjs(date);
+      const txt = p.format("DD/MM/YYYY");
+      setInputText(txt);
+      onChange(p.format("YYYY-MM-DD"));
+      setMonth(date);
+      setShowCalendar(false);
+    }
   };
 
   const handleClear = () => {
@@ -136,7 +146,7 @@ export default function DateInput({
         </H6>
       )}
       <div className="flex flex-row items-center justify-between">
-        <div className="relative flex items-center gap-2 w-full ">
+        <div className="relative flex items-center gap-2 w-full">
           <InputMask
             mask="99/99/9999"
             maskChar=""
@@ -151,6 +161,7 @@ export default function DateInput({
                 fullWidth
                 placeholder={placeholder}
                 InputProps={{ readOnly: isReadOnly }}
+                inputRef={inputRef}
               />
             )}
           </InputMask>
@@ -158,7 +169,6 @@ export default function DateInput({
             className="absolute right-3 cursor-pointer text-gray-500"
             onClick={() => setShowCalendar((v) => !v)}
           />
-
           {showCalendar && (
             <div className="absolute top-full mt-1 z-10 bg-white shadow-lg rounded-md p-2">
               <DayPicker
