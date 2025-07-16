@@ -6,6 +6,7 @@ import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
+  DateRangeKey,
   ExpenseTypes,
   NOTPAID,
   commonDateOptions,
@@ -20,6 +21,7 @@ import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMeth
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -56,6 +58,7 @@ const AllExpenses = () => {
     setFilterAllExpensesPanelFormElements,
     showAllExpensesFilters,
     setShowAllExpensesFilters,
+    initialFilterPanelAllExpensesFormElements,
   } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
@@ -146,6 +149,21 @@ const AllExpenses = () => {
       }),
       placeholder: t("Date"),
       required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterAllExpensesPanelFormElements({
+            ...filterAllExpensesPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
     },
     {
       type: InputTypes.DATE,
@@ -624,6 +642,11 @@ const AllExpenses = () => {
     formElements: filterAllExpensesPanelFormElements,
     setFormElements: setFilterAllExpensesPanelFormElements,
     closeFilters: () => setShowAllExpensesFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterAllExpensesPanelFormElements(
+        initialFilterPanelAllExpensesFormElements
+      );
+    },
   };
   const pagination = invoicesPayload
     ? {

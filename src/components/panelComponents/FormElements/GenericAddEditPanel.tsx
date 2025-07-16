@@ -17,6 +17,7 @@ import {
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import DateInput from "./DateInput";
 import HourInput from "./HourInput";
 import MonthYearInput from "./MonthYearInput";
 import SelectInput from "./SelectInput";
@@ -467,9 +468,33 @@ const GenericAddEditPanel = <T,>({
                       key={input.formKey}
                       className="flex flex-col gap-2"
                     >
+                      {input.type === InputTypes.DATE && (
+                        <DateInput
+                          key={input.formKey + resetTextInput}
+                          value={value}
+                          label={
+                            input.required && input.label
+                              ? input.label
+                              : input.label ?? ""
+                          }
+                          placeholder={input.placeholder ?? ""}
+                          onChange={(val) =>
+                            handleChange(input.formKey)(val ?? "")
+                          }
+                          requiredField={input.required}
+                          isOnClearActive={input?.isOnClearActive ?? true}
+                          isDateInitiallyOpen={
+                            input.isDateInitiallyOpen ?? false
+                          }
+                          isTopFlexRow={input.isTopFlexRow ?? false}
+                          isReadOnly={input.isReadOnly ?? false}
+                          onClear={() => {
+                            handleInputClear(input);
+                          }}
+                        />
+                      )}
                       {(input.type === InputTypes.TEXT ||
                         input.type === InputTypes.NUMBER ||
-                        input.type === InputTypes.DATE ||
                         input.type === InputTypes.TIME ||
                         input.type === InputTypes.COLOR ||
                         input.type === InputTypes.CHECKBOX ||

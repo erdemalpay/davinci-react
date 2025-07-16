@@ -4,6 +4,7 @@ import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, OptionType } from "../../../types";
+import DateInput from "../FormElements/DateInput";
 import HourInput from "../FormElements/HourInput";
 import MonthYearInput from "../FormElements/MonthYearInput";
 import SelectInput from "../FormElements/SelectInput";
@@ -154,7 +155,6 @@ const FilterPanel = <T,>({
           <div key={input.formKey} className="flex flex-col gap-2">
             {(input.type === InputTypes.TEXT ||
               input.type === InputTypes.NUMBER ||
-              input.type === InputTypes.DATE ||
               input.type === InputTypes.TIME ||
               input.type === InputTypes.COLOR ||
               input.type === InputTypes.PASSWORD) && (
@@ -179,6 +179,24 @@ const FilterPanel = <T,>({
                         [input.formKey]: "",
                       }))
                 }
+              />
+            )}
+            {input.type === InputTypes.DATE && (
+              <DateInput
+                key={input.formKey}
+                value={value}
+                label={
+                  input.required && input.label
+                    ? input.label
+                    : input.label ?? ""
+                }
+                placeholder={input.placeholder ?? ""}
+                onChange={(val) => handleChange(input.formKey)(val ?? "")}
+                requiredField={input.required}
+                isOnClearActive={input?.isOnClearActive ?? true}
+                isDateInitiallyOpen={input.isDateInitiallyOpen ?? false}
+                isTopFlexRow={input.isTopFlexRow ?? false}
+                isReadOnly={input.isReadOnly ?? false}
               />
             )}
             {input.type === InputTypes.SELECT && !input.isDisabled && (
