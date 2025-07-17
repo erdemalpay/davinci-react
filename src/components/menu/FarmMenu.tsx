@@ -76,6 +76,7 @@ const FarmMenu = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          isToolTipEnabled={false}
           title={t("Farm Menu")}
           isActionsActive={false}
         />

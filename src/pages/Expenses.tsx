@@ -2,19 +2,19 @@ import { FaLayerGroup } from "react-icons/fa";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { GrMoney } from "react-icons/gr";
 import { LuWallet } from "react-icons/lu";
-import { MdOutlineLocalLaundryService } from "react-icons/md";
+import { MdOutlineLocalLaundryService, MdPayments } from "react-icons/md";
 import AddVendorPayment from "../components/accounting/AddVendorPayment";
 import AllExpenses from "../components/accounting/AllExpenses";
 import Invoice from "../components/accounting/Invoice";
 import ServiceInvoice from "../components/accounting/ServiceInvoice";
 import BulkExpenseCreate from "../components/expense/BulkExpenseCreate";
+import VendorPayment from "../components/expense/VendorPayment";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ExpensesPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
-
 export const ExpensePageTabs = [
   {
     number: ExpensesPageTabEnum.INVOICE,
@@ -35,6 +35,13 @@ export const ExpensePageTabs = [
     label: "All Expenses",
     icon: <GrMoney className="text-lg font-thin" />,
     content: <AllExpenses />,
+    isDisabled: false,
+  },
+  {
+    number: ExpensesPageTabEnum.VENDORPAYMENTS,
+    label: "Vendor Payments",
+    icon: <MdPayments className="text-lg font-thin" />,
+    content: <VendorPayment />,
     isDisabled: false,
   },
   {
