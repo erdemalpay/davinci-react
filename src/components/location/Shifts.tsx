@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { LocationShiftType } from "../../types";
 import {
@@ -115,6 +116,13 @@ const Shifts = ({ locationId }: Props) => {
           const foundLocation = locations.find(
             (location) => location._id === locationId
           );
+          const isHourExists = foundLocation?.shifts?.some(
+            (shift) => shift.shift === shiftForm.hour
+          );
+          if (isHourExists) {
+            toast.error(t("This shift start hour already exists."));
+            return;
+          }
           const updatedShifts = [
             ...(foundLocation?.shifts || []),
             {
