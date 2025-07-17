@@ -132,7 +132,7 @@ const Invoice = () => {
       vendor: getItem(invoice?.vendor, vendors)?.name,
       lctn: getItem(invoice?.location, locations)?.name,
       formattedDate: formatAsLocalDate(invoice?.date),
-      unitPrice: parseFloat(
+      untPrice: parseFloat(
         (invoice?.totalExpense / invoice?.quantity).toFixed(4)
       ),
       expType: getItem(invoice?.expenseType, expenseTypes),
@@ -526,7 +526,31 @@ const Invoice = () => {
     {
       key: "isAfterCount",
       node: (row: any) => {
-        return row?.isAfterCount ? (
+        return isInvoiceEnableEdit ? (
+          <SwitchButton
+            checked={row?.isAfterCount}
+            onChange={() => {
+              updateAccountExpense({
+                id: row._id,
+                updates: {
+                  ...row,
+                  product: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.product,
+                  expenseType: invoices?.find(
+                    (invoice) => invoice?._id === row._id
+                  )?.expenseType,
+                  quantity: row.quantity,
+                  totalExpense: row.totalExpense,
+                  brand: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.brand,
+                  vendor: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.vendor,
+                  isAfterCount: !row?.isAfterCount,
+                },
+              });
+            }}
+          />
+        ) : row?.isAfterCount ? (
           <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
@@ -544,11 +568,11 @@ const Invoice = () => {
       },
     },
     {
-      key: "unitPrice",
+      key: "untPrice",
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
+            <P1>{row.untPrice} ₺</P1>
           </div>
         );
       },
@@ -737,10 +761,6 @@ const Invoice = () => {
               vendor: invoices?.find(
                 (invoice) => invoice?._id === rowToAction._id
               )?.vendor,
-              note: rowToAction.note,
-              location: rowToAction.location,
-              paymentMethod: rowToAction?.paymentMethod,
-              isStockIncrement: rowToAction?.isStockIncrement,
             },
           }}
         />
