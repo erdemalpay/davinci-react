@@ -36,6 +36,8 @@ const BulkProductAdding = () => {
       "category",
       "price",
       "onlinePrice",
+      "sku",
+      "barcode",
       "description",
     ];
     const translatedHeaders = [
@@ -47,6 +49,8 @@ const BulkProductAdding = () => {
       `${t("Menu Category")} *`,
       `${t("Price")} *`,
       t("Online Price"),
+      "SKU",
+      t("Barcode"),
       t("Description"),
     ];
 
@@ -106,6 +110,8 @@ const BulkProductAdding = () => {
             category: "İthal Oyunlar",
             price: 2100,
             onlinePrice: 2450,
+            sku: "7WD-001",
+            barcode: "1234567890123",
             description: "    ",
             image: "menu/7WondersDuel.png",
           },
@@ -117,6 +123,8 @@ const BulkProductAdding = () => {
             category: "     ",
             price: "  ",
             onlinePrice: "   ",
+            sku: " ",
+            barcode: " ",
             description: "    ",
             image: "   ",
           },
@@ -128,6 +136,8 @@ const BulkProductAdding = () => {
             category: "Pizzalar",
             price: 280,
             onlinePrice: "   ",
+            sku: " ",
+            barcode: " ",
             description: "Domates sos, Mozerella peyniri, Fesleğen",
             image: "menu/Margharita.png",
           },
@@ -183,6 +193,18 @@ const BulkProductAdding = () => {
       className: "text-orange-500",
     },
     {
+      key: "SKU",
+      isSortable: true,
+      correspondingKey: "sku",
+      className: "text-orange-500",
+    },
+    {
+      key: t("Barcode"),
+      isSortable: true,
+      correspondingKey: "barcode",
+      className: "text-orange-500",
+    },
+    {
       key: t("Description"),
       isSortable: true,
       correspondingKey: "description",
@@ -207,6 +229,8 @@ const BulkProductAdding = () => {
     { key: "category" },
     { key: "price" },
     { key: "onlinePrice" },
+    { key: "sku" },
+    { key: "barcode" },
     { key: "description" },
     ...(errorDataForProductBulkCreation?.length > 0
       ? [{ key: "errorNote" }]

@@ -393,6 +393,7 @@ const Invoice = () => {
       correspondingKey: "quantity",
     },
     { key: t("Is After Count"), isSortable: true },
+    { key: t("Stock Increment"), isSortable: true },
     { key: t("Unit Price"), isSortable: false },
     {
       key: t("Total Expense"),
@@ -526,6 +527,16 @@ const Invoice = () => {
       key: "isAfterCount",
       node: (row: any) => {
         return row?.isAfterCount ? (
+          <IoCheckmark className="text-blue-500 text-2xl" />
+        ) : (
+          <IoCloseOutline className="text-red-800 text-2xl" />
+        );
+      },
+    },
+    {
+      key: "isStockIncrement",
+      node: (row: any) => {
+        return row?.isStockIncrement ? (
           <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
