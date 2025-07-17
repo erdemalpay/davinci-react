@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetAccountPayments } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
+import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -11,6 +12,7 @@ import { passesFilter } from "../../utils/passesFilter";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
+
 type FormElementsState = {
   [key: string]: any;
 };
@@ -19,6 +21,7 @@ const VendorPayment = () => {
   const locations = useGetStockLocations();
   const users = useGetUsers();
   const paymentMethods = useGetAccountPaymentMethods();
+  const vendors = useGetAccountVendors();
   const payments = useGetAccountPayments();
   const [tableKey, setTableKey] = useState(0);
   const [filterPanelFormElements, setFilterPanelFormElements] =
@@ -49,6 +52,7 @@ const VendorPayment = () => {
           minimumFractionDigits: 0,
           maximumFractionDigits: 2,
         }),
+        vendorName: getItem(payment?.vendor, vendors)?.name,
       };
     });
   const [showFilters, setShowFilters] = useState(false);
@@ -57,6 +61,7 @@ const VendorPayment = () => {
     { key: "ID", isSortable: true },
     { key: t("Date"), isSortable: true, className: "min-w-32 pr-2" },
     { key: t("User"), isSortable: true },
+    { key: t("Vendor"), isSortable: true },
     { key: t("Location"), isSortable: true },
     {
       key: t("Payment Method"),
@@ -72,6 +77,7 @@ const VendorPayment = () => {
       className: "min-w-32 pr-2",
     },
     { key: "usr" },
+    { key: "vendorName" },
     { key: "lctn" },
     { key: "pymntMthd" },
     { key: "amount" },
@@ -153,7 +159,7 @@ const VendorPayment = () => {
     });
     setRows(filteredRows);
     setTableKey((prev) => prev + 1);
-  }, [payments, locations, paymentMethods, filterPanelFormElements]);
+  }, [payments, locations, paymentMethods, filterPanelFormElements, vendors]);
 
   return (
     <div className="w-[95%] mx-auto ">
