@@ -241,7 +241,10 @@ const Income = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         constantValues={{
-          date: format(new Date(), "yyyy-MM-dd"),
+          date: format(
+            new Date(Date.now() - 24 * 60 * 60 * 1000),
+            "yyyy-MM-dd"
+          ),
           location: selectedLocationId,
           isAfterCount: true,
         }}
