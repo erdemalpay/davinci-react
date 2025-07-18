@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGetAccountPayments } from "../../utils/api/account/payment";
+import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
+import {
+  useAccountPaymentMutations,
+  useGetAccountPayments,
+} from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
@@ -9,9 +14,11 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { InputTypes } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -21,6 +28,14 @@ const VendorPayment = () => {
   const locations = useGetStockLocations();
   const users = useGetUsers();
   const paymentMethods = useGetAccountPaymentMethods();
+  const { updateAccountPayment, deleteAccountPayment } =
+    useAccountPaymentMutations();
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>();
   const vendors = useGetAccountVendors();
   const payments = useGetAccountPayments();
   const [tableKey, setTableKey] = useState(0);
@@ -69,6 +84,8 @@ const VendorPayment = () => {
       isSortable: true,
     },
     { key: t("Amount"), isSortable: true },
+    { key: t("Is After Count"), isSortable: false },
+    { key: t("Actions"), isSortable: false },
   ];
   const rowKeys = [
     { key: "_id", className: "min-w-32 pr-2" },
@@ -80,7 +97,55 @@ const VendorPayment = () => {
     { key: "vendorName" },
     { key: "lctn" },
     { key: "pymntMthd" },
+    {
+      key: "isAfterCount",
+      node: (row: any) => {
+        return (
+          <SwitchButton
+            checked={row?.isAfterCount}
+            onChange={() => {
+              updateAccountPayment({
+                id: row._id,
+                updates: {
+                  isAfterCount: !row?.isAfterCount ?? false,
+                },
+              });
+            }}
+          />
+        );
+      },
+    },
     { key: "amount" },
+  ];
+  const inputs = [
+    {
+      type: InputTypes.DATE,
+      formKey: "date",
+      label: t("Date"),
+      placeholder: t("Date"),
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.NUMBER,
+      formKey: "amount",
+      label: t("Amount"),
+      placeholder: t("Amount"),
+      required: true,
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isAfterCount",
+      label: t("Is After Count"),
+      placeholder: t("Is After Count"),
+      required: true,
+      isTopFlexRow: true,
+    },
+  ];
+  const formKeys = [
+    { key: "date", type: FormKeyTypeEnum.STRING },
+    { key: "amount", type: FormKeyTypeEnum.NUMBER },
+    { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
 
   const filterPanelInputs = [
@@ -127,6 +192,54 @@ const VendorPayment = () => {
       isDatePicker: true,
     },
   ];
+  const actions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteAccountPayment(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Account Payment")}
+          text={`Payment ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+      isDisabled: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          submitItem={updateAccountPayment as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+        />
+      ) : null,
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+      isDisabled: false,
+    },
+  ];
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
@@ -167,7 +280,8 @@ const VendorPayment = () => {
         key={tableKey}
         rowKeys={rowKeys}
         columns={columns}
-        isActionsActive={false}
+        isActionsActive={true}
+        actions={actions}
         rows={rows}
         filterPanel={filterPanel}
         filters={filters}
