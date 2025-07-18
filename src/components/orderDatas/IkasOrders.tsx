@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { differenceInMinutes, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
@@ -462,9 +461,9 @@ const IkasOrders = () => {
       className: "text-red-500 cursor-pointer text-2xl  ",
       modal: rowToAction ? (
         <GenericAddEditPanel
-          isOpen={isEditModalOpen}
+          isOpen={isCancelOrderModalOpen}
           topClassName="flex flex-col gap-2 "
-          close={() => setIsEditModalOpen(false)}
+          close={() => setIsCancelOrderModalOpen(false)}
           inputs={cancelInputs}
           formKeys={cancelFormKeys}
           setForm={setCancelForm}
@@ -492,38 +491,38 @@ const IkasOrders = () => {
       isModalOpen: isCancelOrderModalOpen,
       setIsModal: setIsCancelOrderModalOpen,
     },
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          topClassName="flex flex-col gap-2 "
-          close={() => setIsEditModalOpen(false)}
-          inputs={editInputs}
-          formKeys={editFormKeys}
-          submitItem={updateOrder as any}
-          constantValues={{
-            status: rowToAction.status,
-            paidQuantity: rowToAction.paidQuantity,
-          }}
-          isEditMode={true}
-          itemToEdit={{
-            id: rowToAction?._id,
-            updates: {
-              paidQuantity: rowToAction?.paidQuantity,
-              status: rowToAction?.status,
-            },
-          }}
-        />
-      ) : null,
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
-      isDisabled: false, //will be opened for the neccessary cases
-    },
+    // {
+    //   name: t("Edit"),
+    //   icon: <FiEdit />,
+    //   className: "text-blue-500 cursor-pointer text-xl",
+    //   isModal: true,
+    //   setRow: setRowToAction,
+    //   modal: rowToAction ? (
+    //     <GenericAddEditPanel
+    //       isOpen={isEditModalOpen}
+    //       topClassName="flex flex-col gap-2 "
+    //       close={() => setIsEditModalOpen(false)}
+    //       inputs={editInputs}
+    //       formKeys={editFormKeys}
+    //       submitItem={updateOrder as any}
+    //       constantValues={{
+    //         status: rowToAction.status,
+    //         paidQuantity: rowToAction.paidQuantity,
+    //       }}
+    //       isEditMode={true}
+    //       itemToEdit={{
+    //         id: rowToAction?._id,
+    //         updates: {
+    //           paidQuantity: rowToAction?.paidQuantity,
+    //           status: rowToAction?.status,
+    //         },
+    //       }}
+    //     />
+    //   ) : null,
+    //   isModalOpen: isEditModalOpen,
+    //   setIsModal: setIsEditModalOpen,
+    //   isDisabled: false, //will be opened for the neccessary cases
+    // },
   ];
   useEffect(() => {
     setRows(allRows);

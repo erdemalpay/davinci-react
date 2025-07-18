@@ -452,7 +452,31 @@ const ServiceInvoice = () => {
     {
       key: "isAfterCount",
       node: (row: any) => {
-        return row?.isAfterCount ? (
+        return isServiceInvoiceEnableEdit ? (
+          <SwitchButton
+            checked={row?.isAfterCount}
+            onChange={() => {
+              updateAccountExpense({
+                id: row._id,
+                updates: {
+                  ...row,
+                  product: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.product,
+                  expenseType: invoices?.find(
+                    (invoice) => invoice?._id === row._id
+                  )?.expenseType,
+                  quantity: row.quantity,
+                  totalExpense: row.totalExpense,
+                  brand: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.brand,
+                  vendor: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.vendor,
+                  isAfterCount: !row?.isAfterCount,
+                },
+              });
+            }}
+          />
+        ) : row?.isAfterCount ? (
           <IoCheckmark className="text-blue-500 text-2xl" />
         ) : (
           <IoCloseOutline className="text-red-800 text-2xl" />
