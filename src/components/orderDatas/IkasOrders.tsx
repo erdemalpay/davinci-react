@@ -186,6 +186,7 @@ const IkasOrders = () => {
   ];
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+    { key: "Ikas ID", isSortable: true, correspondingKey: "ikasId" },
     {
       key: t("Sales Channel"),
       isSortable: true,
@@ -220,6 +221,7 @@ const IkasOrders = () => {
         );
       },
     },
+    { key: "ikasId", className: "min-w-40 pr-2" },
     { key: "paymentMethod", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
     {
