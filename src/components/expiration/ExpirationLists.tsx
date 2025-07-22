@@ -182,7 +182,9 @@ const ExpirationLists = () => {
       isPath: false,
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
     },
     {
       name: t("Edit"),
@@ -222,14 +224,16 @@ const ExpirationLists = () => {
       isPath: false,
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
     },
     {
       name: t("Toggle Active"),
       isDisabled:
         !showInactiveExpirationLists ||
         (user &&
-          ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+          ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
             user.role._id
           )),
       isModal: false,
@@ -312,7 +316,9 @@ const ExpirationLists = () => {
       label: t("Show Inactive ExpirationLists"),
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -349,7 +355,9 @@ const ExpirationLists = () => {
           columns={columns}
           filters={
             user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+              user.role._id
+            )
               ? filters
               : []
           }
@@ -363,7 +371,9 @@ const ExpirationLists = () => {
           title={t("Expiration Lists")}
           addButton={
             user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+              user.role._id
+            )
               ? addButton
               : undefined
           }

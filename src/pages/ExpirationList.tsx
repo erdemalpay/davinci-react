@@ -213,7 +213,7 @@ const ExpirationList = () => {
   });
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -321,7 +321,9 @@ const ExpirationList = () => {
       label: t("Location Edit"),
       isUpperSide: false,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+            user.role._id
+          )
         : true,
       node: (
         <Switch
@@ -426,14 +428,14 @@ const ExpirationList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
                 user.role._id
               )
                 ? actions
                 : undefined
             }
             addButton={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
                 user.role._id
               )
                 ? addButton

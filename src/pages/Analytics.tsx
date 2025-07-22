@@ -22,7 +22,7 @@ export default function Analytics() {
       label: "Gameplay",
       component: <GameplayAnalytics />,
       isDisabled: user
-        ? (user.role as Role)._id === RoleEnum.CATERINGMANAGER
+        ? (user.role as Role)._id === RoleEnum.OPERATIONSASISTANT
         : false,
     },
     {
@@ -30,7 +30,7 @@ export default function Analytics() {
       label: "Accounting",
       component: <AccountingAnalytics />,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
             (user.role as Role)._id
           )
         : true,

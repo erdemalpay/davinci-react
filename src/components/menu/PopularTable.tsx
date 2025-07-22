@@ -28,7 +28,7 @@ const PopularTable = ({ popularItems }: Props) => {
   // const isDisabledCondition = user
   //   ? ![
   //       RoleEnum.MANAGER,
-  //       RoleEnum.CATERINGMANAGER,
+  //       RoleEnum.OPERATIONALASISTANT,
   //       RoleEnum.GAMEMANAGER,
   //     ].includes(user?.role?._id)
   //   : true;

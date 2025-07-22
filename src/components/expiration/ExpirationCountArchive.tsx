@@ -47,9 +47,11 @@ const ExpirationCountArchive = () => {
   const [tableKey, setTableKey] = useState(0);
   const isDisabledCondition = !(
     user &&
-    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
-      user.role._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user.role._id)
   );
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({

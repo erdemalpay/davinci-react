@@ -5,8 +5,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { CountListPageTabEnum, RoleEnum } from "../../types";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
-import { Tab } from "../panelComponents/shared/types";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import { Tab } from "../panelComponents/shared/types";
 import CountArchive from "./CountArchive";
 import CountListProducts from "./CountListProducts";
 import CountLists from "./CountLists";
@@ -39,7 +39,7 @@ const CountListMenu = () => {
         icon: <FaSitemap />,
         content: <CountListProducts />,
         isDisabled: user
-          ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+          ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
               user.role._id
             )
           : true,

@@ -79,7 +79,7 @@ const Shifts = () => {
     ? ![
         RoleEnum.MANAGER,
         RoleEnum.GAMEMANAGER,
-        RoleEnum.CATERINGMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
       ].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
