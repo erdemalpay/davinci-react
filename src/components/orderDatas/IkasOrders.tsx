@@ -21,7 +21,6 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCancelIkasOrderMutation,
   useGetOrders,
-  useOrderMutations,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetTables } from "../../utils/api/table";
@@ -45,16 +44,13 @@ const IkasOrders = () => {
   const discounts = useGetOrderDiscounts();
   const { mutate: cancelIkasOrder } = useCancelIkasOrderMutation();
   const [cancelForm, setCancelForm] = useState({ quantity: 1 });
-  const { updateOrder } = useOrderMutations();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
-
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -158,32 +154,7 @@ const IkasOrders = () => {
   };
   allRows?.push(totalRow as any);
   const [rows, setRows] = useState(allRows);
-  const editInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "status",
-      label: t("Status"),
-      options: orderFilterStatusOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Status"),
-      required: true,
-    },
-    {
-      type: InputTypes.NUMBER,
-      formKey: "paidQuantity",
-      label: t("Quantity"),
-      placeholder: t("Quantity"),
-      required: true,
-    },
-  ];
-  const editFormKeys = [
-    { key: "status", type: FormKeyTypeEnum.STRING },
-    { key: "paidQuantity", type: FormKeyTypeEnum.NUMBER },
-  ];
+  console.log("rows", rows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
     { key: "Ikas ID", isSortable: true, correspondingKey: "ikasId" },
