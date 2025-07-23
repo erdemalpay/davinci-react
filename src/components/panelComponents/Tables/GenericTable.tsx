@@ -49,6 +49,7 @@ type Props<T> = {
   columns: ColumnType[];
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
+  searchRowKeys?: RowKeyType<T>[];
   actions?: ActionType<T>[];
   isPdf?: boolean;
   collapsibleActions?: ActionType<T>[];
@@ -105,6 +106,7 @@ const GenericTable = <T,>({
   isActionsAtFront = false,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
+  searchRowKeys,
   tooltipLimit = 40,
   rowClassNameFunction,
   excelFileName,
@@ -169,7 +171,7 @@ const GenericTable = <T,>({
   const filteredRows = !isSearch
     ? initialRows()
     : initialRows().filter((row) =>
-        usedRowKeys?.some((rowKey) => {
+        (searchRowKeys ?? usedRowKeys)?.some((rowKey) => {
           const value = row[rowKey.key as keyof typeof row];
           const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
           if (typeof value === "string") {
@@ -729,18 +731,31 @@ const GenericTable = <T,>({
         <div className=" flex flex-row gap-4 justify-between items-center ">
           {/* search button */}
           {isSearch && (
-            <input
-              id="search"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder={t("Search")}
-              className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
-            />
+            <div className="relative w-fit">
+              <input
+                id="search"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder={t("Search")}
+                className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-lg"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
           )}
+
           {/* outside search button */}
           {outsideSearch?.()}
           {/* filters  for upperside*/}
