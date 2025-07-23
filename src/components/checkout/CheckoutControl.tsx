@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutControl, commonDateOptions } from "../../types";
 import { useGetAccountExpensesWithoutPagination } from "../../utils/api/account/expense";
@@ -26,37 +27,25 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const CheckoutControlPage = () => {
   const { t } = useTranslation();
   const paymentMethods = useGetAccountPaymentMethods();
   const { selectedLocationId } = useLocationContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: "",
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: "cash",
-      location: selectedLocationId,
-      date: "thisMonth",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      user: "",
-    });
-  const incomes = useGetQueryIncomes(filterPanelFormElements);
-  const checkoutControls = useGetCheckoutControls(filterPanelFormElements);
-  const expenses = useGetAccountExpensesWithoutPagination(
-    filterPanelFormElements
+  const {
+    initialFilterCheckoutPanelFormElements,
+    filterCheckoutPanelFormElements,
+    setFilterCheckoutPanelFormElements,
+  } = useFilterContext();
+
+  const incomes = useGetQueryIncomes(filterCheckoutPanelFormElements);
+  const checkoutControls = useGetCheckoutControls(
+    filterCheckoutPanelFormElements
   );
-  const vendorPayments = useGetQueryPayments(filterPanelFormElements);
-  const cashouts = useGetQueryCashouts(filterPanelFormElements);
+  const expenses = useGetAccountExpensesWithoutPagination(
+    filterCheckoutPanelFormElements
+  );
+  const vendorPayments = useGetQueryPayments(filterCheckoutPanelFormElements);
+  const cashouts = useGetQueryCashouts(filterCheckoutPanelFormElements);
   const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
@@ -123,7 +112,7 @@ const CheckoutControlPage = () => {
         if (d === fromDateStr && x.isAfterCount && fromDateStr !== toDateStr) {
           return true;
         }
-        if (d === toDateStr && x.isAfterCount === false) {
+        if (d === toDateStr && !x?.isAfterCount) {
           return true;
         }
         return false;
@@ -529,13 +518,18 @@ const CheckoutControlPage = () => {
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
+    formElements: filterCheckoutPanelFormElements,
+    setFormElements: setFilterCheckoutPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterCheckoutPanelFormElements(
+        initialFilterCheckoutPanelFormElements
+      );
+    },
   };
   useEffect(() => {
-    setFilterPanelFormElements((prev) => ({
-      ...prev,
+    setFilterCheckoutPanelFormElements(() => ({
+      ...filterCheckoutPanelFormElements,
       location: selectedLocationId,
     }));
   }, [selectedLocationId]);

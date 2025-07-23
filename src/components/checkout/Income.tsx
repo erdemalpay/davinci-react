@@ -1,8 +1,9 @@
-import { format, startOfMonth } from "date-fns";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -31,9 +32,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Income = () => {
   const { t } = useTranslation();
   const incomes = useGetCheckoutIncomes();
@@ -48,6 +46,11 @@ const Income = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutIncome>();
   const [showFilters, setShowFilters] = useState(false);
+  const {
+    initialFilterCheckoutPanelFormElements,
+    filterCheckoutPanelFormElements,
+    setFilterCheckoutPanelFormElements,
+  } = useFilterContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -56,17 +59,7 @@ const Income = () => {
     date: "",
     amount: 0,
   });
-  const initialFilterPanelFormElements = {
-    user: "",
-    location: "",
-    date: "",
-    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
-    before: "",
-  };
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      ...initialFilterPanelFormElements,
-    });
+
   if (!users || !locations || !incomes) {
     return <></>;
   }
@@ -140,8 +133,8 @@ const Income = () => {
       }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
+          setFilterCheckoutPanelFormElements({
+            ...filterCheckoutPanelFormElements,
             ...dateRange(),
           });
         }
@@ -336,23 +329,25 @@ const Income = () => {
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
+    formElements: filterCheckoutPanelFormElements,
+    setFormElements: setFilterCheckoutPanelFormElements,
     closeFilters: () => setShowFilters(false),
     additionalFilterCleanFunction: () => {
-      setFilterPanelFormElements(initialFilterPanelFormElements);
+      setFilterCheckoutPanelFormElements(
+        initialFilterCheckoutPanelFormElements
+      );
     },
   };
 
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       return (
-        (filterPanelFormElements.before === "" ||
-          row.date <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row.date >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, row.location) &&
-        passesFilter(filterPanelFormElements.user, row.user)
+        (filterCheckoutPanelFormElements.before === "" ||
+          row.date <= filterCheckoutPanelFormElements.before) &&
+        (filterCheckoutPanelFormElements.after === "" ||
+          row.date >= filterCheckoutPanelFormElements.after) &&
+        passesFilter(filterCheckoutPanelFormElements.location, row.location) &&
+        passesFilter(filterCheckoutPanelFormElements.user, row.user)
       );
     });
     setRows(filteredRows);
@@ -362,7 +357,7 @@ const Income = () => {
     );
     setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [incomes, locations, filterPanelFormElements, collections]);
+  }, [incomes, locations, filterCheckoutPanelFormElements, collections]);
 
   return (
     <>

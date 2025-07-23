@@ -167,7 +167,7 @@ const Service = () => {
     user &&
     ![
       RoleEnum.MANAGER,
-      RoleEnum.CATERINGMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
       RoleEnum.GAMEMANAGER,
     ].includes(user?.role?._id)
   ) {
@@ -215,7 +215,7 @@ const Service = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -247,7 +247,7 @@ const Service = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -290,7 +290,7 @@ const Service = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -365,7 +365,7 @@ const Service = () => {
             user
               ? [
                   RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.OPERATIONSASISTANT,
                   RoleEnum.GAMEMANAGER,
                 ].includes(user?.role?._id)
               : false

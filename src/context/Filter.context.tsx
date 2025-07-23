@@ -16,10 +16,13 @@ type FormElementsState = {
 type FilterContextType = {
   filterStockPanelFormElements: FormElementsState;
   setFilterStockPanelFormElements: (state: FormElementsState) => void;
+  initialFilterCheckoutPanelFormElements: FormElementsState;
   filterProductPanelFormElements: FormElementsState;
   setFilterProductPanelFormElements: (state: FormElementsState) => void;
   filterServicePanelFormElements: FormElementsState;
   setFilterServicePanelFormElements: (state: FormElementsState) => void;
+  filterCheckoutPanelFormElements: FormElementsState;
+  setFilterCheckoutPanelFormElements: (state: FormElementsState) => void;
   showProductFilters: boolean;
   setShowProductFilters: (state: boolean) => void;
   showServiceFilters: boolean;
@@ -163,6 +166,31 @@ const FilterContext = createContext<FilterContextType>({
     name: "",
   },
   setFilterProductPanelFormElements: () => {},
+  filterCheckoutPanelFormElements: {
+    user: "",
+    location: "",
+    date: "",
+    after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
+    before: "",
+  },
+  initialFilterCheckoutPanelFormElements: {
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "cash",
+    location: "",
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+    user: "",
+  },
+  setFilterCheckoutPanelFormElements: () => {},
   showProductFilters: false,
   setShowProductFilters: () => {},
   showServiceFilters: false,
@@ -507,6 +535,25 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showActivityFilters, setShowActivityFilters] = useState(false);
   const [showMenuBarcodeInfo, setShowMenuBarcodeInfo] = useState(false);
+  const initialFilterCheckoutPanelFormElements: FormElementsState = {
+    product: [],
+    service: [],
+    type: "",
+    vendor: "",
+    brand: "",
+    expenseType: "",
+    paymentMethod: "cash",
+    location: selectedLocationId,
+    date: "thisMonth",
+    before: dateRanges.thisMonth().before,
+    after: dateRanges.thisMonth().after,
+    sort: "",
+    asc: 1,
+    search: "",
+    user: "",
+  };
+  const [filterCheckoutPanelFormElements, setFilterCheckoutPanelFormElements] =
+    useState<FormElementsState>(initialFilterCheckoutPanelFormElements);
   const initialFilterPanelAllExpensesFormElements: FormElementsState = {
     product: [],
     service: [],
@@ -938,6 +985,10 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           initialFilterPanelInvoiceFormElements,
         initialFilterPanelServiceInvoiceFormElements:
           initialFilterPanelServiceInvoiceFormElements,
+        initialFilterCheckoutPanelFormElements:
+          initialFilterCheckoutPanelFormElements,
+        setFilterCheckoutPanelFormElements: setFilterCheckoutPanelFormElements,
+        filterCheckoutPanelFormElements: filterCheckoutPanelFormElements,
       }}
     >
       {children}

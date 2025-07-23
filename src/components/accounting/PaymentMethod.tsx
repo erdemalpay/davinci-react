@@ -48,9 +48,11 @@ const PaymentMethods = () => {
   ];
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -153,7 +155,7 @@ const PaymentMethods = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -185,7 +187,7 @@ const PaymentMethods = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -214,7 +216,7 @@ const PaymentMethods = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -240,7 +242,7 @@ const PaymentMethods = () => {
             user
               ? [
                   RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.OPERATIONSASISTANT,
                   RoleEnum.GAMEMANAGER,
                 ].includes(user?.role?._id)
               : false

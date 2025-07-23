@@ -67,9 +67,11 @@ const Vendor = () => {
   ];
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -145,7 +147,7 @@ const Vendor = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -177,7 +179,7 @@ const Vendor = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -207,7 +209,7 @@ const Vendor = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -253,7 +255,7 @@ const Vendor = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -279,7 +281,7 @@ const Vendor = () => {
             user
               ? [
                   RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.OPERATIONSASISTANT,
                   RoleEnum.GAMEMANAGER,
                 ].includes(user?.role?._id)
               : false

@@ -11,8 +11,8 @@ import {
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const ProductCategoriesPage = () => {
   const { t } = useTranslation();
@@ -38,9 +38,11 @@ const ProductCategoriesPage = () => {
   ];
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -90,7 +92,7 @@ const ProductCategoriesPage = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -121,7 +123,7 @@ const ProductCategoriesPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -150,7 +152,7 @@ const ProductCategoriesPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -175,7 +177,7 @@ const ProductCategoriesPage = () => {
             user
               ? [
                   RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.OPERATIONSASISTANT,
                   RoleEnum.GAMEMANAGER,
                 ].includes(user?.role?._id)
               : false

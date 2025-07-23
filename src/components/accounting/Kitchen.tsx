@@ -16,10 +16,10 @@ import { useGetAllUserRoles } from "../../utils/api/user";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const KitchenPage = () => {
   const { t } = useTranslation();
@@ -92,9 +92,11 @@ const KitchenPage = () => {
 
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
   ) {
     if (isLocationEdit) {
       locations?.forEach((item) => {
@@ -179,7 +181,7 @@ const KitchenPage = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -211,7 +213,7 @@ const KitchenPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id) && !isLocationEdit
         : true,
@@ -240,7 +242,7 @@ const KitchenPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id) && !isLocationEdit
         : true,
@@ -250,7 +252,7 @@ const KitchenPage = () => {
     user &&
     ![
       RoleEnum.MANAGER,
-      RoleEnum.CATERINGMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
       RoleEnum.GAMEMANAGER,
     ].includes(user?.role?._id);
   const filters = [

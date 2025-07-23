@@ -91,9 +91,11 @@ const EnterConsumption = () => {
   const [rows, setRows] = useState(allRows);
   const isDisabledCondition = !(
     user &&
-    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.CATERINGMANAGER].includes(
-      user.role._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user.role._id)
   );
   const consumptInputs = [
     {

@@ -205,7 +205,7 @@ const CountList = () => {
   });
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -313,7 +313,9 @@ const CountList = () => {
       label: t("Location Edit"),
       isUpperSide: false,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+            user.role._id
+          )
         : true,
       node: (
         <Switch
@@ -412,14 +414,14 @@ const CountList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
                 user.role._id
               )
                 ? actions
                 : undefined
             }
             addButton={
-              [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
                 user.role._id
               )
                 ? addButton

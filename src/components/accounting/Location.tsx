@@ -29,7 +29,7 @@ const LocationPage = () => {
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,
-        RoleEnum.CATERINGMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
         RoleEnum.GAMEMANAGER,
       ].includes(user?.role?._id)
     : true;

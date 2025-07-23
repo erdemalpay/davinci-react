@@ -183,7 +183,9 @@ const CountLists = () => {
       isPath: false,
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
     },
     {
       name: t("Edit"),
@@ -223,14 +225,16 @@ const CountLists = () => {
       isPath: false,
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
     },
     {
       name: t("Toggle Active"),
       isDisabled:
         !showInactiveCountLists ||
         (user &&
-          ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(
+          ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
             user.role._id
           )),
       isModal: false,
@@ -313,7 +317,9 @@ const CountLists = () => {
       label: t("Show Inactive CountLists"),
       isDisabled:
         user &&
-        ![RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id),
+        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+          user.role._id
+        ),
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -344,7 +350,9 @@ const CountLists = () => {
           columns={columns}
           filters={
             user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+              user.role._id
+            )
               ? filters
               : []
           }
@@ -356,7 +364,9 @@ const CountLists = () => {
           title={t("Count Lists")}
           addButton={
             user &&
-            [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER].includes(user.role._id)
+            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
+              user.role._id
+            )
               ? addButton
               : undefined
           }

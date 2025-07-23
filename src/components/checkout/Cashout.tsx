@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { CheckoutCashout } from "../../types";
 import {
@@ -22,9 +23,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const Cashout = () => {
   const { t } = useTranslation();
   const cashouts = useGetCheckoutCashouts();
@@ -37,16 +35,14 @@ const Cashout = () => {
   const [rowToAction, setRowToAction] = useState<CheckoutCashout>();
   const [generalTotal, setGeneralTotal] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const {
+    filterCheckoutPanelFormElements,
+    setFilterCheckoutPanelFormElements,
+  } = useFilterContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      user: "",
-      location: "",
-      date: "",
-    });
   const {
     createCheckoutCashout,
     deleteCheckoutCashout,
@@ -240,9 +236,9 @@ const Cashout = () => {
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       return (
-        passesFilter(filterPanelFormElements.location, row?.location) &&
-        passesFilter(filterPanelFormElements.user, row?.user) &&
-        passesFilter(filterPanelFormElements.date, row?.date)
+        passesFilter(filterCheckoutPanelFormElements.location, row?.location) &&
+        passesFilter(filterCheckoutPanelFormElements.user, row?.user) &&
+        passesFilter(filterCheckoutPanelFormElements.date, row?.date)
       );
     });
     setRows(filteredRows);
@@ -252,7 +248,7 @@ const Cashout = () => {
     );
     setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [cashouts, locations, filterPanelFormElements]);
+  }, [cashouts, locations, filterCheckoutPanelFormElements]);
   const filters = [
     {
       label: t("Show Filters"),
@@ -279,8 +275,8 @@ const Cashout = () => {
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
+    formElements: filterCheckoutPanelFormElements,
+    setFormElements: setFilterCheckoutPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
   return (

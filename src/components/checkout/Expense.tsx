@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
@@ -41,10 +42,6 @@ import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
-
 const Expenses = () => {
   const { t } = useTranslation();
   const { selectedLocationId } = useLocationContext();
@@ -55,27 +52,15 @@ const Expenses = () => {
     allExpenseForm,
     setAllExpenseForm,
   } = useGeneralContext();
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      product: [],
-      service: [],
-      type: "",
-      vendor: "",
-      brand: "",
-      expenseType: "",
-      paymentMethod: "cash",
-      location: "",
-      date: "",
-      before: "",
-      after: "",
-      sort: "",
-      asc: 1,
-      search: "",
-    });
+  const {
+    initialFilterCheckoutPanelFormElements,
+    filterCheckoutPanelFormElements,
+    setFilterCheckoutPanelFormElements,
+  } = useFilterContext();
   const invoicesPayload = useGetAccountExpenses(
     currentPage,
     rowsPerPage,
-    filterPanelFormElements
+    filterCheckoutPanelFormElements
   );
   const invoices = invoicesPayload?.data;
   const locations = useGetStockLocations();
@@ -138,12 +123,14 @@ const Expenses = () => {
     ProductInput({
       products: products,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
+      isDisabled:
+        filterCheckoutPanelFormElements?.type !== ExpenseTypes.STOCKABLE,
     }),
     ServiceInput({
       services: services,
       required: true,
-      isDisabled: filterPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
+      isDisabled:
+        filterCheckoutPanelFormElements?.type !== ExpenseTypes.NONSTOCKABLE,
     }),
 
     VendorInput({ vendors: vendors, required: true }),
@@ -647,9 +634,14 @@ const Expenses = () => {
   const filterPanel = {
     isFilterPanelActive: showFilters,
     inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
+    formElements: filterCheckoutPanelFormElements,
+    setFormElements: setFilterCheckoutPanelFormElements,
     closeFilters: () => setShowFilters(false),
+    additionalFilterCleanFunction: () => {
+      setFilterCheckoutPanelFormElements(
+        initialFilterCheckoutPanelFormElements
+      );
+    },
   };
   const pagination = invoicesPayload
     ? {
@@ -662,11 +654,11 @@ const Expenses = () => {
       <TextInput
         placeholder={t("Search")}
         type="text"
-        value={filterPanelFormElements.search}
+        value={filterCheckoutPanelFormElements.search}
         isDebounce={true}
         onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
+          setFilterCheckoutPanelFormElements(() => ({
+            ...filterCheckoutPanelFormElements,
             search: value,
           }))
         }
@@ -674,18 +666,18 @@ const Expenses = () => {
     );
   };
   const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
+    filterPanelFormElements: filterCheckoutPanelFormElements,
+    setFilterPanelFormElements: setFilterCheckoutPanelFormElements,
   };
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [filterCheckoutPanelFormElements]);
   useEffect(() => {
     setTableKey((prev) => prev + 1);
     setRows(allRows);
   }, [
     invoicesPayload,
-    filterPanelFormElements,
+    filterCheckoutPanelFormElements,
     products,
     products,
     expenseTypes,

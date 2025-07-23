@@ -58,7 +58,7 @@ const Product = () => {
   const isDisabledCondition = user
     ? ![
         RoleEnum.MANAGER,
-        RoleEnum.CATERINGMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
         RoleEnum.GAMEMANAGER,
       ].includes(user?.role?._id)
     : true;

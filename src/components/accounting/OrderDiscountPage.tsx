@@ -12,10 +12,10 @@ import {
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import SwitchButton from "../panelComponents/common/SwitchButton";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import SwitchButton from "../panelComponents/common/SwitchButton";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -37,7 +37,7 @@ const OrderDiscountPage = () => {
     (user &&
       [
         RoleEnum.MANAGER,
-        RoleEnum.CATERINGMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
         RoleEnum.GAMEMANAGER,
       ].includes(user?.role?._id)) ??
     false;
@@ -219,7 +219,7 @@ const OrderDiscountPage = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -255,7 +255,7 @@ const OrderDiscountPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -295,7 +295,7 @@ const OrderDiscountPage = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,

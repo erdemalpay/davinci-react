@@ -9,6 +9,7 @@ import { useUserContext } from "../../context/User.context";
 import {
   DESSERTEXPENSETYPE,
   RoleEnum,
+  SANDWICHEXPENSETYPE,
   StockHistoryStatusEnum,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -75,11 +76,17 @@ const DessertStock = () => {
     : true;
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
-      .filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes(
-          DESSERTEXPENSETYPE
-        )
-      )
+      .filter((stock) => {
+        const product = getItem(stock?.product, products);
+        if (!product || product?.deleted) return false;
+        const productExpenseType = product?.expenseType;
+        return (
+          productExpenseType &&
+          Array.isArray(productExpenseType) &&
+          (productExpenseType.includes(DESSERTEXPENSETYPE) ||
+            productExpenseType.includes(SANDWICHEXPENSETYPE))
+        );
+      })
       .reduce((acc, stock) => {
         const expense = parseFloat(
           (
@@ -103,11 +110,17 @@ const DessertStock = () => {
   ] = useState(false);
   const [rows, setRows] = useState(() => {
     const groupedProducts = stocks
-      ?.filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes(
-          DESSERTEXPENSETYPE
-        )
-      )
+      ?.filter((stock) => {
+        const product = getItem(stock?.product, products);
+        if (!product || product?.deleted) return false;
+        const productExpenseType = product?.expenseType;
+        return (
+          productExpenseType &&
+          Array.isArray(productExpenseType) &&
+          (productExpenseType.includes(DESSERTEXPENSETYPE) ||
+            productExpenseType.includes(SANDWICHEXPENSETYPE))
+        );
+      })
       ?.reduce((acc: any, stock) => {
         const rowProduct = getItem(stock?.product, products);
         const rowItem = getItem(rowProduct?.matchedMenuItem, items);
@@ -431,11 +444,17 @@ const DessertStock = () => {
   ];
   useEffect(() => {
     const processedRows = stocks
-      ?.filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes(
-          DESSERTEXPENSETYPE
-        )
-      )
+      ?.filter((stock) => {
+        const product = getItem(stock?.product, products);
+        if (!product || product?.deleted) return false;
+        const productExpenseType = product?.expenseType;
+        return (
+          productExpenseType &&
+          Array.isArray(productExpenseType) &&
+          (productExpenseType.includes(DESSERTEXPENSETYPE) ||
+            productExpenseType.includes(SANDWICHEXPENSETYPE))
+        );
+      })
       ?.filter((stock) => {
         const rowProduct = getItem(stock?.product, products);
         return (

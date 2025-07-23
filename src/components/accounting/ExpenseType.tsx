@@ -63,9 +63,11 @@ const ExpenseType = () => {
   ];
   if (
     user &&
-    [RoleEnum.MANAGER, RoleEnum.CATERINGMANAGER, RoleEnum.GAMEMANAGER].includes(
-      user?.role?._id
-    )
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+      RoleEnum.GAMEMANAGER,
+    ].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -133,7 +135,7 @@ const ExpenseType = () => {
     isDisabled: user
       ? ![
           RoleEnum.MANAGER,
-          RoleEnum.CATERINGMANAGER,
+          RoleEnum.OPERATIONSASISTANT,
           RoleEnum.GAMEMANAGER,
         ].includes(user?.role?._id)
       : true,
@@ -163,7 +165,7 @@ const ExpenseType = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -193,7 +195,7 @@ const ExpenseType = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -238,7 +240,7 @@ const ExpenseType = () => {
       isDisabled: user
         ? ![
             RoleEnum.MANAGER,
-            RoleEnum.CATERINGMANAGER,
+            RoleEnum.OPERATIONSASISTANT,
             RoleEnum.GAMEMANAGER,
           ].includes(user?.role?._id)
         : true,
@@ -264,7 +266,7 @@ const ExpenseType = () => {
             user
               ? [
                   RoleEnum.MANAGER,
-                  RoleEnum.CATERINGMANAGER,
+                  RoleEnum.OPERATIONSASISTANT,
                   RoleEnum.GAMEMANAGER,
                 ].includes(user?.role?._id)
               : false

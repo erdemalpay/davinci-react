@@ -742,7 +742,7 @@ export enum RoleEnum {
   MANAGER = 1,
   GAMEMASTER,
   GAMEMANAGER,
-  CATERINGMANAGER,
+  OPERATIONSASISTANT,
   BARISTA,
   KITCHEN,
   SERVICE,
@@ -754,7 +754,7 @@ export enum RoleNameEnum {
   MANAGER = "Manager",
   GAMEMASTER = "Game Master",
   GAMEMANAGER = "Game Manager",
-  CATERINGMANAGER = "Catering Manager",
+  OPERATIONALASISTANT = "Operations Assistant",
   BARISTA = "Barista",
   KITCHEN = "Kitchen",
   SERVICE = "Service",
@@ -1516,5 +1516,6 @@ export type PopularDiscounts = {
 
 export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
+export const SANDWICHEXPENSETYPE = "sand";
 export const FARMBURGERCATEGORYID = 30;
 export type OptionType = { value: any; label: string; imageUrl?: string };
