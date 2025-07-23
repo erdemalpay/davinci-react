@@ -42,6 +42,17 @@ export function useAccountExpenseMutations() {
 
   return { deleteAccountExpense, updateAccountExpense, createAccountExpense };
 }
+
+export function useAccountExpenseSimpleMutations() {
+  const { updateItem: updateAccountExpenseSimple } =
+    useMutationApi<AccountExpense>({
+      baseQuery: `${Paths.Accounting}/expenses/simple`,
+    });
+
+  return {
+    updateAccountExpenseSimple,
+  };
+}
 export function useGetAccountProductExpenses(product: string) {
   const url = `${Paths.Accounting}/product_expense`;
   return useGetList<AccountExpense>(
