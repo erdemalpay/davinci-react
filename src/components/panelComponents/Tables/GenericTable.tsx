@@ -49,6 +49,7 @@ type Props<T> = {
   columns: ColumnType[];
   isCollapsible?: boolean;
   rowKeys: RowKeyType<T>[];
+  searchRowKeys?: RowKeyType<T>[];
   actions?: ActionType<T>[];
   isPdf?: boolean;
   collapsibleActions?: ActionType<T>[];
@@ -105,6 +106,7 @@ const GenericTable = <T,>({
   isActionsAtFront = false,
   isCollapsibleCheckActive = true,
   isEmtpyExcel = false,
+  searchRowKeys,
   tooltipLimit = 40,
   rowClassNameFunction,
   excelFileName,
@@ -169,7 +171,7 @@ const GenericTable = <T,>({
   const filteredRows = !isSearch
     ? initialRows()
     : initialRows().filter((row) =>
-        usedRowKeys?.some((rowKey) => {
+        (searchRowKeys ?? usedRowKeys)?.some((rowKey) => {
           const value = row[rowKey.key as keyof typeof row];
           const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
           if (typeof value === "string") {

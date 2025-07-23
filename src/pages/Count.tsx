@@ -139,8 +139,6 @@ const Count = () => {
   const columns = [
     { key: t("Product"), isSortable: true },
     { key: t("Shelf"), isSortable: true },
-    { key: "SKU", isSortable: true },
-    { key: t("Barcode"), isSortable: true },
     { key: t("Quantity"), isSortable: true, className: "mx-auto" },
   ];
   if (isEnableEdit) {
@@ -259,8 +257,6 @@ const Count = () => {
       },
     },
     { key: "shelfInfo" },
-    { key: "sku" },
-    { key: "barcode" },
     {
       key: "countQuantity",
       node: (row: any) => {
@@ -455,6 +451,7 @@ const Count = () => {
           columns={columns}
           rows={rows}
           title={t("Count")}
+          searchRowKeys={[...rowKeys, { key: "sku" }, { key: "barcode" }]}
           isActionsActive={isEnableEdit}
           addButton={addButton}
           filters={filters}
