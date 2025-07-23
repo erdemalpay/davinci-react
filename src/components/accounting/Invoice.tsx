@@ -21,6 +21,7 @@ import {
 } from "../../utils/api/account/brand";
 import {
   useAccountExpenseMutations,
+  useAccountExpenseSimpleMutations,
   useGetAccountExpenses,
 } from "../../utils/api/account/expense";
 import {
@@ -122,6 +123,7 @@ const Invoice = () => {
   ] = useState(false);
   const { createAccountExpense, deleteAccountExpense, updateAccountExpense } =
     useAccountExpenseMutations();
+  const { updateAccountExpenseSimple } = useAccountExpenseSimpleMutations();
   const allRows = invoices?.map((invoice) => {
     const foundPaymentMethod = getItem(invoice?.paymentMethod, paymentMethods);
     return {
@@ -530,7 +532,7 @@ const Invoice = () => {
           <SwitchButton
             checked={row?.isAfterCount}
             onChange={() => {
-              updateAccountExpense({
+              updateAccountExpenseSimple({
                 id: row._id,
                 updates: {
                   ...row,
