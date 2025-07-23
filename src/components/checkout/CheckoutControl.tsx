@@ -112,7 +112,7 @@ const CheckoutControlPage = () => {
         if (d === fromDateStr && x.isAfterCount && fromDateStr !== toDateStr) {
           return true;
         }
-        if (d === toDateStr && x.isAfterCount === false) {
+        if (d === toDateStr && !x?.isAfterCount) {
           return true;
         }
         return false;
