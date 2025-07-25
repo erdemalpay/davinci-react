@@ -29,15 +29,6 @@ const OrderNotes = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const { createOrderNote, updateOrderNote, deleteOrderNote } =
     useOrderNotesMutations();
-  const [form, setForm] = useState<{
-    note: string;
-    categories: number[];
-    items: number[];
-  }>({
-    note: "",
-    categories: [],
-    items: [],
-  });
   const allRows = notes?.map((note) => {
     return {
       ...note,
@@ -101,17 +92,10 @@ const OrderNotes = () => {
       placeholder: t("Items"),
       required: false,
       options:
-        items
-          ?.filter((item) => {
-            if (form?.categories?.length > 0) {
-              return form?.categories?.includes(item.category);
-            }
-            return true;
-          })
-          ?.map((item) => ({
-            label: item.name,
-            value: item._id,
-          })) ?? [],
+        items?.map((item) => ({
+          label: item.name,
+          value: item._id,
+        })) ?? [],
       isMultiple: true,
     },
   ];
@@ -129,7 +113,6 @@ const OrderNotes = () => {
         close={() => setIsAddModalOpen(false)}
         inputs={inputs}
         formKeys={formKeys}
-        setForm={setForm}
         submitItem={createOrderNote as any}
         topClassName="flex flex-col gap-2 "
       />
@@ -174,7 +157,6 @@ const OrderNotes = () => {
           isOpen={isEditModalOpen}
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
-          setForm={setForm}
           formKeys={formKeys}
           submitItem={updateOrderNote as any}
           isEditMode={true}
