@@ -14,7 +14,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
-import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
@@ -35,7 +35,7 @@ const FarmBurgerData = () => {
   const queryClient = useQueryClient();
   const users = useGetUsers();
   const user = useGetUser();
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
