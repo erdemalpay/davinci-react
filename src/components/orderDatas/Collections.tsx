@@ -110,7 +110,7 @@ const Collections = () => {
                 ?.item,
               items
             )?.name,
-            quantity: orderCollectionItem?.paidQuantity?.toFixed(2),
+            quantity: (orderCollectionItem?.paidQuantity ?? 0)?.toFixed(2),
           })),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
@@ -177,7 +177,7 @@ const Collections = () => {
       key: "amount",
       node: (row: any) => (
         <p className={row?.className} key={row?._id + "amount"}>
-          {row?.amount?.toFixed(2)} ₺
+          {(row?.amount ?? 0)?.toFixed(2)} ₺
         </p>
       ),
     },
