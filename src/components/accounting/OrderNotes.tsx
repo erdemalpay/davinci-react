@@ -5,6 +5,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrderNotes } from "../../utils/api/order/orderNotes";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const OrderNotes = () => {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ const OrderNotes = () => {
   const items = useGetMenuItems();
   const notes = useGetOrderNotes();
   const [tableKey, setTableKey] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const allRows = notes?.map((note) => {
     return {
       ...note,
@@ -42,6 +44,44 @@ const OrderNotes = () => {
     { key: "note" },
     { key: "categoryNames" },
     { key: "itemNames" },
+  ];
+  const inputs = [
+    {
+      type: InputTypes.TEXTAREA,
+      formKey: "note",
+      label: t("Note"),
+      placeholder: t("Note"),
+      required: false,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "categories",
+      label: t("Categories"),
+      placeholder: t("Categories"),
+      required: false,
+      options: categories?.map((category) => ({
+        label: category.name,
+        value: category._id,
+      })),
+      isMultiple: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "items",
+      label: t("Items"),
+      placeholder: t("Items"),
+      required: false,
+      options: items?.map((item) => ({
+        label: item.name,
+        value: item._id,
+      })),
+      isMultiple: true,
+    },
+  ];
+  const formKeys = [
+    { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "categories", type: FormKeyTypeEnum.STRING },
+    { key: "items", type: FormKeyTypeEnum.STRING },
   ];
   useEffect(() => {
     setRows(allRows ?? []);

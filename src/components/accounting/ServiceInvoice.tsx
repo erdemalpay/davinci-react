@@ -226,7 +226,7 @@ const ServiceInvoice = () => {
       label: t("Date"),
       placeholder: t("Date"),
       required: true,
-      isDateInitiallyOpen: true,
+      isDateInitiallyOpen: false,
     },
     ServiceInput({
       services: services,
