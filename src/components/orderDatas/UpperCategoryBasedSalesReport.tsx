@@ -14,7 +14,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
-import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetUpperCategories } from "../../utils/api/menu/upperCategory";
 import { useGetOrders } from "../../utils/api/order/order";
@@ -42,7 +42,7 @@ const UpperCategoryBasedSalesReport = () => {
   const { t } = useTranslation();
   const orders = useGetOrders();
   const upperCategories = useGetUpperCategories();
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const items = useGetMenuItems();
   const users = useGetUsers();
   const sellLocations = useGetSellLocations();

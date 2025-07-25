@@ -109,7 +109,7 @@ const BaseQuantityByLocation = () => {
       },
     },
   ];
-  locations?.forEach((location) => {
+  locations?.forEach((location, index) => {
     columns.push(
       {
         key: location.name + "Min",
@@ -133,10 +133,11 @@ const BaseQuantityByLocation = () => {
                 key={`${location._id}min`}
                 type={"number"}
                 isDebounce={true}
+                className={"text-center w-20 h-10"}
+                inputWidth="w-32 md:w-32  mx-8"
                 value={row?.[`${location._id}min`] ?? 0}
                 label={""}
                 placeholder={""}
-                inputWidth="w-32 md:w-40"
                 onChange={(value) => {
                   if (value === "") {
                     return;
@@ -164,7 +165,6 @@ const BaseQuantityByLocation = () => {
                 isTopFlexRow={false}
                 minNumber={0}
                 isMinNumber={true}
-                className="w-16 h-10 text-center"
               />
             </div>
           );
@@ -179,9 +179,10 @@ const BaseQuantityByLocation = () => {
                 key={`${location._id}max`}
                 type={"number"}
                 value={row?.[`${location._id}max`] ?? 0}
+                className={"text-center w-20 h-10"}
+                inputWidth="w-32 md:w-32  mx-8"
                 label={""}
                 placeholder={""}
-                inputWidth="w-32 md:w-40"
                 onChange={(value) => {
                   if (value === "") {
                     return;
@@ -210,7 +211,6 @@ const BaseQuantityByLocation = () => {
                 isTopFlexRow={false}
                 minNumber={0}
                 isMinNumber={true}
-                className="w-16 h-10 text-center"
               />
             </div>
           );
