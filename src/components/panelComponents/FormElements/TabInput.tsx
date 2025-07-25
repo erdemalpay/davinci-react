@@ -16,7 +16,13 @@ interface TabInputProps {
   formKey: string;
   invalidateKeys?: {
     key: string;
-    defaultValue: string | boolean | number | undefined;
+    defaultValue:
+      | string
+      | boolean
+      | number
+      | undefined
+      | Array<string>
+      | Array<number>;
   }[];
 }
 const TabInput: React.FC<TabInputProps> = ({
