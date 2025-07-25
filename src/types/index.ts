@@ -584,6 +584,13 @@ export type OrderCollection = {
   ikasOrderNumber?: string;
 };
 
+export type OrderNote = {
+  _id: number;
+  note: string;
+  categories?: number[];
+  items?: number[];
+};
+
 export type OrderCollectionItem = {
   order: number;
   paidQuantity: number;
@@ -840,6 +847,7 @@ export enum AccountingPageTabEnum {
   KITCHENS,
   LOCATIONS,
   UPPERCATEGORIES,
+  ORDERNOTES,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,

@@ -3,7 +3,7 @@ import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet } from "react-icons/fa6";
 import { IoStorefrontSharp } from "react-icons/io5";
-import { MdOutlinePayment } from "react-icons/md";
+import { MdEditNote, MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { TbBrandBlogger, TbCategoryPlus, TbZoomMoney } from "react-icons/tb";
@@ -12,6 +12,7 @@ import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
 import LocationPage from "../components/accounting/Location";
 import OrderDiscountPage from "../components/accounting/OrderDiscountPage";
+import OrderNotes from "../components/accounting/OrderNotes";
 import PaymentMethods from "../components/accounting/PaymentMethod";
 import Product from "../components/accounting/Product";
 import ProductCategoriesPage from "../components/accounting/ProductCategories";
@@ -101,6 +102,13 @@ export const AccountingPageTabs = [
     label: "Upper Categories",
     icon: <TbCategoryPlus className="text-lg font-thin" />,
     content: <UpperCategories />,
+    isDisabled: false,
+  },
+  {
+    number: AccountingPageTabEnum.ORDERNOTES,
+    label: "Order Notes",
+    icon: <MdEditNote className="text-lg font-thin" />,
+    content: <OrderNotes />,
     isDisabled: false,
   },
 ];
