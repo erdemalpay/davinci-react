@@ -126,9 +126,18 @@ const SingleOrderCard = ({ order, user }: Props) => {
           <p className="text-xs text-gray-500">
             {t("Created By")}: {getItem(order?.createdBy, users)?.name}
           </p>
-          {order?.activityTableName && (
-            <p className="text-gray-600 text-xs ml-auto">
-              {"(" + t("Table") + " " + order?.activityTableName + ")"}
+          {(order?.activityTableName || order?.activityPlayer) && (
+            <p className="text-gray-600 text-xs ml-aut flex flex-row gap-1">
+              {order?.activityTableName && (
+                <span>
+                  {"(" + t("Table") + " " + order?.activityTableName + ")"}
+                </span>
+              )}
+              {order?.activityPlayer && (
+                <span>
+                  {"(" + t("Player") + " " + order?.activityPlayer + ")"}
+                </span>
+              )}
             </p>
           )}
         </div>
