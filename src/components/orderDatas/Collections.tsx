@@ -110,7 +110,7 @@ const Collections = () => {
                 ?.item,
               items
             )?.name,
-            quantity: orderCollectionItem.paidQuantity.toFixed(2),
+            quantity: orderCollectionItem?.paidQuantity?.toFixed(2),
           })),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
@@ -164,7 +164,7 @@ const Collections = () => {
       key: "date",
       className: "min-w-32 pr-2 ",
       node: (row: any) => {
-        return <p className={row?.className}>{row.formattedDate}</p>;
+        return <p className={row?.className}>{row?.formattedDate}</p>;
       },
     },
     { key: "tableId" },
@@ -176,8 +176,8 @@ const Collections = () => {
     {
       key: "amount",
       node: (row: any) => (
-        <p className={row?.className} key={row._id + "amount"}>
-          {row.amount.toFixed(2)} ₺
+        <p className={row?.className} key={row?._id + "amount"}>
+          {row?.amount?.toFixed(2)} ₺
         </p>
       ),
     },
@@ -188,7 +188,7 @@ const Collections = () => {
       key: "status",
       node: (row: any) => {
         const status = collectionStatus.find(
-          (status) => status.value === row.status
+          (status) => status.value === row?.status
         );
         if (!status) {
           return null;
@@ -387,13 +387,16 @@ const Collections = () => {
         return false;
       }
       if (filterPanelFormElements.hour) {
-        return filterPanelFormElements.hour <= row.hour;
+        return filterPanelFormElements.hour <= row?.hour;
       }
       return (
-        passesFilter(filterPanelFormElements.createdBy, row.createdBy) &&
-        passesFilter(filterPanelFormElements.cancelledBy, row.cancelledById) &&
-        passesFilter(filterPanelFormElements.collectionStatus, row.status) &&
-        passesFilter(filterPanelFormElements.paymentMethod, row.paymentMethodId)
+        passesFilter(filterPanelFormElements.createdBy, row?.createdBy) &&
+        passesFilter(filterPanelFormElements.cancelledBy, row?.cancelledById) &&
+        passesFilter(filterPanelFormElements.collectionStatus, row?.status) &&
+        passesFilter(
+          filterPanelFormElements.paymentMethod,
+          row?.paymentMethodId
+        )
       );
     });
     const totalRow = {
@@ -414,7 +417,7 @@ const Collections = () => {
       cancelledAt: "",
       className: "font-semibold",
       isSortable: false,
-      amount: filteredRows?.reduce((acc, row: any) => acc + row.amount, 0),
+      amount: filteredRows?.reduce((acc, row: any) => acc + row?.amount, 0),
       collapsible: {
         collapsibleHeader: t("Total Summary"),
         collapsibleColumns: [
