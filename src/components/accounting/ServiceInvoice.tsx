@@ -113,17 +113,17 @@ const ServiceInvoice = () => {
   const allRows = invoices?.map((invoice) => {
     return {
       ...invoice,
-      service: getItem(invoice.service, services)?.name,
-      expenseType: getItem(invoice.expenseType, expenseTypes)?.name,
-      vendor: getItem(invoice.vendor, vendors)?.name,
-      lctn: getItem(invoice.location, locations)?.name,
-      formattedDate: formatAsLocalDate(invoice.date),
+      service: getItem(invoice?.service, services)?.name,
+      expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
+      vendor: getItem(invoice?.vendor, vendors)?.name,
+      lctn: getItem(invoice?.location, locations)?.name,
+      formattedDate: formatAsLocalDate(invoice?.date),
       unitPrice: parseFloat(
-        (invoice.totalExpense / invoice.quantity).toFixed(4)
+        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
       ),
-      expType: getItem(invoice.expenseType, expenseTypes),
-      vndr: getItem(invoice.vendor, vendors),
-      srvc: getItem(invoice.service, services),
+      expType: getItem(invoice?.expenseType, expenseTypes),
+      vndr: getItem(invoice?.vendor, vendors),
+      srvc: getItem(invoice?.service, services),
       paymentMethodName: t(
         getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
       ),
@@ -240,7 +240,7 @@ const ServiceInvoice = () => {
       expenseTypes:
         expenseTypes.filter((exp) =>
           services
-            .find((item) => item._id === serviceExpenseForm?.service)
+            .find((item) => item?._id === serviceExpenseForm?.service)
             ?.expenseType.includes(exp._id)
         ) ?? [],
       required: true,
@@ -250,7 +250,7 @@ const ServiceInvoice = () => {
       vendors:
         vendors?.filter((vndr) =>
           services
-            .find((item) => item._id === serviceExpenseForm?.service)
+            .find((item) => item?._id === serviceExpenseForm?.service)
             ?.vendor?.includes(vndr._id)
         ) ?? [],
       required: true,
@@ -357,7 +357,7 @@ const ServiceInvoice = () => {
       key: "date",
       className: "min-w-32 pr-2",
       node: (row: any) => {
-        return row.formattedDate;
+        return row?.formattedDate;
       },
     },
     { key: "note", className: "min-w-40 pr-2" },
@@ -379,7 +379,7 @@ const ServiceInvoice = () => {
                   : ""
               }`}
             >
-              {row.vendor ?? "-"}
+              {row?.vendor ?? "-"}
             </p>
           </div>
         );
@@ -390,7 +390,7 @@ const ServiceInvoice = () => {
       node: (row: any) => {
         return (
           <div>
-            <p className={` min-w-32 pr-4 `}>{row.lctn ?? "-"}</p>
+            <p className={` min-w-32 pr-4 `}>{row?.lctn ?? "-"}</p>
           </div>
         );
       },
@@ -441,7 +441,7 @@ const ServiceInvoice = () => {
                   : ""
               }`}
             >
-              {row.service}
+              {row?.service}
             </p>
           </div>
         );
@@ -457,19 +457,20 @@ const ServiceInvoice = () => {
             checked={row?.isAfterCount}
             onChange={() => {
               updateAccountExpense({
-                id: row._id,
+                id: row?._id,
                 updates: {
                   ...row,
-                  product: invoices?.find((invoice) => invoice?._id === row._id)
-                    ?.product,
+                  product: invoices?.find(
+                    (invoice) => invoice?._id === row?._id
+                  )?.product,
                   expenseType: invoices?.find(
-                    (invoice) => invoice?._id === row._id
+                    (invoice) => invoice?._id === row?._id
                   )?.expenseType,
-                  quantity: row.quantity,
-                  totalExpense: row.totalExpense,
-                  brand: invoices?.find((invoice) => invoice?._id === row._id)
+                  quantity: row?.quantity,
+                  totalExpense: row?.totalExpense,
+                  brand: invoices?.find((invoice) => invoice?._id === row?._id)
                     ?.brand,
-                  vendor: invoices?.find((invoice) => invoice?._id === row._id)
+                  vendor: invoices?.find((invoice) => invoice?._id === row?._id)
                     ?.vendor,
                   isAfterCount: !row?.isAfterCount,
                 },
@@ -488,7 +489,7 @@ const ServiceInvoice = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
+            <P1>{row?.unitPrice} ₺</P1>
           </div>
         );
       },
@@ -499,7 +500,7 @@ const ServiceInvoice = () => {
         return (
           <div className="min-w-32">
             <P1>
-              {parseFloat(row.totalExpense)
+              {parseFloat(row?.totalExpense)
                 .toFixed(4)
                 .replace(/\.?0*$/, "")}{" "}
               ₺
@@ -548,21 +549,21 @@ const ServiceInvoice = () => {
           { key: "kdv", type: FormKeyTypeEnum.NUMBER },
         ]}
         submitFunction={() => {
-          serviceExpenseForm.price &&
-            serviceExpenseForm.kdv &&
+          serviceExpenseForm?.price &&
+            serviceExpenseForm?.kdv &&
             createAccountExpense({
               ...serviceExpenseForm,
               type: ExpenseTypes.NONSTOCKABLE,
               paymentMethod:
-                serviceExpenseForm.paymentMethod === NOTPAID
+                serviceExpenseForm?.paymentMethod === NOTPAID
                   ? ""
-                  : serviceExpenseForm.paymentMethod,
+                  : serviceExpenseForm?.paymentMethod,
               isPaid:
-                serviceExpenseForm.paymentMethod === NOTPAID ? false : true,
+                serviceExpenseForm?.paymentMethod === NOTPAID ? false : true,
               totalExpense:
-                Number(serviceExpenseForm.price) +
-                Number(serviceExpenseForm.kdv) *
-                  (Number(serviceExpenseForm.price) / 100),
+                Number(serviceExpenseForm?.price) +
+                Number(serviceExpenseForm?.kdv) *
+                  (Number(serviceExpenseForm?.price) / 100),
             });
           setServiceExpenseForm({});
         }}
@@ -603,7 +604,7 @@ const ServiceInvoice = () => {
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title="Delete Invoice"
-          text={`${rowToAction.service} invoice will be deleted. Are you sure you want to continue?`}
+          text={`${rowToAction?.service} invoice will be deleted. Are you sure you want to continue?`}
         />
       ) : null,
       className: "text-red-500 cursor-pointer text-2xl  ",
@@ -659,17 +660,17 @@ const ServiceInvoice = () => {
             topClassName="flex flex-col gap-2"
             nonImageInputsClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
             itemToEdit={{
-              id: rowToAction._id,
+              id: rowToAction?._id,
               updates: {
                 ...rowToAction,
-                date: rowToAction.date,
-                service: rowToAction.srvc._id,
-                expenseType: rowToAction.expType._id,
-                quantity: rowToAction.quantity,
-                totalExpense: rowToAction.totalExpense,
-                vendor: rowToAction.vndr._id,
-                note: rowToAction.note,
-                location: rowToAction.location,
+                date: rowToAction?.date,
+                service: rowToAction?.srvc?._id,
+                expenseType: rowToAction?.expType?._id,
+                quantity: rowToAction?.quantity,
+                totalExpense: rowToAction?.totalExpense,
+                vendor: rowToAction?.vndr._id,
+                note: rowToAction?.note,
+                location: rowToAction?.location,
                 paymentMethod: rowToAction?.paymentMethod,
               },
             }}
@@ -736,8 +737,8 @@ const ServiceInvoice = () => {
   };
   const pagination = invoicesPayload
     ? {
-        totalPages: invoicesPayload.totalPages,
-        totalRows: invoicesPayload.totalNumber,
+        totalPages: invoicesPayload?.totalPages,
+        totalRows: invoicesPayload?.totalNumber,
       }
     : null;
   const outsideSort = {
@@ -832,13 +833,13 @@ const ServiceInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             constantValues={{
-              name: currentRow.srvc.name,
-              expenseType: currentRow.srvc.expenseType,
-              vendor: currentRow.srvc.vendor,
+              name: currentRow?.srvc?.name,
+              expenseType: currentRow?.srvc?.expenseType,
+              vendor: currentRow?.srvc?.vendor,
             }}
             handleUpdate={() => {
               updateAccountService({
-                id: currentRow.srvc?._id,
+                id: currentRow?.srvc?._id,
                 updates: {
                   ...addServiceForm,
                 },
@@ -875,7 +876,7 @@ const ServiceInvoice = () => {
             submitItem={updateAccountVendor as any}
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
-            itemToEdit={{ id: currentRow.vndr._id, updates: currentRow.vndr }}
+            itemToEdit={{ id: currentRow?.vndr._id, updates: currentRow?.vndr }}
           />
         )}
 
@@ -889,8 +890,8 @@ const ServiceInvoice = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             itemToEdit={{
-              id: currentRow.expType._id,
-              updates: currentRow.expType,
+              id: currentRow?.expType?._id,
+              updates: currentRow?.expType,
             }}
           />
         )}
