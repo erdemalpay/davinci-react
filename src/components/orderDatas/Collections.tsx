@@ -110,7 +110,7 @@ const Collections = () => {
                 ?.item,
               items
             )?.name,
-            quantity: (orderCollectionItem?.paidQuantity ?? 0)?.toFixed(2),
+            quantity: orderCollectionItem?.paidQuantity ?? 0,
           })),
           collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
         },
