@@ -561,6 +561,7 @@ export type Order = {
   isPaymentMade?: boolean;
   ikasCustomer?: IkasCustomer;
   isIkasCustomerPicked?: boolean;
+  ikasOrderNumber?: string;
 };
 
 export type OrderCollection = {
@@ -580,6 +581,7 @@ export type OrderCollection = {
   ikasId?: string;
   tableDate?: Date;
   activityPlayer?: string;
+  ikasOrderNumber?: string;
 };
 
 export type OrderCollectionItem = {

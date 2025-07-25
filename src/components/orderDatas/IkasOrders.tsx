@@ -133,7 +133,6 @@ const IkasOrders = () => {
         note: order?.note ?? "",
         status: t(order?.status),
         paymentMethod: order?.paymentMethod,
-        ikasId: order?.ikasId,
         statusLabel: orderFilterStatusOptions.find(
           (status) => status.value === order?.status
         )?.label,
@@ -157,7 +156,11 @@ const IkasOrders = () => {
   console.log("rows", rows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
-    { key: "Ikas ID", isSortable: true, correspondingKey: "ikasId" },
+    {
+      key: t("Ikas Order Number"),
+      isSortable: true,
+      correspondingKey: "ikasOrderNumber",
+    },
     {
       key: t("Sales Channel"),
       isSortable: true,
@@ -192,7 +195,7 @@ const IkasOrders = () => {
         );
       },
     },
-    { key: "ikasId", className: "min-w-40 pr-2" },
+    { key: "ikasOrderNumber", className: "min-w-40 pr-2" },
     { key: "paymentMethod", className: "min-w-40 pr-2" },
     { key: "item", className: "min-w-40 pr-2" },
     {
