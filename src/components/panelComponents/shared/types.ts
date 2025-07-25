@@ -111,7 +111,13 @@ export interface GenericInputType {
   isReadOnly?: boolean;
   invalidateKeys?: {
     key: string;
-    defaultValue: string | boolean | number | undefined;
+    defaultValue:
+      | string
+      | boolean
+      | number
+      | undefined
+      | Array<string>
+      | Array<number>;
   }[];
 }
 

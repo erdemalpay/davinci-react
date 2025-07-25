@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiEdit } from "react-icons/fi";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
-import { useGetOrderNotes } from "../../utils/api/order/orderNotes";
+import {
+  useGetOrderNotes,
+  useOrderNotesMutations,
+} from "../../utils/api/order/orderNotes";
 import { getItem } from "../../utils/getItem";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -14,6 +21,23 @@ const OrderNotes = () => {
   const notes = useGetOrderNotes();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>();
+  const { createOrderNote, updateOrderNote, deleteOrderNote } =
+    useOrderNotesMutations();
+  const [form, setForm] = useState<{
+    note: string;
+    categories: number[];
+    items: number[];
+  }>({
+    note: "",
+    categories: [],
+    items: [],
+  });
   const allRows = notes?.map((note) => {
     return {
       ...note,
@@ -22,13 +46,13 @@ const OrderNotes = () => {
           const foundCategory = getItem(categoryId, categories);
           return foundCategory ? foundCategory.name : "";
         })
-        .join(", "),
+        ?.join(", "),
       itemNames: note?.items
         ?.map((itemId) => {
           const foundItem = getItem(itemId, items);
           return foundItem ? foundItem.name : "";
         })
-        .join(", "),
+        ?.join(", "),
     };
   });
   const [rows, setRows] = useState(allRows ?? []);
@@ -39,6 +63,10 @@ const OrderNotes = () => {
       isSortable: false,
     },
     { key: t("Items"), isSortable: false },
+    {
+      key: t("Actions"),
+      isSortable: false,
+    },
   ];
   const rowKeys = [
     { key: "note" },
@@ -64,6 +92,7 @@ const OrderNotes = () => {
         value: category._id,
       })),
       isMultiple: true,
+      invalidateKeys: [{ key: "items", defaultValue: [] }],
     },
     {
       type: InputTypes.SELECT,
@@ -71,10 +100,18 @@ const OrderNotes = () => {
       label: t("Items"),
       placeholder: t("Items"),
       required: false,
-      options: items?.map((item) => ({
-        label: item.name,
-        value: item._id,
-      })),
+      options:
+        items
+          ?.filter((item) => {
+            if (form?.categories?.length > 0) {
+              return form?.categories?.includes(item.category);
+            }
+            return true;
+          })
+          ?.map((item) => ({
+            label: item.name,
+            value: item._id,
+          })) ?? [],
       isMultiple: true,
     },
   ];
@@ -82,6 +119,74 @@ const OrderNotes = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
     { key: "categories", type: FormKeyTypeEnum.STRING },
     { key: "items", type: FormKeyTypeEnum.STRING },
+  ];
+  const addButton = {
+    name: t(`Add Order Note`),
+    isModal: true,
+    modal: (
+      <GenericAddEditPanel
+        isOpen={isAddModalOpen}
+        close={() => setIsAddModalOpen(false)}
+        inputs={inputs}
+        formKeys={formKeys}
+        setForm={setForm}
+        submitItem={createOrderNote as any}
+        topClassName="flex flex-col gap-2 "
+      />
+    ),
+    isModalOpen: isAddModalOpen,
+    setIsModal: setIsAddModalOpen,
+    isPath: false,
+    icon: null,
+    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+  };
+  const actions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteOrderNote(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Order Note")}
+          text={`${t("Note")} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+    },
+    {
+      name: t("Edit"),
+      icon: <FiEdit />,
+      className: "text-blue-500 cursor-pointer text-xl ",
+      isModal: true,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <GenericAddEditPanel
+          isOpen={isEditModalOpen}
+          close={() => setIsEditModalOpen(false)}
+          inputs={inputs}
+          setForm={setForm}
+          formKeys={formKeys}
+          submitItem={updateOrderNote as any}
+          isEditMode={true}
+          topClassName="flex flex-col gap-2 "
+          itemToEdit={{ id: Number(rowToAction?._id), updates: rowToAction }}
+        />
+      ) : null,
+
+      isModalOpen: isEditModalOpen,
+      setIsModal: setIsEditModalOpen,
+      isPath: false,
+    },
   ];
   useEffect(() => {
     setRows(allRows ?? []);
@@ -94,12 +199,13 @@ const OrderNotes = () => {
         <GenericTable
           key={tableKey}
           rowKeys={rowKeys}
-          //   actions={actions}
+          actions={actions}
           columns={columns}
           rows={rows}
           title={t("Order Notes")}
-          //   addButton={addButton}
-          isActionsActive={false}
+          addButton={addButton}
+          isToolTipEnabled={false}
+          isActionsActive={true}
         />
       </div>
     </>
