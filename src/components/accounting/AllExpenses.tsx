@@ -248,7 +248,7 @@ const AllExpenses = () => {
       label: t("Date"),
       placeholder: t("Date"),
       required: true,
-      isDateInitiallyOpen: true,
+      isDateInitiallyOpen: false,
     },
     {
       type: InputTypes.SELECT,

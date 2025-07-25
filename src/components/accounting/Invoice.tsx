@@ -255,7 +255,7 @@ const Invoice = () => {
       label: t("Date"),
       placeholder: t("Date"),
       required: true,
-      isDateInitiallyOpen: true,
+      isDateInitiallyOpen: false,
     },
     ProductInput({
       products: products,
