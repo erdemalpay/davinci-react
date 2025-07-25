@@ -527,12 +527,7 @@ const CheckoutControlPage = () => {
       );
     },
   };
-  useEffect(() => {
-    setFilterCheckoutPanelFormElements(() => ({
-      ...filterCheckoutPanelFormElements,
-      location: selectedLocationId,
-    }));
-  }, [selectedLocationId]);
+
   useEffect(() => {
     setRows(arrangedAllRows);
     setTableKey((prev) => prev + 1);
