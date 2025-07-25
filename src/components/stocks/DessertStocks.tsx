@@ -175,8 +175,10 @@ const DessertStock = () => {
     useAccountStockMutations();
   const inputs = [
     ProductInput({
-      products: products?.filter((product) =>
-        product?.expenseType?.includes(DESSERTEXPENSETYPE)
+      products: products?.filter(
+        (product) =>
+          product?.expenseType?.includes(DESSERTEXPENSETYPE) ||
+          product?.expenseType?.includes(SANDWICHEXPENSETYPE)
       ),
       required: true,
     }),
