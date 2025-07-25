@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
@@ -16,6 +15,7 @@ import {
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import {
   useAccountExpenseMutations,
+  useAccountExpenseSimpleMutations,
   useGetAccountExpenses,
 } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -71,6 +71,7 @@ const Expenses = () => {
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
+  const { updateAccountExpenseSimple } = useAccountExpenseSimpleMutations();
   const [showFilters, setShowFilters] = useState(false);
   const { createAccountExpense, deleteAccountExpense } =
     useAccountExpenseMutations();
@@ -401,10 +402,30 @@ const Expenses = () => {
     {
       key: "isAfterCount",
       node: (row: any) => {
-        return row?.isAfterCount ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
+        return (
+          <SwitchButton
+            checked={row?.isAfterCount}
+            onChange={() => {
+              updateAccountExpenseSimple({
+                id: row._id,
+                updates: {
+                  ...row,
+                  product: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.product,
+                  expenseType: invoices?.find(
+                    (invoice) => invoice?._id === row._id
+                  )?.expenseType,
+                  quantity: row.quantity,
+                  totalExpense: row.totalExpense,
+                  brand: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.brand,
+                  vendor: invoices?.find((invoice) => invoice?._id === row._id)
+                    ?.vendor,
+                  isAfterCount: !row?.isAfterCount,
+                },
+              });
+            }}
+          />
         );
       },
     },
