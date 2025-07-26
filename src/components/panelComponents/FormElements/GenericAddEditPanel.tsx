@@ -3,6 +3,8 @@ import { AxiosHeaders } from "axios";
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaChevronDown } from "react-icons/fa6";
+import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
@@ -121,6 +123,7 @@ const GenericAddEditPanel = <T,>({
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [resetTextInput, setResetTextInput] = useState(false);
+  const [openFor, setOpenFor] = useState<string | null>(null);
   const [isCancelConfirmationDialogOpen, setIsCancelConfirmationDialogOpen] =
     useState(false);
   const [confirmationDialogFunction, setConfirmationDialogFunction] = useState<
@@ -623,28 +626,77 @@ const GenericAddEditPanel = <T,>({
                       )}
                       {input.type === InputTypes.TEXTAREA && (
                         <div
-                          className="flex flex-col gap-2"
                           key={input.formKey}
+                          className="flex flex-col gap-2 relative"
                         >
-                          <div className="flex flex-row items-center ">
+                          <div className="flex items-center">
                             <H6>{input.label}</H6>
                             {input.required && (
                               <>
-                                <span className="text-red-400">* </span>
+                                <span className="text-red-400">*</span>
                                 <span className="text-xs text-gray-400">
-                                  {"("} {t("required")} {")"}
+                                  ({t("required")})
                                 </span>
                               </>
                             )}
+                            {input?.options && input?.options?.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenFor((prev) =>
+                                    prev === input.formKey
+                                      ? null
+                                      : input.formKey
+                                  )
+                                }
+                                className="ml-2 p-1"
+                              >
+                                <FaChevronDown size={16} />
+                              </button>
+                            )}
                           </div>
-                          <textarea
-                            value={value}
-                            onChange={(e) => {
-                              handleChange(input.formKey)(e.target.value);
-                            }}
-                            placeholder={input.placeholder ?? ""}
-                            className={`border text-base border-gray-300 rounded-md p-2 ${input.inputClassName}`}
-                          />
+
+                          {/* custom dropdown */}
+                          {openFor === input.formKey && (
+                            <ul
+                              className="absolute z-10 mt-1 w-full bg-white border rounded shadow-md max-h-40 overflow-auto"
+                              onBlur={() => setOpenFor(null)}
+                            >
+                              {input.options!.map((opt) => (
+                                <li
+                                  key={opt.value}
+                                  onMouseDown={() => {
+                                    handleChange(input.formKey)(opt.value);
+                                    setOpenFor(null);
+                                  }}
+                                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                >
+                                  {opt.label}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+
+                          {/* textarea + clear button */}
+                          <div className="relative">
+                            <textarea
+                              value={formElements[input.formKey]}
+                              onChange={(e) =>
+                                handleChange(input.formKey)(e.target.value)
+                              }
+                              placeholder={input.placeholder}
+                              className={`border text-base border-gray-300 rounded-md p-2 w-full ${input.inputClassName}`}
+                            />
+                            {formElements[input.formKey] && (
+                              <button
+                                type="button"
+                                onClick={() => handleChange(input.formKey)("")}
+                                className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+                              >
+                                <IoIosClose size={20} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

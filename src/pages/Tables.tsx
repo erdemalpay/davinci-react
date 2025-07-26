@@ -59,6 +59,7 @@ import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
+import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
 import { useGetUser, useGetUsers } from "../utils/api/user";
@@ -74,6 +75,7 @@ const Tables = () => {
   const { setSelectedDate, selectedDate } = useDateContext();
   const stocks = useGetAccountStocks();
   const [showAllTables, setShowAllTables] = useState(true);
+  const orderNotes = useGetOrderNotes();
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const user = useGetUser();
   const reservations = useGetReservations();
@@ -339,6 +341,17 @@ const Tables = () => {
       label: t("Note"),
       placeholder: t("Note"),
       required: true,
+      options:
+        orderNotes
+          ?.filter(
+            (note) =>
+              note?.categories?.includes(Number(orderForm?.category)) ||
+              note?.items?.includes(Number(orderForm?.item))
+          )
+          ?.map((note) => ({
+            value: note.note,
+            label: note.note,
+          })) ?? [],
     },
   ];
   const orderFormKeys = [
