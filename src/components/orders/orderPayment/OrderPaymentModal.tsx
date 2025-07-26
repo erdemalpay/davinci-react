@@ -31,6 +31,7 @@ import {
 } from "../../../utils/api/order/order";
 import { useGetTableCollections } from "../../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
+import { useGetOrderNotes } from "../../../utils/api/order/orderNotes";
 import {
   useCloseTableMutation,
   useReopenTableMutation,
@@ -73,6 +74,7 @@ const OrderPaymentModal = ({
   const isMutating = useIsMutating();
   const items = useGetMenuItems();
   const orders = useGetTableOrders(tableId);
+  const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
   const { setIsTabInputScreenOpen } = useGeneralContext();
@@ -560,6 +562,17 @@ const OrderPaymentModal = ({
       label: t("Note"),
       placeholder: t("Note"),
       required: false,
+      options:
+        orderNotes
+          ?.filter(
+            (note) =>
+              note?.categories?.includes(Number(orderForm?.category)) ||
+              note?.items?.includes(Number(orderForm?.item))
+          )
+          ?.map((note) => ({
+            value: note.note,
+            label: note.note,
+          })) ?? [],
     },
   ];
 

@@ -551,6 +551,17 @@ const Tables = () => {
       label: t("Note"),
       placeholder: t("Note"),
       required: false,
+      options:
+        orderNotes
+          ?.filter(
+            (note) =>
+              note?.categories?.includes(Number(orderForm?.category)) ||
+              note?.items?.includes(Number(orderForm?.item))
+          )
+          ?.map((note) => ({
+            value: note.note,
+            label: note.note,
+          })) ?? [],
     },
   ];
   const orderFormKeysForTakeAway = [
