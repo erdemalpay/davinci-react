@@ -44,6 +44,7 @@ import {
   useUpdateMultipleOrderMutation,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetOrderNotes } from "../../utils/api/order/orderNotes";
 import {
   useReopenTableMutation,
   useTableMutations,
@@ -95,6 +96,7 @@ export function TableCard({
   if (table?._id) {
     tableOrders = useGetTableOrders(table?._id);
   }
+  const orderNotes = useGetOrderNotes();
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
@@ -480,6 +482,17 @@ export function TableCard({
         label: t("Note"),
         placeholder: t("Note"),
         required: false,
+        options:
+          orderNotes
+            ?.filter(
+              (note) =>
+                note?.categories?.includes(Number(orderForm?.category)) ||
+                note?.items?.includes(Number(orderForm?.item))
+            )
+            ?.map((note) => ({
+              value: note.note,
+              label: note.note,
+            })) ?? [],
       },
     ],
     [
@@ -493,6 +506,7 @@ export function TableCard({
       filteredDiscounts,
       menuItems,
       locations,
+      orderNotes,
       t,
     ]
   );

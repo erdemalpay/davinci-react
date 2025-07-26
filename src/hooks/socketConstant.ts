@@ -219,6 +219,10 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.Education}`],
   },
   {
+    event: "orderNotesChanged",
+    invalidateKeys: [`${Paths.Order}/notes`],
+  },
+  {
     event: "cafeActivityChanged",
     invalidateKeys: [`${Paths.CafeActivity}`],
   },
