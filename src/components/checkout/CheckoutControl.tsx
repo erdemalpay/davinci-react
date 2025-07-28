@@ -178,24 +178,41 @@ const CheckoutControlPage = () => {
         vendorPaymentQuantity,
       };
     }) ?? [];
-  const arrangedAllRows = allRows?.map((row) => {
-    return {
-      ...row,
-      expectedQuantity:
-        row.beginningQuantity +
-        row.incomeQuantity -
-        row.expenseQuantity -
-        row.cashout -
-        row.vendorPaymentQuantity,
-      difference:
-        row.amount -
-        (row.beginningQuantity +
+  const arrangedAllRows = allRows
+    ?.map((row) => {
+      return {
+        ...row,
+        expectedQuantity:
+          row.beginningQuantity +
           row.incomeQuantity -
           row.expenseQuantity -
           row.cashout -
-          row.vendorPaymentQuantity),
-    };
-  });
+          row.vendorPaymentQuantity,
+        difference:
+          row.amount -
+          (row.beginningQuantity +
+            row.incomeQuantity -
+            row.expenseQuantity -
+            row.cashout -
+            row.vendorPaymentQuantity),
+      };
+    })
+    ?.filter((row) => {
+      if (
+        filterCheckoutPanelFormElements?.after &&
+        filterCheckoutPanelFormElements?.before
+      ) {
+        return (
+          row.date >= filterCheckoutPanelFormElements.after &&
+          row.date <= filterCheckoutPanelFormElements.before
+        );
+      } else if (filterCheckoutPanelFormElements?.after) {
+        return row.date >= filterCheckoutPanelFormElements.after;
+      } else if (filterCheckoutPanelFormElements?.before) {
+        return row.date <= filterCheckoutPanelFormElements.before;
+      }
+      return true;
+    });
   const [rows, setRows] = useState(arrangedAllRows);
   const columns = [
     { key: t("Date"), isSortable: true },
@@ -239,6 +256,24 @@ const CheckoutControlPage = () => {
       placeholder: t("Date"),
       required: true,
       isOnClearActive: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      required: true,
+      isDatePicker: true,
     },
   ];
   const rowKeys = [
