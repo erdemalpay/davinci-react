@@ -564,11 +564,15 @@ const OrderPaymentModal = ({
       required: false,
       options:
         orderNotes
-          ?.filter(
-            (note) =>
+          ?.filter((note) => {
+            const foundItem = getItem(orderForm.item, items);
+            return (
               note?.categories?.includes(Number(orderForm?.category)) ||
-              note?.items?.includes(Number(orderForm?.item))
-          )
+              note?.items?.includes(Number(orderForm?.item)) ||
+              (foundItem &&
+                note?.categories?.includes(Number(foundItem?.category)))
+            );
+          })
           ?.map((note) => ({
             value: note.note,
             label: note.note,
