@@ -64,7 +64,14 @@ export type Role = {
   color: string;
   permissions: RolePermissionEnum[];
 };
-
+export type Feedback = {
+  _id: number;
+  location: number;
+  table: number;
+  comment?: string;
+  starRating?: number;
+  createdAt: Date;
+};
 export enum WorkType {
   FULLTIME = "Full Time",
   PARTTIME = "Part Time",

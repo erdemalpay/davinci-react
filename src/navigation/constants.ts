@@ -18,6 +18,7 @@ import Expenses from "../pages/Expenses";
 import Expirations, { ExpirationTabs } from "../pages/Expiration";
 import ExpirationCount from "../pages/ExpirationCount";
 import ExpirationList from "../pages/ExpirationList";
+import Feedback from "../pages/Feedback";
 import Gameplays from "../pages/Gameplays";
 import Games from "../pages/Games";
 import IkasPickUp from "../pages/IkasPickUp";
@@ -67,6 +68,7 @@ export enum PublicRoutes {
 
 export enum Routes {
   Games = "/games",
+  Feedback = "/feedback",
   Memberships = "/memberships",
   Reservations = "/reservations",
   Rewards = "/rewards",
@@ -148,6 +150,12 @@ export const allRoutes: {
         element: OnlineSales,
         isOnSidebar: true,
       },
+      {
+        name: "Feedbacks",
+        path: Routes.Feedback,
+        element: Feedback,
+        isOnSidebar: true,
+      },
     ],
   },
   {
@@ -160,6 +168,12 @@ export const allRoutes: {
     name: "Online Sales",
     path: Routes.OnlineSales,
     element: OnlineSales,
+    isOnSidebar: false,
+  },
+  {
+    name: "Feedbacks",
+    path: Routes.Feedback,
+    element: Feedback,
     isOnSidebar: false,
   },
   {

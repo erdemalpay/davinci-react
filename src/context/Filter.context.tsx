@@ -21,6 +21,9 @@ type FilterContextType = {
   setFilterProductPanelFormElements: (state: FormElementsState) => void;
   filterServicePanelFormElements: FormElementsState;
   setFilterServicePanelFormElements: (state: FormElementsState) => void;
+  filterFeedbackPanelFormElements: FormElementsState;
+  setFilterFeedbackPanelFormElements: (state: FormElementsState) => void;
+  initialFilterFeedbackPanelFormElements: FormElementsState;
   filterCheckoutPanelFormElements: FormElementsState;
   setFilterCheckoutPanelFormElements: (state: FormElementsState) => void;
   showProductFilters: boolean;
@@ -124,6 +127,8 @@ type FilterContextType = {
   setVisitsActiveTab: (state: number) => void;
   showPersonalSummaryFilters: boolean;
   setShowPersonalSummaryFilters: (state: boolean) => void;
+  showFeedbackFilters: boolean;
+  setShowFeedbackFilters: (state: boolean) => void;
   showDeletedItems: boolean;
   setShowDeletedItems: (state: boolean) => void;
   isEnableProductShelfEdit: boolean;
@@ -190,6 +195,21 @@ const FilterContext = createContext<FilterContextType>({
     search: "",
     user: "",
   },
+  initialFilterFeedbackPanelFormElements: {
+    location: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+  },
+  filterFeedbackPanelFormElements: {
+    location: "",
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+  },
+  showFeedbackFilters: false,
+  setShowFeedbackFilters: () => {},
+  setFilterFeedbackPanelFormElements: () => {},
   setFilterCheckoutPanelFormElements: () => {},
   showProductFilters: false,
   setShowProductFilters: () => {},
@@ -532,9 +552,18 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   const [isShiftsEnableEdit, setIsShiftsEnableEdit] = useState(false);
   const [isChefAssignOpen, setIsChefAssignOpen] = useState(false);
   const [showDeletedItems, setShowDeletedItems] = useState(false);
+  const [showFeedbackFilters, setShowFeedbackFilters] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showActivityFilters, setShowActivityFilters] = useState(false);
   const [showMenuBarcodeInfo, setShowMenuBarcodeInfo] = useState(false);
+  const initialFilterFeedbackPanelFormElements: FormElementsState = {
+    location: selectedLocationId,
+    after: dateRanges.thisMonth().after,
+    before: dateRanges.thisMonth().before,
+    date: "thisMonth",
+  };
+  const [filterFeedbackPanelFormElements, setFilterFeedbackPanelFormElements] =
+    useState<FormElementsState>(initialFilterFeedbackPanelFormElements);
   const initialFilterCheckoutPanelFormElements: FormElementsState = {
     product: [],
     service: [],
@@ -989,6 +1018,12 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           initialFilterCheckoutPanelFormElements,
         setFilterCheckoutPanelFormElements: setFilterCheckoutPanelFormElements,
         filterCheckoutPanelFormElements: filterCheckoutPanelFormElements,
+        initialFilterFeedbackPanelFormElements:
+          initialFilterFeedbackPanelFormElements,
+        filterFeedbackPanelFormElements: filterFeedbackPanelFormElements,
+        setFilterFeedbackPanelFormElements: setFilterFeedbackPanelFormElements,
+        showFeedbackFilters: showFeedbackFilters,
+        setShowFeedbackFilters: setShowFeedbackFilters,
       }}
     >
       {children}
