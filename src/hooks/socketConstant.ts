@@ -116,6 +116,7 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [
       `${Paths.Accounting}/expenses`,
       `${Paths.Accounting}/products`,
+      `${Paths.Accounting}/expenses-without-pagination`,
     ],
   },
 

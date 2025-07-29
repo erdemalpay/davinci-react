@@ -82,6 +82,24 @@ const Cashout = () => {
       required: true,
       isDatePicker: true,
     },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      required: true,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "before",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      required: true,
+      isDatePicker: true,
+    },
   ];
   const [rows, setRows] = useState(allRows);
   const columns = [

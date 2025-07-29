@@ -20,7 +20,7 @@ export function useCheckoutControlMutations() {
 
 export function useGetCheckoutControls(filterPanelElements: FormElementsState) {
   return useGetList<CheckoutControl>(
-    `${baseUrl}?user=${filterPanelElements.user}&location=${filterPanelElements.location}&date=${filterPanelElements.date}`,
+    `${baseUrl}?user=${filterPanelElements.user}&location=${filterPanelElements.location}&date=${filterPanelElements.date}&after=${filterPanelElements.after}&before=${filterPanelElements.before}`,
     [baseUrl, filterPanelElements],
     true
   );
