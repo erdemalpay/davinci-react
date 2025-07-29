@@ -32,18 +32,22 @@ const OrderNotes = () => {
   const allRows = notes?.map((note) => {
     return {
       ...note,
-      categoryNames: note?.categories
-        ?.map((categoryId) => {
-          const foundCategory = getItem(categoryId, categories);
-          return foundCategory ? foundCategory.name : "";
-        })
-        ?.join(", "),
-      itemNames: note?.items
-        ?.map((itemId) => {
-          const foundItem = getItem(itemId, items);
-          return foundItem ? foundItem.name : "";
-        })
-        ?.join(", "),
+      ...(note?.categories && {
+        categoryNames: note?.categories
+          ?.map((categoryId) => {
+            const foundCategory = getItem(categoryId, categories);
+            return foundCategory ? foundCategory.name : "";
+          })
+          ?.join(", "),
+      }),
+      ...(note?.items && {
+        itemNames: note?.items
+          ?.map((itemId) => {
+            const foundItem = getItem(itemId, items);
+            return foundItem ? foundItem.name : "";
+          })
+          ?.join(", "),
+      }),
     };
   });
   const [rows, setRows] = useState(allRows ?? []);

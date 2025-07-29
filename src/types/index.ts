@@ -310,12 +310,19 @@ export type Visit = {
   finishHour?: string;
 };
 
+export enum ButtonCallTypeEnum {
+  TABLECALL = "TABLECALL",
+  GAMEMASTERCALL = "GAMEMASTERCALL",
+  ORDERCALL = "ORDERCALL",
+}
+
 export type ButtonCall = {
   _id: string;
   tableName: string;
   location: number;
   locationName?: string;
   date: string;
+  type: string;
   startHour: string;
   finishHour?: string;
   createdBy: string;
