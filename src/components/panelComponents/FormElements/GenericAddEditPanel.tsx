@@ -656,28 +656,40 @@ const GenericAddEditPanel = <T,>({
                             )}
                           </div>
 
-                          {/* custom dropdown */}
                           {openFor === input.formKey && (
-                            <ul
-                              className="absolute z-10 mt-1 w-full bg-white border rounded shadow-md max-h-40 overflow-auto"
-                              onBlur={() => setOpenFor(null)}
-                            >
-                              {input.options!.map((opt) => (
+                            <>
+                              {/* backdrop */}
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setOpenFor(null)}
+                              />
+
+                              {/* dropdown */}
+                              <ul className="absolute z-20 mt-1 w-full bg-white border rounded shadow-md max-h-40 overflow-auto">
+                                {/* full-width cancel row */}
                                 <li
-                                  key={opt.value}
-                                  onMouseDown={() => {
-                                    handleChange(input.formKey)(opt.value);
-                                    setOpenFor(null);
-                                  }}
-                                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                  className="px-3 py-2 text-red-500 cursor-pointer hover:bg-gray-100"
+                                  onMouseDown={() => setOpenFor(null)}
                                 >
-                                  {opt.label}
+                                  {t("Close Selection")}
                                 </li>
-                              ))}
-                            </ul>
+
+                                {input.options!.map((opt) => (
+                                  <li
+                                    key={opt.value}
+                                    onMouseDown={() => {
+                                      handleChange(input.formKey)(opt.value);
+                                      setOpenFor(null);
+                                    }}
+                                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                  >
+                                    {opt.label}
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
                           )}
 
-                          {/* textarea + clear button */}
                           <div className="relative">
                             <textarea
                               value={formElements[input.formKey]}
