@@ -1,20 +1,23 @@
 import { size } from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
-import { ButtonCall, commonDateOptions } from "../types";
-import { useButtonCallMutations, useGetButtonCalls } from "../utils/api/buttonCall";
+import { ButtonCall, buttonCallTypes, commonDateOptions } from "../types";
+import {
+  useButtonCallMutations,
+  useGetButtonCalls,
+} from "../utils/api/buttonCall";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 import { StockLocationInput } from "../utils/panelInputs";
 import { passesFilter } from "../utils/passesFilter";
-import { HiOutlineTrash } from "react-icons/hi2";
-import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 
 type FormElementsState = {
   [key: string]: any;
@@ -34,6 +37,7 @@ export default function ButtonCalls() {
         ...buttonCall,
         locationName: getItem(buttonCall.location, locations)?.name ?? 0,
         cancelledByName: getItem(buttonCall.cancelledBy, users)?.name ?? "",
+        type: buttonCall?.type ?? buttonCallTypes[0].value,
       };
     })
     ?.sort((a, b) => {
@@ -48,6 +52,7 @@ export default function ButtonCalls() {
       date: "",
       before: "",
       after: "",
+      type: [],
     });
   const filterPanelInputs = [
     StockLocationInput({ locations: locations }),
@@ -73,6 +78,20 @@ export default function ButtonCalls() {
       isDatePicker: false,
       isOnClearActive: false,
       isDebounce: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "type",
+      label: t("Type"),
+      options: buttonCallTypes?.map((item) => {
+        return {
+          value: item.value,
+          label: t(item.label),
+        };
+      }),
+      placeholder: t("Type"),
+      isMultiple: true,
+      required: true,
     },
     {
       type: InputTypes.SELECT,
@@ -111,6 +130,7 @@ export default function ButtonCalls() {
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Location"), isSortable: true },
+    { key: t("Type"), isSortable: true },
     { key: t("Table Name"), isSortable: true },
     { key: t("Start Hour"), isSortable: true },
     { key: t("Finish Hour"), isSortable: true },
@@ -127,7 +147,23 @@ export default function ButtonCalls() {
       },
     },
     { key: "locationName", className: "min-w-32" },
+    {
+      key: "type",
+      className: "min-w-32 pr-1",
+      node: (row: any) => {
+        let type = buttonCallTypes.find((item) => item.value === row.type);
+        if (!type) type = buttonCallTypes[0];
+        return (
+          <div
+            className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${type?.backgroundColor} text-white`}
+          >
+            {t(type?.label)}
+          </div>
+        );
+      },
+    },
     { key: "tableName" },
+
     { key: "startHour" },
     { key: "finishHour" },
     { key: "duration" },
@@ -181,6 +217,8 @@ export default function ButtonCalls() {
           row.date >= filterPanelFormElements.after) &&
         (!filterPanelFormElements.tableName ||
           passesFilter(filterPanelFormElements.tableName, row.tableName)) &&
+        (filterPanelFormElements?.type?.length === 0 ||
+          filterPanelFormElements?.type?.includes(row.type)) &&
         (size(filterPanelFormElements.cancelledBy) == 0 ||
           filterPanelFormElements.cancelledBy?.includes(row.cancelledBy)) &&
         passesFilter(filterPanelFormElements.location, row.location)
@@ -190,8 +228,7 @@ export default function ButtonCalls() {
     setTableKey((prev) => prev + 1);
   }, [filterPanelFormElements, locations, buttonCalls]);
 
-  const { deleteButtonCall } =
-    useButtonCallMutations();
+  const { deleteButtonCall } = useButtonCallMutations();
   const [rowToAction, setRowToAction] = useState<any>();
   const [
     isCloseAllConfirmationDialogOpen,

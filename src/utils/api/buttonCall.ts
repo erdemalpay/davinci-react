@@ -12,7 +12,7 @@ interface UpdateButtonCallPayload {
   hour: string;
 }
 
-const baseUrl = Paths.ButtonCalls;
+const baseUrl = `${Paths.ButtonCalls}`;
 
 export function useButtonCallMutations() {
   const {
@@ -31,7 +31,7 @@ export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
   const { selectedDate } = useDateContext();
   return useGetList<ButtonCall>(
     `${Paths.ButtonCalls}?location=${selectedLocationId}&date=${selectedDate}&type=${type}`,
-    [Paths.ButtonCalls, selectedLocationId, selectedDate, type]
+    [`${Paths.ButtonCalls}`, selectedLocationId, selectedDate, type]
   );
 }
 export function useGetButtonCalls() {

@@ -36,7 +36,12 @@ export function useGetQueryFeedbacks(filter: {
     return query
       ? `${Paths.Tables}/feedback?${query}`
       : `${Paths.Tables}/feedback`;
-  }, [filter.after, filter.before, filter.location]);
+  }, [
+    `${Paths.Tables}/feedback`,
+    filter.after,
+    filter.before,
+    filter.location,
+  ]);
 
   return useGetList<Feedback>(url, [url], true);
 }
