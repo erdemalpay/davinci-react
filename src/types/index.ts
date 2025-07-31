@@ -322,6 +322,23 @@ export enum ButtonCallTypeEnum {
   GAMEMASTERCALL = "GAMEMASTERCALL",
   ORDERCALL = "ORDERCALL",
 }
+export const buttonCallTypes = [
+  {
+    value: ButtonCallTypeEnum.TABLECALL,
+    label: "Table Call",
+    backgroundColor: "bg-green-500",
+  },
+  {
+    value: ButtonCallTypeEnum.GAMEMASTERCALL,
+    label: "Game Master Call",
+    backgroundColor: "bg-blue-500",
+  },
+  {
+    value: ButtonCallTypeEnum.ORDERCALL,
+    label: "Order Call",
+    backgroundColor: "bg-orange-500",
+  },
+];
 
 export type ButtonCall = {
   _id: string;
@@ -329,10 +346,10 @@ export type ButtonCall = {
   location: number;
   locationName?: string;
   date: string;
-  type: string;
+  type: ButtonCallTypeEnum;
   startHour: string;
   finishHour?: string;
-  createdBy: string;
+  createdBy?: string;
   cancelledBy?: string;
   cancelledByName?: string;
   duration?: number;
@@ -1485,6 +1502,7 @@ export enum NotificationEventType {
   FARMNOTCONFIRMED = "FARMNOTCONFIRMED",
   NIGHTOPENTABLE = "NIGHTOPENTABLE",
   EARLYSHIFTEND = "EARLYSHIFTEND",
+  UNCOMPLETEDCHECKLIST = "UNCOMPLETEDCHECKLIST",
 }
 export const notificationEventsOptions = [
   {
@@ -1530,6 +1548,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.EARLYSHIFTEND,
     label: "Early Shift End",
+  },
+  {
+    value: NotificationEventType.UNCOMPLETEDCHECKLIST,
+    label: "Uncompleted Checklist",
   },
 ];
 

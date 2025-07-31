@@ -27,7 +27,6 @@ import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
 import {
-  ButtonCallType,
   FARMBURGERCATEGORYID,
   Game,
   MenuItem,
@@ -40,14 +39,13 @@ import {
   Table,
   TableStatus,
   TableTypes,
-  User,
+  User
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
-import { useGetActiveButtonCalls } from "../utils/api/buttonCall";
 import { useGetGames } from "../utils/api/game";
 import {
   useGetAllLocations,
@@ -98,7 +96,6 @@ const Tables = () => {
   const games = useGetGames();
   const visits = useGetVisits();
   const stockLocations = useGetStockLocations();
-  const buttonCalls = useGetActiveButtonCalls(ButtonCallType.ACTIVE);
   const products = useGetAllAccountProducts();
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
@@ -989,7 +986,7 @@ const Tables = () => {
               className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
             >
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
-                <ActiveButtonCallsList buttonCalls={buttonCalls} />
+                <ActiveButtonCallsList  />
               </div>
               <div className="flex flex-row gap-2">
                 {/* inactive tables */}
@@ -1066,7 +1063,7 @@ const Tables = () => {
             <div className="flex-wrap gap-2 my-4">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
-                <ActiveButtonCallsList buttonCalls={buttonCalls} />
+                <ActiveButtonCallsList  />
               </div>
             </div>
 
