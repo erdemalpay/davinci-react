@@ -16,7 +16,8 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
-import type { Game } from "../types";
+import { useUserContext } from "../context/User.context";
+import { RoleEnum, type Game } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 import { useGetStoreLocations } from "../utils/api/location";
 
@@ -27,8 +28,11 @@ export default function Games() {
   const games = useGetGames();
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
+  const { user } = useUserContext();
   const locations = useGetStoreLocations();
   const { isGameEnableEdit, setIsGameEnableEdit } = useFilterContext();
+  const isDisabledCondition =
+    user && ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Game>();
@@ -148,7 +152,7 @@ export default function Games() {
     },
     {
       name: "Star Rating",
-      isDisabled: !isGameEnableEdit,
+      isDisabled: !isGameEnableEdit || isDisabledCondition,
       node: (row: any) => {
         return (
           <StarRating
