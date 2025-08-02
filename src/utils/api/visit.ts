@@ -5,9 +5,18 @@ import { get, patch, post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Visit } from "../../types";
-import { Paths, useGetList } from "./factory";
+import { Paths, useGetList, useMutationApi } from "./factory";
+
 interface UpdateVisitPayload {
   id: number;
+}
+
+export function useVisitMutation() {
+  const { deleteItem: deleteVisit } = useMutationApi<Visit>({
+    baseQuery: Paths.Visits,
+  });
+
+  return { deleteVisit };
 }
 
 export function createVisit(visit: Partial<Visit>): Promise<Visit> {
