@@ -77,10 +77,7 @@ const EducationDashboard = () => {
     return <Loading />;
   }
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const disabledUsers = ![
-    RoleEnum.MANAGER,
-    RoleEnum.OPERATIONSASISTANT,
-  ].includes(user?.role?._id);
+  const disabledUsers = ![RoleEnum.MANAGER].includes(user?.role?._id);
   const isDisabledCondition = isEnableEdit && user ? disabledUsers : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);

@@ -38,11 +38,7 @@ const CountListMenu = () => {
         label: "Count List Products",
         icon: <FaSitemap />,
         content: <CountListProducts />,
-        isDisabled: user
-          ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-              user.role._id
-            )
-          : true,
+        isDisabled: user ? ![RoleEnum.MANAGER].includes(user.role._id) : true,
       },
     ]);
     setTabPanelKey((prev) => prev + 1);

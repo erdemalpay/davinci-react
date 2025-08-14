@@ -211,10 +211,7 @@ const ExpirationList = () => {
         ),
     });
   });
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
-  ) {
+  if (user && [RoleEnum.MANAGER].includes(user.role._id)) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
@@ -320,11 +317,7 @@ const ExpirationList = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-            user.role._id
-          )
-        : true,
+      isDisabled: user ? ![RoleEnum.MANAGER].includes(user.role._id) : true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -428,18 +421,10 @@ const ExpirationList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                user.role._id
-              )
-                ? actions
-                : undefined
+              [RoleEnum.MANAGER].includes(user.role._id) ? actions : undefined
             }
             addButton={
-              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                user.role._id
-              )
-                ? addButton
-                : undefined
+              [RoleEnum.MANAGER].includes(user.role._id) ? addButton : undefined
             }
             filters={filters}
             title={

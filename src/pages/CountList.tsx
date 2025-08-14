@@ -203,10 +203,7 @@ const CountList = () => {
         ),
     });
   });
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
-  ) {
+  if (user && [RoleEnum.MANAGER].includes(user.role._id)) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
@@ -312,11 +309,7 @@ const CountList = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-            user.role._id
-          )
-        : true,
+      isDisabled: user ? ![RoleEnum.MANAGER].includes(user.role._id) : true,
       node: (
         <Switch
           checked={isEnableEdit}
@@ -414,18 +407,10 @@ const CountList = () => {
             columns={columns}
             rows={rows()}
             actions={
-              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                user.role._id
-              )
-                ? actions
-                : undefined
+              [RoleEnum.MANAGER].includes(user.role._id) ? actions : undefined
             }
             addButton={
-              [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                user.role._id
-              )
-                ? addButton
-                : undefined
+              [RoleEnum.MANAGER].includes(user.role._id) ? addButton : undefined
             }
             filters={filters}
             title={countLists.find((row) => row._id === countListId)?.name}

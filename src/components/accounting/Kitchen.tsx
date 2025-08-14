@@ -92,11 +92,7 @@ const KitchenPage = () => {
 
   if (
     user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
   ) {
     if (isLocationEdit) {
       locations?.forEach((item) => {
@@ -179,11 +175,7 @@ const KitchenPage = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     isDisabled: user
-      ? ![
-          RoleEnum.MANAGER,
-          RoleEnum.OPERATIONSASISTANT,
-          RoleEnum.GAMEMANAGER,
-        ].includes(user?.role?._id)
+      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
       : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -211,11 +203,8 @@ const KitchenPage = () => {
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id) && !isLocationEdit
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id) &&
+          !isLocationEdit
         : true,
     },
     {
@@ -240,21 +229,13 @@ const KitchenPage = () => {
       setIsModal: setIsEditModalOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id) && !isLocationEdit
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id) &&
+          !isLocationEdit
         : true,
     },
   ];
   const filterDisableCondition =
-    user &&
-    ![
-      RoleEnum.MANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id);
+    user && ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id);
   const filters = [
     {
       label: t("Location Edit"),
