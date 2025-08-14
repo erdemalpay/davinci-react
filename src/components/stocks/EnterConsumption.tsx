@@ -74,9 +74,10 @@ const EnterConsumption = () => {
       return null;
     }
     const date = new Date(stockHistory.createdAt);
+    const foundProduct = getItem(stockHistory.product, products);
     return {
       ...stockHistory,
-      prdct: getItem(stockHistory.product, products)?.name,
+      prdct: foundProduct?.name,
       lctn: getItem(stockHistory?.location, locations)?.name,
       usr: getItem(stockHistory?.user, users)?.name,
       newQuantity:
@@ -86,6 +87,11 @@ const EnterConsumption = () => {
         format(stockHistory?.createdAt, "yyyy-MM-dd")
       ),
       hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+      productCost: (
+        (foundProduct?.unitPrice ?? 0) *
+        (stockHistory?.change ?? 0) *
+        -1
+      )?.toFixed(2),
     };
   });
   const [rows, setRows] = useState(allRows);
@@ -177,7 +183,10 @@ const EnterConsumption = () => {
       correspondingKey: "location",
     },
     ...(!isDisabledCondition
-      ? [{ key: t("Old Quantity"), isSortable: false }]
+      ? [
+          { key: t("Cost"), isSortable: false },
+          { key: t("Old Quantity"), isSortable: false },
+        ]
       : []),
     { key: t("Changed"), isSortable: false },
     ...(!isDisabledCondition
@@ -241,6 +250,10 @@ const EnterConsumption = () => {
     },
     ...(!isDisabledCondition
       ? [
+          {
+            key: "productCost",
+            className: "min-w-32 pr-1",
+          },
           {
             key: "currentAmount",
             className: "min-w-32 pr-1",
