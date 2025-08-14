@@ -114,11 +114,7 @@ const UpperCategories = () => {
   const columns = [{ key: t("Name"), isSortable: true }];
   if (
     user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -187,11 +183,7 @@ const UpperCategories = () => {
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     isDisabled: user
-      ? ![
-          RoleEnum.MANAGER,
-          RoleEnum.OPERATIONSASISTANT,
-          RoleEnum.GAMEMANAGER,
-        ].includes(user?.role?._id)
+      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
       : true,
   };
   const actions = [
@@ -217,11 +209,7 @@ const UpperCategories = () => {
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
         : true,
     },
     {
@@ -247,11 +235,7 @@ const UpperCategories = () => {
       setIsModal: setIsEditModalOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
         : true,
     },
   ];
@@ -324,11 +308,7 @@ const UpperCategories = () => {
       setIsModal: setIsCategoryEditModalOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
         : true,
     },
   ];
@@ -353,11 +333,9 @@ const UpperCategories = () => {
           collapsibleActions={collapsibleActions}
           isActionsActive={
             user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.OPERATIONSASISTANT,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
+              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(
+                  user?.role?._id
+                )
               : false
           }
         />

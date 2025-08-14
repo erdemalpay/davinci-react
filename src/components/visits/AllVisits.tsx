@@ -1,15 +1,18 @@
 import { format, startOfMonth } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
-import { DateRangeKey, commonDateOptions } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
-import { useGetFilteredVisits } from "../../utils/api/visit";
+import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -17,8 +20,17 @@ import { InputTypes } from "../panelComponents/shared/types";
 const AllVisits = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
+  const { user } = useUserContext();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
+  const { deleteVisit } = useVisitMutation();
+  const isDisabledCondition =
+    user && ![RoleEnum.MANAGER].includes(user?.role?._id);
+  const [
+    isCloseAllConfirmationDialogOpen,
+    setIsCloseAllConfirmationDialogOpen,
+  ] = useState(false);
+  const [rowToAction, setRowToAction] = useState<any>();
   const initialFilterPanelFormElements = {
     date: "",
     after: format(startOfMonth(new Date()), "yyyy-MM-dd"),
@@ -67,6 +79,9 @@ const AllVisits = () => {
     { key: t("Start Hour"), isSortable: true, correspondingKey: "startHour" },
     { key: t("Finish Hour"), isSortable: true, correspondingKey: "finishHour" },
   ];
+  if (!isDisabledCondition) {
+    columns.push({ key: t("Actions"), isSortable: false } as any);
+  }
   const rowKeys = [
     { key: "userName" },
     { key: "userRole" },
@@ -92,6 +107,31 @@ const AllVisits = () => {
           }}
         />
       ),
+    },
+  ];
+  const actions = [
+    {
+      name: t("Delete"),
+      icon: <HiOutlineTrash />,
+      setRow: setRowToAction,
+      modal: rowToAction ? (
+        <ConfirmationDialog
+          isOpen={isCloseAllConfirmationDialogOpen}
+          close={() => setIsCloseAllConfirmationDialogOpen(false)}
+          confirm={() => {
+            deleteVisit(rowToAction?._id);
+            setIsCloseAllConfirmationDialogOpen(false);
+          }}
+          title={t("Delete Visit")}
+          text={`${t("Visit")} ${t("GeneralDeleteMessage")}`}
+        />
+      ) : null,
+      className: "text-red-500 cursor-pointer text-2xl ",
+      isModal: true,
+      isModalOpen: isCloseAllConfirmationDialogOpen,
+      setIsModal: setIsCloseAllConfirmationDialogOpen,
+      isPath: false,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filterPanelInputs = [
@@ -180,10 +220,11 @@ const AllVisits = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          isActionsActive={false}
+          isActionsActive={!isDisabledCondition}
           filterPanel={filterPanel}
           filters={filters}
           title={t("All Visits")}
+          actions={!isDisabledCondition ? actions : []}
           isExcel={true}
           excelFileName={`Visits.xlsx`}
         />

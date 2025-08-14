@@ -27,11 +27,7 @@ const LocationPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const isDisabledCondition = user
-    ? ![
-        RoleEnum.MANAGER,
-        RoleEnum.OPERATIONSASISTANT,
-        RoleEnum.GAMEMANAGER,
-      ].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<Location>();
   const initialForm = {

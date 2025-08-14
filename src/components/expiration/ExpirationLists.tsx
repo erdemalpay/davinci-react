@@ -180,11 +180,7 @@ const ExpirationLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-          user.role._id
-        ),
+      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
     },
     {
       name: t("Edit"),
@@ -222,20 +218,13 @@ const ExpirationLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-          user.role._id
-        ),
+      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
     },
     {
       name: t("Toggle Active"),
       isDisabled:
         !showInactiveExpirationLists ||
-        (user &&
-          ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-            user.role._id
-          )),
+        (user && ![RoleEnum.MANAGER].includes(user.role._id)),
       isModal: false,
       isPath: false,
       icon: null,
@@ -314,11 +303,7 @@ const ExpirationLists = () => {
   const filters = [
     {
       label: t("Show Inactive ExpirationLists"),
-      isDisabled:
-        user &&
-        ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-          user.role._id
-        ),
+      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
       isUpperSide: true,
       node: (
         <SwitchButton
@@ -354,12 +339,7 @@ const ExpirationLists = () => {
           isActionsActive={true}
           columns={columns}
           filters={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-              user.role._id
-            )
-              ? filters
-              : []
+            user && [RoleEnum.MANAGER].includes(user.role._id) ? filters : []
           }
           rows={
             showInactiveExpirationLists
@@ -370,10 +350,7 @@ const ExpirationLists = () => {
           }
           title={t("Expiration Lists")}
           addButton={
-            user &&
-            [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-              user.role._id
-            )
+            user && [RoleEnum.MANAGER].includes(user.role._id)
               ? addButton
               : undefined
           }

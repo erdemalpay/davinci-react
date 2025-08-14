@@ -30,9 +30,7 @@ export default function Analytics() {
       label: "Accounting",
       component: <AccountingAnalytics />,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-            (user.role as Role)._id
-          )
+        ? ![RoleEnum.MANAGER].includes((user.role as Role)._id)
         : true,
     },
   ];

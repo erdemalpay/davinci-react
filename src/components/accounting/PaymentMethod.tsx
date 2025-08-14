@@ -48,11 +48,7 @@ const PaymentMethods = () => {
   ];
   if (
     user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-      RoleEnum.GAMEMANAGER,
-    ].includes(user?.role?._id)
+    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
   ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
@@ -153,11 +149,7 @@ const PaymentMethods = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     isDisabled: user
-      ? ![
-          RoleEnum.MANAGER,
-          RoleEnum.OPERATIONSASISTANT,
-          RoleEnum.GAMEMANAGER,
-        ].includes(user?.role?._id)
+      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
       : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -185,11 +177,7 @@ const PaymentMethods = () => {
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
         : true,
     },
     {
@@ -214,11 +202,7 @@ const PaymentMethods = () => {
       setIsModal: setIsEditModalOpen,
       isPath: false,
       isDisabled: user
-        ? ![
-            RoleEnum.MANAGER,
-            RoleEnum.OPERATIONSASISTANT,
-            RoleEnum.GAMEMANAGER,
-          ].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
         : true,
     },
   ];
@@ -240,11 +224,9 @@ const PaymentMethods = () => {
           addButton={addButton}
           isActionsActive={
             user
-              ? [
-                  RoleEnum.MANAGER,
-                  RoleEnum.OPERATIONSASISTANT,
-                  RoleEnum.GAMEMANAGER,
-                ].includes(user?.role?._id)
+              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(
+                  user?.role?._id
+                )
               : false
           }
         />
