@@ -97,17 +97,18 @@ const TabInputScreen = ({
       setTabInputScreenOptions([]);
     }
   };
-  const filtered = options.filter(
-    (opt) =>
+  const filtered = options.filter((opt) => {
+    return (
       normalizeText(opt?.label).includes(normalizeText(searchTerm)) ||
       opt?.keywords?.some((keyword) =>
         normalizeText(keyword).includes(normalizeText(searchTerm))
       )
-  );
+    );
+  });
   const lower = normalizeText(searchTerm);
   const sortedFiltered = changedInput?.isSortDisabled
     ? filtered
-    : [...filtered].sort((a, b) => {
+    : filtered.sort((a, b) => {
         const aStarts = normalizeText(a.label).startsWith(lower);
         const bStarts = normalizeText(b.label).startsWith(lower);
         if (aStarts && !bStarts) return -1;

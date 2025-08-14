@@ -39,7 +39,7 @@ import {
   Table,
   TableStatus,
   TableTypes,
-  User
+  User,
 } from "../types";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import {
@@ -171,7 +171,7 @@ const Tables = () => {
         return {
           value: product._id,
           label: product.name,
-          keywords: [matchedItem?.sku || ""],
+          keywords: [matchedItem?.sku ?? "", matchedItem?.barcode ?? ""],
         };
       }),
       placeholder: t("Product"),
@@ -986,7 +986,7 @@ const Tables = () => {
               className="flex flex-col  flex-wrap gap-2 mt-4 sm:hidden"
             >
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
-                <ActiveButtonCallsList  />
+                <ActiveButtonCallsList />
               </div>
               <div className="flex flex-row gap-2">
                 {/* inactive tables */}
@@ -1063,7 +1063,7 @@ const Tables = () => {
             <div className="flex-wrap gap-2 my-4">
               {/* active buttons */}
               <div className="mb-5 sm:mb-0 flex-row w-full text-lg">
-                <ActiveButtonCallsList  />
+                <ActiveButtonCallsList />
               </div>
             </div>
 
