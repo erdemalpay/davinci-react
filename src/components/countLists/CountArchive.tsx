@@ -45,7 +45,7 @@ const CountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user.role._id)
+    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
   );
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
