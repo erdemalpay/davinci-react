@@ -165,7 +165,7 @@ const Service = () => {
   ];
   if (
     user &&
-    ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
   ) {
     columns.splice(
       columns.findIndex((column) => column.key === "Unit Price"),
@@ -209,7 +209,7 @@ const Service = () => {
     setIsModal: setIsAddModalOpen,
     isPath: false,
     isDisabled: user
-      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
       : true,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
@@ -237,7 +237,7 @@ const Service = () => {
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT,].includes(user?.role?._id)
         : true,
     },
     {
@@ -276,7 +276,7 @@ const Service = () => {
       setIsModal: setIsEditModalOpen,
       isPath: false,
       isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
         : true,
     },
   ];
@@ -347,7 +347,7 @@ const Service = () => {
           filterPanel={filterPanel}
           isActionsActive={
             user
-              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(
+              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(
                   user?.role?._id
                 )
               : false

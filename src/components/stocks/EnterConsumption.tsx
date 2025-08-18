@@ -96,7 +96,7 @@ const EnterConsumption = () => {
   });
   const [rows, setRows] = useState(allRows);
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user.role._id)
+    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
   );
   const consumptInputs = [
     {

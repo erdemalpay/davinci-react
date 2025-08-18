@@ -56,7 +56,7 @@ const Product = () => {
   const [rowToAction, setRowToAction] = useState<AccountProduct>();
   const pages = useGetPanelControlPages();
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT ].includes(user?.role?._id)
     : true;
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
