@@ -76,7 +76,7 @@ const Shifts = () => {
   );
   const { user } = useUserContext();
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT,].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateShift, createShift, deleteShift } = useShiftMutations();

@@ -87,7 +87,7 @@ const LossProduct = () => {
   const locations = useGetStockLocations();
   const items = useGetMenuItems();
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user.role._id)
+    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT,].includes(user.role._id)
   );
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data
