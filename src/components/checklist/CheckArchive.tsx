@@ -103,6 +103,7 @@ const CheckArchive = () => {
     { key: t("NounCheck"), isSortable: true },
     { key: t("Location"), isSortable: true },
     { key: t("User"), isSortable: true },
+    { key: t("Completed"), isSortable: true },
     { key: t("Status"), isSortable: false },
   ];
   if (!isDisabledCondition) {
@@ -150,6 +151,23 @@ const CheckArchive = () => {
     },
     { key: "lctn" },
     { key: "usr" },
+    {
+      key: "completed",
+      node: (row: any) => {
+        const completedDutiesNumber =
+          row?.duties?.filter((duty: any) => duty.isCompleted)?.length ?? 0;
+        const dutiesLength = row?.duties?.length ?? 0;
+        return (
+          <p
+            className={`px-2 ${
+              completedDutiesNumber === dutiesLength
+                ? "text-green-500"
+                : "text-red-500 font-bold"
+            }`}
+          >{`${completedDutiesNumber} / ${dutiesLength}`}</p>
+        );
+      },
+    },
     {
       key: "isCompleted",
       node: (row: any) => {
