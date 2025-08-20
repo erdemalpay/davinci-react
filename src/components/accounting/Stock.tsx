@@ -71,7 +71,7 @@ const Stock = () => {
   } = useFilterContext();
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
+    ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
     : true;
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
