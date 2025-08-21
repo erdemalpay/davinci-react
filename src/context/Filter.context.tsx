@@ -235,6 +235,7 @@ const FilterContext = createContext<FilterContextType>({
     location: "",
     expenseType: "",
     after: "",
+    before: "",
     date: "",
   },
   setFilterStockPanelFormElements: () => {},
@@ -834,6 +835,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
       expenseType: "",
       after: "",
       date: "",
+      before: "",
     });
   const [filterServicePanelFormElements, setFilterServicePanelFormElements] =
     useState<FormElementsState>({

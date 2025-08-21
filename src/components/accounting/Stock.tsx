@@ -46,7 +46,20 @@ import {
 
 const Stock = () => {
   const { t } = useTranslation();
-  const stocks = useGetFilteredStocks();
+  const {
+    showStockFilters,
+    setShowStockFilters,
+    filterStockPanelFormElements,
+    setFilterStockPanelFormElements,
+    isStockEnableEdit,
+    setIsStockEnableEdit,
+    showStockPrices,
+    setShowStockPrices,
+  } = useFilterContext();
+  const stocks = useGetFilteredStocks(
+    filterStockPanelFormElements.after,
+    filterStockPanelFormElements.location
+  );
   const { user } = useUserContext();
   const products = useGetAccountProducts();
   const items = useGetMenuItems();
@@ -59,16 +72,7 @@ const Stock = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
-  const {
-    showStockFilters,
-    setShowStockFilters,
-    filterStockPanelFormElements,
-    setFilterStockPanelFormElements,
-    isStockEnableEdit,
-    setIsStockEnableEdit,
-    showStockPrices,
-    setShowStockPrices,
-  } = useFilterContext();
+
   const [rowToAction, setRowToAction] = useState<any>();
   const isDisabledCondition = user
     ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
@@ -599,7 +603,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [
     stocks,
-    filterStockPanelFormElements,
+    // filterStockPanelFormElements,
     products,
     locations,
     user,
@@ -609,6 +613,7 @@ const Stock = () => {
     vendors,
     brands,
   ]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
