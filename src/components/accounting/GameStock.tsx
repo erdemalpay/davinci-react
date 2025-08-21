@@ -6,15 +6,22 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { GAMEEXPENSETYPE, RoleEnum, StockHistoryStatusEnum } from "../../types";
+import {
+  DateRangeKey,
+  GAMEEXPENSETYPE,
+  RoleEnum,
+  StockHistoryStatusEnum,
+  commonDateOptions,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
-  useGetAccountStocks,
+  useGetFilteredStocks,
   useStockTransferMutation,
 } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
@@ -34,20 +41,11 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   GenericInputType,
+  InputTypes,
 } from "../panelComponents/shared/types";
 
 const GameStock = () => {
   const { t } = useTranslation();
-  const stocks = useGetAccountStocks();
-  const { user } = useUserContext();
-  const products = useGetAccountProducts();
-  const items = useGetMenuItems();
-  const vendors = useGetAccountVendors();
-  const brands = useGetAccountBrands();
-  const locations = useGetStockLocations();
-  const [tableKey, setTableKey] = useState(0);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const {
     showGameStockFilters,
     setShowGameStockFilters,
@@ -58,6 +56,20 @@ const GameStock = () => {
     isGameStockEnableEdit,
     setIsGameStockEnableEdit,
   } = useFilterContext();
+  const stocks = useGetFilteredStocks(
+    filterGameStockPanelFormElements.after,
+    filterGameStockPanelFormElements.location
+  );
+  const { user } = useUserContext();
+  const products = useGetAccountProducts();
+  const items = useGetMenuItems();
+  const vendors = useGetAccountVendors();
+  const brands = useGetAccountBrands();
+  const locations = useGetStockLocations();
+  const [tableKey, setTableKey] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
@@ -555,6 +567,44 @@ const GameStock = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "date",
+      label: t("Date"),
+      options: commonDateOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: t(option.label),
+        };
+      }),
+      placeholder: t("Date"),
+      required: true,
+      additionalOnChange: ({
+        value,
+        label,
+      }: {
+        value: string;
+        label: string;
+      }) => {
+        const dateRange = dateRanges[value as DateRangeKey];
+        if (dateRange) {
+          setFilterGameStockPanelFormElements({
+            ...filterGameStockPanelFormElements,
+            ...dateRange(),
+          });
+        }
+      },
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "after",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: true,
+      isDatePicker: true,
+      invalidateKeys: [{ key: "date", defaultValue: "" }],
+      isOnClearActive: false,
+    },
   ];
   const filterPanel = {
     isFilterPanelActive: showGameStockFilters,
