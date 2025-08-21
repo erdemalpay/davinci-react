@@ -36,12 +36,21 @@ export function useAccountStockMutations() {
   };
 }
 
-export function useGetFilteredStocks() {
-  const { filterStockPanelFormElements } = useFilterContext();
-  return useGetList<AccountStock>(
-    `${Paths.Accounting}/stocks/query?after=${filterStockPanelFormElements.after}`,
-    [`${Paths.Accounting}/stocks/query`, filterStockPanelFormElements.after]
-  );
+export function useGetFilteredStocks(after?: string, location?: string) {
+  const params = new URLSearchParams();
+
+  if (after) params.append("after", after);
+  if (location !== undefined && location !== "")
+    params.append("location", String(location));
+
+  const query = params.toString();
+  const url = `${Paths.Accounting}/stocks/query${query ? `?${query}` : ""}`;
+
+  return useGetList<AccountStock>(url, [
+    `${Paths.Accounting}/stocks/query`,
+    after,
+    location,
+  ]);
 }
 
 export function useGetSummaryStockTotal() {
