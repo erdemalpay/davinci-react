@@ -1,6 +1,15 @@
-import { format, isToday } from "date-fns";
+import {
+  addDays,
+  format,
+  formatDate,
+  isToday,
+  isValid,
+  parse,
+  subDays,
+} from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import SummaryCard from "../components/common/SummaryCard";
 import { Header } from "../components/header/Header";
@@ -36,6 +45,15 @@ const DailySummary = () => {
     filterDailySummaryPanelFormElements.date,
     filterDailySummaryPanelFormElements.location
   );
+  const DATE_FMT = "yyyy-MM-dd";
+
+  const strToDate = (s?: string) => {
+    if (!s) return new Date();
+    const d = parse(s, DATE_FMT, new Date());
+    return isValid(d) ? d : new Date();
+  };
+
+  const dateToStr = (d: Date) => formatDate(d, DATE_FMT);
   const allRows = [
     {
       header: t("Top Order Creators"),
@@ -147,7 +165,7 @@ const DailySummary = () => {
     {
       type: InputTypes.DATE,
       formKey: "date",
-      label: t("Date"),
+      // label: t("Date"),
       placeholder: t("Date"),
       required: true,
       isDatePicker: true,
@@ -206,11 +224,30 @@ const DailySummary = () => {
             <PreviousVisitList visits={visits} isLabel={false} />
           )}
           {/* filter */}
-          <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto   ">
+          <div className="w-full sm:w-1/2 grid grid-cols-1 sm:flex sm:flex-row gap-4 sm:ml-auto items-center   ">
             {filterInputs.map((input: any) => {
               if (input.type === InputTypes.DATE) {
                 return (
-                  <div key={input.formKey} className="sm:mt-2 w-full">
+                  <div
+                    key={input.formKey}
+                    className="w-full flex items-center gap-2"
+                  >
+                    {/* left arrow */}
+                    <button
+                      type="button"
+                      className="p-2 rounded bg-gray-100 hover:bg-gray-200"
+                      onClick={() => {
+                        setFilterDailySummaryPanelFormElements((prev: any) => {
+                          const cur = prev[input.formKey] as string | undefined;
+                          const next = subDays(strToDate(cur), 1);
+                          return { ...prev, [input.formKey]: dateToStr(next) };
+                        });
+                      }}
+                    >
+                      <IoIosArrowBack size={20} />
+                    </button>
+
+                    {/* date picker input */}
                     <TextInput
                       key={input.formKey}
                       type={input.type}
@@ -223,6 +260,21 @@ const DailySummary = () => {
                       onChange={handleChange(input.formKey)}
                       isDatePicker={input?.isDatePicker ?? false}
                     />
+
+                    {/* right arrow */}
+                    <button
+                      type="button"
+                      className="p-2 rounded bg-gray-100 hover:bg-gray-200"
+                      onClick={() => {
+                        setFilterDailySummaryPanelFormElements((prev: any) => {
+                          const cur = prev[input.formKey] as string | undefined;
+                          const next = addDays(strToDate(cur), 1);
+                          return { ...prev, [input.formKey]: dateToStr(next) };
+                        });
+                      }}
+                    >
+                      <IoIosArrowForward size={20} />
+                    </button>
                   </div>
                 );
               } else if (input.type === InputTypes.SELECT) {
