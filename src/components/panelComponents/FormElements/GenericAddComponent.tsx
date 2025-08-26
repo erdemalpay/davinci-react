@@ -339,6 +339,7 @@ const GenericAddComponent = <T,>({
                         onChange={(val) =>
                           handleChange(input.formKey)(val ?? "")
                         }
+                        isArrowsEnabled={input.isArrowsEnabled ?? false}
                         requiredField={input.required}
                         isOnClearActive={input?.isOnClearActive ?? true}
                         isDateInitiallyOpen={input.isDateInitiallyOpen ?? false}
