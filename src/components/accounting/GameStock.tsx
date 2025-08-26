@@ -69,7 +69,6 @@ const GameStock = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
@@ -104,7 +103,6 @@ const GameStock = () => {
     quantity: 0,
     status: "",
   });
-
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -163,7 +161,6 @@ const GameStock = () => {
           quantity: quantity,
           totalPrice: totalPrice,
         });
-
         return acc;
       }, {});
     return Object.values(groupedProducts);
@@ -536,7 +533,6 @@ const GameStock = () => {
 
         return acc;
       }, {});
-
     const newGeneralTotalExpense = Object.values(processedRows)?.reduce(
       (acc: any, stock: any) => {
         const expense = parseFloat(stock?.totalGroupPrice.toFixed(1));
