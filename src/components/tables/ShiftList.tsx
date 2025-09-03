@@ -7,6 +7,20 @@ import { useGetShifts } from "../../utils/api/shift";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 
+export type ShiftValue = {
+  shift: string;
+  shiftEndHour?: string;
+  user: string[];
+  chefUser?: string;
+};
+
+export type Shift = {
+  _id: number;
+  day: string;
+  location?: number;
+  shifts: ShiftValue[];
+};
+
 type Props = {
   visits: Visit[];
 };
@@ -14,50 +28,76 @@ type Props = {
 interface SeenUsers {
   [key: string]: boolean;
 }
+
 const ShiftList = ({ visits }: Props) => {
   const { t } = useTranslation();
   const { selectedDate } = useDateContext();
   const { selectedLocationId } = useLocationContext();
+
   const users = useGetUsers();
-  const shifts = useGetShifts(selectedDate, selectedDate, selectedLocationId);
-  const uniqueVisits = visits?.reduce(
-    (acc: { unique: typeof visits; seenUsers: SeenUsers }, visit) => {
-      acc.seenUsers = acc.seenUsers || {};
-      if (visit?.user && !acc.seenUsers[visit.user]) {
-        acc.seenUsers[visit.user] = true;
-        acc.unique.push(visit);
-      }
+  const shifts = useGetShifts(
+    selectedDate,
+    selectedDate,
+    selectedLocationId
+  ) as unknown as Shift[] | undefined;
+
+  const uniqueVisits =
+    visits?.reduce(
+      (acc: { unique: typeof visits; seenUsers: SeenUsers }, visit) => {
+        acc.seenUsers = acc.seenUsers || {};
+        if (visit?.user && !acc.seenUsers[visit.user]) {
+          acc.seenUsers[visit.user] = true;
+          acc.unique.push(visit);
+        }
+        return acc;
+      },
+      { unique: [], seenUsers: {} }
+    ).unique ?? [];
+
+  const visitedUsers = new Set<string>(uniqueVisits.map((v) => v.user));
+
+  const allShiftUsers =
+    shifts?.reduce((acc: Set<string>, shift) => {
+      shift?.shifts?.forEach(({ user }) => {
+        user?.forEach((u) => acc.add(u));
+      });
       return acc;
-    },
-    { unique: [], seenUsers: {} }
-  ).unique;
-  const visitedUsers = new Set<string>(uniqueVisits?.map((v) => v.user));
-  const allShiftUsers = shifts?.reduce((acc, shift) => {
-    shift?.shifts?.forEach(({ user: shiftUserArray }) => {
-      shiftUserArray?.forEach((u) => acc.add(u));
+    }, new Set<string>()) ?? new Set<string>();
+
+  const userShiftLabel = new Map<string, string>();
+  shifts?.forEach((day) => {
+    day?.shifts?.forEach((s) => {
+      const label = s.shiftEndHour ? `${s.shift}–${s.shiftEndHour}` : s.shift;
+      s.user?.forEach((u) => {
+        if (!userShiftLabel.has(u)) userShiftLabel.set(u, label);
+      });
     });
-    return acc;
-  }, new Set<string>());
-  const missingUsers = Array?.from(allShiftUsers)?.filter(
+  });
+
+  const missingUsers = Array.from(allShiftUsers).filter(
     (u) => !visitedUsers.has(u)
   );
-  if (missingUsers?.length === 0) {
-    return null;
-  }
+  if (missingUsers.length === 0) return null;
+
   return (
     <div className="flex flex-row gap-2 items-center">
       <h1 className="text-gray-500 text-sm">{t("Who will come?")}</h1>
       <div className="flex flex-wrap gap-2 mt-2 justify-start items-center ">
         {missingUsers.map((userId) => {
           const foundUser = getItem(userId, users);
+          const label = userShiftLabel.get(userId);
           return (
-            <Tooltip key={userId} content={foundUser?.role?.name}>
+            <Tooltip
+              key={userId}
+              content={`${foundUser?.role?.name ?? ""}${
+                label ? ` • ${label}` : ""
+              }`}
+            >
               <Chip
-                value={foundUser?.name}
-                style={{
-                  backgroundColor: "green",
-                  height: "fit-content",
-                }}
+                value={
+                  label ? `${foundUser?.name} (${label})` : foundUser?.name
+                }
+                style={{ backgroundColor: "green", height: "fit-content" }}
                 color="gray"
               />
             </Tooltip>
