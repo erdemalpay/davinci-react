@@ -137,6 +137,18 @@ export function useOrderMutations() {
 
   return { updateOrder, createOrder };
 }
+export function useSimpleOrderMutations() {
+  const { updateItem: updateSimpleOrder } = useMutationApi<Order>({
+    baseQuery: `${Paths.Order}/simple`,
+    additionalInvalidates: [
+      [`${Paths.Order}/query`],
+      [`${Paths.Order}/collection/query`],
+      [`${Paths.Order}/ikas-pick-up/query`],
+    ],
+  });
+
+  return { updateSimpleOrder };
+}
 
 export function deleteTableOrders({ ids }: { ids: number[] }) {
   return patch({
@@ -512,6 +524,8 @@ export function useGetIkasPickUpOrders(category?: number[]) {
     url,
     [
       `${Paths.Order}/ikas-pick-up/query`,
+      `${Paths.Order}`,
+
       ikasPickUpFilterPanelFormElements.after,
       ikasPickUpFilterPanelFormElements.before,
       ikasPickUpFilterPanelFormElements.discount,
