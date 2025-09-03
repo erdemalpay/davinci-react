@@ -580,6 +580,7 @@ const DessertStock = () => {
           filterPanel={filterPanel}
           isActionsActive={false}
           isCollapsible={true}
+          isToolTipEnabled={false}
           isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
           excelFileName={t("TatliStok.xlsx")}
         />
