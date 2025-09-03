@@ -168,6 +168,7 @@ const VendorOrder = () => {
           filters={filters}
           isActionsActive={false}
           isExcel={true}
+          isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName={"VendorOrder.xlsx"}
         />
