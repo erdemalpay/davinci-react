@@ -24,7 +24,7 @@ import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import {
   useGetIkasPickUpOrders,
-  useOrderMutations,
+  useSimpleOrderMutations,
 } from "../utils/api/order/order";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
@@ -37,7 +37,7 @@ const IkasPickUp = () => {
   const users = useGetUsers();
   const { user } = useUserContext();
   const categories = useGetCategories();
-  const { updateOrder } = useOrderMutations();
+  const { updateSimpleOrder } = useSimpleOrderMutations();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
   const {
@@ -186,7 +186,7 @@ const IkasPickUp = () => {
             key={row._id + "ikas-pickup-checkbox"}
             className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
             onClick={() => {
-              updateOrder({
+              updateSimpleOrder({
                 id: row._id,
                 updates: {
                   isIkasCustomerPicked: false,
@@ -200,7 +200,7 @@ const IkasPickUp = () => {
             key={row._id + "ikas-pickup-checkbox"}
             className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105"
             onClick={() => {
-              updateOrder({
+              updateSimpleOrder({
                 id: row._id,
                 updates: {
                   isIkasCustomerPicked: true,
