@@ -82,7 +82,7 @@ const Settings = () => {
             id: user._id,
             updates: {
               settings: {
-                orderCategoryOn: !user?.settings?.orderCategoryOn ?? true,
+                orderCategoryOn: !user?.settings?.orderCategoryOn,
               },
             },
           });
