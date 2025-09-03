@@ -107,7 +107,7 @@ const VendorPayment = () => {
               updateAccountPayment({
                 id: row._id,
                 updates: {
-                  isAfterCount: !row?.isAfterCount ?? false,
+                  isAfterCount: !row?.isAfterCount,
                 },
               });
             }}

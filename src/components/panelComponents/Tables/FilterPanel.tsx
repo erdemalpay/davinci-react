@@ -42,14 +42,14 @@ const FilterPanel = <T,>({
   };
   const buttons = [
     {
-      label: "Apply",
-      onClick: applyFilters,
-      isDisabled: !isApplyButtonActive,
-    },
-    {
       label: "Clear All Filters",
       onClick: handleClearAllFilters,
       isDisabled: false,
+    },
+    {
+      label: "Apply",
+      onClick: applyFilters,
+      isDisabled: !isApplyButtonActive,
     },
   ];
 

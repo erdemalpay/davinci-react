@@ -390,7 +390,7 @@ const OrderPaymentModal = ({
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return items

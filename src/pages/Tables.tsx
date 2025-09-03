@@ -250,7 +250,7 @@ const Tables = () => {
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return menuItems
@@ -398,7 +398,7 @@ const Tables = () => {
       ],
       placeholder: t("Category"),
       required: false,
-      isDisabled: !user?.settings?.orderCategoryOn ?? true,
+      isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
         return menuItems
