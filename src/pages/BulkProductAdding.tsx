@@ -147,7 +147,7 @@ const BulkProductAdding = () => {
             brand: "    ",
             vendor: "    ",
             category: "Pizzalar",
-            itemProduction: "    ",
+            itemProduction: "7 Wonders Duel_2,Karakum_3,Arnak",
             price: 280,
             onlinePrice: "   ",
             sku: " ",
