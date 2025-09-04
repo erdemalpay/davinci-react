@@ -48,7 +48,7 @@ const BulkProductAdding = () => {
       t("Vendor"),
       t("Image"),
       `${t("Menu Category")} *`,
-      `${t("Ingredients")}`,
+      t("Ingredients"),
       `${t("Price")} *`,
       t("Online Price"),
       "SKU",
@@ -59,6 +59,14 @@ const BulkProductAdding = () => {
     const items = data.slice(1).map((row) => {
       const item: any = {};
       row.forEach((cell: any, index: number) => {
+        console.log(
+          "Processing cell:",
+          cell,
+          "at index:",
+          index,
+          "with header:",
+          headers[index]
+        );
         const translatedIndex = translatedHeaders.indexOf(headers[index]);
         if (translatedIndex !== -1) {
           const key = keys[translatedIndex];
@@ -67,6 +75,7 @@ const BulkProductAdding = () => {
       });
       return item;
     });
+    console.log(items);
     setErrorDataForProductBulkCreation([]);
     if (isCreate) {
       createBulkProductAndMenuItem(items);
@@ -186,7 +195,7 @@ const BulkProductAdding = () => {
       correspondingKey: "category",
     },
     {
-      key: `${t("Ingredients")} `,
+      key: t("Ingredients"),
       isSortable: true,
       className: "text-orange-500",
       correspondingKey: "itemProduction",
