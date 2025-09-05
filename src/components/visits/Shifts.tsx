@@ -76,7 +76,11 @@ const Shifts = () => {
   );
   const { user } = useUserContext();
   const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT,].includes(user?.role?._id)
+    ? ![
+        RoleEnum.MANAGER,
+        RoleEnum.GAMEMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
+      ].includes(user?.role?._id)
     : true;
   const [rowToAction, setRowToAction] = useState<any>();
   const { updateShift, createShift, deleteShift } = useShiftMutations();
@@ -791,11 +795,13 @@ const Shifts = () => {
     inputs: filterPanelInputs,
     formElements: filterPanelFormElements,
     setFormElements: setFilterPanelFormElements,
+    isApplyButtonActive: true,
     closeFilters: () => setShowShiftsFilters(false),
     additionalFilterCleanFunction: () => {
       setFilterPanelFormElements(initialFilterPanelFormElements);
     },
   };
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);

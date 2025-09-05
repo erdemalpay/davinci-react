@@ -195,13 +195,25 @@ export function useUpdateOrderCollectionMutation(tableId: number) {
   const collectionQueryKey = [collectionBaseUrl, tableId];
   const orderQueryKey = [orderBaseUrl, tableId];
   const queryClient = useQueryClient();
+  const tableOrderQueryKey = [`${Paths.Order}/table`, tableId];
+
   return useMutation(updateRequest, {
     // We are updating tables query data with new table
     onMutate: async ({ id, updates }: UpdatePayload<OrderCollection>) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries(collectionQueryKey);
       await queryClient.cancelQueries(orderQueryKey);
+      await queryClient.cancelQueries(tableOrderQueryKey);
+      const previousTableOrders =
+        queryClient.getQueryData<Order[]>(tableOrderQueryKey) || [];
 
+      const updatedTableOrders = previousTableOrders.map((order) => {
+        const match = updates?.newOrders?.find((n) => n._id === order._id);
+        return match ? { ...order, paidQuantity: match.paidQuantity } : order;
+      });
+
+      //update the table orders
+      queryClient.setQueryData<Order[]>(tableOrderQueryKey, updatedTableOrders);
       // Snapshot the previous value
       const previousCollections =
         queryClient.getQueryData<OrderCollection[]>(collectionQueryKey) || [];
@@ -239,7 +251,11 @@ export function useUpdateOrderCollectionMutation(tableId: number) {
       queryClient.setQueryData<Order[]>(orderQueryKey, updatedOrders);
 
       // Return a context object with the snapshotted value
-      return { previousCollections, previousTables: previousOrders };
+      return {
+        previousCollections,
+        previousTables: previousOrders,
+        previousTableOrders,
+      };
     },
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (_err: any, _newTable, context) => {
@@ -254,6 +270,12 @@ export function useUpdateOrderCollectionMutation(tableId: number) {
           previousCollections
         );
         queryClient.setQueryData<Order[]>(orderQueryKey, previousOrders);
+      }
+      if (context?.previousTableOrders) {
+        queryClient.setQueryData<Order[]>(
+          [`${Paths.Order}/table`, tableId],
+          context.previousTableOrders
+        );
       }
       const errorMessage =
         _err?.response?.data?.message || "An unexpected error occurred";

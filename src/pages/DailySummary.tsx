@@ -87,8 +87,7 @@ const DailySummary = () => {
     },
     {
       header: t("Average Preparation Time"),
-      rows:
-        [{ value: summary?.orderPreparationStats?.average?.formatted }] ?? [],
+      rows: [{ value: summary?.orderPreparationStats?.average?.formatted }],
       valueClassName: "mx-auto text-2xl font-medium",
     },
     {

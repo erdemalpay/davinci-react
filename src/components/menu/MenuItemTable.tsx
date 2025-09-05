@@ -1066,6 +1066,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isCollapsible={products.length > 0}
         collapsibleActions={collapsibleActions}
         isDraggable={true}
+        isToolTipEnabled={false}
         onDragEnter={(DragRow, DropRow) => handleDrag(DragRow, DropRow)}
       />
     </div>

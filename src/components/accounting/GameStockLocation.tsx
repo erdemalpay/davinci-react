@@ -405,6 +405,7 @@ const GameStockLocation = () => {
           filters={filters}
           actions={actions}
           isActionsActive={true}
+          isToolTipEnabled={false}
           isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
           excelFileName={t("GamesByLocation.xlsx")}
         />

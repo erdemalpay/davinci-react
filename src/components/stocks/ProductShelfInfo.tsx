@@ -182,6 +182,7 @@ const ProductShelfInfo = () => {
           filters={filters}
           isActionsActive={false}
           isExcel={true}
+          isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName={t("ProductShelfInfo.xlsx")}
         />

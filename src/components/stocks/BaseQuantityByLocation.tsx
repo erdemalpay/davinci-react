@@ -423,6 +423,7 @@ const BaseQuantityByLocation = () => {
           isActionsActive={true}
           isExcel={true}
           filterPanel={filterPanel}
+          isToolTipEnabled={false}
           excelFileName={t("BaseQuantityByLocation.xlsx")}
         />
       </div>
