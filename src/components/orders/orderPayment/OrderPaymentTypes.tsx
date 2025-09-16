@@ -22,7 +22,7 @@ import {
   User,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { closeTable } from "../../../utils/api/table";
 import { getItem } from "../../../utils/getItem";
@@ -50,7 +50,7 @@ const OrderPaymentTypes = ({
   const { selectedLocationId } = useLocationContext();
   const isMutating = useIsMutating();
   const paymentMethods = useGetAccountPaymentMethods();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { setIsCollectionModalOpen } = useOrderContext();
   const [componentKey, setComponentKey] = useState(0);
   const [expandedCollections, setExpandedCollections] = useState<number[]>([]);
