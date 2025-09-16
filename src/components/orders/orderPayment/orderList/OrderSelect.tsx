@@ -81,7 +81,7 @@ const OrderSelect = ({ tableOrders }: Props) => {
         return (
           <div
             key={order._id}
-            className="flex flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+            className="flex  flex-row justify-between items-center px-2 py-1  pb-2 border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
             onClick={() => {
               const foundOrder = selectedOrders.find(
                 (item) => item.order._id === order._id
@@ -115,7 +115,8 @@ const OrderSelect = ({ tableOrders }: Props) => {
                   }
                 } else if (
                   !isProductDivideOpen &&
-                  foundOrder.totalQuantity > foundOrder.selectedQuantity
+                  foundOrder.totalQuantity >
+                    foundOrder.selectedQuantity + order.paidQuantity
                 ) {
                   setSelectedOrders([
                     ...selectedOrders.filter(

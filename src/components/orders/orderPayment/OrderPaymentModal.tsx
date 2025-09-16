@@ -153,6 +153,7 @@ const OrderPaymentModal = ({
       (selectedActivityUser === "" ||
         order.activityPlayer === selectedActivityUser)
   );
+  console.log("tableOrders", tableOrders);
   const farmCategoryActivity = getItem(
     FARMBURGERCATEGORYID,
     categories
