@@ -8,7 +8,6 @@ import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../../context/General.context";
-import { useOrderContext } from "../../../context/Order.context";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { FormElementsState, OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
@@ -130,7 +129,6 @@ const GenericAddEditPanel = <T,>({
   const [confirmationDialogFunction, setConfirmationDialogFunction] = useState<
     (() => void) | null
   >(null);
-  const { setIsExtraModalOpen } = useOrderContext();
   const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -172,10 +170,6 @@ const GenericAddEditPanel = <T,>({
     }
     return mergedInitialState;
   });
-  const handleClose = () => {
-    setIsExtraModalOpen?.(false);
-    close?.();
-  };
   const uploadImageMutation = useMutation(
     async ({ file, filename }: { file: File; filename: string }) => {
       const formData = new FormData();
@@ -224,7 +218,7 @@ const GenericAddEditPanel = <T,>({
       if (event.key === "Escape") {
         event.preventDefault();
         isEditMode ? additionalCancelFunction?.() : undefined;
-        handleClose();
+        close?.();
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -300,7 +294,7 @@ const GenericAddEditPanel = <T,>({
   };
   const handleCancelButtonClick = () => {
     additionalCancelFunction?.();
-    handleClose();
+    close?.();
   };
   const handleCreateButtonClick = () => {
     if (!allRequiredFilled && !optionalCreateButtonActive) {
@@ -338,7 +332,6 @@ const GenericAddEditPanel = <T,>({
             label: o.label,
             imageUrl: o.imageUrl,
             keywords: o?.keywords,
-            triggerExtraModal: o?.triggerExtraModal,
           }))}
           topClassName={generalClassName}
           formElements={formElements}

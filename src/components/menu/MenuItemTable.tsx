@@ -36,7 +36,6 @@ import {
   useUpdateItemsSlugsMutation,
 } from "../../utils/api/menu/menu-item";
 import { usePopularMutations } from "../../utils/api/menu/popular";
-import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
@@ -77,7 +76,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const { deleteItem, updateItem, createItem } = useMenuItemMutations();
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
-  const discounts = useGetOrderDiscounts();
   const locations = useGetStoreLocations();
   const items = useGetAllMenuItems();
   const {
@@ -131,13 +129,8 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ? items.filter((item) => item.category === singleItemGroup.category._id)
     : singleItemGroup?.items;
   const allRows = usedItems?.map((item) => {
-    const suggestedDiscountName = getItem(
-      item?.suggestedDiscount,
-      discounts
-    )?.name;
     return {
       ...item,
-      suggestedDiscountName: suggestedDiscountName ? suggestedDiscountName : "",
       createdAt: item?.createdAt ? item?.createdAt : "",
       formattedCreatedAt: item?.createdAt
         ? format(item?.createdAt, "dd/MM/yyyy")
@@ -404,19 +397,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "suggestedDiscount",
-      label: t("Suggested Discount"),
-      options: discounts.map((discount) => {
-        return {
-          value: discount._id,
-          label: discount.name,
-        };
-      }),
-      placeholder: t("Suggested Discount"),
-      required: false,
-    },
-    {
-      type: InputTypes.SELECT,
       formKey: "matchedProduct",
       label: t("Matched Product"),
       options: products.map((product) => {
@@ -501,7 +481,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           { key: t("Sku"), isSortable: true },
         ]
       : []),
-    { key: t("Suggested Discount"), isSortable: false },
     { key: t("Matched Product"), isSortable: false },
     { key: t("Shown In Menu"), isSortable: false },
   ];
@@ -607,7 +586,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       },
     },
     ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
-    { key: "suggestedDiscountName" },
     { key: "matchedProductName" },
     {
       key: "shownInMenu",
@@ -1067,7 +1045,6 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     items,
     ikasCategories,
     showDeletedItems,
-    discounts,
   ]);
 
   return (

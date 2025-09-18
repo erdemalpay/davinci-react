@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
-import SuggestedDiscountModal from "../components/orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
@@ -76,22 +75,19 @@ const Tables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const orderNotes = useGetOrderNotes();
   const [showAllGameplays, setShowAllGameplays] = useState(true);
-  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
   const user = useGetUser();
   const reservations = useGetReservations();
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
     useState(false);
-
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
-  const { setIsTabInputScreenOpen, setTabInputScreenOptions } =
-    useGeneralContext();
+  const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
@@ -223,7 +219,6 @@ const Tables = () => {
           ...(menuItem?.barcode ? [menuItem.barcode] : []),
           getItem(menuItem?.category, categories)?.name || "",
         ],
-        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
       };
     });
   const orderInputs = [
@@ -433,29 +428,20 @@ const Tables = () => {
       type: InputTypes.TAB,
       formKey: "item",
       label: t("Product"),
-      options: menuItemOptions,
+      options: menuItemOptions?.map((option) => {
+        return {
+          value: option.value,
+          label: option.label,
+          imageUrl: option?.imageUrl,
+          keywords: option?.keywords,
+        };
+      }),
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
         { key: "discountNote", defaultValue: "" },
         { key: "isOnlinePrice", defaultValue: false },
         { key: "stockLocation", defaultValue: selectedLocationId },
       ],
-      isExtraModalOpen: isExtraModalOpen,
-      setIsExtraModalOpen: setIsExtraModalOpen as any,
-      extraModal: (
-        <SuggestedDiscountModal
-          isOpen={isExtraModalOpen}
-          items={menuItems}
-          itemId={orderForm.item as number}
-          closeModal={() => {
-            setIsExtraModalOpen(false);
-            setIsTabInputScreenOpen(false);
-            setTabInputScreenOptions([]);
-          }}
-          orderForm={orderForm}
-          setOrderForm={setOrderForm}
-        />
-      ),
       placeholder: t("Product"),
       required: true,
       isTopFlexRow: true,
