@@ -81,6 +81,8 @@ type OrderContextType = {
   setShowPickedOrders: (showPickedOrders: boolean) => void;
   selectedNewOrders: number[];
   setSelectedNewOrders: (selectedNewOrders: number[]) => void;
+  isExtraModalOpen: boolean;
+  setIsExtraModalOpen: (isExtraModalOpen: boolean) => void;
 };
 
 const OrderContext = createContext<OrderContextType>({
@@ -225,6 +227,8 @@ const OrderContext = createContext<OrderContextType>({
   setShowPickedOrders: () => {},
   selectedNewOrders: [],
   setSelectedNewOrders: () => {},
+  isExtraModalOpen: false,
+  setIsExtraModalOpen: () => {},
 });
 
 export const OrderContextProvider = ({ children }: PropsWithChildren) => {
@@ -255,6 +259,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
     useState(false);
   const [discountNote, setDiscountNote] = useState<string>("");
   const [orderCreateBulk, setOrderCreateBulk] = useState<Partial<Order>[]>([]);
+  const [isExtraModalOpen, setIsExtraModalOpen] = useState(false);
   const [selectedNewOrders, setSelectedNewOrders] = useState<number[]>([]);
   const initialFilterPanelFormElements = {
     location: "",
@@ -400,6 +405,8 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
         selectedNewOrders,
         setSelectedNewOrders,
         initialIkasPickUpFilterPanelFormElements,
+        isExtraModalOpen,
+        setIsExtraModalOpen,
       }}
     >
       {children}

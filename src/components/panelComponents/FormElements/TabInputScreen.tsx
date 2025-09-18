@@ -77,6 +77,7 @@ const TabInputScreen = ({
         }));
       });
     }
+
     if (
       changedInput?.triggerTabOpenOnChangeFor &&
       changedInput?.handleTriggerTabOptions
@@ -92,6 +93,8 @@ const TabInputScreen = ({
         setTabInputFormKey(targetInput.formKey);
         setTabInputInvalidateKeys(targetInput.invalidateKeys ?? []);
       }
+    } else if (changedInput?.extraModal && changedInput?.setIsExtraModalOpen) {
+      changedInput?.setIsExtraModalOpen(true);
     } else {
       setIsTabInputScreenOpen(false);
       setTabInputScreenOptions([]);
@@ -115,6 +118,9 @@ const TabInputScreen = ({
         if (bStarts && !aStarts) return 1;
         return a.label.localeCompare(b.label);
       });
+  if (changedInput?.isExtraModalOpen && changedInput?.extraModal) {
+    return <>{changedInput?.extraModal}</>;
+  }
   return (
     <div className={`${topClassName} bg-white rounded-lg shadow-lg p-2`}>
       {/* header: search + close */}
