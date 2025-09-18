@@ -55,6 +55,7 @@ import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabel } from "../common/InputWithLabel";
+import SuggestedDiscountModal from "../orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -99,6 +100,7 @@ export function TableCard({
   const orderNotes = useGetOrderNotes();
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
+  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
@@ -109,7 +111,6 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
-  // how to use useMemo to avoid re-rendering
   const products = useGetAllAccountProducts();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -140,7 +141,8 @@ export function TableCard({
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
     useOrderContext();
-  const { setExpandedRows, setIsTabInputScreenOpen } = useGeneralContext();
+  const { setExpandedRows, setIsTabInputScreenOpen, setTabInputScreenOptions } =
+    useGeneralContext();
   const user = useGetUser();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
@@ -204,6 +206,7 @@ export function TableCard({
             ...(menuItem?.barcode ? [menuItem.barcode] : []),
             getItem(menuItem?.category, categories)?.name || "",
           ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
         };
       });
   }, [
@@ -335,20 +338,29 @@ export function TableCard({
         type: InputTypes.TAB,
         formKey: "item",
         label: t("Product"),
-        options: menuItemOptions?.map((option) => {
-          return {
-            value: option.value,
-            label: option.label,
-            imageUrl: option?.imageUrl,
-            keywords: option?.keywords,
-          };
-        }),
+        options: menuItemOptions,
         invalidateKeys: [
           { key: "discount", defaultValue: undefined },
           { key: "discountNote", defaultValue: "" },
           { key: "isOnlinePrice", defaultValue: false },
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
+        isExtraModalOpen: isExtraModalOpen,
+        setIsExtraModalOpen: setIsExtraModalOpen as any,
+        extraModal: (
+          <SuggestedDiscountModal
+            isOpen={isExtraModalOpen}
+            items={menuItems}
+            itemId={orderForm.item as number}
+            closeModal={() => {
+              setIsExtraModalOpen(false);
+              setIsTabInputScreenOpen(false);
+              setTabInputScreenOptions([]);
+            }}
+            orderForm={orderForm}
+            setOrderForm={setOrderForm}
+          />
+        ),
         placeholder: t("Product"),
         required: true,
         isTopFlexRow: true,
