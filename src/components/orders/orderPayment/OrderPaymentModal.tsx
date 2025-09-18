@@ -47,6 +47,7 @@ import {
   InputTypes,
 } from "../../panelComponents/shared/types";
 import OrderListForPanel from "../../tables/OrderListForPanel";
+import SuggestedDiscountModal from "../SuggestedDiscountModal";
 import CollectionModal from "./CollectionModal";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
@@ -77,7 +78,9 @@ const OrderPaymentModal = ({
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
-  const { setIsTabInputScreenOpen } = useGeneralContext();
+  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
+  const { setIsTabInputScreenOpen, setTabInputScreenOptions } =
+    useGeneralContext();
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
@@ -341,6 +344,7 @@ const OrderPaymentModal = ({
           ...(menuItem?.barcode ? [menuItem.barcode] : []),
           getItem(menuItem?.category, categories)?.name || "",
         ],
+        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
       };
     });
   function finishTable() {
@@ -426,20 +430,29 @@ const OrderPaymentModal = ({
       type: InputTypes.TAB,
       formKey: "item",
       label: t("Product"),
-      options: menuItemOptions?.map((option) => {
-        return {
-          value: option.value,
-          label: option.label,
-          imageUrl: option?.imageUrl,
-          keywords: option?.keywords,
-        };
-      }),
+      options: menuItemOptions,
       invalidateKeys: [
         { key: "discount", defaultValue: undefined },
         { key: "discountNote", defaultValue: "" },
         { key: "isOnlinePrice", defaultValue: false },
         { key: "stockLocation", defaultValue: selectedLocationId },
       ],
+      isExtraModalOpen: isExtraModalOpen,
+      setIsExtraModalOpen: setIsExtraModalOpen as any,
+      extraModal: (
+        <SuggestedDiscountModal
+          isOpen={isExtraModalOpen}
+          items={items}
+          itemId={orderForm.item as number}
+          closeModal={() => {
+            setIsExtraModalOpen(false);
+            setIsTabInputScreenOpen(false);
+            setTabInputScreenOptions([]);
+          }}
+          orderForm={orderForm}
+          setOrderForm={setOrderForm}
+        />
+      ),
       placeholder: t("Product"),
       required: true,
       isTopFlexRow: true,
