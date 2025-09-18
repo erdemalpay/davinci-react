@@ -338,15 +338,7 @@ export function TableCard({
         type: InputTypes.TAB,
         formKey: "item",
         label: t("Product"),
-        options: menuItemOptions?.map((option) => {
-          return {
-            value: option.value,
-            label: option.label,
-            imageUrl: option?.imageUrl,
-            keywords: option?.keywords,
-            triggerExtraModal: option?.triggerExtraModal,
-          };
-        }),
+        options: menuItemOptions,
         invalidateKeys: [
           { key: "discount", defaultValue: undefined },
           { key: "discountNote", defaultValue: "" },
