@@ -55,7 +55,7 @@ import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabel } from "../common/InputWithLabel";
-import SuggestedDiscountModal from "../orders/SelectedDiscountModal";
+import SuggestedDiscountModal from "../orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -111,7 +111,6 @@ export function TableCard({
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
-  // how to use useMemo to avoid re-rendering
   const products = useGetAllAccountProducts();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -207,6 +206,7 @@ export function TableCard({
             ...(menuItem?.barcode ? [menuItem.barcode] : []),
             getItem(menuItem?.category, categories)?.name || "",
           ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
         };
       });
   }, [
@@ -344,6 +344,7 @@ export function TableCard({
             label: option.label,
             imageUrl: option?.imageUrl,
             keywords: option?.keywords,
+            triggerExtraModal: option?.triggerExtraModal,
           };
         }),
         invalidateKeys: [
@@ -357,11 +358,15 @@ export function TableCard({
         extraModal: (
           <SuggestedDiscountModal
             isOpen={isExtraModalOpen}
+            items={menuItems}
+            itemId={orderForm.item as number}
             closeModal={() => {
               setIsExtraModalOpen(false);
               setIsTabInputScreenOpen(false);
               setTabInputScreenOptions([]);
             }}
+            orderForm={orderForm}
+            setOrderForm={setOrderForm}
           />
         ),
         placeholder: t("Product"),
