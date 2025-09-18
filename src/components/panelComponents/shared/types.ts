@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+
 export interface Tab {
   number: number;
   content: React.ReactNode;
@@ -102,6 +103,9 @@ export interface GenericInputType {
   isArrowsEnabled?: boolean;
   triggerTabOpenOnChangeFor?: string;
   isSortDisabled?: boolean;
+  setIsExtraModalOpen?: Dispatch<SetStateAction<boolean>>;
+  isExtraModalOpen?: boolean;
+  extraModal?: React.ReactNode;
   handleTriggerTabOptions?: (value: any) => {
     value: any;
     label: string;

@@ -1,6 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -153,7 +153,6 @@ const OrderPaymentModal = ({
       (selectedActivityUser === "" ||
         order.activityPlayer === selectedActivityUser)
   );
-  console.log("tableOrders", tableOrders);
   const farmCategoryActivity = getItem(
     FARMBURGERCATEGORYID,
     categories
@@ -777,6 +776,18 @@ const OrderPaymentModal = ({
       />
     );
   }
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close?.();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   return (
     <div
       id="popup"

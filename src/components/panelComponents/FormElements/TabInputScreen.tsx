@@ -10,6 +10,7 @@ export type TabOption = {
   label: string;
   imageUrl?: string;
   keywords?: string[];
+  triggerExtraModal?: boolean;
 };
 
 interface Props {
@@ -92,6 +93,12 @@ const TabInputScreen = ({
         setTabInputFormKey(targetInput.formKey);
         setTabInputInvalidateKeys(targetInput.invalidateKeys ?? []);
       }
+    } else if (
+      changedInput?.extraModal &&
+      changedInput?.setIsExtraModalOpen &&
+      option?.triggerExtraModal
+    ) {
+      changedInput?.setIsExtraModalOpen(true);
     } else {
       setIsTabInputScreenOpen(false);
       setTabInputScreenOptions([]);
@@ -115,6 +122,50 @@ const TabInputScreen = ({
         if (bStarts && !aStarts) return 1;
         return a.label.localeCompare(b.label);
       });
+  if (changedInput?.isExtraModalOpen && changedInput?.extraModal) {
+    const node = changedInput.extraModal;
+    const closeAll = () => {
+      changedInput.setIsExtraModalOpen?.(false);
+      setIsTabInputScreenOpen(false);
+      setTabInputScreenOptions([]);
+    };
+    if (typeof node === "function") {
+      const renderFn = node as unknown as (ctx: {
+        isOpen: boolean;
+        closeModal: () => void;
+        setFormElements: React.Dispatch<
+          React.SetStateAction<FormElementsState>
+        >;
+        formElements: FormElementsState;
+        setForm?: React.Dispatch<React.SetStateAction<FormElementsState>>;
+        formKey: string;
+      }) => React.ReactNode;
+
+      return (
+        <>
+          {renderFn({
+            isOpen: true,
+            closeModal: closeAll,
+            setFormElements,
+            formElements,
+            setForm,
+            formKey: tabInputFormKey,
+          })}
+        </>
+      );
+    }
+    if (React.isValidElement(node)) {
+      return React.cloneElement(node as React.ReactElement<any>, {
+        isOpen: true,
+        closeModal: closeAll,
+        setFormElements,
+        formElements,
+        setForm,
+        formKey: tabInputFormKey,
+      });
+    }
+    return <>{node}</>;
+  }
   return (
     <div className={`${topClassName} bg-white rounded-lg shadow-lg p-2`}>
       {/* header: search + close */}
