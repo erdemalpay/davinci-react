@@ -49,6 +49,7 @@ interface SelectInputProps {
   isOnClearActive?: boolean;
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
+  suggestedOption?: { value: string; label: string } | null;
   isSortDisabled?: boolean;
 }
 
@@ -102,7 +103,10 @@ const SelectInput = ({
   isReadOnly = false,
   isTopFlexRow = false,
   isSortDisabled = false,
+  suggestedOption,
 }: SelectInputProps) => {
+  console.log("label:", label);
+  console.log("suggestedOption:", suggestedOption);
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
@@ -218,14 +222,50 @@ const SelectInput = ({
           : "flex-col"
       } gap-2 __className_a182b8 `}
     >
-      <H6>
-        {label}
-        {requiredField && (
-          <>
-            <span className="text-red-400">* </span>
-          </>
-        )}
+      <H6 className="flex items-center gap-2">
+        <span>{label}</span>
+        {requiredField && <span className="text-red-400">*</span>}
+
+        {suggestedOption &&
+          options.some((o) => o.value === suggestedOption.value) &&
+          (() => {
+            const isSelected = isMultiple
+              ? (value as MultiValue<OptionType>)?.some(
+                  (v) => v.value === suggestedOption.value
+                )
+              : (value as SingleValue<OptionType> | null)?.value ===
+                suggestedOption.value;
+
+            return !isSelected ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const candidate = suggestedOption as OptionType;
+                  const actionMeta: ActionMeta<OptionType> = {
+                    action: "select-option",
+                    option: candidate,
+                  };
+
+                  if (isMultiple) {
+                    const current = (value as MultiValue<OptionType>) || [];
+                    const next = [...current, candidate];
+                    onChange(next, actionMeta);
+                    onChangeTrigger && onChangeTrigger(next, actionMeta);
+                  } else {
+                    onChange(candidate, actionMeta);
+                    onChangeTrigger && onChangeTrigger(candidate, actionMeta);
+                  }
+                }}
+                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
+                title={`Use suggested: ${suggestedOption.label}`}
+              >
+                {" "}
+                {suggestedOption.label}
+              </button>
+            ) : null;
+          })()}
       </H6>
+
       <div className="flex flex-row gap-2 w-full ">
         <div className="w-full ">
           {isMultiple ? (

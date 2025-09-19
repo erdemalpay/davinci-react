@@ -1,7 +1,7 @@
 import React from "react";
 import { IoIosClose } from "react-icons/io";
 import { useGeneralContext } from "../../../context/General.context";
-import { OptionType } from "../../../types";
+import { FormElementsState, OptionType } from "../../../types";
 import { H6 } from "../Typography";
 
 interface TabInputProps {
@@ -11,9 +11,14 @@ interface TabInputProps {
   onClear?: () => void;
   placeholder?: string;
   requiredField?: boolean;
+  formElements: FormElementsState;
+  setFormElements: (value: FormElementsState) => void;
+  setForm?: (value: FormElementsState) => void;
+
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
   formKey: string;
+  suggestedOption?: OptionType | null;
   invalidateKeys?: {
     key: string;
     defaultValue:
@@ -36,6 +41,9 @@ const TabInput: React.FC<TabInputProps> = ({
   isTopFlexRow = false,
   formKey,
   invalidateKeys = [],
+  suggestedOption,
+  setFormElements,
+  setForm,
 }) => {
   const {
     setIsTabInputScreenOpen,
@@ -50,6 +58,24 @@ const TabInput: React.FC<TabInputProps> = ({
     setTabInputFormKey(formKey);
     setTabInputInvalidateKeys(invalidateKeys ?? []);
   };
+  const handleSelect = (option: OptionType) => {
+    setFormElements((prev: FormElementsState) => ({
+      ...prev,
+      [formKey]: option.value,
+    }));
+    setForm?.((prev: FormElementsState) => ({
+      ...prev,
+      [formKey]: option.value,
+    }));
+    if (invalidateKeys) {
+      invalidateKeys.forEach((key) => {
+        setFormElements((prev: FormElementsState) => ({
+          ...prev,
+          [key.key]: key.defaultValue,
+        }));
+      });
+    }
+  };
   return (
     <div
       className={`flex ${
@@ -58,9 +84,25 @@ const TabInput: React.FC<TabInputProps> = ({
           : "flex-col"
       } gap-2 `}
     >
-      <H6>
-        {label}
+      <H6 className="flex items-center gap-2">
+        <span>{label}</span>
         {requiredField && <span className="text-red-400">*</span>}
+
+        {suggestedOption &&
+          options.some((o) => o.value === suggestedOption.value) &&
+          value?.value !== suggestedOption.value && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelect(suggestedOption);
+              }}
+              className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
+              title={`Use suggested: ${suggestedOption.label}`}
+            >
+              {suggestedOption.label}
+            </button>
+          )}
       </H6>
 
       <div className="w-full flex items-center gap-2">

@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
-import SuggestedDiscountModal from "../components/orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
@@ -440,22 +439,22 @@ const Tables = () => {
         { key: "isOnlinePrice", defaultValue: false },
         { key: "stockLocation", defaultValue: selectedLocationId },
       ],
-      isExtraModalOpen: isExtraModalOpen,
-      setIsExtraModalOpen: setIsExtraModalOpen as any,
-      extraModal: (
-        <SuggestedDiscountModal
-          isOpen={isExtraModalOpen}
-          items={menuItems}
-          itemId={orderForm.item as number}
-          closeModal={() => {
-            setIsExtraModalOpen(false);
-            setIsTabInputScreenOpen(false);
-            setTabInputScreenOptions([]);
-          }}
-          orderForm={orderForm}
-          setOrderForm={setOrderForm}
-        />
-      ),
+      // isExtraModalOpen: isExtraModalOpen,
+      // setIsExtraModalOpen: setIsExtraModalOpen as any,
+      // extraModal: (
+      //   <SuggestedDiscountModal
+      //     isOpen={isExtraModalOpen}
+      //     items={menuItems}
+      //     itemId={orderForm.item as number}
+      //     closeModal={() => {
+      //       setIsExtraModalOpen(false);
+      //       setIsTabInputScreenOpen(false);
+      //       setTabInputScreenOptions([]);
+      //     }}
+      //     orderForm={orderForm}
+      //     setOrderForm={setOrderForm}
+      //   />
+      // ),
       placeholder: t("Product"),
       required: true,
       isTopFlexRow: true,
