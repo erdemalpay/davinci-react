@@ -12,7 +12,7 @@ import {
   Table,
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
-import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
+import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
@@ -42,7 +42,7 @@ const CollectionModal = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
-  const items = useGetMenuItems();
+  const items = useGetAllMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();
   const { updateOrderCollection } = useOrderCollectionMutations(table._id);
