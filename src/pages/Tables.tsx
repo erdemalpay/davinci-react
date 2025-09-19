@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
-import SuggestedDiscountModal from "../components/orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../components/panelComponents/Typography";
@@ -440,22 +439,22 @@ const Tables = () => {
         { key: "isOnlinePrice", defaultValue: false },
         { key: "stockLocation", defaultValue: selectedLocationId },
       ],
-      isExtraModalOpen: isExtraModalOpen,
-      setIsExtraModalOpen: setIsExtraModalOpen as any,
-      extraModal: (
-        <SuggestedDiscountModal
-          isOpen={isExtraModalOpen}
-          items={menuItems}
-          itemId={orderForm.item as number}
-          closeModal={() => {
-            setIsExtraModalOpen(false);
-            setIsTabInputScreenOpen(false);
-            setTabInputScreenOptions([]);
-          }}
-          orderForm={orderForm}
-          setOrderForm={setOrderForm}
-        />
-      ),
+      // isExtraModalOpen: isExtraModalOpen,
+      // setIsExtraModalOpen: setIsExtraModalOpen as any,
+      // extraModal: (
+      //   <SuggestedDiscountModal
+      //     isOpen={isExtraModalOpen}
+      //     items={menuItems}
+      //     itemId={orderForm.item as number}
+      //     closeModal={() => {
+      //       setIsExtraModalOpen(false);
+      //       setIsTabInputScreenOpen(false);
+      //       setTabInputScreenOptions([]);
+      //     }}
+      //     orderForm={orderForm}
+      //     setOrderForm={setOrderForm}
+      //   />
+      // ),
       placeholder: t("Product"),
       required: true,
       isTopFlexRow: true,
@@ -493,6 +492,20 @@ const Tables = () => {
               };
             })
         : [],
+      suggestedOption: orderForm?.item
+        ? getItem(orderForm.item, menuItems)?.suggestedDiscount
+          ? {
+              value: getItem(orderForm.item, menuItems)
+                ?.suggestedDiscount as any,
+              label:
+                discounts?.find(
+                  (discount) =>
+                    discount._id ===
+                    getItem(orderForm.item, menuItems)?.suggestedDiscount
+                )?.name || "",
+            }
+          : null
+        : null,
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
       placeholder: t("Discount"),
       isAutoFill: false,
