@@ -961,12 +961,14 @@ export function TableCard({
         title={t("Delete Table")}
         text="This table and gameplays in it will be deleted. Are you sure to continue?"
       />
+
       {isTableCardCreateOrderDialogOpen && (
         <GenericAddEditPanel
           isOpen={isTableCardCreateOrderDialogOpen}
           close={() => {
             setOrderCreateBulk([]);
             setIsTableCardCreateOrderDialogOpen(false);
+
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
