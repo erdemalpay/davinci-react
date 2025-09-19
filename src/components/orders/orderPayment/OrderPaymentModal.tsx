@@ -490,6 +490,19 @@ const OrderPaymentModal = ({
             })
         : [],
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+      suggestedOption: orderForm?.item
+        ? getItem(orderForm.item, items)?.suggestedDiscount
+          ? {
+              value: getItem(orderForm.item, items)?.suggestedDiscount as any,
+              label:
+                filteredDiscounts?.find(
+                  (discount) =>
+                    discount._id ===
+                    getItem(orderForm.item, items)?.suggestedDiscount
+                )?.name || "",
+            }
+          : null
+        : null,
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,

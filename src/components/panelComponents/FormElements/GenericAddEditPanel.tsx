@@ -621,6 +621,7 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          suggestedOption={input?.suggestedOption}
                           formKey={input.formKey}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}

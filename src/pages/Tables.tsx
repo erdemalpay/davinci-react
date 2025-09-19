@@ -492,6 +492,20 @@ const Tables = () => {
               };
             })
         : [],
+      suggestedOption: orderForm?.item
+        ? getItem(orderForm.item, menuItems)?.suggestedDiscount
+          ? {
+              value: getItem(orderForm.item, menuItems)
+                ?.suggestedDiscount as any,
+              label:
+                discounts?.find(
+                  (discount) =>
+                    discount._id ===
+                    getItem(orderForm.item, menuItems)?.suggestedDiscount
+                )?.name || "",
+            }
+          : null
+        : null,
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
       placeholder: t("Discount"),
       isAutoFill: false,
