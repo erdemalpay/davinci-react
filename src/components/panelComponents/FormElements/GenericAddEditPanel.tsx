@@ -592,6 +592,7 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          suggestedOption={input?.suggestedOption}
                           isSortDisabled={input.isSortDisabled ?? false}
                           isAutoFill={input?.isAutoFill}
                           options={input.options ?? []}
@@ -620,11 +621,15 @@ const GenericAddEditPanel = <T,>({
                               ? input.label
                               : input.label ?? ""
                           }
+                          suggestedOption={input?.suggestedOption}
                           formKey={input.formKey}
                           options={input.options ?? []}
                           placeholder={input.placeholder ?? ""}
                           invalidateKeys={input.invalidateKeys}
                           requiredField={input.required}
+                          setFormElements={setFormElements}
+                          setForm={setForm as any}
+                          formElements={formElements}
                           isTopFlexRow={input.isTopFlexRow ?? false}
                           isReadOnly={input.isReadOnly ?? false}
                           onClear={() => {

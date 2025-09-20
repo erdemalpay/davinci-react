@@ -23,10 +23,10 @@ import {
   Order,
   OrderDiscountStatus,
   OrderStatus,
-  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
+  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAllAccountProducts } from "../../utils/api/account/product";
@@ -55,7 +55,6 @@ import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabel } from "../common/InputWithLabel";
-import SuggestedDiscountModal from "../orders/SuggestedDiscountModal";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
@@ -345,22 +344,22 @@ export function TableCard({
           { key: "isOnlinePrice", defaultValue: false },
           { key: "stockLocation", defaultValue: selectedLocationId },
         ],
-        isExtraModalOpen: isExtraModalOpen,
-        setIsExtraModalOpen: setIsExtraModalOpen as any,
-        extraModal: (
-          <SuggestedDiscountModal
-            isOpen={isExtraModalOpen}
-            items={menuItems}
-            itemId={orderForm.item as number}
-            closeModal={() => {
-              setIsExtraModalOpen(false);
-              setIsTabInputScreenOpen(false);
-              setTabInputScreenOptions([]);
-            }}
-            orderForm={orderForm}
-            setOrderForm={setOrderForm}
-          />
-        ),
+        // isExtraModalOpen: isExtraModalOpen,
+        // setIsExtraModalOpen: setIsExtraModalOpen as any,
+        // extraModal: (
+        //   <SuggestedDiscountModal
+        //     isOpen={isExtraModalOpen}
+        //     items={menuItems}
+        //     itemId={orderForm.item as number}
+        //     closeModal={() => {
+        //       setIsExtraModalOpen(false);
+        //       setIsTabInputScreenOpen(false);
+        //       setTabInputScreenOptions([]);
+        //     }}
+        //     orderForm={orderForm}
+        //     setOrderForm={setOrderForm}
+        //   />
+        // ),
         placeholder: t("Product"),
         required: true,
         isTopFlexRow: true,
@@ -377,7 +376,7 @@ export function TableCard({
         isTopFlexRow: true,
       },
       {
-        type: InputTypes.TAB,
+        type: InputTypes.SELECT,
         formKey: "discount",
         label: t("Discount"),
         options: orderForm?.item
@@ -398,6 +397,20 @@ export function TableCard({
                 };
               })
           : [],
+        suggestedOption: orderForm?.item
+          ? getItem(orderForm.item, menuItems)?.suggestedDiscount
+            ? {
+                value: getItem(orderForm.item, menuItems)
+                  ?.suggestedDiscount as any,
+                label:
+                  filteredDiscounts?.find(
+                    (discount) =>
+                      discount._id ===
+                      getItem(orderForm.item, menuItems)?.suggestedDiscount
+                  )?.name || "",
+              }
+            : null
+          : null,
         invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
         placeholder: t("Discount"),
         isAutoFill: false,

@@ -47,7 +47,6 @@ import {
   InputTypes,
 } from "../../panelComponents/shared/types";
 import OrderListForPanel from "../../tables/OrderListForPanel";
-import SuggestedDiscountModal from "../SuggestedDiscountModal";
 import CollectionModal from "./CollectionModal";
 import OrderPaymentTypes from "./OrderPaymentTypes";
 import OrderTotal from "./OrderTotal";
@@ -437,22 +436,22 @@ const OrderPaymentModal = ({
         { key: "isOnlinePrice", defaultValue: false },
         { key: "stockLocation", defaultValue: selectedLocationId },
       ],
-      isExtraModalOpen: isExtraModalOpen,
-      setIsExtraModalOpen: setIsExtraModalOpen as any,
-      extraModal: (
-        <SuggestedDiscountModal
-          isOpen={isExtraModalOpen}
-          items={items}
-          itemId={orderForm.item as number}
-          closeModal={() => {
-            setIsExtraModalOpen(false);
-            setIsTabInputScreenOpen(false);
-            setTabInputScreenOptions([]);
-          }}
-          orderForm={orderForm}
-          setOrderForm={setOrderForm}
-        />
-      ),
+      // isExtraModalOpen: isExtraModalOpen,
+      // setIsExtraModalOpen: setIsExtraModalOpen as any,
+      // extraModal: (
+      //   <SuggestedDiscountModal
+      //     isOpen={isExtraModalOpen}
+      //     items={items}
+      //     itemId={orderForm.item as number}
+      //     closeModal={() => {
+      //       setIsExtraModalOpen(false);
+      //       setIsTabInputScreenOpen(false);
+      //       setTabInputScreenOptions([]);
+      //     }}
+      //     orderForm={orderForm}
+      //     setOrderForm={setOrderForm}
+      //   />
+      // ),
       placeholder: t("Product"),
       required: true,
       isTopFlexRow: true,
@@ -491,6 +490,19 @@ const OrderPaymentModal = ({
             })
         : [],
       invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+      suggestedOption: orderForm?.item
+        ? getItem(orderForm.item, items)?.suggestedDiscount
+          ? {
+              value: getItem(orderForm.item, items)?.suggestedDiscount as any,
+              label:
+                filteredDiscounts?.find(
+                  (discount) =>
+                    discount._id ===
+                    getItem(orderForm.item, items)?.suggestedDiscount
+                )?.name || "",
+            }
+          : null
+        : null,
       placeholder: t("Discount"),
       isAutoFill: false,
       required: false,
