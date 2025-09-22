@@ -7,6 +7,7 @@ import { useUserContext } from "../../context/User.context";
 import {
   useEducationMutations,
   useGetEducations,
+  useUpdateEducationsOrderMutation,
 } from "../../utils/api/education";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -77,7 +78,10 @@ const EducationDashboard = () => {
     return <Loading />;
   }
   const [isEnableEdit, setIsEnableEdit] = useState(false);
-  const disabledUsers = ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id);
+  const disabledUsers = ![
+    RoleEnum.MANAGER,
+    RoleEnum.OPERATIONSASISTANT,
+  ].includes(user?.role?._id);
   const isDisabledCondition = isEnableEdit && user ? disabledUsers : true;
   const { t } = useTranslation();
   const [componentKey, setComponentKey] = useState(0);
@@ -89,6 +93,7 @@ const EducationDashboard = () => {
   const [headerToAction, setHeaderToAction] = useState<Education | null>(null);
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
+  const { mutate: updateEducationsOrder } = useUpdateEducationsOrderMutation();
   const [
     isSubheaderDeleteConfirmationDialogOpen,
     setIsSubheaderDeleteConfirmationDialogOpen,
@@ -183,11 +188,9 @@ const EducationDashboard = () => {
   ];
 
   const handleDragEnter = (dragged: Education, target: Education) => {
-    updateEducation({
+    updateEducationsOrder({
       id: dragged._id,
-      updates: {
-        order: target.order,
-      },
+      newOrder: target.order,
     });
   };
 
