@@ -131,10 +131,13 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
     ? items.filter((item) => item.category === singleItemGroup.category._id)
     : singleItemGroup?.items;
   const allRows = usedItems?.map((item) => {
-    const suggestedDiscountName = getItem(
-      item?.suggestedDiscount,
-      discounts
-    )?.name;
+    const suggestedDiscountName = item?.suggestedDiscount
+      ?.map(
+        (suggestedDiscount) =>
+          discounts.find((discount) => discount._id === suggestedDiscount)?.name
+      )
+      .filter(Boolean)
+      .join(", ");
     return {
       ...item,
       suggestedDiscountName: suggestedDiscountName ? suggestedDiscountName : "",
@@ -412,6 +415,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           label: discount.name,
         };
       }),
+      isMultiple: true,
       placeholder: t("Suggested Discount"),
       required: false,
     },

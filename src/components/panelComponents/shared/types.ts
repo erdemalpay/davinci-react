@@ -90,7 +90,7 @@ export interface GenericInputType {
   inputClassName?: string;
   isMultiple?: boolean;
   isDatePicker?: boolean;
-  suggestedOption?: { value: string; label: string } | null;
+  suggestedOption?: { value: string; label: string }[] | null;
   isDateInitiallyOpen?: boolean;
   isTopFlexRow?: boolean;
   isDisabled?: boolean;

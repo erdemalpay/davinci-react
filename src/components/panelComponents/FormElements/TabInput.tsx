@@ -18,7 +18,7 @@ interface TabInputProps {
   isReadOnly?: boolean;
   isTopFlexRow?: boolean;
   formKey: string;
-  suggestedOption?: OptionType | null;
+  suggestedOption?: OptionType[] | null;
   invalidateKeys?: {
     key: string;
     defaultValue:
@@ -90,20 +90,23 @@ const TabInput: React.FC<TabInputProps> = ({
         <span>{label}</span>
         {requiredField && <span className="text-red-400">*</span>}
 
-        {suggestedOption &&
-          options.some((o) => o.value === suggestedOption.value) &&
-          value?.value !== suggestedOption.value && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSelect(suggestedOption);
-              }}
-              className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
-              title={`Use suggested: ${suggestedOption.label}`}
-            >
-              {suggestedOption.label}
-            </button>
+        {Array.isArray(suggestedOption) &&
+          suggestedOption.map((opt) =>
+            options.some((o) => o.value === opt.value) &&
+            value?.value !== opt.value ? (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect(opt);
+                }}
+                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
+                title={`Use suggested: ${opt.label}`}
+              >
+                {opt.label}
+              </button>
+            ) : null
           )}
       </H6>
 
