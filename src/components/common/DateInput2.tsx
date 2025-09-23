@@ -1,4 +1,5 @@
 import {
+  Button,
   Input,
   Popover,
   PopoverContent,
@@ -9,6 +10,7 @@ import { tr } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { useTranslation } from "react-i18next";
+
 interface Props {
   date: Date;
   setDate: (date: string) => void;
@@ -22,6 +24,12 @@ export function DateInput({ date, setDate }: Props) {
     setMonth(date);
   }, [date]);
 
+  const handleToday = () => {
+    const today = new Date();
+    setDate(format(today, "yyyy-MM-dd"));
+    setMonth(today);
+  };
+
   return (
     <div className="p-2">
       <Popover placement="bottom">
@@ -33,7 +41,7 @@ export function DateInput({ date, setDate }: Props) {
             onChange={() => null}
           />
         </PopoverHandler>
-        <PopoverContent>
+        <PopoverContent className="p-2 space-y-2">
           <DayPicker
             mode="single"
             selected={date}
@@ -49,6 +57,14 @@ export function DateInput({ date, setDate }: Props) {
             showOutsideDays
             captionLayout="dropdown"
           />
+          <Button
+            size="sm"
+            color="blue"
+            onClick={handleToday}
+            className="w-full"
+          >
+            {t("Today")}
+          </Button>
         </PopoverContent>
       </Popover>
     </div>

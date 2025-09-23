@@ -398,19 +398,18 @@ export function TableCard({
               })
           : [],
         suggestedOption: orderForm?.item
-          ? getItem(orderForm.item, menuItems)?.suggestedDiscount
-            ? {
-                value: getItem(orderForm.item, menuItems)
-                  ?.suggestedDiscount as any,
-                label:
-                  filteredDiscounts?.find(
-                    (discount) =>
-                      discount._id ===
-                      getItem(orderForm.item, menuItems)?.suggestedDiscount
-                  )?.name || "",
-              }
-            : null
-          : null,
+          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+            ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+                (discountId: number) => ({
+                  value: discountId as any,
+                  label:
+                    filteredDiscounts?.find(
+                      (discount) => discount._id === discountId
+                    )?.name || "",
+                })
+              )
+            : []
+          : [],
         invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
         placeholder: t("Discount"),
         isAutoFill: false,
