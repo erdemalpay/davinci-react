@@ -1,7 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { format, subDays } from "date-fns";
 import { isEqual } from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +52,7 @@ import {
   useGetStockLocations,
   useGetStoreLocations,
 } from "../utils/api/location";
+import { useGetMemberships } from "../utils/api/membership";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
@@ -75,7 +76,7 @@ const Tables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const orderNotes = useGetOrderNotes();
   const [showAllGameplays, setShowAllGameplays] = useState(true);
-  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
+  const members = useGetMemberships();
   const user = useGetUser();
   const reservations = useGetReservations();
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
@@ -373,6 +374,10 @@ const Tables = () => {
     }
     return false;
   };
+  const MEMBERDISCOUNTID = 8;
+  const memberDiscount = useMemo(() => {
+    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
+  }, [discounts]);
   const orderInputsForTakeAway = [
     {
       type: InputTypes.TAB,
@@ -522,14 +527,30 @@ const Tables = () => {
           : t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
+          orderForm?.discount !== MEMBERDISCOUNTID &&
           discounts?.find((discount) => discount._id === orderForm.discount)
             ?.isNoteRequired) ??
         false,
       isDisabled:
-        (orderForm?.discount &&
-          !discounts?.find((discount) => discount._id === orderForm.discount)
-            ?.isNoteRequired) ??
+        (orderForm?.discount === MEMBERDISCOUNTID ||
+          (orderForm?.discount &&
+            !discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.isNoteRequired)) ??
         true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: memberDiscount?.note,
+      options: members
+        ?.filter((membership) => membership.endDate >= formatDate(new Date()))
+        ?.map((membership) => ({
+          value: membership._id,
+          label: membership.name,
+        })),
+      required: orderForm?.discount === MEMBERDISCOUNTID,
+      isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
       isOnClearActive: true,
     },
     {
