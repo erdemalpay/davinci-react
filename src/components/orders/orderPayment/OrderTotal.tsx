@@ -61,7 +61,7 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
     }
   };
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
+    <div className="flex flex-col justify-between border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/* temp orders */}
       <div className="flex flex-col  h-80 overflow-scroll no-scrollbar ">
         {tableOrders
