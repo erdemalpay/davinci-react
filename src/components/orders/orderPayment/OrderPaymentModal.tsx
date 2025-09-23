@@ -1,6 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -21,6 +21,7 @@ import {
 import { useGetAllAccountProducts } from "../../../utils/api/account/product";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
 import { useGetStockLocations } from "../../../utils/api/location";
+import { useGetMemberships } from "../../../utils/api/membership";
 import { useGetAllCategories } from "../../../utils/api/menu/category";
 import { useGetKitchens } from "../../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
@@ -38,6 +39,7 @@ import {
 } from "../../../utils/api/table";
 import { useGetUser, useGetUsers } from "../../../utils/api/user";
 import { useGetVisits } from "../../../utils/api/visit";
+import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
@@ -77,9 +79,8 @@ const OrderPaymentModal = ({
   const orderNotes = useGetOrderNotes();
   const { selectedLocationId } = useLocationContext();
   const locations = useGetStockLocations();
-  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
-  const { setIsTabInputScreenOpen, setTabInputScreenOptions } =
-    useGeneralContext();
+  const members = useGetMemberships();
+  const { setIsTabInputScreenOpen } = useGeneralContext();
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
@@ -365,6 +366,10 @@ const OrderPaymentModal = ({
         ?.map((order) => order?.activityPlayer) || []
     )
   );
+  const MEMBERDISCOUNTID = 8;
+  const memberDiscount = useMemo(() => {
+    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
+  }, [discounts]);
   const orderInputs = [
     {
       type: InputTypes.TAB,
@@ -520,14 +525,30 @@ const OrderPaymentModal = ({
           : t("What is the reason for the discount?"),
       required:
         (orderForm?.discount &&
+          orderForm?.discount !== MEMBERDISCOUNTID &&
           discounts?.find((discount) => discount._id === orderForm.discount)
             ?.isNoteRequired) ??
         false,
       isDisabled:
-        (orderForm?.discount &&
-          !discounts?.find((discount) => discount._id === orderForm.discount)
-            ?.isNoteRequired) ??
+        (orderForm?.discount === MEMBERDISCOUNTID ||
+          (orderForm?.discount &&
+            !discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.isNoteRequired)) ??
         true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: memberDiscount?.note,
+      options: members
+        ?.filter((membership) => membership.endDate >= formatDate(new Date()))
+        ?.map((membership) => ({
+          value: membership._id,
+          label: membership.name,
+        })),
+      required: orderForm?.discount === MEMBERDISCOUNTID,
+      isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
       isOnClearActive: true,
     },
     {
