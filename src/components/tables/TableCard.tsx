@@ -32,6 +32,7 @@ import {
 import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetMemberships } from "../../utils/api/membership";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
@@ -50,6 +51,7 @@ import {
   useTableMutations,
 } from "../../utils/api/table";
 import { useGetUser } from "../../utils/api/user";
+import { formatDate } from "../../utils/dateUtil";
 import { getItem } from "../../utils/getItem";
 import { getDuration } from "../../utils/time";
 import { CardAction } from "../common/CardAction";
@@ -99,6 +101,7 @@ export function TableCard({
   const orderNotes = useGetOrderNotes();
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
+  const members = useGetMemberships();
   const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
@@ -270,6 +273,11 @@ export function TableCard({
     [locations, selectedLocationId, tables, t]
   );
   const activityTableFormKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
+  const MEMBERDISCOUNTID = 8;
+  const memberDiscount = useMemo(() => {
+    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
+  }, [discounts]);
+
   const orderInputs = useMemo(
     () => [
       {
@@ -429,14 +437,31 @@ export function TableCard({
             : t("What is the reason for the discount?"),
         required:
           (orderForm?.discount &&
+            orderForm?.discount !== MEMBERDISCOUNTID &&
             discounts?.find((discount) => discount._id === orderForm.discount)
               ?.isNoteRequired) ??
           false,
         isDisabled:
-          (orderForm?.discount &&
-            !discounts?.find((discount) => discount._id === orderForm.discount)
-              ?.isNoteRequired) ??
+          (orderForm?.discount === MEMBERDISCOUNTID ||
+            (orderForm?.discount &&
+              !discounts?.find(
+                (discount) => discount._id === orderForm.discount
+              )?.isNoteRequired)) ??
           true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "discountNote",
+        label: t("Discount Note"),
+        placeholder: memberDiscount?.note,
+        options: members
+          ?.filter((membership) => membership.endDate >= formatDate(new Date()))
+          ?.map((membership) => ({
+            value: membership._id,
+            label: membership.name,
+          })),
+        required: orderForm?.discount === MEMBERDISCOUNTID,
+        isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
         isOnClearActive: true,
       },
       {
