@@ -603,7 +603,7 @@ const Stock = () => {
     setTableKey((prev) => prev + 1);
   }, [
     stocks,
-    // filterStockPanelFormElements,
+    filterStockPanelFormElements,
     products,
     locations,
     user,
