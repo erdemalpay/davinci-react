@@ -153,7 +153,6 @@ const IkasOrders = () => {
   };
   allRows?.push(totalRow as any);
   const [rows, setRows] = useState(allRows);
-  console.log("rows", rows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
     {
