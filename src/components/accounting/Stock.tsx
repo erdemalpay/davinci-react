@@ -627,7 +627,7 @@ const Stock = () => {
           title={t("Product Stocks")}
           addButton={addButton}
           filterPanel={filterPanel}
-          isActionsActive={false}
+          isActionsActive={isStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
           isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
