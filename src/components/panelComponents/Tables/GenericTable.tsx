@@ -670,20 +670,20 @@ const GenericTable = <T,>({
                               );
                             }
                           )}
-                          <td
-                            className={`py-2 px-4  ${
-                              rowIndex !==
-                                row?.collapsible?.collapsibleRows.length - 1 &&
-                              "border-b"
-                            }`}
-                          >
-                            {collapsibleActions &&
-                              isActionsActive &&
-                              renderActionButtons(
+                          {collapsibleActions && isActionsActive && (
+                            <td
+                              className={`py-2 px-4  ${
+                                rowIndex !==
+                                  row?.collapsible?.collapsibleRows.length - 1 &&
+                                "border-b"
+                              }`}
+                            >
+                              {renderActionButtons(
                                 { ...row, ...collapsibleRow }, //by this way we can access the main row data in the collapsible actions
                                 collapsibleActions
                               )}
-                          </td>
+                            </td>
+                          )}
                         </tr>
                       )
                     )}
