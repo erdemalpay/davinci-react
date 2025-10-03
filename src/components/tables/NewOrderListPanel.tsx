@@ -97,7 +97,12 @@ const NewOrderListPanel = () => {
                     />
                   </div>
 
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-row gap-2 items-center">
+                    {order.activityTableName && order.activityPlayer && (
+                      <p className="text-xs text-gray-700 whitespace-nowrap">
+                        M:{order.activityTableName} - O:{order.activityPlayer}
+                      </p>
+                    )}
                     {orderCreateBulk[index].status !== OrderStatus.SERVED && (
                       <ButtonTooltip content={t("Served")}>
                         <PiBellSimpleRingingFill

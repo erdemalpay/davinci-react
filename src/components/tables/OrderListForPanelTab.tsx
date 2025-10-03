@@ -192,7 +192,15 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
               />
             </div>
 
-            <div className="flex flex-row ">
+            <div className="flex flex-row gap-2 items-center">
+              {order.activityTableName &&
+                order.activityPlayer &&
+                (order.status === OrderStatus.READYTOSERVE ||
+                  order.status === OrderStatus.SERVED) && (
+                  <p className="text-xs text-gray-700 whitespace-nowrap">
+                    M:{order.activityTableName} - O:{order.activityPlayer}
+                  </p>
+                )}
               {(order.status === OrderStatus.PENDING ||
                 order.status === OrderStatus.AUTOSERVED) && (
                 <div className="flex flex-row gap-[1px]">
