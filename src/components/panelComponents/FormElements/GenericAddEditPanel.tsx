@@ -73,6 +73,7 @@ type AdditionalButtonProps = {
   label: string;
   isInputRequirementCheck?: boolean;
   isInputNeedToBeReset?: boolean;
+  preservedKeys?: string[];
 };
 const GenericAddEditPanel = <T,>({
   isOpen,
@@ -748,14 +749,23 @@ const GenericAddEditPanel = <T,>({
                     key={index}
                     onClick={() => {
                       const handleButtonClick = () => {
+                        const preservedValues = button.preservedKeys?.reduce(
+                          (acc, key) => {
+                            acc[key] = formElements[key];
+                            return acc;
+                          },
+                          {} as any
+                        );
+
                         button.onClick();
 
                         if (button?.isInputNeedToBeReset) {
-                          setFormElements(
-                            constantValues
+                          setFormElements({
+                            ...(constantValues
                               ? { ...initialState, ...constantValues }
-                              : initialState
-                          );
+                              : initialState),
+                            ...preservedValues,
+                          });
                           setResetTextInput((prev) => !prev);
                         }
                         // triggerOnTriggerTabInput();

@@ -1050,6 +1050,7 @@ export function TableCard({
               label: "Add",
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
+              preservedKeys: ["activityTableName", "activityPlayer"],
               onClick: () => {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
@@ -1059,7 +1060,6 @@ export function TableCard({
                   ...selectedNewOrders,
                   orderCreateBulk.length,
                 ]);
-                setOrderForm(initialOrderForm);
               },
             },
           ]}
