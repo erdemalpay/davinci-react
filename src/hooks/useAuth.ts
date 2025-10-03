@@ -18,7 +18,7 @@ const useAuth = () => {
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       if (user) return;
-      let token = localStorage.getItem(ACCESS_TOKEN);
+      const token = localStorage.getItem(ACCESS_TOKEN);
       if (!token) {
         navigate(Paths.Login, {
           replace: true,
