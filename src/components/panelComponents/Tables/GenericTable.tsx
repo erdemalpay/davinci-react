@@ -466,7 +466,7 @@ const GenericTable = <T,>({
             )}
 
           {/* front actions  */}
-          {actions && isActionsAtFront && (
+          {actions && isActionsAtFront && isActionsActive && (
             <td>{renderActionButtons(row, actions)}</td>
           )}
           {usedRowKeys?.map((rowKey, keyIndex) => {
@@ -563,6 +563,7 @@ const GenericTable = <T,>({
           })}
           <td>
             {actions &&
+              isActionsActive &&
               !(row?.isSortable === false) &&
               !(row?.isActionsDisabled ?? false) &&
               !isActionsAtFront &&
@@ -677,6 +678,7 @@ const GenericTable = <T,>({
                             }`}
                           >
                             {collapsibleActions &&
+                              isActionsActive &&
                               renderActionButtons(
                                 { ...row, ...collapsibleRow }, //by this way we can access the main row data in the collapsible actions
                                 collapsibleActions
@@ -799,6 +801,7 @@ const GenericTable = <T,>({
             </div>
             {selectionActions &&
               isSelectionActive &&
+              isActionsActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
             <div className="ml-auto flex flex-row gap-4 relative items-center">
