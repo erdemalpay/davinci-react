@@ -749,13 +749,12 @@ const GenericAddEditPanel = <T,>({
                     key={index}
                     onClick={() => {
                       const handleButtonClick = () => {
-                        const preservedValues = button.preservedKeys?.reduce(
-                          (acc, key) => {
-                            acc[key] = formElements[key];
-                            return acc;
-                          },
-                          {} as any
-                        );
+                        const preservedValues = button.preservedKeys?.reduce<
+                          Partial<typeof formElements>
+                        >((acc, key) => {
+                          acc[key] = formElements[key];
+                          return acc;
+                        }, {});
 
                         button.onClick();
 
