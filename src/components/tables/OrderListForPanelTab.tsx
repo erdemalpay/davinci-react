@@ -198,7 +198,7 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
                 (order.status === OrderStatus.READYTOSERVE ||
                   order.status === OrderStatus.SERVED) && (
                   <p className="text-xs text-gray-700 whitespace-nowrap">
-                    M:{order.activityTableName} - O:{order.activityPlayer}
+                    {t("TableShort")}:{order.activityTableName} - {t("PlayerShort")}:{order.activityPlayer}
                   </p>
                 )}
               {(order.status === OrderStatus.PENDING ||
