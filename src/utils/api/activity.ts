@@ -23,15 +23,23 @@ export interface ActivityPayload {
 }
 const BASE_URL_ACTIVITIES = "/activity";
 
-export function useGetActivities(filters: FormElementsState) {
+export function useGetActivities(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
   const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
     filters.user && `user=${filters.user}`,
     filters.type && `type=${filters.type}`,
     filters.date && `date=${filters.date}`,
     filters.after && `after=${filters.after}`,
     filters.before && `before=${filters.before}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
   const url = `${BASE_URL_ACTIVITIES}/query?${queryString}`;
-  return useGet<Activity[]>(url, [url, filters], true);
+  return useGet<ActivityPayload>(url, [url, page, limit, filters], true);
 }
