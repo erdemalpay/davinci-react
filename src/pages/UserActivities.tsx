@@ -6,12 +6,28 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
-import { activityTypeDetails, commonDateOptions } from "../types";
+import { Activity, activityTypeDetails, commonDateOptions } from "../types";
 import { useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
+type CollapsibleRow = {
+  collapsibleColumns: { key: string; isSortable: boolean }[];
+  collapsibleRows: { payload: any }[]; // payload can be any type
+  collapsibleRowKeys: {
+    key: string;
+    node: (row: any) => React.ReactNode;
+  }[];
+};
+type ActivityRow = Activity & {
+  userName?: string;
+  userId?: string | number;
+  createdDate: string;
+  formattedCreatedDate: string;
+  createHour: string;
+  collapsible: CollapsibleRow;
+};
 const UserActivities = () => {
   const { t } = useTranslation();
   const {
@@ -50,7 +66,7 @@ const UserActivities = () => {
         collapsibleRowKeys: [
           {
             key: "payload",
-            node: (row: any) => {
+            node: (row: ActivityRow) => {
               return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
             },
           },
@@ -81,7 +97,7 @@ const UserActivities = () => {
     { key: "userName" },
     {
       key: "type",
-      node: (row: any) => {
+      node: (row: ActivityRow) => {
         const foundActivity = activityTypeDetails.find(
           (activity) => activity.value === row.type
         );
@@ -98,7 +114,7 @@ const UserActivities = () => {
     {
       key: "createdDate",
       className: `min-w-32   `,
-      node: (row: any) => {
+      node: (row: ActivityRow) => {
         return <p>{row?.formattedCreatedDate}</p>;
       },
     },
