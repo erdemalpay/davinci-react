@@ -1,14 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AccountCount } from "../../../types";
-import { Paths, useGetList, useMutationApi } from "../factory";
+import { AccountCount, FormElementsState } from "../../../types";
+import { Paths, useGet, useGetList, useMutationApi } from "../factory";
 import { patch } from "../index";
-
 interface UpdateStockPayload {
   product: string;
   location: string;
   quantity: number;
   currentCountId: string;
+}
+export interface CountsPayload {
+  data: AccountCount[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
 }
 
 interface UpdateStockBulkPayload {
@@ -87,4 +93,26 @@ export function useUpdateStockForStockCountBulkMutation() {
 }
 export function useGetAccountCounts() {
   return useGetList<AccountCount>(baseUrl);
+}
+export function useGetQueryCounts(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    filters.createdBy && `createdBy=${filters.createdBy}`,
+    filters.countList && `countList=${filters.countList}`,
+    filters.location && `location=${filters.location}`,
+    filters.after && `after=${filters.after}`,
+    filters.before && `before=${filters.before}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+  ];
+
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${baseUrl}/query?${queryString}`;
+
+  return useGet<CountsPayload>(url, [url, page, limit, filters], true);
 }
