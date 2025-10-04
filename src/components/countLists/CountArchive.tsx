@@ -5,7 +5,12 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountCount, RoleEnum } from "../../types";
+import {
+  AccountCount,
+  AccountCountList,
+  AccountCountProduct,
+  RoleEnum,
+} from "../../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -26,11 +31,27 @@ import { InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
+type CountArchiveRow = AccountCountList &
+  AccountCount & {
+    cntLst: string;
+    cntLstId: string;
+    lctn: string;
+    lctnId: string;
+    usr: string;
+    usrId: string;
+    startDate: string;
+    formattedStartDate: string;
+    startHour: string;
+    endDate: string;
+    formattedEndDate: string;
+    endHour: string;
+  };
 const CountArchive = () => {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
   const counts = useGetAccountCounts();
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const countLists = useGetAccountCountLists();
   const users = useGetUsers();
   const { deleteAccountCount, updateAccountCount } = useAccountCountMutations();
@@ -45,7 +66,12 @@ const CountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+    user &&
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user.role._id)
   );
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -54,6 +80,8 @@ const CountArchive = () => {
       location: "",
       after: "",
       before: "",
+      sort: "",
+      asc: 1,
     });
   const allRows = counts
     .filter((count) => {
@@ -111,7 +139,7 @@ const CountArchive = () => {
   const rowKeys = [
     {
       key: "startDate",
-      node: (row: any) => (
+      node: (row: CountArchiveRow) => (
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
@@ -136,7 +164,7 @@ const CountArchive = () => {
     {
       key: "endDate",
       className: "min-w-32 pr-1",
-      node: (row: any) => {
+      node: (row: CountArchiveRow) => {
         return <p>{row?.formattedEndDate}</p>;
       },
     },
@@ -152,7 +180,7 @@ const CountArchive = () => {
     { key: "usr" },
     {
       key: "isCompleted",
-      node: (row: AccountCount) => {
+      node: (row: CountArchiveRow) => {
         if (row?.isCompleted) {
           return (
             <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
@@ -238,7 +266,10 @@ const CountArchive = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountCount(rowToAction?._id as any);
+            if (!rowToAction?._id) {
+              return;
+            }
+            deleteAccountCount(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count")}
@@ -258,14 +289,16 @@ const CountArchive = () => {
       isModal: false,
       isPath: false,
       icon: null,
-      node: (row: any) => (
+      node: (row: CountArchiveRow) => (
         <div className="mt-2">
           <CheckSwitch
             checked={row.isCompleted}
             onChange={() => {
-              const newCountProducts = row.products.map((product: any) => {
-                return { ...product, isStockEqualized: false };
-              });
+              const newCountProducts = row?.products?.map(
+                (product: AccountCountProduct) => {
+                  return { ...product, isStockEqualized: false };
+                }
+              );
               updateAccountCount({
                 id: row._id,
                 updates: {
@@ -279,6 +312,15 @@ const CountArchive = () => {
       ),
     },
   ];
+
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
   useEffect(() => {
     const filteredRows = allRows.filter((row) => {
       if (!row?.startDate) return false;
