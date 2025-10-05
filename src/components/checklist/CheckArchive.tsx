@@ -8,7 +8,7 @@ import { useUserContext } from "../../context/User.context";
 import { CheckType, RoleEnum } from "../../types";
 import {
   useCheckMutations,
-  useGetChecks,
+  useGetQueryChecks,
 } from "../../utils/api/checklist/check";
 import { useGetChecklists } from "../../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../../utils/api/location";
@@ -16,7 +16,6 @@ import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,7 +29,23 @@ const CheckArchive = () => {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
-  const checks = useGetChecks();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      createdBy: "",
+      checklist: "",
+      location: "",
+      after: "",
+      before: "",
+      sort: "",
+      asc: 1,
+    });
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const checksPayload = useGetQueryChecks(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
+  const checks = checksPayload?.data || ([] as CheckType[]);
   const checklists = useGetChecklists();
   const users = useGetUsers();
   const { deleteCheck, updateCheck } = useCheckMutations();
@@ -45,16 +60,14 @@ const CheckArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+    user &&
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user.role._id)
   );
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      createdBy: "",
-      checklist: "",
-      location: "",
-      after: "",
-      before: "",
-    });
+
   const allRows = checks
     .filter((check) => {
       if (check?.user === user?._id || !isDisabledCondition) {
@@ -96,13 +109,13 @@ const CheckArchive = () => {
     .filter((item) => item !== null);
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Start Date"), isSortable: true },
+    { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
     { key: t("Start Hour"), isSortable: true },
-    { key: t("End Date"), isSortable: true },
+    { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
     { key: t("End Hour"), isSortable: true },
-    { key: t("NounCheck"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("User"), isSortable: true },
+    { key: t("NounCheck"), isSortable: true, correspondingKey: "checklist" },
+    { key: t("Location"), isSortable: true, correspondingKey: "location" },
+    { key: t("User"), isSortable: true, correspondingKey: "user" },
     { key: t("Completed"), isSortable: true },
     { key: t("Status"), isSortable: false },
   ];
@@ -293,20 +306,23 @@ const CheckArchive = () => {
       ),
     },
   ];
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
+  const pagination = checksPayload
+    ? {
+        totalPages: checksPayload.totalPages,
+        totalRows: checksPayload.totalNumber,
+      }
+    : null;
+
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
-      if (!row?.startDate) return false;
-      return (
-        (filterPanelFormElements.before === "" ||
-          row?.startDate <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row?.startDate >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, row?.lctnId) &&
-        passesFilter(filterPanelFormElements.checklist, row?.chcLstId) &&
-        passesFilter(filterPanelFormElements.createdBy, row?.usrId)
-      );
-    });
-    setRows(filteredRows);
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
+  useEffect(() => {
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [checks, user, locations, users, filterPanelFormElements, checklists]);
 
@@ -323,6 +339,8 @@ const CheckArchive = () => {
           filters={filters}
           actions={actions}
           isActionsActive={!isDisabledCondition}
+          outsideSortProps={outsideSort}
+          {...(pagination && { pagination })}
         />
       </div>
     </>
