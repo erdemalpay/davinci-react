@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
-import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
@@ -16,7 +15,7 @@ import {
 } from "../../types";
 import {
   useCheckoutIncomeMutations,
-  useGetPaginatedQueryIncomes,
+  useGetCheckoutIncomes,
 } from "../../utils/api/checkout/income";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
@@ -26,45 +25,32 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
 import { LocationInput, StockLocationInput } from "../../utils/panelInputs";
+import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-export type IncomeRow = CheckoutIncome & {
-  usr?: string;
-  lctn?: string;
-  formattedDate?: string;
-  collectionIncome?: number;
-};
 const Income = () => {
   const { t } = useTranslation();
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
-  const {
-    initialFilterCheckoutPanelFormElements,
-    filterCheckoutPanelFormElements,
-    setFilterCheckoutPanelFormElements,
-  } = useFilterContext();
-  const incomesPayload = useGetPaginatedQueryIncomes(
-    currentPage,
-    rowsPerPage,
-    filterCheckoutPanelFormElements
-  );
+  const incomes = useGetCheckoutIncomes();
   const { user } = useUserContext();
   const locations = useGetStoreLocations();
   const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const { selectedLocationId } = useLocationContext();
-  const collections = useGetAllOrderCollections(); //TODO:this needs to be optimized
+  const collections = useGetAllOrderCollections();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [generalTotal, setGeneralTotal] = useState(
-    incomesPayload?.generalTotal ?? 0
-  );
+  const [generalTotal, setGeneralTotal] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutIncome>();
   const [showFilters, setShowFilters] = useState(false);
-
+  const {
+    initialFilterCheckoutPanelFormElements,
+    filterCheckoutPanelFormElements,
+    setFilterCheckoutPanelFormElements,
+  } = useFilterContext();
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
@@ -73,11 +59,10 @@ const Income = () => {
     date: "",
     amount: 0,
   });
-
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =
-    incomesPayload?.data?.map((income) => {
+    incomes?.map((income) => {
       const incomeUser = getItem(income?.user, users);
       const incomeLocation = getItem(income?.location, locations);
       return {
@@ -101,11 +86,11 @@ const Income = () => {
     }) ?? [];
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Date"), isSortable: true, correspondingKey: "createdAt" },
-    { key: t("User"), isSortable: true, correspondingKey: "user" },
-    { key: t("Location"), isSortable: true, correspondingKey: "location" },
-    { key: t("Amount"), isSortable: true, correspondingKey: "amount" },
-    { key: t("Collections Income"), isSortable: false },
+    { key: t("Date"), isSortable: true },
+    { key: t("User"), isSortable: true },
+    { key: t("Location"), isSortable: true },
+    { key: t("Amount"), isSortable: true },
+    { key: t("Collections Income"), isSortable: true },
     { key: t("Actions"), isSortable: false },
   ];
   const filterPanelInputs = [
@@ -176,7 +161,7 @@ const Income = () => {
     {
       key: "date",
       className: "min-w-32 pr-2",
-      node: (row: IncomeRow) => {
+      node: (row: any) => {
         return row.formattedDate;
       },
     },
@@ -198,7 +183,6 @@ const Income = () => {
       1
     );
   }
-
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -235,7 +219,6 @@ const Income = () => {
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
-
   const addButton = {
     name: t(`Add Income`),
     isModal: true,
@@ -349,25 +332,26 @@ const Income = () => {
       );
     },
   };
-  const outsideSort = {
-    filterPanelFormElements: filterCheckoutPanelFormElements,
-    setFilterPanelFormElements: setFilterCheckoutPanelFormElements,
-  };
-  const pagination = incomesPayload
-    ? {
-        totalPages: incomesPayload.totalPages,
-        totalRows: incomesPayload.totalNumber,
-      }
-    : null;
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterCheckoutPanelFormElements]);
 
   useEffect(() => {
-    setRows(allRows);
-    setGeneralTotal(incomesPayload?.generalTotal ?? 0);
+    const filteredRows = allRows.filter((row) => {
+      return (
+        (filterCheckoutPanelFormElements.before === "" ||
+          row.date <= filterCheckoutPanelFormElements.before) &&
+        (filterCheckoutPanelFormElements.after === "" ||
+          row.date >= filterCheckoutPanelFormElements.after) &&
+        passesFilter(filterCheckoutPanelFormElements.location, row.location) &&
+        passesFilter(filterCheckoutPanelFormElements.user, row.user)
+      );
+    });
+    setRows(filteredRows);
+    const newGeneralTotal = filteredRows.reduce(
+      (acc, invoice) => acc + invoice.amount,
+      0
+    );
+    setGeneralTotal(newGeneralTotal);
     setTableKey((prev) => prev + 1);
-  }, [incomesPayload, locations, filterCheckoutPanelFormElements, collections]);
+  }, [incomes, locations, filterCheckoutPanelFormElements, collections]);
 
   return (
     <>
@@ -383,8 +367,6 @@ const Income = () => {
           rows={rows}
           title={t("Incomes")}
           addButton={addButton}
-          outsideSortProps={outsideSort}
-          {...(pagination && { pagination })}
         />
       </div>
     </>
