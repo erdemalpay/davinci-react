@@ -877,7 +877,7 @@ const Invoice = () => {
           filters={tableFilters}
           outsideSortProps={outsideSort}
           outsideSearch={outsideSearch}
-          isActionsActive={false} //this seems wrong but for actions to appear in the first column it should be like this
+          isActionsActive={isInvoiceEnableEdit} //this seems wrong but for actions to appear in the first column it should be like this
           columns={
             isInvoiceEnableEdit
               ? [{ key: t("Action"), isSortable: false }, ...columns]
