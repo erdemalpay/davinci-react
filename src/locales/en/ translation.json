@@ -822,5 +822,6 @@
   "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.": "The Name field must not be left blank. The blue columns are designated for entering product details, while the orange columns are for menu item details. Fields marked with an asterisk (*) are mandatory. You can fill out either product details or menu item details independently.The Expense Type, Brand and Vendor fields allow multiple entries. When entering multiple values, separate them with commas.",
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?",
   "TableShort": "T",
-  "PlayerShort": "P"
+  "PlayerShort": "P",
+  "All Players": "All Players"
 }
