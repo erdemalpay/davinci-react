@@ -6,12 +6,29 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
-import { activityTypeDetails, commonDateOptions } from "../types";
+import { useGeneralContext } from "../context/General.context";
+import { Activity, activityTypeDetails, commonDateOptions } from "../types";
 import { useGetActivities } from "../utils/api/activity";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
+type CollapsibleRow = {
+  collapsibleColumns: { key: string; isSortable: boolean }[];
+  collapsibleRows: { payload: any }[]; // payload can be any type
+  collapsibleRowKeys: {
+    key: string;
+    node: (row: any) => React.ReactNode;
+  }[];
+};
+type ActivityRow = Activity & {
+  userName?: string;
+  userId?: string | number;
+  createdDate: string;
+  formattedCreatedDate: string;
+  createHour: string;
+  collapsible: CollapsibleRow;
+};
 const UserActivities = () => {
   const { t } = useTranslation();
   const {
@@ -21,10 +38,15 @@ const UserActivities = () => {
     setShowActivityFilters,
     initialFilterActivityFormElements,
   } = useFilterContext();
-  const activities = useGetActivities(filterActivityFormElements);
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const activitiesPayload = useGetActivities(
+    currentPage,
+    rowsPerPage,
+    filterActivityFormElements
+  );
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
-  const allRows = activities?.map((activity) => {
+  const allRows = activitiesPayload?.data?.map((activity) => {
     return {
       ...activity,
       userName: getItem(activity.user, users)?.name,
@@ -50,7 +72,7 @@ const UserActivities = () => {
         collapsibleRowKeys: [
           {
             key: "payload",
-            node: (row: any) => {
+            node: (row: ActivityRow) => {
               return <pre>{JSON.stringify(row?.payload, null, 2)}</pre>;
             },
           },
@@ -81,7 +103,7 @@ const UserActivities = () => {
     { key: "userName" },
     {
       key: "type",
-      node: (row: any) => {
+      node: (row: ActivityRow) => {
         const foundActivity = activityTypeDetails.find(
           (activity) => activity.value === row.type
         );
@@ -98,7 +120,7 @@ const UserActivities = () => {
     {
       key: "createdDate",
       className: `min-w-32   `,
-      node: (row: any) => {
+      node: (row: ActivityRow) => {
         return <p>{row?.formattedCreatedDate}</p>;
       },
     },
@@ -185,10 +207,25 @@ const UserActivities = () => {
     closeFilters: () => setShowActivityFilters(false),
   };
 
+  const pagination = activitiesPayload
+    ? {
+        totalPages: activitiesPayload.totalPages,
+        totalRows: activitiesPayload.totalNumber,
+      }
+    : null;
+
+  const outsideSort = {
+    filterPanelFormElements: filterActivityFormElements,
+    setFilterPanelFormElements: setFilterActivityFormElements,
+  };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterActivityFormElements]);
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [activities, users]);
+  }, [activitiesPayload, users]);
   return (
     <>
       <Header showLocationSelector={false} />
@@ -204,6 +241,8 @@ const UserActivities = () => {
           title={t("User Activities")}
           isActionsActive={false}
           isCollapsible={true}
+          outsideSortProps={outsideSort}
+          {...(pagination && { pagination })}
         />
       </div>
     </>

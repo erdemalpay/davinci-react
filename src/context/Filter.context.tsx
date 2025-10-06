@@ -226,6 +226,8 @@ const FilterContext = createContext<FilterContextType>({
     type: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
+    sort: "",
+    asc: 1,
   },
   setFilterServicePanelFormElements: () => {},
   showStockFilters: false,
@@ -380,6 +382,8 @@ const FilterContext = createContext<FilterContextType>({
     user: "",
     date: "thisMonth",
     type: "",
+    sort: "",
+    asc: 1,
   },
   setFilterActivityFormElements: () => {},
   isGameEnableEdit: false,
@@ -622,6 +626,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     type: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
+    sort: "",
+    asc: 1,
   };
   const [filterActivityFormElements, setFilterActivityFormElements] =
     useState<FormElementsState>(initialFilterActivityFormElements);

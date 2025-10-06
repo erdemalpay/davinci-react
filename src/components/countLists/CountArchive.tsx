@@ -5,10 +5,15 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountCount, RoleEnum } from "../../types";
+import {
+  AccountCount,
+  AccountCountList,
+  AccountCountProduct,
+  RoleEnum,
+} from "../../types";
 import {
   useAccountCountMutations,
-  useGetAccountCounts,
+  useGetQueryCounts,
 } from "../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { useGetStockLocations } from "../../utils/api/location";
@@ -16,7 +21,6 @@ import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
-import { passesFilter } from "../../utils/passesFilter";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -26,11 +30,41 @@ import { InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
+type CountArchiveRow = AccountCountList &
+  AccountCount & {
+    cntLst: string;
+    cntLstId: string;
+    lctn: string;
+    lctnId: string;
+    usr: string;
+    usrId: string;
+    startDate: string;
+    formattedStartDate: string;
+    startHour: string;
+    endDate: string;
+    formattedEndDate: string;
+    endHour: string;
+  };
 const CountArchive = () => {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
-  const counts = useGetAccountCounts();
+  const [filterPanelFormElements, setFilterPanelFormElements] =
+    useState<FormElementsState>({
+      createdBy: "",
+      countList: "",
+      location: "",
+      after: "",
+      before: "",
+      sort: "",
+      asc: 1,
+    });
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const countsPayload = useGetQueryCounts(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
   const countLists = useGetAccountCountLists();
   const users = useGetUsers();
   const { deleteAccountCount, updateAccountCount } = useAccountCountMutations();
@@ -45,64 +79,63 @@ const CountArchive = () => {
   const { user } = useUserContext();
   const [tableKey, setTableKey] = useState(0);
   const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+    user &&
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user.role._id)
   );
-  const [filterPanelFormElements, setFilterPanelFormElements] =
-    useState<FormElementsState>({
-      createdBy: "",
-      countList: "",
-      location: "",
-      after: "",
-      before: "",
-    });
-  const allRows = counts
-    .filter((count) => {
-      if (count?.user === user?._id || !isDisabledCondition) {
-        return count;
-      }
-    })
-    .map((count) => {
-      if (!count?.createdAt) {
-        return null;
-      }
-      const startDate = new Date(count?.createdAt);
-      const endDate = new Date(count?.completedAt ?? 0);
-      return {
-        ...count,
-        cntLst: getItem(count?.countList, countLists)?.name,
-        cntLstId: count?.countList,
-        lctn: getItem(count?.location, locations)?.name,
-        lctnId: count?.location,
-        usr: getItem(count?.user, users)?.name,
-        usrId: count?.user,
-        startDate: format(count?.createdAt, "yyyy-MM-dd"),
-        formattedStartDate: formatAsLocalDate(
-          format(count?.createdAt, "yyyy-MM-dd")
-        ),
-        startHour: `${pad(startDate.getHours())}:${pad(
-          startDate.getMinutes()
-        )}`,
-        endDate: count?.completedAt
-          ? format(count?.completedAt, "yyyy-MM-dd")
-          : "",
-        formattedEndDate: count?.completedAt
-          ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
-          : "-",
-        endHour: count?.completedAt
-          ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-          : "-",
-      };
-    })
-    .filter((item) => item !== null);
+
+  const allRows =
+    countsPayload?.data
+      ?.filter((count) => {
+        if (count?.user === user?._id || !isDisabledCondition) {
+          return count;
+        }
+      })
+      .map((count) => {
+        if (!count?.createdAt) {
+          return null;
+        }
+        const startDate = new Date(count?.createdAt);
+        const endDate = new Date(count?.completedAt ?? 0);
+        return {
+          ...count,
+          cntLst: getItem(count?.countList, countLists)?.name,
+          cntLstId: count?.countList,
+          lctn: getItem(count?.location, locations)?.name,
+          lctnId: count?.location,
+          usr: getItem(count?.user, users)?.name,
+          usrId: count?.user,
+          startDate: format(count?.createdAt, "yyyy-MM-dd"),
+          formattedStartDate: formatAsLocalDate(
+            format(count?.createdAt, "yyyy-MM-dd")
+          ),
+          startHour: `${pad(startDate.getHours())}:${pad(
+            startDate.getMinutes()
+          )}`,
+          endDate: count?.completedAt
+            ? format(count?.completedAt, "yyyy-MM-dd")
+            : "",
+          formattedEndDate: count?.completedAt
+            ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
+            : "-",
+          endHour: count?.completedAt
+            ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+            : "-",
+        };
+      })
+      ?.filter((item) => item !== null) ?? [];
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Start Date"), isSortable: true },
+    { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
     { key: t("Start Hour"), isSortable: true },
-    { key: t("End Date"), isSortable: true },
+    { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
     { key: t("End Hour"), isSortable: true },
-    { key: t("NounCount"), isSortable: true },
-    { key: t("Location"), isSortable: true },
-    { key: t("User"), isSortable: true },
+    { key: t("NounCount"), isSortable: true, correspondingKey: "countList" },
+    { key: t("Location"), isSortable: true, correspondingKey: "location" },
+    { key: t("User"), isSortable: true, correspondingKey: "user" },
     { key: t("Status"), isSortable: false },
   ];
   if (!isDisabledCondition) {
@@ -111,7 +144,7 @@ const CountArchive = () => {
   const rowKeys = [
     {
       key: "startDate",
-      node: (row: any) => (
+      node: (row: CountArchiveRow) => (
         <p
           className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
           onClick={() => {
@@ -136,7 +169,7 @@ const CountArchive = () => {
     {
       key: "endDate",
       className: "min-w-32 pr-1",
-      node: (row: any) => {
+      node: (row: CountArchiveRow) => {
         return <p>{row?.formattedEndDate}</p>;
       },
     },
@@ -152,7 +185,7 @@ const CountArchive = () => {
     { key: "usr" },
     {
       key: "isCompleted",
-      node: (row: AccountCount) => {
+      node: (row: CountArchiveRow) => {
         if (row?.isCompleted) {
           return (
             <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
@@ -238,7 +271,10 @@ const CountArchive = () => {
           isOpen={isCloseAllConfirmationDialogOpen}
           close={() => setIsCloseAllConfirmationDialogOpen(false)}
           confirm={() => {
-            deleteAccountCount(rowToAction?._id as any);
+            if (!rowToAction?._id) {
+              return;
+            }
+            deleteAccountCount(rowToAction?._id);
             setIsCloseAllConfirmationDialogOpen(false);
           }}
           title={t("Delete Count")}
@@ -258,14 +294,16 @@ const CountArchive = () => {
       isModal: false,
       isPath: false,
       icon: null,
-      node: (row: any) => (
+      node: (row: CountArchiveRow) => (
         <div className="mt-2">
           <CheckSwitch
             checked={row.isCompleted}
             onChange={() => {
-              const newCountProducts = row.products.map((product: any) => {
-                return { ...product, isStockEqualized: false };
-              });
+              const newCountProducts = row?.products?.map(
+                (product: AccountCountProduct) => {
+                  return { ...product, isStockEqualized: false };
+                }
+              );
               updateAccountCount({
                 id: row._id,
                 updates: {
@@ -279,22 +317,33 @@ const CountArchive = () => {
       ),
     },
   ];
+
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
+  const pagination = countsPayload
+    ? {
+        totalPages: countsPayload.totalPages,
+        totalRows: countsPayload.totalNumber,
+      }
+    : null;
+
   useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
-      if (!row?.startDate) return false;
-      return (
-        (filterPanelFormElements.before === "" ||
-          row?.startDate <= filterPanelFormElements.before) &&
-        (filterPanelFormElements.after === "" ||
-          row?.startDate >= filterPanelFormElements.after) &&
-        passesFilter(filterPanelFormElements.location, row?.lctnId) &&
-        passesFilter(filterPanelFormElements.countList, row?.cntLstId) &&
-        passesFilter(filterPanelFormElements.createdBy, row?.usrId)
-      );
-    });
-    setRows(filteredRows);
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
+  useEffect(() => {
+    setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [counts, user, locations, users, filterPanelFormElements, countLists]);
+  }, [
+    countsPayload,
+    user,
+    locations,
+    users,
+    filterPanelFormElements,
+    countLists,
+  ]);
 
   return (
     <>
@@ -309,6 +358,8 @@ const CountArchive = () => {
           filters={filters}
           actions={actions}
           isActionsActive={!isDisabledCondition}
+          outsideSortProps={outsideSort}
+          {...(pagination && { pagination })}
         />
       </div>
     </>

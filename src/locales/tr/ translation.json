@@ -825,5 +825,7 @@
   "Farm Burger Activity": "Farm Burger Aktiflik Durumu",
   "Button Calls": "Buton Çağrıları",
   "Duration": "Süre",
-  "Call Count": "Çağrı Sayısı"
+  "Call Count": "Çağrı Sayısı",
+  "TableShort": "M",
+  "PlayerShort": "O"
 }
