@@ -163,6 +163,14 @@ export type ExpirationListType = {
   }[];
   active: boolean;
 };
+
+export type AccountCountProduct = {
+  product: string;
+  stockQuantity: number;
+  countQuantity: number;
+  isStockEqualized?: boolean;
+  productDeleteRequest?: string;
+};
 export type AccountCount = {
   _id: string;
   isCompleted: boolean;
@@ -170,13 +178,7 @@ export type AccountCount = {
   completedAt?: Date;
   location: number;
   user: string;
-  products?: {
-    product: string;
-    stockQuantity: number;
-    countQuantity: number;
-    isStockEqualized?: boolean;
-    productDeleteRequest?: string;
-  }[];
+  products?: AccountCountProduct[];
   countList: string;
 };
 

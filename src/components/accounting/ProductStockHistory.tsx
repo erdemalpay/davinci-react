@@ -266,13 +266,13 @@ const ProductStockHistory = () => {
           key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
-          outsideSortProps={outsideSort}
           rows={rows ?? []}
           filterPanel={filterPanel}
           filters={filters}
           isSearch={false}
           title={t("Product Stock History")}
           isActionsActive={false}
+          outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
         />
       </div>

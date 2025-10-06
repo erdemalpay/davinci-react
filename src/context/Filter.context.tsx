@@ -200,12 +200,16 @@ const FilterContext = createContext<FilterContextType>({
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   },
   filterFeedbackPanelFormElements: {
     location: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   },
   showFeedbackFilters: false,
   setShowFeedbackFilters: () => {},
@@ -226,6 +230,8 @@ const FilterContext = createContext<FilterContextType>({
     type: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
+    sort: "",
+    asc: 1,
   },
   setFilterServicePanelFormElements: () => {},
   showStockFilters: false,
@@ -380,6 +386,8 @@ const FilterContext = createContext<FilterContextType>({
     user: "",
     date: "thisMonth",
     type: "",
+    sort: "",
+    asc: 1,
   },
   setFilterActivityFormElements: () => {},
   isGameEnableEdit: false,
@@ -562,6 +570,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   };
   const [filterFeedbackPanelFormElements, setFilterFeedbackPanelFormElements] =
     useState<FormElementsState>(initialFilterFeedbackPanelFormElements);
@@ -622,6 +632,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     type: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
+    sort: "",
+    asc: 1,
   };
   const [filterActivityFormElements, setFilterActivityFormElements] =
     useState<FormElementsState>(initialFilterActivityFormElements);
