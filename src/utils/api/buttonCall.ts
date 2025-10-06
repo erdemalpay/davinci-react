@@ -3,8 +3,16 @@ import { toast } from "react-toastify";
 import { post } from ".";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
-import { ButtonCall, ButtonCallType } from "../../types";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { ButtonCallType } from "../../types";
+import { ButtonCall, FormElementsState } from "./../../types/index";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
+export interface ButtonCallsPayload {
+  data: ButtonCall[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
 
 interface UpdateButtonCallPayload {
   location: number;
@@ -37,6 +45,33 @@ export function useGetActiveButtonCalls(type = ButtonCallType.ACTIVE) {
 export function useGetButtonCalls() {
   return useGetList<ButtonCall>(Paths.ButtonCalls);
 }
+
+export function useGetQueryButtonCalls(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    filters.location && `location=${filters.location}`,
+    filters.cancelledBy.length > 0 &&
+      `cancelledBy=${filters.cancelledBy.join(",")}`,
+    filters.tableName && `tableName=${filters.tableName}`,
+    filters.date && `date=${filters.date}`,
+    filters.before && `before=${filters.before}`,
+    filters.after && `after=${filters.after}`,
+    filters.type.length > 0 && `type=${filters.type.join(",")}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+  ];
+
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${baseUrl}/query?${queryString}`;
+
+  return useGet<ButtonCallsPayload>(url, [url, page, limit, filters], true);
+}
+
 export function finishButtonCall({
   location,
   tableName,
