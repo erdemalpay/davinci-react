@@ -200,12 +200,16 @@ const FilterContext = createContext<FilterContextType>({
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   },
   filterFeedbackPanelFormElements: {
     location: "",
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   },
   showFeedbackFilters: false,
   setShowFeedbackFilters: () => {},
@@ -566,6 +570,8 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
     date: "thisMonth",
+    sort: "",
+    asc: 1,
   };
   const [filterFeedbackPanelFormElements, setFilterFeedbackPanelFormElements] =
     useState<FormElementsState>(initialFilterFeedbackPanelFormElements);
