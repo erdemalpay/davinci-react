@@ -189,9 +189,40 @@ const OrderPaymentModal = ({
   const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
+  const allTableOrders = orders?.filter(
+    (order) =>
+      (order?.table as Table)?._id === tableId &&
+      order.status !== OrderStatus.CANCELLED
+  );
+  const allTableOrdersTotalAmount = allTableOrders?.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
+  const allTableOrdersDiscountAmount = allTableOrders?.reduce((acc, order) => {
+    if (!order.discount) {
+      return acc;
+    }
+    const discountValue =
+      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
+      100 +
+      (order?.discountAmount ?? 0) * order.quantity;
+    return acc + discountValue;
+  }, 0);
+  const allTableCollectionsTotalAmount = Number(
+    collections
+      ?.filter(
+        (collection) =>
+          (collection?.table as Table)?._id === tableId
+      )
+      ?.reduce((acc, collection) => {
+        if (collection?.status === OrderCollectionStatus.CANCELLED) {
+          return acc;
+        }
+        return acc + (collection?.amount ?? 0);
+      }, 0)
+  );
   const isAllItemsPaid =
-    tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
-    collectionsTotalAmount >= totalAmount - discountAmount;
+    allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+    allTableCollectionsTotalAmount >= allTableOrdersTotalAmount - allTableOrdersDiscountAmount;
   const handlePrint = () => {
     const printFrame = document.createElement("iframe");
     printFrame.style.visibility = "hidden";
