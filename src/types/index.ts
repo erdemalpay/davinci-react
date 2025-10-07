@@ -1567,4 +1567,5 @@ export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
 export const SANDWICHEXPENSETYPE = "sand";
 export const FARMBURGERCATEGORYID = 30;
+export const KOVADAPILAVCATEGORYID = 31;
 export type OptionType = { value: any; label: string; imageUrl?: string };
