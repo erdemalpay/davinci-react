@@ -149,34 +149,62 @@ const OrderPaymentModal = ({
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders || !collections) return null;
-  const tableOrders = orders?.filter(
+
+  // First filter all orders for this table (without activity user filter)
+  const allTableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED &&
-      (selectedActivityUser === "" ||
-        order.activityPlayer === selectedActivityUser)
+      order.status !== OrderStatus.CANCELLED
   );
+
+  // Then filter by activity user if needed
+  const tableOrders = allTableOrders?.filter(
+    (order) =>
+      selectedActivityUser === "" ||
+      order.activityPlayer === selectedActivityUser
+  );
+
   console.log("tableOrders", tableOrders);
   const farmCategoryActivity = getItem(
     FARMBURGERCATEGORYID,
     categories
   )?.active;
-  const collectionsTotalAmount = Number(
-    collections
-      ?.filter(
-        (collection) =>
-          (collection?.table as Table)?._id === tableId &&
-          (selectedActivityUser === "" ||
-            collection?.activityPlayer === selectedActivityUser)
-      )
-      ?.reduce((acc, collection) => {
-        if (collection?.status === OrderCollectionStatus.CANCELLED) {
-          return acc;
-        }
-        return acc + (collection?.amount ?? 0);
-      }, 0)
+
+  // All table collections (without activity user filter)
+  const allTableCollections = collections?.filter(
+    (collection) => (collection?.table as Table)?._id === tableId
   );
-  const discountAmount = tableOrders?.reduce((acc, order) => {
+
+  // Filtered collections (with activity user filter)
+  const tableCollections = allTableCollections?.filter(
+    (collection) =>
+      selectedActivityUser === "" ||
+      collection?.activityPlayer === selectedActivityUser
+  );
+
+  const filteredCollectionsTotalAmount = Number(
+    tableCollections?.reduce((acc, collection) => {
+      if (collection?.status === OrderCollectionStatus.CANCELLED) {
+        return acc;
+      }
+      return acc + (collection?.amount ?? 0);
+    }, 0)
+  );
+
+  const collectionsTotalAmount = Number(
+    allTableCollections?.reduce((acc, collection) => {
+      if (collection?.status === OrderCollectionStatus.CANCELLED) {
+        return acc;
+      }
+      return acc + (collection?.amount ?? 0);
+    }, 0)
+  );
+
+  const filteredTotalAmount = tableOrders?.reduce((acc, order) => {
+    return acc + order.unitPrice * order.quantity;
+  }, 0);
+
+  const filteredDiscountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -186,43 +214,25 @@ const OrderPaymentModal = ({
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-  const totalAmount = tableOrders?.reduce((acc, order) => {
+
+  const totalAmount = allTableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
-  const allTableOrders = orders?.filter(
-    (order) =>
-      (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED
-  );
-  const allTableOrdersTotalAmount = allTableOrders?.reduce((acc, order) => {
-    return acc + order.unitPrice * order.quantity;
-  }, 0);
-  const allTableOrdersDiscountAmount = allTableOrders?.reduce((acc, order) => {
+
+  const discountAmount = allTableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
     const discountValue =
       (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
-      100 +
+        100 +
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-  const allTableCollectionsTotalAmount = Number(
-    collections
-      ?.filter(
-        (collection) =>
-          (collection?.table as Table)?._id === tableId
-      )
-      ?.reduce((acc, collection) => {
-        if (collection?.status === OrderCollectionStatus.CANCELLED) {
-          return acc;
-        }
-        return acc + (collection?.amount ?? 0);
-      }, 0)
-  );
+
   const isAllItemsPaid =
     allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
-    allTableCollectionsTotalAmount >= allTableOrdersTotalAmount - allTableOrdersDiscountAmount;
+    collectionsTotalAmount >= totalAmount - discountAmount;
   const handlePrint = () => {
     const printFrame = document.createElement("iframe");
     printFrame.style.visibility = "hidden";
@@ -305,7 +315,7 @@ const OrderPaymentModal = ({
       label: t("Close Table"),
       onClick: () => {
         const refundAmount =
-          collectionsTotalAmount - (totalAmount - discountAmount);
+          filteredCollectionsTotalAmount - (filteredTotalAmount - filteredDiscountAmount);
         if (refundAmount > 0) {
           toast.error(
             t("Please refund {{refundAmount}}{{TURKISHLIRA}}", {
@@ -1003,18 +1013,18 @@ const OrderPaymentModal = ({
                 <OrderLists
                   table={table}
                   tableOrders={tableOrders}
-                  collectionsTotalAmount={collectionsTotalAmount}
+                  collectionsTotalAmount={filteredCollectionsTotalAmount}
                   tables={tables}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}
                   table={table}
-                  collectionsTotalAmount={collectionsTotalAmount}
+                  collectionsTotalAmount={filteredCollectionsTotalAmount}
                 />
                 <OrderPaymentTypes
                   table={table}
                   tableOrders={tableOrders}
-                  collectionsTotalAmount={collectionsTotalAmount}
+                  collectionsTotalAmount={filteredCollectionsTotalAmount}
                   selectedActivityUser={selectedActivityUser}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
