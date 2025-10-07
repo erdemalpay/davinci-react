@@ -271,7 +271,13 @@ const OrderLists = ({
           />
         ))}
       {((isProductSelectionOpen && !isTableSelectOpen) ||
-        isProductDivideOpen) && <OrderSelect tableOrders={tableOrders} />}
+        isProductDivideOpen) && (
+        <OrderSelect
+          tableOrders={tableOrders?.filter(
+            (order) => order?.quantity - order?.paidQuantity > 1
+          )}
+        />
+      )}
       {isTableSelectOpen && (
         <TransferTableScreen tables={tables} table={table} />
       )}
