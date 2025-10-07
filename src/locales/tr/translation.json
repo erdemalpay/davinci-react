@@ -828,5 +828,6 @@
   "Call Count": "Çağrı Sayısı",
   "TableShort": "M",
   "PlayerShort": "O",
-  "All Players": "Tüm Oyuncular"
+  "All Players": "Tüm Oyuncular",
+  "DeleteTableMessage": "Bu masa ve içindeki oyunlar silinecek. Devam etmek istediğinizden emin misiniz?"
 }

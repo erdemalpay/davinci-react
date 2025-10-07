@@ -996,7 +996,7 @@ export function TableCard({
         close={() => setIsDeleteConfirmationDialogOpen(false)}
         confirm={handleTableCancel}
         title={t("Delete Table")}
-        text="This table and gameplays in it will be deleted. Are you sure to continue?"
+        text={t("DeleteTableMessage")}
       />
       {isTableCardCreateOrderDialogOpen && (
         <GenericAddEditPanel
