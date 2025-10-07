@@ -150,61 +150,39 @@ const OrderPaymentModal = ({
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders || !collections) return null;
 
-  // First filter all orders for this table (without activity user filter)
+
   const allTableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
       order.status !== OrderStatus.CANCELLED
   );
 
-  // Then filter by activity user if needed
+
   const tableOrders = allTableOrders?.filter(
     (order) =>
       selectedActivityUser === "" ||
       order.activityPlayer === selectedActivityUser
   );
-
-  console.log("tableOrders", tableOrders);
   const farmCategoryActivity = getItem(
     FARMBURGERCATEGORYID,
     categories
   )?.active;
-
-  // All table collections (without activity user filter)
-  const allTableCollections = collections?.filter(
-    (collection) => (collection?.table as Table)?._id === tableId
-  );
-
-  // Filtered collections (with activity user filter)
-  const tableCollections = allTableCollections?.filter(
-    (collection) =>
-      selectedActivityUser === "" ||
-      collection?.activityPlayer === selectedActivityUser
-  );
-
-  const filteredCollectionsTotalAmount = Number(
-    tableCollections?.reduce((acc, collection) => {
-      if (collection?.status === OrderCollectionStatus.CANCELLED) {
-        return acc;
-      }
-      return acc + (collection?.amount ?? 0);
-    }, 0)
-  );
-
   const collectionsTotalAmount = Number(
-    allTableCollections?.reduce((acc, collection) => {
-      if (collection?.status === OrderCollectionStatus.CANCELLED) {
-        return acc;
-      }
-      return acc + (collection?.amount ?? 0);
-    }, 0)
+    collections
+      ?.filter(
+        (collection) =>
+          (collection?.table as Table)?._id === tableId &&
+          (selectedActivityUser === "" ||
+            collection?.activityPlayer === selectedActivityUser)
+      )
+      ?.reduce((acc, collection) => {
+        if (collection?.status === OrderCollectionStatus.CANCELLED) {
+          return acc;
+        }
+        return acc + (collection?.amount ?? 0);
+      }, 0)
   );
-
-  const filteredTotalAmount = tableOrders?.reduce((acc, order) => {
-    return acc + order.unitPrice * order.quantity;
-  }, 0);
-
-  const filteredDiscountAmount = tableOrders?.reduce((acc, order) => {
+  const discountAmount = tableOrders?.reduce((acc, order) => {
     if (!order.discount) {
       return acc;
     }
@@ -214,22 +192,9 @@ const OrderPaymentModal = ({
       (order?.discountAmount ?? 0) * order.quantity;
     return acc + discountValue;
   }, 0);
-
-  const totalAmount = allTableOrders?.reduce((acc, order) => {
+  const totalAmount = tableOrders?.reduce((acc, order) => {
     return acc + order.unitPrice * order.quantity;
   }, 0);
-
-  const discountAmount = allTableOrders?.reduce((acc, order) => {
-    if (!order.discount) {
-      return acc;
-    }
-    const discountValue =
-      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
-        100 +
-      (order?.discountAmount ?? 0) * order.quantity;
-    return acc + discountValue;
-  }, 0);
-
   const isAllItemsPaid =
     allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
@@ -315,7 +280,7 @@ const OrderPaymentModal = ({
       label: t("Close Table"),
       onClick: () => {
         const refundAmount =
-          filteredCollectionsTotalAmount - (filteredTotalAmount - filteredDiscountAmount);
+          collectionsTotalAmount - (totalAmount - discountAmount);
         if (refundAmount > 0) {
           toast.error(
             t("Please refund {{refundAmount}}{{TURKISHLIRA}}", {
@@ -1013,18 +978,18 @@ const OrderPaymentModal = ({
                 <OrderLists
                   table={table}
                   tableOrders={tableOrders}
-                  collectionsTotalAmount={filteredCollectionsTotalAmount}
+                  collectionsTotalAmount={collectionsTotalAmount}
                   tables={tables}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}
                   table={table}
-                  collectionsTotalAmount={filteredCollectionsTotalAmount}
+                  collectionsTotalAmount={collectionsTotalAmount}
                 />
                 <OrderPaymentTypes
                   table={table}
                   tableOrders={tableOrders}
-                  collectionsTotalAmount={filteredCollectionsTotalAmount}
+                  collectionsTotalAmount={collectionsTotalAmount}
                   selectedActivityUser={selectedActivityUser}
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
