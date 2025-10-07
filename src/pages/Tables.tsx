@@ -1473,7 +1473,7 @@ const Tables = () => {
           ]}
           submitFunction={() => {
             // Form doluysa otomatik olarak listeye ekle
-            let finalOrders = [...orderCreateBulk];
+            const finalOrders = [...orderCreateBulk];
             if (orderForm?.item) {
               const orderObject = handleOrderObject();
               if (orderObject) {
