@@ -823,5 +823,6 @@
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?",
   "TableShort": "T",
   "PlayerShort": "P",
-  "All Players": "All Players"
+  "All Players": "All Players",
+  "DeleteTableMessage": "This table and gameplays in it will be deleted. Are you sure to continue?"
 }
