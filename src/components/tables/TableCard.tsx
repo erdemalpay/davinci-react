@@ -1103,9 +1103,7 @@ export function TableCard({
             setOrderForm(initialOrderForm);
             setSelectedNewOrders([]);
             setOrderCreateBulk([]);
-            if (table.type === TableTypes.TAKEOUT) {
-              setIsTableCardCreateOrderDialogOpen(false);
-            }
+            setIsTableCardCreateOrderDialogOpen(false);
           }}
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
