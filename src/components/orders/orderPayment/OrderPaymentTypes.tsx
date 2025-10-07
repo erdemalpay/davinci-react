@@ -115,7 +115,7 @@ const OrderPaymentTypes = ({
   );
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
-  }, [items]);
+  }, [items?.length]);
   return (
     <div
       key={componentKey}

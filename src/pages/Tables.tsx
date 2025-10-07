@@ -659,16 +659,16 @@ const Tables = () => {
   );
   const activeTables = tables?.filter((table) => !table?.finishHour);
   const activeTableCount =
-    tables.filter(
+    (tables?.filter(
       (table) => !table?.finishHour && table.type === TableTypes.NORMAL
-    ).length +
-    tables
+    ).length || 0) +
+    (tables
       ?.filter(
         (table) => !table?.finishHour && table.type === TableTypes.ACTIVITY
       )
       .reduce((prev, curr) => {
-        return Number(prev) + Number(curr.tables?.length);
-      }, 0);
+        return Number(prev) + Number(curr.tables?.length || 0);
+      }, 0) || 0);
   const waitingReservations = reservations?.filter(
     (reservation) => reservation.status === ReservationStatusEnum.WAITING
   )?.length;
@@ -681,17 +681,17 @@ const Tables = () => {
   const totalTableCount =
     getItem(selectedLocationId, locations)?.tableCount ?? 0;
 
-  const activeCustomerCount = activeTables.reduce(
+  const activeCustomerCount = activeTables?.reduce(
     (prev: number, curr: Table) => {
-      return Number(prev) + Number(curr.playerCount);
+      return Number(prev) + Number(curr.playerCount || 0);
     },
     0
-  );
-  const totalCustomerCount = tables.reduce((prev: number, curr: Table) => {
-    return Number(prev) + Number(curr.playerCount);
-  }, 0);
+  ) || 0;
+  const totalCustomerCount = tables?.reduce((prev: number, curr: Table) => {
+    return Number(prev) + Number(curr.playerCount || 0);
+  }, 0) || 0;
   const tableColumns: Table[][] = [[], [], [], []];
-  (showAllTables ? tables : activeTables).forEach((table, index) => {
+  (showAllTables ? tables : activeTables)?.forEach((table, index) => {
     tableColumns[index % 4].push(table);
   });
   useEffect(() => {
@@ -1051,9 +1051,7 @@ const Tables = () => {
                       if (table && !table?.finishHour) {
                         return (
                           <a
-                            key={
-                              table?.tables?.length + "tableselector" + "small"
-                            }
+                            key={`${table._id}-${tableName}-tableselector-small`}
                             onClick={() =>
                               handleScrollClick(`table-${table?._id}`)
                             }
@@ -1069,7 +1067,7 @@ const Tables = () => {
                       }
                       return (
                         <a
-                          key={index + "tableselector" + "big"}
+                          key={tableName + "-tableselector-small"}
                           onClick={() => {
                             setTableForm({
                               ...tableForm,
@@ -1127,7 +1125,7 @@ const Tables = () => {
                     if (table && !table.finishHour) {
                       return (
                         <a
-                          key={table._id}
+                          key={`${table._id}-${tableName}-tableselector-large`}
                           onClick={() =>
                             handleScrollClick(`table-large-${table._id}`)
                           }
@@ -1239,7 +1237,6 @@ const Tables = () => {
                   key={table?._id || table?.startHour}
                 >
                   <TableCard
-                    key={table?._id || table?.startHour}
                     table={table}
                     mentors={mentors}
                     games={games}
