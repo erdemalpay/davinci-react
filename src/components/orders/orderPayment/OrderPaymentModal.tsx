@@ -150,13 +150,11 @@ const OrderPaymentModal = ({
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders || !collections) return null;
 
-
   const allTableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
       order.status !== OrderStatus.CANCELLED
   );
-
 
   const tableOrders = allTableOrders?.filter(
     (order) =>
