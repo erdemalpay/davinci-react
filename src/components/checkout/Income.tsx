@@ -59,10 +59,6 @@ const Income = () => {
     date: "",
     amount: 0,
   });
-
-  if (!users || !locations || !incomes) {
-    return <></>;
-  }
   const { createCheckoutIncome, deleteCheckoutIncome, updateCheckoutIncome } =
     useCheckoutIncomeMutations();
   const allRows =
@@ -187,7 +183,6 @@ const Income = () => {
       1
     );
   }
-
   const inputs = [
     {
       type: InputTypes.DATE,
@@ -224,7 +219,6 @@ const Income = () => {
     { key: "amount", type: FormKeyTypeEnum.NUMBER },
     { key: "isAfterCount", type: FormKeyTypeEnum.BOOLEAN },
   ];
-
   const addButton = {
     name: t(`Add Income`),
     isModal: true,

@@ -929,7 +929,7 @@ const OrderPaymentModal = ({
                             value: selectedActivityUser,
                             label:
                               selectedActivityUser === ""
-                                ? t("All")
+                                ? t("All Players")
                                 : selectedActivityUser,
                           }}
                           options={
@@ -940,7 +940,7 @@ const OrderPaymentModal = ({
                                   label: u,
                                 };
                               }),
-                              { value: "", label: t("All") },
+                              { value: "", label: t("All Players") },
                             ] as any
                           }
                           isMultiple={false}
