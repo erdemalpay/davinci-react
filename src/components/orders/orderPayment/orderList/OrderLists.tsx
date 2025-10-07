@@ -273,9 +273,13 @@ const OrderLists = ({
       {((isProductSelectionOpen && !isTableSelectOpen) ||
         isProductDivideOpen) && (
         <OrderSelect
-          tableOrders={tableOrders?.filter(
-            (order) => order?.quantity - order?.paidQuantity > 1
-          )}
+          tableOrders={
+            isProductDivideOpen
+              ? tableOrders?.filter(
+                  (order) => order?.quantity - order?.paidQuantity > 1
+                )
+              : tableOrders
+          }
         />
       )}
       {isTableSelectOpen && (

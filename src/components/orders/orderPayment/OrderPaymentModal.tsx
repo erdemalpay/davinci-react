@@ -149,14 +149,18 @@ const OrderPaymentModal = ({
     useState(false);
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders || !collections) return null;
-  const tableOrders = orders?.filter(
+
+  const allTableOrders = orders?.filter(
     (order) =>
       (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED &&
-      (selectedActivityUser === "" ||
-        order.activityPlayer === selectedActivityUser)
+      order.status !== OrderStatus.CANCELLED
   );
-  console.log("tableOrders", tableOrders);
+
+  const tableOrders = allTableOrders?.filter(
+    (order) =>
+      selectedActivityUser === "" ||
+      order.activityPlayer === selectedActivityUser
+  );
   const farmCategoryActivity = getItem(
     FARMBURGERCATEGORYID,
     categories
@@ -190,7 +194,7 @@ const OrderPaymentModal = ({
     return acc + order.unitPrice * order.quantity;
   }, 0);
   const isAllItemsPaid =
-    tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+    allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
   const handlePrint = () => {
     const printFrame = document.createElement("iframe");

@@ -996,7 +996,7 @@ export function TableCard({
         close={() => setIsDeleteConfirmationDialogOpen(false)}
         confirm={handleTableCancel}
         title={t("Delete Table")}
-        text="This table and gameplays in it will be deleted. Are you sure to continue?"
+        text={t("DeleteTableMessage")}
       />
 
       {isTableCardCreateOrderDialogOpen && (
@@ -1105,9 +1105,7 @@ export function TableCard({
             setOrderForm(initialOrderForm);
             setSelectedNewOrders([]);
             setOrderCreateBulk([]);
-            if (table.type === TableTypes.TAKEOUT) {
-              setIsTableCardCreateOrderDialogOpen(false);
-            }
+            setIsTableCardCreateOrderDialogOpen(false);
           }}
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"
