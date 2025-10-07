@@ -102,6 +102,12 @@ export function useMarkAsReadMutation() {
         const previousNotifications =
           queryClient.getQueryData<Notification[]>(queryKey) || [];
 
+        if (id === -1) {
+          // mark all as read
+          queryClient.setQueryData<Notification[]>(queryKey, []);
+          return { previousNotifications };
+        }
+
         // Optimistically remove the read notification
         queryClient.setQueryData<Notification[]>(
           queryKey,
