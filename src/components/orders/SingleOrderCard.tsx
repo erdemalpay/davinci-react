@@ -1,7 +1,13 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import { Order, OrderStatus, RoleEnum, User } from "../../types";
+import {
+  KitchenNameEnum,
+  Order,
+  OrderStatus,
+  RoleEnum,
+  User,
+} from "../../types";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCreateOrderForDivideMutation,
@@ -53,7 +59,10 @@ const SingleOrderCard = ({ order, user }: Props) => {
     let intervalId: NodeJS.Timeout | number;
     if (
       order?.status === OrderStatus.CONFIRMATIONREQ &&
-      user?.role?._id === RoleEnum.KITCHEN2
+      ((user?.role?._id === RoleEnum.KITCHEN2 &&
+        order?.kitchen === KitchenNameEnum.FARM) ||
+        (user?.role?._id === RoleEnum.KITCHEN3 &&
+          order?.kitchen === KitchenNameEnum.KOVADAPILAV))
     ) {
       intervalId = setInterval(() => {
         orderCreatedSound

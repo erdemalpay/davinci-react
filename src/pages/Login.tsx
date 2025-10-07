@@ -53,7 +53,7 @@ const Login = () => {
 
           if (
             loggedInUser &&
-            [RoleEnum.KITCHEN, RoleEnum.KITCHEN2].includes(
+            [RoleEnum.KITCHEN, RoleEnum.KITCHEN2, RoleEnum.KITCHEN3].includes(
               loggedInUser.role._id
             )
           ) {
