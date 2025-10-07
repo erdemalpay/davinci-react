@@ -828,5 +828,15 @@
   "Call Count": "Çağrı Sayısı",
   "TableShort": "M",
   "PlayerShort": "O",
-  "All Players": "Tüm Oyuncular"
+  "All Players": "Tüm Oyuncular",
+  "Orders created successfully": "Siparişler başarıyla oluşturuldu",
+  "Failed to create orders": "Siparişler oluşturulamadı",
+  "Order created successfully": "Sipariş başarıyla oluşturuldu",
+  "Failed to create order": "Sipariş oluşturulamadı",
+  "Loss product created successfully": "Zayi başarıyla oluşturuldu",
+  "Failed to create loss product": "Zayi oluşturulamadı",
+  "Please add at least one order": "Lütfen en az bir sipariş ekleyin",
+  "Creating order...": "Sipariş oluşturuluyor...",
+  "Table reopened": "{{name}} masası yeniden açıldı",
+  "Table updated": "{{name}} masası güncellendi"
 }

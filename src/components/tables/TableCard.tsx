@@ -112,7 +112,7 @@ export function TableCard({
   const { mutate: combineTable } = useCombineTableMutation();
   const { mutate: transferTable } = useTransferTableMutations();
   const { selectedLocationId } = useLocationContext();
-  const { createOrder } = useOrderMutations();
+  const { createOrder: createOrderMutation } = useOrderMutations();
   const products = useGetAllAccountProducts();
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -140,6 +140,7 @@ export function TableCard({
   ] = useState(false);
   const [isTableCombineOpen, setIsTableCombineOpen] = useState(false);
   const [isTableTransferOpen, setIsTableTransferOpen] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const { resetOrderContext, setSelectedNewOrders, selectedNewOrders } =
     useOrderContext();
@@ -652,8 +653,8 @@ export function TableCard({
     reopenTable({
       id: table._id,
     });
-    toast.success(`Table ${table?.name} reopened`);
-  }, [reopenTable, table]);
+    toast.success(t("Table reopened", { name: table?.name }));
+  }, [reopenTable, table, t]);
 
   const newClose = useCallback(() => {
     setIsOrderPaymentModalOpen(true);
@@ -678,9 +679,9 @@ export function TableCard({
         id: table._id,
         updates: { [target.name]: target.value },
       });
-      toast.success(`Table ${table.name} updated`);
+      toast.success(t("Table updated", { name: table.name }));
     },
-    [updateTable, table]
+    [updateTable, table, t]
   );
 
   const editGameplay = useCallback((gameplay: Gameplay) => {
@@ -1009,10 +1010,11 @@ export function TableCard({
           }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
+          isLoading={isCreatingOrder}
           {...(!farmCategoryActivity
             ? { upperMessage: t("Farm Category is not active") }
             : {})}
-          submitItem={createOrder as any}
+          submitItem={createOrderMutation as any}
           isConfirmationDialogRequired={() => {
             const menuItem = menuItems?.find(
               (item) => item._id === orderForm.item
@@ -1062,50 +1064,48 @@ export function TableCard({
             },
           ]}
           submitFunction={() => {
-            // creating single order
-            if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+            // Form doluysa otomatik olarak listeye ekle
+            let finalOrders = [...orderCreateBulk];
+            if (orderForm?.item) {
               const orderObject = handleOrderObject();
               if (orderObject) {
-                createOrder(orderObject);
+                finalOrders.push(orderObject);
               }
-            } else {
-              if (orderForm?.item) {
-                const orderObject = handleOrderObject();
-                if (orderObject) {
-                  createMultipleOrder({
-                    orders: [
-                      ...orderCreateBulk.map((orderCreateBulkItem) => {
-                        return {
-                          ...orderCreateBulkItem,
-                          tableDate: table ? new Date(table?.date) : new Date(),
-                        };
-                      }),
-                      orderObject,
-                    ],
-                    table: table,
-                  });
-                  setOrderForm(initialOrderForm);
-                  setOrderCreateBulk([]);
-                  setSelectedNewOrders([]);
-                  return;
-                }
-              }
-              createMultipleOrder({
-                orders: orderCreateBulk.map((orderCreateBulkItem) => {
-                  return {
-                    ...orderCreateBulkItem,
-                    tableDate: table ? new Date(table?.date) : new Date(),
-                  };
-                }),
-                table: table,
-              });
             }
-            setOrderForm(initialOrderForm);
-            setSelectedNewOrders([]);
-            setOrderCreateBulk([]);
-            if (table.type === TableTypes.TAKEOUT) {
-              setIsTableCardCreateOrderDialogOpen(false);
+
+            // Hiç sipariş yoksa hata göster
+            if (finalOrders.length === 0) {
+              toast.error(t("Please add at least one order"));
+              return;
             }
+
+            setIsCreatingOrder(true);
+            createMultipleOrder({
+              orders: finalOrders.map((orderCreateBulkItem) => {
+                return {
+                  ...orderCreateBulkItem,
+                  tableDate: table ? new Date(table?.date) : new Date(),
+                };
+              }),
+              table: table,
+            }, {
+              onSuccess: () => {
+                setIsCreatingOrder(false);
+                setIsTableCardCreateOrderDialogOpen(false);
+                setOrderForm(initialOrderForm);
+                setSelectedNewOrders([]);
+                setOrderCreateBulk([]);
+                setTimeout(() => {
+                  toast.success(t("Orders created successfully"));
+                }, 100);
+              },
+              onError: (error: any) => {
+                setIsCreatingOrder(false);
+                const errorMessage =
+                  error?.response?.data?.message || t("Failed to create orders");
+                toast.error(errorMessage);
+              },
+            });
           }}
           onOpenTriggerTabInputFormKey={
             user?.settings?.orderCategoryOn ? "category" : "item"

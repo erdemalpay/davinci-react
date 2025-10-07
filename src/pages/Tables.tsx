@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
@@ -86,6 +87,7 @@ const Tables = () => {
 
   const [isConsumptModalOpen, setIsConsumptModalOpen] = useState(false);
   const [isLossProductModalOpen, setIsLossProductModalOpen] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(true);
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
@@ -1382,9 +1384,21 @@ const Tables = () => {
                 stockLocation: selectedLocationId,
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
                 tableDate: new Date(),
+              }, {
+                onSuccess: () => {
+                  setIsLossProductModalOpen(false);
+                  setOrderForm(initialOrderForm);
+                  setTimeout(() => {
+                    toast.success(t("Loss product created successfully"));
+                  }, 100);
+                },
+                onError: (error: any) => {
+                  const errorMessage =
+                    error?.response?.data?.message || t("Failed to create loss product");
+                  toast.error(errorMessage);
+                },
               });
             }
-            setOrderForm(initialOrderForm);
           }}
           generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[90%] sm:min-w-[80%]  "
           topClassName="flex flex-col gap-2  "
@@ -1404,6 +1418,7 @@ const Tables = () => {
             : {})}
           inputs={orderInputsForTakeAway}
           formKeys={orderFormKeysForTakeAway}
+          isLoading={isCreatingOrder}
           submitItem={createTable as any}
           setForm={setOrderForm}
           isCreateCloseActive={false}
@@ -1457,6 +1472,22 @@ const Tables = () => {
             },
           ]}
           submitFunction={() => {
+            // Form doluysa otomatik olarak listeye ekle
+            let finalOrders = [...orderCreateBulk];
+            if (orderForm?.item) {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                finalOrders.push(orderObject);
+              }
+            }
+
+            // Hiç sipariş yoksa hata göster
+            if (finalOrders.length === 0) {
+              toast.error(t("Please add at least one order"));
+              return;
+            }
+
+            setIsCreatingOrder(true);
             const currentDate = new Date();
             const hours = currentDate.getHours().toString().padStart(2, "0");
             const minutes = currentDate
@@ -1464,7 +1495,6 @@ const Tables = () => {
               .toString()
               .padStart(2, "0");
             const formattedTime = `${hours}:${minutes}`;
-            const orderObject = handleOrderObject();
             const tableData = {
               name: "Takeaway",
               date: format(new Date(), "yyyy-MM-dd"),
@@ -1474,16 +1504,27 @@ const Tables = () => {
               gameplays: [],
               type: TableTypes.TAKEOUT,
             };
-            const ordersData = orderObject
-              ? [...orderCreateBulk, orderObject]
-              : orderCreateBulk;
             createTable({
               tableDto: tableData,
-              orders: ordersData,
-            } as any);
-            setIsTakeAwayPaymentModalOpen(true);
-            setIsTakeAwayOrderModalOpen(false);
-            setSelectedNewOrders([]);
+              orders: finalOrders,
+            } as any, {
+              onSuccess: () => {
+                setIsCreatingOrder(false);
+                setIsTakeAwayOrderModalOpen(false);
+                setSelectedNewOrders([]);
+                setOrderCreateBulk([]);
+                setTimeout(() => {
+                  toast.success(t("Orders created successfully"));
+                  setIsTakeAwayPaymentModalOpen(true);
+                }, 100);
+              },
+              onError: (error: any) => {
+                setIsCreatingOrder(false);
+                const errorMessage =
+                  error?.response?.data?.message || t("Failed to create orders");
+                toast.error(errorMessage);
+              },
+            });
           }}
           generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar  "
           topClassName="flex flex-col gap-2  "

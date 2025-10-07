@@ -823,5 +823,15 @@
   "GeneralDeleteMessage": "will be deleted. Are you sure you want to continue?",
   "TableShort": "T",
   "PlayerShort": "P",
-  "All Players": "All Players"
+  "All Players": "All Players",
+  "Orders created successfully": "Orders created successfully",
+  "Failed to create orders": "Failed to create orders",
+  "Order created successfully": "Order created successfully",
+  "Failed to create order": "Failed to create order",
+  "Loss product created successfully": "Loss product created successfully",
+  "Failed to create loss product": "Failed to create loss product",
+  "Please add at least one order": "Please add at least one order",
+  "Creating order...": "Creating order...",
+  "Table reopened": "Table {{name}} reopened",
+  "Table updated": "Table {{name}} updated"
 }

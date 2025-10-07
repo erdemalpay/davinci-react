@@ -62,6 +62,7 @@ type Props<T> = {
   isSubmitButtonActive?: boolean;
   upperMessage?: string;
   additionalButtons?: AdditionalButtonProps[];
+  isLoading?: boolean;
   itemToEdit?: {
     id: number | string;
     updates: T;
@@ -110,6 +111,7 @@ const GenericAddEditPanel = <T,>({
   setForm,
   submitItem,
   nonImageInputsClassName,
+  isLoading = false,
 }: Props<T>) => {
   const { t } = useTranslation();
   const [allRequiredFilled, setAllRequiredFilled] = useState(false);
@@ -796,8 +798,9 @@ const GenericAddEditPanel = <T,>({
                     handleCreateButtonClick();
                   }
                 }}
+                disabled={isLoading || (!allRequiredFilled && !optionalCreateButtonActive)}
                 className={`inline-block ${
-                  !allRequiredFilled && !optionalCreateButtonActive
+                  isLoading || (!allRequiredFilled && !optionalCreateButtonActive)
                     ? "bg-gray-500"
                     : "bg-blue-500 hover:bg-blue-600"
                 } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
@@ -821,12 +824,36 @@ const GenericAddEditPanel = <T,>({
       }`}
     >
       {anotherPanel ? (
-        <div className={`${anotherPanelTopClassName} rounded-md bg-white`}>
+        <div className={`${anotherPanelTopClassName} rounded-md bg-white relative`}>
           {anotherPanel}
           {renderGenericAddEditModal()}
+          {isLoading && (
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center rounded-md" style={{ zIndex: 9999 }}>
+              <div className="flex flex-col items-center gap-3">
+                <svg className="animate-spin h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="text-white text-sm font-medium">{t("Creating order...")}</p>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
-        renderGenericAddEditModal()
+        <>
+          {renderGenericAddEditModal()}
+          {isLoading && (
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center rounded-md" style={{ zIndex: 9999 }}>
+              <div className="flex flex-col items-center gap-3">
+                <svg className="animate-spin h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="text-white text-sm font-medium">{t("Creating order...")}</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
       {isCancelConfirmationDialogOpen && (
         <ConfirmationDialog
