@@ -791,6 +791,7 @@ export enum RoleEnum {
   SERVICE,
   CLEANING,
   KITCHEN2,
+  KITCHEN3,
 }
 
 export enum RoleNameEnum {
@@ -802,6 +803,10 @@ export enum RoleNameEnum {
   KITCHEN = "Kitchen",
   SERVICE = "Service",
   CLEANING = "Cleaning",
+}
+export enum KitchenNameEnum {
+  FARM = "farm",
+  KOVADAPILAV = "kovada_pilav",
 }
 export enum ExpensesPageTabEnum {
   INVOICE,
