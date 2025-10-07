@@ -48,6 +48,7 @@ type Props<T> = {
   isCreateConfirmationDialogExist?: boolean;
   isCreateCloseActive?: boolean;
   optionalCreateButtonActive?: boolean;
+  skipValidationWhenOptionalActive?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
@@ -91,6 +92,7 @@ const GenericAddEditPanel = <T,>({
   handleUpdate,
   anotherPanel,
   optionalCreateButtonActive,
+  skipValidationWhenOptionalActive = false,
   cancelButtonLabel = "Cancel",
   submitFunction,
   additionalSubmitFunction,
@@ -323,7 +325,7 @@ const GenericAddEditPanel = <T,>({
         handleSubmit();
       }
     } else if (optionalCreateButtonActive) {
-      if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
+      if (!skipValidationWhenOptionalActive && !_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
         toast.error(t("Please fill all required fields"));
         return;
       }

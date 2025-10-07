@@ -1035,6 +1035,7 @@ export function TableCard({
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          skipValidationWhenOptionalActive={true}
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
@@ -1089,6 +1090,28 @@ export function TableCard({
                   setSelectedNewOrders([]);
                   return;
                 }
+              } else if (
+                !orderForm?.item &&
+                (orderForm?.activityTableName || orderForm?.activityPlayer) &&
+                orderCreateBulk.length > 0
+              ) {
+                // If item is empty but activity table/player info is filled and there are orders in bulk, create the bulk orders
+                createMultipleOrder({
+                  orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                    return {
+                      ...orderCreateBulkItem,
+                      tableDate: table ? new Date(table?.date) : new Date(),
+                    };
+                  }),
+                  table: table,
+                });
+                setOrderForm(initialOrderForm);
+                setOrderCreateBulk([]);
+                setSelectedNewOrders([]);
+                if (table.type === TableTypes.TAKEOUT) {
+                  setIsTableCardCreateOrderDialogOpen(false);
+                }
+                return;
               }
               createMultipleOrder({
                 orders: orderCreateBulk.map((orderCreateBulkItem) => {
