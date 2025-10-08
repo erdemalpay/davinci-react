@@ -1,5 +1,6 @@
 import { BiCategory } from "react-icons/bi";
 import { BsClipboard2Data } from "react-icons/bs";
+import { FaBowlRice } from "react-icons/fa6";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { PiHamburgerBold } from "react-icons/pi";
 import { SiFampay } from "react-icons/si";
@@ -18,6 +19,7 @@ import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
 import FarmBurgerData from "../components/orderDatas/FarmBurgerData";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import IkasOrders from "../components/orderDatas/IkasOrders";
+import KovadaPilavData from "../components/orderDatas/KovadaPilavData";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
@@ -98,6 +100,13 @@ export const OrderDataTabs = [
     label: "Farm Burger",
     icon: <PiHamburgerBold className="text-lg font-thin" />,
     content: <FarmBurgerData />,
+    isDisabled: false,
+  },
+  {
+    number: OrderDataTabEnum.KOVADAPILAV,
+    label: "Kovada Pilav",
+    icon: <FaBowlRice className="text-lg font-thin" />,
+    content: <KovadaPilavData />,
     isDisabled: false,
   },
   {
