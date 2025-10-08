@@ -425,6 +425,7 @@
   "Cancelled At": "Cancelled At",
   "Collections Income": "Collections Income",
   "Close": "Close",
+  "Reopen": "Reopen",
   "Product Based Discount": "Product Based Discount",
   "Select Order": "Select Order",
   "Please select orders first": "Please select orders first",
@@ -719,6 +720,7 @@
   "Related Pages": "Related Pages",
   "Delete Route Authorization": "Delete Route Authorization",
   "Set Base Quantities": "Set Base Quantities",
+  "Table Combine": "Table Combine",
   "Transfer Combine": "Transfer Combine",
   "Activities": "Activities",
   "Education Permissions": "Education Permissions",
@@ -825,6 +827,15 @@
   "PlayerShort": "P",
   "All Players": "All Players",
   "Kovada Pilav Menu": "Kovada Pilav Menu",
+  "DeleteTableMessage": "This table and gameplays in it will be deleted. Are you sure to continue?",
+  "Table {{tableName}} reopened": "Table {{tableName}} reopened",
+  "Table {{tableName}} updated": "Table {{tableName}} updated",
+  "New gameplay added to table {{tableName}}": "New gameplay added to table {{tableName}}",
+  "Create Gameplay": "Create Gameplay",
+  "Gameplay updated": "Gameplay updated",
+  "Gameplay deleted": "Gameplay deleted",
+  "Update Gameplay": "Update Gameplay",
+  "Are you sure to delete this gameplay?": "Are you sure to delete this gameplay?"
   "Kovada Pilav Activity": "Kovada Pilav Activity",
   "DeleteTableMessage": "This table and gameplays in it will be deleted. Are you sure to continue?"
 }
