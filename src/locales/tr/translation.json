@@ -436,6 +436,7 @@
   "Cancelled At": "İptal Saati",
   "Collections Income": "Tahsilat Geliri",
   "Close": "Kapat",
+  "Reopen": "Yeniden Aç",
   "Product Based Discount": "Ürün Bazlı İndirim",
   "Select Order": "Sipariş Seç",
   "Please select orders first": "Lütfen önce siparişleri seçin",
@@ -830,5 +831,13 @@
   "PlayerShort": "O",
   "All Players": "Tüm Oyuncular",
   "Kovada Pilav Menu": "Kovada Pilav Menü",
-  "DeleteTableMessage": "Bu masa ve içindeki oyunlar silinecek. Devam etmek istediğinizden emin misiniz?"
+  "DeleteTableMessage": "Bu masa ve içindeki oyunlar silinecek. Devam etmek istediğinizden emin misiniz?",
+  "Table {{tableName}} reopened": "{{tableName}} masası yeniden açıldı",
+  "Table {{tableName}} updated": "{{tableName}} masası güncellendi",
+  "New gameplay added to table {{tableName}}": "{{tableName}} masasına yeni oyun eklendi",
+  "Create Gameplay": "Oyun Oluştur",
+  "Gameplay updated": "Oyun güncellendi",
+  "Gameplay deleted": "Oyun silindi",
+  "Update Gameplay": "Oyun Güncelle",
+  "Are you sure to delete this gameplay?": "Bu oyunu silmek istediğinizden emin misiniz?"
 }
