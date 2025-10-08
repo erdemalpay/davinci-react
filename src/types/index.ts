@@ -1185,6 +1185,8 @@ export enum ActivityType {
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
   FARM_BURGER_ACTIVATED = "FARM_BURGER_ACTIVATED",
   FARM_BURGER_DEACTIVATED = "FARM_BURGER_DEACTIVATED",
+  KOVADA_PILAV_ACTIVATED = "KOVADA_PILAV_ACTIVATED",
+  KOVADA_PILAV_DEACTIVATED = "KOVADA_PILAV_DEACTIVATED",
 }
 export const activityTypeDetails = [
   {
@@ -1425,6 +1427,16 @@ export const activityTypeDetails = [
   {
     value: ActivityType.FARM_BURGER_DEACTIVATED,
     label: "Farm Burger Deactivated",
+    bgColor: "bg-red-800",
+  },
+  {
+    value: ActivityType.KOVADA_PILAV_ACTIVATED,
+    label: "Kovada Pilav Activated",
+    bgColor: "bg-green-800",
+  },
+  {
+    value: ActivityType.KOVADA_PILAV_DEACTIVATED,
+    label: "Kovada Pilav Deactivated",
     bgColor: "bg-red-800",
   },
 ];
