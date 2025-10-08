@@ -945,6 +945,7 @@ export enum OrderDataTabEnum {
   ORDERS,
   IKASORDERS,
   FARMBURGER,
+  KOVADAPILAV,
   PERSONALORDERDATAS,
 }
 export enum StockHistoryStatusEnum {
