@@ -23,8 +23,11 @@ const OrderSelect = ({ tableOrders }: Props) => {
     setIsSelectAll,
     selectedDiscount,
     isProductDivideOpen,
+    isTransferProductOpen,
   } = useOrderContext();
-  let filteredOrders = tableOrders?.filter((order) => !order.discount);
+  let filteredOrders = isTransferProductOpen
+    ? tableOrders
+    : tableOrders?.filter((order) => !order.discount);
   if (selectedDiscount) {
     filteredOrders = filteredOrders.filter((order) =>
       categories
