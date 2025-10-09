@@ -1,6 +1,7 @@
 import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useGeneralContext } from "../../context/General.context";
 import {
   DateRangeKey,
   NotificationType,
@@ -9,7 +10,7 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../utils/api/location";
-import { useGetNotifications } from "../../utils/api/notification";
+import { useGetQueryNotifications } from "../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -24,43 +25,58 @@ const AllNotifications = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   const roles = useGetAllUserRoles();
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const initialFilterPanelFormElements = {
     before: "",
     after: format(startOfYear(new Date()), "yyyy-MM-dd"),
     type: "",
     event: "",
+    sort: "",
+    asc: 1,
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
-  const notifications = useGetNotifications({
-    after: filterPanelFormElements.after,
-    before: filterPanelFormElements.before,
-    type: filterPanelFormElements.type,
-    event: filterPanelFormElements.event,
-  });
+  const notificationPayload = useGetQueryNotifications(
+    currentPage,
+    rowsPerPage,
+    filterPanelFormElements
+  );
   const [showFilters, setShowFilters] = useState(false);
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = notifications.map((notification) => {
-    return {
-      ...notification,
-      createdBy: getItem(notification?.createdBy, users)?.name ?? "",
-      formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
-      hour: format(new Date(notification.createdAt), "HH:mm"),
-      type: t(notification.type),
-    };
-  });
+  const allRows =
+    notificationPayload?.data?.map((notification) => {
+      return {
+        ...notification,
+        createdBy: getItem(notification?.createdBy, users)?.name ?? "",
+        formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
+        hour: format(new Date(notification.createdAt), "HH:mm"),
+        type: t(notification.type),
+      };
+    }) ?? [];
   const [rows, setRows] = useState(allRows);
   const columns = [
-    { key: t("Created By"), isSortable: true },
-    { key: t("Date"), isSortable: true },
-    { key: t("Created At"), isSortable: true },
-    { key: t("Type"), isSortable: true },
-    { key: t("Triggered Event"), isSortable: true },
-    { key: t("Message"), isSortable: true },
-    { key: t("Selected Users"), isSortable: true },
-    { key: t("Selected Roles"), isSortable: true },
-    { key: t("Selected Locations"), isSortable: true },
+    { key: t("Created By"), isSortable: true, correspondingKey: "createdBy" },
+    { key: t("Date"), isSortable: true, correspondingKey: "createdAt" },
+    { key: t("Created At"), isSortable: false },
+    { key: t("Type"), isSortable: true, correspondingKey: "type" },
+    { key: t("Triggered Event"), isSortable: true, correspondingKey: "event" },
+    { key: t("Message"), isSortable: true, correspondingKey: "message" },
+    {
+      key: t("Selected Users"),
+      isSortable: true,
+      correspondingKey: "selectedUsers",
+    },
+    {
+      key: t("Selected Roles"),
+      isSortable: true,
+      correspondingKey: "selectedRoles",
+    },
+    {
+      key: t("Selected Locations"),
+      isSortable: true,
+      correspondingKey: "selectedLocations",
+    },
   ];
   const rowKeys = [
     { key: "createdBy" },
@@ -225,10 +241,25 @@ const AllNotifications = () => {
       node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
     },
   ];
+  const outsideSort = {
+    filterPanelFormElements: filterPanelFormElements,
+    setFilterPanelFormElements: setFilterPanelFormElements,
+  };
+  const pagination = notificationPayload
+    ? {
+        totalPages: notificationPayload.totalPages,
+        totalRows: notificationPayload.totalNumber,
+      }
+    : null;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements]);
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [users, locations, notifications, roles]);
+  }, [users, locations, notificationPayload, roles]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -241,6 +272,8 @@ const AllNotifications = () => {
           filterPanel={filterPanel}
           title={t("All Notifications")}
           isActionsActive={false}
+          outsideSortProps={outsideSort}
+          {...(pagination && { pagination })}
         />
       </div>
     </>
