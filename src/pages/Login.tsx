@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { GenericButton } from "../components/common/GenericButton";
 import { RoleEnum } from "../types";
 import { LoginCredentials, useLogin } from "../utils/api/auth";
 import { ACCESS_TOKEN } from "../utils/api/axiosClient";
@@ -126,9 +127,13 @@ const Login = () => {
               )}
             </div>
             <div className="px-2 mb-16 sm:mb-56 md:mb-16 sm:px-6">
-              <button className="focus:outline-none w-full bg-gray-800 transition duration-150 ease-in-out hover:bg-gray-600 rounded text-white px-8 py-3 text-sm mt-6">
+              <GenericButton
+                type="submit"
+                fullWidth
+                className="bg-gray-800 hover:bg-gray-600 px-8 py-3 text-sm mt-6"
+              >
                 Login
-              </button>
+              </GenericButton>
             </div>
           </form>
         </div>

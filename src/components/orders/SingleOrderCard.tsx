@@ -17,6 +17,7 @@ import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import CommonSelectInput from "../common/SelectInput";
 import Timer from "../common/Timer";
+import { GenericButton } from "../common/GenericButton";
 
 type Props = {
   order: Order;
@@ -155,7 +156,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
         <div className="  flex flex-row justify-between gap-2  ">
           {/* cancel button */}
           {order?.paidQuantity === 0 && !order?.isPaymentMade && (
-            <button
+            <GenericButton
               onClick={() => {
                 updateOrder({
                   id: order?._id,
@@ -166,14 +167,16 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-600 hover:text-red-900 font-medium text-sm "
+              variant="ghost"
+              size="sm"
+              className="text-red-600 hover:text-red-900"
             >
               {t("Cancel")}
-            </button>
+            </GenericButton>
           )}
           {/* confirmation  button */}
           {order?.status === OrderStatus.CONFIRMATIONREQ && (
-            <button
+            <GenericButton
               onClick={() => {
                 updateOrder({
                   id: order?._id,
@@ -184,17 +187,19 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-black"
             >
               {t("Confirm")}
-            </button>
+            </GenericButton>
           )}
 
           {/* back to pending  button */}
           {(order?.status === OrderStatus.READYTOSERVE ||
             (order?.confirmedAt && order?.status === OrderStatus.PENDING)) && (
             <div className="flex flex-row gap-2  ">
-              <button
+              <GenericButton
                 onClick={() => {
                   if (order?.status === OrderStatus.PENDING) {
                     updateOrder({
@@ -213,15 +218,17 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     });
                   }
                 }}
-                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-black"
               >
                 {t("Back")}
-              </button>
+              </GenericButton>
             </div>
           )}
           {/* pending ready button */}
           {order?.status === OrderStatus.PENDING && (
-            <button
+            <GenericButton
               onClick={() => {
                 updateOrder({
                   id: order?._id,
@@ -232,14 +239,16 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   },
                 });
               }}
-              className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-black"
             >
               {t("Ready")}
-            </button>
+            </GenericButton>
           )}
           {order?.status === OrderStatus.READYTOSERVE && (
             <div className="flex flex-row ">
-              <button
+              <GenericButton
                 onClick={() => {
                   updateOrder({
                     id: order?._id,
@@ -250,16 +259,18 @@ const SingleOrderCard = ({ order, user }: Props) => {
                     },
                   });
                 }}
-                className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-black"
               >
                 {t("Served")}
-              </button>
+              </GenericButton>
             </div>
           )}
           {order?.status === OrderStatus.SERVED &&
             user._id === order?.deliveredBy && (
               <div className="flex flex-row ">
-                <button
+                <GenericButton
                   onClick={() => {
                     updateOrder({
                       id: order?._id,
@@ -268,10 +279,12 @@ const SingleOrderCard = ({ order, user }: Props) => {
                       },
                     });
                   }}
-                  className=" bg-gray-100 px-2 py-1 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium text-sm "
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-600 hover:text-black"
                 >
                   {t("Back")}
-                </button>
+                </GenericButton>
               </div>
             )}
         </div>

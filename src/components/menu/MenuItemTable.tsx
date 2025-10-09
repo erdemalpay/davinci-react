@@ -6,6 +6,7 @@ import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
+import { GenericButton } from "../common/GenericButton";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
@@ -859,23 +860,27 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
           (popularItem) => popularItem?.item === row?._id
         );
         return isPopular ? (
-          <button
-            className="text-blue-500 cursor-pointer text-xl mt-1"
+          <GenericButton
+            variant="icon"
+            size="sm"
+            className="text-blue-500 text-xl mt-1"
             onClick={() => deletePopular(row?._id)}
           >
             <ButtonTooltip content={t("Unpopular")}>
               <FaStar className="text-yellow-700" />
             </ButtonTooltip>
-          </button>
+          </GenericButton>
         ) : (
-          <button
-            className="text-gray-500 cursor-pointer text-xl mt-1"
+          <GenericButton
+            variant="icon"
+            size="sm"
+            className="text-gray-500 text-xl mt-1"
             onClick={() => createPopular({ item: row?._id })}
           >
             <ButtonTooltip content={t("Popular")}>
               <FaRegStar />
             </ButtonTooltip>
-          </button>
+          </GenericButton>
         );
       },
     },

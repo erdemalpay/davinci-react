@@ -15,6 +15,7 @@ import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
+import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
 import { outsideSort } from "../../../utils/outsideSort";
@@ -403,7 +404,9 @@ const GenericTable = <T,>({
               <ButtonTooltip content={action.name}>{action.icon}</ButtonTooltip>
             )}
             {action.isButton && (
-              <button className={action?.buttonClassName}>{action.name}</button>
+              <GenericButton className={action?.buttonClassName}>
+                {action.name}
+              </GenericButton>
             )}
           </div>
         );
@@ -610,16 +613,14 @@ const GenericTable = <T,>({
                   <H5>{row?.collapsible?.collapsibleHeader}</H5>
 
                   {addCollapsible && (
-                    <button
-                      className={`px-2 ml-auto sm:px-3 py-[0.1rem] h-fit w-fit  ${
-                        addCollapsible.className
-                          ? `${addCollapsible.className}`
-                          : "bg-black border-black hover:text-black"
-                      } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer mb pb-1`}
+                    <GenericButton
+                      variant="black"
+                      size="sm"
+                      className={`ml-auto ${addCollapsible.className || ""}`}
                       onClick={() => actionOnClick(addCollapsible, row)}
                     >
                       <H5>{addCollapsible.name}</H5>
-                    </button>
+                    </GenericButton>
                   )}
                 </div>
               )}
@@ -764,14 +765,13 @@ const GenericTable = <T,>({
                 className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
               />
               {searchQuery && (
-                <button
+                <GenericButton
                   onClick={() => setSearchQuery("")}
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-lg"
+                  variant="clear"
                   aria-label="Clear search"
                 >
                   ×
-                </button>
+                </GenericButton>
               )}
             </div>
           )}
@@ -852,16 +852,14 @@ const GenericTable = <T,>({
               {!(selectionActions && isSelectionActive) &&
                 addButton &&
                 !addButton.isDisabled && (
-                  <button
-                    className={`px-2 ml-auto sm:px-3 py-1 h-fit w-fit ${
-                      addButton.className
-                        ? `${addButton.className}`
-                        : "bg-black border-black hover:text-black"
-                    } text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+                  <GenericButton
+                    variant="black"
+                    size="sm"
+                    className={`ml-auto ${addButton.className || ""}`}
                     onClick={() => actionOnClick(addButton, {} as unknown as T)}
                   >
                     <H5>{addButton.name}</H5>
-                  </button>
+                  </GenericButton>
                 )}
               {/* column active inactive selection */}
               {isColumnFilter && (
@@ -967,7 +965,10 @@ const GenericTable = <T,>({
                                 !outsideSortProps &&
                                 (sortConfig?.key === usedRowKeys[index]?.key &&
                                 sortConfig?.direction === "ascending" ? (
-                                  <button
+                                  <GenericButton
+                                    variant="icon"
+                                    size="sm"
+                                    className="p-0"
                                     onClick={() =>
                                       sortRows(
                                         usedRowKeys[index].key as Extract<
@@ -979,9 +980,12 @@ const GenericTable = <T,>({
                                     }
                                   >
                                     ↑
-                                  </button>
+                                  </GenericButton>
                                 ) : (
-                                  <button
+                                  <GenericButton
+                                    variant="icon"
+                                    size="sm"
+                                    className="p-0"
                                     onClick={() =>
                                       sortRows(
                                         usedRowKeys[index].key as Extract<
@@ -993,7 +997,7 @@ const GenericTable = <T,>({
                                     }
                                   >
                                     ↓
-                                  </button>
+                                  </GenericButton>
                                 ))}
                             </div>
                           </h1>
@@ -1043,30 +1047,32 @@ const GenericTable = <T,>({
                       {usedTotalRows}
                     </Caption>
                     <div className="flex flex-row gap-4">
-                      <button
+                      <GenericButton
                         onClick={() => {
                           if (currentPage > 1) {
                             setCurrentPage(Number(currentPage) - 1);
                             setExpandedRows({});
                           }
                         }}
-                        className="cursor-pointer"
+                        variant="ghost"
+                        size="sm"
                         disabled={currentPage === 1}
                       >
                         {"<"}
-                      </button>
-                      <button
+                      </GenericButton>
+                      <GenericButton
                         onClick={() => {
                           if (currentPage < usedTotalPages) {
                             setCurrentPage(Number(currentPage) + 1);
                             setExpandedRows({});
                           }
                         }}
-                        className="cursor-pointer"
+                        variant="ghost"
+                        size="sm"
                         disabled={currentPage === usedTotalPages}
                       >
                         {">"}
-                      </button>
+                      </GenericButton>
                     </div>
                   </div>
                 )}

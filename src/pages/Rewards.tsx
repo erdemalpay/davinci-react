@@ -18,6 +18,7 @@ import {
 import { Reward } from "../types";
 import { useGetRewards, useRewardMutations } from "../utils/api/reward";
 import { formatAsLocalDate } from "../utils/format";
+import { GenericButton } from "../components/common/GenericButton";
 
 export default function Rewards() {
   const { t } = useTranslation();
@@ -114,23 +115,25 @@ export default function Rewards() {
       node: (row: Reward) =>
         row.used ? (
           <ButtonTooltip content={t("Set unused")}>
-            <button
+            <GenericButton
+              variant="icon"
               onClick={() => {
                 updateReward({ id: row._id, updates: { used: false } });
               }}
             >
               <IoLockOpenOutline className="text-green-500 w-6 h-6 mt-2" />
-            </button>
+            </GenericButton>
           </ButtonTooltip>
         ) : (
           <ButtonTooltip content={t("Set used")}>
-            <button
+            <GenericButton
+              variant="icon"
               onClick={() => {
                 updateReward({ id: row._id, updates: { used: true } });
               }}
             >
               <FaCheck className="text-green-500 w-6 h-6 mt-2" />
-            </button>
+            </GenericButton>
           </ButtonTooltip>
         ),
     },
