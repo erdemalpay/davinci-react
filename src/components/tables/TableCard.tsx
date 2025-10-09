@@ -652,8 +652,8 @@ export function TableCard({
     reopenTable({
       id: table._id,
     });
-    toast.success(`Table ${table?.name} reopened`);
-  }, [reopenTable, table]);
+    toast.success(t("Table {{tableName}} reopened", { tableName: table?.name }));
+  }, [reopenTable, table, t]);
 
   const newClose = useCallback(() => {
     setIsOrderPaymentModalOpen(true);
@@ -678,9 +678,9 @@ export function TableCard({
         id: table._id,
         updates: { [target.name]: target.value },
       });
-      toast.success(`Table ${table.name} updated`);
+      toast.success(t("Table {{tableName}} updated", { tableName: table.name }));
     },
-    [updateTable, table]
+    [updateTable, table, t]
   );
 
   const editGameplay = useCallback((gameplay: Gameplay) => {
@@ -850,7 +850,7 @@ export function TableCard({
               </Tooltip>
             )}
           {table.finishHour && (
-            <Tooltip content="Reopen">
+            <Tooltip content={t("Reopen")}>
               <span>
                 <CardAction
                   onClick={() => reopenTableBack()}
@@ -1042,12 +1042,12 @@ export function TableCard({
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
             location: table?.isOnlineSale ? 4 : selectedLocationId,
           }}
-          cancelButtonLabel="Close"
+          cancelButtonLabel={t("Close")}
           anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
           anotherPanel={<OrderListForPanel table={table} />}
           additionalButtons={[
             {
-              label: "Add",
+              label: t("Add"),
               isInputRequirementCheck: true,
               isInputNeedToBeReset: true,
               preservedKeys: ["activityTableName", "activityPlayer"],

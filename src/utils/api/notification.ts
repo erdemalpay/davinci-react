@@ -1,10 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { post } from ".";
-import { Notification } from "../../types";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { FormElementsState, Notification } from "../../types";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 const baseUrl = `${Paths.Notification}`;
+
+export interface NotificationsPayload {
+  data: Notification[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
 
 export function useNotificationMutations() {
   const {
@@ -17,27 +25,26 @@ export function useNotificationMutations() {
 
   return { createNotification, updateNotification, deleteNotification };
 }
-export function useGetNotifications({
-  after,
-  before,
-  type,
-  event,
-}: {
-  after: string;
-  before?: string;
-  type?: string;
-  event?: string;
-}) {
-  let url = `${baseUrl}?after=${after}`;
-  if (before) url += `&before=${before}`;
-  if (type) url += `&type=${type}`;
-  if (event) url += `&event=${event}`;
+export function useGetQueryNotifications(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    filters.after && `after=${filters.after}`,
+    filters.before && `before=${filters.before}`,
+    filters.type && `type=${filters.type}`,
+    filters.event && `event=${filters.event}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+  ];
 
-  return useGetList<Notification>(
-    url,
-    [baseUrl, after, before, type, event ?? null],
-    true
-  );
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${baseUrl}/query?${queryString}`;
+
+  return useGet<NotificationsPayload>(url, [url, page, limit, filters], true);
 }
 
 export function useGetUserNewNotifications() {
@@ -76,10 +83,10 @@ export function useGetUserAllNotifications({
   ]);
 }
 
-export function markAsRead(id: number) {
+export function markAsRead(ids: number[]) {
   return post({
     path: `${Paths.Notification}/mark-as-read`,
-    payload: { id },
+    payload: { ids },
   });
 }
 
@@ -89,20 +96,20 @@ export function useMarkAsReadMutation() {
   const queryClient = useQueryClient();
 
   return useMutation(
-    async (id: number) => {
+    async (ids: number[]) => {
       // Call API to mark notification as read
-      await markAsRead(id);
-      return id; // Return the id so `onSuccess` knows which notification was read
+      await markAsRead(ids);
+      return ids; // Return the id so `onSuccess` knows which notification was read
     },
     {
-      onMutate: async (id: number) => {
+      onMutate: async (ids: number[]) => {
         await queryClient.cancelQueries(queryKey); // Cancel outgoing queries
 
         // Get the current notifications from cache
         const previousNotifications =
           queryClient.getQueryData<Notification[]>(queryKey) || [];
 
-        if (id === -1) {
+        if (ids.includes(-1)) {
           // mark all as read
           queryClient.setQueryData<Notification[]>(queryKey, []);
           return { previousNotifications };
@@ -112,7 +119,7 @@ export function useMarkAsReadMutation() {
         queryClient.setQueryData<Notification[]>(
           queryKey,
           previousNotifications.filter(
-            (notification) => notification._id !== id
+            (notification) => !ids.includes(notification._id)
           )
         );
 

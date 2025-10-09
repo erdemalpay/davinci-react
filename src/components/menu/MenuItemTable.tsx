@@ -819,7 +819,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       name: t(`Add Product`),
       icon: <CiCirclePlus />,
       isModal: true,
-      className: "text-2xl mt-1  cursor-pointer",
+      className: "text-2xl mt-1 cursor-pointer",
       setRow: setRowToAction,
       modal: rowToAction ? (
         <GenericAddEditPanel

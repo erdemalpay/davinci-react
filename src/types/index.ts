@@ -684,6 +684,7 @@ export type Notification = {
   createdAt: Date;
   message?: string;
   type: string;
+  event?: string;
   createdBy?: string;
   selectedUsers?: string[];
   selectedRoles?: number[];
@@ -1185,6 +1186,8 @@ export enum ActivityType {
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
   FARM_BURGER_ACTIVATED = "FARM_BURGER_ACTIVATED",
   FARM_BURGER_DEACTIVATED = "FARM_BURGER_DEACTIVATED",
+  KOVADA_PILAV_ACTIVATED = "KOVADA_PILAV_ACTIVATED",
+  KOVADA_PILAV_DEACTIVATED = "KOVADA_PILAV_DEACTIVATED",
 }
 export const activityTypeDetails = [
   {
@@ -1427,6 +1430,16 @@ export const activityTypeDetails = [
     label: "Farm Burger Deactivated",
     bgColor: "bg-red-800",
   },
+  {
+    value: ActivityType.KOVADA_PILAV_ACTIVATED,
+    label: "Kovada Pilav Activated",
+    bgColor: "bg-green-800",
+  },
+  {
+    value: ActivityType.KOVADA_PILAV_DEACTIVATED,
+    label: "Kovada Pilav Deactivated",
+    bgColor: "bg-red-800",
+  },
 ];
 
 export interface SocketEventType {
@@ -1491,12 +1504,90 @@ export const orderFilterStatusOptions = [
   { value: OrderStatus.WASTED, label: "Loss Product" },
   { value: OrderStatus.RETURNED, label: "Returned" },
 ];
+// Event Type'a göre modern renk şeması - Her event farklı renk
+export const NotificationEventColors: Record<
+  string,
+  { gradient: string; solid: string }
+> = {
+  // 🔴 KRİTİK UYARILAR - Kırmızı Tonları
+  NIGHTOPENTABLE: {
+    gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", // Bright Red
+    solid: "#E53E3E",
+  },
+  NEGATIVESTOCK: {
+    gradient: "linear-gradient(135deg, #F56565 0%, #E53E3E 100%)", // Rose Red
+    solid: "#F56565",
+  },
+  ZEROSTOCK: {
+    gradient: "linear-gradient(135deg, #FC8181 0%, #F56565 100%)", // Light Red
+    solid: "#FC8181",
+  },
+  LOSSPRODUCT: {
+    gradient: "linear-gradient(135deg, #F85F73 0%, #C51E3A 100%)", // Deep Rose
+    solid: "#F85F73",
+  },
+
+  // 🟠 VARDIYA SORUNLARI - Turuncu Tonları
+  LATESHIFTSTART: {
+    gradient: "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", // Orange
+    solid: "#ED8936",
+  },
+  EARLYSHIFTEND: {
+    gradient: "linear-gradient(135deg, #F6AD55 0%, #ED8936 100%)", // Light Orange
+    solid: "#F6AD55",
+  },
+
+  // 🟡 EKSİK İŞLEMLER - Sarı/Amber Tonları
+  UNCOMPLETEDCHECKLIST: {
+    gradient: "linear-gradient(135deg, #F6E05E 0%, #ECC94B 100%)", // Golden Yellow
+    solid: "#F6E05E",
+  },
+
+  // 🟢 BAŞARILI İŞLEMLER - Yeşil Tonları
+  COMPLETECOUNT: {
+    gradient: "linear-gradient(135deg, #48BB78 0%, #38A169 100%)", // Green
+    solid: "#48BB78",
+  },
+  FARMBURGERACTIVATED: {
+    gradient: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)", // Light Green
+    solid: "#68D391",
+  },
+
+  // 🔵 BİLGİLENDİRME - Mavi/Turkuaz Tonları
+  IKASTAKEAWAY: {
+    gradient: "linear-gradient(135deg, #4299E1 0%, #3182CE 100%)", // Blue
+    solid: "#4299E1",
+  },
+  FARMNOTCONFIRMED: {
+    gradient: "linear-gradient(135deg, #4FD1C5 0%, #38B2AC 100%)", // Teal
+    solid: "#4FD1C5",
+  },
+
+  // 🟣 DEAKTİVASYON - Mor/Gri Tonları
+  FARMBURGERDEACTIVATED: {
+    gradient: "linear-gradient(135deg, #A0AEC0 0%, #718096 100%)", // Gray
+    solid: "#A0AEC0",
+  },
+};
+
+// Fallback: Type'a göre modern renk şeması (event yoksa kullanılır)
 export const NotificationBackgroundColors: Record<NotificationType, string> = {
-  [NotificationType.INFORMATION]: "#79a8ce",
-  [NotificationType.WARNING]: "#e8c185",
-  [NotificationType.ERROR]: "#e56d64",
-  [NotificationType.SUCCESS]: "#92e895",
-  [NotificationType.ORDER]: "#de8dec",
+  [NotificationType.INFORMATION]:
+    "linear-gradient(135deg, #4299E1 0%, #3182CE 100%)", // Blue (bilgilendirme ile uyumlu)
+  [NotificationType.WARNING]:
+    "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", // Orange (vardiya sorunları ile uyumlu)
+  [NotificationType.ERROR]: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", // Bright Red (kritik uyarılar ile uyumlu)
+  [NotificationType.SUCCESS]:
+    "linear-gradient(135deg, #48BB78 0%, #38A169 100%)", // Green (başarılı işlemler ile uyumlu)
+  [NotificationType.ORDER]: "linear-gradient(135deg, #9D84B7 0%, #6B5B95 100%)", // Royal Purple
+};
+
+export const NotificationColors: Record<NotificationType, string> = {
+  [NotificationType.INFORMATION]: "#4299E1",
+  [NotificationType.WARNING]: "#ED8936",
+  [NotificationType.ERROR]: "#E53E3E",
+  [NotificationType.SUCCESS]: "#48BB78",
+  [NotificationType.ORDER]: "#9D84B7",
 };
 
 export enum NotificationEventType {

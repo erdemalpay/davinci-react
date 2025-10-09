@@ -44,6 +44,7 @@ export interface FilterType<T> {
 export interface RowKeyType<T> {
   key: string;
   node?: (row: T) => React.ReactNode;
+  isParseFloat?: boolean;
   isOptional?: boolean;
   isImage?: boolean;
   className?: string;

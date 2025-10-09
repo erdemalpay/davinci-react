@@ -12,7 +12,11 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
-import { FARMBURGERCATEGORYID, RoleEnum } from "../types";
+import {
+  FARMBURGERCATEGORYID,
+  KOVADAPILAVCATEGORYID,
+  RoleEnum,
+} from "../types";
 import {
   useGetCategories,
   useUpdateFarmCategoryMutation,
@@ -57,6 +61,11 @@ function Orders() {
       (category) => category._id === FARMBURGERCATEGORYID
     );
   }, [categories, FARMBURGERCATEGORYID]);
+  const kovadaPilavCategory = useMemo(() => {
+    return categories?.find(
+      (category) => category._id === KOVADAPILAVCATEGORYID
+    );
+  }, [categories, KOVADAPILAVCATEGORYID]);
   const handleIncrementDate = (prevDate: string) => {
     const date = parseDate(prevDate);
     const newDate = new Date(date);
@@ -127,6 +136,22 @@ function Orders() {
                 id: FARMBURGERCATEGORYID,
                 updates: {
                   active: !farmBurgerCategory?.active,
+                },
+              });
+            }}
+          />
+        </div>
+      )}
+      {user?.role?._id === RoleEnum.KITCHEN3 && (
+        <div className="flex flex-row items-center gap-2">
+          <p className="font-medium text-md">{t("Kovada Pilav Activity")}</p>
+          <CheckSwitch
+            checked={kovadaPilavCategory?.active ?? false}
+            onChange={() => {
+              updateFarmCategory({
+                id: KOVADAPILAVCATEGORYID,
+                updates: {
+                  active: !kovadaPilavCategory?.active,
                 },
               });
             }}

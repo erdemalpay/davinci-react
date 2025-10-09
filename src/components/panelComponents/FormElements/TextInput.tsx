@@ -8,6 +8,7 @@ import {
   MdOutlineCheckBox,
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 
 type TextInputProps = {
@@ -171,14 +172,16 @@ const TextInput = ({
             }}
           />
 
-          <button
+          <GenericButton
             onClick={() => {
               onChange("");
             }}
-            className="flex items-center justify-center h-8 w-8 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors duration-300"
+            variant="danger"
+            size="sm"
+            className="h-8 w-8 p-0"
           >
             <IoIosClose size={20} />
-          </button>
+          </GenericButton>
         </div>
       </div>
     );
@@ -193,7 +196,7 @@ const TextInput = ({
         </H6>
 
         {/* Icon on the right */}
-        <button
+        <GenericButton
           type="button"
           disabled={disabled}
           onClick={() => {
@@ -201,14 +204,14 @@ const TextInput = ({
             setLocalValue(newValue);
             onChange(newValue);
           }}
-          className="focus:outline-none"
+          variant="icon"
         >
           {localValue ?? value ? (
             <MdOutlineCheckBox className="h-6 w-6" />
           ) : (
             <MdOutlineCheckBoxOutlineBlank className="h-6 w-6" />
           )}
-        </button>
+        </GenericButton>
       </div>
     );
   }
@@ -259,15 +262,16 @@ const TextInput = ({
           />
         )}
         {onClear && isOnClearActive && (
-          <button
+          <GenericButton
             onClick={() => {
               setLocalValue("");
               onClear();
             }}
+            variant="icon"
             className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
-          </button>
+          </GenericButton>
         )}
       </div>
     </div>

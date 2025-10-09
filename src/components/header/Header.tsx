@@ -62,17 +62,17 @@ export function Header({
                 e.stopPropagation();
                 setIsNotificationOpen(!isNotificationOpen);
               }}
-              className="relative cursor-pointer hover:scale-105"
+              className="relative cursor-pointer hover:scale-110 transition-transform duration-200"
             >
-              <MdOutlineNotificationsNone className="text-2xl text-white " />
+              <MdOutlineNotificationsNone className="text-2xl sm:text-3xl text-white" />
               {notifications.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-white  text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border ">
+                <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full border-2 border-gray-800 shadow-lg ">
                   {notifications.length}
                 </span>
               )}
             </div>
             {isNotificationOpen && (
-              <div className="absolute top-12 right-2 flex flex-col gap-2 bg-white rounded-md py-4 px-2 mx-auto border-t border-gray-200 drop-shadow-lg z-10 w-[90%] sm:w-[35%]">
+              <div className="absolute top-14 sm:top-16 right-2 sm:right-4 lg:right-8 flex flex-col gap-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-[100] w-[95%] sm:w-[450px] lg:w-[480px] p-4">
                 <NotificationModal
                   onClose={() => {
                     setIsNotificationOpen(false);

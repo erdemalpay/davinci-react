@@ -7,6 +7,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
+import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
@@ -134,6 +135,7 @@ const GenericAddEditPanel = <T,>({
   const { setIsExtraModalOpen } = useOrderContext();
   const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
@@ -264,6 +266,7 @@ const GenericAddEditPanel = <T,>({
       additionalSubmitFunction?.();
       setFormElements(mergedInitialState);
       setResetTextInput(!resetTextInput);
+      setAttemptedSubmit(false);
       isCreateCloseActive && close?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
@@ -277,12 +280,14 @@ const GenericAddEditPanel = <T,>({
       finalSubmitFunction();
     }
   };
+  const isValueEmpty = (value: unknown) => {
+    if (Array.isArray(value)) return value.length === 0;
+    return value === undefined || value === null || value === "";
+  };
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
-      const value = formElements[input.formKey];
-      if (Array.isArray(value)) return value.length > 0;
-      return value !== undefined && value !== null && value !== "";
+      return !isValueEmpty(formElements[input.formKey]);
     });
   };
   const handleInputClear = (input: GenericInputType) => {
@@ -304,6 +309,7 @@ const GenericAddEditPanel = <T,>({
     handleClose();
   };
   const handleCreateButtonClick = () => {
+    setAttemptedSubmit(true);
     if (!allRequiredFilled && !optionalCreateButtonActive) {
       toast.error(t("Please fill all required fields"));
       return;
@@ -473,11 +479,15 @@ const GenericAddEditPanel = <T,>({
                   return null;
                 }
                 if (!input?.isDisabled) {
+                  const showError =
+                    attemptedSubmit &&
+                    input.required &&
+                    isValueEmpty(formElements[input.formKey]);
                   return (
                     <div
                       onClick={(e) => e.stopPropagation()}
                       key={input.formKey}
-                      className="flex flex-col gap-2"
+                      className="flex flex-col gap-1"
                     >
                       {input.type === InputTypes.DATE && (
                         <DateInput
@@ -654,8 +664,10 @@ const GenericAddEditPanel = <T,>({
                               </>
                             )}
                             {input?.options && input?.options?.length > 0 && (
-                              <button
-                                type="button"
+                              <GenericButton
+                                variant="icon"
+                                size="sm"
+                                className="ml-2 p-1"
                                 onClick={() =>
                                   setOpenFor((prev) =>
                                     prev === input.formKey
@@ -663,10 +675,9 @@ const GenericAddEditPanel = <T,>({
                                       : input.formKey
                                   )
                                 }
-                                className="ml-2 p-1"
                               >
                                 <FaChevronDown size={16} />
-                              </button>
+                              </GenericButton>
                             )}
                           </div>
 
@@ -714,16 +725,22 @@ const GenericAddEditPanel = <T,>({
                               className={`border text-base border-gray-300 rounded-md p-2 w-full ${input.inputClassName}`}
                             />
                             {formElements[input.formKey] && (
-                              <button
-                                type="button"
+                              <GenericButton
+                                variant="icon"
+                                size="sm"
+                                className="absolute top-2 right-2 text-gray-500 hover:text-red-600 p-0"
                                 onClick={() => handleChange(input.formKey)("")}
-                                className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
                               >
                                 <IoIosClose size={20} />
-                              </button>
+                              </GenericButton>
                             )}
                           </div>
                         </div>
+                      )}
+                      {showError && (
+                        <span className="text-xs text-red-600">
+                          {t("This field is required")}
+                        </span>
                       )}
                     </div>
                   );
@@ -732,21 +749,28 @@ const GenericAddEditPanel = <T,>({
             </div>
           </div>
           <div className="ml-auto flex flex-row gap-4 mt-auto ">
-            <button
+            <GenericButton
+              variant="danger"
+              size="sm"
               onClick={() => {
                 isCancelConfirmationDialogExist
                   ? setIsCancelConfirmationDialogOpen(true)
                   : handleCancelButtonClick();
               }}
-              className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
             >
               {t(cancelButtonLabel)}
-            </button>
+            </GenericButton>
             {additionalButtons &&
               additionalButtons.map((button, index) => {
                 return (
-                  <button
+                  <GenericButton
                     key={index}
+                    variant={
+                      button.isInputRequirementCheck && !allRequiredFilled
+                        ? "secondary"
+                        : "primary"
+                    }
+                    size="sm"
                     onClick={() => {
                       const handleButtonClick = () => {
                         const preservedValues = button.preservedKeys?.reduce<
@@ -766,6 +790,7 @@ const GenericAddEditPanel = <T,>({
                             ...preservedValues,
                           });
                           setResetTextInput((prev) => !prev);
+                          setAttemptedSubmit(false);
                         }
                         // triggerOnTriggerTabInput();
                       };
@@ -777,18 +802,19 @@ const GenericAddEditPanel = <T,>({
                         handleButtonClick();
                       }
                     }}
-                    className={`inline-block ${
-                      button.isInputRequirementCheck && !allRequiredFilled
-                        ? "bg-gray-500"
-                        : "bg-blue-500 hover:bg-blue-600"
-                    } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
                   >
                     {t(button.label)}
-                  </button>
+                  </GenericButton>
                 );
               })}
             {isSubmitButtonActive && (
-              <button
+              <GenericButton
+                variant={
+                  !allRequiredFilled && !optionalCreateButtonActive
+                    ? "secondary"
+                    : "primary"
+                }
+                size="sm"
                 onClick={() => {
                   if (isCreateConfirmationDialogExist) {
                     setIsCreateConfirmationDialogOpen(true);
@@ -796,18 +822,13 @@ const GenericAddEditPanel = <T,>({
                     handleCreateButtonClick();
                   }
                 }}
-                className={`inline-block ${
-                  !allRequiredFilled && !optionalCreateButtonActive
-                    ? "bg-gray-500"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
               >
                 {buttonName
                   ? buttonName
                   : isEditMode
                   ? t("Update")
                   : t("Create")}
-              </button>
+              </GenericButton>
             )}
           </div>
         </div>
