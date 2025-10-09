@@ -826,6 +826,7 @@
   "TableShort": "T",
   "PlayerShort": "P",
   "All Players": "All Players",
+  "Player": "Player",
   "Kovada Pilav Menu": "Kovada Pilav Menu",
   "DeleteTableMessage": "This table and gameplays in it will be deleted. Are you sure to continue?",
   "Table {{tableName}} reopened": "Table {{tableName}} reopened",
