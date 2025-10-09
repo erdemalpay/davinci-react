@@ -54,14 +54,18 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const toggleSelection = (notificationId: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(notificationId)
+    setSelectedIds((prev) => {
+      if (prev.includes(-1)) {
+        const allIds = notifications.map((n) => n._id);
+        return allIds.filter((id) => id !== notificationId);
+      }
+
+      return prev.includes(notificationId)
         ? prev.filter((id) => id !== notificationId)
-        : [...prev, notificationId]
-    );
+        : [...prev, notificationId];
+    });
   };
 
-  // Type ikonu mapping
   const getTypeIcon = (type: NotificationType) => {
     const iconClass = "text-lg sm:text-xl";
     switch (type) {
@@ -231,49 +235,49 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
             </span>
           )}
         </h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setProfileActiveTab(ProfileTabEnum.NOTIFICATIONS);
-              navigate("/profile");
-              onClose();
-            }}
-            className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all whitespace-nowrap"
-          >
-            {t("All Notifications")}
-          </button>
-          {notifications.length > 0 && (
-            <>
-              {selectedIds.length === 0 ? (
+        {notifications.length > 0 && (
+          <div className="flex items-center gap-2">
+            {selectedIds.length === 0 ? (
+              <>
+                <button
+                  onClick={() => {
+                    setProfileActiveTab(ProfileTabEnum.NOTIFICATIONS);
+                    navigate("/profile");
+                    onClose();
+                  }}
+                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all whitespace-nowrap"
+                >
+                  {t("All Notifications")}
+                </button>
                 <button
                   onClick={handleSelectAll}
                   className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md border border-blue-200 text-blue-600 hover:bg-blue-50"
                 >
                   {t("Select all")}
                 </button>
-              ) : (
-                <>
-                  <button
-                    onClick={handleMarkSelectedAsRead}
-                    className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                  >
-                    {t("Mark as read")} (
-                    {selectedIds.includes(-1)
-                      ? notifications.length
-                      : selectedIds.length}
-                    )
-                  </button>
-                  <button
-                    onClick={() => setSelectedIds([])}
-                    className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
-                  >
-                    {t("Cancel")}
-                  </button>
-                </>
-              )}
-            </>
-          )}
-        </div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleMarkSelectedAsRead}
+                  className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                >
+                  {t("Mark as read")} (
+                  {selectedIds.includes(-1)
+                    ? notifications.length
+                    : selectedIds.length}
+                  )
+                </button>
+                <button
+                  onClick={() => setSelectedIds([])}
+                  className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  {t("Cancel")}
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 overflow-y-auto no-scrollbar pr-1">
