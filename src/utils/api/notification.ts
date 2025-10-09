@@ -1,10 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { post } from ".";
-import { Notification } from "../../types";
-import { Paths, useGetList, useMutationApi } from "./factory";
+import { FormElementsState, Notification } from "../../types";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 const baseUrl = `${Paths.Notification}`;
+
+export interface NotificationsPayload {
+  data: Notification[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
 
 export function useNotificationMutations() {
   const {
@@ -17,27 +25,26 @@ export function useNotificationMutations() {
 
   return { createNotification, updateNotification, deleteNotification };
 }
-export function useGetNotifications({
-  after,
-  before,
-  type,
-  event,
-}: {
-  after: string;
-  before?: string;
-  type?: string;
-  event?: string;
-}) {
-  let url = `${baseUrl}?after=${after}`;
-  if (before) url += `&before=${before}`;
-  if (type) url += `&type=${type}`;
-  if (event) url += `&event=${event}`;
+export function useGetQueryNotifications(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    filters.after && `after=${filters.after}`,
+    filters.before && `before=${filters.before}`,
+    filters.type && `type=${filters.type}`,
+    filters.event && `event=${filters.event}`,
+    filters.sort && `sort=${filters.sort}`,
+    filters.asc !== undefined && `asc=${filters.asc}`,
+  ];
 
-  return useGetList<Notification>(
-    url,
-    [baseUrl, after, before, type, event ?? null],
-    true
-  );
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${baseUrl}/query?${queryString}`;
+
+  return useGet<NotificationsPayload>(url, [url, page, limit, filters], true);
 }
 
 export function useGetUserNewNotifications() {
