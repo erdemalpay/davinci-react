@@ -39,7 +39,7 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
         (order) => order.status === OrderStatus.PENDING
       ),
       icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
+      iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
     },
     {
       status: kitchen?.isConfirmationRequired ? "On the Way" : "Ready to Serve",
@@ -47,7 +47,7 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
         (order) => order.status === OrderStatus.READYTOSERVE
       ),
       icon: <MdOutlineRestaurantMenu size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
+      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
     },
     {
       status: "Served",
