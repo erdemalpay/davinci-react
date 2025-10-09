@@ -272,7 +272,7 @@ const OrderPaymentModal = ({
       onClick: () => {
         setIsPaymentModalCreateOrderDialogOpen(true);
       },
-      isActive: isAddOrderActive,
+      isActive: isAddOrderActive && !table?.finishHour,
     },
     {
       label: t("Close Table"),
