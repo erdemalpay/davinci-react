@@ -134,6 +134,7 @@ const GenericAddEditPanel = <T,>({
   const { setIsExtraModalOpen } = useOrderContext();
   const [isCreateConfirmationDialogOpen, setIsCreateConfirmationDialogOpen] =
     useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const imageInputs = inputs.filter((input) => input.type === InputTypes.IMAGE);
   const nonImageInputs = inputs.filter(
@@ -264,6 +265,7 @@ const GenericAddEditPanel = <T,>({
       additionalSubmitFunction?.();
       setFormElements(mergedInitialState);
       setResetTextInput(!resetTextInput);
+      setAttemptedSubmit(false);
       isCreateCloseActive && close?.();
     } catch (error) {
       console.error("Failed to execute submit item:", error);
@@ -277,12 +279,14 @@ const GenericAddEditPanel = <T,>({
       finalSubmitFunction();
     }
   };
+  const isValueEmpty = (value: unknown) => {
+    if (Array.isArray(value)) return value.length === 0;
+    return value === undefined || value === null || value === "";
+  };
   const areRequiredFieldsFilled = () => {
     return inputs.every((input) => {
       if (!input.required) return true;
-      const value = formElements[input.formKey];
-      if (Array.isArray(value)) return value.length > 0;
-      return value !== undefined && value !== null && value !== "";
+      return !isValueEmpty(formElements[input.formKey]);
     });
   };
   const handleInputClear = (input: GenericInputType) => {
@@ -304,6 +308,7 @@ const GenericAddEditPanel = <T,>({
     handleClose();
   };
   const handleCreateButtonClick = () => {
+    setAttemptedSubmit(true);
     if (!allRequiredFilled && !optionalCreateButtonActive) {
       toast.error(t("Please fill all required fields"));
       return;
@@ -473,11 +478,15 @@ const GenericAddEditPanel = <T,>({
                   return null;
                 }
                 if (!input?.isDisabled) {
+                  const showError =
+                    attemptedSubmit &&
+                    input.required &&
+                    isValueEmpty(formElements[input.formKey]);
                   return (
                     <div
                       onClick={(e) => e.stopPropagation()}
                       key={input.formKey}
-                      className="flex flex-col gap-2"
+                      className="flex flex-col gap-1"
                     >
                       {input.type === InputTypes.DATE && (
                         <DateInput
@@ -725,6 +734,11 @@ const GenericAddEditPanel = <T,>({
                           </div>
                         </div>
                       )}
+                      {showError && (
+                        <span className="text-xs text-red-600">
+                          {t("This field is required")}
+                        </span>
+                      )}
                     </div>
                   );
                 }
@@ -766,6 +780,7 @@ const GenericAddEditPanel = <T,>({
                             ...preservedValues,
                           });
                           setResetTextInput((prev) => !prev);
+                          setAttemptedSubmit(false);
                         }
                         // triggerOnTriggerTabInput();
                       };

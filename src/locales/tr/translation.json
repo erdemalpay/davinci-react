@@ -403,6 +403,7 @@
   "Pending": "Hazırlanıyor",
   "Ready to Serve": "Servise Hazır",
   "Table": "Masa",
+  "Player": "Oyuncu",
   "All Ready": "Tümü Hazır",
   "Ready": "Hazır",
   "Preparing": "Hazırlanıyor",
@@ -877,5 +878,6 @@
   "DeleteTableMessage": "Bu masa ve içindeki oyunlar silinecek. Devam etmek istediğinizden emin misiniz?",
   "Mark all as read": "Tümünü okundu işaretle",
   "Select all": "Tümünü seç",
-  "Selected": "Seçildi"
+  "Selected": "Seçildi",
+  "This field is required": "Bu alan gereklidir"
 }

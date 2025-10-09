@@ -1,4 +1,6 @@
 import { FaRegClock } from "react-icons/fa6";
+import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { useLocationContext } from "../../context/Location.context";
 import { Kitchen, Order, OrderStatus } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
@@ -37,23 +39,23 @@ const SingleOrdersPage = ({ kitchen, orders }: Props) => {
         (order) => order.status === OrderStatus.PENDING
       ),
       icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
+      iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
     },
     {
       status: kitchen?.isConfirmationRequired ? "On the Way" : "Ready to Serve",
       orders: filteredOrders.filter(
         (order) => order.status === OrderStatus.READYTOSERVE
       ),
-      icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-blue-900 to-blue-500",
+      icon: <MdOutlineRestaurantMenu size={20} color="white" />,
+      iconBackgroundColor: "bg-gradient-to-b from-orange-500 to-yellow-300",
     },
     {
       status: "Served",
       orders: filteredOrders.filter(
         (order) => order.status === OrderStatus.SERVED
       ),
-      icon: <FaRegClock size={20} color="white" />,
-      iconBackgroundColor: "bg-gradient-to-b from-purple-900 to-purple-500",
+      icon: <IoMdCheckmarkCircleOutline size={20} color="white" />,
+      iconBackgroundColor: "bg-gradient-to-b from-green-700 to-green-400",
     },
   ];
   return (
