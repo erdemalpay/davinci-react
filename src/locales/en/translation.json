@@ -76,7 +76,6 @@
   "Enter phone number": "Enter phone number",
   "Address": "Address",
   "Enter address": "Enter address",
-  "Change Password": "Change Password",
   "To change your password please confirm here": "To change your password please confirm here",
   "Old Password": "Old Password",
   "Enter old password": "Enter old password",
@@ -550,7 +549,6 @@
   "Last Month to Today": "Last Month to Today",
   "Total Stock Value": "Total Stock Value",
   "Same day Last Month": "Same day Last Month",
-  "Not Paid": "Not Paid",
   "Created Table Count": "Created Table Count",
   "Created Gameplay Count": "Created Gameplay Count",
   "Product Consumption": "Product Consumption",
@@ -800,7 +798,6 @@
   "Add Order Note": "Add Order Note",
   "Delete Order Note": "Delete Order Note",
   "Items": "Items",
-  "Close Selection": "Close Selection",
   "Feedbacks": "Feedbacks",
   "Comment": "Comment",
   "Star Rating": "Star Rating",
@@ -837,5 +834,5 @@
   "Update Gameplay": "Update Gameplay",
   "Are you sure to delete this gameplay?": "Are you sure to delete this gameplay?",
   "Kovada Pilav Activity": "Kovada Pilav Activity",
-  "DeleteTableMessage": "This table and gameplays in it will be deleted. Are you sure to continue?"
+  "This field is required.": "This field is required."
 }
