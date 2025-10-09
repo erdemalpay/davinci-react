@@ -56,7 +56,6 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -135,7 +134,7 @@ const Invoice = () => {
       lctn: getItem(invoice?.location, locations)?.name,
       formattedDate: formatAsLocalDate(invoice?.date),
       untPrice: parseFloat(
-        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
+        (invoice?.totalExpense / invoice?.quantity).toFixed(2)
       ),
       expType: getItem(invoice?.expenseType, expenseTypes),
       brnd: getItem(invoice?.brand, brands),
@@ -571,28 +570,13 @@ const Invoice = () => {
     },
     {
       key: "untPrice",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>{row.untPrice} ₺</P1>
-          </div>
-        );
-      },
+      isParseFloat: true,
+      className: "min-w-32",
     },
     {
       key: "totalExpense",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>
-              {parseFloat(row.totalExpense)
-                .toFixed(4)
-                .replace(/\.?0*$/, "")}{" "}
-              ₺
-            </P1>
-          </div>
-        );
-      },
+      isParseFloat: true,
+      className: "min-w-32",
     },
   ];
   const addButton = {

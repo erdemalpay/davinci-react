@@ -499,6 +499,24 @@ const GenericTable = <T,>({
                 </td>
               );
             }
+            if (rowKey.isParseFloat) {
+              const formattedValue = parseFloat(
+                row[rowKey.key as keyof T] as string
+              )
+                .toFixed(2)
+                .replace(/\.?0*$/, "");
+              return (
+                <td
+                  key={keyIndex}
+                  className={`${keyIndex === 0 ? "pl-3" : ""} py-3 min-w-20 ${
+                    rowKey?.className
+                  }`}
+                >
+                  <P1>{formattedValue} ₺</P1>
+                </td>
+              );
+            }
+
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
               cellValue.length > tooltipLimit && isToolTipEnabled
@@ -674,8 +692,8 @@ const GenericTable = <T,>({
                             <td
                               className={`py-2 px-4  ${
                                 rowIndex !==
-                                  row?.collapsible?.collapsibleRows.length - 1 &&
-                                "border-b"
+                                  row?.collapsible?.collapsibleRows.length -
+                                    1 && "border-b"
                               }`}
                             >
                               {renderActionButtons(
