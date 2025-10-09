@@ -76,10 +76,10 @@ export function useGetUserAllNotifications({
   ]);
 }
 
-export function markAsRead(id: number) {
+export function markAsRead(ids: number[]) {
   return post({
     path: `${Paths.Notification}/mark-as-read`,
-    payload: { id },
+    payload: { ids },
   });
 }
 
@@ -89,20 +89,20 @@ export function useMarkAsReadMutation() {
   const queryClient = useQueryClient();
 
   return useMutation(
-    async (id: number) => {
+    async (ids: number[]) => {
       // Call API to mark notification as read
-      await markAsRead(id);
-      return id; // Return the id so `onSuccess` knows which notification was read
+      await markAsRead(ids);
+      return ids; // Return the id so `onSuccess` knows which notification was read
     },
     {
-      onMutate: async (id: number) => {
+      onMutate: async (ids: number[]) => {
         await queryClient.cancelQueries(queryKey); // Cancel outgoing queries
 
         // Get the current notifications from cache
         const previousNotifications =
           queryClient.getQueryData<Notification[]>(queryKey) || [];
 
-        if (id === -1) {
+        if (ids.includes(-1)) {
           // mark all as read
           queryClient.setQueryData<Notification[]>(queryKey, []);
           return { previousNotifications };
@@ -112,7 +112,7 @@ export function useMarkAsReadMutation() {
         queryClient.setQueryData<Notification[]>(
           queryKey,
           previousNotifications.filter(
-            (notification) => notification._id !== id
+            (notification) => !ids.includes(notification._id)
           )
         );
 

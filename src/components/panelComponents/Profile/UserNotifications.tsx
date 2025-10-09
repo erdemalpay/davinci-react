@@ -2,8 +2,18 @@ import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  MdCheckCircle,
+  MdError,
+  MdInfo,
+  MdShoppingCart,
+  MdWarning,
+} from "react-icons/md";
+import {
   DateRangeKey,
+  Notification,
   NotificationBackgroundColors,
+  NotificationColors,
+  NotificationEventColors,
   NotificationType,
   commonDateOptions,
   notificationEventsOptions,
@@ -13,12 +23,23 @@ import { useGetAllLocations } from "../../../utils/api/location";
 import { useGetUserAllNotifications } from "../../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
-import GenericTable from "../Tables/GenericTable";
 import SwitchButton from "../common/SwitchButton";
 import { InputTypes } from "../shared/types";
+import GenericTable from "../Tables/GenericTable";
+import CustomTooltip from "../Tables/Tooltip";
 
 type FormElementsState = {
-  [key: string]: any;
+  [key: string]: string;
+};
+
+const typeIconClass = "text-sm sm:text-base h-6 w-6";
+
+const typeIconMap: Record<NotificationType, JSX.Element> = {
+  [NotificationType.INFORMATION]: <MdInfo className={typeIconClass} />,
+  [NotificationType.WARNING]: <MdWarning className={typeIconClass} />,
+  [NotificationType.ERROR]: <MdError className={typeIconClass} />,
+  [NotificationType.SUCCESS]: <MdCheckCircle className={typeIconClass} />,
+  [NotificationType.ORDER]: <MdShoppingCart className={typeIconClass} />,
 };
 
 const UserNotifications = () => {
@@ -42,15 +63,15 @@ const UserNotifications = () => {
   const [showFilters, setShowFilters] = useState(false);
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
-  const allRows = notifications.map((notification) => {
-    return {
-      ...notification,
-      createdBy: getItem(notification?.createdBy, users)?.name ?? "",
-      formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
-      hour: format(new Date(notification.createdAt), "HH:mm"),
-    };
+  const mapNotificationToRow = (notification: Notification) => ({
+    ...notification,
+    createdBy: getItem(notification?.createdBy, users)?.name ?? "",
+    formattedDate: format(new Date(notification.createdAt), "dd-MM-yyyy"),
+    hour: format(new Date(notification.createdAt), "HH:mm"),
   });
-  const [rows, setRows] = useState(allRows);
+  type NotificationRow = ReturnType<typeof mapNotificationToRow>;
+  const allRows = notifications.map(mapNotificationToRow);
+  const [rows, setRows] = useState<NotificationRow[]>(allRows);
   const columns = [
     { key: t("Date"), isSortable: true },
     { key: t("Created At"), isSortable: true },
@@ -63,10 +84,10 @@ const UserNotifications = () => {
     { key: "hour" },
     {
       key: "message",
-      node: (row: any) => {
+      node: (row: NotificationRow) => {
         return (
           <p
-            className=" rounded-md text-sm ml-2 px-2 py-1 "
+            className="rounded-md text-sm ml-2 px-2 py-1 "
             style={{
               backgroundColor:
                 NotificationBackgroundColors[row.type as NotificationType] ||
@@ -80,12 +101,57 @@ const UserNotifications = () => {
     },
     {
       key: "type",
-      node: (row: any) => {
-        return t(row?.type);
+      node: (row: NotificationRow) => {
+        const type = row?.type as NotificationType | undefined;
+        const solidColor = type ? NotificationColors[type] : undefined;
+        const icon = type ? typeIconMap[type] : null;
+        const tooltipContent = (
+          <div className="flex flex-col gap-1  text-[11px] sm:text-xs">
+            <span className="font-semibold text-gray-800">
+              {t("Notification Type")}
+            </span>
+            <span className="text-gray-600">{type ? t(type) : "-"}</span>
+          </div>
+        );
+
+        return (
+          <CustomTooltip content={tooltipContent}>
+            <div
+              className="flex  h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-gray-200 shadow-sm"
+              style={{
+                backgroundColor: solidColor ? `${solidColor}15` : "#F1F5F9",
+                color: solidColor ?? "#0F172A",
+              }}
+            >
+              {icon ?? <MdInfo className={typeIconClass} />}
+            </div>
+          </CustomTooltip>
+        );
       },
     },
     {
       key: "event",
+      node: (row: NotificationRow) => {
+        if (!row?.event) {
+          return <span className="text-xs text-gray-400">-</span>;
+        }
+        const eventColors = NotificationEventColors[row.event] ?? null;
+        const fallbackColor =
+          NotificationColors[row.type as NotificationType] ?? "#64748B";
+        const badgeColor = eventColors?.solid ?? fallbackColor;
+
+        return (
+          <span
+            className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-xs font-semibold shadow-sm"
+            style={{
+              backgroundColor: badgeColor,
+              color: "#FFFFFF",
+            }}
+          >
+            {t(row.event)}
+          </span>
+        );
+      },
     },
   ];
   const filterPanelInputs = [
@@ -129,13 +195,7 @@ const UserNotifications = () => {
       }),
       placeholder: t("Date"),
       required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
+      additionalOnChange: ({ value }: { value: string; label: string }) => {
         const dateRange = dateRanges[value as DateRangeKey];
         if (dateRange) {
           setFilterPanelFormElements({
