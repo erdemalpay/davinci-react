@@ -142,7 +142,7 @@ const UserNotifications = () => {
 
         return (
           <span
-            className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-xs font-semibold shadow-sm"
+            className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold `}
             style={{
               backgroundColor: badgeColor,
               color: "#FFFFFF",
