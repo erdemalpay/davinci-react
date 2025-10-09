@@ -1,4 +1,5 @@
 import React from "react";
+import { GenericButton } from "./GenericButton";
 
 export function Pagination({
   page,
@@ -42,37 +43,47 @@ export function Pagination({
         </select>
 
         <div className="inline-flex items-center -space-x-px text-sm leading-tight">
-          <button
-            className="block py-2 px-3 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+          <GenericButton
+            className="rounded-l-lg rounded-r-none border border-gray-300"
+            variant="ghost"
+            size="sm"
             onClick={() => handleClick(page - 5)}
           >
             {"<<"}
-          </button>
-          <button
-            className="py-2 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800"
+          </GenericButton>
+          <GenericButton
+            className="rounded-none border-l-0 border border-gray-300"
+            variant="ghost"
+            size="sm"
             onClick={() => handleClick(page - 1)}
           >
             {page <= 1 ? "-" : page - 1}
-          </button>
-          <button
+          </GenericButton>
+          <GenericButton
             aria-current="page"
-            className="z-10 py-2 px-3 text-blue-600 bg-blue-50 border border-blue-300 hover:bg-blue-100 hover:text-blue-700"
+            className="z-10 rounded-none border-l-0 border border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+            variant="ghost"
+            size="sm"
             onClick={() => handleClick(page)}
           >
             {page}
-          </button>
-          <button
-            className="py-2 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+          </GenericButton>
+          <GenericButton
+            className="rounded-none border-l-0 border border-gray-300"
+            variant="ghost"
+            size="sm"
             onClick={() => handleClick(page + 1)}
           >
             {page === totalPages ? "-" : page + 1}
-          </button>
-          <button
-            className="block py-2 px-3 text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+          </GenericButton>
+          <GenericButton
+            className="rounded-r-lg rounded-l-none border-l-0 border border-gray-300"
+            variant="ghost"
+            size="sm"
             onClick={() => handleClick(page + 5)}
           >
             {">>"}
-          </button>
+          </GenericButton>
         </div>
       </span>
     </nav>

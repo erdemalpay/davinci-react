@@ -16,6 +16,7 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import { RoleEnum } from "../types";
+import { GenericButton } from "../components/common/GenericButton";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -160,8 +161,10 @@ const SingleCountArchive = () => {
     {
       isUpperSide: false,
       node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+        <GenericButton
+          className="ml-auto"
+          variant="primary"
+          size="sm"
           onClick={() => {
             if (archiveId) {
               updateAccountCount({
@@ -174,7 +177,7 @@ const SingleCountArchive = () => {
           }}
         >
           <H5> {t("Complete")}</H5>
-        </button>
+        </GenericButton>
       ),
     },
   ];
@@ -242,7 +245,8 @@ const SingleCountArchive = () => {
       icon: <LuCircleEqual />,
       node: (row: any) => (
         <ButtonTooltip content={t("Equalize")}>
-          <button
+          <GenericButton
+            variant="icon"
             onClick={() => {
               if (row?.isStockEqualized) {
                 toast.error(t("Stock is already equalized"));
@@ -257,7 +261,7 @@ const SingleCountArchive = () => {
             }}
           >
             <LuCircleEqual className=" w-6 h-6 mt-2" />
-          </button>
+          </GenericButton>
         </ButtonTooltip>
       ),
       className: "text-red-500 cursor-pointer text-2xl",

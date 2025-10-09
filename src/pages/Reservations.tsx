@@ -5,6 +5,7 @@ import { FaCheck, FaPhone } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { IoLockOpenOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
@@ -227,15 +228,17 @@ export default function Reservations() {
       node: (row: Reservation) =>
         !isCompleted(row) && !isCalled(row) ? (
           <ButtonTooltip content={t("Called")}>
-            <button
-              className="mt-2  min-w-6"
+            <GenericButton
+              variant="icon"
+              size="sm"
+              className="mt-2 min-w-6 text-blue-500"
               onClick={() => {
                 setSelectedReservation(row);
                 setIsReservationCalledDialogOpen(true);
               }}
             >
-              <FaPhone className="text-blue-500 cursor-pointer " />
-            </button>
+              <FaPhone className="cursor-pointer" />
+            </GenericButton>
           </ButtonTooltip>
         ) : null,
     },
@@ -248,8 +251,10 @@ export default function Reservations() {
       node: (row: Reservation) =>
         !isCompleted(row) ? (
           <ButtonTooltip content={t("Group has come")}>
-            <button
-              className="mt-2  min-w-6  "
+            <GenericButton
+              variant="icon"
+              size="sm"
+              className="mt-2 min-w-6 text-green-500"
               onClick={() => {
                 const now = new Date();
                 const hours = String(now.getHours()).padStart(2, "0");
@@ -264,8 +269,8 @@ export default function Reservations() {
                 setIsCreateTableDialogOpen(true);
               }}
             >
-              <FaCheck className="text-green-500 text-xl cursor-pointer" />
-            </button>
+              <FaCheck className="text-xl cursor-pointer" />
+            </GenericButton>
           </ButtonTooltip>
         ) : null,
     },
@@ -279,8 +284,10 @@ export default function Reservations() {
       node: (row: Reservation) =>
         isCompleted(row) ? (
           <ButtonTooltip content={t("Open back")}>
-            <button
-              className="mt-2   "
+            <GenericButton
+              variant="icon"
+              size="sm"
+              className="mt-2 text-green-500"
               onClick={() => {
                 updateReservation({
                   id: row._id,
@@ -288,8 +295,8 @@ export default function Reservations() {
                 });
               }}
             >
-              <IoLockOpenOutline className="text-green-500 text-xl cursor-pointer" />
-            </button>
+              <IoLockOpenOutline className="text-xl cursor-pointer" />
+            </GenericButton>
           </ButtonTooltip>
         ) : null,
     },
@@ -309,13 +316,13 @@ export default function Reservations() {
     {
       isUpperSide: true,
       node: (
-        <button
-          className={`px-2 sm:px-3 py-1 h-fit w-fit bg-blue-500 hover:text-blue-500 hover:border-blue-500
-           text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer`}
+        <GenericButton
+          variant="primary"
+          size="sm"
           onClick={() => navigate(Routes.Tables)}
         >
           <H5>{t("Show Tables")}</H5>
-        </button>
+        </GenericButton>
       ),
     },
   ];

@@ -8,6 +8,7 @@ import "react-day-picker/dist/style.css";
 import { FaRegCalendar } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward, IoIosClose } from "react-icons/io";
 import InputMask from "react-input-mask";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 dayjs.extend(customParseFormat);
 
@@ -165,15 +166,17 @@ export default function DateInput({
       <div className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2 w-full">
           {isArrowsEnabled && (
-            <button
+            <GenericButton
               type="button"
               aria-label="Previous day"
-              className="p-2 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+              variant="ghost"
+              size="sm"
+              className="p-2"
               onClick={() => bumpDay(-1)}
               disabled={disabled || isReadOnly}
             >
               <IoIosArrowBack size={20} />
-            </button>
+            </GenericButton>
           )}
 
           <div className="relative flex items-center gap-2 w-full">
@@ -217,25 +220,28 @@ export default function DateInput({
           </div>
 
           {isArrowsEnabled && (
-            <button
+            <GenericButton
               type="button"
               aria-label="Next day"
-              className="p-2 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+              variant="ghost"
+              size="sm"
+              className="p-2"
               onClick={() => bumpDay(1)}
               disabled={disabled || isReadOnly}
             >
               <IoIosArrowForward size={20} />
-            </button>
+            </GenericButton>
           )}
         </div>
 
         {isOnClearActive && inputText && (
-          <button
+          <GenericButton
             onClick={handleClear}
+            variant="icon"
             className="w-8 h-8 text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
-          </button>
+          </GenericButton>
         )}
       </div>
     </div>

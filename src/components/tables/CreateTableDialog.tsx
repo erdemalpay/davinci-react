@@ -8,6 +8,7 @@ import { useForm } from "../../hooks/useForm";
 import { Table } from "../../types";
 import { useTableMutations } from "../../utils/api/table";
 import TextInput from "../panelComponents/FormElements/TextInput";
+import { GenericButton } from "../common/GenericButton";
 
 export function CreateTableDialog({
   isOpen,
@@ -73,9 +74,9 @@ export function CreateTableDialog({
               <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-1/2 2xl:w-2/5">
                 <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-between">
                   <p className="text-base font-semibold">Create New Table</p>
-                  <button onClick={close} className="focus:outline-none">
+                  <GenericButton onClick={close} variant="icon">
                     <XMarkIcon className="h-6 w-6" />
-                  </button>
+                  </GenericButton>
                 </div>
                 <div className="px-4 md:px-10 md:pt-4 md:pb-4 pb-8">
                   <div className="flex flex-col gap-4">
@@ -122,26 +123,32 @@ export function CreateTableDialog({
                     />
                   </div>
                   <div className="flex items-center justify-end gap-2 mt-9">
-                    <button
+                    <GenericButton
                       onClick={close}
-                      className="px-6 py-3 bg-gray-400 hover:bg-gray-500 shadow rounded text-sm text-white"
+                      variant="secondary"
+                      size="md"
+                      className="shadow"
                     >
                       {t("Cancel")}
-                    </button>
-                    <button
+                    </GenericButton>
+                    <GenericButton
                       disabled={!data.name}
-                      className="px-6 py-3 bg-gray-800 hover:bg-opacity-80 shadow rounded text-sm text-white disabled:bg-gray-300"
+                      variant="black"
+                      size="md"
+                      className="shadow"
                       onClick={() => handleCreate(false)}
                     >
                       {t("Create Without Entry")}
-                    </button>
-                    <button
+                    </GenericButton>
+                    <GenericButton
                       disabled={!data.name}
-                      className="px-6 py-3 bg-gray-800 hover:bg-opacity-80 shadow rounded text-sm text-white disabled:bg-gray-300"
+                      variant="black"
+                      size="md"
+                      className="shadow"
                       onClick={() => handleCreate(true)}
                     >
                       {t("Create With Entry")}
-                    </button>
+                    </GenericButton>
                   </div>
                 </div>
               </div>
