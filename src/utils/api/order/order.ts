@@ -24,6 +24,7 @@ interface CreateOrderForDiscount {
   discountNote?: string;
 }
 interface CreateOrderForDivide {
+  tableId?: number;
   orders: {
     totalQuantity: number;
     selectedQuantity: number;
@@ -619,18 +620,65 @@ export function createOrderForDivide(payload: CreateOrderForDivide) {
   });
 }
 export function useCreateOrderForDivideMutation() {
-  const queryKey = [baseUrl];
   const queryClient = useQueryClient();
   return useMutation(createOrderForDivide, {
-    onMutate: async () => {
+    onMutate: async (payload) => {
+      if (!payload.tableId) {
+        return;
+      }
+      const queryKey = [`${Paths.Order}/table`, payload.tableId];
       await queryClient.cancelQueries(queryKey);
+      const previousTableOrders = queryClient.getQueryData<Order[]>(queryKey) || [];
+      const finalTableOrders: Order[] = [];
+
+      previousTableOrders.forEach((order) => {
+        const dividedOrder = payload.orders.find(
+          (o) => o.orderId === order._id
+        );
+
+        if (dividedOrder) {
+          const remainingQuantity =
+            dividedOrder.totalQuantity - dividedOrder.selectedQuantity;
+
+          // Seçilen kısım - id: 0
+          finalTableOrders.push({
+            ...order,
+            _id: 0,
+            quantity: dividedOrder.selectedQuantity,
+            paidQuantity: 0,
+          });
+
+          // Kalan kısım - orijinal ID
+          if (remainingQuantity > 0) {
+            finalTableOrders.push({
+              ...order,
+              quantity: remainingQuantity,
+            });
+          }
+        } else {
+          finalTableOrders.push(order);
+        }
+      });
+
+      queryClient.setQueryData<Order[]>(queryKey, finalTableOrders);
+
+      return { previousTableOrders, queryKey };
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+    onSettled: (_data, _error, _payload, context) => {
+      if (context?.queryKey) {
+        void queryClient.invalidateQueries(context.queryKey);
+      }
     },
-    onError: (_err: any) => {
+    onError: (_err: unknown, _payload, context) => {
+      if (context?.previousTableOrders && context?.queryKey) {
+        queryClient.setQueryData<Order[]>(
+          context.queryKey,
+          context.previousTableOrders
+        );
+      }
+
       const errorMessage =
-        _err?.response?.data?.message || "An unexpected error occurred";
+        (_err as any)?.response?.data?.message || "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });
