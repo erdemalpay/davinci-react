@@ -1,5 +1,6 @@
 import React from "react";
 import { IoIosClose } from "react-icons/io";
+import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, OptionType } from "../../../types";
 import { H6 } from "../Typography";
@@ -94,18 +95,20 @@ const TabInput: React.FC<TabInputProps> = ({
           suggestedOption.map((opt) =>
             options.some((o) => o.value === opt.value) &&
             value?.value !== opt.value ? (
-              <button
+              <GenericButton
                 key={opt.value}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleSelect(opt);
                 }}
-                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
+                variant="outline"
+                size="sm"
+                className="ml-2 text-xs sm:text-sm rounded-full"
                 title={`Use suggested: ${opt.label}`}
               >
                 {opt.label}
-              </button>
+              </GenericButton>
             ) : null
           )}
       </H6>
@@ -118,28 +121,30 @@ const TabInput: React.FC<TabInputProps> = ({
           >
             <span className="flex-1 text-gray-800">{value.label}</span>
             {!isReadOnly && onClear && (
-              <button
+              <GenericButton
                 onClick={(e) => {
                   e.stopPropagation();
                   onClear();
                 }}
+                variant="icon"
                 className="text-xl text-gray-500 hover:text-red-600"
               >
                 <IoIosClose />
-              </button>
+              </GenericButton>
             )}
           </div>
         ) : (
-          <button
+          <GenericButton
             onClick={openTabScreen}
+            variant="ghost"
             className={`
-              flex items-center w-full border border-gray-300 rounded px-3 py-2 
+              flex items-center w-full border border-gray-300 rounded px-3 py-2
               text-gray-400 hover:border-gray-400
               ${isReadOnly ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             {placeholder || "Select..."}
-          </button>
+          </GenericButton>
         )}
       </div>
     </div>

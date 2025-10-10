@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
@@ -82,8 +83,10 @@ const SingleCheckArchive = () => {
     {
       isUpperSide: false,
       node: (
-        <button
-          className="px-2 ml-auto bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+        <GenericButton
+          className="ml-auto"
+          variant="primary"
+          size="sm"
           onClick={() => {
             if (archiveId) {
               updateCheck({
@@ -96,7 +99,7 @@ const SingleCheckArchive = () => {
           }}
         >
           <H5> {t("Complete")}</H5>
-        </button>
+        </GenericButton>
       ),
     },
   ];

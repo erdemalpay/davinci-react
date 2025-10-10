@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { GenericButton } from "../common/GenericButton";
 import { Reservation, ReservationStatusEnum } from "../../types/index";
 
 export function ReservationCallDialog({
@@ -41,26 +42,30 @@ export function ReservationCallDialog({
                 <div className="p-4 text-center">
                   You called {reservation?.name} ({reservation?.phone}).
                   <div className="flex items-center justify-between mt-9">
-                    <button
+                    <GenericButton
                       onClick={() => handle(ReservationStatusEnum.NOT_COMING)}
-                      className="px-6 py-3 bg-red-500 hover:bg-opacity-80 shadow rounded text-sm text-white"
+                      variant="danger"
+                      size="sm"
                     >
                       Not coming
-                    </button>
-                    <button
+                    </GenericButton>
+                    <GenericButton
                       onClick={() =>
                         handle(ReservationStatusEnum.NOT_RESPONDED)
                       }
-                      className="px-6 py-3 bg-gray-500 hover:bg-opacity-80 shadow rounded text-sm text-white"
+                      variant="secondary"
+                      size="sm"
                     >
                       Not responded
-                    </button>
-                    <button
-                      className="px-6 py-3 bg-green-500 hover:bg-opacity-80 shadow rounded text-sm text-white"
+                    </GenericButton>
+                    <GenericButton
                       onClick={() => handle(ReservationStatusEnum.COMING)}
+                      variant="primary"
+                      size="sm"
+                      className="bg-green-500 hover:bg-green-600"
                     >
                       Coming
-                    </button>
+                    </GenericButton>
                   </div>
                 </div>
               </div>

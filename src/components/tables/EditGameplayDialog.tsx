@@ -11,6 +11,7 @@ import {
 } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { GenericButton } from "../common/GenericButton";
 import { TimeInputWithLabel } from "../common/TimeInputWithLabel";
 
 export function EditGameplayDialog({
@@ -107,15 +108,15 @@ export function EditGameplayDialog({
                 <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-between">
                   <p className="text-base font-semibold">{t("Update Gameplay")}</p>
                   <div className="flex flex-row justify-end gap-4">
-                    <button
+                    <GenericButton
                       onClick={() => setIsConfirmationDialogOpen(true)}
-                      className="focus:outline-none "
+                      variant="icon"
                     >
                       <TrashIcon className="h-6 w-6" />
-                    </button>
-                    <button onClick={close} className="focus:outline-none">
+                    </GenericButton>
+                    <GenericButton onClick={close} variant="icon">
                       <XMarkIcon className="h-6 w-6" />
-                    </button>
+                    </GenericButton>
                   </div>
                 </div>
                 <div className="px-4 md:px-10 md:pt-4 md:pb-4 pb-8">

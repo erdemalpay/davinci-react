@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineMenu } from "react-icons/md";
+import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
 import { P1 } from "../Typography";
@@ -53,9 +54,9 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
     <div className="flex flex-col border rounded-lg border-gray-200 bg-white w-full mx-auto">
       {/* Small Screen Top Bar */}
       <div className="md:hidden flex items-center p-4 border-b sticky top-16 ">
-        <button onClick={() => setIsMenuOpen(true)}>
+        <GenericButton onClick={() => setIsMenuOpen(true)} variant="icon">
           <MdOutlineMenu size={24} />
-        </button>
+        </GenericButton>
         <div className="ml-4">
           <P1 className="text-blue-500">
             {t(
@@ -102,10 +103,10 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
       {isMenuOpen && (
         <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
           <div className="p-4 border-b flex items-center">
-            <button onClick={() => setIsMenuOpen(false)}>
+            <GenericButton onClick={() => setIsMenuOpen(false)} variant="icon">
               {/* Reusing the menu icon as a close button; you can swap it for a dedicated close icon if preferred */}
               <MdOutlineMenu size={24} />
-            </button>
+            </GenericButton>
             <div className="ml-4">
               <P1 className="font-bold">
                 {t(

@@ -7,6 +7,7 @@ import { useForm } from "../../hooks/useForm";
 import { Game, Gameplay, Table, User } from "../../types";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
 import { Autocomplete } from "../common/Autocomplete";
+import { GenericButton } from "../common/GenericButton";
 
 export function CreateGameplayDialog({
   isOpen,
@@ -70,9 +71,9 @@ export function CreateGameplayDialog({
               <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-1/2 2xl:w-2/5">
                 <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-between">
                   <p className="text-base font-semibold">{t("Create Gameplay")}</p>
-                  <button onClick={close} className="focus:outline-none">
+                  <GenericButton onClick={close} variant="icon">
                     <XMarkIcon className="h-6 w-6" />
-                  </button>
+                  </GenericButton>
                 </div>
                 <div className="px-4 lg:px-10 flex flex-col mt-4 gap-2">
                   <Input
@@ -126,19 +127,21 @@ export function CreateGameplayDialog({
                     />
                   </div>
                   <div className="flex items-center justify-between my-4">
-                    <button
+                    <GenericButton
                       onClick={close}
-                      className="px-6 py-3 bg-gray-400 hover:bg-gray-500 shadow rounded text-sm text-white"
+                      variant="secondary"
+                      size="sm"
                     >
                       {t("Cancel")}
-                    </button>
-                    <button
-                      className="px-6 py-3 bg-gray-800 hover:bg-opacity-80 shadow rounded text-sm text-white disabled:bg-gray-300"
+                    </GenericButton>
+                    <GenericButton
                       onClick={handleCreate}
                       disabled={!(data.mentor && data.game)}
+                      variant="black"
+                      size="sm"
                     >
                       {t("Create")}
-                    </button>
+                    </GenericButton>
                   </div>
                 </div>
               </div>
