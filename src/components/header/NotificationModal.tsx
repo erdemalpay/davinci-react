@@ -138,6 +138,10 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       <div
         key={notification._id}
         className="group relative grid grid-cols-[auto,1fr] sm:grid-cols-[auto,1fr,auto] gap-3 rounded-xl px-4 py-3 transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer bg-white border border-gray-200 hover:border-gray-300"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleSelection(notification._id);
+        }}
       >
         <div
           className="flex items-center justify-center w-11
@@ -154,7 +158,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
         <div className="flex flex-col gap-2 justify-center">
           {notification.event && (
             <div
-              className="inline-flex items-center self-start px-2 py-0.5 rounded font-medium text-[11px] sm:text-xs"
+              className="inline-flex  items-center self-start px-2 py-0.5 rounded font-medium text-[11px] sm:text-xs"
               style={{
                 backgroundColor: solidColor,
                 color: "white",
@@ -187,19 +191,11 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
           {selectedIds.includes(notification._id) ||
           selectedIds.includes(-1) ? (
             <MdCheckBox
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSelection(notification._id);
-              }}
               className="text-blue-500 text-xl cursor-pointer hover:scale-110 transition-all"
               title={t("Unselect")}
             />
           ) : (
             <MdOutlineCheckBoxOutlineBlank
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSelection(notification._id);
-              }}
               className="text-gray-400 hover:text-blue-500 text-xl cursor-pointer hover:scale-110 transition-all"
               title={t("Select")}
             />
