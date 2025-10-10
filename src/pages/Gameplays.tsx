@@ -3,6 +3,7 @@ import { Input } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Autocomplete } from "../components/common/Autocomplete";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import { Caption, H5 } from "../components/panelComponents/Typography";
@@ -388,18 +389,18 @@ export default function NewGameplays() {
               {totalItems}
             </Caption>
             <div className="flex flex-row gap-4">
-              <button
+              <GenericButton
                 onClick={() => handlePageChange(-1)}
-                className="cursor-pointer"
+                variant="ghost"
               >
                 {"<"}
-              </button>
-              <button
+              </GenericButton>
+              <GenericButton
                 onClick={() => handlePageChange(1)}
-                className="cursor-pointer"
+                variant="ghost"
               >
                 {">"}
-              </button>
+              </GenericButton>
             </div>
           </div>
         </div>

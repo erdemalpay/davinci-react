@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { GenericButton } from "../../common/GenericButton";
 import { useUserContext } from "../../../context/User.context";
 import { useUpdatePasswordMutation } from "../../../utils/api/user";
 import ItemContainer from "../common/ItemContainer";
@@ -65,12 +66,14 @@ const ChangePassword = () => {
         />
       </div>
       {/* button */}
-      <button
-        className="w-fit bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md ml-auto"
+      <GenericButton
+        className="ml-auto"
+        variant="primary"
+        size="sm"
         onClick={resetPassword}
       >
         {t("Change")}
-      </button>
+      </GenericButton>
     </ItemContainer>
   );
 };

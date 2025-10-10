@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GenericButton } from "../../common/GenericButton";
 import { User } from "../../../types";
 import { useUserMutations } from "../../../utils/api/user";
 import ItemContainer from "../common/ItemContainer";
@@ -71,12 +72,14 @@ const PersonalDetails = ({ isEditable, user }: Props) => {
         />
       </div>
       {isEditable && (
-        <button
-          className="w-fit bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md ml-auto"
+        <GenericButton
+          className="ml-auto"
+          variant="primary"
+          size="sm"
           onClick={handleSave}
         >
           {t("Save")}
-        </button>
+        </GenericButton>
       )}
     </ItemContainer>
   );

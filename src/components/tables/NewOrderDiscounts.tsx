@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GenericButton } from "../common/GenericButton";
 import { useOrderContext } from "../../context/Order.context";
 import { OrderDiscount, OrderDiscountStatus, TURKISHLIRA } from "../../types";
 import { useGetPopularDiscounts } from "../../utils/api/order/order";
@@ -75,16 +76,17 @@ const NewOrderDiscounts = () => {
       </div>
 
       <div className="flex flex-row items-center ml-auto gap-2 mt-2 ">
-        <button
+        <GenericButton
           onClick={() => {
             setShowAllDiscounts(!showAllDiscounts);
           }}
-          className={`inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer  w-fit`}
+          variant="primary"
+          size="sm"
         >
           {showAllDiscounts
             ? t("Show Popular Discounts")
             : t("Show All Discounts")}
-        </button>
+        </GenericButton>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { HiOutlineTrash } from "react-icons/hi";
 import { IoCopyOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
 import SearchInput from "../components/panelComponents/common/SearchInput";
@@ -68,23 +69,25 @@ function SingleFolderPage() {
                 <div className="flex flex-row gap-1 ">
                   <p>{image.publicId}</p>
                   {/* buttons */}
-                  <button
-                    className="text-2xl cursor-pointer  text-gray-500 hover:text-gray-800  transform transition duration-300 hover:scale-105 "
+                  <GenericButton
+                    variant="icon"
+                    className="text-2xl cursor-pointer  text-gray-500 hover:text-gray-800  transform transition duration-300 hover:scale-105"
                     onClick={() => {
                       navigator.clipboard.writeText(image.publicId);
                       toast.success(t("Image ID copied to clipboard"));
                     }}
                   >
                     <IoCopyOutline />
-                  </button>
-                  <button
-                    className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105 "
+                  </GenericButton>
+                  <GenericButton
+                    variant="icon"
+                    className="text-2xl cursor-pointer  text-red-500 hover:text-red-800  transform transition duration-300 hover:scale-105"
                     onClick={() => {
                       deleteImage(image.url);
                     }}
                   >
                     <HiOutlineTrash />
-                  </button>
+                  </GenericButton>
                 </div>
               </div>
             ))}
