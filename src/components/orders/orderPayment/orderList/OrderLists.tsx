@@ -188,6 +188,7 @@ const OrderLists = ({
         }
         if (isProductDivideOpen) {
           createOrderForDivide({
+            tableId: table._id,
             orders: selectedOrders.map((selectedOrder) => {
               return {
                 totalQuantity: selectedOrder.totalQuantity,
