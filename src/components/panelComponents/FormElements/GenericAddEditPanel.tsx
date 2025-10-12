@@ -363,17 +363,16 @@ const GenericAddEditPanel = <T,>({
           anotherPanelTopClassName
             ? ""
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
-        }   max-h-[90vh]   ${generalClassName}`}
+        }   max-h-[90vh]   ${generalClassName} `}
       >
-        {upperMessage?.length && upperMessage?.length > 0 && (
-          <div className="flex flex-col px-4 py-2 border-b space-y-1">
-            {upperMessage.map((msg, index) => (
-              <H6 key={index}>{msg}</H6>
-            ))}
-          </div>
-        )}
-
         <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between  h-full">
+          {upperMessage?.length && upperMessage?.length > 0 && (
+            <div className="flex flex-col px-4 py-2 border-b space-y-1">
+              {upperMessage.map((msg, index) => (
+                <H6 key={index}>{msg}</H6>
+              ))}
+            </div>
+          )}
           <div
             className={`${
               topClassName
