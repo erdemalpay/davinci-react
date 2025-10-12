@@ -490,6 +490,7 @@ export function useGetOrders(category?: number[]) {
       filterPanelFormElements.status,
       filterPanelFormElements.category,
       filterPanelFormElements.location,
+      category,
     ],
     true
   );
@@ -628,7 +629,8 @@ export function useCreateOrderForDivideMutation() {
       }
       const queryKey = [`${Paths.Order}/table`, payload.tableId];
       await queryClient.cancelQueries(queryKey);
-      const previousTableOrders = queryClient.getQueryData<Order[]>(queryKey) || [];
+      const previousTableOrders =
+        queryClient.getQueryData<Order[]>(queryKey) || [];
       const finalTableOrders: Order[] = [];
 
       previousTableOrders.forEach((order) => {
@@ -678,7 +680,8 @@ export function useCreateOrderForDivideMutation() {
       }
 
       const errorMessage =
-        (_err as any)?.response?.data?.message || "An unexpected error occurred";
+        (_err as any)?.response?.data?.message ||
+        "An unexpected error occurred";
       setTimeout(() => toast.error(errorMessage), 200);
     },
   });

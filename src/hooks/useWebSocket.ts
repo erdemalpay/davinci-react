@@ -104,6 +104,12 @@ export function useWebSocket() {
         order?.status !== OrderStatus.CANCELLED &&
         (order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
       ) {
+        if (
+          (order?.kitchen as any)?.selectedRoles?.length > 0 &&
+          !(order?.kitchen as any)?.selectedRoles?.includes(user?.role?._id)
+        ) {
+          return;
+        }
         if (audioReadyRef && audioRef.current) {
           audioRef.current
             .play()
@@ -169,6 +175,12 @@ export function useWebSocket() {
         data?.soundRoles?.includes(user?.role?._id) &&
         data.location === selectedLocationId
       ) {
+        if (
+          data?.selectedRoles?.length > 0 &&
+          !data?.selectedRoles?.includes(user?.role?._id)
+        ) {
+          return;
+        }
         if (audioReadyRef && audioRef.current) {
           audioRef.current
             .play()

@@ -387,6 +387,7 @@ export type MenuCategory = {
   kitchen: string;
   isAutoServed: boolean;
   isOnlineOrder?: boolean;
+  isKitchenMenu?: boolean;
   discounts?: number[];
   active: boolean;
   orderCategoryOrder: number;
@@ -946,8 +947,6 @@ export enum OrderDataTabEnum {
   COLLECTIONS,
   ORDERS,
   IKASORDERS,
-  FARMBURGER,
-  KOVADAPILAV,
   PERSONALORDERDATAS,
 }
 export enum StockHistoryStatusEnum {

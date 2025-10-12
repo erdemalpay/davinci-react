@@ -93,15 +93,17 @@ const PagePermissions = () => {
         continue;
       }
       const currentPage = pages.find((page) => page.name === route.name);
+      const routeTabs =
+        typeof route.tabs === "function" ? route.tabs() : route.tabs;
       const isAllTabsSame =
-        route?.tabs?.every((tab) => {
+        routeTabs?.every((tab) => {
           return currentPage?.tabs?.find((t) => t.name === tab.label);
         }) ?? true;
       if (!currentPage || !isAllTabsSame) {
         missedRoutes.push({
           name: route.name,
           permissionRoles: currentPage?.permissionRoles ?? [1],
-          tabs: route?.tabs?.map((tab) => {
+          tabs: routeTabs?.map((tab) => {
             return {
               name: tab.label,
               permissionRoles: currentPage?.tabs?.find(

@@ -8,7 +8,6 @@ import { useGeneralContext } from "../../../context/General.context";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import {
-  FARMBURGERCATEGORYID,
   MenuItem,
   OptionType,
   OrderCollectionStatus,
@@ -143,6 +142,20 @@ const OrderPaymentModal = ({
     activityTableName: "",
     activityPlayer: "",
   };
+  const inactiveCategories = useMemo(() => {
+    return categories?.filter((category) => !category.active) || [];
+  }, [categories]);
+  const inactiveCategoriesWithKitchens = useMemo(() => {
+    return (
+      inactiveCategories?.filter(
+        (category) =>
+          category.kitchen && kitchens.some((k) => k._id === category.kitchen)
+      ) || []
+    );
+  }, [inactiveCategories, kitchens]);
+  const inactiveCategoriesIds = useMemo(() => {
+    return inactiveCategories.map((c) => c._id);
+  }, [inactiveCategories]);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
   const [isCloseConfirmationDialogOpen, setIsCloseConfirmationDialogOpen] =
@@ -161,10 +174,6 @@ const OrderPaymentModal = ({
       selectedActivityUser === "" ||
       order.activityPlayer === selectedActivityUser
   );
-  const farmCategoryActivity = getItem(
-    FARMBURGERCATEGORYID,
-    categories
-  )?.active;
   const collectionsTotalAmount = Number(
     collections
       ?.filter(
@@ -326,10 +335,7 @@ const OrderPaymentModal = ({
       );
     })
     ?.filter((item) => {
-      if (!farmCategoryActivity) {
-        return item?.category !== FARMBURGERCATEGORYID;
-      }
-      return true;
+      return !inactiveCategoriesIds.includes(item.category);
     })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.filter((menuItem) =>
@@ -411,10 +417,7 @@ const OrderPaymentModal = ({
             return menuItem.category === value;
           })
           ?.filter((item) => {
-            if (!farmCategoryActivity) {
-              return item?.category !== FARMBURGERCATEGORYID;
-            }
-            return true;
+            return !inactiveCategoriesIds.includes(item.category);
           })
           ?.filter((menuItem) =>
             menuItem?.locations?.includes(selectedLocationId)
@@ -710,8 +713,14 @@ const OrderPaymentModal = ({
           setSelectedNewOrders([]);
         }}
         inputs={orderInputs}
-        {...(!farmCategoryActivity
-          ? { upperMessage: t("Farm Category is not active") }
+        {...(inactiveCategoriesWithKitchens?.length > 0
+          ? {
+              upperMessage: inactiveCategoriesWithKitchens.map((category) =>
+                t("{{categoryName}} is not active", {
+                  categoryName: category.name,
+                })
+              ),
+            }
           : {})}
         formKeys={orderFormKeys}
         onOpenTriggerTabInputFormKey={

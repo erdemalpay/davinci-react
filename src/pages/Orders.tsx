@@ -5,8 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { CheckSwitch } from "../components/common/CheckSwitch";
 import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
-import FarmMenu from "../components/menu/FarmMenu";
-import KovadaPilavMenu from "../components/menu/KovadaPilavMenu";
+import KitchenMenuPage from "../components/menu/KitchenMenuPage";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { useGeneralContext } from "../context/General.context";
@@ -87,20 +86,20 @@ function Orders() {
         isDisabled: false,
         kitchen: kitchen,
       })) ?? []),
-      {
-        number: kitchens?.length ?? 0,
-        label: "Farm Menu",
-        content: <FarmMenu />,
-        isDisabled: false,
-        kitchen: null,
-      },
-      {
-        number: (kitchens?.length ?? 0) + 1,
-        label: "Kovada Pilav Menu",
-        content: <KovadaPilavMenu />,
-        isDisabled: false,
-        kitchen: null,
-      },
+      ...(categories ?? [])
+        .filter((cat) => cat?.isKitchenMenu)
+        .map((category, index) => ({
+          number: (kitchens?.length ?? 0) + index,
+          label: category.name + " " + "Menu",
+          content: (
+            <KitchenMenuPage
+              categoryId={category._id}
+              categoryName={category.name}
+            />
+          ),
+          isDisabled: false,
+          kitchen: null,
+        })),
     ];
     const filteredTabs = orderTabs
       ?.filter((tab) =>
