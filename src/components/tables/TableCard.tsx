@@ -32,7 +32,7 @@ import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMemberships } from "../../utils/api/membership";
-import { useGetCategories } from "../../utils/api/menu/category";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
@@ -97,7 +97,7 @@ export function TableCard({
   if (table?._id) {
     tableOrders = useGetTableOrders(table?._id);
   }
-  const categories = useGetCategories();
+  const categories = useGetAllCategories();
   const kitchens = useGetKitchens();
   const orderNotes = useGetOrderNotes();
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
@@ -121,7 +121,13 @@ export function TableCard({
     return (
       inactiveCategories?.filter(
         (category) =>
-          category.kitchen && kitchens.some((k) => k._id === category.kitchen)
+          category.kitchen &&
+          kitchens.some(
+            (k) =>
+              k._id === category.kitchen &&
+              k?.selectedUsers &&
+              k?.selectedUsers?.length > 0
+          )
       ) || []
     );
   }, [inactiveCategories, kitchens]);
@@ -779,7 +785,6 @@ export function TableCard({
       stockLocation: selectedLocationId,
     });
   }, [selectedLocationId]);
-
   return (
     <div className="bg-white rounded-md shadow sm:h-auto break-inside-avoid mb-4 group __className_a182b8">
       <div
