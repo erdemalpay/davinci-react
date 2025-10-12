@@ -27,7 +27,6 @@ import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
 import {
-  FARMBURGERCATEGORYID,
   Game,
   MenuItem,
   Order,
@@ -90,8 +89,7 @@ const Tables = () => {
   const [showServedOrders, setShowServedOrders] = useState(true);
   const todayOrders = useGetTodayOrders();
   const { selectedLocationId } = useLocationContext();
-  const { setIsTabInputScreenOpen, setTabInputScreenOptions } =
-    useGeneralContext();
+  const { setIsTabInputScreenOpen } = useGeneralContext();
   const { mutate: consumptStock } = useConsumptStockMutation();
   const { createTable } = useTableMutations();
   const locations = useGetStoreLocations();
@@ -104,10 +102,20 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
-  const farmCategoryActivity = getItem(
-    FARMBURGERCATEGORYID,
-    categories
-  )?.active;
+  const inactiveCategories = useMemo(() => {
+    return categories?.filter((category) => !category.active) || [];
+  }, [categories]);
+  const inactiveCategoriesIds = useMemo(() => {
+    return inactiveCategories.map((c) => c._id);
+  }, [inactiveCategories]);
+  const inactiveCategoriesWithKitchens = useMemo(() => {
+    return (
+      inactiveCategories?.filter(
+        (category) =>
+          category.kitchen && kitchens.some((k) => k._id === category.kitchen)
+      ) || []
+    );
+  }, [inactiveCategories, kitchens]);
   const {
     orderCreateBulk,
     setOrderCreateBulk,
@@ -206,10 +214,7 @@ const Tables = () => {
       );
     })
     ?.filter((item) => {
-      if (!farmCategoryActivity) {
-        return item?.category !== FARMBURGERCATEGORYID;
-      }
-      return true;
+      return !inactiveCategoriesIds.includes(item.category);
     })
     ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
     ?.map((menuItem) => {
@@ -263,10 +268,7 @@ const Tables = () => {
             return menuItem.category === value;
           })
           ?.filter((item) => {
-            if (!farmCategoryActivity) {
-              return item?.category !== FARMBURGERCATEGORYID;
-            }
-            return true;
+            return !inactiveCategoriesIds.includes(item.category);
           })
           ?.filter((menuItem) =>
             menuItem?.locations?.includes(selectedLocationId)
@@ -415,10 +417,7 @@ const Tables = () => {
             return menuItem.category === value;
           })
           ?.filter((item) => {
-            if (!farmCategoryActivity) {
-              return item?.category !== FARMBURGERCATEGORYID;
-            }
-            return true;
+            return !inactiveCategoriesIds.includes(item.category);
           })
           ?.filter((menuItem) =>
             menuItem?.locations?.includes(selectedLocationId)
@@ -681,15 +680,14 @@ const Tables = () => {
   const totalTableCount =
     getItem(selectedLocationId, locations)?.tableCount ?? 0;
 
-  const activeCustomerCount = activeTables?.reduce(
-    (prev: number, curr: Table) => {
+  const activeCustomerCount =
+    activeTables?.reduce((prev: number, curr: Table) => {
       return Number(prev) + Number(curr.playerCount || 0);
-    },
-    0
-  ) || 0;
-  const totalCustomerCount = tables?.reduce((prev: number, curr: Table) => {
-    return Number(prev) + Number(curr.playerCount || 0);
-  }, 0) || 0;
+    }, 0) || 0;
+  const totalCustomerCount =
+    tables?.reduce((prev: number, curr: Table) => {
+      return Number(prev) + Number(curr.playerCount || 0);
+    }, 0) || 0;
   const tableColumns: Table[][] = [[], [], [], []];
   (showAllTables ? tables : activeTables)?.forEach((table, index) => {
     tableColumns[index % 4].push(table);
@@ -1396,8 +1394,14 @@ const Tables = () => {
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
-          {...(!farmCategoryActivity
-            ? { upperMessage: t("Farm Category is not active") }
+          {...(inactiveCategoriesWithKitchens?.length > 0
+            ? {
+                upperMessage: inactiveCategoriesWithKitchens.map((category) =>
+                  t("{{categoryName}} is not active", {
+                    categoryName: category.name,
+                  })
+                ),
+              }
             : {})}
           inputs={orderInputsForTakeAway}
           formKeys={orderFormKeysForTakeAway}

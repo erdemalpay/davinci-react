@@ -12,7 +12,7 @@ import {
   useKitchenMutations,
 } from "../../utils/api/menu/kitchen";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
-import { useGetAllUserRoles } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -25,6 +25,7 @@ const KitchenPage = () => {
   const { t } = useTranslation();
   const kitchens = useGetKitchens();
   const { user } = useUserContext();
+  const users = useGetUsers();
   const [tableKey, setTableKey] = useState(0);
   const locations = useGetStoreLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -72,6 +73,7 @@ const KitchenPage = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Confirmation Required"), isSortable: true },
+    { key: t("Selected Users"), isSortable: true },
   ];
 
   const rowKeys = [
@@ -87,6 +89,16 @@ const KitchenPage = () => {
         ) : (
           <IoCloseOutline className={`text-red-800 text-2xl   `} />
         ),
+    },
+    {
+      key: "selectedUsers",
+      node: (row: any) => {
+        const selectedUserNames = users
+          ?.filter((user) => row?.selectedUsers?.includes(user._id))
+          .map((user) => user.name)
+          .join(", ");
+        return <span className="whitespace-normal">{selectedUserNames}</span>;
+      },
     },
   ];
 
@@ -152,10 +164,23 @@ const KitchenPage = () => {
       required: false,
       isTopFlexRow: true,
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "selectedUsers",
+      label: t("Selected Users"),
+      options: users?.map((user) => ({
+        value: user._id,
+        label: user.name,
+      })),
+      placeholder: t("Selected Users"),
+      isMultiple: true,
+      required: false,
+    },
   ];
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "isConfirmationRequired", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "selectedUsers", type: FormKeyTypeEnum.STRING },
   ];
 
   const addButton = {
@@ -259,7 +284,15 @@ const KitchenPage = () => {
   ];
   useEffect(
     () => setTableKey((prev) => prev + 1),
-    [kitchens, locations, pages, isLocationEdit, isEnableSoundRole, roles]
+    [
+      kitchens,
+      locations,
+      pages,
+      isLocationEdit,
+      isEnableSoundRole,
+      roles,
+      users,
+    ]
   );
 
   return (

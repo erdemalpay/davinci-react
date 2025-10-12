@@ -1,8 +1,6 @@
 import { BiCategory } from "react-icons/bi";
 import { BsClipboard2Data } from "react-icons/bs";
-import { FaBowlRice } from "react-icons/fa6";
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import { PiHamburgerBold } from "react-icons/pi";
 import { SiFampay } from "react-icons/si";
 import {
   TbCategoryPlus,
@@ -16,10 +14,9 @@ import CategoryBasedSalesReport from "../components/orderDatas/CategoryBasedSale
 import Collections from "../components/orderDatas/Collections";
 import DailyIncome from "../components/orderDatas/DailyIncome";
 import DiscountBasedSales from "../components/orderDatas/DiscountBasedSales";
-import FarmBurgerData from "../components/orderDatas/FarmBurgerData";
 import GroupedProductSalesReport from "../components/orderDatas/GroupedProductSalesReport";
 import IkasOrders from "../components/orderDatas/IkasOrders";
-import KovadaPilavData from "../components/orderDatas/KovadaPilavData";
+import KitchenDataPage from "../components/orderDatas/KitchenDataPage";
 import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
@@ -29,94 +26,100 @@ import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
+import { useGetCategories } from "../utils/api/menu/category";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
-export const OrderDataTabs = [
-  {
-    number: OrderDataTabEnum.DAILYINCOME,
-    label: "Daily Income",
-    icon: <TbReportMoney className="text-lg font-thin" />,
-    content: <DailyIncome />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
-    label: "Product Sales",
-    icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
-    content: <GroupedProductSalesReport />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
-    label: "Product Based Sales",
-    icon: <TbReportSearch className="text-lg font-thin" />,
-    content: <SingleProductSalesReport />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.UPPERCATEGORYBASEDSALESREPORT,
-    label: "Upper Category Based Sales",
-    icon: <TbCategoryPlus className="text-lg font-thin" />,
-    content: <UpperCategoryBasedSalesReport />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
-    label: "Category Based Sales",
-    icon: <BiCategory className="text-lg font-thin" />,
-    content: <CategoryBasedSalesReport />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.DISCOUNTBASEDSALES,
-    label: "Discount Based Sales",
-    icon: <TbDiscount className="text-lg font-thin" />,
-    content: <DiscountBasedSales />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.COLLECTIONS,
-    label: "Collections",
-    icon: <SiFampay className="text-lg font-thin" />,
-    content: <Collections />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.ORDERS,
-    label: "Cafe Orders",
-    icon: <TbReportAnalytics className="text-lg font-thin" />,
-    content: <OrdersReport />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.IKASORDERS,
-    label: "Ikas Orders",
-    icon: <TbReportAnalytics className="text-lg font-thin" />,
-    content: <IkasOrders />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.FARMBURGER,
-    label: "Farm Burger",
-    icon: <PiHamburgerBold className="text-lg font-thin" />,
-    content: <FarmBurgerData />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.KOVADAPILAV,
-    label: "Kovada Pilav",
-    icon: <FaBowlRice className="text-lg font-thin" />,
-    content: <KovadaPilavData />,
-    isDisabled: false,
-  },
-  {
-    number: OrderDataTabEnum.PERSONALORDERDATAS,
-    label: "Personal Order Datas",
-    icon: <BsClipboard2Data className="text-lg font-thin" />,
-    content: <PersonalOrderDatas />,
-    isDisabled: false,
-  },
-];
+export const OrderDataTabs = () => {
+  const categories = useGetCategories();
+  const enumTabCount = Object.keys(OrderDataTabEnum).length / 2;
+  return [
+    {
+      number: OrderDataTabEnum.DAILYINCOME,
+      label: "Daily Income",
+      icon: <TbReportMoney className="text-lg font-thin" />,
+      content: <DailyIncome />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.GROUPEDPRODUCTSALESREPORT,
+      label: "Product Sales",
+      icon: <HiOutlineDocumentReport className="text-lg font-thin" />,
+      content: <GroupedProductSalesReport />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.SINGLEPRODUCTSALESREPORT,
+      label: "Product Based Sales",
+      icon: <TbReportSearch className="text-lg font-thin" />,
+      content: <SingleProductSalesReport />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.UPPERCATEGORYBASEDSALESREPORT,
+      label: "Upper Category Based Sales",
+      icon: <TbCategoryPlus className="text-lg font-thin" />,
+      content: <UpperCategoryBasedSalesReport />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.CATEGORYBASEDSALESREPORT,
+      label: "Category Based Sales",
+      icon: <BiCategory className="text-lg font-thin" />,
+      content: <CategoryBasedSalesReport />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.DISCOUNTBASEDSALES,
+      label: "Discount Based Sales",
+      icon: <TbDiscount className="text-lg font-thin" />,
+      content: <DiscountBasedSales />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.COLLECTIONS,
+      label: "Collections",
+      icon: <SiFampay className="text-lg font-thin" />,
+      content: <Collections />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.ORDERS,
+      label: "Cafe Orders",
+      icon: <TbReportAnalytics className="text-lg font-thin" />,
+      content: <OrdersReport />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.IKASORDERS,
+      label: "Ikas Orders",
+      icon: <TbReportAnalytics className="text-lg font-thin" />,
+      content: <IkasOrders />,
+      isDisabled: false,
+    },
+    {
+      number: OrderDataTabEnum.PERSONALORDERDATAS,
+      label: "Personal Order Datas",
+      icon: <BsClipboard2Data className="text-lg font-thin" />,
+      content: <PersonalOrderDatas />,
+      isDisabled: false,
+    },
+    ...(categories ?? [])
+      .filter((cat) => cat?.isKitchenMenu)
+      .map((category, index) => ({
+        number: enumTabCount + index,
+        label: category.name,
+        content: (
+          <KitchenDataPage
+            categoryId={category._id}
+            categoryName={category.name}
+          />
+        ),
+        isDisabled: false,
+        kitchen: null,
+      })),
+  ];
+};
+
 const OrderDatas = () => {
   const {
     setCurrentPage,
@@ -133,7 +136,7 @@ const OrderDatas = () => {
   const currentPageTabs = pages.find(
     (page) => page._id === currentPageId
   )?.tabs;
-  const tabs = OrderDataTabs.map((tab) => {
+  const tabs = OrderDataTabs().map((tab) => {
     return {
       ...tab,
       isDisabled: currentPageTabs
@@ -141,20 +144,6 @@ const OrderDatas = () => {
         ?.permissionRoles?.includes(user.role._id)
         ? false
         : true,
-      ...(tab.number === OrderDataTabEnum.FARMBURGER && {
-        onOpenAction: () => {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            category: [30],
-          });
-        },
-        onCloseAction: () => {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            category: [],
-          });
-        },
-      }),
     };
   });
   return (
