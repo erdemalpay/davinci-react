@@ -1,13 +1,8 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NO_IMAGE_URL } from "../../navigation/constants";
-import {
-  KitchenNameEnum,
-  Order,
-  OrderStatus,
-  RoleEnum,
-  User,
-} from "../../types";
+import { Order, OrderStatus, User } from "../../types";
+import { useGetKitchens } from "../../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useCreateOrderForDivideMutation,
@@ -15,9 +10,9 @@ import {
 } from "../../utils/api/order/order";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { GenericButton } from "../common/GenericButton";
 import CommonSelectInput from "../common/SelectInput";
 import Timer from "../common/Timer";
-import { GenericButton } from "../common/GenericButton";
 
 type Props = {
   order: Order;
@@ -31,6 +26,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
 
   const users = useGetUsers();
   const items = useGetMenuItems();
+  const kitchens = useGetKitchens();
   const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");
   // const orderUpdatedSound = new Audio("/sounds/mixitPositive.wav");
   orderCreatedSound.volume = 1;
@@ -58,13 +54,17 @@ const SingleOrderCard = ({ order, user }: Props) => {
   };
   useEffect(() => {
     let intervalId: NodeJS.Timeout | number;
+    const foundKitchen = getItem(order?.kitchen, kitchens);
     if (
       order?.status === OrderStatus.CONFIRMATIONREQ &&
-      ((user?.role?._id === RoleEnum.KITCHEN2 &&
-        order?.kitchen === KitchenNameEnum.FARM) ||
-        (user?.role?._id === RoleEnum.KITCHEN3 &&
-          order?.kitchen === KitchenNameEnum.KOVADAPILAV))
+      foundKitchen?.soundRoles?.includes(user?.role?._id)
     ) {
+      if (
+        foundKitchen?.selectedUsers &&
+        !foundKitchen?.selectedUsers?.includes(user?._id)
+      ) {
+        return;
+      }
       intervalId = setInterval(() => {
         orderCreatedSound
           .play()

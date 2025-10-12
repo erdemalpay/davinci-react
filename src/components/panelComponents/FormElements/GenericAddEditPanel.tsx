@@ -7,13 +7,13 @@ import { FaChevronDown } from "react-icons/fa6";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { useOrderContext } from "../../../context/Order.context";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { FormElementsState, OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 import {
   FormKeyType,
@@ -61,7 +61,7 @@ type Props<T> = {
   confirmationDialogHeader?: string;
   confirmationDialogText?: string;
   isSubmitButtonActive?: boolean;
-  upperMessage?: string;
+  upperMessage?: string[];
   additionalButtons?: AdditionalButtonProps[];
   itemToEdit?: {
     id: number | string;
@@ -365,11 +365,14 @@ const GenericAddEditPanel = <T,>({
             : "w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 max-w-full"
         }   max-h-[90vh]   ${generalClassName}`}
       >
-        {upperMessage && (
-          <div className="flex flex-row justify-between items-center px-4 py-2 border-b">
-            <H6>{upperMessage}</H6>
+        {upperMessage?.length && upperMessage?.length > 0 && (
+          <div className="flex flex-col px-4 py-2 border-b space-y-1">
+            {upperMessage.map((msg, index) => (
+              <H6 key={index}>{msg}</H6>
+            ))}
           </div>
         )}
+
         <div className="rounded-tl-md rounded-tr-md px-4  flex flex-col gap-4 py-6 justify-between  h-full">
           <div
             className={`${

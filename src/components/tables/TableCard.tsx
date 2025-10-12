@@ -16,17 +16,16 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  FARMBURGERCATEGORYID,
   Game,
   Gameplay,
   MenuItem,
   Order,
   OrderDiscountStatus,
   OrderStatus,
+  TURKISHLIRA,
   Table,
   TableStatus,
   TableTypes,
-  TURKISHLIRA,
   User,
 } from "../../types";
 import { useGetAllAccountProducts } from "../../utils/api/account/product";
@@ -98,11 +97,12 @@ export function TableCard({
   if (table?._id) {
     tableOrders = useGetTableOrders(table?._id);
   }
+  const categories = useGetCategories();
+  const kitchens = useGetKitchens();
   const orderNotes = useGetOrderNotes();
   const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] =
     useState(false);
   const members = useGetMemberships();
-  const { isExtraModalOpen, setIsExtraModalOpen } = useOrderContext();
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const [isAddActivityTableOpen, setIsAddActivityTableOpen] = useState(false);
   const [selectedGameplay, setSelectedGameplay] = useState<Gameplay>();
@@ -114,6 +114,20 @@ export function TableCard({
   const { selectedLocationId } = useLocationContext();
   const { createOrder } = useOrderMutations();
   const products = useGetAllAccountProducts();
+  const inactiveCategories = useMemo(() => {
+    return categories?.filter((category) => !category.active) || [];
+  }, [categories]);
+  const inactiveCategoriesWithKitchens = useMemo(() => {
+    return (
+      inactiveCategories?.filter(
+        (category) =>
+          category.kitchen && kitchens.some((k) => k._id === category.kitchen)
+      ) || []
+    );
+  }, [inactiveCategories, kitchens]);
+  const inactiveCategoriesIds = useMemo(() => {
+    return inactiveCategories.map((c) => c._id);
+  }, [inactiveCategories]);
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
@@ -132,8 +146,6 @@ export function TableCard({
   };
   const locations = useGetStockLocations();
   const stocks = useGetAccountStocks();
-  const categories = useGetCategories();
-  const kitchens = useGetKitchens();
   const [
     isTableCardCreateOrderDialogOpen,
     setIsTableCardCreateOrderDialogOpen,
@@ -148,10 +160,6 @@ export function TableCard({
   const user = useGetUser();
   const { mutate: updateMultipleOrders } = useUpdateMultipleOrderMutation();
   const [orderForm, setOrderForm] = useState(initialOrderForm);
-  const farmCategoryActivity = getItem(
-    FARMBURGERCATEGORYID,
-    categories
-  )?.active;
   const [tableCombineForm, setTableCombineForm] = useState({
     table: "",
   });
@@ -186,10 +194,7 @@ export function TableCard({
         );
       })
       ?.filter((item) => {
-        if (!farmCategoryActivity) {
-          return item?.category !== FARMBURGERCATEGORYID;
-        }
-        return true;
+        return !inactiveCategoriesIds.includes(item.category);
       })
       ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
       ?.filter((menuItem) =>
@@ -213,7 +218,6 @@ export function TableCard({
       });
   }, [
     orderForm.category,
-    farmCategoryActivity,
     menuItems,
     selectedLocationId,
     table?.isOnlineSale,
@@ -317,10 +321,7 @@ export function TableCard({
               return menuItem.category === value;
             })
             ?.filter((item) => {
-              if (!farmCategoryActivity) {
-                return item?.category !== FARMBURGERCATEGORYID;
-              }
-              return true;
+              return !inactiveCategoriesIds.includes(item.category);
             })
             ?.filter((menuItem) =>
               menuItem?.locations?.includes(selectedLocationId)
@@ -563,7 +564,6 @@ export function TableCard({
       orderForm.stockLocation,
       orderForm.isOnlinePrice,
       selectedLocationId,
-      farmCategoryActivity,
       filteredDiscounts,
       menuItems,
       locations,
@@ -652,7 +652,9 @@ export function TableCard({
     reopenTable({
       id: table._id,
     });
-    toast.success(t("Table {{tableName}} reopened", { tableName: table?.name }));
+    toast.success(
+      t("Table {{tableName}} reopened", { tableName: table?.name })
+    );
   }, [reopenTable, table, t]);
 
   const newClose = useCallback(() => {
@@ -678,7 +680,9 @@ export function TableCard({
         id: table._id,
         updates: { [target.name]: target.value },
       });
-      toast.success(t("Table {{tableName}} updated", { tableName: table.name }));
+      toast.success(
+        t("Table {{tableName}} updated", { tableName: table.name })
+      );
     },
     [updateTable, table, t]
   );
@@ -1011,8 +1015,14 @@ export function TableCard({
           }}
           inputs={orderInputs}
           formKeys={orderFormKeys}
-          {...(!farmCategoryActivity
-            ? { upperMessage: t("Farm Category is not active") }
+          {...(inactiveCategoriesWithKitchens?.length > 0
+            ? {
+                upperMessage: inactiveCategoriesWithKitchens.map((category) =>
+                  t("{{categoryName}} is not active", {
+                    categoryName: category.name,
+                  })
+                ),
+              }
             : {})}
           submitItem={createOrder as any}
           isConfirmationDialogRequired={() => {

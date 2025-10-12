@@ -6,7 +6,6 @@ import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
   DateRangeKey,
-  KOVADAPILAVCATEGORYID,
   RoleEnum,
   Table,
   commonDateOptions,
@@ -30,9 +29,14 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-const KovadaPilavData = () => {
+type Props = {
+  categoryId: number;
+  categoryName: string;
+};
+
+const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
   const { t } = useTranslation();
-  const orders = useGetOrders([KOVADAPILAVCATEGORYID]);
+  const orders = useGetOrders([categoryId]);
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const users = useGetUsers();
@@ -543,7 +547,7 @@ const KovadaPilavData = () => {
       <div className="w-[95%] mx-auto mb-auto ">
         <GenericTable
           key={tableKey}
-          title={"Kovada Pilav"}
+          title={categoryName}
           columns={columns}
           rowKeys={rowKeys}
           rows={rows}
@@ -551,7 +555,7 @@ const KovadaPilavData = () => {
           filterPanel={filterPanel}
           filters={filters}
           isExcel={true}
-          excelFileName={"KovadaPilav.xlsx"}
+          excelFileName={`${categoryName}.xlsx`}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
               return "bg-red-200";
@@ -576,4 +580,4 @@ const KovadaPilavData = () => {
   );
 };
 
-export default KovadaPilavData;
+export default KitchenDataPage;

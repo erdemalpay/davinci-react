@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { KOVADAPILAVCATEGORYID, MenuItem } from "../../types";
+import { MenuItem } from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import {
@@ -11,16 +11,19 @@ import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
-const KovadaPilavMenu = () => {
+type Props = {
+  categoryId: number;
+  categoryName: string;
+};
+
+const KitchenMenuPage = ({ categoryId, categoryName }: Props) => {
   const { t } = useTranslation();
   const items = useGetMenuItems();
   const locations = useGetStoreLocations();
   const { updateItem } = useMenuItemMutations();
-  const allRows = items?.filter(
-    (item) => item.category === KOVADAPILAVCATEGORYID
-  );
+  const allRows = items?.filter((item) => item.category === categoryId);
   const categories = useGetCategories();
-  const kovadaPilavCategory = getItem(KOVADAPILAVCATEGORYID, categories);
+  const foundCategory = getItem(categoryId, categories);
   const [tableKey, setTableKey] = useState(0);
   const [rows, setRows] = useState(allRows);
   function handleLocationUpdate(item: MenuItem, location: number) {
@@ -45,7 +48,7 @@ const KovadaPilavMenu = () => {
   ];
   const rowKeys = [{ key: "name" }, { key: "description" }];
   for (const location of locations) {
-    if (kovadaPilavCategory?.locations?.includes(location._id)) {
+    if (foundCategory?.locations?.includes(location._id)) {
       columns.push({
         key: location.name,
         isSortable: false,
@@ -77,7 +80,7 @@ const KovadaPilavMenu = () => {
           columns={columns}
           rows={rows}
           isToolTipEnabled={false}
-          title={t("Kovada Pilav Menu")}
+          title={t(categoryName + " Menu")}
           isActionsActive={false}
         />
       </div>
@@ -85,4 +88,4 @@ const KovadaPilavMenu = () => {
   );
 };
 
-export default KovadaPilavMenu;
+export default KitchenMenuPage;
