@@ -105,17 +105,23 @@ const Tables = () => {
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
-  const inactiveCategoriesIds = useMemo(() => {
-    return inactiveCategories.map((c) => c._id);
-  }, [inactiveCategories]);
   const inactiveCategoriesWithKitchens = useMemo(() => {
     return (
       inactiveCategories?.filter(
         (category) =>
-          category.kitchen && kitchens.some((k) => k._id === category.kitchen)
+          category.kitchen &&
+          kitchens.some(
+            (k) =>
+              k._id === category.kitchen &&
+              k?.selectedUsers &&
+              k?.selectedUsers?.length > 0
+          )
       ) || []
     );
   }, [inactiveCategories, kitchens]);
+  const inactiveCategoriesIds = useMemo(() => {
+    return inactiveCategories.map((c) => c._id);
+  }, [inactiveCategories]);
   const {
     orderCreateBulk,
     setOrderCreateBulk,

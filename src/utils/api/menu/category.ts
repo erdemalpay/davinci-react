@@ -23,7 +23,7 @@ export function useGetAllCategories() {
   return useGetList<MenuCategory>(`${Paths.Menu}/categories-all`);
 }
 
-export function updateFarmCategory({
+export function updateKitchenCategory({
   id,
   updates,
 }: {
@@ -31,14 +31,14 @@ export function updateFarmCategory({
   updates: Partial<MenuCategory>;
 }) {
   return patch({
-    path: `${Paths.Menu}/categories-farm/${id}`,
+    path: `${Paths.Menu}/categories-kitchen/${id}`,
     payload: updates,
   });
 }
-export function useUpdateFarmCategoryMutation() {
+export function useUpdateKitchenCategoryMutation() {
   const queryKey = [`${Paths.MenuCategories}`];
   const queryClient = useQueryClient();
-  return useMutation(updateFarmCategory, {
+  return useMutation(updateKitchenCategory, {
     onMutate: async () => {
       await queryClient.cancelQueries(queryKey);
     },

@@ -807,10 +807,6 @@ export enum RoleNameEnum {
   SERVICE = "Service",
   CLEANING = "Cleaning",
 }
-export enum KitchenNameEnum {
-  FARM = "farm",
-  KOVADAPILAV = "kovada_pilav",
-}
 export enum ExpensesPageTabEnum {
   INVOICE,
   SERVICEINVOICE,
@@ -1184,10 +1180,6 @@ export enum ActivityType {
   UPDATE_RESERVATION = "UPDATE_RESERVATION",
   UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION",
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
-  FARM_BURGER_ACTIVATED = "FARM_BURGER_ACTIVATED",
-  FARM_BURGER_DEACTIVATED = "FARM_BURGER_DEACTIVATED",
-  KOVADA_PILAV_ACTIVATED = "KOVADA_PILAV_ACTIVATED",
-  KOVADA_PILAV_DEACTIVATED = "KOVADA_PILAV_DEACTIVATED",
 }
 export const activityTypeDetails = [
   {
@@ -1420,26 +1412,6 @@ export const activityTypeDetails = [
     label: "Update Account Product",
     bgColor: "bg-purple-900",
   },
-  {
-    value: ActivityType.FARM_BURGER_ACTIVATED,
-    label: "Farm Burger Activated",
-    bgColor: "bg-green-800",
-  },
-  {
-    value: ActivityType.FARM_BURGER_DEACTIVATED,
-    label: "Farm Burger Deactivated",
-    bgColor: "bg-red-800",
-  },
-  {
-    value: ActivityType.KOVADA_PILAV_ACTIVATED,
-    label: "Kovada Pilav Activated",
-    bgColor: "bg-green-800",
-  },
-  {
-    value: ActivityType.KOVADA_PILAV_DEACTIVATED,
-    label: "Kovada Pilav Deactivated",
-    bgColor: "bg-red-800",
-  },
 ];
 
 export interface SocketEventType {
@@ -1548,25 +1520,11 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #48BB78 0%, #38A169 100%)", // Green
     solid: "#48BB78",
   },
-  FARMBURGERACTIVATED: {
-    gradient: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)", // Light Green
-    solid: "#68D391",
-  },
 
   // 🔵 BİLGİLENDİRME - Mavi/Turkuaz Tonları
   IKASTAKEAWAY: {
     gradient: "linear-gradient(135deg, #4299E1 0%, #3182CE 100%)", // Blue
     solid: "#4299E1",
-  },
-  FARMNOTCONFIRMED: {
-    gradient: "linear-gradient(135deg, #4FD1C5 0%, #38B2AC 100%)", // Teal
-    solid: "#4FD1C5",
-  },
-
-  // 🟣 DEAKTİVASYON - Mor/Gri Tonları
-  FARMBURGERDEACTIVATED: {
-    gradient: "linear-gradient(135deg, #A0AEC0 0%, #718096 100%)", // Gray
-    solid: "#A0AEC0",
   },
 };
 
@@ -1597,9 +1555,6 @@ export enum NotificationEventType {
   LOSSPRODUCT = "LOSSPRODUCT",
   IKASTAKEAWAY = "IKASTAKEAWAY",
   LATESHIFTSTART = "LATESHIFTSTART",
-  FARMBURGERACTIVATED = "FARMBURGERACTIVATED",
-  FARMBURGERDEACTIVATED = "FARMBURGERDEACTIVATED",
-  FARMNOTCONFIRMED = "FARMNOTCONFIRMED",
   NIGHTOPENTABLE = "NIGHTOPENTABLE",
   EARLYSHIFTEND = "EARLYSHIFTEND",
   UNCOMPLETEDCHECKLIST = "UNCOMPLETEDCHECKLIST",
@@ -1630,18 +1585,6 @@ export const notificationEventsOptions = [
     label: "Late Shift Start",
   },
   {
-    value: NotificationEventType.FARMBURGERACTIVATED,
-    label: "Farm Burger Activated",
-  },
-  {
-    value: NotificationEventType.FARMBURGERDEACTIVATED,
-    label: "Farm Burger Deactivated",
-  },
-  {
-    value: NotificationEventType.FARMNOTCONFIRMED,
-    label: "Farm Not Confirmed",
-  },
-  {
     value: NotificationEventType.NIGHTOPENTABLE,
     label: "Night Open Table",
   },
@@ -1663,6 +1606,4 @@ export type PopularDiscounts = {
 export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
 export const SANDWICHEXPENSETYPE = "sand";
-export const FARMBURGERCATEGORYID = 30;
-export const KOVADAPILAVCATEGORYID = 31;
 export type OptionType = { value: any; label: string; imageUrl?: string };

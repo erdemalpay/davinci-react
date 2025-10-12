@@ -45,8 +45,6 @@ const TabInput: React.FC<TabInputProps> = ({
   setFormElements,
   setForm,
 }) => {
-  console.log("suggestedOption", suggestedOption);
-  console.log("options", options);
   const {
     setIsTabInputScreenOpen,
     setTabInputScreenOptions,
