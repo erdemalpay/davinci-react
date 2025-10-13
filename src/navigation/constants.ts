@@ -129,7 +129,7 @@ export const allRoutes: {
   exceptionalRoles?: number[];
   link?: string;
   element?: () => JSX.Element;
-  tabs?: Tab[] | (() => Tab[]);
+  tabs?: Tab[];
   children?: typeof allRoutes;
 }[] = [
   {

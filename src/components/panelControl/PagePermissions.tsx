@@ -93,8 +93,7 @@ const PagePermissions = () => {
         continue;
       }
       const currentPage = pages.find((page) => page.name === route.name);
-      const routeTabs =
-        typeof route.tabs === "function" ? route.tabs() : route.tabs;
+      const routeTabs = route?.tabs;
       const isAllTabsSame =
         routeTabs?.every((tab) => {
           return currentPage?.tabs?.find((t) => t.name === tab.label);
