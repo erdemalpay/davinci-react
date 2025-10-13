@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../components/panelComponents/FormElements/TextInput";
@@ -458,20 +459,22 @@ const Count = () => {
           actions={isEnableEdit ? actions : []}
         />
         <div className="flex justify-end flex-row gap-2 mt-4">
-          <button
-            className="px-2  bg-red-500 hover:text-red-500 hover:border-red-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          <GenericButton
+            variant="danger"
+            size="sm"
             onClick={cancelCount}
           >
             <H5> {t("Cancel")}</H5>
-          </button>
-          <button
-            className="px-2  bg-blue-500 hover:text-blue-500 hover:border-blue-500 sm:px-3 py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+          </GenericButton>
+          <GenericButton
+            variant="primary"
+            size="sm"
             onClick={() => {
               setIsConfirmationDialogOpen(true);
             }}
           >
             <H5> {t("Complete")}</H5>
-          </button>
+          </GenericButton>
         </div>
         {isConfirmationDialogOpen && (
           <ConfirmationDialog

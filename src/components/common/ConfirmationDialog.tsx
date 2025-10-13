@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { useTranslation } from "react-i18next";
+import { GenericButton } from "./GenericButton";
 
 export function ConfirmationDialog({
   isOpen,
@@ -44,18 +45,22 @@ export function ConfirmationDialog({
                 <div className="p-4 text-center">
                   {text}
                   <div className="flex items-center justify-between mt-9">
-                    <button
+                    <GenericButton
                       onClick={close}
-                      className="px-6 py-3 bg-red-500 hover:bg-gray-500 shadow rounded text-sm text-white"
+                      variant="danger"
+                      size="sm"
+                      className="px-6 py-3"
                     >
                       {t("Cancel")}
-                    </button>
-                    <button
-                      className="px-6 py-3 bg-blue-500 hover:bg-opacity-80 shadow rounded text-sm text-white"
+                    </GenericButton>
+                    <GenericButton
                       onClick={confirm}
+                      variant="primary"
+                      size="sm"
+                      className="px-6 py-3"
                     >
                       {t("Confirm")}
-                    </button>
+                    </GenericButton>
                   </div>
                 </div>
               </div>

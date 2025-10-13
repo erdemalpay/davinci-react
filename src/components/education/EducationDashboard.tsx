@@ -11,6 +11,7 @@ import {
 } from "../../utils/api/education";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import { GenericButton } from "../common/GenericButton";
 import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../panelComponents/Typography";
@@ -343,8 +344,9 @@ const EducationDashboard = () => {
               </h2>
               {!isDisabledCondition && (
                 <div className="flex flex-row items-center gap-4">
-                  <button
-                    className="px-2 text-sm bg-blue-500 hover:text-blue-500 hover:border-blue-500  py-1 h-fit w-fit  text-white  hover:bg-white  transition-transform  border  rounded-md cursor-pointer"
+                  <GenericButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       setHeaderToAction(edu);
                       setSubHeaderToAction(null);
@@ -352,7 +354,7 @@ const EducationDashboard = () => {
                     }}
                   >
                     <H5> {"+ " + t("Add New Sub Header")}</H5>
-                  </button>
+                  </GenericButton>
                   <div className="flex flex-row items-center gap-2">
                     {edu?.permissionRoles?.map((roleId) => {
                       const role = roles?.find((role) => role._id === roleId);

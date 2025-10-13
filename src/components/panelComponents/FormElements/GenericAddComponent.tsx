@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { toast } from "react-toastify";
+import { GenericButton } from "../../common/GenericButton";
 import { NO_IMAGE_URL } from "../../../navigation/constants";
 import { OptionType } from "../../../types";
 import { UpdatePayload, postWithHeader } from "../../../utils/api";
@@ -411,7 +412,7 @@ const GenericAddComponent = <T,>({
           </div>
         </div>
 
-        <button
+        <GenericButton
           onClick={() => {
             if (!allRequiredFilled) {
               toast.error(t("Please fill all required fields"));
@@ -432,12 +433,12 @@ const GenericAddComponent = <T,>({
               }
             }
           }}
-          className={`inline-block ${
-            !allRequiredFilled ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
-          } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit ml-auto`}
+          variant={!allRequiredFilled ? "secondary" : "primary"}
+          size="sm"
+          className="ml-auto"
         >
           {buttonName ? buttonName : isEditMode ? t("Update") : t("Create")}
-        </button>
+        </GenericButton>
       </div>
     </div>
   );

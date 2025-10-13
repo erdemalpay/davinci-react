@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
+import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, OptionType } from "../../../types";
 import DateInput from "../FormElements/DateInput";
@@ -62,9 +63,9 @@ const FilterPanel = <T,>({
       <div className="flex flex-row justify-between">
         <H4 className="my-1">{t("Filters")}</H4>
         {isCloseButtonActive && (
-          <button onClick={closeFilters}>
+          <GenericButton onClick={closeFilters} variant="icon">
             <IoIosClose className="w-8 h-8 mx-auto p-1 cursor-pointer  hover:bg-gray-50 hover:rounded-full" />
-          </button>
+          </GenericButton>
         )}
       </div>
       {inputs.map((input) => {
@@ -287,13 +288,15 @@ const FilterPanel = <T,>({
           .filter((button) => !button.isDisabled)
           .map((button) => {
             return (
-              <button
+              <GenericButton
                 key={button.label}
-                className=" mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
+                variant="primary"
+                size="sm"
+                className="mt-4"
                 onClick={button.onClick}
               >
                 {t(button.label)}
-              </button>
+              </GenericButton>
             );
           })}
       </div>

@@ -41,6 +41,7 @@ import { useGetVisits } from "../../../utils/api/visit";
 import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
+import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
@@ -976,13 +977,14 @@ const OrderPaymentModal = ({
                   {buttons?.map((button) => {
                     if (button.isActive) {
                       return (
-                        <button
+                        <GenericButton
                           key={button.label}
                           onClick={button.onClick}
-                          className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
+                          variant="ghost"
+                          className="w-fit !bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md hover:!bg-gray-300 !text-red-300 hover:!text-red-500 font-semibold"
                         >
                           {button.label}
-                        </button>
+                        </GenericButton>
                       );
                     }
                   })}

@@ -169,7 +169,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
               }}
               variant="ghost"
               size="sm"
-              className="text-red-600 hover:text-red-900"
+              className="text-red-600 hover:text-red-900 border border-gray-300"
             >
               {t("Cancel")}
             </GenericButton>
@@ -189,7 +189,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
               }}
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-black"
+              className="text-gray-600 hover:text-black border border-gray-300"
             >
               {t("Confirm")}
             </GenericButton>
@@ -220,7 +220,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 }}
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-black"
+                className="text-gray-600 hover:text-black border border-gray-300"
               >
                 {t("Back")}
               </GenericButton>
@@ -241,7 +241,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
               }}
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-black"
+              className="text-gray-600 hover:text-black border border-gray-300"
             >
               {t("Ready")}
             </GenericButton>
@@ -261,7 +261,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                 }}
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-black"
+                className="text-gray-600 hover:text-black border border-gray-300"
               >
                 {t("Served")}
               </GenericButton>
@@ -281,7 +281,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
                   }}
                   variant="ghost"
                   size="sm"
-                  className="text-gray-600 hover:text-black"
+                  className="text-gray-600 hover:text-black border border-gray-300"
                 >
                   {t("Back")}
                 </GenericButton>
