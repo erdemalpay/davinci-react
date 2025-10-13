@@ -18,6 +18,7 @@ import {
   useGetExpirationLists,
 } from "../../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../../utils/api/location";
+import { isDisabledConditionManagerOnly } from "../../utils/isDisabledConditions";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -33,6 +34,7 @@ import {
 const ExpirationLists = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionManagerOnly(user);
   const navigate = useNavigate();
   const expirationLists = useGetExpirationLists();
   const [tableKey, setTableKey] = useState(0);
@@ -180,7 +182,7 @@ const ExpirationLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),
@@ -218,7 +220,7 @@ const ExpirationLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Toggle Active"),
@@ -303,7 +305,7 @@ const ExpirationLists = () => {
   const filters = [
     {
       label: t("Show Inactive ExpirationLists"),
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
       isUpperSide: true,
       node: (
         <SwitchButton

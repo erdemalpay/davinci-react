@@ -26,6 +26,7 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
+import { isDisabledConditionManagerOnly } from "../../utils/isDisabledConditions";
 import {
   BrandInput,
   ProductInput,
@@ -77,9 +78,7 @@ const GameStock = () => {
     location: "",
     quantity: 0,
   });
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER].includes(user?.role?._id)
-    : true;
+  const isDisabledCondition = isDisabledConditionManagerOnly(user);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) =>

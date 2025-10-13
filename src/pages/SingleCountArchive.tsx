@@ -17,6 +17,7 @@ import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import { RoleEnum } from "../types";
 import { GenericButton } from "../components/common/GenericButton";
+import { isDisabledConditionManagerOnly } from "../utils/isDisabledConditions";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -35,6 +36,7 @@ const SingleCountArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionManagerOnly(user);
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
   const countLists = useGetAccountCountLists();
@@ -272,7 +274,7 @@ const SingleCountArchive = () => {
   const archieveFilters = [
     {
       isUpperSide: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isDisabledCondition,
       node: (
         <ButtonFilter
           buttonName={t("Stock Equalize")}
