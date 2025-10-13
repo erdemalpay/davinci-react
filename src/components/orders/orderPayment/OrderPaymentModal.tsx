@@ -109,10 +109,12 @@ const OrderPaymentModal = ({
     })
     .filter((user) => user !== null);
   const getTable = (tableId: number) => {
+    const freshTable = tables?.find((table) => table?._id === tableId);
+    if (freshTable) {
+      return freshTable;
+    }
     if (orders?.length > 0) {
       return orders[0]?.table as Table;
-    } else if (tables && tables.some((table) => table?._id === tableId)) {
-      return getItem(tableId, tables) as Table;
     }
   };
   const table = getTable(tableId) as Table;
