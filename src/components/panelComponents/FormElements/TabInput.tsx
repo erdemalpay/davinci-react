@@ -46,8 +46,6 @@ const TabInput: React.FC<TabInputProps> = ({
   setFormElements,
   setForm,
 }) => {
-  console.log("suggestedOption", suggestedOption);
-  console.log("options", options);
   const {
     setIsTabInputScreenOpen,
     setTabInputScreenOptions,
@@ -103,8 +101,7 @@ const TabInput: React.FC<TabInputProps> = ({
                   handleSelect(opt);
                 }}
                 variant="outline"
-                size="sm"
-                className="ml-2 text-xs sm:text-sm rounded-full"
+                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full"
                 title={`Use suggested: ${opt.label}`}
               >
                 {opt.label}
@@ -134,17 +131,16 @@ const TabInput: React.FC<TabInputProps> = ({
             )}
           </div>
         ) : (
-          <GenericButton
-            onClick={openTabScreen}
-            variant="ghost"
+          <div
+            onClick={!isReadOnly ? openTabScreen : undefined}
             className={`
               flex items-center w-full border border-gray-300 rounded px-3 py-2
-              text-gray-400 hover:border-gray-400
+              text-gray-400 hover:border-gray-400 cursor-pointer bg-white
               ${isReadOnly ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             {placeholder || "Select..."}
-          </GenericButton>
+          </div>
         )}
       </div>
     </div>

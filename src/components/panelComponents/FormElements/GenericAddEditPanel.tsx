@@ -751,7 +751,7 @@ const GenericAddEditPanel = <T,>({
           <div className="ml-auto flex flex-row gap-4 mt-auto ">
             <GenericButton
               variant="danger"
-              size="sm"
+              size="md"
               onClick={() => {
                 isCancelConfirmationDialogExist
                   ? setIsCancelConfirmationDialogOpen(true)
@@ -770,7 +770,7 @@ const GenericAddEditPanel = <T,>({
                         ? "secondary"
                         : "primary"
                     }
-                    size="sm"
+                    size="md"
                     onClick={() => {
                       const handleButtonClick = () => {
                         const preservedValues = button.preservedKeys?.reduce<
@@ -814,7 +814,7 @@ const GenericAddEditPanel = <T,>({
                     ? "secondary"
                     : "primary"
                 }
-                size="sm"
+                size="md"
                 onClick={() => {
                   if (isCreateConfirmationDialogExist) {
                     setIsCreateConfirmationDialogOpen(true);

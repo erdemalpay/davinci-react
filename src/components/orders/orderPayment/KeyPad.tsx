@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GenericButton } from "../../common/GenericButton";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order } from "../../../types";
 
@@ -181,9 +182,10 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
     >
       {(isNumberSelection ? numberKeys : keys.flat()).map((keyItem, index) => {
         return (
-          <button
+          <GenericButton
             key={index}
-            className="bg-gray-100 p-3 rounded-lg focus:outline-none hover:bg-gray-200 min-w-fit"
+            variant="ghost"
+            className="!bg-gray-100 p-3 rounded-lg hover:!bg-gray-200 min-w-fit w-full"
             onClick={() =>
               keyItem?.onClick
                 ? keyItem.onClick?.()
@@ -192,7 +194,7 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
             aria-label={`Key ${keyItem.key}`}
           >
             {keyItem.key}
-          </button>
+          </GenericButton>
         );
       })}
     </div>

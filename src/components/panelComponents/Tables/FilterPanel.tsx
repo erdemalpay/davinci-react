@@ -290,9 +290,9 @@ const FilterPanel = <T,>({
             return (
               <GenericButton
                 key={button.label}
-                className="mt-4"
                 variant="primary"
                 size="sm"
+                className="mt-4"
                 onClick={button.onClick}
               >
                 {t(button.label)}

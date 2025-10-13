@@ -345,13 +345,13 @@ const EducationDashboard = () => {
               {!isDisabledCondition && (
                 <div className="flex flex-row items-center gap-4">
                   <GenericButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       setHeaderToAction(edu);
                       setSubHeaderToAction(null);
                       setIsAddNewSubHeaderModalOpen(true);
                     }}
-                    variant="primary"
-                    size="sm"
                   >
                     <H5> {"+ " + t("Add New Sub Header")}</H5>
                   </GenericButton>

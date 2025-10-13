@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { GenericButton } from "../../common/GenericButton";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
@@ -154,14 +155,15 @@ const CollectionModal = ({
     {
       isUpperSide: false,
       node: (
-        <button
+        <GenericButton
           onClick={() => {
             setIsCollectionModalOpen(false);
           }}
-          className=" bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-red-300 hover:text-red-500 font-semibold "
+          variant="ghost"
+          className="!bg-gray-100 px-4 py-2 rounded-lg hover:!bg-gray-200 !text-red-300 hover:!text-red-500 font-semibold"
         >
           {t("Back")}
-        </button>
+        </GenericButton>
       ),
     },
   ];
