@@ -193,10 +193,12 @@ const TabInputScreen = ({
                 key={opt.value}
                 onClick={() => handleSelect(opt)}
                 variant="ghost"
+                fullWidth={true}
                 className={`
                   relative flex flex-col items-center justify-center
                   border rounded-lg p-3
                   hover:shadow-lg
+                  min-h-[120px]
                   ${
                     isSelected
                       ? "border-blue-500 bg-blue-50"
@@ -204,14 +206,16 @@ const TabInputScreen = ({
                   }
                 `}
               >
-                {opt?.imageUrl && isLargeScreen && (
-                  <img
-                    src={opt.imageUrl}
-                    alt={opt.label}
-                    className="w-16 h-16 object-cover rounded-md mb-2 hidden sm:block"
-                  />
-                )}
-                <span className="text-gray-800 text-center">{opt.label}</span>
+                <div className="flex flex-col items-center justify-center gap-2">
+                  {opt?.imageUrl && isLargeScreen && (
+                    <img
+                      src={opt.imageUrl}
+                      alt={opt.label}
+                      className="w-16 h-16 object-cover rounded-md hidden sm:block"
+                    />
+                  )}
+                  <span className="text-gray-800 text-center">{opt.label}</span>
+                </div>
               </GenericButton>
             );
           })}
