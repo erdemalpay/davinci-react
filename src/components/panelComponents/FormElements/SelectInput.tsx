@@ -11,8 +11,8 @@ import Select, {
   SingleValue,
   components,
 } from "react-select";
-import { GenericButton } from "../../common/GenericButton";
 import { OptionType } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 
 const CustomOption = (
