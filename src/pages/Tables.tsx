@@ -214,30 +214,39 @@ const Tables = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  const menuItemOptions = menuItems
-    ?.filter((menuItem) => {
-      return (
-        !orderForm.category || menuItem.category === Number(orderForm.category)
-      );
-    })
-    ?.filter((item) => {
-      return !inactiveCategoriesIds.includes(item.category);
-    })
-    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-    ?.map((menuItem) => {
-      return {
-        value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        imageUrl: menuItem?.imageUrl,
-        keywords: [
-          menuItem?.name,
-          ...(menuItem?.sku ? [menuItem.sku] : []),
-          ...(menuItem?.barcode ? [menuItem.barcode] : []),
-          getItem(menuItem?.category, categories)?.name || "",
-        ],
-        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
-      };
-    });
+  const menuItemOptions = useMemo(() => {
+    return menuItems
+      ?.filter((menuItem) => {
+        return (
+          !orderForm.category || menuItem.category === Number(orderForm.category)
+        );
+      })
+      ?.filter((item) => {
+        return !inactiveCategoriesIds.includes(item.category);
+      })
+      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+      ?.map((menuItem) => {
+        return {
+          value: menuItem?._id,
+          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          imageUrl: menuItem?.imageUrl,
+          keywords: [
+            menuItem?.name,
+            ...(menuItem?.sku ? [menuItem.sku] : []),
+            ...(menuItem?.barcode ? [menuItem.barcode] : []),
+            getItem(menuItem?.category, categories)?.name || "",
+          ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+        };
+      });
+  }, [
+    menuItems,
+    orderForm.category,
+    orderForm.isOnlinePrice,
+    inactiveCategoriesIds,
+    selectedLocationId,
+    categories,
+  ]);
   const orderInputs = [
     {
       type: InputTypes.TAB,
@@ -432,7 +441,7 @@ const Tables = () => {
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
               imageUrl: menuItem?.imageUrl,
             };
           });

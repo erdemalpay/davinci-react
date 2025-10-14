@@ -326,6 +326,12 @@ const OrderPaymentModal = ({
   const filteredDiscounts = discounts?.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
+  const isOnlinePrice = useMemo(() => {
+    const menuItem = getItem(orderForm.item, items);
+    return Boolean(
+      menuItem && getItem(menuItem.category, categories)?.isOnlineOrder
+    );
+  }, [orderForm.item, items, categories]);
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
       const stock = stocks?.find((stock) => {
@@ -337,35 +343,45 @@ const OrderPaymentModal = ({
     }
     return 0;
   };
-  const menuItemOptions = items
-    ?.filter((menuItem) => {
-      return (
-        !orderForm.category || menuItem.category === Number(orderForm.category)
-      );
-    })
-    ?.filter((item) => {
-      return !inactiveCategoriesIds.includes(item.category);
-    })
-    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-    ?.filter((menuItem) =>
-      table?.isOnlineSale
-        ? getItem(menuItem.category, categories)?.isOnlineOrder
-        : true
-    )
-    ?.map((menuItem) => {
-      return {
-        value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        imageUrl: menuItem?.imageUrl,
-        keywords: [
-          menuItem?.name,
-          ...(menuItem?.sku ? [menuItem.sku] : []),
-          ...(menuItem?.barcode ? [menuItem.barcode] : []),
-          getItem(menuItem?.category, categories)?.name || "",
-        ],
-        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
-      };
-    });
+  const menuItemOptions = useMemo(() => {
+    return items
+      ?.filter((menuItem) => {
+        return (
+          !orderForm.category || menuItem.category === Number(orderForm.category)
+        );
+      })
+      ?.filter((item) => {
+        return !inactiveCategoriesIds.includes(item.category);
+      })
+      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+      ?.filter((menuItem) =>
+        table?.isOnlineSale
+          ? getItem(menuItem.category, categories)?.isOnlineOrder
+          : true
+      )
+      ?.map((menuItem) => {
+        return {
+          value: menuItem?._id,
+          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          imageUrl: menuItem?.imageUrl,
+          keywords: [
+            menuItem?.name,
+            ...(menuItem?.sku ? [menuItem.sku] : []),
+            ...(menuItem?.barcode ? [menuItem.barcode] : []),
+            getItem(menuItem?.category, categories)?.name || "",
+          ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+        };
+      });
+  }, [
+    items,
+    orderForm.category,
+    orderForm.isOnlinePrice,
+    inactiveCategoriesIds,
+    selectedLocationId,
+    table?.isOnlineSale,
+    categories,
+  ]);
   function finishTable() {
     closeTable({
       id: tableId,
@@ -439,7 +455,7 @@ const OrderPaymentModal = ({
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
@@ -598,6 +614,15 @@ const OrderPaymentModal = ({
       ),
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlinePrice",
+      label: t("Online Price"),
+      placeholder: t("Online Price"),
+      required: isOnlinePrice,
+      isDisabled: !isOnlinePrice,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.SELECT,
       formKey: "activityTableName",
       label: t("Table"),
@@ -650,6 +675,7 @@ const OrderPaymentModal = ({
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "activityTableName", type: FormKeyTypeEnum.STRING },
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
