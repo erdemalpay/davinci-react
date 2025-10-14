@@ -215,7 +215,9 @@ const OrderLists = ({
               discountAmount: selectedDiscount.amount,
             }),
             ...(discountNote && {
-              discountNote: discountNote,
+              discountNote: Array.isArray(discountNote) 
+                ? discountNote.join(',') 
+                : discountNote,
             }),
           });
         } else if (isTableSelectOpen) {
