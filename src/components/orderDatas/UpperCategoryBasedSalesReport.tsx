@@ -298,7 +298,7 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.discount > 0 && row?.discount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.discount > 0 && row?.discount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -308,7 +308,7 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.amount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -318,7 +318,7 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -328,7 +328,7 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.percentageGeneralAmount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.percentageGeneralAmount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },

@@ -498,7 +498,7 @@ const Expenses = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
+            <P1>{parseFloat(row.unitPrice).toFixed(2).replace(/\.?0*$/, "")} ₺</P1>
           </div>
         );
       },
@@ -510,7 +510,7 @@ const Expenses = () => {
           <div className="min-w-32">
             <P1>
               {parseFloat(row.totalExpense)
-                .toFixed(4)
+                .toFixed(2)
                 .replace(/\.?0*$/, "")}{" "}
               ₺
             </P1>
@@ -526,11 +526,9 @@ const Expenses = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
+            {(invoicesPayload?.generalTotalExpense ?? 0)
+              .toFixed(2)
+              .replace(/\.?0*$/, "")}{" "}
             ₺
           </p>
         </div>

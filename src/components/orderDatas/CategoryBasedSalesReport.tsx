@@ -266,7 +266,7 @@ const CategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"discount" + row?.item}>
-            {row?.discount > 0 && row?.discount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.discount > 0 && row?.discount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -276,7 +276,7 @@ const CategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"amount" + row?.item}>
-            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.amount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -289,7 +289,7 @@ const CategoryBasedSalesReport = () => {
             className={`${row?.className}`}
             key={"totalAmountWithDiscount" + row?.item}
           >
-            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },

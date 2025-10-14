@@ -299,11 +299,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.amount)}{" "}
+              {parseFloat(row.amount).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -316,11 +312,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.beginningQuantity)}{" "}
+              {parseFloat(row.beginningQuantity).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -333,11 +325,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.incomeQuantity)}{" "}
+              {parseFloat(row.incomeQuantity).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -350,11 +338,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.expenseQuantity)}{" "}
+              {parseFloat(row.expenseQuantity).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -367,11 +351,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.vendorPaymentQuantity)}{" "}
+              {parseFloat(row.vendorPaymentQuantity).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -384,11 +364,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.cashout)}{" "}
+              {parseFloat(row.cashout).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -401,11 +377,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.expectedQuantity)}{" "}
+              {parseFloat(row.expectedQuantity).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>
@@ -418,11 +390,7 @@ const CheckoutControlPage = () => {
         return (
           <div className="flex flex-row gap-2">
             <p className={`${row?.className} `}>
-              {new Intl.NumberFormat("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(row.difference)}{" "}
+              {parseFloat(row.difference).toFixed(2).replace(/\.?0*$/, "")}{" "}
               ₺
             </p>
           </div>

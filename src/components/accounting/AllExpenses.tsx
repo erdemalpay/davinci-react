@@ -501,7 +501,7 @@ const AllExpenses = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{row?.unitPrice} ₺</P1>
+            <P1>{row?.unitPrice.toFixed(2).replace(/\.?0*$/, "")} ₺</P1>
           </div>
         );
       },
@@ -513,7 +513,7 @@ const AllExpenses = () => {
           <div className="min-w-32">
             <P1>
               {parseFloat(row?.totalExpense)
-                .toFixed(4)
+                .toFixed(2)
                 .replace(/\.?0*$/, "")}{" "}
               ₺
             </P1>
