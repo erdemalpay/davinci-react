@@ -18,7 +18,7 @@ import {
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
 import { useGetStockLocations } from "../../utils/api/location";
-import { isDisabledConditionManagerOnly } from "../../utils/isDisabledConditions";
+import { isDisabledConditionCountLists } from "../../utils/isDisabledConditions";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -34,7 +34,7 @@ import {
 const CountLists = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionManagerOnly(user);
+  const isDisabledCondition = isDisabledConditionCountLists(user);
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);

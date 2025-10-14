@@ -18,7 +18,7 @@ import {
   useGetExpirationLists,
 } from "../../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../../utils/api/location";
-import { isDisabledConditionManagerOnly } from "../../utils/isDisabledConditions";
+import { isDisabledConditionExpirationLists } from "../../utils/isDisabledConditions";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -34,7 +34,7 @@ import {
 const ExpirationLists = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionManagerOnly(user);
+  const isDisabledCondition = isDisabledConditionExpirationLists(user);
   const navigate = useNavigate();
   const expirationLists = useGetExpirationLists();
   const [tableKey, setTableKey] = useState(0);

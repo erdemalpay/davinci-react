@@ -11,7 +11,7 @@ import {
   useGetUser,
   useGetUsers,
 } from "../../utils/api/user";
-import { isDisabledConditionManagerOnly } from "../../utils/isDisabledConditions";
+import { isDisabledConditionCreateNotification } from "../../utils/isDisabledConditions";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -20,7 +20,7 @@ const CreateNotification = () => {
   const { createNotification } = useNotificationMutations();
   const users = useGetUsers();
   const user = useGetUser();
-  const isDisabledCondition = isDisabledConditionManagerOnly(user);
+  const isDisabledCondition = isDisabledConditionCreateNotification(user);
   const roles = useGetAllUserRoles();
   const locations = useGetAllLocations();
   const [form, setForm] = useState({

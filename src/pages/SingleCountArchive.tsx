@@ -17,7 +17,7 @@ import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import { RoleEnum } from "../types";
 import { GenericButton } from "../components/common/GenericButton";
-import { isDisabledConditionManagerOnly } from "../utils/isDisabledConditions";
+import { isDisabledConditionSingleCountArchive } from "../utils/isDisabledConditions";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -36,7 +36,7 @@ const SingleCountArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionManagerOnly(user);
+  const isDisabledCondition = isDisabledConditionSingleCountArchive(user);
   const [tableKey, setTableKey] = useState(0);
   const counts = useGetAccountCounts();
   const countLists = useGetAccountCountLists();

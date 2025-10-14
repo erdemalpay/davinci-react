@@ -34,7 +34,7 @@ import {
 } from "../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
-import { isDisabledConditionManagerOnly } from "../utils/isDisabledConditions";
+import { isDisabledConditionExpirationList } from "../utils/isDisabledConditions";
 import { StockLocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
@@ -45,7 +45,7 @@ const ExpirationList = () => {
   const navigate = useNavigate();
   const { expirationListId } = useParams();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionManagerOnly(user);
+  const isDisabledCondition = isDisabledConditionExpirationList(user);
   const locations = useGetStockLocations();
   const expirationLists = useGetExpirationLists();
   const { resetGeneralContext, setExpirationActiveTab } = useGeneralContext();
