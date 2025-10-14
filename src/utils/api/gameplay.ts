@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
-import { Gameplay, Table } from "../../types/index";
+import { FormElementsState, Gameplay, Table } from "../../types/index";
 import { sortTable } from "../sort";
 import { useOrderContext } from "./../../context/Order.context";
-import { useGetList } from "./factory";
+import { useGet, useGetList } from "./factory";
 import { get, patch, post, remove } from "./index";
 
 const BASE_URL_GAMEPLAYS = "/gameplays";
@@ -34,8 +34,11 @@ interface GameplayAnalytic {
 }
 
 export interface GameplayQueryResult {
-  totalCount: number;
-  items: Gameplay[];
+  data: Gameplay[];
+  totalNumber: number;
+  totalPages: number;
+  page: number;
+  limit: number;
 }
 
 interface GameplaySecondaryGroupResult {
@@ -157,53 +160,29 @@ export function useGetMentorGamePlays(mentorId: string) {
     isFetching,
   };
 }
-export function useGetGameplays(filter: GameplayFilter) {
-  const { startDate, endDate, game, mentor, limit, page, sort, asc, location } =
-    filter;
-  let query = `${BASE_URL_GAMEPLAYS}/query?page=${page}&limit=${limit}`;
-  if (startDate) {
-    query += `&startDate=${startDate}`;
-  }
-  if (endDate) {
-    query += `&endDate=${endDate}`;
-  }
-  if (game) {
-    query += `&game=${game}`;
-  }
-  if (mentor) {
-    query += `&mentor=${mentor}`;
-  }
-  if (location) {
-    query += `&location=${location}`;
-  }
-  if (sort) {
-    query += `&sort=${sort}`;
-  }
-  if (asc) {
-    query += `&asc=${asc}`;
-  }
-  const queryKey = [
-    BASE_URL_GAMEPLAYS,
-    "query",
-    page,
-    limit,
-    startDate,
-    endDate,
-    game,
-    mentor,
-    location,
-    sort,
-    asc,
+export function useGetGameplays(
+  page: number,
+  limit: number,
+  filters: FormElementsState
+) {
+  const { startDate, endDate, game, mentor, location, sort, asc } = filters;
+
+  const parts = [
+    `page=${page}`,
+    `limit=${limit}`,
+    startDate && `startDate=${startDate}`,
+    endDate && `endDate=${endDate}`,
+    game && `game=${game}`,
+    mentor && `mentor=${mentor}`,
+    location && `location=${location}`,
+    sort && `sort=${sort}`,
+    asc !== undefined && `asc=${asc}`,
   ];
-  const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<GameplayQueryResult>({ path: query })
-  );
-  return {
-    isLoading,
-    error,
-    data,
-    isFetching,
-  };
+
+  const queryString = parts.filter(Boolean).join("&");
+  const url = `${BASE_URL_GAMEPLAYS}/query?${queryString}`;
+
+  return useGet<GameplayQueryResult>(url, [url, page, limit, filters], true);
 }
 
 export function useGetGameplaysGroups(filter: GameplayGroupFilter) {
