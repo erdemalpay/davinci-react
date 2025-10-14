@@ -264,9 +264,7 @@ const NewOrderListPanel = () => {
             })}
           </div>
 
-          {orderCreateBulk?.length > 0 && (
-            <NewOrderDiscounts />
-          )}
+          {orderCreateBulk?.length > 0 && <NewOrderDiscounts />}
         </>
       )}
 
