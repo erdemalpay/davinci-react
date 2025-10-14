@@ -552,9 +552,10 @@ const Tables = () => {
       options: members
         ?.filter((membership) => membership.endDate >= formatDate(new Date()))
         ?.map((membership) => ({
-          value: membership._id,
+          value: membership.name,
           label: membership.name,
         })),
+      isMultiple: true,
       required: orderForm?.discount === MEMBERDISCOUNTID,
       isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
       isOnClearActive: true,
