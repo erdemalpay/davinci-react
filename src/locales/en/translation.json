@@ -870,5 +870,8 @@
   "No applicable products for this discount": "No applicable products for this discount",
   "This field is required.": "This field is required.",
   "Has Kitchen Menu": "Has Kitchen Menu",
-  "{{categoryName}} is not active": "{{categoryName}} is not active."
+  "{{categoryName}} is not active": "{{categoryName}} is not active.",
+  "Total Gameplays": "Total Gameplays",
+  "Unique Games" : "Unique Games",
+  "Unique Mentors" : "Unique Mentors"
 }

@@ -177,7 +177,7 @@ const Collections = () => {
       key: "amount",
       node: (row: any) => (
         <p className={row?.className} key={row?._id + "amount"}>
-          {(row?.amount ?? 0)?.toFixed(2)} ₺
+          {(row?.amount ?? 0)?.toFixed(2).replace(/\.?0*$/, "")} ₺
         </p>
       ),
     },

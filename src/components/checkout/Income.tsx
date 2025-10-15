@@ -170,8 +170,18 @@ const Income = () => {
       className: "min-w-32 pr-1",
     },
     { key: "lctn" },
-    { key: "amount" },
-    { key: "collectionIncome" },
+    {
+      key: "amount",
+      node: (row: any) => {
+        return row.amount?.toFixed(2).replace(/\.?0*$/, "");
+      },
+    },
+    {
+      key: "collectionIncome",
+      node: (row: any) => {
+        return row.collectionIncome?.toFixed(2).replace(/\.?0*$/, "");
+      },
+    },
   ];
   if (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) {
     columns.splice(
@@ -309,12 +319,7 @@ const Income = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(generalTotal)}{" "}
-            ₺
+            {generalTotal.toFixed(2).replace(/\.?0*$/, "")} ₺
           </p>
         </div>
       ),
