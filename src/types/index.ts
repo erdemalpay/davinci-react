@@ -584,7 +584,7 @@ export type Order = {
   discountAmount?: number;
   division?: number;
   isOnlinePrice?: boolean;
-  discountNote?: string;
+  discountNote?: string | string[];
   stockLocation?: number;
   [key: string]: any;
   kitchen?: string;

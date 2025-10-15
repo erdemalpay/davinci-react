@@ -5,6 +5,7 @@ import { useOrderContext } from "../../context/Order.context";
 import { OrderDiscount, OrderDiscountStatus, TURKISHLIRA } from "../../types";
 import { useGetPopularDiscounts } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import SearchInput from "../panelComponents/common/SearchInput";
 
 const NewOrderDiscounts = () => {
   const { t } = useTranslation();
@@ -13,19 +14,23 @@ const NewOrderDiscounts = () => {
   );
   const popularDiscounts = useGetPopularDiscounts();
   const [showAllDiscounts, setShowAllDiscounts] = useState(false);
-  const { orderCreateBulk, setOrderCreateBulk, selectedNewOrders } =
-    useOrderContext();
+  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    orderCreateBulk,
+    selectedNewOrders,
+    setSelectedDiscount,
+    setIsDiscountNoteOpen,
+    setIsProductSelectionOpen,
+  } = useOrderContext();
   const handleDiscountClick = (discount: OrderDiscount) => {
-    const newOrders = orderCreateBulk?.map((order, index) => {
-      if (selectedNewOrders?.includes(index)) {
-        return {
-          ...order,
-          discount: discount._id,
-        };
-      }
-      return order;
-    });
-    setOrderCreateBulk(newOrders);
+    setSelectedDiscount(discount);
+
+    if (discount?.isNoteRequired) {
+      setIsDiscountNoteOpen(true);
+      return;
+    }
+
+    setIsProductSelectionOpen(true);
   };
   const selectedOrders = orderCreateBulk?.filter((order, index) =>
     selectedNewOrders?.includes(index)
@@ -42,37 +47,76 @@ const NewOrderDiscounts = () => {
   );
 
   const filteredDiscounts = discounts?.filter((discount) => {
+    if (!discount?.isStoreOrder) return false;
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase().trim();
+      const matchesName = discount?.name?.toLowerCase().includes(query);
+      const matchesAmount = discount?.amount?.toString().includes(query);
+      const matchesPercentage = discount?.percentage
+        ?.toString()
+        .includes(query);
+      return matchesName || matchesAmount || matchesPercentage;
+    }
+
     return (
-      discount?.isStoreOrder &&
-      (filteredPopularDiscounts?.length === 0 ||
-        filteredPopularDiscounts?.includes(discount._id) ||
-        showAllDiscounts)
+      filteredPopularDiscounts?.length === 0 ||
+      filteredPopularDiscounts?.includes(discount._id) ||
+      showAllDiscounts
     );
   });
   return (
-    <div className="flex flex-col h-[60%]  sm:h-full justify-between overflow-scroll no-scrollbar px-2 pb-2 sm:min-h-[23rem]  ">
-      {/* discounts */}
-      <div className="grid grid-cols-3 gap-4">
+    <div className="flex flex-col h-[60%] sm:h-full overflow-y-auto no-scrollbar px-2 pb-2 sm:min-h-[23rem]">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center justify-between mb-3 flex-shrink-0">
+        <div className="flex-1 min-w-0">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={t("Search Discounts")}
+          />
+        </div>
+
+        <button
+          onClick={() => {
+            setShowAllDiscounts(!showAllDiscounts);
+          }}
+          className="inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer whitespace-nowrap"
+        >
+          {showAllDiscounts
+            ? t("Show Popular Discounts")
+            : t("Show All Discounts")}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 auto-rows-min content-start">
         {filteredDiscounts?.map((discount) => {
           return (
             <div
               key={discount._id}
-              className="flex flex-col justify-start items-center px-2 py-1  pb-2 border rounded-md border-gray-200 hover:bg-gray-100 cursor-pointer h-24 overflow-scroll no-scrollbar"
+              className="flex flex-col justify-center items-center px-3 py-3 border-2 rounded-lg border-gray-200 hover:border-blue-400 hover:shadow-md cursor-pointer min-h-[100px] sm:min-h-[120px] transition-all duration-200 bg-white"
               onClick={() => {
                 handleDiscountClick(discount);
               }}
             >
-              <p className="text-red-600 p-2 items-center justify-center  font-medium">
+              <p className="text-red-600 text-lg sm:text-xl font-bold mb-1">
                 {discount?.percentage
                   ? discount.percentage + "%"
                   : discount.amount + " " + TURKISHLIRA}
               </p>
-              <p className="flex flex-row gap-1 text-sm font-medium py-0.5 text-center">
+              <p className="text-xs sm:text-sm font-medium text-center text-gray-700 line-clamp-2">
                 {discount.name}
               </p>
             </div>
           );
         })}
+
+        {filteredDiscounts?.length === 0 && (
+          <div className="col-span-full text-center text-gray-500 py-8">
+            {searchQuery
+              ? t("No discounts found for your search")
+              : t("No discounts available")}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-row items-center ml-auto gap-2 mt-2 ">

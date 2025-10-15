@@ -20,8 +20,8 @@ interface CreateOrderForDiscount {
   }[];
   discount: number;
   discountPercentage?: number;
-  discountAmout?: number;
-  discountNote?: string;
+  discountAmount?: number;
+  discountNote?: string | string[];
 }
 interface CreateOrderForDivide {
   tableId?: number;

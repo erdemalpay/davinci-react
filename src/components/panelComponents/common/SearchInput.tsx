@@ -16,7 +16,7 @@ const SearchInput = ({ onChange, value, placeholder }: Props) => {
         onChange(e.target.value);
       }}
       placeholder={placeholder ?? t("Search")}
-      className="border border-gray-200 rounded-md py-2 px-3 w-fit focus:outline-none"
+      className="border border-gray-200 rounded-md py-2 px-3 w-full focus:outline-none focus:border-blue-500 transition-colors"
     />
   );
 };
