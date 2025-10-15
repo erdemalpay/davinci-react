@@ -1,6 +1,7 @@
 import { Input } from "@material-tailwind/react";
 import { UseMutateFunction } from "@tanstack/react-query";
 import { useState } from "react";
+import { GenericButton } from "../common/GenericButton";
 import { Game } from "../../types";
 import { useGetGameDetails } from "../../utils/api/game";
 
@@ -51,21 +52,23 @@ export function AddGameDialog({
             />
           </div>
           <div className="ml-auto flex flex-row gap-4">
-            <button
+            <GenericButton
               onClick={close}
-              className="inline-block bg-red-400 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit"
+              variant="danger"
+              size="sm"
+              className="!bg-red-400 hover:!bg-red-600"
             >
               Cancel
-            </button>
-            <button
+            </GenericButton>
+            <GenericButton
               disabled={!gameDetails}
-              className={`inline-block ${
-                !gameDetails ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
-              } text-white text-sm py-2 px-3 rounded-md cursor-pointer my-auto w-fit`}
+              variant={!gameDetails ? "secondary" : "primary"}
+              size="sm"
+              className={!gameDetails ? "!bg-gray-500" : "!bg-blue-500 hover:!bg-blue-600"}
               onClick={handleCreate}
             >
               Add Game
-            </button>
+            </GenericButton>
           </div>
         </div>
       </div>

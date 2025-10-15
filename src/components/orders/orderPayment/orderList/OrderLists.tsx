@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import { GenericButton } from "../../../common/GenericButton";
 import { useOrderContext } from "../../../../context/Order.context";
 import { Order, Table } from "../../../../types";
 import {
@@ -214,7 +215,9 @@ const OrderLists = ({
               discountAmount: selectedDiscount.amount,
             }),
             ...(discountNote && {
-              discountNote: discountNote,
+              discountNote: Array.isArray(discountNote) 
+                ? discountNote.join(',') 
+                : discountNote,
             }),
           });
         } else if (isTableSelectOpen) {
@@ -293,13 +296,14 @@ const OrderLists = ({
         {buttons.map((button) => {
           if (button.isActive) {
             return (
-              <button
+              <GenericButton
                 key={button.label}
                 onClick={button.onClick}
-                className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
+                variant="ghost"
+                className="w-fit !bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md hover:!bg-gray-300 !text-red-300 hover:!text-red-500 font-semibold"
               >
                 {button.label}
-              </button>
+              </GenericButton>
             );
           }
         })}

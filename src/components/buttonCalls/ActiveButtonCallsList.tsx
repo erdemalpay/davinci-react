@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GenericButton } from "../common/GenericButton";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType, ButtonCallTypeEnum } from "../../types";
 import {
@@ -94,12 +95,13 @@ export function ActiveButtonCallsList() {
               buttonCall?.type ?? ButtonCallTypeEnum.TABLECALL
             )} text-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex flex-col items-center`}
           >
-            <button
+            <GenericButton
               onClick={() => handleChipClose(buttonCall.tableName)}
+              variant="ghost"
               className="absolute top-1 right-1.5 text-xs text-amber-50 hover:text-blue-100"
             >
               ✖
-            </button>
+            </GenericButton>
             <span className="text-md my-2 font-semibold">
               {buttonCall.tableName}
             </span>

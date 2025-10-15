@@ -41,6 +41,7 @@ import { useGetVisits } from "../../../utils/api/visit";
 import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
+import { GenericButton } from "../../common/GenericButton";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
@@ -109,10 +110,12 @@ const OrderPaymentModal = ({
     })
     .filter((user) => user !== null);
   const getTable = (tableId: number) => {
+    const freshTable = tables?.find((table) => table?._id === tableId);
+    if (freshTable) {
+      return freshTable;
+    }
     if (orders?.length > 0) {
       return orders[0]?.table as Table;
-    } else if (tables && tables.some((table) => table?._id === tableId)) {
-      return getItem(tableId, tables) as Table;
     }
   };
   const table = getTable(tableId) as Table;
@@ -323,6 +326,12 @@ const OrderPaymentModal = ({
   const filteredDiscounts = discounts?.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
+  const isOnlinePrice = useMemo(() => {
+    const menuItem = getItem(orderForm.item, items);
+    return Boolean(
+      menuItem && getItem(menuItem.category, categories)?.isOnlineOrder
+    );
+  }, [orderForm.item, items, categories]);
   const menuItemStockQuantity = (item: MenuItem, location: number) => {
     if (item?.matchedProduct) {
       const stock = stocks?.find((stock) => {
@@ -334,35 +343,45 @@ const OrderPaymentModal = ({
     }
     return 0;
   };
-  const menuItemOptions = items
-    ?.filter((menuItem) => {
-      return (
-        !orderForm.category || menuItem.category === Number(orderForm.category)
-      );
-    })
-    ?.filter((item) => {
-      return !inactiveCategoriesIds.includes(item.category);
-    })
-    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-    ?.filter((menuItem) =>
-      table?.isOnlineSale
-        ? getItem(menuItem.category, categories)?.isOnlineOrder
-        : true
-    )
-    ?.map((menuItem) => {
-      return {
-        value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        imageUrl: menuItem?.imageUrl,
-        keywords: [
-          menuItem?.name,
-          ...(menuItem?.sku ? [menuItem.sku] : []),
-          ...(menuItem?.barcode ? [menuItem.barcode] : []),
-          getItem(menuItem?.category, categories)?.name || "",
-        ],
-        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
-      };
-    });
+  const menuItemOptions = useMemo(() => {
+    return items
+      ?.filter((menuItem) => {
+        return (
+          !orderForm.category || menuItem.category === Number(orderForm.category)
+        );
+      })
+      ?.filter((item) => {
+        return !inactiveCategoriesIds.includes(item.category);
+      })
+      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+      ?.filter((menuItem) =>
+        table?.isOnlineSale
+          ? getItem(menuItem.category, categories)?.isOnlineOrder
+          : true
+      )
+      ?.map((menuItem) => {
+        return {
+          value: menuItem?._id,
+          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          imageUrl: menuItem?.imageUrl,
+          keywords: [
+            menuItem?.name,
+            ...(menuItem?.sku ? [menuItem.sku] : []),
+            ...(menuItem?.barcode ? [menuItem.barcode] : []),
+            getItem(menuItem?.category, categories)?.name || "",
+          ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+        };
+      });
+  }, [
+    items,
+    orderForm.category,
+    orderForm.isOnlinePrice,
+    inactiveCategoriesIds,
+    selectedLocationId,
+    table?.isOnlineSale,
+    categories,
+  ]);
   function finishTable() {
     closeTable({
       id: tableId,
@@ -436,7 +455,7 @@ const OrderPaymentModal = ({
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
@@ -557,9 +576,10 @@ const OrderPaymentModal = ({
       options: members
         ?.filter((membership) => membership.endDate >= formatDate(new Date()))
         ?.map((membership) => ({
-          value: membership._id,
+          value: membership.name,
           label: membership.name,
         })),
+      isMultiple: true,
       required: orderForm?.discount === MEMBERDISCOUNTID,
       isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
       isOnClearActive: true,
@@ -593,6 +613,15 @@ const OrderPaymentModal = ({
       isDisabled: !(
         getItem(orderForm.item, items)?.itemProduction?.length ?? 0 > 0
       ),
+    },
+    {
+      type: InputTypes.CHECKBOX,
+      formKey: "isOnlinePrice",
+      label: t("Online Price"),
+      placeholder: t("Online Price"),
+      required: isOnlinePrice,
+      isDisabled: !isOnlinePrice,
+      isTopFlexRow: true,
     },
     {
       type: InputTypes.SELECT,
@@ -647,6 +676,7 @@ const OrderPaymentModal = ({
     { key: "discount", type: FormKeyTypeEnum.NUMBER },
     { key: "discountNote", type: FormKeyTypeEnum.STRING },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
+    { key: "isOnlinePrice", type: FormKeyTypeEnum.BOOLEAN },
     { key: "activityTableName", type: FormKeyTypeEnum.STRING },
     { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
     { key: "note", type: FormKeyTypeEnum.STRING },
@@ -974,13 +1004,14 @@ const OrderPaymentModal = ({
                   {buttons?.map((button) => {
                     if (button.isActive) {
                       return (
-                        <button
+                        <GenericButton
                           key={button.label}
                           onClick={button.onClick}
-                          className="w-fit  bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md focus:outline-none hover:bg-gray-300 text-red-300 hover:text-red-500 font-semibold "
+                          variant="ghost"
+                          className="w-fit !bg-gray-200 px-2 sm:px-4 py-1 sm:py-2 rounded-lg shadow-md hover:!bg-gray-300 !text-red-300 hover:!text-red-500 font-semibold"
                         >
                           {button.label}
-                        </button>
+                        </GenericButton>
                       );
                     }
                   })}

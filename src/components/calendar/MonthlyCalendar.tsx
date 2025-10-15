@@ -10,6 +10,7 @@ import {
 } from "date-fns";
 import React, { ReactNode, useContext } from "react";
 import { useTranslation } from "react-i18next";
+import { GenericButton } from "../common/GenericButton";
 
 type CalendarState = {
   days: Date[];
@@ -63,14 +64,15 @@ export const MonthlyNav = () => {
 
   return (
     <div className="flex justify-end mb-4">
-      <button
+      <GenericButton
         onClick={() => {
           onCurrentMonthChange(subMonths(currentMonth, 1));
         }}
+        variant="ghost"
         className="cursor-pointer text-2xl"
       >
         {"<"}
-      </button>
+      </GenericButton>
       <div
         className="mx-2 w-32 text-center text-xl text-black"
         aria-label="Current Month"
@@ -85,12 +87,13 @@ export const MonthlyNav = () => {
           )
         )}
       </div>
-      <button
+      <GenericButton
         onClick={() => onCurrentMonthChange(addMonths(currentMonth, 1))}
+        variant="ghost"
         className="cursor-pointer text-2xl"
       >
         {">"}
-      </button>
+      </GenericButton>
     </div>
   );
 };

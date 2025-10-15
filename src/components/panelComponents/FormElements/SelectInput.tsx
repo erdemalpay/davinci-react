@@ -12,6 +12,7 @@ import Select, {
   components,
 } from "react-select";
 import { OptionType } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 import { H6 } from "../Typography";
 
 const CustomOption = (
@@ -242,7 +243,7 @@ const SelectInput = ({
             })
             // render a button per remaining suggestion
             .map((opt) => (
-              <button
+              <GenericButton
                 key={opt.value}
                 type="button"
                 onClick={(e) => {
@@ -264,11 +265,13 @@ const SelectInput = ({
                     onChangeTrigger && onChangeTrigger(candidate, actionMeta);
                   }
                 }}
-                className="ml-2 text-xs sm:text-sm px-2 py-1 rounded-full border border-blue-600 text-blue-700 hover:bg-blue-50 active:bg-blue-100 transition"
+                variant="outline"
+                size="sm"
+                className="ml-2 text-xs sm:text-sm rounded-full"
                 title={`Use suggested: ${opt.label}`}
               >
                 {opt.label}
-              </button>
+              </GenericButton>
             ))}
       </H6>
 
@@ -327,12 +330,13 @@ const SelectInput = ({
           )}
         </div>
         {!isReadOnly && !isMultiple && isOnClearActive && value && onClear && (
-          <button
+          <GenericButton
             onClick={onClear}
-            className=" w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            variant="icon"
+            className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
             <IoIosClose />
-          </button>
+          </GenericButton>
         )}
       </div>
     </div>

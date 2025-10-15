@@ -116,7 +116,7 @@ const GroupedProductSalesReport = () => {
           existingEntry.collapsible.collapsibleRows =
             existingEntry.unitPriceQuantity
               .map((item) => ({
-                unitPrice: item.unitPrice.toString() + " " + TURKISHLIRA,
+                unitPrice: item.unitPrice.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA,
                 quantity: item.quantity,
                 unitPriceValue: item.unitPrice,
               }))
@@ -249,7 +249,7 @@ const GroupedProductSalesReport = () => {
           <p className={`${row?.className}`} key={"unitPrice" + row?.item}>
             {row?.unitPriceQuantity.length > 1 || row?.unitPrice === 0
               ? ""
-              : row?.unitPrice?.toFixed(2) + " " + TURKISHLIRA}
+              : row?.unitPrice?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -259,7 +259,7 @@ const GroupedProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"discount" + row?.item}>
-            {row?.discount?.toFixed(2) > 0 && row?.discount + " " + TURKISHLIRA}
+            {row?.discount?.toFixed(2) > 0 && row?.discount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -269,7 +269,7 @@ const GroupedProductSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"amount" + row?.item}>
-            {row?.amount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.amount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },
@@ -282,7 +282,7 @@ const GroupedProductSalesReport = () => {
             className={`${row?.className}`}
             key={"totalAmountWithDiscount" + row?.item}
           >
-            {row?.totalAmountWithDiscount?.toFixed(2) + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },

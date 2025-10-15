@@ -34,6 +34,7 @@ import {
 import { useGetAccountProducts } from "../utils/api/account/product";
 import { useGetStockLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
+import { isDisabledConditionCountList } from "../utils/isDisabledConditions";
 import { StockLocationInput } from "../utils/panelInputs";
 interface LocationEntries {
   [key: string]: boolean;
@@ -44,6 +45,7 @@ const CountList = () => {
   const navigate = useNavigate();
   const { countListId } = useParams();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionCountList(user);
   const locations = useGetStockLocations();
   const countLists = useGetAccountCountLists();
   const { resetGeneralContext, setCountListActiveTab } = useGeneralContext();
@@ -309,7 +311,7 @@ const CountList = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user.role._id) : true,
+      isDisabled: isDisabledCondition,
       node: (
         <Switch
           checked={isEnableEdit}

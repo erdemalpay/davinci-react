@@ -7,6 +7,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { ActiveButtonCallsList } from "../components/buttonCalls/ActiveButtonCallsList";
 import { DateInput } from "../components/common/DateInput2";
+import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import OrderPaymentModal from "../components/orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
@@ -213,30 +214,39 @@ const Tables = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
-  const menuItemOptions = menuItems
-    ?.filter((menuItem) => {
-      return (
-        !orderForm.category || menuItem.category === Number(orderForm.category)
-      );
-    })
-    ?.filter((item) => {
-      return !inactiveCategoriesIds.includes(item.category);
-    })
-    ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-    ?.map((menuItem) => {
-      return {
-        value: menuItem?._id,
-        label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
-        imageUrl: menuItem?.imageUrl,
-        keywords: [
-          menuItem?.name,
-          ...(menuItem?.sku ? [menuItem.sku] : []),
-          ...(menuItem?.barcode ? [menuItem.barcode] : []),
-          getItem(menuItem?.category, categories)?.name || "",
-        ],
-        triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
-      };
-    });
+  const menuItemOptions = useMemo(() => {
+    return menuItems
+      ?.filter((menuItem) => {
+        return (
+          !orderForm.category || menuItem.category === Number(orderForm.category)
+        );
+      })
+      ?.filter((item) => {
+        return !inactiveCategoriesIds.includes(item.category);
+      })
+      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
+      ?.map((menuItem) => {
+        return {
+          value: menuItem?._id,
+          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          imageUrl: menuItem?.imageUrl,
+          keywords: [
+            menuItem?.name,
+            ...(menuItem?.sku ? [menuItem.sku] : []),
+            ...(menuItem?.barcode ? [menuItem.barcode] : []),
+            getItem(menuItem?.category, categories)?.name || "",
+          ],
+          triggerExtraModal: menuItem?.suggestedDiscount ? true : false,
+        };
+      });
+  }, [
+    menuItems,
+    orderForm.category,
+    orderForm.isOnlinePrice,
+    inactiveCategoriesIds,
+    selectedLocationId,
+    categories,
+  ]);
   const orderInputs = [
     {
       type: InputTypes.TAB,
@@ -431,7 +441,7 @@ const Tables = () => {
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
@@ -551,9 +561,10 @@ const Tables = () => {
       options: members
         ?.filter((membership) => membership.endDate >= formatDate(new Date()))
         ?.map((membership) => ({
-          value: membership._id,
+          value: membership.name,
           label: membership.name,
         })),
+      isMultiple: true,
       required: orderForm?.discount === MEMBERDISCOUNTID,
       isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
       isOnClearActive: true,
@@ -1091,15 +1102,16 @@ const Tables = () => {
             {/* buttons */}
             <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4 mt-2 md:mt-0 md:mr-40">
               {buttons.map((button, index) => (
-                <button
+                <GenericButton
                   key={index}
                   onClick={button.onClick}
-                  className={`min-w-fit transition duration-150 ease-in-out hover:bg-blue-900 hover:text-white active:bg-blue-700 active:text-white rounded-lg border border-gray-800 text-gray-800 px-4 py-2 text-sm md:block ${
-                    button.hideOnMobile ? "hidden" : ""
+                  variant="ghost"
+                  className={`min-w-fit transition duration-150 ease-in-out hover:translate-y-0.5 active:translate-y-1 rounded-lg border border-gray-800 text-gray-800 hover:text-gray-800 px-4 py-2 text-sm ${
+                    button.hideOnMobile ? "hidden md:block" : ""
                   }`}
                 >
                   {button.label}
-                </button>
+                </GenericButton>
               ))}
             </div>
           </div>

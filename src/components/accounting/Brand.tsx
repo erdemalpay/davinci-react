@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountBrand, RoleEnum } from "../../types";
+import { AccountBrand } from "../../types";
 import {
   useAccountBrandMutations,
   useCreateMultipleBrandMutation,
@@ -20,6 +20,7 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { isDisabledConditionBrand } from "../../utils/isDisabledConditions";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -29,6 +30,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionBrand(user);
   const pages = useGetPanelControlPages();
   const navigate = useNavigate();
   const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
@@ -65,10 +67,7 @@ const Brand = () => {
     { key: t("Name"), isSortable: true, correspondingKey: "name" },
     { key: t("Product Count"), isSortable: true },
   ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-  ) {
+  if (!isDisabledCondition) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
   const rowKeys = [
@@ -140,9 +139,7 @@ const Brand = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-    isDisabled: user
-      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-      : true,
+    isDisabled: isDisabledCondition,
   };
   const actions = [
     {
@@ -166,9 +163,7 @@ const Brand = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),
@@ -192,9 +187,7 @@ const Brand = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Add Into Product"),
@@ -234,9 +227,7 @@ const Brand = () => {
       isModalOpen: isAddProductModalOpen,
       setIsModal: setIsAddProductModalOpen,
       isPath: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-        : true,
+      isDisabled: isDisabledCondition,
     },
   ];
   const processExcelData = (data: any[]) => {
@@ -321,13 +312,7 @@ const Brand = () => {
           isExcel={true}
           isEmtpyExcel={true}
           excelFileName={"Brand.xlsx"}
-          isActionsActive={
-            user
-              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                  user?.role?._id
-                )
-              : false
-          }
+          isActionsActive={!isDisabledCondition}
         />
       </div>
     </>

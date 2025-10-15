@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   NotificationType,
-  RoleEnum,
   notificationEventsOptions,
 } from "../../types";
 import { useGetAllLocations } from "../../utils/api/location";
@@ -12,6 +11,7 @@ import {
   useGetUser,
   useGetUsers,
 } from "../../utils/api/user";
+import { isDisabledConditionCreateNotification } from "../../utils/isDisabledConditions";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -20,6 +20,7 @@ const CreateNotification = () => {
   const { createNotification } = useNotificationMutations();
   const users = useGetUsers();
   const user = useGetUser();
+  const isDisabledCondition = isDisabledConditionCreateNotification(user);
   const roles = useGetAllUserRoles();
   const locations = useGetAllLocations();
   const [form, setForm] = useState({
@@ -101,7 +102,7 @@ const CreateNotification = () => {
       placeholder: t("Triggered Event"),
       required: false,
       isAutoFill: false,
-      isDisabled: user?.role?._id !== RoleEnum.MANAGER,
+      isDisabled: isDisabledCondition,
     },
     {
       type: InputTypes.TEXTAREA,

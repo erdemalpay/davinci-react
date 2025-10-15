@@ -17,13 +17,14 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum, WorkType } from "../types";
+import { WorkType } from "../types";
 import {
   useGetAllUserRoles,
   useGetAllUsers,
   useResetPasswordMutation,
   useUserMutations,
 } from "../utils/api/user";
+import { isDisabledConditionUsers } from "../utils/isDisabledConditions";
 
 // these are the columns and rowKeys for the table
 interface TableUser {
@@ -54,6 +55,7 @@ export default function Users() {
   const [rowToAction, setRowToAction] = useState<TableUser>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionUsers(user);
   const { resetGeneralContext } = useGeneralContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const roles = useGetAllUserRoles();
@@ -194,7 +196,7 @@ export default function Users() {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),

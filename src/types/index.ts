@@ -584,7 +584,7 @@ export type Order = {
   discountAmount?: number;
   division?: number;
   isOnlinePrice?: boolean;
-  discountNote?: string;
+  discountNote?: string | string[];
   stockLocation?: number;
   [key: string]: any;
   kitchen?: string;
@@ -909,6 +909,20 @@ export enum StocksPageTabEnum {
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
+}
+export enum GameplayAnalyticsTabEnum {
+  GAMEPLAYBYGAMEMENTORS,
+  UNIQUEGAMEPLAYBYGAMEMENTORS,
+  TABLEPLAYERCOUNTS,
+  GAMEPLAYSBYMENTORSDETAILS,
+  GAMEPLAYSBYGAMES,
+  KNOWNGAMESCOUNT,
+  WHOKNOWS,
+  LEARNEDGAMES,
+}
+export enum AccountingAnalyticsTabEnum {
+  PRODUCTPRICECHART,
+  MENUITEMPRICECHART,
 }
 export enum ProductPageTabEnum {
   PRODUCTPRICECHART,

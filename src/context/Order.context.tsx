@@ -19,10 +19,10 @@ type OrderContextType = {
   paymentAmount: string;
   setPaymentAmount: (paymentAmount: string) => void;
   isSelectAll: boolean;
-  discountNote: string;
-  setDiscountNote: (discountNote: string) => void;
+  discountNote: string | string[];
+  setDiscountNote: (discountNote: string | string[]) => void;
   selectedDiscount: OrderDiscount | null;
-  setSelectedDiscount: (selectedDiscount: OrderDiscount) => void;
+  setSelectedDiscount: (selectedDiscount: OrderDiscount | null) => void;
   selectedTableTransfer: number;
   setSelectedTableTransfer: (selectedTableTransfer: number) => void;
   isOrderDivisionActive: boolean;
@@ -257,7 +257,7 @@ export const OrderContextProvider = ({ children }: PropsWithChildren) => {
   });
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
-  const [discountNote, setDiscountNote] = useState<string>("");
+  const [discountNote, setDiscountNote] = useState<string | string[]>("");
   const [orderCreateBulk, setOrderCreateBulk] = useState<Partial<Order>[]>([]);
   const [isExtraModalOpen, setIsExtraModalOpen] = useState(false);
   const [selectedNewOrders, setSelectedNewOrders] = useState<number[]>([]);
