@@ -874,6 +874,7 @@
   "This field is required": "Bu alan gereklidir",
   "{{categoryName}} is not active": "{{categoryName}} aktif değil.",
   "Total Gameplays" : "Toplam Oyun Sayısı",
-  "Unique Games" : "Farklı Oyun Sayısı"
+  "Unique Games" : "Farklı Oyun Sayısı",
+  "Unique Mentors" : "Kaç Farklı Anlatıcı"
 
 }
