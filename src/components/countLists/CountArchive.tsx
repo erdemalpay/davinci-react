@@ -23,6 +23,7 @@ import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
+import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -57,6 +58,7 @@ const CountArchive = () => {
       after: "",
       before: "",
       sort: "",
+      search: "",
       asc: 1,
     });
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
@@ -328,7 +330,22 @@ const CountArchive = () => {
         totalRows: countsPayload.totalNumber,
       }
     : null;
-
+  const outsideSearch = () => {
+    return (
+      <TextInput
+        placeholder={t("Search")}
+        type="text"
+        value={filterPanelFormElements.search}
+        isDebounce={true}
+        onChange={(value) =>
+          setFilterPanelFormElements({
+            ...filterPanelFormElements,
+            search: value,
+          })
+        }
+      />
+    );
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements]);
@@ -353,6 +370,8 @@ const CountArchive = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
+          outsideSearch={outsideSearch}
+          isSearch={false}
           title={t("Count Archive")}
           filterPanel={filterPanel}
           filters={filters}
