@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOrderContext } from "../../../../context/Order.context";
 import {
   Order,
@@ -14,10 +15,22 @@ type Props = {
   tableOrders: Order[];
 };
 
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/i̇/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+
 const DiscountScreen = ({ tableOrders, table }: Props) => {
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
   );
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     setIsProductSelectionOpen,
     setSelectedDiscount,
@@ -35,15 +48,35 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
   const filteredDiscounts = discounts?.filter((discount) =>
     table?.isOnlineSale ? discount?.isOnlineOrder : discount?.isStoreOrder
   );
+
+  const searchFilteredDiscounts = filteredDiscounts?.filter((discount) => {
+    const searchValue = normalizeText(searchTerm);
+    return (
+      normalizeText(discount.name).includes(searchValue) ||
+      (discount.percentage && discount.percentage.toString().includes(searchTerm)) ||
+      (discount.amount && discount.amount.toString().includes(searchTerm))
+    );
+  });
+
   return (
     <div className="flex flex-col relative">
       <OrderScreenHeader header="Discounts" />
+      <div className="px-2 mb-2">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoFocus
+          placeholder="İndirim ara..."
+          className="w-full border border-gray-300 rounded px-3 py-2"
+        />
+      </div>
       <div className="relative max-h-80">
         <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
 
         <div className="max-h-80 overflow-y-auto px-1 py-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
           <div className="grid grid-cols-3 gap-4">
-            {filteredDiscounts?.map((discount) => {
+            {searchFilteredDiscounts?.map((discount) => {
               return (
                 <div
                   key={discount._id}
