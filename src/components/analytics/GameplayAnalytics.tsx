@@ -78,14 +78,14 @@ export default function GameplayAnalytics() {
       isDisabled: false,
     },
     {
-      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYMENTORSDETAILS, //"gm oyun anlatım detayları" tabı
+      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYMENTORSDETAILS,
       label: t("Gameplays By Mentors Details"),
       icon: <TbPlayCard className="text-lg font-thin" />,
       content: <GameplaysByMentor />,
       isDisabled: false,
     },
     {
-      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYGAMES, //"oyun çeşidi grafiği" tabı
+      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYGAMES,
       label: t("Gameplays By Games"),
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
