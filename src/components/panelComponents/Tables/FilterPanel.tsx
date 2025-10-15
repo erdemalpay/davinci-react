@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
@@ -27,6 +27,13 @@ const FilterPanel = <T,>({
   const { setCurrentPage } = useGeneralContext();
   const [tempFormElements, setTempFormElements] =
     useState<FormElementsState>(formElements);
+
+  // Sync tempFormElements with formElements when not in apply button mode
+  useEffect(() => {
+    if (!isApplyButtonActive) {
+      setTempFormElements(formElements);
+    }
+  }, [formElements, isApplyButtonActive]);
   const applyFilters = () => {
     setFormElements(tempFormElements);
     setCurrentPage(1); // Reset to the first page after applying filters
