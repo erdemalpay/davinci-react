@@ -125,7 +125,12 @@ const Cashout = () => {
       className: "min-w-32 pr-1",
     },
     { key: "lctn" },
-    { key: "amount" },
+    {
+      key: "amount",
+      node: (row: any) => {
+        return parseFloat(row.amount).toFixed(2).replace(/\.?0*$/, "");
+      },
+    },
     { key: "description" },
     {
       key: "isAfterCount",
@@ -279,11 +284,7 @@ const Cashout = () => {
       node: (
         <div className="flex flex-row gap-2">
           <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(generalTotal)}{" "}
+            {generalTotal.toFixed(2).replace(/\.?0*$/, "")}{" "}
             ₺
           </p>
         </div>

@@ -170,7 +170,7 @@ const IkasPickUp = () => {
           className={`min-w-32 pr-2 ${row.className}`}
           key={row._id + "amount"}
         >
-          {row.amount} ₺
+          {row.amount.toFixed(2).replace(/\.?0*$/, "")} ₺
         </p>
       ),
     },
