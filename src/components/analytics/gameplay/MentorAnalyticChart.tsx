@@ -68,12 +68,25 @@ export function MentorAnalyticChart({
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      dateFilter: dateFilter,
-      startDate: startDate,
-      endDate: endDate || "",
-      location: location,
-      itemLimit: itemLimit.toString(),
+      dateFilter: "",
+      startDate: "",
+      endDate: "",
+      location: "",
+      itemLimit: "",
     });
+
+  // Initialize filter panel with current values when first opened
+  useEffect(() => {
+    if (showFilters) {
+      setFilterPanelFormElements({
+        dateFilter: dateFilter,
+        startDate: startDate,
+        endDate: endDate || "",
+        location: location,
+        itemLimit: itemLimit.toString(),
+      });
+    }
+  }, [showFilters]);
 
   useEffect(() => {
     if (!gameAnalytics) return;
@@ -96,61 +109,31 @@ export function MentorAnalyticChart({
     const { startDate: newStartDate, endDate: newEndDate } = getStartEndDates(dateFilter);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
-    // Update filter panel form elements to reflect the new dates
-    setFilterPanelFormElements((prev) => ({
-      ...prev,
-      startDate: newStartDate,
-      endDate: newEndDate || "",
-    }));
   }, [dateFilter]);
 
   useEffect(() => {
     queryClient.invalidateQueries([Paths.Gameplays, "query"]);
   }, [startDate, endDate, itemLimit, queryClient]);
 
-  // Sync filter panel with parent state
   useEffect(() => {
-    // If dateFilter is cleared, set it to default (Single Day = "1")
-    if (!filterPanelFormElements.dateFilter || filterPanelFormElements.dateFilter === "") {
-      setFilterPanelFormElements((prev) => ({
-        ...prev,
-        dateFilter: "1",
-      }));
-      return;
-    }
+    if (!showFilters) return;
 
-    if (filterPanelFormElements.dateFilter !== dateFilter) {
+    if (filterPanelFormElements.dateFilter && filterPanelFormElements.dateFilter !== dateFilter) {
       setDateFilter(filterPanelFormElements.dateFilter as DateFilter);
     }
-
-    // If startDate changed manually, switch to MANUAL mode and update
-    if (filterPanelFormElements.startDate !== startDate) {
-      if (dateFilter !== DateFilter.MANUAL) {
-        setDateFilter(DateFilter.MANUAL);
-        setFilterPanelFormElements((prev) => ({
-          ...prev,
-          dateFilter: DateFilter.MANUAL,
-        }));
-      }
+    if (filterPanelFormElements.startDate && filterPanelFormElements.startDate !== startDate) {
       setStartDate(filterPanelFormElements.startDate);
     }
-
-    if (
-      filterPanelFormElements.endDate !== (endDate || "") &&
-      dateFilter === DateFilter.MANUAL
-    ) {
+    if (filterPanelFormElements.endDate && filterPanelFormElements.endDate !== (endDate || "")) {
       setEndDate(filterPanelFormElements.endDate);
     }
-    if (filterPanelFormElements.location !== location) {
+    if (filterPanelFormElements.location && filterPanelFormElements.location !== location) {
       setLocation(filterPanelFormElements.location);
     }
-    if (
-      filterPanelFormElements.itemLimit &&
-      Number(filterPanelFormElements.itemLimit) !== itemLimit
-    ) {
+    if (filterPanelFormElements.itemLimit && Number(filterPanelFormElements.itemLimit) !== itemLimit) {
       setItemLimit(Number(filterPanelFormElements.itemLimit));
     }
-  }, [filterPanelFormElements]);
+  }, [filterPanelFormElements, showFilters]);
 
   const dateFilterOptions = [
     { value: "1", label: t("Single Day") },
@@ -183,6 +166,15 @@ export function MentorAnalyticChart({
       placeholder: t("Start Date"),
       required: false,
       isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "endDate",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: false,
+      isDatePicker: true,
+      isDisabled: dateFilter !== DateFilter.MANUAL,
     },
     {
       type: InputTypes.SELECT,
