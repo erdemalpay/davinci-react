@@ -117,7 +117,7 @@ const TabPanel: React.FC<Props> = ({
 
   return (
     <div
-      className={` flex sticky top-16 flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8 ${
+      className={` flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8 ${
         topClassName ? topClassName : "my-6"
       }`}
     >
