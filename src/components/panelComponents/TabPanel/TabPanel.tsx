@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
-import { Tab } from "../shared/types";
 import { P1 } from "../Typography";
+import { Tab } from "../shared/types";
 
 // active tab is required to be outside so that when the item added into the tab and tabpanel is rerendered, the active tab will not be reset.
 type Props = {
@@ -117,7 +117,7 @@ const TabPanel: React.FC<Props> = ({
 
   return (
     <div
-      className={` flex flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8 ${
+      className={` flex sticky top-16 flex-col border h-max rounded-lg border-gray-200 bg-white w-[98%] mx-auto __className_a182b8 ${
         topClassName ? topClassName : "my-6"
       }`}
     >

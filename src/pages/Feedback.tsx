@@ -50,7 +50,7 @@ const Feedback = () => {
       },
     },
     { key: "locationName" },
-    { key: "table" },
+    { key: "tableName" },
     { key: "comment" },
     { key: "starRating" },
   ];
