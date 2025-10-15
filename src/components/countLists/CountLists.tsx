@@ -18,6 +18,7 @@ import {
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
 import { useGetStockLocations } from "../../utils/api/location";
+import { isDisabledConditionCountLists } from "../../utils/isDisabledConditions";
 import { NameInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -33,6 +34,7 @@ import {
 const CountLists = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionCountLists(user);
   const navigate = useNavigate();
   const countLists = useGetAccountCountLists();
   const [tableKey, setTableKey] = useState(0);
@@ -181,7 +183,7 @@ const CountLists = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Edit"),
@@ -219,7 +221,7 @@ const CountLists = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
     },
     {
       name: t("Toggle Active"),
@@ -304,7 +306,7 @@ const CountLists = () => {
   const filters = [
     {
       label: t("Show Inactive CountLists"),
-      isDisabled: user && ![RoleEnum.MANAGER].includes(user.role._id),
+      isDisabled: isDisabledCondition,
       isUpperSide: true,
       node: (
         <SwitchButton

@@ -34,6 +34,7 @@ import {
 } from "../utils/api/expiration/expirationList";
 import { useGetStockLocations } from "../utils/api/location";
 import { getItem } from "../utils/getItem";
+import { isDisabledConditionExpirationList } from "../utils/isDisabledConditions";
 import { StockLocationInput } from "../utils/panelInputs";
 
 interface LocationEntries {
@@ -44,6 +45,7 @@ const ExpirationList = () => {
   const navigate = useNavigate();
   const { expirationListId } = useParams();
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionExpirationList(user);
   const locations = useGetStockLocations();
   const expirationLists = useGetExpirationLists();
   const { resetGeneralContext, setExpirationActiveTab } = useGeneralContext();
@@ -317,7 +319,7 @@ const ExpirationList = () => {
     {
       label: t("Location Edit"),
       isUpperSide: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user.role._id) : true,
+      isDisabled: isDisabledCondition,
       node: (
         <Switch
           checked={isEnableEdit}

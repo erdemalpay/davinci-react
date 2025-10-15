@@ -3,8 +3,9 @@ import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { CountListPageTabEnum, RoleEnum } from "../../types";
+import { CountListPageTabEnum } from "../../types";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
+import { isDisabledConditionCountListMenu } from "../../utils/isDisabledConditions";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import { Tab } from "../panelComponents/shared/types";
 import CountArchive from "./CountArchive";
@@ -13,6 +14,7 @@ import CountLists from "./CountLists";
 
 const CountListMenu = () => {
   const { user } = useUserContext();
+  const isDisabledCondition = isDisabledConditionCountListMenu(user);
   const [tabPanelKey, setTabPanelKey] = useState(0);
   const { countListActiveTab, setCountListActiveTab } = useGeneralContext();
   const countLists = useGetAccountCountLists();
@@ -38,7 +40,7 @@ const CountListMenu = () => {
         label: "Count List Products",
         icon: <FaSitemap />,
         content: <CountListProducts />,
-        isDisabled: user ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id) : true,
+        isDisabled: isDisabledCondition,
       },
     ]);
     setTabPanelKey((prev) => prev + 1);
