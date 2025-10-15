@@ -1194,6 +1194,8 @@ export enum ActivityType {
   UPDATE_RESERVATION = "UPDATE_RESERVATION",
   UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION",
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
+  KITCHEN_ACTIVATED = "KITCHEN_ACTIVATED",
+  KITCHEN_DEACTIVATED = "KITCHEN_DEACTIVATED",
 }
 export const activityTypeDetails = [
   {
@@ -1426,6 +1428,16 @@ export const activityTypeDetails = [
     label: "Update Account Product",
     bgColor: "bg-purple-900",
   },
+  {
+    value: ActivityType.KITCHEN_ACTIVATED,
+    label: "Kitchen Activated",
+    bgColor: "bg-green-700",
+  },
+  {
+    value: ActivityType.KITCHEN_DEACTIVATED,
+    label: "Kitchen Deactivated",
+    bgColor: "bg-red-700",
+  },
 ];
 
 export interface SocketEventType {
@@ -1572,6 +1584,9 @@ export enum NotificationEventType {
   NIGHTOPENTABLE = "NIGHTOPENTABLE",
   EARLYSHIFTEND = "EARLYSHIFTEND",
   UNCOMPLETEDCHECKLIST = "UNCOMPLETEDCHECKLIST",
+  KITCHENACTIVATED = "KITCHENACTIVATED",
+  KITCHENDEACTIVATED = "KITCHENDEACTIVATED",
+  KITCHENNOTCONFIRMED = "KITCHENNOTCONFIRMED",
 }
 export const notificationEventsOptions = [
   {
@@ -1609,6 +1624,18 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.UNCOMPLETEDCHECKLIST,
     label: "Uncompleted Checklist",
+  },
+  {
+    value: NotificationEventType.KITCHENACTIVATED,
+    label: "Kitchen Activated",
+  },
+  {
+    value: NotificationEventType.KITCHENDEACTIVATED,
+    label: "Kitchen Deactivated",
+  },
+  {
+    value: NotificationEventType.KITCHENNOTCONFIRMED,
+    label: "Kitchen Not Confirmed",
   },
 ];
 
