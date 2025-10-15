@@ -148,17 +148,17 @@
   "Before": "Önce",
   "All": "Tümü",
   "Mentor": "Anlatıcı",
-  "Gameplays by Games": "Oyun çeşidi grafiği",
-  "Gameplays by Mentors": "GM başına oyun grafiği",
+  "Gameplays by Games": "Oyun Çeşidi Grafiği",
+  "Gameplays by Mentors": "GM Başına Oyun Grafiği",
   "Select a location": "Bir konum seçin",
   "Add Table": "Masa Ekle",
   "Game Count": "Oyun Sayısı",
   "Known Games Count": "Bilinen Oyun Sayısı",
   "Who Knows?": "Kim Biliyor?",
-  "Unique Gameplay By Game Mentors": "GM başına farklı oyun grafiği",
-  "Gameplays By Mentors Details": "GM oyun anlatım detayları",
-  "Gameplays By Games": "Oyun çeşidi grafiği",
-  "Gameplay By Game Mentors": "GM başına oyun grafiği",
+  "Unique Gameplay By Game Mentors": "GM Başına Farklı Oyun Grafiği",
+  "Gameplays By Mentors Details": "GM Oyun Anlatım Detayları",
+  "Gameplays By Games": "Oyun Çeşidi Grafiği",
+  "Gameplay By Game Mentors": "GM Başına Oyun Grafiği",
   "ALL": "TÜMÜ",
   "Single Day": "Tek Gün",
   "This Week": "Bu Hafta",
@@ -872,5 +872,8 @@
   "Selected": "Seçildi",
   "Has Kitchen Menu": "Mutfak Menüsü Var",
   "This field is required": "Bu alan gereklidir",
-  "{{categoryName}} is not active": "{{categoryName}} aktif değil."
+  "{{categoryName}} is not active": "{{categoryName}} aktif değil.",
+  "Total Gameplays" : "Toplam Oyun Sayısı",
+  "Unique Games" : "Farklı Oyun Sayısı"
+
 }

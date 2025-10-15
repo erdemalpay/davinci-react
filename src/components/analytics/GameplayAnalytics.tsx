@@ -8,6 +8,7 @@ import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
 import { useGeneralContext } from "../../context/General.context";
+import { GameplayAnalyticsTabEnum } from "../../types";
 import { DateFilter } from "../../utils/dateUtil";
 import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import GameplaysByGames from "./gameplay/GameplaysByGame";
@@ -29,7 +30,7 @@ export default function GameplayAnalytics() {
   const { setCurrentPage, setSearchQuery } = useGeneralContext();
   const tabs = [
     {
-      number: 0,
+      number: GameplayAnalyticsTabEnum.GAMEPLAYBYGAMEMENTORS,
       label: "Gameplay By Game Mentors",
       icon: <RiGameLine className="text-lg font-thin" />,
       content: (
@@ -49,7 +50,7 @@ export default function GameplayAnalytics() {
       isDisabled: false,
     },
     {
-      number: 1,
+      number: GameplayAnalyticsTabEnum.UNIQUEGAMEPLAYBYGAMEMENTORS,
       label: t("Unique Gameplay By Game Mentors"),
       icon: <SiWegame className="text-lg font-thin" />,
       content: (
@@ -70,42 +71,42 @@ export default function GameplayAnalytics() {
       isDisabled: false,
     },
     {
-      number: 2,
+      number: GameplayAnalyticsTabEnum.TABLEPLAYERCOUNTS,
       label: t("Table Player Counts"),
       icon: <GiAmericanFootballPlayer className="text-lg font-thin" />,
       content: <TablePlayerCount />,
       isDisabled: false,
     },
     {
-      number: 3,
+      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYMENTORSDETAILS, //"gm oyun anlatım detayları" tabı
       label: t("Gameplays By Mentors Details"),
       icon: <TbPlayCard className="text-lg font-thin" />,
       content: <GameplaysByMentor />,
       isDisabled: false,
     },
     {
-      number: 4,
+      number: GameplayAnalyticsTabEnum.GAMEPLAYSBYGAMES, //"oyun çeşidi grafiği" tabı
       label: t("Gameplays By Games"),
       icon: <PiGooglePlayLogo className="text-lg font-thin" />,
       content: <GameplaysByGames />,
       isDisabled: false,
     },
     {
-      number: 5,
+      number: GameplayAnalyticsTabEnum.KNOWNGAMESCOUNT,
       label: t("Known Games Count"),
       icon: <SiLegacygames className="text-lg font-thin" />,
       content: <KnownGamesCount />,
       isDisabled: false,
     },
     {
-      number: 6,
+      number: GameplayAnalyticsTabEnum.WHOKNOWS,
       label: t("Who Knows?"),
       icon: <BsFillPatchQuestionFill className="text-lg font-thin" />,
       content: <WhoKnows />,
       isDisabled: false,
     },
     {
-      number: 7,
+      number: GameplayAnalyticsTabEnum.LEARNEDGAMES,
       label: t("Learned Games"),
       icon: <FaBookReader className="text-lg font-thin" />,
       content: <LearnedGames />,
