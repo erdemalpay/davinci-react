@@ -211,7 +211,7 @@ export function TableCard({
       ?.map((menuItem) => {
         return {
           value: menuItem?._id,
-          label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
+          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
           imageUrl: menuItem?.imageUrl,
           keywords: [
             menuItem?.name,
@@ -224,6 +224,7 @@ export function TableCard({
       });
   }, [
     orderForm.category,
+    orderForm.isOnlinePrice,
     menuItems,
     selectedLocationId,
     table?.isOnlineSale,
