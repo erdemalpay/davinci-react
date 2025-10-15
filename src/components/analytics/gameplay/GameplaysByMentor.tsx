@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FormElementsState, User } from "../../../types";
+import { FormElementsState } from "../../../types";
 import { useGetGames } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
@@ -39,7 +39,6 @@ export default function GameplaysByMentor() {
   });
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [mentorFilter, setMentorFilter] = useState<User | null>();
   const [tableKey, setTableKey] = useState(0);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
@@ -47,70 +46,9 @@ export default function GameplaysByMentor() {
       endDate: "",
       mentor: "",
     });
-
   const { data } = useGetGameplaysGroups(filterData);
   const games = useGetGames();
   const users = useGetAllUsers();
-
-  useEffect(() => {
-    if (data) {
-      const formattedData = data
-        .map(({ secondary, total, _id }) => {
-          const user = users.find((u) => u._id === _id);
-          if (!showInactiveUsers && user && !user.active) {
-            return null;
-          }
-
-          const collapsibleRows = secondary.map((sec) => {
-            const game = games.find((g) => String(g._id) === String(sec.field));
-            return {
-              game: game?.name || sec.field,
-              count: sec.count,
-            };
-          });
-
-          return {
-            mentor: user?.name || `${_id}`,
-            mentorId: _id,
-            total,
-            secondary,
-            uniqueGamesCount: secondary.length,
-            collapsible: {
-              collapsibleColumns: [
-                { key: t("Game"), isSortable: true },
-                { key: t("Count"), isSortable: true },
-              ],
-              collapsibleRowKeys: [{ key: "game" }, { key: "count" }],
-              collapsibleRows,
-            },
-          };
-        })
-        .filter((row) => row !== null)
-        .filter((row) => {
-          if (!filterPanelFormElements.mentor) return true;
-          return row?.mentorId === filterPanelFormElements.mentor;
-        });
-
-      const nonNullFormattedData: GameplayGroupRow[] =
-        formattedData as GameplayGroupRow[];
-      nonNullFormattedData.sort((a, b) => b.total - a.total);
-      setGameplayGroupRows(nonNullFormattedData);
-      setTableKey((prev) => prev + 1);
-    }
-  }, [data, users, filterPanelFormElements.mentor, showInactiveUsers, games]);
-
-  useEffect(() => {
-    const newFilterData: GameplayGroupFilter = {
-      groupBy: "mentor,game",
-    };
-    if (filterPanelFormElements.startDate) {
-      newFilterData.startDate = filterPanelFormElements.startDate;
-    }
-    if (filterPanelFormElements.endDate) {
-      newFilterData.endDate = filterPanelFormElements.endDate;
-    }
-    setFilterData(newFilterData);
-  }, [filterPanelFormElements.startDate, filterPanelFormElements.endDate]);
 
   const columns = [
     { key: t("Mentor"), isSortable: true, correspondingKey: "mentor" },
@@ -199,7 +137,65 @@ export default function GameplaysByMentor() {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+  useEffect(() => {
+    if (data) {
+      const formattedData = data
+        .map(({ secondary, total, _id }) => {
+          const user = users.find((u) => u._id === _id);
+          if (!showInactiveUsers && user && !user.active) {
+            return null;
+          }
 
+          const collapsibleRows = secondary.map((sec) => {
+            const game = games.find((g) => String(g._id) === String(sec.field));
+            return {
+              game: game?.name || sec.field,
+              count: sec.count,
+            };
+          });
+
+          return {
+            mentor: user?.name || `${_id}`,
+            mentorId: _id,
+            total,
+            secondary,
+            uniqueGamesCount: secondary.length,
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Game"), isSortable: true },
+                { key: t("Count"), isSortable: true },
+              ],
+              collapsibleRowKeys: [{ key: "game" }, { key: "count" }],
+              collapsibleRows,
+            },
+          };
+        })
+        .filter((row) => row !== null)
+        .filter((row) => {
+          if (!filterPanelFormElements.mentor) return true;
+          return row?.mentorId === filterPanelFormElements.mentor;
+        });
+
+      const nonNullFormattedData: GameplayGroupRow[] =
+        formattedData as GameplayGroupRow[];
+      nonNullFormattedData.sort((a, b) => b.total - a.total);
+      setGameplayGroupRows(nonNullFormattedData);
+      setTableKey((prev) => prev + 1);
+    }
+  }, [data, users, filterPanelFormElements.mentor, showInactiveUsers, games]);
+
+  useEffect(() => {
+    const newFilterData: GameplayGroupFilter = {
+      groupBy: "mentor,game",
+    };
+    if (filterPanelFormElements.startDate) {
+      newFilterData.startDate = filterPanelFormElements.startDate;
+    }
+    if (filterPanelFormElements.endDate) {
+      newFilterData.endDate = filterPanelFormElements.endDate;
+    }
+    setFilterData(newFilterData);
+  }, [filterPanelFormElements.startDate, filterPanelFormElements.endDate]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable

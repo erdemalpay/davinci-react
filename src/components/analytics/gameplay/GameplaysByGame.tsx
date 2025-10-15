@@ -6,6 +6,7 @@ import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
 } from "../../../utils/api/gameplay";
+import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetAllUsers } from "../../../utils/api/user";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
@@ -36,86 +37,26 @@ export default function GameplaysByGames() {
   >([]);
   const [filterData, setFilterData] = useState<GameplayGroupFilter>({
     groupBy: "game,mentor",
-    location: "0",
+    location: "",
   });
   const [showFilters, setShowFilters] = useState(false);
+  const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
       startDate: "",
       endDate: "",
       game: "",
-      location: "0",
+      location: "",
     });
 
   const { data } = useGetGameplaysGroups(filterData);
   const games = useGetGames();
   const users = useGetAllUsers();
 
-  const locationOptions = [
-    { value: "0", label: t("All") },
-    { value: "1", label: "Bahçeli" },
-    { value: "2", label: "Neorama" },
-  ];
-
-  useEffect(() => {
-    if (data) {
-      const formattedData = data
-        .map(({ secondary, total, _id }) => {
-          const game = games.find((g) => String(g._id) === String(_id));
-
-          const collapsibleRows = secondary.map((sec) => {
-            const user = users.find((u) => u._id === sec.field);
-            return {
-              mentor: user?.name || sec.field,
-              count: sec.count,
-            };
-          });
-
-          return {
-            game: game?.name || `${_id}`,
-            gameId: _id,
-            total,
-            secondary,
-            uniqueMentorsCount: secondary.length,
-            collapsible: {
-              collapsibleColumns: [
-                { key: t("Mentor"), isSortable: true },
-                { key: t("Count"), isSortable: true },
-              ],
-              collapsibleRowKeys: [{ key: "mentor" }, { key: "count" }],
-              collapsibleRows,
-            },
-          };
-        })
-        .filter((row) => {
-          if (!filterPanelFormElements.game) return true;
-          return row?.gameId === filterPanelFormElements.game;
-        });
-
-      formattedData.sort((a, b) => Number(b.total) - Number(a.total));
-      setGameplayGroupRows(formattedData);
-      setTableKey((prev) => prev + 1);
-    }
-  }, [data, games, users, filterPanelFormElements.game]);
-
-  useEffect(() => {
-    const newFilterData: GameplayGroupFilter = {
-      groupBy: "game,mentor",
-      location: filterPanelFormElements.location || "0",
-    };
-    if (filterPanelFormElements.startDate) {
-      newFilterData.startDate = filterPanelFormElements.startDate;
-    }
-    if (filterPanelFormElements.endDate) {
-      newFilterData.endDate = filterPanelFormElements.endDate;
-    }
-    setFilterData(newFilterData);
-  }, [
-    filterPanelFormElements.startDate,
-    filterPanelFormElements.endDate,
-    filterPanelFormElements.location,
-  ]);
+  const locationOptions = locations.map((loc) => {
+    return { value: loc._id, label: loc.name };
+  });
 
   const columns = [
     { key: t("Game"), isSortable: true, correspondingKey: "game" },
@@ -197,7 +138,64 @@ export default function GameplaysByGames() {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+  useEffect(() => {
+    if (data) {
+      const formattedData = data
+        .map(({ secondary, total, _id }) => {
+          const game = games.find((g) => String(g._id) === String(_id));
 
+          const collapsibleRows = secondary.map((sec) => {
+            const user = users.find((u) => u._id === sec.field);
+            return {
+              mentor: user?.name || sec.field,
+              count: sec.count,
+            };
+          });
+
+          return {
+            game: game?.name || `${_id}`,
+            gameId: _id,
+            total,
+            secondary,
+            uniqueMentorsCount: secondary.length,
+            collapsible: {
+              collapsibleColumns: [
+                { key: t("Mentor"), isSortable: true },
+                { key: t("Count"), isSortable: true },
+              ],
+              collapsibleRowKeys: [{ key: "mentor" }, { key: "count" }],
+              collapsibleRows,
+            },
+          };
+        })
+        .filter((row) => {
+          if (!filterPanelFormElements.game) return true;
+          return row?.gameId === filterPanelFormElements.game;
+        });
+
+      formattedData.sort((a, b) => Number(b.total) - Number(a.total));
+      setGameplayGroupRows(formattedData);
+      setTableKey((prev) => prev + 1);
+    }
+  }, [data, games, users, filterPanelFormElements.game]);
+
+  useEffect(() => {
+    const newFilterData: GameplayGroupFilter = {
+      groupBy: "game,mentor",
+      location: filterPanelFormElements.location,
+    };
+    if (filterPanelFormElements.startDate) {
+      newFilterData.startDate = filterPanelFormElements.startDate;
+    }
+    if (filterPanelFormElements.endDate) {
+      newFilterData.endDate = filterPanelFormElements.endDate;
+    }
+    setFilterData(newFilterData);
+  }, [
+    filterPanelFormElements.startDate,
+    filterPanelFormElements.endDate,
+    filterPanelFormElements.location,
+  ]);
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
