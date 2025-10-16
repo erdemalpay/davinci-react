@@ -329,10 +329,6 @@ const GenericAddEditPanel = <T,>({
         handleSubmit();
       }
     } else if (optionalCreateButtonActive) {
-      if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
-        toast.error(t("Please fill all required fields"));
-        return;
-      }
       handleSubmit();
     }
   };
