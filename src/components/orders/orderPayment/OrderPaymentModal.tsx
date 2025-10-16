@@ -643,13 +643,6 @@ const OrderPaymentModal = ({
       label: t("Player Number"),
       placeholder: t("Player Number"),
       required: false,
-      options:
-        orders
-          ?.filter((order) => order?.activityPlayer)
-          ?.map((order) => ({
-            value: order.activityPlayer,
-            label: order.activityPlayer,
-          })) ?? [],
       isDisabled: table?.type !== TableTypes.ACTIVITY,
       isOnClearActive: true,
     },

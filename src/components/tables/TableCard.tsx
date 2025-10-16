@@ -532,13 +532,6 @@ export function TableCard({
         label: t("Player Number"),
         placeholder: t("Player Number"),
         required: false,
-        options:
-          tableOrders
-            ?.filter((order) => order?.activityPlayer)
-            ?.map((order) => ({
-              value: order.activityPlayer,
-              label: order.activityPlayer,
-            })) ?? [],
         isDisabled: table?.type !== TableTypes.ACTIVITY,
         isOnClearActive: true,
       },

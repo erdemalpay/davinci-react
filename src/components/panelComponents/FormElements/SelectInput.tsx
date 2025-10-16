@@ -154,9 +154,6 @@ const SelectInput = ({
       ...base,
       fontSize: "16px",
     }),
-    input: (base: any) => ({
-      ...base,
-    }),
   };
 
   useEffect(() => {
