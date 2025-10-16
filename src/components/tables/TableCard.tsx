@@ -527,20 +527,13 @@ export function TableCard({
         isDisabled: table?.type !== TableTypes.ACTIVITY,
       },
       {
-        type: InputTypes.TEXTAREA,
+        type: InputTypes.TEXT,
         formKey: "activityPlayer",
         label: t("Player Number"),
         placeholder: t("Player Number"),
         required: false,
-        inputClassName: "p-0 h-10",
-        options:
-          tableOrders
-            ?.filter((order) => order?.activityPlayer)
-            ?.map((order) => ({
-              value: order.activityPlayer,
-              label: order.activityPlayer,
-            })) ?? [],
         isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isOnClearActive: true,
       },
       {
         type: InputTypes.TEXTAREA,

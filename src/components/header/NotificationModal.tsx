@@ -24,9 +24,12 @@ import {
   useGetUserNewNotifications,
   useMarkAsReadMutation,
 } from "../../utils/api/notification";
+import { useGetUser } from "../../utils/api/user";
+import { getNotificationLanguageMessage } from "../../utils/notification";
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const user = useGetUser();
   const notifications = useGetUserNewNotifications();
   const { setProfileActiveTab } = useGeneralContext();
   const { mutate: markAsRead } = useMarkAsReadMutation();
@@ -136,7 +139,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
 
     return (
       <div
-        key={notification._id}
+        key={notification._id + (user?.language ?? "")}
         className="group relative grid grid-cols-[auto,1fr] sm:grid-cols-[auto,1fr,auto] gap-3 rounded-xl px-4 py-3 transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer bg-white border border-gray-200 hover:border-gray-300"
         onClick={(e) => {
           e.stopPropagation();
@@ -170,7 +173,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
 
           {notification.message && (
             <div className="text-gray-700 text-xs sm:text-sm leading-relaxed">
-              {notification.message}
+              {getNotificationLanguageMessage(user?.language, notification)}
             </div>
           )}
 
