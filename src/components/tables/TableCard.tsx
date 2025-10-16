@@ -527,12 +527,11 @@ export function TableCard({
         isDisabled: table?.type !== TableTypes.ACTIVITY,
       },
       {
-        type: InputTypes.TEXTAREA,
+        type: InputTypes.TEXT,
         formKey: "activityPlayer",
         label: t("Player Number"),
         placeholder: t("Player Number"),
         required: false,
-        inputClassName: "p-0 h-10 overflow-hidden resize-none",
         options:
           tableOrders
             ?.filter((order) => order?.activityPlayer)
@@ -541,6 +540,7 @@ export function TableCard({
               label: order.activityPlayer,
             })) ?? [],
         isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isOnClearActive: true,
       },
       {
         type: InputTypes.TEXTAREA,

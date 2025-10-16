@@ -154,6 +154,9 @@ const SelectInput = ({
       ...base,
       fontSize: "16px",
     }),
+    input: (base: any) => ({
+      ...base,
+    }),
   };
 
   useEffect(() => {
@@ -326,6 +329,8 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
+              isClearable={false}
+              backspaceRemovesValue={true}
             />
           )}
         </div>
