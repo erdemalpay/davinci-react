@@ -8,6 +8,7 @@ import {
   MdShoppingCart,
   MdWarning,
 } from "react-icons/md";
+import { useUserContext } from "../../../context/User.context";
 import {
   DateRangeKey,
   Notification,
@@ -23,6 +24,7 @@ import { useGetAllLocations } from "../../../utils/api/location";
 import { useGetUserAllNotifications } from "../../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { getNotificationLanguageMessage } from "../../../utils/notification";
 import SwitchButton from "../common/SwitchButton";
 import { InputTypes } from "../shared/types";
 import GenericTable from "../Tables/GenericTable";
@@ -44,6 +46,7 @@ const typeIconMap: Record<NotificationType, JSX.Element> = {
 
 const UserNotifications = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const users = useGetUsers();
   const roles = useGetAllUserRoles();
   const initialFilterPanelFormElements = {
@@ -94,7 +97,7 @@ const UserNotifications = () => {
                 "#CCCCCC",
             }}
           >
-            {row.message}
+            {getNotificationLanguageMessage(user?.language, row)}
           </p>
         );
       },
