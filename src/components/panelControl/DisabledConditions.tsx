@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
+import { useGeneralContext } from "../../context/General.context";
 import { DisabledCondition } from "../../types";
 import { useGetActions } from "../../utils/api/panelControl/action";
 import {
@@ -16,11 +18,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import {
-  FormKeyTypeEnum,
-  InputTypes,
-  RowKeyType,
-} from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 export interface DisabledConditionRow extends DisabledCondition {
   pageName: string;
@@ -32,6 +30,9 @@ const DisabledConditions = () => {
   const [rowToAction, setRowToAction] = useState<DisabledCondition | null>(
     null
   );
+  const { setCurrentPage, setSortConfigKey, setSearchQuery } =
+    useGeneralContext();
+  const navigate = useNavigate();
   const pages = useGetPanelControlPages();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -90,8 +91,27 @@ const DisabledConditions = () => {
     { key: t("Actions"), isSortable: false },
   ];
 
-  const rowKeys: RowKeyType<DisabledConditionRow>[] = [
-    { key: "name" },
+  const rowKeys = [
+    {
+      key: "name",
+      node: (row: DisabledConditionRow) => {
+        return row.actions.length > 0 ? (
+          <p
+            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              setCurrentPage(1);
+              setSearchQuery("");
+              setSortConfigKey(null);
+              navigate(`/disabled-condition/${row._id}`);
+            }}
+          >
+            {t(row.name)}
+          </p>
+        ) : (
+          <p>{t(row.name)}</p>
+        );
+      },
+    },
     { key: "pageName" },
   ];
 

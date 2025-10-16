@@ -881,5 +881,6 @@
   "Add Disabled Condition": "İşlem İzni Ekle",
   "Delete Disabled Condition": "İşlem İznini Sil",
   "Add Action": "İşlem Ekle",
-  "Delete Action": "İşlem Sil"
+  "Delete Action": "İşlem Sil",
+  "Action Name": "İşlem Adı"
 }

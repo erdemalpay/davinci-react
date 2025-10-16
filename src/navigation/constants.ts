@@ -1,4 +1,5 @@
 import { Tab } from "../components/panelComponents/shared/types";
+import DisabledConditionActions from "../components/panelControl/DisabledConditionAction";
 import Accounting, { AccountingPageTabs } from "../pages/Accounting";
 import Analytics from "../pages/Analytics";
 import Brand from "../pages/Brand";
@@ -102,6 +103,7 @@ export enum Routes {
   Checkout = "/checkout",
   PanelControl = "/panel-control",
   PageDetails = "/page-details/:pageDetailsId",
+  DisabledConditionActions = "/disabled-condition/:disabledConditionId",
   OrderDatas = "/order-datas",
   UserActivities = "/user-activities",
   OrdersSummary = "/orders-summary",
@@ -718,6 +720,13 @@ export const allRoutes: {
     name: "Page Details",
     path: Routes.PageDetails,
     element: PageDetails,
+    isOnSidebar: false,
+    exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Disabled Condition Actions",
+    path: Routes.DisabledConditionActions,
+    element: DisabledConditionActions,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
   },
