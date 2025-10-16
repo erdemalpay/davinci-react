@@ -208,7 +208,6 @@
   "Select a user": "Bir kullanıcı seçin",
   "Select an analytic type": "Bir analiz türü seçin",
   "Enter Consumption": "Tüketim Gir",
-  "Select a count list": "Bir sayım listesi seçin",
   "Submit": "Gönder",
   "Delete Count List Item": "Sayım Listesi Öğesini Sil",
   "Count": "Sayım Yap",
@@ -636,7 +635,6 @@
   "Note Placeholder": "Not Sorusu",
   "Filter Columns": "Sütunları Filtrele",
   "Activate Selection": "Seçimi Aktive Et",
-  "Close Selection": "Seçimi Kapat",
   "Select All": "Tümünü Seç",
   "Shown In Menu": "Menüde Göster",
   "Checklists": "Kontrol Listeleri",
@@ -710,8 +708,6 @@
   "Mark as read": "Okundu olarak işaretle",
   "Select": "Seç",
   "Unselect": "Seçimi Kaldır",
-  "Today": "Bugün",
-  "Yesterday": "Dün",
   "Earlier": "Önceki",
   "No new notifications": "Yeni bildiriminiz yok",
   "You're all caught up!": "Hepsi okundu!",
@@ -878,9 +874,10 @@
   "No applicable products for this discount": "Bu indirim için uygun ürün yok",
   "Has Kitchen Menu": "Mutfak Menüsü Var",
   "{{categoryName}} is not active": "{{categoryName}} aktif değil.",
-  "{{categoryName}} is not active": "{{categoryName}} aktif değil.",
-  "Total Gameplays" : "Toplam Oyun Sayısı",
-  "Unique Games" : "Farklı Oyun Sayısı",
-  "Unique Mentors" : "Kaç Farklı Anlatıcı"
-
+  "Total Gameplays": "Toplam Oyun Sayısı",
+  "Unique Games": "Farklı Oyun Sayısı",
+  "Unique Mentors": "Kaç Farklı Anlatıcı",
+  "Disabled Conditions": "İşlem İzinleri",
+  "Add Disabled Condition": "İşlem İzni Ekle",
+  "Delete Disabled Condition": "İşlem İznini Sil"
 }

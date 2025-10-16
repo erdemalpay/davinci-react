@@ -798,14 +798,11 @@
   "Product Shelf Info": "Product Shelf Info",
   "Shelf": " Shelf",
   "Dessert Stocks": "Dessert Stocks",
-  "Farm Burger Activity": "Farm Burger Activity",
-  "Farm Category is not active": "Farm Category is not active",
   "User Summary(Game)": "User Summary(Game)",
   "User Summary(Service)": "User Summary(Service)",
   "Loss Product Cancel": "Loss Product Cancel",
   "Consumption Cancel": "Consumption Cancel",
   "Cancel Loss Product": "Cancel Loss Product",
-  "Farm Menu": " Farm Menu",
   "Who will come?": "Who will come?",
   "Show Popular Discounts": "Show Popular Discounts",
   "Order Category On": "Order Category On",
@@ -872,6 +869,9 @@
   "Has Kitchen Menu": "Has Kitchen Menu",
   "{{categoryName}} is not active": "{{categoryName}} is not active.",
   "Total Gameplays": "Total Gameplays",
-  "Unique Games" : "Unique Games",
-  "Unique Mentors" : "Unique Mentors"
+  "Unique Games": "Unique Games",
+  "Unique Mentors": "Unique Mentors",
+  "Disabled Conditions": "Disabled Conditions",
+  "Add Disabled Condition": "Add Disabled Condition",
+  "Delete Disabled Condition": "Delete Disabled Condition"
 }

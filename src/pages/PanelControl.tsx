@@ -1,8 +1,10 @@
+import { GrConfigure } from "react-icons/gr";
 import { IoIosSettings } from "react-icons/io";
 import { MdManageAccounts, MdSchool } from "react-icons/md";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Header } from "../components/header/Header";
 import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import DisabledConditions from "../components/panelControl/DisabledConditions";
 import EducationPermissions from "../components/panelControl/EducationPermissions";
 import PagePermissions from "../components/panelControl/PagePermissions";
 import PanelSettings from "../components/panelControl/PanelSettings";
@@ -22,6 +24,13 @@ const PanelControl = () => {
       label: "Page Permissions",
       icon: <MdManageAccounts className="text-lg font-thin" />,
       content: <PagePermissions />,
+      isDisabled: false,
+    },
+    {
+      number: PanelControlPageTabEnum.DISABLEDCONDITIONS,
+      label: "Disabled Conditions",
+      icon: <GrConfigure className="text-lg font-thin" />,
+      content: <DisabledConditions />,
       isDisabled: false,
     },
     {

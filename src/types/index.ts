@@ -17,6 +17,13 @@ export type Authorization = {
   relatedPages?: string[];
 };
 
+export type DisabledCondition = {
+  _id: string;
+  name: string;
+  page: string;
+  permissionRoles: number[];
+};
+
 export type Location = {
   _id: number;
   name: string;
@@ -866,6 +873,7 @@ export enum ExpirationPageTabEnum {
 }
 export enum PanelControlPageTabEnum {
   PAGEPERMISSIONS,
+  DISABLEDCONDITIONS,
   ROUTEAUTHORIZATIONPERMISSIONS,
   EDUCATIONPERMISSIONS,
   CHECKOUTCASH,
