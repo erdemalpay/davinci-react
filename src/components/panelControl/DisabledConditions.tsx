@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
-import { toast } from "react-toastify";
 import { DisabledCondition } from "../../types";
+import { useGetActions } from "../../utils/api/panelControl/action";
 import {
   useDisabledConditionMutations,
   useGetDisabledConditions,
@@ -13,7 +12,6 @@ import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
-import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,6 +28,7 @@ export interface DisabledConditionRow extends DisabledCondition {
 const DisabledConditions = () => {
   const { t } = useTranslation();
   const roles = useGetAllUserRoles();
+  const componentActions = useGetActions();
   const [rowToAction, setRowToAction] = useState<DisabledCondition | null>(
     null
   );
@@ -48,20 +47,6 @@ const DisabledConditions = () => {
     updateDisabledCondition,
     deleteDisabledCondition,
   } = useDisabledConditionMutations();
-  function handleRolePermission(row: DisabledCondition, roleKey: number) {
-    const newPermissionRoles = row?.permissionRoles || [];
-    const index = newPermissionRoles.indexOf(roleKey);
-    if (index === -1) {
-      newPermissionRoles.push(roleKey);
-    } else {
-      newPermissionRoles.splice(index, 1);
-    }
-    updateDisabledCondition({
-      id: row._id,
-      updates: { permissionRoles: newPermissionRoles },
-    });
-    toast.success(`${t("Role permissions updated successfully.")}`);
-  }
   const allRows = disabledConditions.map((dc) => {
     const page = getItem(dc.page, pages);
     return {
@@ -82,10 +67,13 @@ const DisabledConditions = () => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "permissionRoles",
-      label: t("Permission Roles"),
-      placeholder: t("Permission Roles"),
-      options: roles.map((r) => ({ value: r._id, label: r.name })),
+      formKey: "actions",
+      label: t("Actions"),
+      placeholder: t("Actions"),
+      options: componentActions.map((a) => ({
+        value: a._id,
+        label: a.name,
+      })),
       isMultiple: true,
       required: true,
     },
@@ -93,38 +81,20 @@ const DisabledConditions = () => {
   const formKeys = [
     { key: "name", type: FormKeyTypeEnum.STRING },
     { key: "page", type: FormKeyTypeEnum.STRING },
-    { key: "permissionRoles", type: FormKeyTypeEnum.STRING },
+    { key: "actions", type: FormKeyTypeEnum.STRING },
   ];
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Page"), isSortable: true },
+    { key: t("Actions"), isSortable: false },
   ];
 
   const rowKeys: RowKeyType<DisabledConditionRow>[] = [
     { key: "name" },
     { key: "pageName" },
   ];
-  for (const role of roles) {
-    columns.push({ key: role.name, isSortable: true });
-    rowKeys.push({
-      key: role._id.toString(),
-      node: (row: DisabledConditionRow) => {
-        const hasPermission = row?.permissionRoles?.includes(role._id);
-        return isEnableEdit ? (
-          <CheckSwitch
-            checked={hasPermission}
-            onChange={() => handleRolePermission(row, role._id)}
-          />
-        ) : hasPermission ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
-        ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
-        );
-      },
-    });
-  }
-  columns.push({ key: t("Actions"), isSortable: false });
+
   const addButton = {
     name: t(`Add Disabled Condition`),
     isModal: true,
@@ -195,7 +165,7 @@ const DisabledConditions = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [disabledConditions, roles]);
+  }, [disabledConditions, roles, componentActions]);
 
   const filters = [
     {

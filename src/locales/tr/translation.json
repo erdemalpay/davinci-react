@@ -879,5 +879,7 @@
   "Unique Mentors": "Kaç Farklı Anlatıcı",
   "Disabled Conditions": "İşlem İzinleri",
   "Add Disabled Condition": "İşlem İzni Ekle",
-  "Delete Disabled Condition": "İşlem İznini Sil"
+  "Delete Disabled Condition": "İşlem İznini Sil",
+  "Add Action": "İşlem Ekle",
+  "Delete Action": "İşlem Sil"
 }

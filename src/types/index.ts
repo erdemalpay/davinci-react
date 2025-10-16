@@ -17,11 +17,19 @@ export type Authorization = {
   relatedPages?: string[];
 };
 
+export type Action = {
+  _id: string;
+  name: string;
+};
+
 export type DisabledCondition = {
   _id: string;
   name: string;
   page: string;
-  permissionRoles: number[];
+  actions: {
+    action: string;
+    permissionsRoles: number[];
+  }[];
 };
 
 export type Location = {
@@ -896,6 +904,7 @@ export enum AccountingPageTabEnum {
   LOCATIONS,
   UPPERCATEGORIES,
   ORDERNOTES,
+  ACTIONS,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,

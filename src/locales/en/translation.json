@@ -873,5 +873,7 @@
   "Unique Mentors": "Unique Mentors",
   "Disabled Conditions": "Disabled Conditions",
   "Add Disabled Condition": "Add Disabled Condition",
-  "Delete Disabled Condition": "Delete Disabled Condition"
+  "Delete Disabled Condition": "Delete Disabled Condition",
+  "Add Action": "Add Action",
+  "Delete Action": "Delete Action"
 }
