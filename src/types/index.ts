@@ -693,6 +693,8 @@ export type Notification = {
   selectedLocations?: number[];
   seenBy?: string[];
   isAssigned?: boolean;
+  messageEn?: string;
+  messageTr?: string;
 };
 export enum NotificationType {
   INFORMATION = "INFORMATION",

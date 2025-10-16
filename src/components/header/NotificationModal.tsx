@@ -13,6 +13,7 @@ import {
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import { ProfileTabEnum } from "../../pages/Profile";
 import {
   Notification,
@@ -24,9 +25,11 @@ import {
   useGetUserNewNotifications,
   useMarkAsReadMutation,
 } from "../../utils/api/notification";
+import { getNotificationLanguageMessage } from "../../utils/notification";
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useUserContext();
   const notifications = useGetUserNewNotifications();
   const { setProfileActiveTab } = useGeneralContext();
   const { mutate: markAsRead } = useMarkAsReadMutation();
@@ -170,7 +173,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
 
           {notification.message && (
             <div className="text-gray-700 text-xs sm:text-sm leading-relaxed">
-              {notification.message}
+              {getNotificationLanguageMessage(user?.language, notification)}
             </div>
           )}
 

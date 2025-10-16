@@ -2,6 +2,7 @@ import { format, startOfYear } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
 import {
   DateRangeKey,
   NotificationType,
@@ -13,6 +14,7 @@ import { useGetAllLocations } from "../../utils/api/location";
 import { useGetQueryNotifications } from "../../utils/api/notification";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import { getNotificationLanguageMessage } from "../../utils/notification";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -23,6 +25,7 @@ type FormElementsState = {
 
 const AllNotifications = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const users = useGetUsers();
   const roles = useGetAllUserRoles();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
@@ -91,7 +94,12 @@ const AllNotifications = () => {
     {
       key: "event",
     },
-    { key: "message" },
+    {
+      key: "message",
+      node: (row: any) => {
+        return getNotificationLanguageMessage(user?.language, row);
+      },
+    },
     {
       key: "selectedUsers",
       node: (row: any) => {
