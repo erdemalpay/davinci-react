@@ -1002,12 +1002,14 @@ export function TableCard({
         title={t("Delete Table")}
         text={t("DeleteTableMessage")}
       />
+
       {isTableCardCreateOrderDialogOpen && (
         <GenericAddEditPanel
           isOpen={isTableCardCreateOrderDialogOpen}
           close={() => {
             setOrderCreateBulk([]);
             setIsTableCardCreateOrderDialogOpen(false);
+
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}
