@@ -229,4 +229,8 @@ export const socketEventListeners: SocketEventType[] = [
   },
   { event: "notificationChanged", invalidateKeys: [`${Paths.Notification}`] },
   { event: "feedbackChanged", invalidateKeys: [`${Paths.Tables}/feedback`] },
+  {
+    event: "disabledConditionChanged",
+    invalidateKeys: [`${Paths.PanelControl}/disabled-conditions`],
+  },
 ];
