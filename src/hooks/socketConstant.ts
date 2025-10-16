@@ -233,4 +233,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "disabledConditionChanged",
     invalidateKeys: [`${Paths.PanelControl}/disabled-conditions`],
   },
+  {
+    event: "actionChanged",
+    invalidateKeys: [`${Paths.PanelControl}/actions`],
+  },
 ];
