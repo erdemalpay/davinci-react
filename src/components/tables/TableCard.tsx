@@ -532,7 +532,7 @@ export function TableCard({
         label: t("Player Number"),
         placeholder: t("Player Number"),
         required: false,
-        inputClassName: "p-0 h-10",
+        inputClassName: "p-0 h-10 overflow-hidden resize-none",
         options:
           tableOrders
             ?.filter((order) => order?.activityPlayer)

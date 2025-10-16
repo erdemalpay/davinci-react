@@ -270,7 +270,7 @@ const TextInput = ({
             variant="icon"
             className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
           >
-            <IoIosClose />
+            <IoIosClose size={28} />
           </GenericButton>
         )}
       </div>

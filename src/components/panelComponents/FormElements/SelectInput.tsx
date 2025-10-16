@@ -333,9 +333,9 @@ const SelectInput = ({
           <GenericButton
             onClick={onClear}
             variant="icon"
-            className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            className="w-10 h-10 my-auto text-gray-500 hover:text-red-700"
           >
-            <IoIosClose />
+            <IoIosClose size={28} />
           </GenericButton>
         )}
       </div>
