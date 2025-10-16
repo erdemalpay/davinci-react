@@ -644,6 +644,7 @@ const OrderPaymentModal = ({
       placeholder: t("Player Number"),
       required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
+      isOnClearActive: true,
     },
     {
       type: InputTypes.TEXTAREA,
