@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { useGeneralContext } from "../../context/General.context";
+import { Routes } from "../../navigation/constants";
+import { PanelControlPageTabEnum } from "../../types";
 import { useGetActions } from "../../utils/api/panelControl/action";
 import {
   useDisabledConditionMutations,
@@ -13,6 +15,7 @@ import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { Header } from "../header/Header";
+import PageNavigator from "../panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 
@@ -20,6 +23,12 @@ const DisabledConditionActions = () => {
   const { t } = useTranslation();
   const { disabledConditionId } = useParams();
   const disabledConditions = useGetDisabledConditions();
+  const {
+    setPanelControlActiveTab,
+    setSearchQuery,
+    setCurrentPage,
+    setSortConfigKey,
+  } = useGeneralContext();
   const actions = useGetActions();
   const roles = useGetAllUserRoles();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -55,6 +64,24 @@ const DisabledConditionActions = () => {
     {
       key: "action",
       node: (row: any) => <p>{getItem(row.action, actions)?.name ?? ""}</p>,
+    },
+  ];
+  const pageNavigations = [
+    {
+      name: t("Disabled Conditions"),
+      path: Routes.PanelControl,
+      canBeClicked: true,
+      additionalSubmitFunction: () => {
+        setCurrentPage(1);
+        setPanelControlActiveTab(PanelControlPageTabEnum.DISABLEDCONDITIONS);
+        setSortConfigKey(null);
+        setSearchQuery("");
+      },
+    },
+    {
+      name: t("Disabled Condition Actions"),
+      path: "",
+      canBeClicked: false,
     },
   ];
   for (const role of roles ?? []) {
@@ -101,6 +128,8 @@ const DisabledConditionActions = () => {
   return (
     <>
       <Header showLocationSelector={false} />
+      <PageNavigator navigations={pageNavigations} />
+
       <div className="w-[95%] mx-auto my-10 ">
         <GenericTable
           key={tableKey}
