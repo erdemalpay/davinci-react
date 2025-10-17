@@ -7,7 +7,9 @@ import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   RoleEnum,
   StockHistoryStatusEnum,
   commonDateOptions,
@@ -24,6 +26,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
@@ -70,13 +73,16 @@ const Stock = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const expenseTypes = useGetAccountExpenseTypes();
+  const disabledConditions = useGetDisabledConditions();
+  const stockPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_STOCK,
+    disabledConditions
+  );
+
   const [isStockTransferModalOpen, setIsStockTransferModalOpen] =
     useState(false);
 
   const [rowToAction, setRowToAction] = useState<any>();
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-    : true;
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks?.reduce((acc, stock) => {
@@ -131,9 +137,10 @@ const Stock = () => {
             collapsibleColumns: [
               { key: t("Location"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
-              isStockEnableEdit
-                ? { key: t("Actions"), isSortable: false }
-                : undefined,
+              isStockEnableEdit && {
+                key: t("Actions"),
+                isSortable: false,
+              },
             ].filter(Boolean),
             collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
             collapsibleRows: [],
@@ -221,8 +228,12 @@ const Stock = () => {
     },
   ];
   if (
-    (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) ||
-    !showStockPrices
+    stockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWPRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    )
   ) {
     const splicedColumns = ["Unit Price", "Menu Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "menuPrice", "totalGroupPrice"];
@@ -260,6 +271,12 @@ const Stock = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: stockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const collapsibleActions = [
     {
@@ -285,6 +302,12 @@ const Stock = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
@@ -292,7 +315,7 @@ const Stock = () => {
       className:
         user?.role?._id === RoleEnum.MANAGER
           ? "text-blue-500 cursor-pointer text-xl "
-          : "text-blue-500 cursor-pointer text-xl mr-auto",
+          : "text-blue-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
@@ -328,11 +351,17 @@ const Stock = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Transfer"),
       icon: <TbTransferIn />,
-      className: "text-green-500 cursor-pointer text-xl mr-auto",
+      className: "text-green-500 cursor-pointer text-xl ",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -364,9 +393,15 @@ const Stock = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.TRANSFER &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
+
   const filters = [
     {
       label: t("Total") + " :",
@@ -383,7 +418,12 @@ const Stock = () => {
           </p>
         </div>
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Prices"),
@@ -396,7 +436,12 @@ const Stock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Enable Edit"),
@@ -409,7 +454,12 @@ const Stock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -612,6 +662,7 @@ const Stock = () => {
     expenseTypes,
     vendors,
     brands,
+    disabledConditions,
   ]);
 
   return (
@@ -630,7 +681,15 @@ const Stock = () => {
           isActionsActive={isStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          isExcel={
+            user &&
+            stockPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("GenelStok.xlsx")}
         />
       </div>

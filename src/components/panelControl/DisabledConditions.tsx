@@ -4,7 +4,7 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { DisabledCondition } from "../../types";
+import { DisabledCondition, FormElementsState } from "../../types";
 import { useGetActions } from "../../utils/api/panelControl/action";
 import {
   useDisabledConditionMutations,
@@ -48,6 +48,11 @@ const DisabledConditions = () => {
     updateDisabledCondition,
     deleteDisabledCondition,
   } = useDisabledConditionMutations();
+  const [form, setForm] = useState<FormElementsState>({
+    name: "",
+    page: "",
+    actions: [],
+  });
   const allRows = disabledConditions.map((dc) => {
     const page = getItem(dc.page, pages);
     return {
@@ -186,13 +191,31 @@ const DisabledConditions = () => {
           close={() => setIsEditModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
+          setForm={setForm}
           submitItem={updateDisabledCondition as any}
-          isEditMode={true}
+          isEditMode={false}
+          constantValues={{
+            ...rowToAction,
+            actions: rowToAction.actions.map((a) => a.action),
+          }}
+          submitFunction={() => {
+            updateDisabledCondition({
+              id: rowToAction._id,
+              updates: {
+                ...form,
+                actions: form.actions.map((actionId: string) => ({
+                  action: actionId,
+                  permissionsRoles:
+                    rowToAction.actions.find((ac) => ac.action === actionId)
+                      ?.permissionsRoles || [],
+                })),
+              },
+            });
+          }}
           topClassName="flex flex-col gap-2 "
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
       ) : null,
-
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,

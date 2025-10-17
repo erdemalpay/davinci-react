@@ -378,6 +378,20 @@ export enum ButtonCallType {
   CLOSED = "closed",
 }
 
+export enum DisabledConditionEnum {
+  STOCK_STOCK = "stocks",
+}
+export enum ActionEnum {
+  DELETE = "delete",
+  ADD = "add",
+  UPDATE = "update",
+  TRANSFER = "transfer",
+  EXCEL = "excel",
+  SHOWPRICES = "show_prices",
+  ENABLEEDIT = "enable_edit",
+  SHOWTOTAL = "show_total",
+}
+
 export type Membership = {
   _id: number;
   name: string;
