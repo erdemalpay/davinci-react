@@ -388,6 +388,8 @@ export enum ActionEnum {
   TRANSFER = "transfer",
   EXCEL = "excel",
   SHOWPRICES = "show_prices",
+  ENABLEEDIT = "enable_edit",
+  SHOWTOTAL = "show_total",
 }
 
 export type Membership = {

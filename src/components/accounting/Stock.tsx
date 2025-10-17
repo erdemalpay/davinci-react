@@ -83,9 +83,6 @@ const Stock = () => {
     useState(false);
 
   const [rowToAction, setRowToAction] = useState<any>();
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-    : true;
   const { mutate: stockTransfer } = useStockTransferMutation();
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks?.reduce((acc, stock) => {
@@ -140,9 +137,10 @@ const Stock = () => {
             collapsibleColumns: [
               { key: t("Location"), isSortable: true },
               { key: t("Quantity"), isSortable: true },
-              isStockEnableEdit
-                ? { key: t("Actions"), isSortable: false }
-                : undefined,
+              isStockEnableEdit && {
+                key: t("Actions"),
+                isSortable: false,
+              },
             ].filter(Boolean),
             collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
             collapsibleRows: [],
@@ -403,6 +401,7 @@ const Stock = () => {
       ),
     },
   ];
+
   const filters = [
     {
       label: t("Total") + " :",
@@ -419,7 +418,12 @@ const Stock = () => {
           </p>
         </div>
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Prices"),
@@ -450,7 +454,12 @@ const Stock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: stockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -672,7 +681,15 @@ const Stock = () => {
           isActionsActive={isStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          isExcel={
+            user &&
+            stockPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("GenelStok.xlsx")}
         />
       </div>
