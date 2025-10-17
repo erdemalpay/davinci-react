@@ -1,11 +1,12 @@
 import { Tooltip } from "@material-tailwind/react";
 import "pdfmake/build/pdfmake";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
 import { CgChevronDownR, CgChevronUpR } from "react-icons/cg";
 import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import {
   MdOutlineCheckBox,
@@ -15,10 +16,10 @@ import { PiFadersHorizontal } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
 import { outsideSort } from "../../../utils/outsideSort";
+import { GenericButton } from "../../common/GenericButton";
 import ImageModal from "../Modals/ImageModal";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
@@ -143,6 +144,28 @@ const GenericTable = <T,>({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
+  const [showHeaderLeftButton, setShowHeaderLeftButton] = useState(false);
+  const [showHeaderRightButton, setShowHeaderRightButton] = useState(false);
+  const headerScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const checkHeaderScrollButtons = () => {
+    if (headerScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = headerScrollRef.current;
+      setShowHeaderLeftButton(scrollLeft > 10);
+      setShowHeaderRightButton(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scrollHeaderToDirection = (direction: "left" | "right") => {
+    if (headerScrollRef.current) {
+      const scrollAmount = 200;
+      headerScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const initialRows = () => {
     if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
       setTableRows(rows);
@@ -719,6 +742,19 @@ const GenericTable = <T,>({
       sortRows(sortConfigKey?.key, sortConfigKey?.direction);
     }
   }, []);
+
+  useEffect(() => {
+    checkHeaderScrollButtons();
+    const container = headerScrollRef.current;
+    if (container) {
+      container.addEventListener("scroll", checkHeaderScrollButtons);
+      window.addEventListener("resize", checkHeaderScrollButtons);
+      return () => {
+        container.removeEventListener("scroll", checkHeaderScrollButtons);
+        window.removeEventListener("resize", checkHeaderScrollButtons);
+      };
+    }
+  }, [usedColumns?.length]);
   const renderFilters = (isUpper: boolean) => {
     if (!filters) {
       return null;
@@ -885,129 +921,187 @@ const GenericTable = <T,>({
             </div>
           </div>
           {/* table part */}
-          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full ">
-            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-60  ">
-              <table className="bg-white w-full ">
-                <thead className="border-b bg-gray-100">
-                  <tr>
-                    {selectionActions && isSelectionActive && (
-                      <th>
-                        {selectionActions && isSelectionActive && (
-                          <Tooltip content={t("Select All")} placement="top">
-                            <div
-                              onClick={() => {
-                                if (selectedRows.length === totalRows) {
-                                  setSelectedRows([]);
-                                } else {
-                                  setSelectedRows(tableRows);
-                                }
-                              }}
-                            >
-                              {selectedRows.length === totalRows ? (
-                                <MdOutlineCheckBox className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
-                              ) : (
-                                <MdOutlineCheckBoxOutlineBlank className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
-                              )}
-                            </div>
-                          </Tooltip>
-                        )}
-                      </th>
-                    )}
-                    {isCollapsible && <th></th>}
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full  ">
+            <div className="border border-gray-100 rounded-md w-full min-h-60 relative">
+              {/* Sol scroll butonu - Header için */}
+              {showHeaderLeftButton && (
+                <button
+                  onClick={() => scrollHeaderToDirection("left")}
+                  className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  aria-label="Scroll left"
+                >
+                  <FiChevronLeft className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
+                </button>
+              )}
 
-                    {usedColumns?.map((column, index) => {
-                      if (column.node) {
-                        return column.node();
-                      }
-                      return (
-                        <th
-                          key={index}
-                          className={` ${
-                            index === 0 && !isCollapsible && !isSelectionActive
-                              ? "pl-3"
-                              : ""
-                          }  py-3  min-w-8  `}
-                        >
-                          <h1
-                            className={`text-base font-medium leading-6 w-max flex gap-2  ${
-                              column?.className
-                            }  ${
-                              index === usedColumns?.length - 1 &&
-                              actions &&
-                              isActionsActive
-                                ? "mx-auto px-4"
-                                : ""
-                            }`}
-                          >
-                            <span
-                              className={`flex flex-row gap-1 items-center justify-center `}
-                            >
-                              {column?.isAddable && (
-                                <GoPlusCircle
-                                  onClick={() => column?.onClick?.()}
-                                  className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
-                                />
-                              )}
-                              {column.key}
-                            </span>
-                            <div
-                              className="sort-buttons"
-                              style={{ display: "inline-block" }}
-                            >
-                              {outsideSortProps &&
-                                column?.correspondingKey &&
-                                outsideSort(
-                                  column.correspondingKey,
-                                  outsideSortProps.filterPanelFormElements,
-                                  outsideSortProps.setFilterPanelFormElements
-                                )}
-                              {column.isSortable &&
-                                !outsideSortProps &&
-                                (sortConfig?.key === usedRowKeys[index]?.key &&
-                                sortConfig?.direction === "ascending" ? (
-                                  <GenericButton
-                                    variant="icon"
-                                    size="sm"
-                                    className="p-0"
-                                    onClick={() =>
-                                      sortRows(
-                                        usedRowKeys[index].key as Extract<
-                                          keyof T,
-                                          string
-                                        >,
-                                        "descending"
-                                      )
-                                    }
-                                  >
-                                    ↑
-                                  </GenericButton>
+              {/* Sağ scroll butonu - Header için */}
+              {showHeaderRightButton && (
+                <button
+                  onClick={() => scrollHeaderToDirection("right")}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  aria-label="Scroll right"
+                >
+                  <FiChevronRight className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
+                </button>
+              )}
+
+              <div
+                ref={headerScrollRef}
+                className="overflow-auto scroll-smooth scrollbar-hide relative cursor-grab active:cursor-grabbing max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+              >
+                {/* Sol fade shadow - içeriğin devam ettiğini gösterir */}
+                {showHeaderLeftButton && (
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-8 sm:w-10 md:w-12 pointer-events-none z-10"
+                    style={{
+                      background:
+                        "linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+                    }}
+                  />
+                )}
+
+                {/* Sağ fade shadow - içeriğin devam ettiğini gösterir */}
+                {showHeaderRightButton && (
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-8 sm:w-10 md:w-12 pointer-events-none z-10"
+                    style={{
+                      background:
+                        "linear-gradient(to left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+                    }}
+                  />
+                )}
+
+                <table className="bg-white w-full">
+                  <thead className="border-b bg-gray-100">
+                    <tr>
+                      {selectionActions && isSelectionActive && (
+                        <th className="sticky top-0 z-10 bg-gray-100 shadow-sm">
+                          {selectionActions && isSelectionActive && (
+                            <Tooltip content={t("Select All")} placement="top">
+                              <div
+                                onClick={() => {
+                                  if (selectedRows.length === totalRows) {
+                                    setSelectedRows([]);
+                                  } else {
+                                    setSelectedRows(tableRows);
+                                  }
+                                }}
+                              >
+                                {selectedRows.length === totalRows ? (
+                                  <MdOutlineCheckBox className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
                                 ) : (
-                                  <GenericButton
-                                    variant="icon"
-                                    size="sm"
-                                    className="p-0"
-                                    onClick={() =>
-                                      sortRows(
-                                        usedRowKeys[index].key as Extract<
-                                          keyof T,
-                                          string
-                                        >,
-                                        "ascending"
-                                      )
-                                    }
-                                  >
-                                    ↓
-                                  </GenericButton>
-                                ))}
-                            </div>
-                          </h1>
+                                  <MdOutlineCheckBoxOutlineBlank className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
+                                )}
+                              </div>
+                            </Tooltip>
+                          )}
                         </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>{currentRowsContent}</tbody>
-              </table>
+                      )}
+                      {isCollapsible && (
+                        <th className="sticky top-0 z-10 bg-gray-100"></th>
+                      )}
+
+                      {usedColumns?.map((column, index) => {
+                        if (column.node) {
+                          return column.node();
+                        }
+                        return (
+                          <th
+                            key={index}
+                            className={`sticky top-0 z-10 bg-gray-100 shadow-sm ${
+                              index === 0 &&
+                              !isCollapsible &&
+                              !isSelectionActive
+                                ? "pl-3"
+                                : ""
+                            }  py-3  min-w-8  `}
+                          >
+                            <h1
+                              className={`text-base font-medium leading-6 w-max flex gap-2  ${
+                                column?.className
+                              }  ${
+                                index === usedColumns?.length - 1 &&
+                                actions &&
+                                isActionsActive
+                                  ? "mx-auto px-4"
+                                  : ""
+                              }`}
+                            >
+                              <span
+                                className={`flex flex-row gap-1 items-center justify-center `}
+                              >
+                                {column?.isAddable && (
+                                  <GoPlusCircle
+                                    onClick={() => column?.onClick?.()}
+                                    className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
+                                  />
+                                )}
+                                {column.key}
+                              </span>
+                              <div
+                                className="sort-buttons"
+                                style={{ display: "inline-block" }}
+                              >
+                                {outsideSortProps &&
+                                  column?.correspondingKey &&
+                                  outsideSort(
+                                    column.correspondingKey,
+                                    outsideSortProps.filterPanelFormElements,
+                                    outsideSortProps.setFilterPanelFormElements
+                                  )}
+                                {column.isSortable &&
+                                  !outsideSortProps &&
+                                  (sortConfig?.key ===
+                                    usedRowKeys[index]?.key &&
+                                  sortConfig?.direction === "ascending" ? (
+                                    <GenericButton
+                                      variant="icon"
+                                      size="sm"
+                                      className="p-0"
+                                      onClick={() =>
+                                        sortRows(
+                                          usedRowKeys[index].key as Extract<
+                                            keyof T,
+                                            string
+                                          >,
+                                          "descending"
+                                        )
+                                      }
+                                    >
+                                      ↑
+                                    </GenericButton>
+                                  ) : (
+                                    <GenericButton
+                                      variant="icon"
+                                      size="sm"
+                                      className="p-0"
+                                      onClick={() =>
+                                        sortRows(
+                                          usedRowKeys[index].key as Extract<
+                                            keyof T,
+                                            string
+                                          >,
+                                          "ascending"
+                                        )
+                                      }
+                                    >
+                                      ↓
+                                    </GenericButton>
+                                  ))}
+                              </div>
+                            </h1>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>{currentRowsContent}</tbody>
+                </table>
+              </div>
             </div>
             {rows.length > 0 && isRowsPerPage && (
               <div className="w-fit ml-auto flex flex-row gap-4">
