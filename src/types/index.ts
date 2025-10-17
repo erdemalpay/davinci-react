@@ -1215,6 +1215,7 @@ export enum ActivityType {
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
   KITCHEN_ACTIVATED = "KITCHEN_ACTIVATED",
   KITCHEN_DEACTIVATED = "KITCHEN_DEACTIVATED",
+  ORDER_DIVIDED = "ORDER_DIVIDED",
 }
 export const activityTypeDetails = [
   {
@@ -1456,6 +1457,11 @@ export const activityTypeDetails = [
     value: ActivityType.KITCHEN_DEACTIVATED,
     label: "Kitchen Deactivated",
     bgColor: "bg-red-700",
+  },
+  {
+    value: ActivityType.ORDER_DIVIDED,
+    label: "Order Divided",
+    bgColor: "bg-purple-500",
   },
 ];
 
