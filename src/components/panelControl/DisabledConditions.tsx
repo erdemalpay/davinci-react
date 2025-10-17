@@ -55,7 +55,6 @@ const DisabledConditions = () => {
       pageName: page?.name || dc.page,
     };
   });
-
   const inputs = [
     NameInput({ required: true }),
     {
@@ -88,7 +87,8 @@ const DisabledConditions = () => {
   const columns = [
     { key: t("Name"), isSortable: true },
     { key: t("Page"), isSortable: true },
-    { key: t("Actions"), isSortable: false },
+    { key: t("Disabled Condition Actions"), isSortable: false },
+    { key: t("Actions"), isSortable: true },
   ];
 
   const rowKeys = [
@@ -113,6 +113,23 @@ const DisabledConditions = () => {
       },
     },
     { key: "pageName" },
+    {
+      key: "actions",
+      node: (row: DisabledConditionRow) => {
+        return (
+          <div className="flex flex-wrap gap-1">
+            {row.actions.map((ac) => {
+              const action = getItem(ac.action, componentActions);
+              return action ? (
+                <span className="bg-gray-200 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                  {action.name}
+                </span>
+              ) : null;
+            })}
+          </div>
+        );
+      },
+    },
   ];
 
   const addButton = {
