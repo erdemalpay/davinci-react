@@ -944,7 +944,6 @@ const GenericTable = <T,>({
                   <FiChevronRight className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
                 </button>
               )}
-
               <div
                 ref={headerScrollRef}
                 className="overflow-auto scroll-smooth scrollbar-hide relative cursor-grab active:cursor-grabbing max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
