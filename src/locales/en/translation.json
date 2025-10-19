@@ -877,5 +877,11 @@
   "Add Action": "Add Action",
   "Delete Action": "Delete Action",
   "Action Name": "Action Name",
-  "Disabled Condition Actions": "Disabled Condition Actions"
+  "Disabled Condition Actions": "Disabled Condition Actions",
+  "Update Ikas Prices": "Update Ikas Prices",
+  "Ikas Price Comparision": "Ikas Price Comparision",
+  "Ikas Price": "Ikas Price",
+  "Ikas Online Price": "Ikas Online Price",
+  "Item Price": "Item Price",
+  "Item Online Price": "Item Online Price"
 }

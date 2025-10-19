@@ -808,6 +808,7 @@ export type IkasProduct = {
       sellPrice: number;
       discountPrice: null;
       buyPrice: null;
+      priceListId: string;
     }[];
     sku: null;
     unit: null;
@@ -939,6 +940,7 @@ export enum StocksPageTabEnum {
   PRODUCTSHELFINFO,
   VENDORORDER,
   IKASSTOCKCOMPARISION,
+  IKASPRICECOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
