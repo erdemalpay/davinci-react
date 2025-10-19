@@ -9,7 +9,7 @@ import { CiMoneyCheck1 } from "react-icons/ci";
 import { DiDatabase } from "react-icons/di";
 import { FaGamepad } from "react-icons/fa";
 import { LuDessert } from "react-icons/lu";
-import { MdOutlineCompare } from "react-icons/md";
+import { MdOutlineCompare, MdOutlinePriceChange } from "react-icons/md";
 import GameStock from "../components/accounting/GameStock";
 import GameStockLocation from "../components/accounting/GameStockLocation";
 import ProductStockHistory from "../components/accounting/ProductStockHistory";
@@ -19,6 +19,7 @@ import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import BaseQuantityByLocation from "../components/stocks/BaseQuantityByLocation";
 import DessertStock from "../components/stocks/DessertStocks";
 import EnterConsumption from "../components/stocks/EnterConsumption";
+import IkasPriceComparision from "../components/stocks/IkasPriceComparision";
 import IkasStockComparision from "../components/stocks/IkasStockComparision";
 import LossProduct from "../components/stocks/LossProduct";
 import ProductShelfInfo from "../components/stocks/ProductShelfInfo";
@@ -83,6 +84,14 @@ export const StockPageTabs = [
     label: "Ikas Stock Comparision",
     icon: <MdOutlineCompare className="text-lg font-thin" />,
     content: <IkasStockComparision />,
+    isDisabled: false,
+  },
+
+  {
+    number: StocksPageTabEnum.IKASPRICECOMPARISION,
+    label: "Ikas Price Comparision",
+    icon: <MdOutlinePriceChange className="text-lg font-thin" />,
+    content: <IkasPriceComparision />,
     isDisabled: false,
   },
   {

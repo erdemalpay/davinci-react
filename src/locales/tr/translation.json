@@ -883,5 +883,11 @@
   "Add Action": "İşlem Ekle",
   "Delete Action": "İşlem Sil",
   "Action Name": "İşlem Adı",
-  "Disabled Condition Actions": "İşlemler"
+  "Disabled Condition Actions": "İşlemler",
+  "Update Ikas Prices": "Ikas Fiyatlarını Güncelle",
+  "Ikas Price Comparision": "Ikas Fiyat Karşılaştırması",
+  "Ikas Price": "Ikas Fiyatı",
+  "Ikas Online Price": "Ikas Online Fiyatı",
+  "Item Price": "Ürün Fiyatı",
+  "Item Online Price": "Ürün Online Fiyatı"
 }
