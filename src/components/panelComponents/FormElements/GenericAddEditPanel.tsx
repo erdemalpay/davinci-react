@@ -774,7 +774,7 @@ const GenericAddEditPanel = <T,>({
                     }
                     size="md"
                     onClick={() => {
-                      // Validasyon kontrolü: eğer
+
                       if (button.isInputRequirementCheck && !allRequiredFilled) {
                         setAttemptedSubmit(true);
                         toast.error(t("Please fill all required fields"));
