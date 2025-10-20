@@ -457,6 +457,7 @@ export function TableCard({
               )?.isNoteRequired)) ??
           true,
       },
+      //deneme
       {
         type: InputTypes.SELECT,
         formKey: "discountNote",
