@@ -680,6 +680,7 @@ const Stock = () => {
           filterPanel={filterPanel}
           isActionsActive={isStockEnableEdit}
           isCollapsible={true}
+          isSearch={true}
           isToolTipEnabled={false}
           isExcel={
             user &&
