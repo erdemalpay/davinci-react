@@ -18,8 +18,7 @@ type PriceHistory = {
   date: string;
   price: number;
 };
-type Props = {};
-export default function MenuItemPriceChart({}: Props) {
+export default function MenuItemPriceChart() {
   const { t } = useTranslation();
   const items = useGetMenuItems();
 

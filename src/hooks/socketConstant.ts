@@ -237,4 +237,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "actionChanged",
     invalidateKeys: [`${Paths.PanelControl}/actions`],
   },
+  {
+    event: "taskTrackChanged",
+    invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
+  },
 ];
