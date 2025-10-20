@@ -883,5 +883,11 @@
   "Ikas Price": "Ikas Price",
   "Ikas Online Price": "Ikas Online Price",
   "Item Price": "Item Price",
-  "Item Online Price": "Item Online Price"
+  "Item Online Price": "Item Online Price",
+  "Add Task Track": "Add Task Track",
+  "Delete Task Track": "Delete Task Track",
+  "Task Tracks": "Task Tracks",
+  "Tasks": "Tasks",
+  "Task": "Task",
+  "Task Track": "Task Track"
 }

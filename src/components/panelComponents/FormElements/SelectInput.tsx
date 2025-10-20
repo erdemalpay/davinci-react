@@ -106,8 +106,6 @@ const SelectInput = ({
   isSortDisabled = false,
   suggestedOption,
 }: SelectInputProps) => {
-  console.log("label:", label);
-  console.log("suggestedOption:", suggestedOption);
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);

@@ -21,6 +21,13 @@ export type Action = {
   _id: string;
   name: string;
 };
+export type TaskTrack = {
+  _id: number;
+  task: string;
+  users: string[];
+  type: string[];
+  createdAt: Date;
+};
 
 export type DisabledCondition = {
   _id: string;
@@ -895,6 +902,7 @@ export enum ExpirationPageTabEnum {
   EXPIRATIONLISTPRODUCTS,
 }
 export enum PanelControlPageTabEnum {
+  TASKTRACK,
   PAGEPERMISSIONS,
   DISABLEDCONDITIONS,
   ROUTEAUTHORIZATIONPERMISSIONS,

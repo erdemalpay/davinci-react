@@ -1,3 +1,4 @@
+import { FaTasks } from "react-icons/fa";
 import { GrConfigure } from "react-icons/gr";
 import { IoIosSettings } from "react-icons/io";
 import { MdManageAccounts, MdSchool } from "react-icons/md";
@@ -9,6 +10,7 @@ import EducationPermissions from "../components/panelControl/EducationPermission
 import PagePermissions from "../components/panelControl/PagePermissions";
 import PanelSettings from "../components/panelControl/PanelSettings";
 import RouteAuthorizationPermissions from "../components/panelControl/RouteAuthorizationPermissions";
+import TaskTrackPage from "../components/panelControl/TaskTrack";
 import { useGeneralContext } from "../context/General.context";
 import { PanelControlPageTabEnum } from "../types";
 
@@ -19,6 +21,13 @@ const PanelControl = () => {
     setPanelControlActiveTab,
   } = useGeneralContext();
   const tabs = [
+    {
+      number: PanelControlPageTabEnum.TASKTRACK,
+      label: "Task Track",
+      icon: <FaTasks className="text-lg font-thin" />,
+      content: <TaskTrackPage />,
+      isDisabled: false,
+    },
     {
       number: PanelControlPageTabEnum.PAGEPERMISSIONS,
       label: "Page Permissions",
