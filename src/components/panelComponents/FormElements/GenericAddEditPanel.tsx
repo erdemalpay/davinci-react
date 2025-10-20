@@ -774,6 +774,13 @@ const GenericAddEditPanel = <T,>({
                     }
                     size="md"
                     onClick={() => {
+
+                      if (button.isInputRequirementCheck && !allRequiredFilled) {
+                        setAttemptedSubmit(true);
+                        toast.error(t("Please fill all required fields"));
+                        return;
+                      }
+
                       const handleButtonClick = () => {
                         const preservedValues = button.preservedKeys?.reduce<
                           Partial<typeof formElements>
