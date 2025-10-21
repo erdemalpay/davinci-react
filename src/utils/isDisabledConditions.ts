@@ -14,6 +14,10 @@ export const isDisabledConditionCountListMenu = (user: User | null | undefined):
   return user ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id) : true;
 };
 
+export const isDisabledConditionGames = (user: User | null | undefined): boolean => {
+  return user ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id) : true;
+};
+
 export const isDisabledConditionCountLists = (user: User | null | undefined): boolean => {
   return user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true;
 };
