@@ -8,9 +8,13 @@ import { useEffect } from "react";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "./components/common/Loading";
+import { Sidebar } from "./components/common/Sidebar";
 import { DateContextProvider } from "./context/Date.context";
 import { FilterContextProvider } from "./context/Filter.context";
-import { GeneralContextProvider } from "./context/General.context";
+import {
+  GeneralContextProvider,
+  useGeneralContext,
+} from "./context/General.context";
 import { LocationContextProvider } from "./context/Location.context";
 import { OrderContextProvider } from "./context/Order.context";
 import { ShiftContextProvider } from "./context/Shift.context";
@@ -23,6 +27,8 @@ function App() {
   const isMutating = useIsMutating();
   const isVisible = usePageVisibility();
   const queryClient = useQueryClient();
+  const { isSidebarOpen } = useGeneralContext();
+
   // webSocket connection
   useWebSocket();
   // when page visibility gone invalidate queries
@@ -31,10 +37,19 @@ function App() {
       queryClient.clear();
     }
   }, [isVisible, queryClient]);
+
   return (
     <div className="App">
       {isMutating ? <Loading /> : null}
-      <RouterContainer />
+      <Sidebar />
+      {/* Content wrapper - sidebar durumuna göre dinamik margin */}
+      <div
+        className={`transition-all duration-300 ${
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-16"
+        }`}
+      >
+        <RouterContainer />
+      </div>
       <ToastContainer
         autoClose={2000}
         hideProgressBar={true}

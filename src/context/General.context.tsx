@@ -1,4 +1,9 @@
-import { PropsWithChildren, createContext, useContext, useState } from "react";
+import {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import { TabOption } from "../components/panelComponents/FormElements/TabInputScreen";
 import { ColumnType } from "../components/panelComponents/shared/types";
 import { CountListOptions, countListOptions } from "../pages/CountLists";
@@ -115,6 +120,8 @@ type GeneralContextType = {
       defaultValue: any;
     }[]
   ) => void;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -237,6 +244,8 @@ const GeneralContext = createContext<GeneralContextType>({
   setTabInputFormKey: () => {},
   tabInputInvalidateKeys: [],
   setTabInputInvalidateKeys: () => {},
+  isSidebarOpen: true,
+  setIsSidebarOpen: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -319,6 +328,16 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
+  const [isSidebarOpen, setIsSidebarOpenState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("sidebar-open");
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  const setIsSidebarOpen = (open: boolean) => {
+    localStorage.setItem("sidebar-open", JSON.stringify(open));
+    setIsSidebarOpenState(open);
+  };
+
   const resetGeneralContext = () => {
     setIsSelectionActive(false);
     setSelectedRows([]);
@@ -413,6 +432,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTabInputFormKey,
         tabInputInvalidateKeys,
         setTabInputInvalidateKeys,
+        isSidebarOpen,
+        setIsSidebarOpen,
       }}
     >
       {children}
