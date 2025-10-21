@@ -437,7 +437,7 @@ const Count = () => {
     location,
     products,
     stocks,
-    counts,
+    // counts,
     items,
     i18n.language,
   ]);
@@ -459,11 +459,7 @@ const Count = () => {
           actions={isEnableEdit ? actions : []}
         />
         <div className="flex justify-end flex-row gap-2 mt-4">
-          <GenericButton
-            variant="danger"
-            size="sm"
-            onClick={cancelCount}
-          >
+          <GenericButton variant="danger" size="sm" onClick={cancelCount}>
             <H5> {t("Cancel")}</H5>
           </GenericButton>
           <GenericButton
