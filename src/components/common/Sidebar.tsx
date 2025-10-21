@@ -119,10 +119,7 @@ export const Sidebar = () => {
                 {isSidebarOpen && (
                   <div className="flex flex-col items-start flex-1 min-w-0 overflow-hidden">
                     <span className="text-sm font-semibold text-gray-900 truncate w-full">
-                      {user?.name}
-                    </span>
-                    <span className="text-xs text-gray-500 truncate w-full">
-                      {(user?.role as Role)?.name}
+                      {user?.name ? user.name.toUpperCase() : ""}
                     </span>
                   </div>
                 )}
