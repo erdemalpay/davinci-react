@@ -9,7 +9,6 @@ import {
   AccountExpenseType,
   ConstantPaymentMethodsIds,
   ExpenseTypes,
-  NOTPAID,
   commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
@@ -19,6 +18,7 @@ import {
   useGetAccountExpenses,
 } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
+import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
@@ -28,6 +28,7 @@ import { getItem } from "../../utils/getItem";
 import {
   BrandInput,
   ExpenseTypeInput,
+  PaymentMethodInput,
   ProductInput,
   QuantityInput,
   ServiceInput,
@@ -68,6 +69,7 @@ const Expenses = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const brands = useGetAccountBrands();
   const vendors = useGetAccountVendors();
+  const paymentMethods = useGetAccountPaymentMethods();
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
   const [tableKey, setTableKey] = useState(0);
@@ -137,6 +139,11 @@ const Expenses = () => {
     VendorInput({ vendors: vendors, required: true }),
     BrandInput({ brands: brands, required: true }),
     ExpenseTypeInput({ expenseTypes: expenseTypes, required: true }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
+      required: true,
+      isMultiple: true,
+    }),
     StockLocationInput({ locations: locations }),
     {
       type: InputTypes.SELECT,
@@ -285,6 +292,10 @@ const Expenses = () => {
     }),
     VendorInput({
       vendors: vendorInputOptions() ?? [],
+      required: true,
+    }),
+    PaymentMethodInput({
+      paymentMethods: paymentMethods?.filter((pm) => pm?.isUsedAtExpense),
       required: true,
     }),
     {
@@ -498,7 +509,12 @@ const Expenses = () => {
       node: (row: any) => {
         return (
           <div className="min-w-32">
-            <P1>{parseFloat(row.unitPrice).toFixed(2).replace(/\.?0*$/, "")} ₺</P1>
+            <P1>
+              {parseFloat(row.unitPrice)
+                .toFixed(2)
+                .replace(/\.?0*$/, "")}{" "}
+              ₺
+            </P1>
           </div>
         );
       },
@@ -613,10 +629,7 @@ const Expenses = () => {
           ...allExpenseForm,
           location: selectedLocationId,
           isAfterCount: true,
-          paymentMethod:
-            allExpenseForm.paymentMethod === NOTPAID
-              ? ""
-              : allExpenseForm.paymentMethod,
+
           isPaid: true,
         }}
       />
