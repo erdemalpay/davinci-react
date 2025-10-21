@@ -1,8 +1,10 @@
 import { MdOutlineNotificationsNone } from "react-icons/md";
 import { Link } from "react-router-dom";
+import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
 import { useGeneralContext } from "../../context/General.context";
 import { Routes } from "../../navigation/constants";
 import { useGetUserNewNotifications } from "../../utils/api/notification";
+import { useGetUser } from "../../utils/api/user";
 import { LocationSelector } from "./LocationSelector";
 import logo from "./logo.svg";
 import NotificationModal from "./NotificationModal";
@@ -19,6 +21,7 @@ export function Header({
 }: HeaderProps) {
   const notifications = useGetUserNewNotifications();
   const { isNotificationOpen, setIsNotificationOpen } = useGeneralContext();
+  const user = useGetUser();
   const handleScrollToTop = () => {
     if (location.pathname === Routes.Tables) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -44,6 +47,14 @@ export function Header({
             </Link>
           </div>
           <div className="w-auto h-full flex items-center justify-end gap-x-2 sm:gap-x-4">
+            <Link to={Routes.Profile} className="flex items-center gap-2">
+              <img
+                src={user?.imageUrl ?? user1}
+                alt="profile"
+                className="w-10 h-10 rounded-full"
+              />
+              <span className="text-white">{user?.name}</span>
+            </Link>
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />
             )}

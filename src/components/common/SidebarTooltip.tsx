@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGeneralContext } from "../../context/General.context";
 
 type Props = {
@@ -11,6 +11,12 @@ export default function SidebarTooltip({ children, content }: Props) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
   const { isSidebarOpen } = useGeneralContext();
+
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      setIsVisible(false);
+    }
+  }, [isSidebarOpen]);
 
   if (!content || isSidebarOpen) {
     return <>{children}</>;
@@ -53,7 +59,6 @@ export default function SidebarTooltip({ children, content }: Props) {
         >
           <div className="bg-gray-900 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-lg whitespace-nowrap relative">
             {content}
-            {/* Arrow */}
             <div
               className="absolute right-full top-1/2 -translate-y-1/2"
               style={{

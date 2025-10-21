@@ -1,15 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiChevronDown, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
-import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
-import { Routes } from "../../navigation/constants";
 import { Role } from "../../types";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
@@ -24,20 +22,25 @@ export const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen, resetGeneralContext } =
     useGeneralContext();
   const { setUser } = useUserContext();
-  const user = useGetUser(); // Bu hook profil güncellendiğinde otomatik yeni data çeker
+  const user = useGetUser();
   const currentRoute = location.pathname;
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
   );
 
-  // Custom hook ile filtrelenmiş route'ları al (kod tekrarını önler)
   const routes = useFilteredRoutes();
-  // Children filtreleme için pages'e ihtiyacımız var
+
   const pages = useGetPanelControlPages();
 
   const toggleGroup = (groupName: string) => {
     setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
   };
+
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      setOpenGroups({});
+    }
+  }, [isSidebarOpen]);
 
   if (!user || routes.length === 0) {
     return null;
@@ -89,44 +92,6 @@ export const Sidebar = () => {
         </div>
 
         <div className="flex flex-col h-[calc(100%-4rem)] py-3 px-2 bg-white overflow-y-auto">
-          <div className="mb-4 pb-4 border-b border-gray-200">
-            <SidebarTooltip content={user?.name || "Profil"}>
-              <button
-                onClick={() => {
-                  navigate(Routes.Profile);
-                  window.scrollTo(0, 0);
-                }}
-                className={`w-full flex items-center rounded-lg
-                hover:bg-gray-50 transition-colors group ${
-                  isSidebarOpen
-                    ? "gap-3 px-3 py-3"
-                    : "gap-0 px-2 py-2.5 justify-center"
-                }`}
-              >
-                <img
-                  src={user?.imageUrl ?? user1}
-                  alt="profile"
-                  className={`rounded-full object-cover border-2 flex-shrink-0 transition-all duration-200 ${
-                    isSidebarOpen ? "border-blue-200" : "border-gray-200"
-                  }`}
-                  style={{
-                    width: isSidebarOpen ? "48px" : "40px",
-                    height: isSidebarOpen ? "48px" : "40px",
-                    minWidth: isSidebarOpen ? "48px" : "40px",
-                    minHeight: isSidebarOpen ? "48px" : "40px",
-                  }}
-                />
-                {isSidebarOpen && (
-                  <div className="flex flex-col items-start flex-1 min-w-0 overflow-hidden">
-                    <span className="text-sm font-semibold text-gray-900 truncate w-full">
-                      {user?.name ? user.name.toUpperCase() : ""}
-                    </span>
-                  </div>
-                )}
-              </button>
-            </SidebarTooltip>
-          </div>
-
           <div className="flex-1 space-y-1">
             {routes.map((route) => {
               const filteredRouteChildren = route?.children?.filter(
@@ -145,7 +110,16 @@ export const Sidebar = () => {
                   <div key={route.name}>
                     <SidebarTooltip content={t(route.name)}>
                       <button
-                        onClick={() => toggleGroup(route.name)}
+                        onClick={() => {
+                          if (!isSidebarOpen) {
+                            setIsSidebarOpen(true);
+                            setTimeout(() => {
+                              toggleGroup(route.name);
+                            }, 100);
+                          } else {
+                            toggleGroup(route.name);
+                          }
+                        }}
                         className="w-full flex items-center justify-between px-2 py-2 rounded-lg
                         text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                       >
