@@ -388,6 +388,7 @@ export enum ButtonCallType {
 export enum DisabledConditionEnum {
   STOCK_STOCK = "stocks",
   GAMES_GAMES = "games",
+  BUTTONCALLS_BUTTONCALLS = "button_calls",
 }
 export enum ActionEnum {
   DELETE = "delete",
