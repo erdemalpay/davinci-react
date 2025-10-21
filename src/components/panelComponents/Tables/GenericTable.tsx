@@ -912,7 +912,7 @@ const GenericTable = <T,>({
                   </Tooltip>
 
                   {isColumnActiveModalOpen && title && (
-                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-10 min-w-64">
+                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-50 min-w-64">
                       <ColumnActiveModal title={title} />
                     </div>
                   )}
