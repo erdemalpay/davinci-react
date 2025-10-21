@@ -12,11 +12,9 @@ import { useTranslation } from "react-i18next";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
-import user1 from "../../components/panelComponents/assets/profile/user-1.jpg";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { useFilteredRoutes } from "../../hooks/useFilteredRoutes";
-import { Routes } from "../../navigation/constants";
 import { Role } from "../../types";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetUser } from "../../utils/api/user";
@@ -28,7 +26,7 @@ export function PageSelector() {
   const queryClient = useQueryClient();
   const currentRoute = location.pathname;
   const { setUser } = useUserContext();
-  const user = useGetUser(); // Bu hook profil güncellendiğinde otomatik yeni data çeker
+  const user = useGetUser();
   const { resetGeneralContext, setIsNotificationOpen } = useGeneralContext();
   const [openGroups, setOpenGroups] = useState<{ [group: string]: boolean }>(
     {}
@@ -64,30 +62,6 @@ export function PageSelector() {
         </button>
       </MenuHandler>
       <MenuList className="overflow-scroll no-scrollbar h-[95%] max-h-max">
-        <div className="mb-3 pb-3 border-b border-gray-200">
-          <MenuItem
-            onClick={() => {
-              navigate(Routes.Profile);
-              window.scrollTo(0, 0);
-            }}
-            className="flex items-center gap-3 p-3 hover:bg-gray-50"
-          >
-            <img
-              src={user?.imageUrl ?? user1}
-              alt="profile"
-              className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-            />
-            <div className="flex flex-col items-start flex-1 min-w-0">
-              <span className="text-sm font-semibold text-gray-900 truncate w-full">
-                {user?.name}
-              </span>
-              <span className="text-xs text-gray-500 truncate w-full">
-                {(user?.role as Role)?.name}
-              </span>
-            </div>
-          </MenuItem>
-        </div>
-
         {routes.map((route) => {
           const filteredRouteChildren = route?.children?.filter(
             (child) =>
