@@ -245,7 +245,7 @@ const OrderLists = ({
     },
   ];
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8  ">
+    <div className="flex h-full min-h-0 flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <div className="flex flex-row gap-2">
