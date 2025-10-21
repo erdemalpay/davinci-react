@@ -109,6 +109,12 @@ const IkasPickUp = () => {
       isSortable: true,
       correspondingKey: "createdAt",
     },
+
+    {
+      key: t("Order Number"),
+      isSortable: true,
+      correspondingKey: "ikasOrderNumber",
+    },
     { key: t("Name"), isSortable: true, correspondingKey: "customerFirstName" },
     {
       key: t("Last Name"),
@@ -145,6 +151,7 @@ const IkasPickUp = () => {
       },
     },
     { key: "createdAt" },
+    { key: "ikasOrderNumber", className: "min-w-32 pr-2" },
     { key: "customerFirstName", className: "min-w-32 pr-2" },
     { key: "customerLastName", className: "min-w-32 pr-2" },
     { key: "customerEmail", className: "min-w-32 pr-2" },
