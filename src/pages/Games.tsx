@@ -186,7 +186,12 @@ export default function Games() {
       },
     },
   ];
-  const filters = [
+  const isEnableEditDisabled = gamesPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
+  const filters = !isEnableEditDisabled ? [
     {
       label: t("Enable Edit"),
       isUpperSide: false,
@@ -199,7 +204,7 @@ export default function Games() {
         />
       ),
     },
-  ];
+  ] : [];
   const addButton = {
     name: t("Add Game"),
     isDisabled: gamesPageDisabledCondition?.actions?.some(
