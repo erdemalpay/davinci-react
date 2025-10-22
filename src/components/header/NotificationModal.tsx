@@ -26,6 +26,7 @@ import {
 } from "../../utils/api/notification";
 import { useGetUser } from "../../utils/api/user";
 import { getNotificationLanguageMessage } from "../../utils/notification";
+import Loading from "../common/Loading";
 const NotificationModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -217,7 +218,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
     </div>
   );
 
-  if (!notifications) return null;
+  if (!notifications) return <Loading />;
 
   return (
     <div

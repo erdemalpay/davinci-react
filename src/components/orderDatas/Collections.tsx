@@ -26,6 +26,7 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -53,7 +54,7 @@ const Collections = () => {
     setShowOrderDataFilters,
   } = useOrderContext();
   if (!collections || !orders || !sellLocations || !users || !paymentMethods) {
-    return null;
+    return <Loading />;
   }
   const collectionStatus = [
     {

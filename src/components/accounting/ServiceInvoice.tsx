@@ -784,7 +784,11 @@ const ServiceInvoice = () => {
           actions={actions}
           filters={tableFilters}
           outsideSortProps={outsideSort}
+<<<<<<< Updated upstream
           isActionsActive={isServiceInvoiceEnableEdit}
+=======
+          isActionsActive={true}
+>>>>>>> Stashed changes
           isActionsAtFront={isServiceInvoiceEnableEdit}
           columns={
             isServiceInvoiceEnableEdit

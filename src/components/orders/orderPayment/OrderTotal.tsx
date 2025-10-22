@@ -4,6 +4,7 @@ import { useOrderContext } from "../../../context/Order.context";
 import { Order, Table } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
 import { getItem } from "../../../utils/getItem";
+import Loading from "../../common/Loading";
 import Keypad from "./KeyPad";
 
 type Props = {
@@ -23,7 +24,7 @@ const OrderTotal = ({
   const { t } = useTranslation();
   const items = useGetMenuItems();
   if (!tableOrders || !items) {
-    return null;
+    return <Loading />;
   }
   const {
     setPaymentAmount,

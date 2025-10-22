@@ -18,6 +18,7 @@ import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -31,7 +32,7 @@ const DailyIncome = () => {
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   if (!collections || !sellLocations || !paymentMethods) {
-    return null;
+    return <Loading />;
   }
   const {
     filterPanelFormElements,
@@ -111,7 +112,9 @@ const DailyIncome = () => {
       return (
         <p className={`${row?.className}`}>
           {row[method._id] !== 0 &&
-            row[method._id]?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            row[method._id]?.toFixed(2).replace(/\.?0*$/, "") +
+              " " +
+              TURKISHLIRA}
         </p>
       );
     },
@@ -130,7 +133,8 @@ const DailyIncome = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.total !== 0 && row?.total?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.total !== 0 &&
+              row?.total?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
           </p>
         );
       },

@@ -42,6 +42,7 @@ import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
+import Loading from "../../common/Loading";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
@@ -95,7 +96,7 @@ const OrderPaymentModal = ({
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
-  if (!orders || !users || !user) return null;
+  if (!orders || !users || !user) return <Loading />;
   const [selectedUser, setSelectedUser] = useState<User>(user);
   const userOptions = activeUsers
     .map((user) => {

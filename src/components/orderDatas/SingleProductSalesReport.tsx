@@ -21,6 +21,7 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -52,7 +53,7 @@ const SingleProductSalesReport = () => {
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   if (!orders || !categories || !sellLocations) {
-    return null;
+    return <Loading />;
   }
   const {
     filterPanelFormElements,

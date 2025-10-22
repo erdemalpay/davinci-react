@@ -970,14 +970,18 @@ export function TableCard({
         {/* table orders */}
         {tableOrders && tableOrders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2 ">
-            {(tableOrders as Order[])?.map((order) => {
-              if (
-                order.status === OrderStatus.CANCELLED ||
-                (!showServedOrders && order.status === OrderStatus.SERVED)
-              )
-                return null;
-              return <OrderCard key={order?._id} order={order} table={table} />;
-            })}
+            {(tableOrders as Order[])
+              ?.filter((order) => {
+                return !(
+                  order?.status === OrderStatus.CANCELLED ||
+                  (!showServedOrders && order.status === OrderStatus.SERVED)
+                );
+              })
+              ?.map((order) => {
+                return (
+                  <OrderCard key={order?._id} order={order} table={table} />
+                );
+              })}
           </div>
         )}
       </div>

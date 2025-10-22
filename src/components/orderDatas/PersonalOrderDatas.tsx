@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { commonDateOptions, DateRangeKey, Order, User } from "../../types";
+import { DateRangeKey, Order, User, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import {
@@ -15,10 +15,11 @@ import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
+import Loading from "../common/Loading";
+import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
-import GenericTable from "../panelComponents/Tables/GenericTable";
 
 interface PersonalOrderData {
   user: string;
@@ -84,7 +85,7 @@ const PersonalOrderDatas = () => {
     setShowOrderDataFilters,
   } = useOrderContext();
   if (!gameplayDatas || !users || !tableCreateDatas || !personalOrderDatas) {
-    return null;
+    return <Loading />;
   }
   const allRows = personalOrderDatas.map((personalOrderData) => {
     const foundTableData = tableCreateDatas.find(
