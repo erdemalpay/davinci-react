@@ -377,6 +377,20 @@ const OrdersReport = () => {
     },
     {
       type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Menu Item"),
+      options: items?.map((item) => {
+        return {
+          value: item?._id,
+          label: item?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Menu Item"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
       formKey: "discount",
       label: t("Discount"),
       options: discounts.map((discount) => {
