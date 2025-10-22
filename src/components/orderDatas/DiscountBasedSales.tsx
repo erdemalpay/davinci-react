@@ -24,6 +24,7 @@ import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
+import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -66,7 +67,7 @@ const DiscountBasedSales = () => {
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const tables = useGetTables();
   if (!orders || !sellLocations || !discounts || !items || !tables) {
-    return null;
+    return <Loading />;
   }
   const {
     filterPanelFormElements,

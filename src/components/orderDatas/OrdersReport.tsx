@@ -27,6 +27,7 @@ import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
+import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -76,7 +77,7 @@ const OrdersReport = () => {
     setShowOrderDataFilters,
   } = useOrderContext();
   if (!orders || !sellLocations || !users || !discounts) {
-    return null;
+    return <Loading />;
   }
 
   const allRows = orders

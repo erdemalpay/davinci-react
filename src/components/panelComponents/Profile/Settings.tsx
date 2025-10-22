@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../../context/General.context";
 import { languageOptions, RowPerPageEnum } from "../../../types";
 import { useGetUser, useUserMutations } from "../../../utils/api/user";
+import Loading from "../../common/Loading";
 import CommonSelectInput from "../../common/SelectInput";
 import TextInput from "../FormElements/TextInput";
 import { InputTypes } from "../shared/types";
@@ -13,7 +14,7 @@ const Settings = () => {
   const { setRowsPerPage } = useGeneralContext();
   const user = useGetUser();
   if (!user) {
-    return null;
+    return <Loading />;
   }
   return (
     <div className="w-5/6 sm:w-1/2 flex flex-col gap-2 px-4 py-4 border border-gray-200 rounded-lg bg-white shadow-sm mx-auto __className_a182b8 ">

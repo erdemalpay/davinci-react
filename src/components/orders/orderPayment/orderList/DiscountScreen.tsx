@@ -8,6 +8,7 @@ import {
   TURKISHLIRA,
 } from "../../../../types";
 import { useGetOrderDiscounts } from "../../../../utils/api/order/orderDiscount";
+import Loading from "../../../common/Loading";
 import OrderScreenHeader from "./OrderScreenHeader";
 
 type Props = {
@@ -36,7 +37,7 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     setSelectedDiscount,
     setIsDiscountNoteOpen,
   } = useOrderContext();
-  if (!discounts || !tableOrders) return null;
+  if (!discounts || !tableOrders) return <Loading />;
   const handleDiscountClick = (discount: OrderDiscount) => {
     setSelectedDiscount(discount);
     if (discount?.isNoteRequired) {
@@ -53,7 +54,8 @@ const DiscountScreen = ({ tableOrders, table }: Props) => {
     const searchValue = normalizeText(searchTerm);
     return (
       normalizeText(discount.name).includes(searchValue) ||
-      (discount.percentage && discount.percentage.toString().includes(searchTerm)) ||
+      (discount.percentage &&
+        discount.percentage.toString().includes(searchTerm)) ||
       (discount.amount && discount.amount.toString().includes(searchTerm))
     );
   });

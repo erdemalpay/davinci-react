@@ -26,6 +26,7 @@ import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { closeTable } from "../../../utils/api/table";
 import { getItem } from "../../../utils/getItem";
+import Loading from "../../common/Loading";
 
 type Props = {
   tableOrders: Order[];
@@ -81,7 +82,7 @@ const OrderPaymentTypes = ({
     !givenDateOrders ||
     !user
   ) {
-    return null;
+    return <Loading />;
   }
   function getPaymentMethodName(paymentType: string) {
     return paymentMethods.find((method) => method._id === paymentType);
