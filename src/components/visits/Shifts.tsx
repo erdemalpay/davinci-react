@@ -469,12 +469,17 @@ const Shifts = () => {
                                   ...currentSelectedRoleUsers,
                                 ])
                               );
+
+                        const shiftData = shifts
+                          ?.find((s) => s.day === row.day)
+                          ?.shifts?.find((s) => s.shift === foundShift.shift);
                         return {
                           shift: foundShift.shift,
                           ...(foundShift.shiftEndHour && {
                             shiftEndHour: foundShift.shiftEndHour,
                           }),
                           user,
+                          chefUser: shiftData?.chefUser,
                         };
                       }
                     );
