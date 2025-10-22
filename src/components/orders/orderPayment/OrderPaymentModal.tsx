@@ -382,7 +382,7 @@ const OrderPaymentModal = ({
               TURKISHLIRA,
             })
           );
-          return;
+          // return;
         }
         setIsCloseConfirmationDialogOpen(true);
       },
