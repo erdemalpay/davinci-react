@@ -11,14 +11,13 @@ import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
-import { isDisabledConditionGames } from "../utils/isDisabledConditions";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum, type Game, DisabledConditionEnum, ActionEnum } from "../types";
+import { type Game, DisabledConditionEnum, ActionEnum } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
@@ -32,7 +31,6 @@ export default function Games() {
   const { updateGame, deleteGame, createGame } = useGameMutations();
   const [tableKey, setTableKey] = useState(0);
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionGames(user);
   const locations = useGetStoreLocations();
   const { isGameEnableEdit, setIsGameEnableEdit } = useFilterContext();
   const disabledConditions = useGetDisabledConditions();
@@ -170,7 +168,7 @@ export default function Games() {
         (gamesPageDisabledCondition?.actions?.some(
           (ac) => ac.action === ActionEnum.RATE &&
             user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
-        ) ?? false) || isDisabledCondition,
+        ) ?? false),
       node: (row: any) => {
         return (
           <StarRating
