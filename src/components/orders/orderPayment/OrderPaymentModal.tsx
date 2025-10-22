@@ -1112,7 +1112,7 @@ const OrderPaymentModal = ({
                 </div>
               </div>
               {/* payment part */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 h-full ">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 h-full min-h-0">
                 <OrderLists
                   table={table}
                   tableOrders={tableOrders}

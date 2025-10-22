@@ -67,7 +67,7 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
     }
   };
   return (
-    <div className="flex flex-col h-[60%] overflow-scroll no-scrollbar min-h-80  ">
+    <div className="flex flex-col overflow-y-auto no-scrollbar h-[260px] sm:h-[280px] lg:h-[320px]">
       <OrderScreenHeader header="Unpaid Orders" />
       {/* orders */}
       {tableOrders
