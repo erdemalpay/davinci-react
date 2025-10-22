@@ -784,7 +784,7 @@ const ServiceInvoice = () => {
           actions={actions}
           filters={tableFilters}
           outsideSortProps={outsideSort}
-          isActionsActive={false}
+          isActionsActive={isServiceInvoiceEnableEdit}
           isActionsAtFront={isServiceInvoiceEnableEdit}
           columns={
             isServiceInvoiceEnableEdit
