@@ -479,9 +479,7 @@ const Shifts = () => {
                             shiftEndHour: foundShift.shiftEndHour,
                           }),
                           user,
-                          ...(shiftData?.chefUser && {
-                            chefUser: shiftData.chefUser,
-                          }),
+                          chefUser: shiftData?.chefUser,
                         };
                       }
                     );
