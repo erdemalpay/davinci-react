@@ -927,7 +927,7 @@ const GenericTable = <T,>({
               {showHeaderLeftButton && (
                 <button
                   onClick={() => scrollHeaderToDirection("left")}
-                  className="absolute left-1 top-6 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
                   aria-label="Scroll left"
                 >
                   <FiChevronLeft className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
@@ -938,7 +938,7 @@ const GenericTable = <T,>({
               {showHeaderRightButton && (
                 <button
                   onClick={() => scrollHeaderToDirection("right")}
-                  className="absolute right-1 top-6 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
                   aria-label="Scroll right"
                 >
                   <FiChevronRight className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
@@ -947,11 +947,11 @@ const GenericTable = <T,>({
 
               <div
                 ref={headerScrollRef}
-                className="overflow-auto scroll-smooth scrollbar-hide relative cursor-grab active:cursor-grabbing max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
-                style={{
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                }}
+                className={`overflow-y-scroll scroll-smooth relative cursor-grab active:cursor-grabbing ${
+                  rowsPerPage > 50 || rowsPerPage === RowPerPageEnum.ALL
+                    ? "h-[600px]"
+                    : "max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
+                }`}
               >
                 {/* Sol fade shadow - içeriğin devam ettiğini gösterir */}
                 {showHeaderLeftButton && (
