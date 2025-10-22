@@ -387,6 +387,7 @@ export enum ButtonCallType {
 
 export enum DisabledConditionEnum {
   STOCK_STOCK = "stocks",
+  GAMES_GAMES = "games",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -397,6 +398,7 @@ export enum ActionEnum {
   SHOWPRICES = "show_prices",
   ENABLEEDIT = "enable_edit",
   SHOWTOTAL = "show_total",
+  RATE = "rate",
 }
 
 export type Membership = {

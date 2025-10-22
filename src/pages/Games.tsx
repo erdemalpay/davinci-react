@@ -17,9 +17,11 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useFilterContext } from "../context/Filter.context";
 import { useUserContext } from "../context/User.context";
-import { RoleEnum, type Game } from "../types";
+import { type Game, DisabledConditionEnum, ActionEnum } from "../types";
 import { useGameMutations, useGetGames } from "../utils/api/game";
 import { useGetStoreLocations } from "../utils/api/location";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
 
 const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
 export default function Games() {
@@ -31,8 +33,12 @@ export default function Games() {
   const { user } = useUserContext();
   const locations = useGetStoreLocations();
   const { isGameEnableEdit, setIsGameEnableEdit } = useFilterContext();
-  const isDisabledCondition =
-    user && ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id);
+  const disabledConditions = useGetDisabledConditions();
+  const gamesPageDisabledCondition = getItem(
+    DisabledConditionEnum.GAMES_GAMES,
+    disabledConditions
+  );
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Game>();
@@ -106,7 +112,10 @@ export default function Games() {
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isGameEnableEdit,
+      isDisabled: gamesPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.DELETE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -129,7 +138,10 @@ export default function Games() {
     },
     {
       name: t("Edit"),
-      isDisabled: !isGameEnableEdit,
+      isDisabled: gamesPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.UPDATE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -152,7 +164,11 @@ export default function Games() {
     },
     {
       name: "Star Rating",
-      isDisabled: !isGameEnableEdit || isDisabledCondition,
+      isDisabled:
+        (gamesPageDisabledCondition?.actions?.some(
+          (ac) => ac.action === ActionEnum.RATE &&
+            user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+        ) ?? false),
       node: (row: any) => {
         return (
           <StarRating
@@ -168,7 +184,12 @@ export default function Games() {
       },
     },
   ];
-  const filters = [
+  const isEnableEditDisabled = gamesPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
+  const filters = !isEnableEditDisabled ? [
     {
       label: t("Enable Edit"),
       isUpperSide: false,
@@ -181,9 +202,13 @@ export default function Games() {
         />
       ),
     },
-  ];
+  ] : [];
   const addButton = {
     name: t("Add Game"),
+    isDisabled: gamesPageDisabledCondition?.actions?.some(
+      (ac) => ac.action === ActionEnum.ADD &&
+        user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+    ) ?? false,
     isModal: true,
     modal: (
       <AddGameDialog
@@ -200,7 +225,7 @@ export default function Games() {
   };
   useEffect(() => {
     setTableKey((prev) => prev + 1);
-  }, [games, isGameEnableEdit, locations]);
+  }, [games, isGameEnableEdit, locations, disabledConditions]);
   return (
     <>
       <Header showLocationSelector={false} />

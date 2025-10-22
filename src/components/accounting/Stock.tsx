@@ -10,7 +10,6 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
-  RoleEnum,
   StockHistoryStatusEnum,
   commonDateOptions,
 } from "../../types";
@@ -312,10 +311,7 @@ const Stock = () => {
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className:
-        user?.role?._id === RoleEnum.MANAGER
-          ? "text-blue-500 cursor-pointer text-xl "
-          : "text-blue-500 cursor-pointer text-xl",
+      className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
