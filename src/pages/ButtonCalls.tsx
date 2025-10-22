@@ -22,7 +22,7 @@ import { StockLocationInput } from "../utils/panelInputs";
 type FormElementsState = {
   [key: string]: any;
 };
-//deneme
+
 export default function ButtonCalls() {
   const { t } = useTranslation();
   const locations = useGetAllLocations();
