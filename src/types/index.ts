@@ -1243,6 +1243,8 @@ export enum ActivityType {
   KITCHEN_DEACTIVATED = "KITCHEN_DEACTIVATED",
   ORDER_DIVIDED = "ORDER_DIVIDED",
   DELETE_VISIT = "DELETE_VISIT",
+  CREATE_VISIT = "CREATE_VISIT",
+  FINISH_VISIT = "FINISH_VISIT",
 }
 export const activityTypeDetails = [
   {
@@ -1494,6 +1496,16 @@ export const activityTypeDetails = [
     value: ActivityType.DELETE_VISIT,
     label: "Delete Visit",
     bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CREATE_VISIT,
+    label: "Visit Entry",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_VISIT,
+    label: "Visit Exit",
+    bgColor: "bg-blue-500",
   },
 ];
 

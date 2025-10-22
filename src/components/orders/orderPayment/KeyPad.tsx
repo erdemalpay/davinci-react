@@ -1,18 +1,23 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GenericButton } from "../../common/GenericButton";
 import { useOrderContext } from "../../../context/Order.context";
 import { Order } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 
 type Props = {
   tableOrders: Order[];
   collectionsTotalAmount: number;
+  unpaidAmount: number;
 };
 type KeyItem = {
   key: string;
   onClick?: () => void;
 };
-const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
+const Keypad = ({
+  tableOrders,
+  collectionsTotalAmount,
+  unpaidAmount,
+}: Props) => {
   const { t } = useTranslation();
   const {
     setPaymentAmount,
@@ -44,16 +49,8 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
             (totalAmount - discountAmount - collectionsTotalAmount) / number;
           const resultAmount = Math.round(rawResult);
           setPaymentAmount(resultAmount.toFixed(2));
-          if (
-            totalAmount -
-              discountAmount -
-              collectionsTotalAmount -
-              resultAmount <
-            1
-          ) {
-            setPaymentAmount(
-              (totalAmount - discountAmount - collectionsTotalAmount).toFixed(2)
-            );
+          if (unpaidAmount - resultAmount < 1) {
+            setPaymentAmount(unpaidAmount.toFixed(2));
           }
         }
         setIsNumberSelection(false);
@@ -75,6 +72,7 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
       setPaymentAmount,
       totalAmount,
       discountAmount,
+      unpaidAmount,
     ]
   );
 
@@ -98,14 +96,7 @@ const Keypad = ({ tableOrders, collectionsTotalAmount }: Props) => {
               };
             })
             ?.filter((order) => order !== null);
-          setPaymentAmount(
-            (
-              (totalAmount ?? 0) -
-              (discountAmount ?? 0) -
-              collectionsTotalAmount
-            )?.toString()
-          );
-
+          setPaymentAmount(unpaidAmount?.toString());
           setTemporaryOrders(
             updatedOrders as { order: Order; quantity: number }[]
           );
