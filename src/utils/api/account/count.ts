@@ -99,6 +99,24 @@ export function useGetQueryCounts(
   limit: number,
   filters: FormElementsState
 ) {
+  const baseQueryUrl = `${Paths.Accounting}/counts/query`;
+
+  const queryKey = [
+    baseQueryUrl,
+    {
+      page,
+      limit,
+      createdBy: filters.createdBy ?? null,
+      countList: filters.countList ?? null,
+      location: filters.location ?? null,
+      after: filters.after ?? null,
+      before: filters.before ?? null,
+      sort: filters.sort ?? null,
+      asc: filters.asc ?? null,
+      search: filters.search ?? null,
+    },
+  ] as const;
+
   const parts = [
     `page=${page}`,
     `limit=${limit}`,
@@ -111,9 +129,8 @@ export function useGetQueryCounts(
     filters.asc !== undefined && `asc=${filters.asc}`,
     filters.search && `search=${filters.search}`,
   ];
-
   const queryString = parts.filter(Boolean).join("&");
-  const url = `${baseUrl}/query?${queryString}`;
+  const url = `${baseQueryUrl}?${queryString}`;
 
-  return useGet<CountsPayload>(url, [url, page, limit, filters], true);
+  return useGet<CountsPayload>(url, queryKey, true);
 }

@@ -101,7 +101,10 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "countChanged",
-    invalidateKeys: [`${Paths.Accounting}/counts`],
+    invalidateKeys: [
+      `${Paths.Accounting}/counts`,
+      `${Paths.Accounting}/counts/query`,
+    ],
   },
   {
     event: "countListChanged",
