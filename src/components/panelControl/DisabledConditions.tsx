@@ -4,7 +4,8 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
-import { DisabledCondition, FormElementsState } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { DisabledCondition, FormElementsState, DisabledConditionEnum, ActionEnum } from "../../types";
 import { useGetActions } from "../../utils/api/panelControl/action";
 import {
   useDisabledConditionMutations,
@@ -43,6 +44,11 @@ const DisabledConditions = () => {
   const disabledConditions = useGetDisabledConditions();
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { user } = useUserContext();
+  const disabledConditionsPageDisabledCondition = getItem(
+    DisabledConditionEnum.PANELCONTROL_DISABLEDCONDITIONS,
+    disabledConditions
+  );
   const {
     createDisabledCondition,
     updateDisabledCondition,
@@ -139,6 +145,10 @@ const DisabledConditions = () => {
 
   const addButton = {
     name: t(`Add Disabled Condition`),
+    isDisabled: disabledConditionsPageDisabledCondition?.actions?.some(
+      (ac) => ac.action === ActionEnum.ADD &&
+        user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+    ) ?? false,
     isModal: true,
     modal: (
       <GenericAddEditPanel
@@ -159,6 +169,10 @@ const DisabledConditions = () => {
   const actions = [
     {
       name: t("Delete"),
+      isDisabled: disabledConditionsPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.DELETE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -181,6 +195,10 @@ const DisabledConditions = () => {
     },
     {
       name: t("Edit"),
+      isDisabled: disabledConditionsPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.UPDATE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -222,18 +240,23 @@ const DisabledConditions = () => {
     },
   ];
 
+  const isEnableEditDisabled = disabledConditionsPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [disabledConditions, roles, componentActions]);
 
-  const filters = [
+  const filters = !isEnableEditDisabled ? [
     {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
-  ];
+  ] : [];
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -244,7 +267,7 @@ const DisabledConditions = () => {
           rows={rows}
           filters={filters}
           title={t("Disabled Conditions")}
-          isActionsActive={true}
+          isActionsActive={isEnableEdit}
           actions={actions}
           addButton={addButton}
           isSearch={false}

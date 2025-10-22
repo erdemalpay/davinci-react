@@ -4,11 +4,13 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { Authorization } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { Authorization, DisabledConditionEnum, ActionEnum } from "../../types";
 import {
   useAuthorizationMutations,
   useGetAuthorizations,
 } from "../../utils/api/authorization";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -47,6 +49,12 @@ const RouteAuthorizationPermissions = () => {
   const [tableKey, setTableKey] = useState(0);
   const pages = useGetPanelControlPages();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const routeAuthorizationPageDisabledCondition = getItem(
+    DisabledConditionEnum.PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS,
+    disabledConditions
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Authorization>();
   const [
@@ -217,6 +225,10 @@ const RouteAuthorizationPermissions = () => {
   const actions = [
     {
       name: t("Edit"),
+      isDisabled: routeAuthorizationPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.UPDATE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <FiEdit />,
       className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
@@ -239,6 +251,10 @@ const RouteAuthorizationPermissions = () => {
     },
     {
       name: t("Delete"),
+      isDisabled: routeAuthorizationPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.DELETE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -267,17 +283,25 @@ const RouteAuthorizationPermissions = () => {
     setFormElements: setFilterPanelFormElements,
     closeFilters: () => setShowFilters(false),
   };
+
+  const isEnableEditDisabled = routeAuthorizationPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
   }, [authorizations, roles, filterPanelFormElements, pages]);
 
   const filters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-    },
+    ...(!isEnableEditDisabled ? [
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
+      },
+    ] : []),
     {
       label: t("Show Filters"),
       isUpperSide: true,
@@ -302,7 +326,7 @@ const RouteAuthorizationPermissions = () => {
           filters={filters}
           filterPanel={filterPanel}
           title={t("Route Authorization Permissions")}
-          isActionsActive={true}
+          isActionsActive={isEnableEdit}
           actions={actions}
         />
       </div>
