@@ -389,6 +389,10 @@ export enum DisabledConditionEnum {
   STOCK_STOCK = "stocks",
   GAMES_GAMES = "games",
   BUTTONCALLS_BUTTONCALLS = "button_calls",
+  PANELCONTROL_DISABLEDCONDITIONS = "disabled_conditions",
+  PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS = "route_authorization_permissions",
+  PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions"
+
 }
 export enum ActionEnum {
   DELETE = "delete",

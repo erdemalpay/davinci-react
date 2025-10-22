@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { Education } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { Education, DisabledConditionEnum, ActionEnum } from "../../types";
 import {
   useEducationMutations,
   useGetEducations,
 } from "../../utils/api/education";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetAllUserRoles } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -19,6 +22,12 @@ const EducationPermissions = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { updateEducation } = useEducationMutations();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const educationPageDisabledCondition = getItem(
+    DisabledConditionEnum.PANELCONTROL_EDUCATIONPERMISSIONS,
+    disabledConditions
+  );
   function handleRolePermission(row: Education, roleKey: number) {
     const newPermissionRoles = row?.permissionRoles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -59,16 +68,22 @@ const EducationPermissions = () => {
       },
     } as any);
   }
+  const isEnableEditDisabled = educationPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
   useEffect(() => {
     setTableKey((prev) => prev + 1);
   }, [educations, roles]);
-  const filters = [
+
+  const filters = !isEnableEditDisabled ? [
     {
       label: t("Enable Edit"),
       isUpperSide: true,
       node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
     },
-  ];
+  ] : [];
   return (
     <>
       <div className="w-[95%] mx-auto ">
