@@ -437,7 +437,7 @@ const Count = () => {
     location,
     products,
     stocks,
-    // counts,
+    counts,
     items,
     i18n.language,
   ]);
