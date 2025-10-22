@@ -266,7 +266,10 @@ const CategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`} key={"discount" + row?.item}>
-            {row?.discount > 0 && row?.discount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.discount > 0 &&
+              row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
+                " " +
+                TURKISHLIRA}
           </p>
         );
       },
@@ -289,7 +292,9 @@ const CategoryBasedSalesReport = () => {
             className={`${row?.className}`}
             key={"totalAmountWithDiscount" + row?.item}
           >
-            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
+              " " +
+              TURKISHLIRA}
           </p>
         );
       },
@@ -374,6 +379,20 @@ const CategoryBasedSalesReport = () => {
       }),
       isMultiple: true,
       placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Menu Item"),
+      options: items?.map((item) => {
+        return {
+          value: item?._id,
+          label: item?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Menu Item"),
       required: true,
     },
     {

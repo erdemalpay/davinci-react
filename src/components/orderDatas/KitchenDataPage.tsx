@@ -414,18 +414,19 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
     },
     {
       type: InputTypes.SELECT,
-      formKey: "category",
-      label: t("Category"),
-      options: categories?.map((category) => {
-        return {
-          value: category?._id,
-          label: category?.name,
-        };
-      }),
+      formKey: "item",
+      label: t("Menu Item"),
+      options: items
+        ?.filter((item) => item.category === categoryId)
+        ?.map((item) => {
+          return {
+            value: item?._id,
+            label: item?.name,
+          };
+        }),
       isMultiple: true,
-      placeholder: t("Category"),
+      placeholder: t("Menu Item"),
       required: true,
-      isDisabled: true,
     },
     {
       type: InputTypes.SELECT,

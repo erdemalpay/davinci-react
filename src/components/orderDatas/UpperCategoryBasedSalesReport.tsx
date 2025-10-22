@@ -298,7 +298,10 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.discount > 0 && row?.discount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.discount > 0 &&
+              row?.discount?.toFixed(2).replace(/\.?0*$/, "") +
+                " " +
+                TURKISHLIRA}
           </p>
         );
       },
@@ -318,7 +321,9 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.totalAmountWithDiscount?.toFixed(2).replace(/\.?0*$/, "") +
+              " " +
+              TURKISHLIRA}
           </p>
         );
       },
@@ -328,7 +333,9 @@ const UpperCategoryBasedSalesReport = () => {
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.percentageGeneralAmount?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row?.percentageGeneralAmount?.toFixed(2).replace(/\.?0*$/, "") +
+              " " +
+              TURKISHLIRA}
           </p>
         );
       },
@@ -414,6 +421,20 @@ const UpperCategoryBasedSalesReport = () => {
       }),
       isMultiple: true,
       placeholder: t("Category"),
+      required: true,
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "item",
+      label: t("Menu Item"),
+      options: items?.map((item) => {
+        return {
+          value: item?._id,
+          label: item?.name,
+        };
+      }),
+      isMultiple: true,
+      placeholder: t("Menu Item"),
       required: true,
     },
     {
