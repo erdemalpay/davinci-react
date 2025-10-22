@@ -7,13 +7,15 @@ import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
-import { ButtonCall, buttonCallTypes, commonDateOptions } from "../types";
+import { useUserContext } from "../context/User.context";
+import { ButtonCall, buttonCallTypes, commonDateOptions, DisabledConditionEnum, ActionEnum } from "../types";
 import {
   useButtonCallMutations,
   useGetQueryButtonCalls,
 } from "../utils/api/buttonCall";
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetUsers } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
@@ -28,6 +30,12 @@ export default function ButtonCalls() {
   const locations = useGetAllLocations();
   const [tableKey, setTableKey] = useState(0);
   const users = useGetUsers();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const buttonCallsPageDisabledCondition = getItem(
+    DisabledConditionEnum.BUTTONCALLS_BUTTONCALLS,
+    disabledConditions
+  );
   const initialFilterPanelFormElements: FormElementsState = {
     location: "",
     cancelledBy: [],
@@ -192,10 +200,18 @@ export default function ButtonCalls() {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
+  const isEnableEditDisabled = buttonCallsPageDisabledCondition?.actions?.some(
+    (ac) => ac.action === ActionEnum.ENABLEEDIT &&
+      user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+  ) ?? false;
+
   const actions = [
     {
       name: t("Delete"),
-      isDisabled: !isButtonCallEnableEdit,
+      isDisabled: buttonCallsPageDisabledCondition?.actions?.some(
+        (ac) => ac.action === ActionEnum.DELETE &&
+          user?.role?._id && !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -218,18 +234,20 @@ export default function ButtonCalls() {
     },
   ];
   const tableFilters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={isButtonCallEnableEdit}
-          onChange={() => {
-            setIsButtonCallEnableEdit(!isButtonCallEnableEdit);
-          }}
-        />
-      ),
-    },
+    ...(!isEnableEditDisabled ? [
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={isButtonCallEnableEdit}
+            onChange={() => {
+              setIsButtonCallEnableEdit(!isButtonCallEnableEdit);
+            }}
+          />
+        ),
+      },
+    ] : []),
     {
       label: t("Show Filters"),
       isUpperSide: true,
@@ -268,7 +286,7 @@ export default function ButtonCalls() {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [filterPanelFormElements, locations, buttonCallsPayload]);
+  }, [filterPanelFormElements, locations, buttonCallsPayload, disabledConditions]);
   return (
     <>
       <Header showLocationSelector={true} />
