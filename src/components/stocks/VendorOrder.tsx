@@ -2,20 +2,30 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetAllLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { LocationInput, VendorInput } from "../../utils/panelInputs";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 
 const VendorOrder = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const vendors = useGetAccountVendors();
   const products = useGetAccountProducts();
   const stocks = useGetAccountStocks();
   const locations = useGetAllLocations();
+  const disabledConditions = useGetDisabledConditions();
+  const vendorOrderPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_VENDORORDER,
+    disabledConditions
+  );
   const { showStockFilters, setShowStockFilters } = useGeneralContext();
   const [tableKey, setTableKey] = useState(0);
   const {
@@ -155,6 +165,7 @@ const VendorOrder = () => {
     stocks,
     locations,
     vendorOrderFilterPanelFormElements,
+    disabledConditions,
   ]);
   return (
     <>
@@ -167,7 +178,15 @@ const VendorOrder = () => {
           title={t("Vendor Order")}
           filters={filters}
           isActionsActive={false}
-          isExcel={true}
+          isExcel={
+            user &&
+            !vendorOrderPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName={"VendorOrder.xlsx"}

@@ -680,7 +680,7 @@ const Stock = () => {
           isToolTipEnabled={false}
           isExcel={
             user &&
-            stockPageDisabledCondition?.actions?.some(
+            !stockPageDisabledCondition?.actions?.some(
               (ac) =>
                 ac.action === ActionEnum.EXCEL &&
                 user?.role?._id &&

@@ -391,7 +391,19 @@ export enum DisabledConditionEnum {
   BUTTONCALLS_BUTTONCALLS = "button_calls",
   PANELCONTROL_DISABLEDCONDITIONS = "disabled_conditions",
   PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS = "route_authorization_permissions",
-  PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions"
+  PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions",
+  STOCK_GAMESTOCK = "gamestock",
+  STOCK_DESSERTSTOCK = "dessertstock",
+  STOCK_GAMESTOCKLOCATION = "gamestocklocation",
+  STOCK_BASEQUANTITYBYLOCATION = "basequantitybylocation",
+  STOCK_PRODUCTSHELFINFO = "productshelfinfo",
+  STOCK_VENDORORDER = "vendororder",
+  STOCK_IKASSTOCKCOMPARISION = "ikasstockcomparision",
+  STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
+  STOCK_ENTERCONSUMPTION = "enterconsumption",
+  STOCK_LOSSPRODUCT = "lossproduct",
+
+
 
 }
 export enum ActionEnum {
@@ -404,6 +416,11 @@ export enum ActionEnum {
   ENABLEEDIT = "enable_edit",
   SHOWTOTAL = "show_total",
   RATE = "rate",
+  UPLOAD = "upload",
+  SETBASEAMOUNT = "set_base_amount",
+  UPDATEIKASSTOCK = "update_ikas_stock",
+  UPDATESTORESTOCK = "update_store_stock",
+  SYNC = "sync",
 }
 
 export type Membership = {

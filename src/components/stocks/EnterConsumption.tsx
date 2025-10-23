@@ -7,7 +7,8 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
-  RoleEnum,
+  ActionEnum,
+  DisabledConditionEnum,
   StockHistoryStatusEnum,
   stockHistoryStatuses,
 } from "../../types";
@@ -22,6 +23,7 @@ import {
 import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -68,6 +70,11 @@ const EnterConsumption = () => {
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
+  const disabledConditions = useGetDisabledConditions();
+  const enterConsumptionPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_ENTERCONSUMPTION,
+    disabledConditions
+  );
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data?.map((stockHistory) => {
     if (!stockHistory?.createdAt) {
@@ -95,8 +102,11 @@ const EnterConsumption = () => {
     };
   });
   const [rows, setRows] = useState(allRows);
-  const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+  const isShowPricesDisabled = enterConsumptionPageDisabledCondition?.actions?.some(
+    (ac) =>
+      ac.action === ActionEnum.SHOWPRICES &&
+      user?.role?._id &&
+      !ac?.permissionsRoles?.includes(user?.role?._id)
   );
   const consumptInputs = [
     {
@@ -182,14 +192,14 @@ const EnterConsumption = () => {
       isSortable: false,
       correspondingKey: "location",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [
           { key: t("Cost"), isSortable: false },
           { key: t("Old Quantity"), isSortable: false },
         ]
       : []),
     { key: t("Changed"), isSortable: false },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [{ key: t("New Quantity"), isSortable: false }]
       : []),
     {
@@ -223,6 +233,12 @@ const EnterConsumption = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const rowKeys = [
     {
@@ -248,7 +264,7 @@ const EnterConsumption = () => {
       key: "lctn",
       className: "min-w-32 pr-1",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [
           {
             key: "productCost",
@@ -264,7 +280,7 @@ const EnterConsumption = () => {
       key: "change",
       className: "min-w-32 pr-1",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [
           {
             key: "newQuantity",
@@ -350,6 +366,12 @@ const EnterConsumption = () => {
       isModal: true,
       isModalOpen: isCancelOrderModalOpen,
       setIsModal: setIsCancelOrderModalOpen,
+      isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   useEffect(() => {
@@ -368,6 +390,7 @@ const EnterConsumption = () => {
     vendors,
     brands,
     user,
+    disabledConditions,
   ]);
 
   return (

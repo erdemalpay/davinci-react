@@ -7,8 +7,9 @@ import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DESSERTEXPENSETYPE,
-  RoleEnum,
+  DisabledConditionEnum,
   SANDWICHEXPENSETYPE,
   StockHistoryStatusEnum,
 } from "../../types";
@@ -22,6 +23,7 @@ import {
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
 import {
@@ -50,6 +52,11 @@ const DessertStock = () => {
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
   const locations = useGetStoreLocations();
+  const disabledConditions = useGetDisabledConditions();
+  const dessertStockPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_DESSERTSTOCK,
+    disabledConditions
+  );
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -71,9 +78,6 @@ const DessertStock = () => {
     location: "",
     quantity: 0,
   });
-  const isDisabledCondition = user
-    ? ![RoleEnum.MANAGER, RoleEnum.BARISTA].includes(user?.role?._id)
-    : true;
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) => {
@@ -241,8 +245,12 @@ const DessertStock = () => {
     },
   ];
   if (
-    (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) ||
-    !showDesertStockPrices
+    dessertStockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWPRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    )
   ) {
     const splicedColumns = ["Unit Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "totalGroupPrice"];
@@ -280,6 +288,12 @@ const DessertStock = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const collapsibleActions = [
     {
@@ -305,14 +319,17 @@ const DessertStock = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className:
-        user?.role?._id === RoleEnum.MANAGER
-          ? "text-blue-500 cursor-pointer text-xl "
-          : "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
@@ -348,11 +365,17 @@ const DessertStock = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Transfer"),
       icon: <TbTransferIn />,
-      className: "text-green-500 cursor-pointer text-xl mr-auto",
+      className: "text-green-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -384,7 +407,12 @@ const DessertStock = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.TRANSFER &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
@@ -403,7 +431,12 @@ const DessertStock = () => {
           </p>
         </div>
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Prices"),
@@ -416,7 +449,12 @@ const DessertStock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Enable Edit"),
@@ -429,7 +467,12 @@ const DessertStock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: dessertStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -545,6 +588,7 @@ const DessertStock = () => {
     user,
     isDesertStockEnableEdit,
     items,
+    disabledConditions,
   ]);
   const filterPanelInputs = [
     ProductInput({
@@ -581,7 +625,15 @@ const DessertStock = () => {
           isActionsActive={isDesertStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          isExcel={
+            user &&
+            !dessertStockPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("TatliStok.xlsx")}
         />
       </div>
