@@ -155,7 +155,7 @@ const OrderPaymentTypes = ({
         <h1>{t("Payment Types")}</h1>
       </div>
       {/* payment types */}
-      <div className="grid grid-cols-3 gap-2 overflow-y-auto no-scrollbar h-[220px] sm:h-[240px] lg:h-[260px]">
+      <div className="grid grid-cols-3 gap-2 h-[13rem] overflow-auto">
         {filteredPaymentTypes?.map((paymentType) => (
           <div
             key={paymentType._id}
@@ -274,7 +274,7 @@ const OrderPaymentTypes = ({
         </p>
       </div>
       {/* collection summary */}
-      <div className="flex flex-col gap-1 overflow-y-auto no-scrollbar h-[220px] sm:h-[240px] lg:h-[260px]">
+      <div className="flex flex-col h-[20rem] gap-1 overflow-auto">
         {tableNotCancelledCollections?.map((collection) => (
           <div
             key={collection._id + "collection summary"}
