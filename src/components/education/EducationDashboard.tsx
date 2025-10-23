@@ -316,13 +316,14 @@ const EducationDashboard = () => {
       </div>
 
       {/* Main content area showing education details */}
-      <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full">
-        {!disabledUsers && (
-          <div className="w-fit ml-auto flex flex-row gap-2">
-            <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
-            <H5 className="w-fit">{t("Enable Edit")}</H5>
-          </div>
-        )}
+      <div className="sm:w-3/4 p-2 sm:p-4 overflow-y-auto h-full relative">
+        {/* Placeholder to prevent layout shift */}
+        <div className={`h-12 mb-4 ${disabledUsers ? 'hidden' : ''}`}></div>
+        {/* Fixed switch button */}
+        <div className={`fixed top-20 right-4 z-50 bg-white shadow-md rounded-lg px-4 py-2 flex flex-row gap-2 items-center ${disabledUsers ? 'hidden' : ''}`}>
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+          <H5 className="w-fit">{t("Enable Edit")}</H5>
+        </div>
         {filteredEducations?.map((edu, index) => (
           <section
             key={edu._id}
