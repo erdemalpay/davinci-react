@@ -4,6 +4,8 @@ import { FaFileUpload } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import * as XLSX from "xlsx";
 import { useFilterContext } from "../../context/Filter.context";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
@@ -13,6 +15,8 @@ import {
 import { useUpdateProductBaseStocks } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { ExpenseTypeInput, VendorInput } from "../../utils/panelInputs";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import TextInput from "../panelComponents/FormElements/TextInput";
@@ -26,11 +30,17 @@ interface Quantities {
 }
 const BaseQuantityByLocation = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const products = useGetAccountProducts();
   const { mutate: updateProductBaseStocks } = useUpdateProductBaseStocks();
   const locations = useGetStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
+  const disabledConditions = useGetDisabledConditions();
+  const baseQuantityPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_BASEQUANTITYBYLOCATION,
+    disabledConditions
+  );
   const [rowToAction, setRowToAction] = useState<any>();
   const {
     filterBaseQuantityPanelFormElements,
@@ -127,6 +137,12 @@ const BaseQuantityByLocation = () => {
       {
         key: `${location._id}min`,
         node: (row: any) => {
+          const isUpdateDisabled = baseQuantityPageDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
           return (
             <div>
               <TextInput
@@ -138,6 +154,7 @@ const BaseQuantityByLocation = () => {
                 value={row?.[`${location._id}min`] ?? 0}
                 label={""}
                 placeholder={""}
+                disabled={isUpdateDisabled}
                 onChange={(value) => {
                   if (value === "") {
                     return;
@@ -173,6 +190,12 @@ const BaseQuantityByLocation = () => {
       {
         key: `${location._id}max`,
         node: (row: any) => {
+          const isUpdateDisabled = baseQuantityPageDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
           return (
             <div>
               <TextInput
@@ -183,6 +206,7 @@ const BaseQuantityByLocation = () => {
                 inputWidth="w-32 md:w-32  mx-8"
                 label={""}
                 placeholder={""}
+                disabled={isUpdateDisabled}
                 onChange={(value) => {
                   if (value === "") {
                     return;
@@ -328,11 +352,23 @@ const BaseQuantityByLocation = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
     {
       isUpperSide: false,
+      isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPLOAD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <div
           className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
@@ -353,7 +389,12 @@ const BaseQuantityByLocation = () => {
     },
     {
       isUpperSide: false,
-      isDisabled: false,
+      isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SETBASEAMOUNT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <ButtonFilter
           buttonName={t("Set Base Quantities")}
@@ -408,6 +449,7 @@ const BaseQuantityByLocation = () => {
     expenseTypes,
     filterBaseQuantityPanelFormElements,
     vendors,
+    disabledConditions,
   ]);
   return (
     <>
@@ -421,7 +463,15 @@ const BaseQuantityByLocation = () => {
           title={t("Base Quantity By Location")}
           filters={filters}
           isActionsActive={true}
-          isExcel={true}
+          isExcel={
+            user &&
+            !baseQuantityPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           filterPanel={filterPanel}
           isToolTipEnabled={false}
           excelFileName={t("BaseQuantityByLocation.xlsx")}

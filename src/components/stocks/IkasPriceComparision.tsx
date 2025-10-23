@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
 import { useGetIkasProducts } from "../../utils/api/ikas";
@@ -7,16 +9,24 @@ import {
   useGetMenuItems,
   useUpdateIkasPricesMutation,
 } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
 const IkasPriceComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const ikasProducts = useGetIkasProducts();
   const ONLINE_PRICE_LIST_ID = "2ca3e615-516c-4c09-8f6d-6c3183699c21";
   const items = useGetMenuItems();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
+  const disabledConditions = useGetDisabledConditions();
+  const ikasPriceComparisionPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_IKASPRICECOMPARISION,
+    disabledConditions
+  );
   const { mutate: updateIkasPrices } = useUpdateIkasPricesMutation();
   const ikasItemsProductsIds = items
     ?.filter((item) => item.ikasId)
@@ -77,6 +87,12 @@ const IkasPriceComparision = () => {
   const filters = [
     {
       isUpperSide: false,
+      isDisabled: ikasPriceComparisionPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SYNC &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <ButtonFilter
           buttonName={t("Update Ikas Prices")}
@@ -90,7 +106,7 @@ const IkasPriceComparision = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [ikasProducts, items, products, stocks]);
+  }, [ikasProducts, items, products, stocks, disabledConditions]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

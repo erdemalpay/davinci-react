@@ -7,9 +7,10 @@ import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   GAMEEXPENSETYPE,
-  RoleEnum,
   StockHistoryStatusEnum,
   commonDateOptions,
 } from "../../types";
@@ -24,9 +25,9 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
-import { isDisabledConditionGameStock } from "../../utils/isDisabledConditions";
 import {
   BrandInput,
   ProductInput,
@@ -67,6 +68,11 @@ const GameStock = () => {
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
   const locations = useGetStockLocations();
+  const disabledConditions = useGetDisabledConditions();
+  const gameStockPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_GAMESTOCK,
+    disabledConditions
+  );
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -78,7 +84,6 @@ const GameStock = () => {
     location: "",
     quantity: 0,
   });
-  const isDisabledCondition = isDisabledConditionGameStock(user);
   const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
     return stocks
       .filter((stock) =>
@@ -250,8 +255,12 @@ const GameStock = () => {
     },
   ];
   if (
-    (user && ![RoleEnum.MANAGER].includes(user?.role?._id)) ||
-    !showGameStockPrices
+    gameStockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.SHOWPRICES &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    )
   ) {
     const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
     const splicedRowKeys = ["unitPrice", "onlineMenuPrice", "totalGroupPrice"];
@@ -289,6 +298,12 @@ const GameStock = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: gameStockPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const collapsibleActions = [
     {
@@ -314,14 +329,17 @@ const GameStock = () => {
       isModalOpen: isCloseAllConfirmationDialogOpen,
       setIsModal: setIsCloseAllConfirmationDialogOpen,
       isPath: false,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Edit"),
       icon: <FiEdit />,
-      className:
-        user?.role?._id === RoleEnum.MANAGER
-          ? "text-blue-500 cursor-pointer text-xl "
-          : "text-blue-500 cursor-pointer text-xl mr-auto",
+      className: "text-blue-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       setForm: setForm,
@@ -357,11 +375,17 @@ const GameStock = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Transfer"),
       icon: <TbTransferIn />,
-      className: "text-green-500 cursor-pointer text-xl mr-auto",
+      className: "text-green-500 cursor-pointer text-xl",
       isModal: true,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -393,7 +417,12 @@ const GameStock = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.TRANSFER &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
@@ -412,7 +441,12 @@ const GameStock = () => {
           </p>
         </div>
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWTOTAL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Prices"),
@@ -425,7 +459,12 @@ const GameStock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Enable Edit"),
@@ -438,7 +477,12 @@ const GameStock = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition,
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -550,6 +594,7 @@ const GameStock = () => {
     user,
     isGameStockEnableEdit,
     items,
+    disabledConditions,
   ]);
   const filterPanelInputs = [
     ProductInput({
@@ -624,7 +669,15 @@ const GameStock = () => {
           isActionsActive={isGameStockEnableEdit}
           isCollapsible={true}
           isToolTipEnabled={false}
-          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          isExcel={
+            user &&
+            !gameStockPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("OyunStok.xlsx")}
         />
       </div>

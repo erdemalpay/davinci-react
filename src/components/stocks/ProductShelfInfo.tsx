@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { ExpenseTypeInput, ProductInput } from "../../utils/panelInputs";
 import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -16,9 +20,15 @@ import { InputTypes } from "../panelComponents/shared/types";
 
 const ProductShelfInfo = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const locations = useGetStockLocations();
   const products = useGetAccountProducts();
   const expenseTypes = useGetAccountExpenseTypes();
+  const disabledConditions = useGetDisabledConditions();
+  const productShelfInfoPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_PRODUCTSHELFINFO,
+    disabledConditions
+  );
   const [tableKey, setTableKey] = useState(0);
   const { currentPage } = useGeneralContext();
   const {
@@ -143,6 +153,12 @@ const ProductShelfInfo = () => {
     {
       label: t("Enable Edit"),
       isUpperSide: false,
+      isDisabled: productShelfInfoPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <SwitchButton
           checked={isEnableProductShelfEdit}
@@ -169,6 +185,7 @@ const ProductShelfInfo = () => {
     expenseTypes,
     filterProductShelfInfoFormElements,
     isEnableProductShelfEdit,
+    disabledConditions,
   ]);
   return (
     <>
@@ -181,7 +198,15 @@ const ProductShelfInfo = () => {
           title={t("Product Shelf Info")}
           filters={filters}
           isActionsActive={false}
-          isExcel={true}
+          isExcel={
+            user &&
+            !productShelfInfoPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           isToolTipEnabled={false}
           filterPanel={filterPanel}
           excelFileName={t("ProductShelfInfo.xlsx")}

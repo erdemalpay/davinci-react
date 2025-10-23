@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RiFileTransferFill } from "react-icons/ri";
 import { TbTransferOut } from "react-icons/tb";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -13,15 +15,23 @@ import {
   useUpdateIkasProductStockMutation,
 } from "../../utils/api/ikas";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 
 const IkasStockComparision = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const ikasProducts = useGetIkasProducts();
   const items = useGetMenuItems();
   const stocks = useGetAccountStocks();
   const products = useGetAccountProducts();
+  const disabledConditions = useGetDisabledConditions();
+  const ikasStockComparisionPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_IKASSTOCKCOMPARISION,
+    disabledConditions
+  );
   const { mutate: updateIkasStocks } = useUpdateIkasStocksMutation();
   const { mutate: updateIkasProductStock } =
     useUpdateIkasProductStockMutation();
@@ -85,6 +95,12 @@ const IkasStockComparision = () => {
           },
         });
       },
+      isDisabled: ikasStockComparisionPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATESTORESTOCK &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       name: t("Update Ikas Stock"),
@@ -101,12 +117,24 @@ const IkasStockComparision = () => {
           stockCount: row.storeStock,
         });
       },
+      isDisabled: ikasStockComparisionPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATEIKASSTOCK &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   const filters = [
     {
       // label: t("Update Ikas Stocks"),
       isUpperSide: false,
+      isDisabled: ikasStockComparisionPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SYNC &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       node: (
         <ButtonFilter
           buttonName={t("Update Ikas Stocks")}
@@ -120,7 +148,7 @@ const IkasStockComparision = () => {
   useEffect(() => {
     setRows(allRows);
     setTableKey((prev) => prev + 1);
-  }, [ikasProducts, items, products, stocks]);
+  }, [ikasProducts, items, products, stocks, disabledConditions]);
   return (
     <>
       <div className="w-[95%] mx-auto ">

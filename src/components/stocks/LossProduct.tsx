@@ -5,10 +5,12 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
+  DisabledConditionEnum,
   MenuItem,
   OrderStatus,
-  RoleEnum,
   StockHistoryStatusEnum,
   TURKISHLIRA,
   stockHistoryStatuses,
@@ -26,6 +28,7 @@ import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useOrderMutations } from "../../utils/api/order/order";
 import { useGetUser, useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
@@ -70,6 +73,7 @@ const LossProduct = () => {
     setShowLossProductFilters,
   } = useFilterContext();
   const user = useGetUser();
+  const { user: userContext } = useUserContext();
   const stockHistoriesPayload = useGetAccountProductStockHistorys(
     currentPage,
     rowsPerPage,
@@ -86,8 +90,16 @@ const LossProduct = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const items = useGetMenuItems();
-  const isDisabledCondition = !(
-    user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT,].includes(user.role._id)
+  const disabledConditions = useGetDisabledConditions();
+  const lossProductPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_LOSSPRODUCT,
+    disabledConditions
+  );
+  const isShowPricesDisabled = lossProductPageDisabledCondition?.actions?.some(
+    (ac) =>
+      ac.action === ActionEnum.SHOWPRICES &&
+      userContext?.role?._id &&
+      !ac?.permissionsRoles?.includes(userContext?.role?._id)
   );
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const allRows = stockHistoriesPayload?.data
@@ -277,11 +289,11 @@ const LossProduct = () => {
       isSortable: false,
       correspondingKey: "location",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [{ key: t("Old Quantity"), isSortable: false }]
       : []),
     { key: t("Changed"), isSortable: false },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [{ key: t("New Quantity"), isSortable: false }]
       : []),
     {
@@ -319,7 +331,7 @@ const LossProduct = () => {
       key: "lctn",
       className: "min-w-32 pr-1",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [
           {
             key: "currentAmount",
@@ -331,7 +343,7 @@ const LossProduct = () => {
       key: "change",
       className: "min-w-32 pr-1",
     },
-    ...(!isDisabledCondition
+    ...(!isShowPricesDisabled
       ? [
           {
             key: "newQuantity",
@@ -404,6 +416,12 @@ const LossProduct = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: lossProductPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        userContext?.role?._id &&
+        !ac?.permissionsRoles?.includes(userContext?.role?._id)
+    ),
   };
   const filters = [
     {
@@ -468,6 +486,12 @@ const LossProduct = () => {
       isModal: true,
       isModalOpen: isCancelOrderModalOpen,
       setIsModal: setIsCancelOrderModalOpen,
+      isDisabled: lossProductPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          userContext?.role?._id &&
+          !ac?.permissionsRoles?.includes(userContext?.role?._id)
+      ),
     },
   ];
   useEffect(() => {
@@ -485,6 +509,7 @@ const LossProduct = () => {
     stocks,
     items,
     user,
+    disabledConditions,
   ]);
   return (
     <>

@@ -4,7 +4,11 @@ import { TbTransferIn } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, StockHistoryStatusEnum } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  StockHistoryStatusEnum,
+} from "../../types";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import {
   useAccountStockMutations,
@@ -13,6 +17,7 @@ import {
 } from "../../utils/api/account/stock";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import {
   ProductInput,
@@ -36,6 +41,11 @@ const GameStockLocation = () => {
     useState(false);
   const { mutate: stockTransfer } = useStockTransferMutation();
   const locations = useGetStockLocations();
+  const disabledConditions = useGetDisabledConditions();
+  const gameStockLocationPageDisabledCondition = getItem(
+    DisabledConditionEnum.STOCK_GAMESTOCKLOCATION,
+    disabledConditions
+  );
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
@@ -252,6 +262,12 @@ const GameStockLocation = () => {
     isPath: false,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    isDisabled: gameStockLocationPageDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.ADD &&
+        user?.role?._id &&
+        !ac?.permissionsRoles?.includes(user?.role?._id)
+    ),
   };
   const filters = [
     {
@@ -306,7 +322,12 @@ const GameStockLocation = () => {
       isModalOpen: isStockTransferModalOpen,
       setIsModal: setIsStockTransferModalOpen,
       isPath: false,
-      isDisabled: false,
+      isDisabled: gameStockLocationPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.TRANSFER &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
 
@@ -380,6 +401,7 @@ const GameStockLocation = () => {
     locations,
     user,
     items,
+    disabledConditions,
   ]);
 
   const filterPanel = {
@@ -406,7 +428,15 @@ const GameStockLocation = () => {
           actions={actions}
           isActionsActive={true}
           isToolTipEnabled={false}
-          isExcel={user && [RoleEnum.MANAGER].includes(user?.role?._id)}
+          isExcel={
+            user &&
+            !gameStockLocationPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("GamesByLocation.xlsx")}
         />
       </div>
