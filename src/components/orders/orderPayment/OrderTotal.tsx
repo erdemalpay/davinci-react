@@ -52,7 +52,7 @@ const OrderTotal = ({
   return (
     <div className="flex h-full min-h-0 flex-col justify-between border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/* temp orders */}
-      <div className="flex flex-col overflow-y-auto no-scrollbar h-[220px] sm:h-[240px] lg:h-[260px]">
+      <div className="flex flex-col h-[20rem] overflow-auto">
         {tableOrders
           ?.sort((a, b) => a.item - b.item)
           ?.map((order) => {

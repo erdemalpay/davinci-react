@@ -40,7 +40,7 @@ const PaidOrders = ({ tableOrders }: Props) => {
     }
   };
   return (
-    <div className="flex flex-col overflow-y-auto no-scrollbar h-[180px] sm:h-[190px] lg:h-[210px]">
+    <div className="flex flex-col h-[39%] overflow-auto min-h-[10rem] sm:min-h-0 max-h-[10rem]">
       <OrderScreenHeader header="Paid Orders" />
       {tableOrders
         ?.sort((a, b) => a.item - b.item)
