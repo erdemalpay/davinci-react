@@ -18,6 +18,7 @@ interface UpdateButtonCallPayload {
   location: number;
   tableName: string;
   hour: string;
+  type?: string;
 }
 
 const baseUrl = `${Paths.ButtonCalls}`;
@@ -76,10 +77,11 @@ export function finishButtonCall({
   location,
   tableName,
   hour,
+  type
 }: UpdateButtonCallPayload): Promise<ButtonCall> {
   return post<UpdateButtonCallPayload, ButtonCall>({
     path: `${Paths.ButtonCalls}/close-from-panel`,
-    payload: { location: location, tableName: tableName, hour: hour },
+    payload: { location: location, tableName: tableName, hour: hour, type: type },
   });
 }
 export function useFinishButtonCallMutation() {
