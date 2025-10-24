@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -9,17 +9,15 @@ import {
   useActionMutations,
   useGetActions,
 } from "../../utils/api/panelControl/action";
-import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import { FormKeyTypeEnum } from "../panelComponents/shared/types";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const Actions = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const panelControlActions = useGetActions();
-  const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Action>();
@@ -28,102 +26,138 @@ const Actions = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const { createAction, deleteAction, updateAction } = useActionMutations();
-  const [rows, setRows] = useState(panelControlActions);
-  const columns = [{ key: t("Name"), isSortable: true }];
-  if (user && [RoleEnum.MANAGER].includes(user?.role?._id)) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
-  const rowKeys = [{ key: "name" }];
-  const inputs = [NameInput()];
-  const formKeys = [{ key: "name", type: FormKeyTypeEnum.STRING }];
-  const addButton = {
-    name: t(`Add Action`),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
-        submitItem={createAction as any}
-        topClassName="flex flex-col gap-2 "
-      />
-    ),
-    isModalOpen: isAddModalOpen,
-    setIsModal: setIsAddModalOpen,
-    isPath: false,
-    isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-  };
-  const actions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteAction(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Action")}
-          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ",
+
+  const canManage = useMemo(() => {
+    return user && [RoleEnum.MANAGER].includes(user?.role?._id);
+  }, [user]);
+
+  const rows = useMemo(() => panelControlActions, [panelControlActions]);
+
+  const columns = useMemo(() => {
+    const cols = [{ key: t("Name"), isSortable: true }];
+    if (canManage) {
+      cols.push({ key: t("Actions"), isSortable: false });
+    }
+    return cols;
+  }, [t, canManage]);
+
+  const rowKeys = useMemo(() => [{ key: "name" }], []);
+
+  const inputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "name",
+        label: t("Name"),
+        placeholder: t("Name"),
+        required: true,
+      },
+    ],
+    [t]
+  );
+
+  const formKeys = useMemo(
+    () => [{ key: "name", type: FormKeyTypeEnum.STRING }],
+    []
+  );
+
+  const addButton = useMemo(
+    () => ({
+      name: t(`Add Action`),
       isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
-    },
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl ",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
+      modal: (
         <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
+          isOpen={isAddModalOpen}
+          close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateAction as any}
-          isEditMode={true}
+          submitItem={createAction as any}
           topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
         />
-      ) : null,
-
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
+      ),
+      isModalOpen: isAddModalOpen,
+      setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true,
-    },
-  ];
-  useEffect(() => {
-    setRows(panelControlActions);
-    setTableKey((prev) => prev + 1);
-  }, [panelControlActions]);
+      isDisabled: !canManage,
+      icon: null,
+      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+    }),
+    [t, isAddModalOpen, inputs, formKeys, createAction, canManage]
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteAction(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Action")}
+            text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: !canManage,
+      },
+      {
+        name: t("Edit"),
+        icon: <FiEdit />,
+        className: "text-blue-500 cursor-pointer text-xl ",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            inputs={inputs}
+            formKeys={formKeys}
+            submitItem={updateAction as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          />
+        ) : null,
+        isModalOpen: isEditModalOpen,
+        setIsModal: setIsEditModalOpen,
+        isPath: false,
+        isDisabled: !canManage,
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      isEditModalOpen,
+      inputs,
+      formKeys,
+      updateAction,
+      deleteAction,
+      canManage,
+    ]
+  );
 
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
           rows={rows}
           title={t("Actions")}
           addButton={addButton}
-          isActionsActive={
-            user ? [RoleEnum.MANAGER].includes(user?.role?._id) : false
-          }
+          isActionsActive={canManage ?? false}
         />
       </div>
     </>
