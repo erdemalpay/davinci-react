@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -19,6 +22,7 @@ import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -66,6 +70,12 @@ const DiscountBasedSales = () => {
   const [selectedTableId, setSelectedTableId] = useState<number>(0);
   const [isOrderPaymentModalOpen, setIsOrderPaymentModalOpen] = useState(false);
   const tables = useGetTables();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const discountBasedSalesPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_DISCOUNTBASEDSALES,
+    disabledConditions
+  );
   if (!orders || !sellLocations || !discounts || !items || !tables) {
     return <Loading />;
   }
@@ -496,6 +506,12 @@ const DiscountBasedSales = () => {
             queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
           }}
         />
+      ),
+      isDisabled: discountBasedSalesPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
     {

@@ -6,8 +6,11 @@ import { PiArrowArcLeftBold } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   Table,
   commonDateOptions,
   orderFilterStatusOptions,
@@ -22,6 +25,7 @@ import {
   useReturnOrdersMutation,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
@@ -54,6 +58,12 @@ const OrdersReport = () => {
   const [returnOrderForm, setReturnOrderForm] = useState<any>({
     quantity: 0,
   });
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const ordersPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_ORDERS,
+    disabledConditions
+  );
   const returnOrderInputs = [
     {
       type: InputTypes.NUMBER,
@@ -478,6 +488,12 @@ const OrdersReport = () => {
           }}
         />
       ),
+      isDisabled: ordersPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -538,6 +554,12 @@ const OrdersReport = () => {
       isModalOpen: isReturnOrderModalOpen,
       setIsModal: setIsReturnOrderModalOpen,
       isPath: false,
+      isDisabled: ordersPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFUND &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   useEffect(() => {
@@ -565,7 +587,15 @@ const OrdersReport = () => {
           actions={actions}
           filterPanel={filterPanel}
           filters={filters}
-          isExcel={true}
+          isExcel={
+            user &&
+            !ordersPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("Orders.xlsx")}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {
