@@ -64,9 +64,9 @@ export function ActiveButtonCallsList() {
     }
   }
 
-  function handleChipClose(buttonCallId: string) {
+  function handleChipClose(buttonCallId: string, buttonCallType: string) {
     const buttonCall = buttonCalls?.find(
-      (buttonCallItem) => buttonCallItem.tableName == buttonCallId
+      (buttonCallItem) => buttonCallItem.tableName == buttonCallId && buttonCallItem.type == buttonCallType
     );
     const now = new Date();
     const formattedTime = now.toLocaleTimeString("tr-TR", { hour12: false });
@@ -76,6 +76,7 @@ export function ActiveButtonCallsList() {
         location: selectedLocationId,
         tableName: buttonCall.tableName,
         hour: formattedTime,
+        type: buttonCall.type,
       });
   }
 
@@ -149,7 +150,7 @@ export function ActiveButtonCallsList() {
 
               {/* Kapat Butonu - Her zaman görünür */}
               <button
-                onClick={() => handleChipClose(buttonCall.tableName)}
+                onClick={() => handleChipClose(buttonCall.tableName, buttonCall.type)}
                 className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
                 aria-label="Çağrıyı kapat"
               >
