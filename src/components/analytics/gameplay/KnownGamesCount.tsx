@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetAllUsers } from "../../../utils/api/user";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
@@ -12,14 +12,9 @@ type KnownGamesCountUser = {
 const KnownGamesCount = () => {
   const { t } = useTranslation();
   const users = useGetAllUsers();
-  const [tableKey, setTableKey] = useState(1);
-  const [rows, setRows] = useState<KnownGamesCountUser[]>([]);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
-  const columns = [
-    { key: t("Mentor"), isSortable: true },
-    { key: t("Game Count"), isSortable: true },
-  ];
-  useEffect(() => {
+
+  const rows = useMemo(() => {
     const processedUsers = showInactiveUsers
       ? users
           .filter((user) => user.userGames.length > 0)
@@ -36,32 +31,45 @@ const KnownGamesCount = () => {
             mentor: user.name,
             gameCount: user.userGames.length,
           }));
-    setRows(processedUsers);
-    setTableKey((prev) => prev + 1);
+    return processedUsers;
   }, [users, showInactiveUsers]);
 
-  const rowKeys = [
-    { key: "mentor", className: "min-w-32 pr-1" },
-    { key: "gameCount", className: "min-w-32 " },
-  ];
-  const filters = [
-    {
-      label: t("Show Inactive Users"),
-      isUpperSide: false,
-      node: (
-        <SwitchButton
-          checked={showInactiveUsers}
-          onChange={setShowInactiveUsers}
-        />
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      { key: t("Mentor"), isSortable: true },
+      { key: t("Game Count"), isSortable: true },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      { key: "mentor", className: "min-w-32 pr-1" },
+      { key: "gameCount", className: "min-w-32 " },
+    ],
+    []
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Inactive Users"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showInactiveUsers}
+            onChange={setShowInactiveUsers}
+          />
+        ),
+      },
+    ],
+    [t, showInactiveUsers]
+  );
 
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           isActionsActive={false}
