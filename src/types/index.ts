@@ -1546,6 +1546,9 @@ export const commonDateOptions = [
   { value: "sameDayLastMonthToToday", label: "Same day Last Month" },
   { value: "thisYear", label: "This Year" },
   { value: "lastYear", label: "Last Year" },
+  { value: "nextWeek", label: "Next Week" },
+  { value: "nextMonth", label: "Next Month" },
+  { value: "fromTodayToEndOfNextMonth", label: "From Today To End Of Next Month" },
 ];
 
 export type DateRangeKey =
@@ -1558,7 +1561,11 @@ export type DateRangeKey =
   | "twoMonthsAgo"
   | "sameDayLastMonthToToday"
   | "thisYear"
-  | "lastYear";
+  | "lastYear"
+  | "nextWeek"
+  | "nextMonth"
+  | "fromTodayToEndOfNextMonth";
+
 
 export type PersonalOrderDataType = {
   _id: string;
