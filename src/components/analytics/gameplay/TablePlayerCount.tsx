@@ -17,12 +17,9 @@ const TablePlayerCount = () => {
     showTablePlayerCountFilters,
     setShowTablePlayerCountFilters,
   } = useFilterContext();
-
-  const tablePlayerCounts = useMemo(() => {
-    const [month, year] =
-      filterTablePlayerCountPanelFormElements.monthYear.split("-");
-    return useGetTablePlayerCounts(month, year);
-  }, [filterTablePlayerCountPanelFormElements.monthYear]);
+  const [month, year] =
+    filterTablePlayerCountPanelFormElements.monthYear.split("-");
+  const tablePlayerCounts = useGetTablePlayerCounts(month, year);
 
   const rows = useMemo(() => {
     const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
