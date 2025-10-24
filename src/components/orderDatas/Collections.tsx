@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderCollectionStatus,
   Table,
   commonDateOptions,
@@ -21,6 +24,7 @@ import {
   useCollectionMutation,
   useGetAllOrderCollections,
 } from "../../utils/api/order/orderCollection";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -46,6 +50,12 @@ const Collections = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateCollection } = useCollectionMutation();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const collectionsPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_COLLECTIONS,
+    disabledConditions
+  );
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -336,6 +346,12 @@ const Collections = () => {
           }}
         />
       ),
+      isDisabled: collectionsPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -380,6 +396,12 @@ const Collections = () => {
       isModalOpen: isEditModalOpen,
       setIsModal: setIsEditModalOpen,
       isPath: false,
+      isDisabled: collectionsPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
   useEffect(() => {

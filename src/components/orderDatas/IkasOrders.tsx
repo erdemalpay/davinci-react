@@ -6,8 +6,11 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -23,6 +26,7 @@ import {
   useGetOrders,
 } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -52,6 +56,12 @@ const IkasOrders = () => {
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const ikasOrdersPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_IKASORDERS,
+    disabledConditions
+  );
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -429,6 +439,12 @@ const IkasOrders = () => {
           }}
         />
       ),
+      isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -480,6 +496,12 @@ const IkasOrders = () => {
       isModal: true,
       isModalOpen: isCancelOrderModalOpen,
       setIsModal: setIsCancelOrderModalOpen,
+      isDisabled: ikasOrdersPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.DELETE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
     // {
     //   name: t("Edit"),
@@ -539,7 +561,15 @@ const IkasOrders = () => {
           actions={actions}
           filterPanel={filterPanel}
           filters={filters}
-          isExcel={true}
+          isExcel={
+            user &&
+            !ikasOrdersPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                user?.role?._id &&
+                !ac?.permissionsRoles?.includes(user?.role?._id)
+            )
+          }
           excelFileName={t("IkasOrders.xlsx")}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {

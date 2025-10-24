@@ -2,7 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
-import { DateRangeKey, Order, User, commonDateOptions } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import {
+  ActionEnum,
+  DateRangeKey,
+  DisabledConditionEnum,
+  Order,
+  User,
+  commonDateOptions,
+} from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import {
@@ -12,6 +20,7 @@ import {
 import { useGetPersonalOrderDatas } from "../../utils/api/order/order";
 import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollection";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -77,6 +86,12 @@ const PersonalOrderDatas = () => {
   const roles = useGetAllUserRoles();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const personalOrderDatasPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_PERSONALORDERDATAS,
+    disabledConditions
+  );
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -249,6 +264,12 @@ const PersonalOrderDatas = () => {
             queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
           }}
         />
+      ),
+      isDisabled: personalOrderDatasPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
     {

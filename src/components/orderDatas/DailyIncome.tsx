@@ -4,8 +4,11 @@ import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderCollectionStatus,
   TURKISHLIRA,
   commonDateOptions,
@@ -15,6 +18,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { Paths } from "../../utils/api/factory";
 import { useGetSellLocations } from "../../utils/api/location";
 import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
@@ -31,6 +35,12 @@ const DailyIncome = () => {
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const dailyIncomePageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_DAILYINCOME,
+    disabledConditions
+  );
   if (!collections || !sellLocations || !paymentMethods) {
     return <Loading />;
   }
@@ -216,6 +226,12 @@ const DailyIncome = () => {
             queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
           }}
         />
+      ),
+      isDisabled: dailyIncomePageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
     {

@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   RoleEnum,
   Table,
   commonDateOptions,
@@ -18,6 +21,7 @@ import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
 import { useGetUser, useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatDateInTurkey } from "../../utils/format";
@@ -51,6 +55,12 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
   const tables = useGetTables();
   const items = useGetMenuItems();
   const [tableKey, setTableKey] = useState(0);
+  const { user: currentUser } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const kitchenDataPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_KITCHENDATAPAGE,
+    disabledConditions
+  );
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -517,6 +527,12 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
           }}
         />
       ),
+      isDisabled: kitchenDataPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          currentUser?.role?._id &&
+          !ac?.permissionsRoles?.includes(currentUser?.role?._id)
+      ),
     },
     {
       label: t("Show Filters"),
@@ -556,7 +572,15 @@ const KitchenDataPage = ({ categoryId, categoryName }: Props) => {
           isActionsActive={false}
           filterPanel={filterPanel}
           filters={filters}
-          isExcel={true}
+          isExcel={
+            currentUser &&
+            !kitchenDataPageDisabledCondition?.actions?.some(
+              (ac) =>
+                ac.action === ActionEnum.EXCEL &&
+                currentUser?.role?._id &&
+                !ac?.permissionsRoles?.includes(currentUser?.role?._id)
+            )
+          }
           excelFileName={`${categoryName}.xlsx`}
           rowClassNameFunction={(row: any) => {
             if (row?.isReturned) {

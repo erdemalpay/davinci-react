@@ -4,8 +4,11 @@ import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
+import { useUserContext } from "../../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderStatus,
   TURKISHLIRA,
   commonDateOptions,
@@ -18,6 +21,7 @@ import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsers } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { LocationInput } from "../../utils/panelInputs";
@@ -58,6 +62,12 @@ const GroupedProductSalesReport = () => {
   const users = useGetUsers();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+  const groupedProductSalesPageDisabledCondition = getItem(
+    DisabledConditionEnum.ORDERDATAS_GROUPEDPRODUCTSALESREPORT,
+    disabledConditions
+  );
   if (!orders || !categories || !sellLocations) {
     return <Loading />;
   }
@@ -482,6 +492,12 @@ const GroupedProductSalesReport = () => {
             queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
           }}
         />
+      ),
+      isDisabled: groupedProductSalesPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.REFRESH &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
     },
     {

@@ -402,6 +402,17 @@ export enum DisabledConditionEnum {
   STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
   STOCK_ENTERCONSUMPTION = "enterconsumption",
   STOCK_LOSSPRODUCT = "lossproduct",
+  ORDERDATAS_DAILYINCOME = "dailyincome",
+  ORDERDATAS_GROUPEDPRODUCTSALESREPORT = "groupedproductsalesreport",
+  ORDERDATAS_SINGLEPRODUCTSALESREPORT = "singleproductsalesreport",
+  ORDERDATAS_UPPERCATEGORYBASEDSALESREPORT = "uppercategorybasedsalesreport",
+  ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
+  ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
+  ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_ORDERS = "orders",
+  ORDERDATAS_IKASORDERS = "ikasorders",
+  ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
+  ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
 
 
 
@@ -421,6 +432,8 @@ export enum ActionEnum {
   UPDATEIKASSTOCK = "update_ikas_stock",
   UPDATESTORESTOCK = "update_store_stock",
   SYNC = "sync",
+  REFRESH = "refresh",
+  REFUND = "refund",
 }
 
 export type Membership = {
