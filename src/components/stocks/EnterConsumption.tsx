@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
@@ -27,13 +27,6 @@ import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledC
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import {
-  BrandInput,
-  ProductInput,
-  QuantityInput,
-  StockLocationInput,
-  VendorInput,
-} from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -64,340 +57,462 @@ const EnterConsumption = () => {
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
   stockHistoriesPayload as StockHistoryPayload;
-  const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const { user } = useUserContext();
   const users = useGetUsers();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();
-  const enterConsumptionPageDisabledCondition = getItem(
-    DisabledConditionEnum.STOCK_ENTERCONSUMPTION,
-    disabledConditions
-  );
-  const pad = (num: number) => (num < 10 ? `0${num}` : num);
-  const allRows = stockHistoriesPayload?.data?.map((stockHistory) => {
-    if (!stockHistory?.createdAt) {
-      return null;
-    }
-    const date = new Date(stockHistory.createdAt);
-    const foundProduct = getItem(stockHistory.product, products);
-    return {
-      ...stockHistory,
-      prdct: foundProduct?.name,
-      lctn: getItem(stockHistory?.location, locations)?.name,
-      usr: getItem(stockHistory?.user, users)?.name,
-      newQuantity:
-        (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
-      date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
-      formattedDate: formatAsLocalDate(
-        format(stockHistory?.createdAt, "yyyy-MM-dd")
-      ),
-      hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-      productCost: (
-        (foundProduct?.unitPrice ?? 0) *
-        (stockHistory?.change ?? 0) *
-        -1
-      )?.toFixed(2),
-    };
-  });
-  const [rows, setRows] = useState(allRows);
-  const isShowPricesDisabled = enterConsumptionPageDisabledCondition?.actions?.some(
-    (ac) =>
-      ac.action === ActionEnum.SHOWPRICES &&
-      user?.role?._id &&
-      !ac?.permissionsRoles?.includes(user?.role?._id)
-  );
-  const consumptInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "product",
-      label: t("Product"),
-      options: products.map((product) => {
-        return {
-          value: product._id,
-          label: product.name,
-        };
-      }),
-      placeholder: t("Product"),
-      required: true,
-    },
-    QuantityInput({ required: true }),
-    StockLocationInput({ locations: locations }),
-  ];
-  const consumptFormKeys = [
-    { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-    { key: "location", type: FormKeyTypeEnum.STRING },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "expenseType",
-      label: t("Expense Type"),
-      options: expenseTypes?.map((expenseType) => {
-        return {
-          value: expenseType?._id,
-          label: expenseType?.name,
-        };
-      }),
-      placeholder: t("Expense Type"),
-      required: true,
-    },
-    ProductInput({
-      products: products,
-      required: true,
-      isMultiple: true,
-    }),
-    VendorInput({ vendors: vendors }),
-    BrandInput({ brands: brands }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
 
-  const columns = [
-    {
-      key: t("Date"),
-      isSortable: false,
-      correspondingKey: "createdAt",
-    },
-    { key: t("Hour"), isSortable: false },
-    {
-      key: t("User"),
-      isSortable: false,
-      correspondingKey: "user",
-    },
-    {
-      key: t("Product"),
-      isSortable: false,
-      correspondingKey: "product",
-    },
-    {
-      key: t("Location"),
-      isSortable: false,
-      correspondingKey: "location",
-    },
-    ...(!isShowPricesDisabled
-      ? [
-          { key: t("Cost"), isSortable: false },
-          { key: t("Old Quantity"), isSortable: false },
-        ]
-      : []),
-    { key: t("Changed"), isSortable: false },
-    ...(!isShowPricesDisabled
-      ? [{ key: t("New Quantity"), isSortable: false }]
-      : []),
-    {
-      key: t("Status"),
-      isSortable: false,
-      correspondingKey: "status",
-    },
-    {
-      key: t("Actions"),
-      isSortable: false,
-    },
-  ];
-  const addButton = {
-    name: t("Add Consumption"),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={consumptInputs}
-        formKeys={consumptFormKeys}
-        constantValues={{ location: selectedLocationId }}
-        submitItem={consumptStock as any}
-        topClassName="flex flex-col gap-2 "
-        buttonName={t("Submit")}
-        generalClassName="overflow-visible"
-      />
-    ),
-    isModalOpen: isAddModalOpen,
-    setIsModal: setIsAddModalOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-    isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
+  const enterConsumptionPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.STOCK_ENTERCONSUMPTION,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
+
+  const rows = useMemo(() => {
+    return stockHistoriesPayload?.data?.map((stockHistory) => {
+      if (!stockHistory?.createdAt) {
+        return null;
+      }
+      const date = new Date(stockHistory.createdAt);
+      const foundProduct = getItem(stockHistory.product, products);
+      return {
+        ...stockHistory,
+        prdct: foundProduct?.name,
+        lctn: getItem(stockHistory?.location, locations)?.name,
+        usr: getItem(stockHistory?.user, users)?.name,
+        newQuantity:
+          (stockHistory?.currentAmount ?? 0) + (stockHistory?.change ?? 0),
+        date: format(stockHistory?.createdAt, "yyyy-MM-dd"),
+        formattedDate: formatAsLocalDate(
+          format(stockHistory?.createdAt, "yyyy-MM-dd")
+        ),
+        hour: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+        productCost: (
+          (foundProduct?.unitPrice ?? 0) *
+          (stockHistory?.change ?? 0) *
+          -1
+        )?.toFixed(2),
+      };
+    });
+  }, [stockHistoriesPayload, products, locations, users, pad]);
+
+  const isShowPricesDisabled = useMemo(() => {
+    return enterConsumptionPageDisabledCondition?.actions?.some(
       (ac) =>
-        ac.action === ActionEnum.ADD &&
+        ac.action === ActionEnum.SHOWPRICES &&
         user?.role?._id &&
         !ac?.permissionsRoles?.includes(user?.role?._id)
-    ),
-  };
-  const rowKeys = [
-    {
-      key: "date",
-      className: "min-w-32 pr-1",
-      node: (row: any) => {
-        return <p>{row.formattedDate}</p>;
+    );
+  }, [enterConsumptionPageDisabledCondition, user]);
+
+  const consumptInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "product",
+        label: t("Product"),
+        options: products.map((product) => {
+          return {
+            value: product._id,
+            label: product.name,
+          };
+        }),
+        placeholder: t("Product"),
+        required: true,
       },
-    },
-    {
-      key: "hour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "usr",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "prdct",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "lctn",
-      className: "min-w-32 pr-1",
-    },
-    ...(!isShowPricesDisabled
-      ? [
-          {
-            key: "productCost",
-            className: "min-w-32 pr-1",
-          },
-          {
-            key: "currentAmount",
-            className: "min-w-32 pr-1",
-          },
-        ]
-      : []),
-    {
-      key: "change",
-      className: "min-w-32 pr-1",
-    },
-    ...(!isShowPricesDisabled
-      ? [
-          {
-            key: "newQuantity",
-            className: "min-w-32 pr-1",
-          },
-        ]
-      : []),
-    {
-      key: "status",
-      className: "min-w-32 pr-1",
-      node: (row: any) => {
-        const status = stockHistoryStatuses.find(
-          (item) => item.value === row.status
-        );
-        if (!status) return null;
-        return (
-          <div
-            className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
-          >
-            {t(status?.label)}
-          </div>
-        );
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        required: true,
       },
-    },
-  ];
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showEnterConsumptionFilters}
-          onChange={() => {
-            setShowEnterConsumptionFilters(!showEnterConsumptionFilters);
-          }}
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => {
+          return {
+            value: input._id,
+            label: input.name,
+          };
+        }),
+        placeholder: t("Location"),
+        required: true,
+      },
+    ],
+    [products, locations, t]
+  );
+
+  const consumptFormKeys = useMemo(
+    () => [
+      { key: "product", type: FormKeyTypeEnum.STRING },
+      { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+      { key: "location", type: FormKeyTypeEnum.STRING },
+    ],
+    []
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "expenseType",
+        label: t("Expense Type"),
+        options: expenseTypes?.map((expenseType) => {
+          return {
+            value: expenseType?._id,
+            label: expenseType?.name,
+          };
+        }),
+        placeholder: t("Expense Type"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "product",
+        label: t("Product"),
+        options: products.map((product) => {
+          return {
+            value: product._id,
+            label: product.name,
+          };
+        }),
+        placeholder: t("Product"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "vendor",
+        label: t("Vendor"),
+        options: vendors.map((vendor) => {
+          return {
+            value: vendor._id,
+            label: vendor.name,
+          };
+        }),
+        placeholder: t("Vendor"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "brand",
+        label: t("Brand"),
+        options: brands.map((brand) => ({
+          value: brand._id,
+          label: brand.name,
+        })),
+        placeholder: t("Brand"),
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => {
+          return {
+            value: input._id,
+            label: input.name,
+          };
+        }),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [expenseTypes, products, vendors, brands, locations, t]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: t("Date"),
+        isSortable: false,
+        correspondingKey: "createdAt",
+      },
+      { key: t("Hour"), isSortable: false },
+      {
+        key: t("User"),
+        isSortable: false,
+        correspondingKey: "user",
+      },
+      {
+        key: t("Product"),
+        isSortable: false,
+        correspondingKey: "product",
+      },
+      {
+        key: t("Location"),
+        isSortable: false,
+        correspondingKey: "location",
+      },
+      ...(!isShowPricesDisabled
+        ? [
+            { key: t("Cost"), isSortable: false },
+            { key: t("Old Quantity"), isSortable: false },
+          ]
+        : []),
+      { key: t("Changed"), isSortable: false },
+      ...(!isShowPricesDisabled
+        ? [{ key: t("New Quantity"), isSortable: false }]
+        : []),
+      {
+        key: t("Status"),
+        isSortable: false,
+        correspondingKey: "status",
+      },
+      {
+        key: t("Actions"),
+        isSortable: false,
+      },
+    ],
+    [t, isShowPricesDisabled]
+  );
+
+  const addButton = useMemo(
+    () => ({
+      name: t("Add Consumption"),
+      isModal: true,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddModalOpen}
+          close={() => setIsAddModalOpen(false)}
+          inputs={consumptInputs}
+          formKeys={consumptFormKeys}
+          constantValues={{ location: selectedLocationId }}
+          submitItem={consumptStock as any}
+          topClassName="flex flex-col gap-2 "
+          buttonName={t("Submit")}
+          generalClassName="overflow-visible"
         />
       ),
-    },
-  ];
-  const pagination = stockHistoriesPayload
-    ? {
-        totalPages: stockHistoriesPayload.totalPages,
-        totalRows: stockHistoriesPayload.totalNumber,
-      }
-    : null;
-  const filterPanel = {
-    isFilterPanelActive: showEnterConsumptionFilters,
-    inputs: filterPanelInputs,
-    formElements: filterEnterConsumptionPanelFormElements,
-    setFormElements: setFilterEnterConsumptionPanelFormElements,
-    closeFilters: () => setShowEnterConsumptionFilters(false),
-  };
-  const outsideSort = {
-    filterPanelFormElements: filterEnterConsumptionPanelFormElements,
-    setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
-  };
-  const actions = [
-    {
-      name: t("Cancel"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCancelOrderModalOpen}
-          close={() => setIsCancelOrderModalOpen(false)}
-          confirm={() => {
-            updateAccountProductStockHistory({
-              id: rowToAction._id,
-              updates: {
-                status:
-                  rowToAction.status === StockHistoryStatusEnum.CONSUMPTION
-                    ? StockHistoryStatusEnum.CONSUMPTIONCANCEL
-                    : StockHistoryStatusEnum.CONSUMPTION,
-              },
-            });
-            setIsCancelOrderModalOpen(false);
-          }}
-          title={t("Consumption Cancel")}
-          text={`${t("Consumption")} ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      isModal: true,
-      isModalOpen: isCancelOrderModalOpen,
-      setIsModal: setIsCancelOrderModalOpen,
+      isModalOpen: isAddModalOpen,
+      setIsModal: setIsAddModalOpen,
+      isPath: false,
+      icon: null,
+      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
       isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
         (ac) =>
-          ac.action === ActionEnum.DELETE &&
+          ac.action === ActionEnum.ADD &&
           user?.role?._id &&
           !ac?.permissionsRoles?.includes(user?.role?._id)
       ),
-    },
-  ];
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterEnterConsumptionPanelFormElements]);
+    }),
+    [
+      t,
+      isAddModalOpen,
+      consumptInputs,
+      consumptFormKeys,
+      selectedLocationId,
+      consumptStock,
+      enterConsumptionPageDisabledCondition,
+      user,
+    ]
+  );
 
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [
-    stockHistoriesPayload,
-    users,
-    products,
-    locations,
-    expenseTypes,
-    vendors,
-    brands,
-    user,
-    disabledConditions,
-  ]);
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "date",
+        className: "min-w-32 pr-1",
+        node: (row: any) => {
+          return <p>{row.formattedDate}</p>;
+        },
+      },
+      {
+        key: "hour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "usr",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "prdct",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "lctn",
+        className: "min-w-32 pr-1",
+      },
+      ...(!isShowPricesDisabled
+        ? [
+            {
+              key: "productCost",
+              className: "min-w-32 pr-1",
+            },
+            {
+              key: "currentAmount",
+              className: "min-w-32 pr-1",
+            },
+          ]
+        : []),
+      {
+        key: "change",
+        className: "min-w-32 pr-1",
+      },
+      ...(!isShowPricesDisabled
+        ? [
+            {
+              key: "newQuantity",
+              className: "min-w-32 pr-1",
+            },
+          ]
+        : []),
+      {
+        key: "status",
+        className: "min-w-32 pr-1",
+        node: (row: any) => {
+          const status = stockHistoryStatuses.find(
+            (item) => item.value === row.status
+          );
+          if (!status) return null;
+          return (
+            <div
+              className={`w-fit rounded-md text-sm  px-2 py-1 font-semibold  ${status?.backgroundColor} text-white`}
+            >
+              {t(status?.label)}
+            </div>
+          );
+        },
+      },
+    ],
+    [isShowPricesDisabled, t]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showEnterConsumptionFilters}
+            onChange={() => {
+              setShowEnterConsumptionFilters(!showEnterConsumptionFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [t, showEnterConsumptionFilters, setShowEnterConsumptionFilters]
+  );
+
+  const pagination = useMemo(() => {
+    return stockHistoriesPayload
+      ? {
+          totalPages: stockHistoriesPayload.totalPages,
+          totalRows: stockHistoriesPayload.totalNumber,
+        }
+      : null;
+  }, [stockHistoriesPayload]);
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showEnterConsumptionFilters,
+      inputs: filterPanelInputs,
+      formElements: filterEnterConsumptionPanelFormElements,
+      setFormElements: setFilterEnterConsumptionPanelFormElements,
+      closeFilters: () => setShowEnterConsumptionFilters(false),
+    }),
+    [
+      showEnterConsumptionFilters,
+      filterPanelInputs,
+      filterEnterConsumptionPanelFormElements,
+      setFilterEnterConsumptionPanelFormElements,
+      setShowEnterConsumptionFilters,
+    ]
+  );
+
+  const outsideSort = useMemo(
+    () => ({
+      filterPanelFormElements: filterEnterConsumptionPanelFormElements,
+      setFilterPanelFormElements: setFilterEnterConsumptionPanelFormElements,
+    }),
+    [
+      filterEnterConsumptionPanelFormElements,
+      setFilterEnterConsumptionPanelFormElements,
+    ]
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Cancel"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCancelOrderModalOpen}
+            close={() => setIsCancelOrderModalOpen(false)}
+            confirm={() => {
+              updateAccountProductStockHistory({
+                id: rowToAction._id,
+                updates: {
+                  status:
+                    rowToAction.status === StockHistoryStatusEnum.CONSUMPTION
+                      ? StockHistoryStatusEnum.CONSUMPTIONCANCEL
+                      : StockHistoryStatusEnum.CONSUMPTION,
+                },
+              });
+              setIsCancelOrderModalOpen(false);
+            }}
+            title={t("Consumption Cancel")}
+            text={`${t("Consumption")} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        isModal: true,
+        isModalOpen: isCancelOrderModalOpen,
+        setIsModal: setIsCancelOrderModalOpen,
+        isDisabled: enterConsumptionPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCancelOrderModalOpen,
+      updateAccountProductStockHistory,
+      enterConsumptionPageDisabledCondition,
+      user,
+    ]
+  );
+
+  // Effect to reset current page when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [filterEnterConsumptionPanelFormElements, setCurrentPage]);
 
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           outsideSortProps={outsideSort}
