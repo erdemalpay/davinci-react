@@ -213,7 +213,10 @@ const ExpirationList = () => {
         ),
     });
   });
-  if (user && [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)) {
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+  ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
