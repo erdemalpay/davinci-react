@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrderContext } from "../../context/Order.context";
 import { useUserContext } from "../../context/User.context";
@@ -21,7 +21,6 @@ import { useGetAllOrderCollections } from "../../utils/api/order/orderCollection
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { LocationInput } from "../../utils/panelInputs";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -31,19 +30,12 @@ import { InputTypes } from "../panelComponents/shared/types";
 const DailyIncome = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
-  const [tableKey, setTableKey] = useState(0);
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
-  const dailyIncomePageDisabledCondition = getItem(
-    DisabledConditionEnum.ORDERDATAS_DAILYINCOME,
-    disabledConditions
-  );
-  if (!collections || !sellLocations || !paymentMethods) {
-    return <Loading />;
-  }
+
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -51,211 +43,276 @@ const DailyIncome = () => {
     showOrderDataFilters,
     setShowOrderDataFilters,
   } = useOrderContext();
-  const allRows = collections
-    ?.filter(
-      (collection) => collection.status !== OrderCollectionStatus.CANCELLED
-    )
-    ?.reduce((acc, collection) => {
-      const zonedTime = toZonedTime(collection.createdAt, "UTC");
-      const tableDate = format(zonedTime, "yyyy-MM-dd");
-      if (!collection || !tableDate) return acc;
-      const foundPaymentMethod = getItem(
-        collection?.paymentMethod,
-        paymentMethods
-      );
-      const existingEntry = acc.find((item) => item.date === tableDate);
-      if (existingEntry) {
-        paymentMethods.forEach((method) => {
-          if (collection.paymentMethod === method._id) {
-            existingEntry[method._id] =
-              (existingEntry[method._id] || 0) + collection.amount;
-          }
-        });
-        existingEntry.total += !foundPaymentMethod?.isPaymentMade
-          ? 0
-          : collection?.amount || 0;
-      } else {
-        const newEntry: any = {
-          date: tableDate,
-          formattedDate: formatAsLocalDate(tableDate),
-          location: collection.location,
-          total: !foundPaymentMethod?.isPaymentMade
+
+  const dailyIncomePageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ORDERDATAS_DAILYINCOME,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  if (!collections || !sellLocations || !paymentMethods) {
+    return <Loading />;
+  }
+
+  const rows = useMemo(() => {
+    const allRows = collections
+      ?.filter(
+        (collection) => collection.status !== OrderCollectionStatus.CANCELLED
+      )
+      ?.reduce((acc, collection) => {
+        const zonedTime = toZonedTime(collection.createdAt, "UTC");
+        const tableDate = format(zonedTime, "yyyy-MM-dd");
+        if (!collection || !tableDate) return acc;
+        const foundPaymentMethod = getItem(
+          collection?.paymentMethod,
+          paymentMethods
+        );
+        const existingEntry = acc.find((item) => item.date === tableDate);
+        if (existingEntry) {
+          paymentMethods.forEach((method) => {
+            if (collection.paymentMethod === method._id) {
+              existingEntry[method._id] =
+                (existingEntry[method._id] || 0) + collection.amount;
+            }
+          });
+          existingEntry.total += !foundPaymentMethod?.isPaymentMade
             ? 0
-            : collection?.amount || 0,
-        };
-        paymentMethods.forEach((method) => {
-          newEntry[method._id] =
-            collection.paymentMethod === method._id ? collection.amount : 0;
-        });
+            : collection?.amount || 0;
+        } else {
+          const newEntry: any = {
+            date: tableDate,
+            formattedDate: formatAsLocalDate(tableDate),
+            location: collection.location,
+            total: !foundPaymentMethod?.isPaymentMade
+              ? 0
+              : collection?.amount || 0,
+          };
+          paymentMethods.forEach((method) => {
+            newEntry[method._id] =
+              collection.paymentMethod === method._id ? collection.amount : 0;
+          });
 
-        acc.push(newEntry);
-      }
-      return acc;
-    }, [] as any[]);
+          acc.push(newEntry);
+        }
+        return acc;
+      }, [] as any[]);
 
-  allRows.push({
-    date: t("Total"),
-    formattedDate: t("Total"),
-    location: 0,
-    paymentMethod: "",
-    ...paymentMethods.reduce((acc, method) => {
-      acc[method._id] = allRows.reduce((sum, row) => sum + row[method._id], 0);
-      return acc;
-    }, {} as any),
-    total: allRows.reduce((acc, row) => acc + row?.total, 0),
-    className: "font-semibold",
-    isSortable: false,
-  });
-  const [rows, setRows] = useState(allRows);
-  const paymentMethodColumns = paymentMethods.map((method) => ({
-    key: t(method.name),
-    isSortable: true,
-  }));
-  const columns = [
-    { key: t("Date"), isSortable: true },
-    ...paymentMethodColumns,
-    { key: t("Total"), isSortable: true },
-  ];
-  const paymentMethodRowKeys = paymentMethods.map((method) => ({
-    key: method._id,
-    node: (row: any) => {
-      return (
-        <p className={`${row?.className}`}>
-          {row[method._id] !== 0 &&
-            row[method._id]?.toFixed(2).replace(/\.?0*$/, "") +
-              " " +
-              TURKISHLIRA}
-        </p>
-      );
-    },
-  }));
-  const rowKeys = [
-    {
-      key: "date",
-      className: "min-w-32 pr-2",
-      node: (row: any) => {
-        return <p className={`${row?.className}`}>{row?.formattedDate}</p>;
-      },
-    },
-    ...paymentMethodRowKeys,
-    {
-      key: "total",
+    allRows.push({
+      date: t("Total"),
+      formattedDate: t("Total"),
+      location: 0,
+      paymentMethod: "",
+      ...paymentMethods.reduce((acc, method) => {
+        acc[method._id] = allRows.reduce(
+          (sum, row) => sum + row[method._id],
+          0
+        );
+        return acc;
+      }, {} as any),
+      total: allRows.reduce((acc, row) => acc + row?.total, 0),
+      className: "font-semibold",
+      isSortable: false,
+    });
+
+    return allRows;
+  }, [collections, paymentMethods, t]);
+
+  const paymentMethodColumns = useMemo(() => {
+    return paymentMethods.map((method) => ({
+      key: t(method.name),
+      isSortable: true,
+    }));
+  }, [paymentMethods, t]);
+
+  const columns = useMemo(
+    () => [
+      { key: t("Date"), isSortable: true },
+      ...paymentMethodColumns,
+      { key: t("Total"), isSortable: true },
+    ],
+    [t, paymentMethodColumns]
+  );
+
+  const paymentMethodRowKeys = useMemo(() => {
+    return paymentMethods.map((method) => ({
+      key: method._id,
       node: (row: any) => {
         return (
           <p className={`${row?.className}`}>
-            {row?.total !== 0 &&
-              row?.total?.toFixed(2).replace(/\.?0*$/, "") + " " + TURKISHLIRA}
+            {row[method._id] !== 0 &&
+              row[method._id]?.toFixed(2).replace(/\.?0*$/, "") +
+                " " +
+                TURKISHLIRA}
           </p>
         );
       },
-    },
-  ];
-  const filterPanelInputs = [
-    LocationInput({
-      locations: sellLocations,
-      required: true,
-      isMultiple: true,
-    }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
-      required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            ...dateRange(),
-          });
-        }
+    }));
+  }, [paymentMethods]);
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "date",
+        className: "min-w-32 pr-2",
+        node: (row: any) => {
+          return <p className={`${row?.className}`}>{row?.formattedDate}</p>;
+        },
       },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showOrderDataFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowOrderDataFilters(false),
-    additionalFilterCleanFunction: () => {
-      setFilterPanelFormElements(initialFilterPanelFormElements);
-    },
-  };
-  const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <ButtonFilter
-          buttonName={t("Refresh Data")}
-          onclick={() => {
-            queryClient.invalidateQueries([`${Paths.Order}/query`]);
-            queryClient.invalidateQueries([`${Paths.Order}/collection/query`]);
-          }}
-        />
-      ),
-      isDisabled: dailyIncomePageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.REFRESH &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showOrderDataFilters}
-          onChange={() => {
-            setShowOrderDataFilters(!showOrderDataFilters);
-          }}
-        />
-      ),
-    },
-  ];
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [collections, filterPanelFormElements, paymentMethods, sellLocations]);
+      ...paymentMethodRowKeys,
+      {
+        key: "total",
+        node: (row: any) => {
+          return (
+            <p className={`${row?.className}`}>
+              {row?.total !== 0 &&
+                row?.total?.toFixed(2).replace(/\.?0*$/, "") +
+                  " " +
+                  TURKISHLIRA}
+            </p>
+          );
+        },
+      },
+    ],
+    [paymentMethodRowKeys]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: sellLocations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((option) => {
+          return {
+            value: option.value,
+            label: t(option.label),
+          };
+        }),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterPanelFormElements({
+              ...filterPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+    ],
+    [sellLocations, t, filterPanelFormElements, setFilterPanelFormElements]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showOrderDataFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowOrderDataFilters(false),
+      additionalFilterCleanFunction: () => {
+        setFilterPanelFormElements(initialFilterPanelFormElements);
+      },
+    }),
+    [
+      showOrderDataFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+      setShowOrderDataFilters,
+      initialFilterPanelFormElements,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: false,
+        node: (
+          <ButtonFilter
+            buttonName={t("Refresh Data")}
+            onclick={() => {
+              queryClient.invalidateQueries([`${Paths.Order}/query`]);
+              queryClient.invalidateQueries([
+                `${Paths.Order}/collection/query`,
+              ]);
+            }}
+          />
+        ),
+        isDisabled: dailyIncomePageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.REFRESH &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showOrderDataFilters}
+            onChange={() => {
+              setShowOrderDataFilters(!showOrderDataFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [
+      t,
+      queryClient,
+      dailyIncomePageDisabledCondition,
+      user,
+      showOrderDataFilters,
+      setShowOrderDataFilters,
+    ]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}

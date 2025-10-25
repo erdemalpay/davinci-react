@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
@@ -18,9 +18,9 @@ const MenuPrice = () => {
   const items = useGetMenuItems();
   const categories = useGetCategories();
   const stocks = useGetAccountStocks();
-  const [tableKey, setTableKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutate: updateItems } = useUpdateItemsMutation();
+
   const getProductTotalStock = (productId: string) => {
     const foundStockTotal = stocks
       ?.filter((stock) => stock.product === productId)
@@ -29,49 +29,60 @@ const MenuPrice = () => {
       }, 0);
     return foundStockTotal;
   };
-  const allRows = items?.map((item) => ({
-    ...item,
-    category: getItem(item.category, categories)?.name,
-    onlinePrice: item?.onlinePrice ?? "",
-    ikasId: item?.ikasId ?? "",
-    ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
-    totalStock: item?.matchedProduct
-      ? getProductTotalStock(item.matchedProduct)
-      : "",
-  }));
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: "ID", isSortable: false, correspondingKey: "_id" },
-    { key: t("Name"), isSortable: true, correspondingKey: "name" },
-    { key: t("Price"), isSortable: true, correspondingKey: "price" },
-    {
-      key: t("Online Price"),
-      isSortable: true,
-      correspondingKey: "onlinePrice",
-    },
-    {
-      key: t("Ikas Discounted Price"),
-      isSortable: true,
-      correspondingKey: "ikasDiscountedPrice",
-    },
-    { key: t("Category"), isSortable: true, correspondingKey: "category" },
-    { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
-    { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
-    { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
-    { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
-  ];
-  const rowKeys = [
-    { key: "_id" },
-    { key: "name" },
-    { key: "price" },
-    { key: "onlinePrice" },
-    { key: "ikasDiscountedPrice" },
-    { key: "category" },
-    { key: "sku" },
-    { key: "barcode" },
-    { key: "totalStock" },
-    { key: "ikasId" },
-  ];
+
+  const rows = useMemo(() => {
+    return items?.map((item) => ({
+      ...item,
+      category: getItem(item.category, categories)?.name,
+      onlinePrice: item?.onlinePrice ?? "",
+      ikasId: item?.ikasId ?? "",
+      ikasDiscountedPrice: item?.ikasDiscountedPrice ?? "",
+      totalStock: item?.matchedProduct
+        ? getProductTotalStock(item.matchedProduct)
+        : "",
+    }));
+  }, [items, categories, stocks, getProductTotalStock]);
+
+  const columns = useMemo(
+    () => [
+      { key: "ID", isSortable: false, correspondingKey: "_id" },
+      { key: t("Name"), isSortable: true, correspondingKey: "name" },
+      { key: t("Price"), isSortable: true, correspondingKey: "price" },
+      {
+        key: t("Online Price"),
+        isSortable: true,
+        correspondingKey: "onlinePrice",
+      },
+      {
+        key: t("Ikas Discounted Price"),
+        isSortable: true,
+        correspondingKey: "ikasDiscountedPrice",
+      },
+      { key: t("Category"), isSortable: true, correspondingKey: "category" },
+      { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+      { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
+      { key: t("Stock"), isSortable: true, correspondingKey: "totalStock" },
+      { key: t("Ikas Id"), isSortable: true, correspondingKey: "ikasId" },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      { key: "_id" },
+      { key: "name" },
+      { key: "price" },
+      { key: "onlinePrice" },
+      { key: "ikasDiscountedPrice" },
+      { key: "category" },
+      { key: "sku" },
+      { key: "barcode" },
+      { key: "totalStock" },
+      { key: "ikasId" },
+    ],
+    []
+  );
+
   const uploadExcelFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -106,43 +117,44 @@ const MenuPrice = () => {
     });
     updateItems(items);
   };
+
   const handleFileButtonClick = () => {
     if (inputRef.current) {
       inputRef.current.click();
     }
   };
-  const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <div
-          className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
-          onClick={handleFileButtonClick}
-        >
-          <input
-            type="file"
-            accept=".xlsx, .xls"
-            onChange={uploadExcelFile}
-            style={{ display: "none" }}
-            ref={inputRef}
-          />
-          <ButtonTooltip content={t("Upload")}>
-            <FaFileUpload />
-          </ButtonTooltip>
-        </div>
-      ),
-    },
-  ];
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [items, categories, stocks]);
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: false,
+        node: (
+          <div
+            className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+            onClick={handleFileButtonClick}
+          >
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={uploadExcelFile}
+              style={{ display: "none" }}
+              ref={inputRef}
+            />
+            <ButtonTooltip content={t("Upload")}>
+              <FaFileUpload />
+            </ButtonTooltip>
+          </div>
+        ),
+      },
+    ],
+    [t, handleFileButtonClick, uploadExcelFile]
+  );
+
   return (
     <>
       <Header showLocationSelector={false} />
       <div className="w-[95%] mx-auto my-10">
         <GenericTable
-          key={tableKey}
           rows={rows}
           rowKeys={rowKeys}
           isActionsActive={false}

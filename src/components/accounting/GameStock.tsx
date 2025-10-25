@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -28,13 +28,6 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { formatPrice } from "../../utils/formatPrice";
 import { getItem } from "../../utils/getItem";
-import {
-  BrandInput,
-  ProductInput,
-  QuantityInput,
-  StockLocationInput,
-  VendorInput,
-} from "../../utils/panelInputs";
 import { passesFilter } from "../../utils/passesFilter";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -69,11 +62,6 @@ const GameStock = () => {
   const brands = useGetAccountBrands();
   const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();
-  const gameStockPageDisabledCondition = getItem(
-    DisabledConditionEnum.STOCK_GAMESTOCK,
-    disabledConditions
-  );
-  const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { mutate: stockTransfer } = useStockTransferMutation();
@@ -83,23 +71,6 @@ const GameStock = () => {
   const [stockTransferForm, setStockTransferForm] = useState({
     location: "",
     quantity: 0,
-  });
-  const [generalTotalExpense, setGeneralTotalExpense] = useState(() => {
-    return stocks
-      .filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes(
-          GAMEEXPENSETYPE
-        )
-      )
-      .reduce((acc, stock) => {
-        const expense = parseFloat(
-          (
-            (getItem(stock?.product, products)?.unitPrice ?? 0) *
-            stock?.quantity
-          )?.toFixed(1)
-        );
-        return acc + expense;
-      }, 0);
   });
   const [form, setForm] = useState({
     product: "",
@@ -111,394 +82,16 @@ const GameStock = () => {
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [rows, setRows] = useState(() => {
-    const groupedProducts = stocks
-      ?.filter((stock) =>
-        getItem(stock?.product, products)?.expenseType?.includes(
-          GAMEEXPENSETYPE
-        )
-      )
-      ?.reduce((acc: any, stock) => {
-        const rowProduct = getItem(stock?.product, products);
-        const rowItem = getItem(rowProduct?.matchedMenuItem, items);
-        const productName = rowProduct?.name;
-        const locationName = getItem(stock?.location, locations)?.name;
-        const unitPrice = rowProduct?.unitPrice ?? 0;
-        const quantity = stock?.quantity;
-        const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-        if (!productName) {
-          return acc;
-        }
-        if (!acc[productName]) {
-          acc[productName] = {
-            ...stock,
-            sku: rowItem?.sku ?? "",
-            barcode: rowItem?.barcode ?? "",
-            prdct: productName,
-            unitPrice,
-            totalGroupPrice: 0,
-            totalQuantity: 0,
-            menuPrice: rowItem?.price ?? "",
-            onlineMenuPrice: rowItem?.onlinePrice ?? "",
-            collapsible: {
-              collapsibleColumns: [
-                { key: t("Location"), isSortable: true },
-                { key: t("Quantity"), isSortable: true },
-                isGameStockEnableEdit
-                  ? { key: t("Actions"), isSortable: false }
-                  : undefined,
-              ].filter(Boolean),
-              collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
-              collapsibleRows: [],
-            },
-          };
-        }
-        acc[productName].totalGroupPrice += totalPrice;
-        acc[productName].totalQuantity += quantity;
-        acc[productName].collapsible.collapsibleRows.push({
-          stockId: stock?._id,
-          stockProduct: stock?.product,
-          stockLocation: stock?.location,
-          stockQuantity: stock?.quantity,
-          stockUnitPrice: rowProduct?.unitPrice ?? 0,
-          location: locationName,
-          quantity: quantity,
-          totalPrice: totalPrice,
-        });
-        return acc;
-      }, {});
-    return Object.values(groupedProducts);
-  });
+
   const { createAccountStock, deleteAccountStock, updateAccountStock } =
     useAccountStockMutations();
-  const inputs = [
-    ProductInput({
-      products: products?.filter((product) =>
-        product?.expenseType?.includes(GAMEEXPENSETYPE)
-      ),
-      required: true,
-    }),
-    StockLocationInput({ locations: locations }),
-    QuantityInput(),
-  ];
-  const stockTransferInputs = [
-    StockLocationInput({
-      locations: rowToAction
-        ? locations.filter(
-            (location) => location._id !== rowToAction?.stockLocation
-          )
-        : locations,
-    }),
-    QuantityInput(),
-  ];
-  const formKeys = [
-    { key: "product", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.STRING },
-    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-  ];
-  const stockTransferFormKeys = [
-    { key: "location", type: FormKeyTypeEnum.STRING },
-    { key: "quantity", type: FormKeyTypeEnum.NUMBER },
-  ];
-  const columns = [
-    { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
-    { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
-    { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
-    {
-      key: t("Quantity"),
-      isSortable: true,
-      correspondingKey: "totalQuantity",
-    },
-    {
-      key: t("Unit Price"),
-      isSortable: true,
-      correspondingKey: "unitPrice",
-    },
-    { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
-    {
-      key: t("Online Price"),
-      isSortable: true,
-      correspondingKey: "menuPrice",
-    },
-    { key: t("Total Price"), isSortable: true },
-  ];
-  const rowKeys = [
-    { key: "prdct" },
-    { key: "sku" },
-    { key: "barcode" },
-    { key: "totalQuantity" },
-    {
-      key: "unitPrice",
-      node: (row: any) => <div>{formatPrice(row?.unitPrice)} ₺</div>,
-    },
-    {
-      key: "menuPrice",
-      node: (row: any) => {
-        if (row?.menuPrice) {
-          return <div>{formatPrice(row?.menuPrice)} ₺</div>;
-        }
-        return <></>;
-      },
-    },
-    {
-      key: "onlineMenuPrice",
-      node: (row: any) => {
-        if (row?.onlineMenuPrice) {
-          return <div>{formatPrice(row?.onlineMenuPrice)} ₺</div>;
-        }
-        return <></>;
-      },
-    },
-    {
-      key: "totalGroupPrice",
-      node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
-    },
-  ];
-  if (
-    gameStockPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.SHOWPRICES &&
-        user?.role?._id &&
-        !ac?.permissionsRoles?.includes(user?.role?._id)
-    )
-  ) {
-    const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
-    const splicedRowKeys = ["unitPrice", "onlineMenuPrice", "totalGroupPrice"];
-    splicedColumns.forEach((item) => {
-      columns.splice(
-        columns.findIndex((column) => column.key === item),
-        1
-      );
-    });
-    splicedRowKeys.forEach((item) => {
-      rowKeys.splice(
-        rowKeys.findIndex((rowKey) => rowKey.key === item),
-        1
-      );
-    });
-  }
-  const addButton = {
-    name: t("Add Stock"),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
-        setForm={setForm}
-        submitItem={createAccountStock as any}
-        topClassName="flex flex-col gap-2 "
-        generalClassName="overflow-visible"
-        constantValues={{ status: StockHistoryStatusEnum.STOCKENTRY }}
-      />
-    ),
-    isModalOpen: isAddModalOpen,
-    setIsModal: setIsAddModalOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-    isDisabled: gameStockPageDisabledCondition?.actions?.some(
-      (ac) =>
-        ac.action === ActionEnum.ADD &&
-        user?.role?._id &&
-        !ac?.permissionsRoles?.includes(user?.role?._id)
-    ),
-  };
-  const collapsibleActions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteAccountStock(rowToAction?.stockId);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Stock")}
-          text={`${
-            getItem(rowToAction?.product, products)?.name
-          } stock will be deleted. Are you sure you want to continue?`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.DELETE &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl",
-      isModal: true,
-      setRow: setRowToAction,
-      setForm: setForm,
-      onClick: (row: any) => {
-        setForm({
-          ...form,
-          product: row?.stockProduct,
-        });
-      },
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          submitItem={updateAccountStock as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          generalClassName="overflow-visible"
-          itemToEdit={{
-            id: rowToAction?.stockId,
-            updates: {
-              product: rowToAction?.stockProduct,
-              location: rowToAction?.stockLocation,
-              quantity: rowToAction?.stockQuantity,
-              unitPrice: getItem(rowToAction?.stockProduct, products)
-                ?.unitPrice,
-            },
-          }}
-        />
-      ) : null,
 
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
-      isPath: false,
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.UPDATE &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      name: t("Transfer"),
-      icon: <TbTransferIn />,
-      className: "text-green-500 cursor-pointer text-xl",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isStockTransferModalOpen}
-          close={() => setIsStockTransferModalOpen(false)}
-          inputs={stockTransferInputs as GenericInputType[]}
-          setForm={setStockTransferForm}
-          submitFunction={() => {
-            if (
-              stockTransferForm.location === "" ||
-              stockTransferForm.quantity === 0
-            ) {
-              toast.error(t("Please fill all the fields"));
-              return;
-            }
-            stockTransfer({
-              currentStockLocation: rowToAction?.stockLocation,
-              transferredStockLocation: stockTransferForm.location,
-              product: rowToAction?.product,
-              quantity: stockTransferForm.quantity,
-            });
-          }}
-          formKeys={stockTransferFormKeys}
-          submitItem={stockTransfer as any}
-          topClassName="flex flex-col gap-2 "
-        />
-      ) : null,
-      isModalOpen: isStockTransferModalOpen,
-      setIsModal: setIsStockTransferModalOpen,
-      isPath: false,
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.TRANSFER &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-  ];
-  const filters = [
-    {
-      label: t("Total") + " :",
-      isUpperSide: false,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            })?.format(generalTotalExpense)}{" "}
-            ₺
-          </p>
-        </div>
-      ),
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWTOTAL &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      label: t("Show Prices"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showGameStockPrices}
-          onChange={() => {
-            setShowGameStockPrices(!showGameStockPrices);
-          }}
-        />
-      ),
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOWPRICES &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={isGameStockEnableEdit}
-          onChange={() => {
-            setIsGameStockEnableEdit(!isGameStockEnableEdit);
-          }}
-        />
-      ),
-      isDisabled: gameStockPageDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.ENABLEEDIT &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      ),
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showGameStockFilters}
-          onChange={() => {
-            setShowGameStockFilters(!showGameStockFilters);
-          }}
-        />
-      ),
-    },
-  ];
-  useEffect(() => {
-    const processedRows = stocks
+  const gameStockPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.STOCK_GAMESTOCK, disabledConditions);
+  }, [disabledConditions]);
+
+  const filteredStocks = useMemo(() => {
+    return stocks
       ?.filter((stock) =>
         getItem(stock?.product, products)?.expenseType?.includes(
           GAMEEXPENSETYPE
@@ -525,139 +118,631 @@ const GameStock = () => {
               filterGameStockPanelFormElements?.brand
             ))
         );
-      })
-      ?.reduce((acc: any, stock) => {
-        const rowProduct = getItem(stock?.product, products);
-        const rowItem = getItem(rowProduct?.matchedMenuItem, items);
-        const productName = rowProduct?.name;
-        const locationName = getItem(stock?.location, locations)?.name;
-        const unitPrice = rowProduct?.unitPrice ?? 0;
-        const quantity = stock?.quantity;
-        const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
-        if (!productName) {
-          return acc;
-        }
-        if (!acc[productName]) {
-          acc[productName] = {
-            ...stock,
-            prdct: productName,
-            sku: rowItem?.sku ?? "",
-            barcode: rowItem?.barcode ?? "",
-            unitPrice,
-            menuPrice: rowItem?.price ?? "",
-            onlineMenuPrice: rowItem?.onlinePrice ?? "",
-            totalGroupPrice: 0,
-            totalQuantity: 0,
-            collapsible: {
-              collapsibleColumns: [
-                { key: t("Location"), isSortable: true },
-                { key: t("Quantity"), isSortable: true },
-                isGameStockEnableEdit
-                  ? { key: t("Actions"), isSortable: false }
-                  : undefined,
-              ].filter(Boolean),
-              collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
-              collapsibleRows: [],
-            },
-          };
-        }
-        acc[productName].totalGroupPrice += totalPrice;
-        acc[productName].totalQuantity += quantity;
-        acc[productName].collapsible.collapsibleRows.push({
-          stockId: stock?._id,
-          stockProduct: stock?.product,
-          stockLocation: stock?.location,
-          stockQuantity: stock?.quantity,
-          stockUnitPrice: rowProduct?.unitPrice ?? 0,
-          location: locationName,
-          quantity: quantity,
-          totalPrice: totalPrice,
-        });
+      });
+  }, [stocks, filterGameStockPanelFormElements, products]);
 
+  const rows = useMemo(() => {
+    const processedRows = filteredStocks?.reduce((acc: any, stock) => {
+      const rowProduct = getItem(stock?.product, products);
+      const rowItem = getItem(rowProduct?.matchedMenuItem, items);
+      const productName = rowProduct?.name;
+      const locationName = getItem(stock?.location, locations)?.name;
+      const unitPrice = rowProduct?.unitPrice ?? 0;
+      const quantity = stock?.quantity;
+      const totalPrice = parseFloat((unitPrice * quantity)?.toFixed(1));
+      if (!productName) {
         return acc;
-      }, {});
-    const newGeneralTotalExpense = Object.values(processedRows)?.reduce(
-      (acc: any, stock: any) => {
-        const expense = parseFloat(stock?.totalGroupPrice.toFixed(1));
-        return acc + expense;
+      }
+      if (!acc[productName]) {
+        acc[productName] = {
+          ...stock,
+          prdct: productName,
+          sku: rowItem?.sku ?? "",
+          barcode: rowItem?.barcode ?? "",
+          unitPrice,
+          menuPrice: rowItem?.price ?? "",
+          onlineMenuPrice: rowItem?.onlinePrice ?? "",
+          totalGroupPrice: 0,
+          totalQuantity: 0,
+          collapsible: {
+            collapsibleColumns: [
+              { key: t("Location"), isSortable: true },
+              { key: t("Quantity"), isSortable: true },
+              isGameStockEnableEdit
+                ? { key: t("Actions"), isSortable: false }
+                : undefined,
+            ].filter(Boolean),
+            collapsibleRowKeys: [{ key: "location" }, { key: "quantity" }],
+            collapsibleRows: [],
+          },
+        };
+      }
+      acc[productName].totalGroupPrice += totalPrice;
+      acc[productName].totalQuantity += quantity;
+      acc[productName].collapsible.collapsibleRows.push({
+        stockId: stock?._id,
+        stockProduct: stock?.product,
+        stockLocation: stock?.location,
+        stockQuantity: stock?.quantity,
+        stockUnitPrice: rowProduct?.unitPrice ?? 0,
+        location: locationName,
+        quantity: quantity,
+        totalPrice: totalPrice,
+      });
+
+      return acc;
+    }, {});
+
+    return Object.values(processedRows || {});
+  }, [filteredStocks, products, items, locations, t, isGameStockEnableEdit]);
+
+  const generalTotalExpense = useMemo(() => {
+    return (rows?.reduce((acc: number, stock: any) => {
+      const expense = parseFloat(stock?.totalGroupPrice?.toFixed(1) || "0");
+      return acc + expense;
+    }, 0) || 0) as number;
+  }, [rows]);
+
+  const inputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "product",
+        label: t("Product"),
+        options: products
+          ?.filter((product) => product?.expenseType?.includes(GAMEEXPENSETYPE))
+          ?.map((product) => ({
+            value: product._id,
+            label: product.name,
+          })),
+        placeholder: t("Product"),
+        required: true,
       },
-      0
-    );
-    setRows(Object.values(processedRows));
-    setGeneralTotalExpense(newGeneralTotalExpense as number);
-    setTableKey((prev) => prev + 1);
-  }, [
-    stocks,
-    filterGameStockPanelFormElements,
-    products,
-    locations,
-    user,
-    isGameStockEnableEdit,
-    items,
-    disabledConditions,
-  ]);
-  const filterPanelInputs = [
-    ProductInput({
-      products: products?.filter((product) =>
-        product?.expenseType?.includes(GAMEEXPENSETYPE)
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        required: true,
+      },
+    ],
+    [products, locations, t]
+  );
+
+  const stockTransferInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: (rowToAction
+          ? locations.filter(
+              (location) => location._id !== rowToAction?.stockLocation
+            )
+          : locations
+        )?.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "quantity",
+        label: t("Quantity"),
+        placeholder: t("Quantity"),
+        required: true,
+      },
+    ],
+    [locations, rowToAction, t]
+  );
+
+  const formKeys = useMemo(
+    () => [
+      { key: "product", type: FormKeyTypeEnum.STRING },
+      { key: "location", type: FormKeyTypeEnum.STRING },
+      { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    ],
+    []
+  );
+
+  const stockTransferFormKeys = useMemo(
+    () => [
+      { key: "location", type: FormKeyTypeEnum.STRING },
+      { key: "quantity", type: FormKeyTypeEnum.NUMBER },
+    ],
+    []
+  );
+
+  const columns = useMemo(() => {
+    const cols = [
+      { key: t("Product"), isSortable: true, correspondingKey: "prdct" },
+      { key: t("Sku"), isSortable: true, correspondingKey: "sku" },
+      { key: t("Barcode"), isSortable: true, correspondingKey: "barcode" },
+      {
+        key: t("Quantity"),
+        isSortable: true,
+        correspondingKey: "totalQuantity",
+      },
+      {
+        key: t("Unit Price"),
+        isSortable: true,
+        correspondingKey: "unitPrice",
+      },
+      { key: t("Menu Price"), isSortable: true, correspondingKey: "menuPrice" },
+      {
+        key: t("Online Price"),
+        isSortable: true,
+        correspondingKey: "menuPrice",
+      },
+      { key: t("Total Price"), isSortable: true },
+    ];
+
+    if (
+      gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+    ) {
+      const splicedColumns = ["Unit Price", "Online Price", "Total Price"];
+      return cols.filter((column) => !splicedColumns.includes(column.key));
+    }
+    return cols;
+  }, [t, gameStockPageDisabledCondition, user]);
+
+  const rowKeys = useMemo(() => {
+    const keys = [
+      { key: "prdct" },
+      { key: "sku" },
+      { key: "barcode" },
+      { key: "totalQuantity" },
+      {
+        key: "unitPrice",
+        node: (row: any) => <div>{formatPrice(row?.unitPrice)} ₺</div>,
+      },
+      {
+        key: "menuPrice",
+        node: (row: any) => {
+          if (row?.menuPrice) {
+            return <div>{formatPrice(row?.menuPrice)} ₺</div>;
+          }
+          return <></>;
+        },
+      },
+      {
+        key: "onlineMenuPrice",
+        node: (row: any) => {
+          if (row?.onlineMenuPrice) {
+            return <div>{formatPrice(row?.onlineMenuPrice)} ₺</div>;
+          }
+          return <></>;
+        },
+      },
+      {
+        key: "totalGroupPrice",
+        node: (row: any) => <div>{formatPrice(row?.totalGroupPrice)} ₺</div>,
+      },
+    ];
+
+    if (
+      gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOWPRICES &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+    ) {
+      const splicedRowKeys = [
+        "unitPrice",
+        "onlineMenuPrice",
+        "totalGroupPrice",
+      ];
+      return keys.filter((key) => !splicedRowKeys.includes(key.key));
+    }
+    return keys;
+  }, [gameStockPageDisabledCondition, user]);
+
+  const addButton = useMemo(
+    () => ({
+      name: t("Add Stock"),
+      isModal: true,
+      modal: (
+        <GenericAddEditPanel
+          isOpen={isAddModalOpen}
+          close={() => setIsAddModalOpen(false)}
+          inputs={inputs}
+          formKeys={formKeys}
+          setForm={setForm}
+          submitItem={createAccountStock as any}
+          topClassName="flex flex-col gap-2 "
+          generalClassName="overflow-visible"
+          constantValues={{ status: StockHistoryStatusEnum.STOCKENTRY }}
+        />
       ),
-      required: true,
-      isMultiple: true,
+      isModalOpen: isAddModalOpen,
+      setIsModal: setIsAddModalOpen,
+      isPath: false,
+      icon: null,
+      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: gameStockPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    VendorInput({ vendors: vendors, required: true }),
-    BrandInput({ brands: brands, required: true }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions?.map((option) => {
-        return {
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAccountStock,
+      gameStockPageDisabledCondition,
+      user,
+    ]
+  );
+
+  const collapsibleActions = useMemo(
+    () => [
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteAccountStock(rowToAction?.stockId);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Stock")}
+            text={`${
+              getItem(rowToAction?.product, products)?.name
+            } stock will be deleted. Are you sure you want to continue?`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Edit"),
+        icon: <FiEdit />,
+        className: "text-blue-500 cursor-pointer text-xl",
+        isModal: true,
+        setRow: setRowToAction,
+        setForm: setForm,
+        onClick: (row: any) => {
+          setForm({
+            ...form,
+            product: row?.stockProduct,
+          });
+        },
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            inputs={inputs}
+            formKeys={formKeys}
+            submitItem={updateAccountStock as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            generalClassName="overflow-visible"
+            itemToEdit={{
+              id: rowToAction?.stockId,
+              updates: {
+                product: rowToAction?.stockProduct,
+                location: rowToAction?.stockLocation,
+                quantity: rowToAction?.stockQuantity,
+                unitPrice: getItem(rowToAction?.stockProduct, products)
+                  ?.unitPrice,
+              },
+            }}
+          />
+        ) : null,
+
+        isModalOpen: isEditModalOpen,
+        setIsModal: setIsEditModalOpen,
+        isPath: false,
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        name: t("Transfer"),
+        icon: <TbTransferIn />,
+        className: "text-green-500 cursor-pointer text-xl",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isStockTransferModalOpen}
+            close={() => setIsStockTransferModalOpen(false)}
+            inputs={stockTransferInputs as GenericInputType[]}
+            setForm={setStockTransferForm}
+            submitFunction={() => {
+              if (
+                stockTransferForm.location === "" ||
+                stockTransferForm.quantity === 0
+              ) {
+                toast.error(t("Please fill all the fields"));
+                return;
+              }
+              stockTransfer({
+                currentStockLocation: rowToAction?.stockLocation,
+                transferredStockLocation: stockTransferForm.location,
+                product: rowToAction?.product,
+                quantity: stockTransferForm.quantity,
+              });
+            }}
+            formKeys={stockTransferFormKeys}
+            submitItem={stockTransfer as any}
+            topClassName="flex flex-col gap-2 "
+          />
+        ) : null,
+        isModalOpen: isStockTransferModalOpen,
+        setIsModal: setIsStockTransferModalOpen,
+        isPath: false,
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.TRANSFER &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      deleteAccountStock,
+      products,
+      gameStockPageDisabledCondition,
+      user,
+      isEditModalOpen,
+      inputs,
+      formKeys,
+      updateAccountStock,
+      form,
+      isStockTransferModalOpen,
+      stockTransferInputs,
+      stockTransferFormKeys,
+      stockTransferForm,
+      stockTransfer,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Total") + " :",
+        isUpperSide: false,
+        node: (
+          <div className="flex flex-row gap-2">
+            <p>
+              {new Intl.NumberFormat("en-US", {
+                style: "decimal",
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              })?.format(generalTotalExpense)}{" "}
+              ₺
+            </p>
+          </div>
+        ),
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOWTOTAL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Show Prices"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showGameStockPrices}
+            onChange={() => {
+              setShowGameStockPrices(!showGameStockPrices);
+            }}
+          />
+        ),
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOWPRICES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={isGameStockEnableEdit}
+            onChange={() => {
+              setIsGameStockEnableEdit(!isGameStockEnableEdit);
+            }}
+          />
+        ),
+        isDisabled: gameStockPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showGameStockFilters}
+            onChange={() => {
+              setShowGameStockFilters(!showGameStockFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [
+      t,
+      generalTotalExpense,
+      gameStockPageDisabledCondition,
+      user,
+      showGameStockPrices,
+      setShowGameStockPrices,
+      isGameStockEnableEdit,
+      setIsGameStockEnableEdit,
+      showGameStockFilters,
+      setShowGameStockFilters,
+    ]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "product",
+        label: t("Product"),
+        options: products
+          ?.filter((product) => product?.expenseType?.includes(GAMEEXPENSETYPE))
+          ?.map((product) => ({
+            value: product._id,
+            label: product.name,
+          })),
+        placeholder: t("Product"),
+        required: true,
+        isMultiple: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "vendor",
+        label: t("Vendor"),
+        options: vendors.map((vendor) => ({
+          value: vendor._id,
+          label: vendor.name,
+        })),
+        placeholder: t("Vendor"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "brand",
+        label: t("Brand"),
+        options: brands.map((brand) => ({
+          value: brand._id,
+          label: brand.name,
+        })),
+        placeholder: t("Brand"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions?.map((option) => ({
           value: option.value,
           label: t(option.label),
-        };
-      }),
-      placeholder: t("Date"),
-      required: true,
-      additionalOnChange: ({
-        value,
-        label,
-      }: {
-        value: string;
-        label: string;
-      }) => {
-        const dateRange = dateRanges[value as DateRangeKey];
-        if (dateRange) {
-          setFilterGameStockPanelFormElements({
-            ...filterGameStockPanelFormElements,
-            ...dateRange(),
-          });
-        }
+        })),
+        placeholder: t("Date"),
+        required: true,
+        additionalOnChange: ({
+          value,
+          label,
+        }: {
+          value: string;
+          label: string;
+        }) => {
+          const dateRange = dateRanges[value as DateRangeKey];
+          if (dateRange) {
+            setFilterGameStockPanelFormElements({
+              ...filterGameStockPanelFormElements,
+              ...dateRange(),
+            });
+          }
+        },
       },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-      invalidateKeys: [{ key: "date", defaultValue: "" }],
-      isOnClearActive: false,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showGameStockFilters,
-    inputs: filterPanelInputs,
-    formElements: filterGameStockPanelFormElements,
-    setFormElements: setFilterGameStockPanelFormElements,
-    closeFilters: () => setShowGameStockFilters(false),
-  };
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+        invalidateKeys: [{ key: "date", defaultValue: "" }],
+        isOnClearActive: false,
+      },
+    ],
+    [
+      products,
+      vendors,
+      brands,
+      locations,
+      t,
+      filterGameStockPanelFormElements,
+      setFilterGameStockPanelFormElements,
+    ]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showGameStockFilters,
+      inputs: filterPanelInputs,
+      formElements: filterGameStockPanelFormElements,
+      setFormElements: setFilterGameStockPanelFormElements,
+      closeFilters: () => setShowGameStockFilters(false),
+    }),
+    [
+      showGameStockFilters,
+      filterPanelInputs,
+      filterGameStockPanelFormElements,
+      setFilterGameStockPanelFormElements,
+      setShowGameStockFilters,
+    ]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           collapsibleActions={isGameStockEnableEdit ? collapsibleActions : []}
           filters={filters}
