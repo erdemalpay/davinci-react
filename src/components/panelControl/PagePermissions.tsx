@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +21,12 @@ const PagePermissions = () => {
   const { t } = useTranslation();
   const roles = useGetAllUserRoles();
   const pages = useGetPanelControlPages();
-  const [tableKey, setTableKey] = useState(0);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const { mutate: createMultiplePage } = useCreateMultiplePageMutation();
   const { setCurrentPage, setSortConfigKey, setSearchQuery } =
     useGeneralContext();
   const { updatePanelControlPage } = usePanelControlPageMutations();
+
   function handleRolePermission(row: PanelControlPage, roleKey: number) {
     const newPermissionRoles = row?.permissionRoles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -41,52 +41,8 @@ const PagePermissions = () => {
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
-  const columns = [{ key: t("Page"), isSortable: true }];
-  const rowKeys = [
-    {
-      key: "name",
-      node: (row: any) => {
-        return row.tabs.length > 0 ? (
-          <p
-            className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
-            onClick={() => {
-              setCurrentPage(1);
-              // setRowsPerPage(RowPerPageEnum.FIRST);
-              setSearchQuery("");
-              setSortConfigKey(null);
-              navigate(`/page-details/${row._id}`);
-            }}
-          >
-            {t(row.name)}
-          </p>
-        ) : (
-          <p>{t(row.name)}</p>
-        );
-      },
-    },
-  ];
-  // Adding roles columns and rowkeys
-  for (const role of roles) {
-    columns.push({ key: role.name, isSortable: true });
-    rowKeys.push({
-      key: role._id.toString(),
-      node: (row: any) => {
-        const hasPermission = row?.permissionRoles?.includes(role._id);
-        return isEnableEdit ? (
-          <CheckSwitch
-            checked={hasPermission}
-            onChange={() => handleRolePermission(row, role._id)}
-          />
-        ) : hasPermission ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
-        ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
-        );
-      },
-    });
-  }
 
-  const fillMissingPages = () => {
+  const fillMissingPages = useMemo(() => {
     const missedRoutes = [];
     for (const route of allRoutes) {
       if (route?.children) {
@@ -116,29 +72,91 @@ const PagePermissions = () => {
     if (missedRoutes.length > 0) {
       createMultiplePage(missedRoutes);
     }
-  };
-  useEffect(() => {
-    fillMissingPages();
-  }, []);
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [pages, roles]);
+    return missedRoutes;
+  }, [pages, createMultiplePage]);
 
-  const filters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-    },
-  ];
+  const { columns, rowKeys } = useMemo(() => {
+    const cols = [{ key: t("Page"), isSortable: true }];
+    const keys = [
+      {
+        key: "name",
+        node: (row: any) => {
+          return row.tabs.length > 0 ? (
+            <p
+              className="text-blue-700 w-fit cursor-pointer hover:text-blue-500 transition-transform"
+              onClick={() => {
+                setCurrentPage(1);
+                setSearchQuery("");
+                setSortConfigKey(null);
+                navigate(`/page-details/${row._id}`);
+              }}
+            >
+              {t(row.name)}
+            </p>
+          ) : (
+            <p>{t(row.name)}</p>
+          );
+        },
+      },
+    ];
+
+    // Adding roles columns and rowkeys
+    for (const role of roles) {
+      cols.push({ key: role.name, isSortable: true });
+      keys.push({
+        key: role._id.toString(),
+        node: (row: any) => {
+          const hasPermission = row?.permissionRoles?.includes(role._id);
+          return isEnableEdit ? (
+            <CheckSwitch
+              checked={hasPermission}
+              onChange={() => handleRolePermission(row, role._id)}
+            />
+          ) : hasPermission ? (
+            <IoCheckmark className={`text-blue-500 text-2xl `} />
+          ) : (
+            <IoCloseOutline className={`text-red-800 text-2xl `} />
+          );
+        },
+      });
+    }
+
+    return { columns: cols, rowKeys: keys };
+  }, [
+    t,
+    roles,
+    isEnableEdit,
+    setCurrentPage,
+    setSearchQuery,
+    setSortConfigKey,
+    navigate,
+    updatePanelControlPage,
+  ]);
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+        ),
+      },
+    ],
+    [t, isEnableEdit]
+  );
+
+  const sortedPages = useMemo(() => {
+    return pages.sort((a, b) => a.name.localeCompare(b.name));
+  }, [pages]);
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
-          rows={pages.sort((a, b) => a.name.localeCompare(b.name))}
+          rows={sortedPages}
           filters={filters}
           title={t("Page Permissions")}
           isActionsActive={false}
