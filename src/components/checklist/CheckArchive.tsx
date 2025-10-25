@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,6 @@ import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -25,6 +24,7 @@ import { InputTypes } from "../panelComponents/shared/types";
 type FormElementsState = {
   [key: string]: any;
 };
+
 const CheckArchive = () => {
   const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
@@ -58,279 +58,324 @@ const CheckArchive = () => {
   const { resetGeneralContext } = useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
-  const [tableKey, setTableKey] = useState(0);
-  const isDisabledCondition = !(
-    user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user.role._id)
+
+  const isDisabledCondition = useMemo(() => {
+    return !(
+      user &&
+      [
+        RoleEnum.MANAGER,
+        RoleEnum.GAMEMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
+      ].includes(user.role._id)
+    );
+  }, [user]);
+
+  const rows = useMemo(() => {
+    const allRows = checks
+      .filter((check) => {
+        if (check?.user === user?._id || !isDisabledCondition) {
+          return check;
+        }
+      })
+      .map((check) => {
+        if (!check?.createdAt) {
+          return null;
+        }
+        const startDate = new Date(check?.createdAt);
+        const endDate = new Date(check?.completedAt ?? 0);
+        return {
+          ...check,
+          chcLst: getItem(check?.checklist, checklists)?.name,
+          chcLstId: check?.checklist,
+          lctn: getItem(check?.location, locations)?.name,
+          lctnId: check?.location,
+          usr: getItem(check?.user, users)?.name,
+          usrId: check?.user,
+          startDate: format(check?.createdAt, "yyyy-MM-dd"),
+          formattedStartDate: formatAsLocalDate(
+            format(check?.createdAt, "yyyy-MM-dd")
+          ),
+          startHour: `${pad(startDate.getHours())}:${pad(
+            startDate.getMinutes()
+          )}`,
+          endDate: check?.completedAt
+            ? format(check?.completedAt, "yyyy-MM-dd")
+            : "",
+          formattedEndDate: check?.completedAt
+            ? formatAsLocalDate(format(check?.completedAt, "yyyy-MM-dd"))
+            : "-",
+          endHour: check?.completedAt
+            ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+            : "-",
+        };
+      })
+      .filter((item) => item !== null);
+    return allRows;
+  }, [checks, user, isDisabledCondition, checklists, locations, users, pad]);
+
+  const columns = useMemo(() => {
+    const cols = [
+      { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
+      { key: t("Start Hour"), isSortable: true },
+      { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
+      { key: t("End Hour"), isSortable: true },
+      { key: t("NounCheck"), isSortable: true, correspondingKey: "checklist" },
+      { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      { key: t("User"), isSortable: true, correspondingKey: "user" },
+      { key: t("Completed"), isSortable: true },
+      { key: t("Status"), isSortable: false },
+    ];
+    if (!isDisabledCondition) {
+      cols.push({ key: t("Actions"), isSortable: false });
+    }
+    return cols;
+  }, [t, isDisabledCondition]);
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "startDate",
+        node: (row: any) => (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              if (row?.isCompleted) {
+                resetGeneralContext();
+                navigate(`/check-archive/${row?._id}`);
+              } else {
+                resetGeneralContext();
+                navigate(`/check/${row?.location}/${row?.checklist}`);
+              }
+            }}
+          >
+            {row?.formattedStartDate}
+          </p>
+        ),
+        className: "min-w-32",
+      },
+      {
+        key: "startHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "endDate",
+        className: "min-w-32 pr-1",
+        node: (row: any) => {
+          return <p>{row?.formattedEndDate}</p>;
+        },
+      },
+      {
+        key: "endHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "chcLst",
+        className: "min-w-32 pr-1",
+      },
+      { key: "lctn" },
+      { key: "usr" },
+      {
+        key: "completed",
+        node: (row: any) => {
+          const completedDutiesNumber =
+            row?.duties?.filter((duty: any) => duty.isCompleted)?.length ?? 0;
+          const dutiesLength = row?.duties?.length ?? 0;
+          return (
+            <p
+              className={`px-2 ${
+                completedDutiesNumber === dutiesLength
+                  ? "text-green-500"
+                  : "text-red-500 font-bold"
+              }`}
+            >{`${completedDutiesNumber} / ${dutiesLength}`}</p>
+          );
+        },
+      },
+      {
+        key: "isCompleted",
+        node: (row: any) => {
+          if (row?.isCompleted) {
+            return (
+              <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
+                {t("Completed")}
+              </span>
+            );
+          } else {
+            return (
+              <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
+                {t("Not Completed")}
+              </span>
+            );
+          }
+        },
+      },
+    ],
+    [resetGeneralContext, navigate, t]
   );
 
-  const allRows = checks
-    .filter((check) => {
-      if (check?.user === user?._id || !isDisabledCondition) {
-        return check;
-      }
-    })
-    .map((check) => {
-      if (!check?.createdAt) {
-        return null;
-      }
-      const startDate = new Date(check?.createdAt);
-      const endDate = new Date(check?.completedAt ?? 0);
-      return {
-        ...check,
-        chcLst: getItem(check?.checklist, checklists)?.name,
-        chcLstId: check?.checklist,
-        lctn: getItem(check?.location, locations)?.name,
-        lctnId: check?.location,
-        usr: getItem(check?.user, users)?.name,
-        usrId: check?.user,
-        startDate: format(check?.createdAt, "yyyy-MM-dd"),
-        formattedStartDate: formatAsLocalDate(
-          format(check?.createdAt, "yyyy-MM-dd")
-        ),
-        startHour: `${pad(startDate.getHours())}:${pad(
-          startDate.getMinutes()
-        )}`,
-        endDate: check?.completedAt
-          ? format(check?.completedAt, "yyyy-MM-dd")
-          : "",
-        formattedEndDate: check?.completedAt
-          ? formatAsLocalDate(format(check?.completedAt, "yyyy-MM-dd"))
-          : "-",
-        endHour: check?.completedAt
-          ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-          : "-",
-      };
-    })
-    .filter((item) => item !== null);
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
-    { key: t("Start Hour"), isSortable: true },
-    { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
-    { key: t("End Hour"), isSortable: true },
-    { key: t("NounCheck"), isSortable: true, correspondingKey: "checklist" },
-    { key: t("Location"), isSortable: true, correspondingKey: "location" },
-    { key: t("User"), isSortable: true, correspondingKey: "user" },
-    { key: t("Completed"), isSortable: true },
-    { key: t("Status"), isSortable: false },
-  ];
-  if (!isDisabledCondition) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
-  const rowKeys = [
-    {
-      key: "startDate",
-      node: (row: any) => (
-        <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => {
-            if (row?.isCompleted) {
-              resetGeneralContext();
-              navigate(`/check-archive/${row?._id}`);
-            } else {
-              resetGeneralContext();
-              navigate(`/check/${row?.location}/${row?.checklist}`);
-            }
-          }}
-        >
-          {row?.formattedStartDate}
-        </p>
-      ),
-      className: "min-w-32",
-    },
-    {
-      key: "startHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "endDate",
-      className: "min-w-32 pr-1",
-      node: (row: any) => {
-        return <p>{row?.formattedEndDate}</p>;
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "createdBy",
+        label: t("Created By"),
+        options: users
+          .filter((user) => user.active)
+          .map((user) => ({
+            value: user._id,
+            label: user.name,
+          })),
+        placeholder: t("Created By"),
+        required: true,
       },
-    },
-    {
-      key: "endHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "chcLst",
-      className: "min-w-32 pr-1",
-    },
-    { key: "lctn" },
-    { key: "usr" },
-    {
-      key: "completed",
-      node: (row: any) => {
-        const completedDutiesNumber =
-          row?.duties?.filter((duty: any) => duty.isCompleted)?.length ?? 0;
-        const dutiesLength = row?.duties?.length ?? 0;
-        return (
-          <p
-            className={`px-2 ${
-              completedDutiesNumber === dutiesLength
-                ? "text-green-500"
-                : "text-red-500 font-bold"
-            }`}
-          >{`${completedDutiesNumber} / ${dutiesLength}`}</p>
-        );
-      },
-    },
-    {
-      key: "isCompleted",
-      node: (row: any) => {
-        if (row?.isCompleted) {
-          return (
-            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
-              {t("Completed")}
-            </span>
-          );
-        } else {
-          return (
-            <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
-              {t("Not Completed")}
-            </span>
-          );
-        }
-      },
-    },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "createdBy",
-      label: t("Created By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => ({
+          value: input._id,
+          label: input.name,
         })),
-      placeholder: t("Created By"),
-      required: true,
-    },
-
-    StockLocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "checklist",
-      label: t("NounCheck"),
-      options: checklists?.map((checklist) => ({
-        value: checklist._id,
-        label: checklist.name,
-      })),
-      placeholder: t("NounCheck"),
-      required: true,
-    },
-
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-  const actions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteCheck(rowToAction?._id as any);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Check")}
-          text={`Check ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: isDisabledCondition,
-    },
-    {
-      name: t("Toggle Active"),
-      isDisabled: isDisabledCondition,
-      isModal: false,
-      isPath: false,
-      icon: null,
-      node: (row: any) => (
-        <div className="mt-2">
-          <CheckSwitch
-            checked={row.isCompleted}
-            onChange={() => {
-              updateCheck({
-                id: row._id,
-                updates: {
-                  isCompleted: !row.isCompleted,
-                },
-              });
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "checklist",
+        label: t("NounCheck"),
+        options: checklists?.map((checklist) => ({
+          value: checklist._id,
+          label: checklist.name,
+        })),
+        placeholder: t("NounCheck"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [t, users, locations, checklists]
+  );
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowFilters(false),
+    }),
+    [
+      showFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      },
+    ],
+    [t, showFilters]
+  );
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteCheck(rowToAction?._id as any);
+              setIsCloseAllConfirmationDialogOpen(false);
             }}
-          ></CheckSwitch>
-        </div>
-      ),
-    },
-  ];
-  const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
-  };
-  const pagination = checksPayload
-    ? {
-        totalPages: checksPayload.totalPages,
-        totalRows: checksPayload.totalNumber,
-      }
-    : null;
+            title={t("Delete Check")}
+            text={`Check ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: isDisabledCondition,
+      },
+      {
+        name: t("Toggle Active"),
+        isDisabled: isDisabledCondition,
+        isModal: false,
+        isPath: false,
+        icon: null,
+        node: (row: any) => (
+          <div className="mt-2">
+            <CheckSwitch
+              checked={row.isCompleted}
+              onChange={() => {
+                updateCheck({
+                  id: row._id,
+                  updates: {
+                    isCompleted: !row.isCompleted,
+                  },
+                });
+              }}
+            ></CheckSwitch>
+          </div>
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      deleteCheck,
+      isDisabledCondition,
+      updateCheck,
+    ]
+  );
+  const outsideSort = useMemo(
+    () => ({
+      filterPanelFormElements: filterPanelFormElements,
+      setFilterPanelFormElements: setFilterPanelFormElements,
+    }),
+    [filterPanelFormElements]
+  );
+  const pagination = useMemo(() => {
+    return checksPayload
+      ? {
+          totalPages: checksPayload.totalPages,
+          totalRows: checksPayload.totalNumber,
+        }
+      : null;
+  }, [checksPayload]);
 
-  useEffect(() => {
+  // Effect to reset current page when filters change
+  useMemo(() => {
     setCurrentPage(1);
-  }, [filterPanelFormElements]);
-
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [checks, user, locations, users, filterPanelFormElements, checklists]);
+  }, [filterPanelFormElements, setCurrentPage]);
 
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
