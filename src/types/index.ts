@@ -413,9 +413,6 @@ export enum DisabledConditionEnum {
   ORDERDATAS_IKASORDERS = "ikasorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
-
-
-
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -758,7 +755,12 @@ export type Reservation = {
 export type Notification = {
   _id: number;
   createdAt: Date;
-  message?: string;
+  message:
+    | {
+        key: string;
+        params: Record<string, any>;
+      }
+    | string;
   type: string;
   event?: string;
   createdBy?: string;
@@ -767,9 +769,8 @@ export type Notification = {
   selectedLocations?: number[];
   seenBy?: string[];
   isAssigned?: boolean;
-  messageEn?: string;
-  messageTr?: string;
 };
+
 export enum NotificationType {
   INFORMATION = "INFORMATION",
   WARNING = "WARNING",
@@ -1562,7 +1563,10 @@ export const commonDateOptions = [
   { value: "lastYear", label: "Last Year" },
   { value: "nextWeek", label: "Next Week" },
   { value: "nextMonth", label: "Next Month" },
-  { value: "fromTodayToEndOfNextMonth", label: "From Today To End Of Next Month" },
+  {
+    value: "fromTodayToEndOfNextMonth",
+    label: "From Today To End Of Next Month",
+  },
 ];
 
 export type DateRangeKey =
@@ -1579,7 +1583,6 @@ export type DateRangeKey =
   | "nextWeek"
   | "nextMonth"
   | "fromTodayToEndOfNextMonth";
-
 
 export type PersonalOrderDataType = {
   _id: string;
