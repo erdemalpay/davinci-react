@@ -735,6 +735,7 @@ export enum ReservationStatusEnum {
   NOT_COMING = "Not coming",
   NOT_RESPONDED = "Not responded",
   ALREADY_CAME = "Already came",
+  CANCELLED = "Cancelled",
 }
 
 export type Reservation = {
