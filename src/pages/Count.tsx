@@ -443,7 +443,6 @@ const Count = () => {
       navigate(Routes.CountLists);
     }
   };
-  console.log(rows);
   return (
     <>
       <Header />

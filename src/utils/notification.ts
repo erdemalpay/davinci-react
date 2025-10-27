@@ -1,12 +1,16 @@
 import { Notification } from "../types";
+import i18n from "./i18n";
 
 export const getNotificationLanguageMessage = (
   userLang: string | undefined,
   notification: Notification
 ) => {
-  const lang = userLang;
+  const lang = userLang === "tr-TR" ? "tr" : "en";
+  console.log("notification.message", notification.message, userLang);
+  if (typeof notification.message === "string") {
+    return notification.message;
+  }
 
-  return lang === "tr-TR"
-    ? notification.messageTr || notification.message
-    : notification.messageEn || notification.message;
+  const { key, params } = notification.message;
+  return i18n.t(key, { ...params, lng: lang });
 };
