@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
 import "react-day-picker/dist/style.css";
 import { FiMinusCircle } from "react-icons/fi";
@@ -58,6 +58,11 @@ const TextInput = ({
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
     null
   );
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
   const handleDivClick = () => {
     if (inputRef.current) {
       inputRef.current.focus();
