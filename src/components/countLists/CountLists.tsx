@@ -17,6 +17,7 @@ import {
   useAccountCountListMutations,
   useGetAccountCountLists,
 } from "../../utils/api/account/countList";
+import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetStockLocations } from "../../utils/api/location";
 import { isDisabledConditionCountLists } from "../../utils/isDisabledConditions";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -40,6 +41,7 @@ const CountLists = () => {
   const [showInactiveCountLists, setShowInactiveCountLists] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const expenseTypes = useGetAccountExpenseTypes();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<AccountCountList>();
   const { createAccountCount } = useAccountCountMutations();
@@ -79,7 +81,10 @@ const CountLists = () => {
   }
 
   const { columns, rowKeys } = useMemo(() => {
-    const cols = [{ key: t("Name"), isSortable: true }];
+    const cols = [
+      { key: t("Name"), isSortable: true },
+      { key: t("Expense Type"), isSortable: true },
+    ];
     const keys: RowKeyType<AccountCountList>[] = [
       {
         key: "name",
@@ -94,6 +99,25 @@ const CountLists = () => {
             {row.name}
           </p>
         ),
+      },
+      {
+        key: "expenseTypes",
+        className: "min-w-32",
+        node: (row: AccountCountList) =>
+          row?.expenseTypes?.map((expType: string, index) => {
+            const foundExpenseType = expenseTypes.find(
+              (e) => e._id === expType
+            );
+            return (
+              <span
+                key={foundExpenseType?.name ?? index + row._id + "expenseType"}
+                className="text-sm px-2 py-1 mr-1 rounded-md w-fit text-white font-semibold"
+                style={{ backgroundColor: foundExpenseType?.backgroundColor }}
+              >
+                {foundExpenseType?.name}
+              </span>
+            );
+          }),
       },
     ];
 
@@ -136,12 +160,29 @@ const CountLists = () => {
         placeholder: t("Name"),
         required: true,
       },
+      {
+        type: InputTypes.SELECT,
+        formKey: "expenseTypes",
+        label: t("Expense Type"),
+        options: expenseTypes.map((expenseType) => {
+          return {
+            value: expenseType._id,
+            label: expenseType.name,
+          };
+        }),
+        placeholder: t("Expense Type"),
+        isMultiple: true,
+        required: false,
+      },
     ],
-    [t]
+    [t, expenseTypes]
   );
 
   const formKeys = useMemo(
-    () => [{ key: "name", type: FormKeyTypeEnum.STRING }],
+    () => [
+      { key: "name", type: FormKeyTypeEnum.STRING },
+      { key: "expenseTypes", type: FormKeyTypeEnum.STRING },
+    ],
     []
   );
 
@@ -255,6 +296,7 @@ const CountLists = () => {
               id: rowToAction._id,
               updates: {
                 name: rowToAction.name,
+                expenseTypes: rowToAction.expenseTypes,
               },
             }}
           />

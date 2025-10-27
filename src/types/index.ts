@@ -174,6 +174,7 @@ export type AccountCountList = {
     locations: number[];
   }[];
   active: boolean;
+  expenseTypes?: string[];
 };
 export type ExpirationListType = {
   _id: string;
