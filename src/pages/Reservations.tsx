@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FaCheck, FaPhone } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { IoLockOpenOutline } from "react-icons/io5";
+import { MdCancel } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
@@ -51,6 +52,7 @@ export default function Reservations() {
     return [
       ReservationStatusEnum.NOT_COMING,
       ReservationStatusEnum.ALREADY_CAME,
+      ReservationStatusEnum.CANCELLED,
     ].includes(reservation.status);
   }
   function handleCallResponse(value: ReservationStatusEnum) {
@@ -84,6 +86,10 @@ export default function Reservations() {
         return "bg-green-100 ";
       case ReservationStatusEnum.NOT_RESPONDED:
         return "bg-yellow-100";
+      case ReservationStatusEnum.CANCELLED:
+        return "bg-red-100";
+      default:
+        return "bg-gray-100";
     }
   }
   const handleDrag = (DragRow: Reservation, DropRow: Reservation) => {
@@ -243,17 +249,15 @@ export default function Reservations() {
         node: (row: Reservation) =>
           !isCompleted(row) && !isCalled(row) ? (
             <ButtonTooltip content={t("Called")}>
-              <GenericButton
-                variant="icon"
-                size="sm"
-                className="mt-2 min-w-6 text-blue-500"
+              <button
+                className="text-blue-500 hover:text-blue-600 cursor-pointer p-1"
                 onClick={() => {
                   setSelectedReservation(row);
                   setIsReservationCalledDialogOpen(true);
                 }}
               >
-                <FaPhone className="cursor-pointer" />
-              </GenericButton>
+                <FaPhone className="text-lg" />
+              </button>
             </ButtonTooltip>
           ) : null,
       },
@@ -266,10 +270,8 @@ export default function Reservations() {
         node: (row: Reservation) =>
           !isCompleted(row) ? (
             <ButtonTooltip content={t("Group has come")}>
-              <GenericButton
-                variant="icon"
-                size="sm"
-                className="mt-2 min-w-6 text-green-500"
+              <button
+                className="text-green-500 hover:text-green-600 cursor-pointer p-1"
                 onClick={() => {
                   const now = new Date();
                   const hours = String(now.getHours()).padStart(2, "0");
@@ -284,8 +286,30 @@ export default function Reservations() {
                   setIsCreateTableDialogOpen(true);
                 }}
               >
-                <FaCheck className="text-xl cursor-pointer" />
-              </GenericButton>
+                <FaCheck className="text-xl" />
+              </button>
+            </ButtonTooltip>
+          ) : null,
+      },
+      {
+        name: "cancelAction",
+        icon: null,
+        isModal: false,
+        isPath: false,
+        node: (row: Reservation) =>
+          !isCompleted(row) ? (
+            <ButtonTooltip content={t("Cancel")}>
+              <button
+                className="text-red-500 hover:text-red-600 cursor-pointer p-1"
+                onClick={() => {
+                  updateReservation({
+                    id: row._id,
+                    updates: { status: ReservationStatusEnum.CANCELLED },
+                  });
+                }}
+              >
+                <MdCancel className="text-xl" />
+              </button>
             </ButtonTooltip>
           ) : null,
       },
@@ -299,10 +323,8 @@ export default function Reservations() {
         node: (row: Reservation) =>
           isCompleted(row) ? (
             <ButtonTooltip content={t("Open back")}>
-              <GenericButton
-                variant="icon"
-                size="sm"
-                className="mt-2 text-green-500"
+              <button
+                className="text-green-500 hover:text-green-600 cursor-pointer p-1"
                 onClick={() => {
                   updateReservation({
                     id: row._id,
@@ -310,8 +332,8 @@ export default function Reservations() {
                   });
                 }}
               >
-                <IoLockOpenOutline className="text-xl cursor-pointer" />
-              </GenericButton>
+                <IoLockOpenOutline className="text-xl" />
+              </button>
             </ButtonTooltip>
           ) : null,
       },
