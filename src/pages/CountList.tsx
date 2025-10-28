@@ -205,7 +205,10 @@ const CountList = () => {
         ),
     });
   });
-  if (user && [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)) {
+  if (
+    user &&
+    [RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user.role._id)
+  ) {
     columns.push({ key: t("Actions"), isSortable: false });
   }
 
@@ -352,11 +355,11 @@ const CountList = () => {
   const pageNavigations = [
     {
       name: t("Count Lists"),
-      path: Routes.Expirations,
+      path: Routes.CountLists,
       canBeClicked: true,
       additionalSubmitFunction: () => {
-        setCountListActiveTab(CountListPageTabEnum.COUNTLISTS);
         resetGeneralContext();
+        setCountListActiveTab(CountListPageTabEnum.COUNTLISTS);
       },
     },
     {
