@@ -4,7 +4,7 @@ import { GiEgyptianWalk } from "react-icons/gi";
 import { MdOutlineSchedule } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import AllVisits from "../components/visits/AllVisits";
 import DailyVisit from "../components/visits/DailyVisit";
 import Shifts from "../components/visits/Shifts";
@@ -77,13 +77,14 @@ export default function Visits() {
     <>
       <Header showLocationSelector={true} />
       <div className="flex flex-col gap-2 mt-5 ">
-        <TabPanel
+        <UnifiedTabPanel
           tabs={tabs}
           activeTab={visitsActiveTab}
           setActiveTab={setVisitsActiveTab}
           additionalOpenAction={() => {
             resetGeneralContext();
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>

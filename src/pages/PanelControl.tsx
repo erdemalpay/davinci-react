@@ -4,7 +4,7 @@ import { IoIosSettings } from "react-icons/io";
 import { MdManageAccounts, MdSchool } from "react-icons/md";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import DisabledConditions from "../components/panelControl/DisabledConditions";
 import EducationPermissions from "../components/panelControl/EducationPermissions";
 import PagePermissions from "../components/panelControl/PagePermissions";
@@ -68,13 +68,14 @@ const PanelControl = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={panelControlActiveTab}
         setActiveTab={setPanelControlActiveTab}
         additionalOpenAction={() => {
           resetGeneralContext;
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

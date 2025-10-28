@@ -5,7 +5,7 @@ import CheckoutControlPage from "../components/checkout/CheckoutControl";
 import Expense from "../components/checkout/Expense";
 import Income from "../components/checkout/Income";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { CheckoutPageTabEnum } from "../types";
@@ -69,7 +69,7 @@ export default function Checkout() {
   return (
     <>
       <Header />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={checkoutActiveTab}
         setActiveTab={setCheckoutActiveTab}
@@ -78,6 +78,7 @@ export default function Checkout() {
           setSearchQuery("");
           setSortConfigKey(null);
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

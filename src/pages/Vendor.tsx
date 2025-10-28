@@ -11,7 +11,7 @@ import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import VendorExpenses from "../components/vendor/VendorExpenses";
 import VendorPayments from "../components/vendor/VendorPayments";
 import VendorProducts from "../components/vendor/VendorProducts";
@@ -137,7 +137,7 @@ export default function Vendor() {
             />
           </div>
         </div>
-        <TabPanel
+        <UnifiedTabPanel
           key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
@@ -145,6 +145,7 @@ export default function Vendor() {
           additionalOpenAction={() => {
             resetGeneralContext();
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>

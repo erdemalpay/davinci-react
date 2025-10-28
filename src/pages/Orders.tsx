@@ -7,7 +7,7 @@ import { DateInput } from "../components/common/DateInput2";
 import { Header } from "../components/header/Header";
 import KitchenMenuPage from "../components/menu/KitchenMenuPage";
 import SingleOrdersPage from "../components/orders/SingleOrdersPage";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
@@ -166,7 +166,7 @@ function Orders() {
   return (
     <>
       <Header showLocationSelector={true} allowedLocations={allowedLocations} />
-      <TabPanel
+      <UnifiedTabPanel
         key={tabPanelKey}
         tabs={tabs ?? []}
         activeTab={ordersActiveTab}
@@ -176,6 +176,8 @@ function Orders() {
           setCurrentPage(1);
           setSearchQuery("");
         }}
+        allowOrientationToggle={true}
+        injectOrientationToggleToFilters={true}
       />
     </>
   );

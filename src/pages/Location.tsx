@@ -9,7 +9,7 @@ import { Header } from "../components/header/Header";
 import Shifts from "../components/location/Shifts";
 import TableNames from "../components/location/TableNames";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -140,7 +140,7 @@ export default function LocationPage() {
             />
           </div>
         </div>
-        <TabPanel
+        <UnifiedTabPanel
           key={tabPanelKey}
           tabs={tabs as any}
           activeTab={activeTab}
@@ -148,6 +148,7 @@ export default function LocationPage() {
           additionalOpenAction={() => {
             resetGeneralContext();
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>
