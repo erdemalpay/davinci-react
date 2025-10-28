@@ -170,15 +170,32 @@ const Shifts = () => {
               if (!shiftsByLocation[shiftKey]) {
                 shiftsByLocation[shiftKey] = [];
               }
-              shiftsByLocation[shiftKey].push({
-                location: shiftRecord.location,
-                users: s.user?.filter((userId: string) => {
-                  const foundUser = getItem(userId, users);
-                  return foundUser;
-                }) || [],
-                chefUser: s.chefUser,
-                _id: shiftRecord._id
+
+              const locationConfig = getItem(shiftRecord.location, locations);
+              // Skip shifts not defined for this location to avoid rendering phantom dropdowns
+              const locationHasShift = locationConfig?.shifts?.some((locationShift) => {
+                return buildShiftKey(locationShift, shiftRecord.location) === shiftKey;
               });
+              if (!locationHasShift) {
+                return;
+              }
+
+              // Check if this location already exists for this shift
+              const existingIndex = shiftsByLocation[shiftKey].findIndex(
+                (sl) => sl.location === shiftRecord.location
+              );
+
+              if (existingIndex === -1) {
+                shiftsByLocation[shiftKey].push({
+                  location: shiftRecord.location,
+                  users: s.user?.filter((userId: string) => {
+                    const foundUser = getItem(userId, users);
+                    return foundUser;
+                  }) || [],
+                  chefUser: s.chefUser,
+                  _id: shiftRecord._id
+                });
+              }
             });
           });
 
@@ -230,20 +247,37 @@ const Shifts = () => {
               if (!shiftsByLocation[shiftKey]) {
                 shiftsByLocation[shiftKey] = [];
               }
-              shiftsByLocation[shiftKey].push({
-                location: shiftRecord.location,
-                users: s.user?.filter((userId: string) => {
-                  const foundUser = getItem(userId, users);
-                  return (
-                    foundUser &&
-                    (!filterPanelFormElements?.role ||
-                      filterPanelFormElements?.role?.length === 0 ||
-                      filterPanelFormElements?.role?.includes(foundUser?.role?._id))
-                  );
-                }) || [],
-                chefUser: s.chefUser,
-                _id: shiftRecord._id
+
+              const locationConfig = getItem(shiftRecord.location, locations);
+              // Skip shifts not defined for this location to avoid rendering phantom dropdowns
+              const locationHasShift = locationConfig?.shifts?.some((locationShift) => {
+                return buildShiftKey(locationShift, shiftRecord.location) === shiftKey;
               });
+              if (!locationHasShift) {
+                return;
+              }
+
+              // Check if this location already exists for this shift
+              const existingIndex = shiftsByLocation[shiftKey].findIndex(
+                (sl) => sl.location === shiftRecord.location
+              );
+
+              if (existingIndex === -1) {
+                shiftsByLocation[shiftKey].push({
+                  location: shiftRecord.location,
+                  users: s.user?.filter((userId: string) => {
+                    const foundUser = getItem(userId, users);
+                    return (
+                      foundUser &&
+                      (!filterPanelFormElements?.role ||
+                        filterPanelFormElements?.role?.length === 0 ||
+                        filterPanelFormElements?.role?.includes(foundUser?.role?._id))
+                    );
+                  }) || [],
+                  chefUser: s.chefUser,
+                  _id: shiftRecord._id
+                });
+              }
             });
           });
 
@@ -426,8 +460,7 @@ const Shifts = () => {
       });
       if (
         isDisabledCondition ||
-        (!isShiftsEnableEdit && !isDisabledCondition) ||
-        selectedLocationId === null
+        (!isShiftsEnableEdit && !isDisabledCondition)
       ) {
         rowKeys.push({
           key: shiftKey,
@@ -617,7 +650,87 @@ const Shifts = () => {
             }
           },
         });
+      } else if (selectedLocationId === null) {
+        // Edit mode for "All" locations
+        rowKeys.push({
+          key: shiftKey,
+          node: (row: any) => {
+            const shiftKey = buildShiftKey(shift);
+            const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
+
+            if (shiftLocations.length === 0) return <></>;
+
+            return (
+              <div className="flex flex-col gap-2 items-center justify-center py-2">
+                {shiftLocations.map((shiftLocation: any, idx: number) => {
+                  const location = getItem(shiftLocation.location, locations);
+
+                  // Get the shift record for this location
+                  const locationShiftRecord = shifts?.find(
+                    (s) => s.day === row.day && s.location === shiftLocation.location
+                  );
+
+                  const normalizedValue = shiftLocation.users?.map((userId: string) => ({
+                    value: userId,
+                    label: getItem(userId, users)?.name ?? "",
+                  }));
+
+                  return (
+                    <div key={idx} className="w-full max-w-40">
+                      <SelectInput
+                        options={users
+                          ?.filter((user) => {
+                            if (filterPanelFormElements?.role?.length > 0) {
+                              return filterPanelFormElements?.role?.includes(
+                                user?.role?._id
+                              );
+                            }
+                            return true;
+                          })
+                          ?.map((user) => ({
+                            value: user._id,
+                            label: user.name,
+                          }))}
+                        isMultiple={true}
+                        value={normalizedValue}
+                        placeholder=""
+                        isOnClearActive={false}
+                        customControlBackgroundColor={location?.backgroundColor}
+                        onChange={(selectedOption) => {
+                          const newValue = (
+                            selectedOption as MultiValue<OptionType>
+                          ).map((o) => o.value);
+
+                          // Update the shifts array for this specific location
+                          const updatedShifts = locationShiftRecord?.shifts?.map((s: any) => {
+                            if (s.shift === shift.shift && s.shiftEndHour === shift.shiftEndHour) {
+                              return {
+                                ...s,
+                                user: newValue,
+                              };
+                            }
+                            return s;
+                          });
+
+                          if (locationShiftRecord) {
+                            updateShift({
+                              id: shiftLocation._id,
+                              updates: {
+                                shifts: updatedShifts,
+                              },
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          },
+        });
       } else {
+        // Edit mode for single location
         rowKeys.push({
           key: shiftKey,
           node: (row: any) => {
@@ -770,7 +883,7 @@ const Shifts = () => {
       type: FormKeyTypeEnum.STRING,
     })),
   ];
-  if (isShiftsEnableEdit) {
+  if (isShiftsEnableEdit && selectedLocationId !== null) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
   const actions = [
@@ -963,7 +1076,7 @@ const Shifts = () => {
           }}
         />
       ),
-      isDisabled: isDisabledCondition || selectedLocationId === null,
+      isDisabled: isDisabledCondition,
     },
   ];
   const filterPanelInputs = [
