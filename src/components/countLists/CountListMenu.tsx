@@ -6,7 +6,7 @@ import { useUserContext } from "../../context/User.context";
 import { CountListPageTabEnum } from "../../types";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { isDisabledConditionCountListMenu } from "../../utils/isDisabledConditions";
-import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { Tab } from "../panelComponents/shared/types";
 import CountArchive from "./CountArchive";
 import CountListProducts from "./CountListProducts";
@@ -47,11 +47,12 @@ const CountListMenu = () => {
   }, [countLists.length]);
   return (
     <>
-      <TabPanel
+      <UnifiedTabPanel
         key={tabPanelKey}
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={countListActiveTab}
         setActiveTab={setCountListActiveTab}
+      allowOrientationToggle={true}
       />
     </>
   );

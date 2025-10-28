@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { RiBarChartFill } from "react-icons/ri";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
 import { AccountingAnalyticsTabEnum } from "../../types";
-import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import MenuItemPriceChart from "./accounting/MenuItemPriceChart";
 import ProductPriceChart from "./accounting/ProductPriceChart";
 
@@ -30,7 +30,7 @@ export default function AccountingAnalytics() {
   ];
   return (
     <>
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs?.map((tab) => ({
           ...tab,
           number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
@@ -41,6 +41,7 @@ export default function AccountingAnalytics() {
           setCurrentPage(1);
           setSearchQuery("");
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

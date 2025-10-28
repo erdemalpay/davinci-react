@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGeneralContext } from "../../context/General.context";
-import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import NewOrderListPanel from "./NewOrderListPanel";
 
 const OrderTakeawayPanel = () => {
@@ -22,11 +22,12 @@ const OrderTakeawayPanel = () => {
       }`}
     >
       <div className="flex flex-col gap-2 px-4 py-6">
-        <TabPanel
+        <UnifiedTabPanel
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           topClassName="min-h-80 max-h-80 overflow-scroll no-scrollbar   "
+          allowOrientationToggle={true}
         />
       </div>
     </div>

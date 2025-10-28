@@ -8,7 +8,7 @@ import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import MenuItemsWithProduct from "../components/product/MenuItemsWithProduct";
 import ProductExpenses from "../components/product/ProductExpenses";
 import ProductPrice from "../components/product/ProductPrice";
@@ -141,7 +141,7 @@ export default function Product() {
           </div>
         </div>
 
-        <TabPanel
+        <UnifiedTabPanel
           key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
@@ -150,6 +150,7 @@ export default function Product() {
             setCurrentPage(1);
             setSearchQuery("");
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>

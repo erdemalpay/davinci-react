@@ -1,6 +1,6 @@
 import { FaRegClock } from "react-icons/fa6";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { useLocationContext } from "../../context/Location.context";
 import { Kitchen, Order, OrderStatus } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";

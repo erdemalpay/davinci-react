@@ -85,6 +85,7 @@ const WhoKnows = () => {
           isActionsActive={false}
           title={t("Who Knows?")}
           isSearch={false}
+          showOrientationToggle={false}
         />
       </div>
     </>

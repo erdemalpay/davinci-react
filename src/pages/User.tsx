@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PersonalDetails from "../components/panelComponents/Profile/PersonalDetails";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -144,7 +144,7 @@ export default function UserView() {
         </div>
 
         {user && (
-          <TabPanel
+          <UnifiedTabPanel
             key={tabPanelKey}
             tabs={tabs}
             activeTab={userPageActiveTab}
@@ -153,6 +153,7 @@ export default function UserView() {
               setCurrentPage(1);
               setSearchQuery("");
             }}
+            allowOrientationToggle={true}
           />
         )}
       </div>

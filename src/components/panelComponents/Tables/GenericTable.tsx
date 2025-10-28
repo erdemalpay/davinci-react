@@ -21,6 +21,8 @@ import { FormElementsState, RowPerPageEnum } from "../../../types";
 import { outsideSort } from "../../../utils/outsideSort";
 import { GenericButton } from "../../common/GenericButton";
 import ImageModal from "../Modals/ImageModal";
+import { OrientationToggle } from "../TabPanel/OrientationToggle";
+import { useTabPanelContext } from "../TabPanel/UnifiedTabPanel";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
@@ -78,6 +80,9 @@ type Props<T> = {
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
   isEmtpyExcel?: boolean;
+  // Toggle, GenericTable sayfalarında search yanında gözükmeli
+  // Eğer prop verilmezse, UnifiedTabPanel context'inden alınır
+  showOrientationToggle?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -119,6 +124,7 @@ const GenericTable = <T,>({
   ],
   pagination,
   selectionActions,
+  showOrientationToggle,
 }: Props<T>) => {
   const { t } = useTranslation();
   const {
@@ -138,7 +144,10 @@ const GenericTable = <T,>({
     setSelectedRows,
     isSelectionActive,
     setIsSelectionActive,
+    tabOrientation,
+    setTabOrientation,
   } = useGeneralContext();
+  const { allowOrientationToggle } = useTabPanelContext();
   const navigate = useNavigate();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
@@ -735,31 +744,39 @@ const GenericTable = <T,>({
         className={`mx-auto w-full overflow-scroll no-scrollbar flex flex-col gap-4 __className_a182b8 `}
       >
         <div className=" flex flex-row gap-4 justify-between items-center ">
-          {isSearch && (
-            <div className="relative w-fit">
-              <input
-                id="search"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder={t("Search")}
-                className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
+          <div className="flex flex-row gap-2 items-center">
+            {isSearch && (
+              <div className="relative w-fit">
+                <input
+                  id="search"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder={t("Search")}
+                  className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
+                />
+                {searchQuery && (
+                  <GenericButton
+                    onClick={() => setSearchQuery("")}
+                    variant="clear"
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </GenericButton>
+                )}
+              </div>
+            )}
+            {outsideSearch?.()}
+            {(showOrientationToggle ?? allowOrientationToggle) && (
+              <OrientationToggle
+                orientation={tabOrientation}
+                onChange={setTabOrientation}
               />
-              {searchQuery && (
-                <GenericButton
-                  onClick={() => setSearchQuery("")}
-                  variant="clear"
-                  aria-label="Clear search"
-                >
-                  ×
-                </GenericButton>
-              )}
-            </div>
-          )}
-          {outsideSearch?.()}
+            )}
+          </div>
           {!(selectionActions && isSelectionActive) && (
             <div className="flex flex-row flex-wrap gap-4 ml-auto ">
               {renderFilters(true)}
@@ -878,7 +895,7 @@ const GenericTable = <T,>({
               )}
               <div
                 ref={headerScrollRef}
-                className={`overflow-y-scroll scroll-smooth relative cursor-grab active:cursor-grabbing ${
+                className={`overflow-auto scroll-smooth relative cursor-grab active:cursor-grabbing ${
                   rowsPerPage > 50 || rowsPerPage === RowPerPageEnum.ALL
                     ? "h-[600px]"
                     : "max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"

@@ -760,7 +760,7 @@ const Stock = () => {
 
   return (
     <>
-      <div className="w-[95%] mx-auto ">
+      <div className="w-full px-4 my-6">
         <GenericTable
           rowKeys={rowKeys}
           collapsibleActions={isStockEnableEdit ? collapsibleActions : []}

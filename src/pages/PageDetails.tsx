@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MdManageAccounts } from "react-icons/md";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import PageTabPermissions from "../components/panelControl/PageTabPermissions";
 import { useGeneralContext } from "../context/General.context";
 import { PageDetailsPageTabEnum } from "../types";
@@ -21,13 +21,14 @@ const PageDetails = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         additionalOpenAction={() => {
           resetGeneralContext();
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

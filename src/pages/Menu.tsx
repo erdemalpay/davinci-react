@@ -6,8 +6,8 @@ import ClosedItems from "../components/menu/ClosedItems";
 import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
 import { useGetAccountProducts } from "../utils/api/account/product";
@@ -170,7 +170,7 @@ export default function Menu() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
@@ -181,6 +181,7 @@ export default function Menu() {
           }
           setIsCategoryTabChanged(false);
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

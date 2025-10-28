@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import ServiceExpenses from "../components/service/ServiceExpenses";
 import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
@@ -95,7 +95,7 @@ export default function Service() {
           </div>
         </div>
 
-        <TabPanel
+        <UnifiedTabPanel
           key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
@@ -104,6 +104,7 @@ export default function Service() {
             setCurrentPage(1);
             setSearchQuery("");
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>
