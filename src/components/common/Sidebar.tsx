@@ -168,6 +168,7 @@ export const Sidebar = () => {
                                 resetGeneralContext();
                                 navigate(child.path);
                                 window.scrollTo(0, 0);
+                                setIsSidebarOpen(false);
                               }
                             }}
                           >
