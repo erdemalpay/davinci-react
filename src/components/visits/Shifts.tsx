@@ -1023,6 +1023,7 @@ const Shifts = () => {
             setSelectedLocationId(-1);
           }}
           backgroundColor="#6B7280"
+          isActive={selectedLocationId === -1}
         />
       ),
     },
@@ -1036,6 +1037,7 @@ const Shifts = () => {
               setSelectedLocationId(location._id);
             }}
             backgroundColor={location.backgroundColor}
+            isActive={selectedLocationId === location._id}
           />
         ),
       };
