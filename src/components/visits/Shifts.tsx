@@ -641,13 +641,7 @@ const Shifts = () => {
               if (Array.isArray(shiftValue) && shiftValue.length > 0) {
                 return (
                   <div className="flex justify-center items-center">
-                    <div
-                      className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white"
-                      style={{
-                        backgroundColor:
-                          foundLocation?.backgroundColor || "#6B7280",
-                      }}
-                    >
+                    <div className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white">
                       {shiftValue?.map((user: string, index: number) => {
                         const foundUser = getItem(user, users);
                         return (
@@ -665,6 +659,7 @@ const Shifts = () => {
                             style={{ backgroundColor: foundUser?.role?.color }}
                           >
                             {foundUser?.name}
+
                             <span
                               className="text-yellow-600 cursor-pointer"
                               onClick={() => {
