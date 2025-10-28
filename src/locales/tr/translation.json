@@ -946,7 +946,7 @@
   "IkasPickupOrderArrived": "Yeni bir ikas gel al siparişi ({{product}}) geldi.",
   "OrderNotConfirmedForMinutes": "{{brand}}: {{product}} siparişi {{minutes}} dakikadır onaylanmadı!",
   "BrandActivationStatus": "{{brand}} {{status}}",
-  "Status": {
+  "ActivationStatus": {
     "Activated": "etkinleştirildi",
     "Deactivated": "devre dışı bırakıldı"
   },
