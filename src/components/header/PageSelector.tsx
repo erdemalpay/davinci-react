@@ -65,11 +65,11 @@ export function PageSelector() {
         {routes.map((route) => {
           const filteredRouteChildren = route?.children?.filter(
             (child) =>
-              child?.exceptionalRoles?.includes((user?.role as Role)._id) ||
+              child?.exceptionalRoles?.includes((user?.role as Role)?._id) ||
               pages?.some(
                 (page) =>
                   page.name === child.name &&
-                  page.permissionRoles?.includes((user?.role as Role)._id)
+                  page.permissionRoles?.includes((user?.role as Role)?._id)
               )
           );
           if (filteredRouteChildren && filteredRouteChildren?.length > 1) {
