@@ -305,31 +305,33 @@ const Shifts = () => {
             const foundChefUser = currentShifts?.find(
               (shift) => shift?.chefUser
             )?.chefUser;
-            if (Array.isArray(shiftValue)) {
+            if (Array.isArray(shiftValue) && shiftValue.length > 0) {
               return (
-                <div
-                  className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white"
-                  style={{ backgroundColor: foundLocation?.backgroundColor }}
-                >
+                <div className="flex justify-center items-center">
+                  <div
+                    className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white"
+                    style={{ backgroundColor: foundLocation?.backgroundColor }}
+                  >
                   {shiftValue?.map((user: string, index: number) => {
                     const foundUser = getItem(user, users);
                     return (
-                      <p
+                      <div
                         key={`${row.day}${foundUser?._id}${index}`}
-                        className={` flex flex-row items-center gap-1 ${
+                        className={`flex flex-row items-center gap-1 px-2 py-1 rounded-md text-white border border-white ${
                           filterPanelFormElements.user === foundUser?._id
                             ? "font-bold underline"
                             : ""
                         } ${
                           foundChefUser === foundUser?._id
-                            ? "border px-2 border-yellow-500 rounded-md"
+                            ? "border-2 border-yellow-600"
                             : ""
                         }`}
+                        style={{ backgroundColor: foundUser?.role?.color }}
                       >
                         {foundUser?.name}
 
                         <span
-                          className="text-yellow-300 cursor-pointer"
+                          className="text-yellow-600 cursor-pointer"
                           onClick={() => {
                             if (!isChefAssignOpen) return;
                             const currentShifts = shifts
@@ -362,28 +364,32 @@ const Shifts = () => {
                             <FaRegStar />
                           ) : null}
                         </span>
-                      </p>
+                      </div>
                     );
                   })}
+                  </div>
                 </div>
               );
             } else if (shiftValue) {
               const foundUser = getItem(shiftValue, users);
               return (
-                <div
-                  className="px-2 py-1 rounded-md w-fit text-white"
-                  style={{ backgroundColor: foundLocation?.backgroundColor }}
-                >
-                  <p
-                    key={`${row.day}${foundUser?._id}-single`}
-                    className={
-                      filterPanelFormElements.user === foundUser?._id
-                        ? "font-bold underline"
-                        : ""
-                    }
+                <div className="flex justify-center items-center">
+                  <div
+                    className="px-2 py-1 rounded-md w-fit text-white"
+                    style={{ backgroundColor: foundLocation?.backgroundColor }}
                   >
-                    {foundUser?.name}
-                  </p>
+                    <div
+                      key={`${row.day}${foundUser?._id}-single`}
+                      className={`px-2 py-1 rounded-md text-white border border-white ${
+                        filterPanelFormElements.user === foundUser?._id
+                          ? "font-bold underline"
+                          : ""
+                      }`}
+                      style={{ backgroundColor: foundUser?.role?.color }}
+                    >
+                      {foundUser?.name}
+                    </div>
+                  </div>
                 </div>
               );
             }
