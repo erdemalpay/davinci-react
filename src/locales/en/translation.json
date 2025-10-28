@@ -941,7 +941,7 @@
   "IkasPickupOrderArrived": "A new ikas pickup order ({{product}}) has arrived.",
   "OrderNotConfirmedForMinutes": "{{brand}}: Order {{product}} is not confirmed for {{minutes}} minutes!",
   "BrandActivationStatus": "{{brand}} {{status}}",
-  "Status": {
+  "ActivationStatus": {
     "Activated": "activated",
     "Deactivated": "deactivated"
   },

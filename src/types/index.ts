@@ -47,6 +47,7 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
+  backgroundColor?: string;
   shifts?: {
     shift: string;
     shiftEndHour: string;

@@ -52,6 +52,7 @@ interface SelectInputProps {
   isTopFlexRow?: boolean;
   suggestedOption?: { value: string; label: string }[] | null;
   isSortDisabled?: boolean;
+  customControlBackgroundColor?: string;
 }
 
 const normalizeText = (text: string) => {
@@ -105,6 +106,7 @@ const SelectInput = ({
   isTopFlexRow = false,
   isSortDisabled = false,
   suggestedOption,
+  customControlBackgroundColor
 }: SelectInputProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
@@ -123,6 +125,7 @@ const SelectInput = ({
       borderRadius: "4px",
       fontSize: "16px",
       height: "auto",
+      ...(customControlBackgroundColor && { backgroundColor: customControlBackgroundColor }),
     }),
     menu: (base: any) => ({
       ...base,

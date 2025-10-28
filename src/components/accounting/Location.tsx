@@ -87,8 +87,9 @@ const LocationPage = () => {
             ?.find((page) => page._id === "location")
             ?.permissionRoles?.includes(user.role._id) &&
           row.type.includes(1) ? (
-            <p
-              className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            <div
+              className="px-2 py-1 rounded-md w-fit text-white cursor-pointer hover:opacity-80 transition-all"
+              style={{ backgroundColor: row.backgroundColor }}
               onClick={() => {
                 if (!row.type.includes(1)) return;
                 resetGeneralContext();
@@ -96,9 +97,14 @@ const LocationPage = () => {
               }}
             >
               {row.name}
-            </p>
+            </div>
           ) : (
-            <p>{row.name}</p>
+            <div
+              className="px-2 py-1 rounded-md w-fit text-white"
+              style={{ backgroundColor: row.backgroundColor }}
+            >
+              {row.name}
+            </div>
           ),
       },
       {
@@ -236,6 +242,13 @@ const LocationPage = () => {
         isDisabled: isAddModalOpen || !form?.type?.includes(1),
         isSortDisabled: true,
       },
+      {
+        type: InputTypes.COLOR,
+        formKey: "backgroundColor",
+        label: t("Background Color"),
+        placeholder: t("Background Color"),
+        required: !!form?.type?.includes(1),
+      }
     ],
     [t, isAddModalOpen, form?.type]
   );
@@ -246,6 +259,7 @@ const LocationPage = () => {
       { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "closedDays", type: FormKeyTypeEnum.STRING },
+      { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
     ],
     []
   );
