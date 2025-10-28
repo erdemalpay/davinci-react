@@ -45,7 +45,6 @@ export function useGetShifts(
   if (before) {
     url = url.concat(`&before=${before}`);
   }
-
   if (location !== undefined && location !== -1) {
     url = url.concat(`&location=${location}`);
   }
