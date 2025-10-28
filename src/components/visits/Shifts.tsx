@@ -397,6 +397,19 @@ const Shifts = () => {
       isDatePicker: true,
       isOnClearActive: false,
     },
+    ...(selectedLocationId === -1 ? [
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        placeholder: t("Location"),
+        options: locations?.map((location) => ({
+          value: location._id,
+          label: location.name,
+        })),
+        required: true,
+      }
+    ] : []),
     {
       type: InputTypes.SELECT,
       formKey: "selectedUsers",
@@ -999,7 +1012,7 @@ const Shifts = () => {
         isOpen={isCopyShiftIntervalModalOpen}
         close={() => setIsCopyShiftIntervalModalOpen(false)}
         setForm={setCopyShiftIntervalForm}
-        constantValues={{ location: selectedLocationId }}
+        constantValues={{ location: selectedLocationId !== -1 ? selectedLocationId : undefined }}
         inputs={copyShifIntervaltInputs}
         formKeys={copyShiftIntervalFormKeys}
         submitItem={copyShiftInterval as any}
@@ -1009,7 +1022,7 @@ const Shifts = () => {
     isModalOpen: isCopyShiftIntervalModalOpen,
     setIsModal: setIsCopyShiftIntervalModalOpen,
     isPath: false,
-    isDisabled: isDisabledCondition || selectedLocationId === -1,
+    isDisabled: isDisabledCondition,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
