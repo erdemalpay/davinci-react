@@ -529,7 +529,7 @@ const Shifts = () => {
               if (shiftLocations.length === 0) return <></>;
 
               return (
-                <div className="flex flex-col gap-2 items-center justify-center py-2">
+                <div className="flex flex-col gap-2 items-center justify-center mx-3 ">
                   {shiftLocations.map((shiftLocation: any, idx: number) => {
                     const location = getItem(shiftLocation.location, locations);
                     const foundChefUser = shiftLocation.chefUser;
@@ -543,7 +543,7 @@ const Shifts = () => {
                     return (
                       <div
                         key={idx}
-                        className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white"
+                        className="flex flex-row gap-1 flex-wrap max-w-120 p-2 rounded-lg text-white"
                         style={{
                           backgroundColor:
                             location?.backgroundColor || "#6B7280",
@@ -555,7 +555,7 @@ const Shifts = () => {
                             return (
                               <div
                                 key={userIdx}
-                                className={`flex flex-row items-center gap-1 px-2 py-1 rounded-md text-white border border-white ${
+                                className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
                                   filterPanelFormElements.user ===
                                   foundUser?._id
                                     ? "font-bold underline"
@@ -648,7 +648,7 @@ const Shifts = () => {
                       return (
                         <div
                           key={`${row.day}${foundUser?._id}${index}`}
-                          className={`flex flex-row items-center gap-1 px-2 py-1 rounded-md text-white border border-white ${
+                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
                             filterPanelFormElements.user === foundUser?._id
                               ? "font-bold underline"
                               : ""
