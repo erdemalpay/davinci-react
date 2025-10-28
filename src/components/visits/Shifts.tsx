@@ -112,7 +112,7 @@ const Shifts = () => {
   const foundLocation = getItem(selectedLocationId, locations);
 
   // Get all unique shifts from all locations, sorted by start time (for "All" mode)
-  const allShifts = selectedLocationId === null || selectedLocationId === undefined
+  const allShifts = selectedLocationId === -1
     ? (() => {
         const shiftsMap = new Map<string, { shift: string; shiftEndHour?: string }>();
 
@@ -150,7 +150,7 @@ const Shifts = () => {
     ) || {}),
   };
   const [form, setForm] = useState(initialFormState);
-  const unfilteredShiftRows = selectedLocationId === null
+  const unfilteredShiftRows = selectedLocationId === -1
     ? (() => {
         // Group by day for "All" mode
       const groupedByDay = shifts?.reduce((acc, shift) => {
@@ -227,7 +227,7 @@ const Shifts = () => {
           ...shiftMapping,
         };
       });
-  const allRows = selectedLocationId === null
+  const allRows = selectedLocationId === -1
     ? (() => {
         // Group by day for "All" mode
         const groupedByDay = shifts?.reduce((acc, shift) => {
@@ -466,7 +466,7 @@ const Shifts = () => {
           key: shiftKey,
           node: (row: any) => {
             // Check if we're in "All" mode
-            if (selectedLocationId === null) {
+            if (selectedLocationId === -1) {
               const shiftKey = buildShiftKey(shift);
               const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
 
@@ -650,7 +650,7 @@ const Shifts = () => {
             }
           },
         });
-      } else if (selectedLocationId === null) {
+      } else if (selectedLocationId === -1) {
         // Edit mode for "All" locations
         rowKeys.push({
           key: shiftKey,
@@ -883,7 +883,7 @@ const Shifts = () => {
       type: FormKeyTypeEnum.STRING,
     })),
   ];
-  if (isShiftsEnableEdit && selectedLocationId !== null) {
+  if (isShiftsEnableEdit && selectedLocationId !== -1) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
   const actions = [
@@ -938,11 +938,11 @@ const Shifts = () => {
       isModalOpen: isShiftsEditModalOpen,
       setIsModal: setIsShiftsEditModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition || selectedLocationId === null,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
     },
     {
       name: t("Delete"),
-      isDisabled: isDisabledCondition || selectedLocationId === null,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -988,7 +988,7 @@ const Shifts = () => {
       isModalOpen: isCopyShiftModalOpen,
       setIsModal: setIsCopyShiftModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition || selectedLocationId === null,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
     },
   ];
   const copyShiftIntervalButton = {
@@ -1009,7 +1009,7 @@ const Shifts = () => {
     isModalOpen: isCopyShiftIntervalModalOpen,
     setIsModal: setIsCopyShiftIntervalModalOpen,
     isPath: false,
-    isDisabled: isDisabledCondition || selectedLocationId === null,
+    isDisabled: isDisabledCondition || selectedLocationId === -1,
     icon: null,
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
@@ -1020,7 +1020,7 @@ const Shifts = () => {
         <ButtonFilter
           buttonName={t("All")}
           onclick={() => {
-            setSelectedLocationId(null);
+            setSelectedLocationId(-1);
           }}
           backgroundColor="#6B7280"
         />

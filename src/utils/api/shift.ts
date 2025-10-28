@@ -39,13 +39,14 @@ export function useShiftMutations() {
 export function useGetShifts(
   after?: string,
   before?: string,
-  location?: number | null
+  location?: number
 ) {
   let url = `${Paths.Shift}?after=${after}`;
   if (before) {
     url = url.concat(`&before=${before}`);
   }
-  if (location !== undefined && location !== null) {
+  // -1 means "all locations", so don't add location parameter
+  if (location !== undefined && location !== -1) {
     url = url.concat(`&location=${location}`);
   }
   return useGetList<Shift>(
