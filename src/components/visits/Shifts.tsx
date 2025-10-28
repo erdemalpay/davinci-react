@@ -73,7 +73,7 @@ const Shifts = () => {
     filterPanelFormElements?.after,
     filterPanelFormElements?.before,
     selectedLocationId
-  );
+  );//b
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![
