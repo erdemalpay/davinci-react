@@ -307,7 +307,10 @@ const Shifts = () => {
             )?.chefUser;
             if (Array.isArray(shiftValue)) {
               return (
-                <div className="flex flex-row gap-1 flex-wrap max-w-40">
+                <div
+                  className="flex flex-row gap-1 flex-wrap max-w-40 px-2 py-1 rounded-md text-white"
+                  style={{ backgroundColor: foundLocation?.backgroundColor }}
+                >
                   {shiftValue?.map((user: string, index: number) => {
                     const foundUser = getItem(user, users);
                     return (
@@ -315,7 +318,7 @@ const Shifts = () => {
                         key={`${row.day}${foundUser?._id}${index}`}
                         className={` flex flex-row items-center gap-1 ${
                           filterPanelFormElements.user === foundUser?._id
-                            ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit  "
+                            ? "font-bold underline"
                             : ""
                         } ${
                           foundChefUser === foundUser?._id
@@ -326,7 +329,7 @@ const Shifts = () => {
                         {foundUser?.name}
 
                         <span
-                          className="text-yellow-800 cursor-pointer"
+                          className="text-yellow-300 cursor-pointer"
                           onClick={() => {
                             if (!isChefAssignOpen) return;
                             const currentShifts = shifts
@@ -367,16 +370,21 @@ const Shifts = () => {
             } else if (shiftValue) {
               const foundUser = getItem(shiftValue, users);
               return (
-                <p
-                  key={`${row.day}${foundUser?._id}-single`}
-                  className={
-                    filterPanelFormElements.user === foundUser?._id
-                      ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
-                      : ""
-                  }
+                <div
+                  className="px-2 py-1 rounded-md w-fit text-white"
+                  style={{ backgroundColor: foundLocation?.backgroundColor }}
                 >
-                  {foundUser?.name}
-                </p>
+                  <p
+                    key={`${row.day}${foundUser?._id}-single`}
+                    className={
+                      filterPanelFormElements.user === foundUser?._id
+                        ? "font-bold underline"
+                        : ""
+                    }
+                  >
+                    {foundUser?.name}
+                  </p>
+                </div>
               );
             }
             return <></>;
@@ -675,6 +683,7 @@ const Shifts = () => {
             onclick={() => {
               setSelectedLocationId(location._id);
             }}
+            backgroundColor={location.backgroundColor}
           />
         ),
       };
