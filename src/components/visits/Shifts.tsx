@@ -470,8 +470,43 @@ const Shifts = () => {
                               style={{ backgroundColor: foundUser?.role?.color }}
                             >
                               {foundUser?.name}
-                              <span className="text-yellow-600">
-                                {foundChefUser === foundUser?._id ? <FaStar /> : null}
+                              <span
+                                className="text-yellow-600 cursor-pointer"
+                                onClick={() => {
+                                  if (!isChefAssignOpen) return;
+
+                                  // Find the shift record for this specific location
+                                  const locationShiftRecord = shifts?.find(
+                                    (s) => s.day === row.day && s.location === shiftLocation.location
+                                  );
+
+                                  if (!locationShiftRecord) return;
+
+                                  // Update the shifts array for this location
+                                  const updatedShifts = locationShiftRecord.shifts?.map((s: any) => {
+                                    // Only update the current shift
+                                    if (s.shift === shift.shift && s.shiftEndHour === shift.shiftEndHour) {
+                                      return {
+                                        ...s,
+                                        chefUser: s.chefUser === foundUser?._id ? "" : foundUser?._id,
+                                      };
+                                    }
+                                    return s;
+                                  });
+
+                                  updateShift({
+                                    id: shiftLocation._id,
+                                    updates: {
+                                      shifts: updatedShifts,
+                                    },
+                                  });
+                                }}
+                              >
+                                {foundChefUser === foundUser?._id ? (
+                                  <FaStar />
+                                ) : isChefAssignOpen ? (
+                                  <FaRegStar />
+                                ) : null}
                               </span>
                             </div>
                           );
