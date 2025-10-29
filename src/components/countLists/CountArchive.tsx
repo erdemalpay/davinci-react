@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +22,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -392,23 +391,13 @@ const CountArchive = () => {
       : null;
   }, [countsPayload]);
 
-  const outsideSearch = useCallback(() => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            search: value,
-          })
-        }
-      />
-    );
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    };
   }, [t, filterPanelFormElements, setFilterPanelFormElements]);
-
   useMemo(() => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
@@ -420,7 +409,7 @@ const CountArchive = () => {
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          outsideSearch={outsideSearch}
+          outsideSearchProps={outsideSearchProps}
           isSearch={false}
           title={t("Count Archive")}
           filterPanel={filterPanel}

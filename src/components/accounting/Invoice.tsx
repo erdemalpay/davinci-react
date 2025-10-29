@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -43,7 +43,6 @@ import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
@@ -1094,21 +1093,12 @@ const Invoice = () => {
       : null;
   }, [invoicesPayload]);
 
-  const outsideSearch = useCallback(() => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelInvoiceFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelInvoiceFormElements({
-            ...filterPanelInvoiceFormElements,
-            search: value,
-          })
-        }
-      />
-    );
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterPanelInvoiceFormElements,
+      setFilterPanelFormElements: setFilterPanelInvoiceFormElements,
+    };
   }, [t, filterPanelInvoiceFormElements, setFilterPanelInvoiceFormElements]);
 
   const outsideSort = useMemo(
@@ -1131,7 +1121,7 @@ const Invoice = () => {
           actions={actions}
           filters={tableFilters}
           outsideSortProps={outsideSort}
-          outsideSearch={outsideSearch}
+          outsideSearchProps={outsideSearchProps}
           isActionsActive={isInvoiceEnableEdit}
           columns={
             isInvoiceEnableEdit

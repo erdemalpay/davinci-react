@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
   AccountService,
-  commonDateOptions,
   ExpenseTypes,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountExpenses } from "../../utils/api/account/expense";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
@@ -15,7 +15,6 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput, VendorInput } from "../../utils/panelInputs";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -264,22 +263,13 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
-  const outsideSearch = () => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
-            search: value,
-          }))
-        }
-      />
-    );
-  };
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
   const outsideSort = {
     filterPanelFormElements: filterPanelFormElements,
     setFilterPanelFormElements: setFilterPanelFormElements,
@@ -307,7 +297,7 @@ const ServiceExpenses = ({ selectedService }: Props) => {
         columns={columns}
         filters={filters}
         outsideSortProps={outsideSort}
-        outsideSearch={outsideSearch}
+        outsideSearchProps={outsideSearchProps}
         filterPanel={filterPanel}
         rows={rows ?? []}
         title={t("Service Expenses")}

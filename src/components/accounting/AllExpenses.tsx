@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useFilterContext } from "../../context/Filter.context";
@@ -26,7 +26,6 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -852,27 +851,17 @@ const AllExpenses = () => {
     [filterAllExpensesPanelFormElements, setFilterAllExpensesPanelFormElements]
   );
 
-  const outsideSearch = useCallback(() => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterAllExpensesPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterAllExpensesPanelFormElements({
-            ...filterAllExpensesPanelFormElements,
-            search: value,
-          })
-        }
-      />
-    );
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterAllExpensesPanelFormElements,
+      setFilterPanelFormElements: setFilterAllExpensesPanelFormElements,
+    };
   }, [
     t,
     filterAllExpensesPanelFormElements,
     setFilterAllExpensesPanelFormElements,
   ]);
-
   // Effect to reset current page when filters change
   useMemo(() => {
     setCurrentPage(1);
@@ -886,7 +875,7 @@ const AllExpenses = () => {
           filters={tableFilters}
           columns={columns}
           outsideSortProps={outsideSort}
-          outsideSearch={outsideSearch}
+          outsideSearchProps={outsideSearchProps}
           rows={rows ?? []}
           title={t("All Expenses")}
           filterPanel={filterPanel}
