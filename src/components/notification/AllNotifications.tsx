@@ -5,6 +5,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import {
   DateRangeKey,
+  FormElementsState,
   NotificationType,
   commonDateOptions,
   notificationEventsOptions,
@@ -19,10 +20,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
-
 const AllNotifications = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
@@ -36,6 +33,7 @@ const AllNotifications = () => {
     event: "",
     sort: "",
     asc: 1,
+    search: "",
   };
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>(initialFilterPanelFormElements);
@@ -299,6 +297,13 @@ const AllNotifications = () => {
     setCurrentPage(1);
   }, [filterPanelFormElements, setCurrentPage]);
 
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
   return (
     <>
       <div className="w-[95%] mx-auto ">
@@ -310,7 +315,9 @@ const AllNotifications = () => {
           filterPanel={filterPanel}
           title={t("All Notifications")}
           isActionsActive={false}
+          isSearch={false}
           outsideSortProps={outsideSort}
+          outsideSearchProps={outsideSearchProps}
           {...(pagination && { pagination })}
         />
       </div>
