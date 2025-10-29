@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import {
   AccountExpenseType,
-  commonDateOptions,
   ExpenseTypes,
+  commonDateOptions,
 } from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenses } from "../../utils/api/account/expense";
@@ -21,7 +21,6 @@ import {
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -295,22 +294,13 @@ const BrandExpenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
-  const outsideSearch = () => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
-            search: value,
-          }))
-        }
-      />
-    );
-  };
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
   const outsideSort = {
     filterPanelFormElements: filterPanelFormElements,
     setFilterPanelFormElements: setFilterPanelFormElements,
@@ -339,7 +329,7 @@ const BrandExpenses = () => {
         isActionsActive={false}
         outsideSortProps={outsideSort}
         columns={columns}
-        outsideSearch={outsideSearch}
+        outsideSearchProps={outsideSearchProps}
         filters={filters}
         filterPanel={filterPanel}
         rows={rows ?? []}

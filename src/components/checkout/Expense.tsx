@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
@@ -37,7 +37,6 @@ import {
 } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import { P1 } from "../panelComponents/Typography";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -683,22 +682,13 @@ const Expenses = () => {
         totalRows: invoicesPayload.totalNumber,
       }
     : null;
-  const outsideSearch = () => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterCheckoutPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterCheckoutPanelFormElements(() => ({
-            ...filterCheckoutPanelFormElements,
-            search: value,
-          }))
-        }
-      />
-    );
-  };
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements: filterCheckoutPanelFormElements,
+      setFilterPanelFormElements: setFilterCheckoutPanelFormElements,
+    };
+  }, [t, filterCheckoutPanelFormElements, setFilterCheckoutPanelFormElements]);
   const outsideSort = {
     filterPanelFormElements: filterCheckoutPanelFormElements,
     setFilterPanelFormElements: setFilterCheckoutPanelFormElements,
@@ -735,7 +725,7 @@ const Expenses = () => {
           filterPanel={filterPanel}
           isSearch={false}
           addButton={addButton}
-          outsideSearch={outsideSearch}
+          outsideSearchProps={outsideSearchProps}
           actions={actions}
           isActionsActive={isEnableEdit}
           {...(pagination && { pagination })}

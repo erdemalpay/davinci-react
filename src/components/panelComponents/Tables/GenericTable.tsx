@@ -18,6 +18,10 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
+import {
+  OutsideSearchProps,
+  outsideSearch,
+} from "../../../utils/outsideSearch";
 import { outsideSort } from "../../../utils/outsideSort";
 import { GenericButton } from "../../common/GenericButton";
 import ImageModal from "../Modals/ImageModal";
@@ -45,6 +49,7 @@ type OutsideSortProps = {
   filterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
 };
+
 type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
@@ -62,7 +67,6 @@ type Props<T> = {
   addCollapsible?: ActionType<T>;
   filterPanel?: PanelFilterType;
   isColumnFilter?: boolean;
-  outsideSearch?: () => React.ReactNode;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -77,6 +81,7 @@ type Props<T> = {
   excelFileName?: string;
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
+  outsideSearchProps?: OutsideSearchProps;
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
   isEmtpyExcel?: boolean;
@@ -101,8 +106,8 @@ const GenericTable = <T,>({
   isColumnFilter = true,
   collapsibleActions,
   onDragEnter,
-  outsideSearch,
   outsideSortProps,
+  outsideSearchProps,
   isSearch = true,
   isPdf = false,
   isExcel = false,
@@ -769,7 +774,7 @@ const GenericTable = <T,>({
                 )}
               </div>
             )}
-            {outsideSearch?.()}
+            {outsideSearchProps && outsideSearch(outsideSearchProps)}
             {(showOrientationToggle ?? allowOrientationToggle) && (
               <OrientationToggle
                 orientation={tabOrientation}
