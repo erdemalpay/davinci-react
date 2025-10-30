@@ -25,7 +25,10 @@ export function useGetGameDetails(gameId: number) {
   const getGameDetailsQuery = `${BASE_URL}/details/${gameId}`;
   const queryKey = [BASE_URL, "details", gameId];
   const { isLoading, error, data, isFetching } = useQuery(queryKey, () =>
-    get<Game>({ path: getGameDetailsQuery })
+      get<Game>({ path: getGameDetailsQuery }),
+    {
+      refetchOnWindowFocus: false,
+    }
   );
   return {
     isLoading,
