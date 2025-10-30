@@ -18,8 +18,10 @@ export function AddGameDialog({
 
   const { gameDetails } = useGetGameDetails(gameId || 0);
 
+  const isCorrectGame = gameDetails?._id === gameId;
+
   async function handleCreate() {
-    if (gameDetails) {
+    if (gameDetails && isCorrectGame) {
       createGame(gameDetails);
       close();
     }
@@ -47,7 +49,7 @@ export function AddGameDialog({
               name="name"
               label="Game Name"
               type="text"
-              value={gameDetails?.name}
+              value={isCorrectGame ? gameDetails?.name : ""}
               readOnly
             />
           </div>
@@ -61,10 +63,10 @@ export function AddGameDialog({
               Cancel
             </GenericButton>
             <GenericButton
-              disabled={!gameDetails}
-              variant={!gameDetails ? "secondary" : "primary"}
+              disabled={!gameDetails || !isCorrectGame}
+              variant={!gameDetails || !isCorrectGame ? "secondary" : "primary"}
               size="sm"
-              className={!gameDetails ? "!bg-gray-500" : "!bg-blue-500 hover:!bg-blue-600"}
+              className={!gameDetails || !isCorrectGame ? "!bg-gray-500" : "!bg-blue-500 hover:!bg-blue-600"}
               onClick={handleCreate}
             >
               Add Game
