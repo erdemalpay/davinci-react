@@ -225,18 +225,18 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
       ref={modalRef}
       className="flex flex-col gap-3 max-h-[85vh] sm:max-h-[80vh]"
     >
-      <div className="flex items-center justify-between gap-3 px-1">
-        <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 px-1 flex-wrap">
+        <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 min-w-0 flex-shrink">
           <span>🔔</span>
-          <span>{t("Notifications")}</span>
+          <span className="truncate">{t("Notifications")}</span>
           {notifications.length > 0 && (
-            <span className="text-xs sm:text-sm font-semibold text-gray-600">
+            <span className="text-xs sm:text-sm font-semibold text-gray-600 flex-shrink-0">
               ({notifications.length})
             </span>
           )}
         </h3>
         {notifications.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {selectedIds.length === 0 ? (
               <>
                 <button
@@ -245,13 +245,13 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
                     navigate("/profile");
                     onClose();
                   }}
-                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all whitespace-nowrap"
+                  className="text-[10px] sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all whitespace-nowrap"
                 >
                   {t("All Notifications")}
                 </button>
                 <button
                   onClick={handleSelectAll}
-                  className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md border border-blue-200 text-blue-600 hover:bg-blue-50"
+                  className="text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-md border border-blue-200 text-blue-600 hover:bg-blue-50"
                 >
                   {t("Select all")}
                 </button>
@@ -260,7 +260,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
               <>
                 <button
                   onClick={handleMarkSelectedAsRead}
-                  className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                  className="text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                 >
                   {t("Mark as read")} (
                   {selectedIds.includes(-1)
@@ -270,7 +270,7 @@ const NotificationModal = ({ onClose }: { onClose: () => void }) => {
                 </button>
                 <button
                   onClick={() => setSelectedIds([])}
-                  className="text-xs sm:text-sm font-medium transition-all whitespace-nowrap px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  className="text-[10px] sm:text-sm font-medium transition-all whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
                   {t("Cancel")}
                 </button>
