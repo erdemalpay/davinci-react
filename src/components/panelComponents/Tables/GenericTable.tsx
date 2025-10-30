@@ -874,7 +874,7 @@ const GenericTable = <T,>({
                               .map((filter, index) => (
                                 <div
                                   key={index}
-                                  className="flex flex-col gap-2 pb-3 border-b border-gray-100 last:border-b-0"
+                                  className="flex flex-row justify-between items-center gap-4 pb-3 border-b border-gray-100 last:border-b-0"
                                 >
                                   {filter.label && (
                                     <H5 className="text-sm font-semibold text-gray-700">
