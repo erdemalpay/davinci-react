@@ -318,19 +318,28 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                       )}
                     </div>
                     {order?.discount && (
-                      <div
-                        className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          cancelOrderForDiscount({
-                            orderId: order?._id,
-                            cancelQuantity:
-                              order?.quantity - order?.paidQuantity,
-                          });
-                        }}
-                      >
-                        <p>{getItem(order?.discount, discounts)?.name}</p>
-                        <MdOutlineCancel className="w-4 h-4" />
+                      <div className="flex flex-row gap-1 items-center">
+                        <div
+                          className="text-xs text-white bg-red-600 p-0.5 rounded-md cursor-pointer z-100 flex flex-row gap-1 justify-center items-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelOrderForDiscount({
+                              orderId: order?._id,
+                              cancelQuantity:
+                                order?.quantity - order?.paidQuantity,
+                            });
+                          }}
+                        >
+                          <p>{getItem(order?.discount, discounts)?.name}</p>
+                          <MdOutlineCancel className="w-4 h-4" />
+                        </div>
+                        {order?.discount === 2 && order?.discountNote && (
+                          <p className="text-xs text-gray-600">
+                            ({Array.isArray(order.discountNote)
+                              ? order.discountNote.join(", ")
+                              : order.discountNote})
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
