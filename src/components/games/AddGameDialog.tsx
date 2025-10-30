@@ -6,10 +6,10 @@ import { Game } from "../../types";
 import { useGetGameDetails } from "../../utils/api/game";
 
 export function AddGameDialog({
-  isOpen,
-  close,
-  createGame,
-}: {
+                                isOpen,
+                                close,
+                                createGame,
+                              }: {
   isOpen: boolean;
   close: () => void;
   createGame: UseMutateFunction<Game, unknown, Partial<Game>>;
