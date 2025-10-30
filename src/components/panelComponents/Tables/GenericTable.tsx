@@ -13,6 +13,7 @@ import {
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
 import { PiFadersHorizontal } from "react-icons/pi";
+import { RiFilter3Line } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
@@ -157,6 +158,7 @@ const GenericTable = <T,>({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [showHeaderLeftButton, setShowHeaderLeftButton] = useState(false);
   const [showHeaderRightButton, setShowHeaderRightButton] = useState(false);
   const headerScrollRef = useRef<HTMLDivElement | null>(null);
@@ -390,7 +392,7 @@ const GenericTable = <T,>({
   };
 
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
-    <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
+    <div className="flex flex-row my-auto h-full gap-3 items-center">
       {actions?.map((action, index) => {
         if (action?.isDisabled || action?.node === null) return null;
         if (action.node) return <div key={index}>{action.node(row)}</div>;
@@ -588,7 +590,7 @@ const GenericTable = <T,>({
             {actions &&
               isActionsActive &&
               (row?.isActionsDisabled ?? false) && (
-                <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
+                <div className="flex flex-row my-auto h-full gap-3 items-center">
                   <P1>{t("Constant")}</P1>
                 </div>
               )}
@@ -783,14 +785,14 @@ const GenericTable = <T,>({
             )}
           </div>
           {!(selectionActions && isSelectionActive) && (
-            <div className="flex flex-row flex-wrap gap-4 ml-auto ">
+            <div className="hidden sm:flex flex-row flex-wrap gap-4 ml-auto">
               {renderFilters(true)}
             </div>
           )}
         </div>
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
-          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
-            <div className="flex flex-row gap-1 items-center">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-2 sm:gap-4 px-3 sm:px-6 border-b border-gray-200 py-3 sm:py-4">
+            <div className="flex flex-row gap-1 items-center w-full sm:w-auto">
               {selectionActions && (
                 <Tooltip
                   content={
@@ -814,27 +816,33 @@ const GenericTable = <T,>({
                   </div>
                 </Tooltip>
               )}
-              {title && <H4 className="mr-auto">{title}</H4>}
+              {title && (
+                <H4 className="mr-auto text-base sm:text-lg">{title}</H4>
+              )}
             </div>
             {selectionActions &&
               isSelectionActive &&
               isActionsActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
-            <div className="ml-auto flex flex-row gap-4 relative items-center">
+            <div className="flex flex-row flex-wrap gap-2 sm:gap-4 relative items-center w-full sm:w-auto sm:ml-auto justify-end">
               {!(selectionActions && isSelectionActive) && (
-                <div className="flex flex-row flex-wrap gap-4  ">
+                <>
+                  {/* Alt filters (Total vs) */}
+                  {renderFilters(false)}
+                  {/* PDF Button */}
                   {isPdf && (
                     <div
-                      className="my-auto  items-center text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      className="my-auto items-center text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
                       onClick={generatePDF}
                     >
                       <BsFilePdf />
                     </div>
                   )}
+                  {/* Excel Button - mobilde de göster */}
                   {isExcel && (
                     <div
-                      className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      className="my-auto items-center text-lg sm:text-xl cursor-pointer border px-1.5 py-1 sm:px-2 sm:py-1 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
                       onClick={generateExcel}
                     >
                       <ButtonTooltip content={"Excel"}>
@@ -842,37 +850,82 @@ const GenericTable = <T,>({
                       </ButtonTooltip>
                     </div>
                   )}
-                  {renderFilters(false)}
-                </div>
-              )}
-              {!(selectionActions && isSelectionActive) &&
-                addButton &&
-                !addButton.isDisabled && (
-                  <GenericButton
-                    variant="black"
-                    size="sm"
-                    className={`ml-auto ${addButton.className || ""}`}
-                    onClick={() => actionOnClick(addButton, {} as unknown as T)}
-                  >
-                    <H5>{addButton.name}</H5>
-                  </GenericButton>
-                )}
-              {isColumnFilter && (
-                <>
-                  <Tooltip content={t("Filter Columns")} placement="top">
-                    <div
+                  {/* Mobile Filter Button - dropdown style */}
+                  {filters &&
+                    filters.some((f) => f.isUpperSide && !f.isDisabled) && (
+                      <>
+                        <Tooltip content={t("Filters")} placement="top">
+                          <div
+                            onClick={() =>
+                              setIsFilterModalOpen((prev) => !prev)
+                            }
+                            className="items-center my-auto text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105 sm:hidden"
+                          >
+                            <RiFilter3Line />
+                          </div>
+                        </Tooltip>
+                        {isFilterModalOpen && (
+                          <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200 drop-shadow-lg z-50 min-w-64 sm:hidden">
+                            {filters
+                              .filter(
+                                (filter) =>
+                                  filter.isUpperSide && !filter.isDisabled
+                              )
+                              .map((filter, index) => (
+                                <div
+                                  key={index}
+                                  className="flex flex-row justify-between items-center gap-4 pb-3 border-b border-gray-100 last:border-b-0"
+                                >
+                                  {filter.label && (
+                                    <H5 className="text-sm font-semibold text-gray-700">
+                                      {filter.label}
+                                    </H5>
+                                  )}
+                                  <div className="flex items-center">
+                                    {filter.node}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  {/* Column Filter Button */}
+                  {isColumnFilter && (
+                    <>
+                      <Tooltip content={t("Filter Columns")} placement="top">
+                        <div
+                          onClick={() =>
+                            setIsColumnActiveModalOpen((prev) => !prev)
+                          }
+                          className="items-center my-auto text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+                        >
+                          <PiFadersHorizontal />
+                        </div>
+                      </Tooltip>
+                      {isColumnActiveModalOpen && title && (
+                        <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-50 min-w-64">
+                          <ColumnActiveModal title={title} />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* Add Button - mobilde yeni satırda */}
+                  {addButton && !addButton.isDisabled && (
+                    <GenericButton
+                      variant="black"
+                      size="sm"
+                      className={`${
+                        addButton.className || ""
+                      } text-sm w-full sm:w-auto order-last sm:order-none`}
                       onClick={() =>
-                        setIsColumnActiveModalOpen((prev) => !prev)
+                        actionOnClick(addButton, {} as unknown as T)
                       }
-                      className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
                     >
-                      <PiFadersHorizontal />
-                    </div>
-                  </Tooltip>
-                  {isColumnActiveModalOpen && title && (
-                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-50 min-w-64">
-                      <ColumnActiveModal title={title} />
-                    </div>
+                      <H5 className="text-xs sm:text-sm whitespace-nowrap">
+                        {addButton.name}
+                      </H5>
+                    </GenericButton>
                   )}
                 </>
               )}

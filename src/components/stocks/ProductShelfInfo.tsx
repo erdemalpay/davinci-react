@@ -192,7 +192,7 @@ const ProductShelfInfo = () => {
       },
       {
         label: t("Enable Edit"),
-        isUpperSide: false,
+        isUpperSide: true,
         isDisabled: productShelfInfoPageDisabledCondition?.actions?.some(
           (ac) =>
             ac.action === ActionEnum.ENABLEEDIT &&

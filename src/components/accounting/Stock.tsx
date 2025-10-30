@@ -520,8 +520,8 @@ const Stock = () => {
         label: t("Total") + " :",
         isUpperSide: false,
         node: (
-          <div className="flex flex-row gap-2">
-            <p>
+          <div className="flex flex-row gap-1 sm:gap-2">
+            <p className="text-xs sm:text-sm font-semibold truncate max-w-[120px] sm:max-w-none">
               {new Intl.NumberFormat("en-US", {
                 style: "decimal",
                 minimumFractionDigits: 3,

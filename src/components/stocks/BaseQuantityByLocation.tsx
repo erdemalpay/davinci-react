@@ -21,7 +21,6 @@ import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditP
 import TextInput from "../panelComponents/FormElements/TextInput";
 import ButtonTooltip from "../panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../panelComponents/Tables/GenericTable";
-import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -454,8 +453,39 @@ const BaseQuantityByLocation = () => {
     ]
   );
 
+  const addButton = useMemo(
+    () => ({
+      name: t("Set Base Quantities"),
+      isModal: false,
+      onClick: () => {
+        updateProductBaseStocks();
+      },
+      isPath: false,
+      className: "bg-blue-500 hover:bg-blue-600 text-white",
+      isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SETBASEAMOUNT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
+    }),
+    [t, updateProductBaseStocks, baseQuantityPageDisabledCondition, user]
+  );
+
   const filters = useMemo(
     () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showBaseQuantityFilters}
+            onChange={() => {
+              setShowBaseQuantityFilters(!showBaseQuantityFilters);
+            }}
+          />
+        ),
+      },
       {
         isUpperSide: false,
         isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
@@ -482,46 +512,16 @@ const BaseQuantityByLocation = () => {
           </div>
         ),
       },
-      {
-        isUpperSide: false,
-        isDisabled: baseQuantityPageDisabledCondition?.actions?.some(
-          (ac) =>
-            ac.action === ActionEnum.SETBASEAMOUNT &&
-            user?.role?._id &&
-            !ac?.permissionsRoles?.includes(user?.role?._id)
-        ),
-        node: (
-          <ButtonFilter
-            buttonName={t("Set Base Quantities")}
-            onclick={() => {
-              updateProductBaseStocks();
-            }}
-          />
-        ),
-      },
-      {
-        label: t("Show Filters"),
-        isUpperSide: true,
-        node: (
-          <SwitchButton
-            checked={showBaseQuantityFilters}
-            onChange={() => {
-              setShowBaseQuantityFilters(!showBaseQuantityFilters);
-            }}
-          />
-        ),
-      },
     ],
     [
+      t,
+      showBaseQuantityFilters,
+      setShowBaseQuantityFilters,
       baseQuantityPageDisabledCondition,
       user,
       handleFileButtonClick,
       uploadExcelFile,
       inputRef,
-      t,
-      updateProductBaseStocks,
-      showBaseQuantityFilters,
-      setShowBaseQuantityFilters,
     ]
   );
 
@@ -552,6 +552,7 @@ const BaseQuantityByLocation = () => {
           actions={actions}
           title={t("Base Quantity By Location")}
           filters={filters}
+          addButton={addButton}
           isActionsActive={true}
           isExcel={
             user &&
