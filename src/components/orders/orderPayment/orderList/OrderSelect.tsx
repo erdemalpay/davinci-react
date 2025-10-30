@@ -209,40 +209,26 @@ const OrderSelect = ({ tableOrders }: Props) => {
             </div>
             {/* prices */}
             <div className="flex flex-row gap-2 justify-center items-center text-sm font-medium">
-              {order?.discount && (
-                <div className="flex flex-col ml-auto justify-center items-center">
-                  <p className="text-xs line-through">
-                    {(
-                      order?.unitPrice *
-                      (order?.quantity -
-                        (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
-                    ).toFixed(2)}
-                    ₺
-                  </p>
-                  <p>
-                    {(
-                      (order?.discountPercentage
-                        ? order?.unitPrice *
-                          (100 - (order?.discountPercentage ?? 0)) *
-                          (1 / 100)
-                        : order?.unitPrice - (order?.discountAmount ?? 0)) *
-                      (order?.quantity -
-                        (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
-                    ).toFixed(2)}
-                    ₺
-                  </p>
-                </div>
-              )}
-              {!order?.discount && (
-                <p>
-                  {(
-                    order?.unitPrice *
-                    (order?.quantity -
-                      (order?.paidQuantity + (tempOrder?.quantity ?? 0)))
-                  ).toFixed(2)}
-                  ₺
-                </p>
-              )}
+              {(() => {
+                const remainingQuantity = order?.quantity - (order?.paidQuantity + (tempOrder?.quantity ?? 0));
+                const originalPrice = (order?.unitPrice * remainingQuantity).toFixed(2);
+
+                if (!order?.discount) {
+                  return <p>{originalPrice}₺</p>;
+                }
+
+                const discountedUnitPrice = order?.discountPercentage
+                  ? order?.unitPrice * (100 - order.discountPercentage) / 100
+                  : order?.unitPrice - (order?.discountAmount ?? 0);
+                const discountedPrice = (discountedUnitPrice * remainingQuantity).toFixed(2);
+
+                return (
+                  <div className="flex flex-col ml-auto justify-center items-center">
+                    <p className="text-xs line-through">{originalPrice}₺</p>
+                    <p>{discountedPrice}₺</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         );
