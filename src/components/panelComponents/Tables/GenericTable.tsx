@@ -906,24 +906,6 @@ const GenericTable = <T,>({
                     : "max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
                 }`}
               >
-                {showHeaderLeftButton && (
-                  <div
-                    className="absolute left-0 top-0 bottom-0 w-8 sm:w-10 md:w-12 pointer-events-none z-10"
-                    style={{
-                      background:
-                        "linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
-                    }}
-                  />
-                )}
-                {showHeaderRightButton && (
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-8 sm:w-10 md:w-12 pointer-events-none z-10"
-                    style={{
-                      background:
-                        "linear-gradient(to left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
-                    }}
-                  />
-                )}
                 <table className="bg-white w-full">
                   <thead className="border-b bg-gray-100">
                     <tr>
