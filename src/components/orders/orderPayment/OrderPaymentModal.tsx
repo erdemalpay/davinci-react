@@ -155,6 +155,7 @@ const OrderPaymentModal = ({
       inactiveCategories?.filter(
         (category) =>
           category.kitchen &&
+          category.locations.includes(selectedLocationId) &&
           kitchens.some(
             (k) =>
               k._id === category.kitchen &&

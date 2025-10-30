@@ -110,6 +110,7 @@ const Tables = () => {
     return (
       inactiveCategories?.filter(
         (category) =>
+          category.locations.includes(selectedLocationId) &&
           category.kitchen &&
           kitchens.some(
             (k) =>
@@ -218,7 +219,8 @@ const Tables = () => {
     return menuItems
       ?.filter((menuItem) => {
         return (
-          !orderForm.category || menuItem.category === Number(orderForm.category)
+          !orderForm.category ||
+          menuItem.category === Number(orderForm.category)
         );
       })
       ?.filter((item) => {
@@ -228,7 +230,14 @@ const Tables = () => {
       ?.map((menuItem) => {
         return {
           value: menuItem?._id,
-          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          label:
+            menuItem?.name +
+            " (" +
+            (orderForm.isOnlinePrice && menuItem?.onlinePrice
+              ? menuItem.onlinePrice
+              : menuItem.price) +
+            TURKISHLIRA +
+            ")",
           imageUrl: menuItem?.imageUrl,
           keywords: [
             menuItem?.name,
@@ -441,7 +450,14 @@ const Tables = () => {
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+              label:
+                menuItem?.name +
+                " (" +
+                (orderForm.isOnlinePrice && menuItem?.onlinePrice
+                  ? menuItem.onlinePrice
+                  : menuItem.price) +
+                TURKISHLIRA +
+                ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
