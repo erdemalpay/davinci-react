@@ -66,6 +66,13 @@ const OrderDiscountPage = () => {
     });
   }
 
+  function handleVisibleOnPaymentScreenChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isVisibleOnPaymentScreen: !row.isVisibleOnPaymentScreen },
+    });
+  }
+
   const [form, setForm] = useState<FormElementsState>({
     name: "",
     type: "",
@@ -144,6 +151,7 @@ const OrderDiscountPage = () => {
       { key: t("Online Order"), isSortable: false },
       { key: t("Store Order"), isSortable: false },
       { key: t("Note Required"), isSortable: false },
+      { key: t("Visible on Payment Screen"), isSortable: false },
       { key: t("Note Placeholder"), isSortable: false },
     ];
     return userCondition
@@ -193,6 +201,20 @@ const OrderDiscountPage = () => {
               onChange={() => handleNoteRequiredChange(row)}
             />
           ) : row?.isNoteRequired ? (
+            <IoCheckmark className="text-blue-500 text-2xl " />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl " />
+          ),
+      },
+      {
+        key: "isVisibleOnPaymentScreen",
+        node: (row: any) =>
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row?.isVisibleOnPaymentScreen}
+              onChange={() => handleVisibleOnPaymentScreenChange(row)}
+            />
+          ) : row?.isVisibleOnPaymentScreen ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
