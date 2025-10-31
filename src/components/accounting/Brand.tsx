@@ -223,7 +223,7 @@ const Brand = () => {
       {
         name: t("Add Into Product"),
         icon: <CiCirclePlus />,
-        className: "text-2xl mt-1 mr-auto cursor-pointer",
+        className: "text-2xl mt-1 cursor-pointer",
         isModal: true,
         setRow: setRowToAction,
         modal: (
