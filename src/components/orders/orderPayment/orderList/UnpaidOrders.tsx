@@ -333,13 +333,16 @@ const UnpaidOrders = ({ tableOrders, collectionsTotalAmount }: Props) => {
                           <p>{getItem(order?.discount, discounts)?.name}</p>
                           <MdOutlineCancel className="w-4 h-4" />
                         </div>
-                        {order?.discount === 2 && order?.discountNote && (
-                          <p className="text-xs text-gray-600">
-                            ({Array.isArray(order.discountNote)
-                              ? order.discountNote.join(", ")
-                              : order.discountNote})
-                          </p>
-                        )}
+                        {order?.discount &&
+                          getItem(order?.discount, discounts)
+                            ?.isVisibleOnPaymentScreen &&
+                          order?.discountNote && (
+                            <p className="text-xs text-gray-600">
+                              ({Array.isArray(order.discountNote)
+                                ? order.discountNote.join(", ")
+                                : order.discountNote})
+                            </p>
+                          )}
                       </div>
                     )}
                   </div>

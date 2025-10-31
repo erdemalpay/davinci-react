@@ -954,5 +954,6 @@
   "ShiftLateNotice": "{{user}} vardiyasına geç kaldı. Vardiya {{shift}} saatindeydi ve {{user}} {{enteredAt}} saatinde giriş yaptı.",
   "ShiftEndEarlyNotice": "{{user}} vardiya bitişine erken çıktı. Vardiya bitişi {{shiftEnd}} saatindeydi ve {{user}} {{exitedAt}} saatinde çıkış yaptı.",
   "Switch to Vertical Layout": "Dikey Görünüme Geç",
-  "Switch to Horizontal Layout": "Yatay Görünüme Geç"
+  "Switch to Horizontal Layout": "Yatay Görünüme Geç",
+  "Visible on Payment Screen" : "Ödeme Ekranında Göster"
 }
