@@ -76,9 +76,17 @@ const Tables = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const orderNotes = useGetOrderNotes();
   const [showAllGameplays, setShowAllGameplays] = useState(true);
+  const [tableOrderPaymentTableId, setTableOrderPaymentTableId] = useState<
+    number | null
+  >(null);
+
   const members = useGetMemberships();
   const user = useGetUser();
   const reservations = useGetReservations();
+  const [isTableOrderPaymentModalOpen, setIsTableOrderPaymentModalOpen] =
+    useState(false);
+  const { resetOrderContext } = useOrderContext();
+  const { setExpandedRows } = useGeneralContext();
   const [isTakeAwayPaymentModalOpen, setIsTakeAwayPaymentModalOpen] =
     useState(false);
   const [isTakeAwayOrderModalOpen, setIsTakeAwayOrderModalOpen] =
@@ -218,7 +226,8 @@ const Tables = () => {
     return menuItems
       ?.filter((menuItem) => {
         return (
-          !orderForm.category || menuItem.category === Number(orderForm.category)
+          !orderForm.category ||
+          menuItem.category === Number(orderForm.category)
         );
       })
       ?.filter((item) => {
@@ -228,7 +237,14 @@ const Tables = () => {
       ?.map((menuItem) => {
         return {
           value: menuItem?._id,
-          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          label:
+            menuItem?.name +
+            " (" +
+            (orderForm.isOnlinePrice && menuItem?.onlinePrice
+              ? menuItem.onlinePrice
+              : menuItem.price) +
+            TURKISHLIRA +
+            ")",
           imageUrl: menuItem?.imageUrl,
           keywords: [
             menuItem?.name,
@@ -247,6 +263,43 @@ const Tables = () => {
     selectedLocationId,
     categories,
   ]);
+  const makePressHandlers = (tableId: number, targetId: string) => {
+    let timer: number | null = null;
+    let longFired = false;
+    const LONG_MS = 600;
+
+    const clear = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = null;
+    };
+
+    const start = () => {
+      longFired = false;
+      clear();
+      timer = window.setTimeout(() => {
+        longFired = true;
+        setTableOrderPaymentTableId(tableId);
+        setIsTableOrderPaymentModalOpen(true);
+      }, LONG_MS);
+    };
+
+    const end = () => {
+      clear();
+      if (!longFired) {
+        scrollToSection(targetId);
+      }
+    };
+
+    return {
+      onMouseDown: start,
+      onMouseUp: end,
+      onMouseLeave: clear,
+      onTouchStart: start,
+      onTouchEnd: end,
+      onTouchCancel: clear,
+    };
+  };
+
   const orderInputs = [
     {
       type: InputTypes.TAB,
@@ -441,7 +494,14 @@ const Tables = () => {
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+              label:
+                menuItem?.name +
+                " (" +
+                (orderForm.isOnlinePrice && menuItem?.onlinePrice
+                  ? menuItem.onlinePrice
+                  : menuItem.price) +
+                TURKISHLIRA +
+                ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
@@ -800,9 +860,6 @@ const Tables = () => {
       behavior: "smooth",
     });
   };
-  const handleScrollClick = (id: string) => {
-    scrollToSection(id);
-  };
 
   const cafeInfos: {
     title: string;
@@ -1067,12 +1124,13 @@ const Tables = () => {
                         return (
                           <a
                             key={`${table._id}-${tableName}-tableselector-small`}
-                            onClick={() =>
-                              handleScrollClick(`table-${table?._id}`)
-                            }
                             className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-red-500 text-white  font-medium ${bgColor(
                               table
                             )}`}
+                            {...makePressHandlers(
+                              table._id,
+                              `table-${table._id}`
+                            )}
                           >
                             {table?.type === TableTypes.ACTIVITY
                               ? `${tableName} (${table?.name})`
@@ -1142,12 +1200,13 @@ const Tables = () => {
                       return (
                         <a
                           key={`${table._id}-${tableName}-tableselector-large`}
-                          onClick={() =>
-                            handleScrollClick(`table-large-${table._id}`)
-                          }
                           className={`bg-gray-100 px-4 py-2 rounded-lg cursor-pointer focus:outline-none hover:bg-red-500 text-white font-medium ${bgColor(
                             table
                           )}`}
+                          {...makePressHandlers(
+                            table._id,
+                            `table-large-${table._id}`
+                          )}
                         >
                           {table.type === TableTypes.ACTIVITY
                             ? `${tableName} (${table.name})`
@@ -1403,6 +1462,19 @@ const Tables = () => {
           topClassName="flex flex-col gap-2  "
         />
       )}
+      {isTableOrderPaymentModalOpen && tableOrderPaymentTableId && (
+        <OrderPaymentModal
+          tableId={tableOrderPaymentTableId}
+          tables={tables}
+          close={() => {
+            setExpandedRows({});
+            resetOrderContext();
+            setIsTableOrderPaymentModalOpen(false);
+            setTableOrderPaymentTableId(null);
+          }}
+        />
+      )}
+
       {isTakeAwayOrderModalOpen && (
         <GenericAddEditPanel
           isOpen={isTakeAwayOrderModalOpen}
