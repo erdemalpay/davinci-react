@@ -392,7 +392,7 @@ const GenericTable = <T,>({
   };
 
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
-    <div className="flex flex-row my-auto h-full gap-3 items-center">
+    <div className="flex flex-row my-auto h-full gap-3 justify-center items-center">
       {actions?.map((action, index) => {
         if (action?.isDisabled || action?.node === null) return null;
         if (action.node) return <div key={index}>{action.node(row)}</div>;
