@@ -967,5 +967,6 @@
   "image": "Görsel",
   "component": "Bileşen",
   "order": "Sıra",
-  "componentType": "Bileşen Tipi"
+  "componentType": "Bileşen Tipi",
+  "Visible on Payment Screen" : "Ödeme Ekranında Göster"
 }
