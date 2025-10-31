@@ -529,7 +529,7 @@ const Shifts = () => {
               if (shiftLocations.length === 0) return <></>;
 
               return (
-                <div className="flex flex-col gap-2 items-center justify-center mx-3 ">
+                <div className="flex flex-col gap-2 mx-3 ">
                   {shiftLocations.map((shiftLocation: any, idx: number) => {
                     const location = getItem(shiftLocation.location, locations);
                     const foundChefUser = shiftLocation.chefUser;
@@ -541,10 +541,7 @@ const Shifts = () => {
                       return null;
 
                     return (
-                      <div
-                        key={idx}
-                        className="flex flex-col gap-1 items-center"
-                      >
+                      <div key={idx} className="flex flex-col  gap-1 ">
                         <div
                           className="font-semibold text-sm"
                           style={{
@@ -553,14 +550,14 @@ const Shifts = () => {
                         >
                           {location?.name}
                         </div>
-                        <div className="flex flex-row gap-1 flex-wrap max-w-120 p-2">
+                        <div className="flex flex-row flex-wrap gap-0.5  max-w-[50rem] w-full ">
                           {shiftLocation.users?.map(
                             (userId: string, userIdx: number) => {
                               const foundUser = getItem(userId, users);
                               return (
                                 <div
                                   key={userIdx}
-                                  className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
+                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
                                     filterPanelFormElements.user ===
                                     foundUser?._id
                                       ? "font-bold underline"
