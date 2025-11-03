@@ -6,7 +6,7 @@ import ClosedItems from "../components/menu/ClosedItems";
 import ItemPage from "../components/menu/ItemPage";
 import MenuItemTable from "../components/menu/MenuItemTable";
 import PopularTable from "../components/menu/PopularTable";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { Tab } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { MenuCategory, MenuItem } from "../types";
@@ -26,7 +26,6 @@ export default function Menu() {
   const { selectedMenuItem } = useGeneralContext();
   const popularItems = useGetPopularItems();
   const [isCategoryTabChanged, setIsCategoryTabChanged] = useState<boolean>();
-  const [tableKeys, setTableKeys] = useState<number>(0); //Reminder:I add this to force the tabpanel to rerender
   const [tabs, setTabs] = useState<Tab[]>([]);
   const categories = useGetCategories();
   const {
@@ -88,9 +87,6 @@ export default function Menu() {
           icon: null,
           content: (
             <MenuItemTable
-              key={`${itemGroup.category?.name ?? ""}-${tableKeys}-${
-                itemGroup.category?.locations?.length ?? 0
-              }`}
               singleItemGroup={itemGroup}
               popularItems={popularItems}
             />
@@ -104,9 +100,6 @@ export default function Menu() {
               icon: null,
               content: (
                 <MenuItemTable
-                  key={`${category.name}-${tableKeys}-${
-                    category.locations?.length ?? 0
-                  }`}
                   singleItemGroup={{
                     category,
                     order: category.order,
@@ -122,12 +115,7 @@ export default function Menu() {
           number: itemCategories?.length + emptyCategories?.length,
           label: "Popular",
           icon: null,
-          content: (
-            <PopularTable
-              key={"popular" + tableKeys}
-              popularItems={popularItems}
-            />
-          ),
+          content: <PopularTable popularItems={popularItems} />,
           isDisabled: false,
         },
         {
@@ -142,16 +130,12 @@ export default function Menu() {
           label: t("Categories"),
           icon: null,
           content: (
-            <CategoryTable
-              key={"categories" + tableKeys}
-              handleCategoryChange={handleCategoryChange}
-            />
+            <CategoryTable handleCategoryChange={handleCategoryChange} />
           ),
           isDisabled: false,
         },
       ].sort((a, b) => a.number - b.number)
     );
-    setTableKeys(tableKeys + 1);
   };
   useEffect(() => {
     handleTabChange();
@@ -170,7 +154,7 @@ export default function Menu() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={menuActiveTab}
         setActiveTab={setMenuActiveTab}
@@ -181,6 +165,7 @@ export default function Menu() {
           }
           setIsCategoryTabChanged(false);
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

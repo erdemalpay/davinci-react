@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Game, Gameplay } from "../../types";
 import { useGetGames } from "../../utils/api/game";
@@ -11,36 +11,24 @@ type Props = {
 type GameplayAccumulator = {
   [key: number]: Gameplay[];
 };
+
 const GamesIMentored = ({ data }: Props) => {
   const { t } = useTranslation();
   const games: Game[] = useGetGames();
-  const [tableKey, setTableKey] = useState(0);
   const [startDateFilter, setStartDateFilter] = useState<string | null>();
   const [endDateFilter, setEndDateFilter] = useState<string | null>();
-  const gameplays = data.reduce<GameplayAccumulator>((acc, gameplay) => {
-    if (!acc[gameplay.game as number]) {
-      acc[gameplay.game as number] = [];
-    }
-    acc[gameplay.game as number].push(gameplay);
-    return acc;
-  }, {});
-  const gameplayGroupRows = Object.entries(gameplays)
-    .sort(([, sessionA], [, sessionB]) => sessionB.length - sessionA.length)
-    .map(([game, session]) => ({
-      game: games.find((g) => g._id === Number(game))?.name as string,
-      sessionLength: session.length,
-    }));
-  const [rows, setRows] = useState(gameplayGroupRows);
-  const [countColumn, setCountColumn] = useState<string>(
-    ` ${rows.length}/${rows?.reduce((acc, row) => acc + row.sessionLength, 0)}`
-  );
 
-  const columns = [
-    { key: t("Game"), isSortable: true },
-    { key: countColumn, isSortable: true },
-  ];
+  const gameplays = useMemo(() => {
+    return data.reduce<GameplayAccumulator>((acc, gameplay) => {
+      if (!acc[gameplay.game as number]) {
+        acc[gameplay.game as number] = [];
+      }
+      acc[gameplay.game as number].push(gameplay);
+      return acc;
+    }, {});
+  }, [data]);
 
-  const handleFilter = () => {
+  const rows = useMemo(() => {
     const filterData = Object.entries(gameplays)
       .sort(([, sessionA], [, sessionB]) => sessionB.length - sessionA.length)
       .map(([game, session]) => ({
@@ -66,64 +54,71 @@ const GamesIMentored = ({ data }: Props) => {
         game: item.game,
         sessionLength: item.session.length,
       }));
-    setRows(filterData);
-    setCountColumn(
-      ` ${filterData.length}/${filterData?.reduce(
-        (acc, row) => acc + row.sessionLength,
-        0
-      )}`
-    );
-  };
-  useEffect(() => {
-    handleFilter();
-  }, [startDateFilter, endDateFilter]);
+    return filterData;
+  }, [gameplays, games, startDateFilter, endDateFilter]);
 
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-  }, [rows, countColumn, games]);
+  const countColumn = useMemo(() => {
+    return ` ${rows.length}/${rows?.reduce(
+      (acc, row) => acc + row.sessionLength,
+      0
+    )}`;
+  }, [rows]);
 
-  const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <div className=" flex flex-col sm:flex-row gap-2   ">
-          <input
-            className="border px-2 rounded-md"
-            type="date"
-            name="startDay"
-            value={startDateFilter ?? ""}
-            onChange={(e) => {
-              setStartDateFilter(e.target.value);
-            }}
-          />
-          <span className="mx-auto sm:mx-0">to</span>
-          <input
-            className="border px-2 rounded-md"
-            name="endDay"
-            type="date"
-            value={endDateFilter ?? ""}
-            onChange={(e) => {
-              setEndDateFilter(e.target.value);
-            }}
-          />
-        </div>
-      ),
-    },
-  ];
-  const rowKeys = [
-    {
-      key: "game",
-    },
-    {
-      key: "sessionLength",
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      { key: t("Game"), isSortable: true },
+      { key: countColumn, isSortable: true },
+    ],
+    [t, countColumn]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: false,
+        node: (
+          <div className=" flex flex-col sm:flex-row gap-2   ">
+            <input
+              className="border px-2 rounded-md"
+              type="date"
+              name="startDay"
+              value={startDateFilter ?? ""}
+              onChange={(e) => {
+                setStartDateFilter(e.target.value);
+              }}
+            />
+            <span className="mx-auto sm:mx-0">to</span>
+            <input
+              className="border px-2 rounded-md"
+              name="endDay"
+              type="date"
+              value={endDateFilter ?? ""}
+              onChange={(e) => {
+                setEndDateFilter(e.target.value);
+              }}
+            />
+          </div>
+        ),
+      },
+    ],
+    [startDateFilter, endDateFilter]
+  );
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "game",
+      },
+      {
+        key: "sessionLength",
+      },
+    ],
+    []
+  );
 
   return (
     <div className="w-full  h-fit">
       {games && (
         <GenericTable
-          key={tableKey}
           columns={columns}
           rows={rows}
           rowKeys={rowKeys}
@@ -135,5 +130,4 @@ const GamesIMentored = ({ data }: Props) => {
     </div>
   );
 };
-
 export default GamesIMentored;

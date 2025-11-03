@@ -17,6 +17,28 @@ export type Authorization = {
   relatedPages?: string[];
 };
 
+export type Action = {
+  _id: string;
+  name: string;
+};
+export type TaskTrack = {
+  _id: number;
+  task: string;
+  users: string[];
+  type: string[];
+  createdAt: Date;
+};
+
+export type DisabledCondition = {
+  _id: string;
+  name: string;
+  page: string;
+  actions: {
+    action: string;
+    permissionsRoles: number[];
+  }[];
+};
+
 export type Location = {
   _id: number;
   name: string;
@@ -25,6 +47,7 @@ export type Location = {
   active: boolean;
   activityNote?: string;
   ikasId?: string;
+  backgroundColor?: string;
   shifts?: {
     shift: string;
     shiftEndHour: string;
@@ -152,6 +175,7 @@ export type AccountCountList = {
     locations: number[];
   }[];
   active: boolean;
+  expenseTypes?: string[];
 };
 export type ExpirationListType = {
   _id: string;
@@ -361,6 +385,54 @@ export type ButtonCall = {
 export enum ButtonCallType {
   ACTIVE = "active",
   CLOSED = "closed",
+}
+
+export enum DisabledConditionEnum {
+  STOCK_STOCK = "stocks",
+  GAMES_GAMES = "games",
+  BUTTONCALLS_BUTTONCALLS = "button_calls",
+  PANELCONTROL_DISABLEDCONDITIONS = "disabled_conditions",
+  PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS = "route_authorization_permissions",
+  PANELCONTROL_EDUCATIONPERMISSIONS = "education_permissions",
+  STOCK_GAMESTOCK = "gamestock",
+  STOCK_DESSERTSTOCK = "dessertstock",
+  STOCK_GAMESTOCKLOCATION = "gamestocklocation",
+  STOCK_BASEQUANTITYBYLOCATION = "basequantitybylocation",
+  STOCK_PRODUCTSHELFINFO = "productshelfinfo",
+  STOCK_VENDORORDER = "vendororder",
+  STOCK_IKASSTOCKCOMPARISION = "ikasstockcomparision",
+  STOCK_IKASPRICECOMPARISION = "ikaspricecomparision",
+  STOCK_ENTERCONSUMPTION = "enterconsumption",
+  STOCK_LOSSPRODUCT = "lossproduct",
+  ORDERDATAS_DAILYINCOME = "dailyincome",
+  ORDERDATAS_GROUPEDPRODUCTSALESREPORT = "groupedproductsalesreport",
+  ORDERDATAS_SINGLEPRODUCTSALESREPORT = "singleproductsalesreport",
+  ORDERDATAS_UPPERCATEGORYBASEDSALESREPORT = "uppercategorybasedsalesreport",
+  ORDERDATAS_CATEGORYBASEDSALESREPORT = "categorybasedsalesreport",
+  ORDERDATAS_DISCOUNTBASEDSALES = "discountbasedsales",
+  ORDERDATAS_COLLECTIONS = "collections",
+  ORDERDATAS_ORDERS = "orders",
+  ORDERDATAS_IKASORDERS = "ikasorders",
+  ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
+  ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
+}
+export enum ActionEnum {
+  DELETE = "delete",
+  ADD = "add",
+  UPDATE = "update",
+  TRANSFER = "transfer",
+  EXCEL = "excel",
+  SHOWPRICES = "show_prices",
+  ENABLEEDIT = "enable_edit",
+  SHOWTOTAL = "show_total",
+  RATE = "rate",
+  UPLOAD = "upload",
+  SETBASEAMOUNT = "set_base_amount",
+  UPDATEIKASSTOCK = "update_ikas_stock",
+  UPDATESTORESTOCK = "update_store_stock",
+  SYNC = "sync",
+  REFRESH = "refresh",
+  REFUND = "refund",
 }
 
 export type Membership = {
@@ -640,6 +712,7 @@ export type OrderDiscount = {
   isNoteRequired?: boolean;
   isOnlineOrder?: boolean;
   isStoreOrder?: boolean;
+  isVisibleOnPaymentScreen?: boolean;
   status?: string;
   note?: string;
 };
@@ -662,6 +735,7 @@ export enum ReservationStatusEnum {
   NOT_COMING = "Not coming",
   NOT_RESPONDED = "Not responded",
   ALREADY_CAME = "Already came",
+  CANCELLED = "Cancelled",
 }
 
 export type Reservation = {
@@ -684,7 +758,12 @@ export type Reservation = {
 export type Notification = {
   _id: number;
   createdAt: Date;
-  message?: string;
+  message:
+    | {
+        key: string;
+        params: Record<string, any>;
+      }
+    | string;
   type: string;
   event?: string;
   createdBy?: string;
@@ -694,6 +773,7 @@ export type Notification = {
   seenBy?: string[];
   isAssigned?: boolean;
 };
+
 export enum NotificationType {
   INFORMATION = "INFORMATION",
   WARNING = "WARNING",
@@ -777,6 +857,7 @@ export type IkasProduct = {
       sellPrice: number;
       discountPrice: null;
       buyPrice: null;
+      priceListId: string;
     }[];
     sku: null;
     unit: null;
@@ -863,7 +944,9 @@ export enum ExpirationPageTabEnum {
   EXPIRATIONLISTPRODUCTS,
 }
 export enum PanelControlPageTabEnum {
+  TASKTRACK,
   PAGEPERMISSIONS,
+  DISABLEDCONDITIONS,
   ROUTEAUTHORIZATIONPERMISSIONS,
   EDUCATIONPERMISSIONS,
   CHECKOUTCASH,
@@ -886,6 +969,7 @@ export enum AccountingPageTabEnum {
   LOCATIONS,
   UPPERCATEGORIES,
   ORDERNOTES,
+  ACTIONS,
 }
 export enum CheclistPageTabEnum {
   CHECKARCHIVE,
@@ -906,6 +990,7 @@ export enum StocksPageTabEnum {
   PRODUCTSHELFINFO,
   VENDORORDER,
   IKASSTOCKCOMPARISION,
+  IKASPRICECOMPARISION,
   ENTERCONSUMPTION,
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
@@ -1196,6 +1281,10 @@ export enum ActivityType {
   UPDATE_ACCOUNT_PRODUCT = "UPDATE_ACCOUNT_PRODUCT",
   KITCHEN_ACTIVATED = "KITCHEN_ACTIVATED",
   KITCHEN_DEACTIVATED = "KITCHEN_DEACTIVATED",
+  ORDER_DIVIDED = "ORDER_DIVIDED",
+  DELETE_VISIT = "DELETE_VISIT",
+  CREATE_VISIT = "CREATE_VISIT",
+  FINISH_VISIT = "FINISH_VISIT",
 }
 export const activityTypeDetails = [
   {
@@ -1438,6 +1527,26 @@ export const activityTypeDetails = [
     label: "Kitchen Deactivated",
     bgColor: "bg-red-700",
   },
+  {
+    value: ActivityType.ORDER_DIVIDED,
+    label: "Order Divided",
+    bgColor: "bg-purple-500",
+  },
+  {
+    value: ActivityType.DELETE_VISIT,
+    label: "Delete Visit",
+    bgColor: "bg-red-500",
+  },
+  {
+    value: ActivityType.CREATE_VISIT,
+    label: "Visit Entry",
+    bgColor: "bg-green-500",
+  },
+  {
+    value: ActivityType.FINISH_VISIT,
+    label: "Visit Exit",
+    bgColor: "bg-blue-500",
+  },
 ];
 
 export interface SocketEventType {
@@ -1455,6 +1564,12 @@ export const commonDateOptions = [
   { value: "sameDayLastMonthToToday", label: "Same day Last Month" },
   { value: "thisYear", label: "This Year" },
   { value: "lastYear", label: "Last Year" },
+  { value: "nextWeek", label: "Next Week" },
+  { value: "nextMonth", label: "Next Month" },
+  {
+    value: "fromTodayToEndOfNextMonth",
+    label: "From Today To End Of Next Month",
+  },
 ];
 
 export type DateRangeKey =
@@ -1467,7 +1582,10 @@ export type DateRangeKey =
   | "twoMonthsAgo"
   | "sameDayLastMonthToToday"
   | "thisYear"
-  | "lastYear";
+  | "lastYear"
+  | "nextWeek"
+  | "nextMonth"
+  | "fromTodayToEndOfNextMonth";
 
 export type PersonalOrderDataType = {
   _id: string;

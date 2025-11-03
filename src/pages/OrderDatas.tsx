@@ -21,7 +21,7 @@ import OrdersReport from "../components/orderDatas/OrdersReport";
 import PersonalOrderDatas from "../components/orderDatas/PersonalOrderDatas";
 import SingleProductSalesReport from "../components/orderDatas/SingleProductSalesReport";
 import UpperCategoryBasedSalesReport from "../components/orderDatas/UpperCategoryBasedSalesReport";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { OrderDataTabEnum } from "../types";
@@ -146,7 +146,7 @@ const OrderDatas = () => {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={orderDataActiveTab}
         setActiveTab={setOrderDataActiveTab}
@@ -154,6 +154,7 @@ const OrderDatas = () => {
           setCurrentPage(1);
           setSearchQuery("");
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

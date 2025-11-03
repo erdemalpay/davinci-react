@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineMenu } from "react-icons/md";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import "../../../index.css";
+import { GenericButton } from "../../common/GenericButton";
 import { P1 } from "../Typography";
 import { Tab } from "../shared/types";
 
@@ -51,7 +51,7 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col border rounded-lg border-gray-200 bg-white w-full mx-auto">
+    <div className="flex flex-col border rounded-lg border-gray-200 bg-white w-[98%] mx-auto my-6">
       {/* Small Screen Top Bar */}
       <div className="md:hidden flex items-center p-4 border-b sticky top-16 ">
         <GenericButton onClick={() => setIsMenuOpen(true)} variant="icon">
@@ -70,7 +70,7 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
       <div className="flex flex-1 ">
         <div
           className={`hidden md:flex flex-col pt-10 ${
-            sideClassName ? sideClassName : "w-40"
+            sideClassName ? sideClassName : "w-48"
           } border-r h-fit sticky top-16`}
         >
           {adjustedTabs.map((tab, index) => (
@@ -85,19 +85,21 @@ const VerticalTabPanelResponsive: React.FC<Props> = ({
               <P1 className="inline ml-2">{t(tab.label)}</P1>
             </div>
           ))}
+        </div>
+        <div className="flex-1 min-w-0 overflow-x-auto">
           {filters && filters.length > 0 && (
-            <div className="p-4">
+            <div className="px-6 py-4 border-b flex flex-row flex-wrap gap-4 items-center justify-end">
               {filters.map((filter, idx) => (
                 <div key={idx}>{filter}</div>
               ))}
             </div>
           )}
-        </div>
-        <div className="flex-1 p-4">
-          {
-            adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
-              ?.content
-          }
+          <div className="p-4">
+            {
+              adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)
+                ?.content
+            }
+          </div>
         </div>
       </div>
       {isMenuOpen && (

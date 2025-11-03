@@ -47,6 +47,23 @@ const Shifts = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const locations = useGetStoreLocations();
+  const buildShiftKey = (
+    shiftData: { shift?: string; shiftEndHour?: string } | null | undefined,
+    locationId?: number | null
+  ) => {
+    const shiftStart = shiftData?.shift?.trim() || "";
+    let shiftEnd = shiftData?.shiftEndHour?.trim();
+
+    if (!shiftEnd && locationId !== undefined && locationId !== null) {
+      const location = getItem(locationId, locations);
+      const matchedShift = location?.shifts?.find(
+        (locationShift) => locationShift.shift?.trim() === shiftStart
+      );
+      shiftEnd = matchedShift?.shiftEndHour?.trim();
+    }
+
+    return `${shiftStart}-${shiftEnd || ""}`;
+  };
   const roles = useGetAllUserRoles();
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
@@ -93,61 +110,251 @@ const Shifts = () => {
     setIsChefAssignOpen,
   } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
+
+  // Get all unique shifts from all locations, sorted by start time (for "All" mode)
+  const allShifts =
+    selectedLocationId === -1
+      ? (() => {
+          const shiftsMap = new Map<
+            string,
+            { shift: string; shiftEndHour?: string }
+          >();
+
+          locations.forEach((location) => {
+            location.shifts?.forEach((shift) => {
+              const key = buildShiftKey(shift);
+              if (!shiftsMap.has(key)) {
+                shiftsMap.set(key, {
+                  shift: shift.shift,
+                  shiftEndHour: shift.shiftEndHour,
+                });
+              }
+            });
+          });
+
+          const shiftsArray = Array.from(shiftsMap.values());
+
+          // Sort by shift start time
+          return shiftsArray.sort((a, b) => {
+            const [aHour, aMin] = a.shift.split(":").map(Number);
+            const [bHour, bMin] = b.shift.split(":").map(Number);
+            return aHour * 60 + aMin - (bHour * 60 + bMin);
+          });
+        })()
+      : foundLocation?.shifts || [];
+
   const initialFormState: Record<string, any> = {
     day: "",
-    ...(foundLocation?.shifts?.reduce<Record<string, string[]>>(
-      (acc, shift) => {
-        acc[shift.shift] = [];
-        return acc;
-      },
-      {}
-    ) || {}),
+    ...(allShifts?.reduce<Record<string, string[]>>((acc, shift) => {
+      acc[shift.shift] = [];
+      return acc;
+    }, {}) || {}),
   };
   const [form, setForm] = useState(initialFormState);
-  const unfilteredShiftRows = shifts?.map((shift) => {
-    const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
-      if (shiftValue.shift && shiftValue.user) {
-        acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
-          const foundUser = getItem(userId, users);
-          return foundUser;
+  const unfilteredShiftRows =
+    selectedLocationId === -1
+      ? (() => {
+          // Group by day for "All" mode
+          const groupedByDay = shifts?.reduce((acc, shift) => {
+            if (!acc[shift.day]) {
+              acc[shift.day] = [];
+            }
+            acc[shift.day].push(shift);
+            return acc;
+          }, {} as Record<string, any[]>);
+
+          return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
+            const shiftsByLocation: Record<
+              string,
+              Array<{
+                location: number;
+                users: string[];
+                chefUser?: string;
+                _id: string;
+              }>
+            > = {};
+
+            dayShifts.forEach((shiftRecord) => {
+              shiftRecord.shifts?.forEach((s: any) => {
+                const shiftKey = buildShiftKey(s, shiftRecord.location);
+                if (!shiftsByLocation[shiftKey]) {
+                  shiftsByLocation[shiftKey] = [];
+                }
+
+                const locationConfig = getItem(shiftRecord.location, locations);
+                // Skip shifts not defined for this location to avoid rendering phantom dropdowns
+                const locationHasShift = locationConfig?.shifts?.some(
+                  (locationShift) => {
+                    return (
+                      buildShiftKey(locationShift, shiftRecord.location) ===
+                      shiftKey
+                    );
+                  }
+                );
+                if (!locationHasShift) {
+                  return;
+                }
+
+                // Check if this location already exists for this shift
+                const existingIndex = shiftsByLocation[shiftKey].findIndex(
+                  (sl) => sl.location === shiftRecord.location
+                );
+
+                if (existingIndex === -1) {
+                  shiftsByLocation[shiftKey].push({
+                    location: shiftRecord.location,
+                    users:
+                      s.user?.filter((userId: string) => {
+                        const foundUser = getItem(userId, users);
+                        return foundUser;
+                      }) || [],
+                    chefUser: s.chefUser,
+                    _id: shiftRecord._id,
+                  });
+                }
+              });
+            });
+
+            const dayName = new Date(day).toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            return {
+              day,
+              formattedDay:
+                convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
+              shiftsByLocation,
+            };
+          });
+        })()
+      : shifts?.map((shift) => {
+          const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+            if (shiftValue.shift && shiftValue.user) {
+              acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+                const foundUser = getItem(userId, users);
+                return foundUser;
+              });
+            }
+            return acc;
+          }, {} as { [key: string]: string[] });
+          const dayName = new Date(shift.day).toLocaleDateString("en-US", {
+            weekday: "long",
+          });
+          return {
+            ...shift,
+            formattedDay:
+              convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
+            ...shiftMapping,
+          };
         });
-      }
-      return acc;
-    }, {} as { [key: string]: string[] });
-    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-      weekday: "long",
-    });
-    return {
-      ...shift,
-      formattedDay:
-        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-      ...shiftMapping,
-    };
-  });
-  const allRows = shifts?.map((shift) => {
-    const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
-      if (shiftValue.shift && shiftValue.user) {
-        acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
-          const foundUser = getItem(userId, users);
-          return (
-            foundUser &&
-            (filterPanelFormElements?.role?.length === 0 ||
-              filterPanelFormElements?.role?.includes(foundUser?.role?._id))
-          );
+  const allRows =
+    selectedLocationId === -1
+      ? (() => {
+          // Group by day for "All" mode
+          const groupedByDay = shifts?.reduce((acc, shift) => {
+            if (!acc[shift.day]) {
+              acc[shift.day] = [];
+            }
+            acc[shift.day].push(shift);
+            return acc;
+          }, {} as Record<string, any[]>);
+
+          return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
+            const shiftsByLocation: Record<
+              string,
+              Array<{
+                location: number;
+                users: string[];
+                chefUser?: string;
+                _id: string;
+              }>
+            > = {};
+
+            dayShifts.forEach((shiftRecord) => {
+              shiftRecord.shifts?.forEach((s: any) => {
+                const shiftKey = buildShiftKey(s, shiftRecord.location);
+                if (!shiftsByLocation[shiftKey]) {
+                  shiftsByLocation[shiftKey] = [];
+                }
+
+                const locationConfig = getItem(shiftRecord.location, locations);
+                // Skip shifts not defined for this location to avoid rendering phantom dropdowns
+                const locationHasShift = locationConfig?.shifts?.some(
+                  (locationShift) => {
+                    return (
+                      buildShiftKey(locationShift, shiftRecord.location) ===
+                      shiftKey
+                    );
+                  }
+                );
+                if (!locationHasShift) {
+                  return;
+                }
+
+                // Check if this location already exists for this shift
+                const existingIndex = shiftsByLocation[shiftKey].findIndex(
+                  (sl) => sl.location === shiftRecord.location
+                );
+
+                if (existingIndex === -1) {
+                  shiftsByLocation[shiftKey].push({
+                    location: shiftRecord.location,
+                    users:
+                      s.user?.filter((userId: string) => {
+                        const foundUser = getItem(userId, users);
+                        return (
+                          foundUser &&
+                          (!filterPanelFormElements?.role ||
+                            filterPanelFormElements?.role?.length === 0 ||
+                            filterPanelFormElements?.role?.includes(
+                              foundUser?.role?._id
+                            ))
+                        );
+                      }) || [],
+                    chefUser: s.chefUser,
+                    _id: shiftRecord._id,
+                  });
+                }
+              });
+            });
+
+            const dayName = new Date(day).toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            return {
+              day,
+              formattedDay:
+                convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
+              shiftsByLocation,
+            };
+          });
+        })()
+      : shifts?.map((shift) => {
+          const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+            if (shiftValue.shift && shiftValue.user) {
+              acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+                const foundUser = getItem(userId, users);
+                return (
+                  foundUser &&
+                  (!filterPanelFormElements?.role ||
+                    filterPanelFormElements?.role?.length === 0 ||
+                    filterPanelFormElements?.role?.includes(
+                      foundUser?.role?._id
+                    ))
+                );
+              });
+            }
+            return acc;
+          }, {} as { [key: string]: string[] });
+          const dayName = new Date(shift.day).toLocaleDateString("en-US", {
+            weekday: "long",
+          });
+          return {
+            ...shift,
+            formattedDay:
+              convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
+            ...shiftMapping,
+          };
         });
-      }
-      return acc;
-    }, {} as { [key: string]: string[] });
-    const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-      weekday: "long",
-    });
-    return {
-      ...shift,
-      formattedDay:
-        convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-      ...shiftMapping,
-    };
-  });
   const copyShiftInputs = [
     {
       type: InputTypes.DATE,
@@ -231,6 +438,21 @@ const Shifts = () => {
       isDatePicker: true,
       isOnClearActive: false,
     },
+    ...(selectedLocationId === -1
+      ? [
+          {
+            type: InputTypes.SELECT,
+            formKey: "location",
+            label: t("Location"),
+            placeholder: t("Location"),
+            options: locations?.map((location) => ({
+              value: location._id,
+              label: location.name,
+            })),
+            required: true,
+          },
+        ]
+      : []),
     {
       type: InputTypes.SELECT,
       formKey: "selectedUsers",
@@ -281,9 +503,10 @@ const Shifts = () => {
       node: (row: any) => <p className="min-w-32 pr-2">{row.formattedDay}</p>,
     },
   ];
-  if (foundLocation?.shifts && foundLocation?.shifts?.length > 0) {
-    for (const shift of foundLocation.shifts) {
+  if (allShifts && allShifts?.length > 0) {
+    for (const shift of allShifts) {
       const locationShift = shift.shift;
+      const shiftKey = buildShiftKey(shift);
       columns.push({
         key: `${locationShift}${
           shift.shiftEndHour ? ` - ${shift.shiftEndHour}` : ""
@@ -296,95 +519,311 @@ const Shifts = () => {
         (!isShiftsEnableEdit && !isDisabledCondition)
       ) {
         rowKeys.push({
-          key: locationShift,
+          key: shiftKey,
           node: (row: any) => {
-            const shiftValue = row[shift.shift];
-            const currentShifts = shifts
-              ?.find((shift) => shift.day === row.day)
-              ?.shifts?.filter((s) => s.shift === shift.shift);
-            const foundChefUser = currentShifts?.find(
-              (shift) => shift?.chefUser
-            )?.chefUser;
-            if (Array.isArray(shiftValue)) {
+            // Check if we're in "All" mode
+            if (selectedLocationId === -1) {
+              const shiftKey = buildShiftKey(shift);
+              const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
+
+              if (shiftLocations.length === 0) return <></>;
+
               return (
-                <div className="flex flex-row gap-1 flex-wrap max-w-40">
-                  {shiftValue?.map((user: string, index: number) => {
-                    const foundUser = getItem(user, users);
+                <div className="flex flex-col gap-2 mx-3 ">
+                  {shiftLocations.map((shiftLocation: any, idx: number) => {
+                    const location = getItem(shiftLocation.location, locations);
+                    const foundChefUser = shiftLocation.chefUser;
+
+                    if (
+                      !shiftLocation.users ||
+                      shiftLocation.users.length === 0
+                    )
+                      return null;
+
                     return (
-                      <p
-                        key={`${row.day}${foundUser?._id}${index}`}
-                        className={` flex flex-row items-center gap-1 ${
-                          filterPanelFormElements.user === foundUser?._id
-                            ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit  "
-                            : ""
-                        } ${
-                          foundChefUser === foundUser?._id
-                            ? "border px-2 border-yellow-500 rounded-md"
-                            : ""
-                        }`}
-                      >
-                        {foundUser?.name}
-
-                        <span
-                          className="text-yellow-800 cursor-pointer"
-                          onClick={() => {
-                            if (!isChefAssignOpen) return;
-                            const currentShifts = shifts
-                              ?.find((s) => s.day === row.day)
-                              ?.shifts?.map((shiftObj) => {
-                                return {
-                                  ...shiftObj,
-                                  chefUser:
-                                    shiftObj.shift === shift.shift
-                                      ? shiftObj?.chefUser === foundUser?._id
-                                        ? ""
-                                        : foundUser?._id
-                                      : shiftObj.chefUser,
-                                };
-                              });
-
-                            if (row?._id) {
-                              updateShift({
-                                id: row._id,
-                                updates: {
-                                  shifts: currentShifts,
-                                },
-                              });
-                            }
+                      <div key={idx} className="flex flex-col  gap-1 ">
+                        <div
+                          className="font-semibold text-sm"
+                          style={{
+                            color: location?.backgroundColor || "#6B7280",
                           }}
                         >
-                          {foundChefUser === foundUser?._id ? (
-                            <FaStar />
-                          ) : isChefAssignOpen ? (
-                            <FaRegStar />
-                          ) : null}
-                        </span>
-                      </p>
+                          {location?.name}
+                        </div>
+                        <div className="flex flex-row flex-wrap gap-0.5  max-w-[50rem] w-full ">
+                          {shiftLocation.users?.map(
+                            (userId: string, userIdx: number) => {
+                              const foundUser = getItem(userId, users);
+                              return (
+                                <div
+                                  key={userIdx}
+                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
+                                    filterPanelFormElements.user ===
+                                    foundUser?._id
+                                      ? "font-bold underline"
+                                      : ""
+                                  } ${
+                                    foundChefUser === foundUser?._id
+                                      ? "border-2 border-yellow-600"
+                                      : ""
+                                  }`}
+                                  style={{
+                                    backgroundColor: foundUser?.role?.color,
+                                  }}
+                                >
+                                  {foundUser?.name}
+                                  <span
+                                    className="text-yellow-600 cursor-pointer"
+                                    onClick={() => {
+                                      if (!isChefAssignOpen) return;
+
+                                      // Find the shift record for this specific location
+                                      const locationShiftRecord = shifts?.find(
+                                        (s) =>
+                                          s.day === row.day &&
+                                          s.location === shiftLocation.location
+                                      );
+
+                                      if (!locationShiftRecord) return;
+
+                                      // Update the shifts array for this location
+                                      const updatedShifts =
+                                        locationShiftRecord.shifts?.map(
+                                          (s: any) => {
+                                            // Only update the current shift
+                                            if (
+                                              s.shift === shift.shift &&
+                                              s.shiftEndHour ===
+                                                shift.shiftEndHour
+                                            ) {
+                                              return {
+                                                ...s,
+                                                chefUser:
+                                                  s.chefUser === foundUser?._id
+                                                    ? ""
+                                                    : foundUser?._id,
+                                              };
+                                            }
+                                            return s;
+                                          }
+                                        );
+
+                                      updateShift({
+                                        id: shiftLocation._id,
+                                        updates: {
+                                          shifts: updatedShifts,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    {foundChefUser === foundUser?._id ? (
+                                      <FaStar />
+                                    ) : isChefAssignOpen ? (
+                                      <FaRegStar />
+                                    ) : null}
+                                  </span>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
               );
-            } else if (shiftValue) {
-              const foundUser = getItem(shiftValue, users);
-              return (
-                <p
-                  key={`${row.day}${foundUser?._id}-single`}
-                  className={
-                    filterPanelFormElements.user === foundUser?._id
-                      ? "bg-red-400 text-white px-4 py-1 rounded-md w-fit"
-                      : ""
-                  }
-                >
-                  {foundUser?.name}
-                </p>
-              );
+            } else {
+              // Original single location logic
+              const shiftValue = row[shift.shift];
+              const currentShifts = shifts
+                ?.find((shift) => shift.day === row.day)
+                ?.shifts?.filter((s) => s.shift === shift.shift);
+              const foundChefUser = currentShifts?.find(
+                (shift) => shift?.chefUser
+              )?.chefUser;
+              if (Array.isArray(shiftValue) && shiftValue.length > 0) {
+                return (
+                  <div
+                    className={`flex flex-row gap-1 flex-wrap  rounded-md text-white  max-w-60 mx-3`}
+                  >
+                    {shiftValue?.map((user: string, index: number) => {
+                      const foundUser = getItem(user, users);
+                      return (
+                        <div
+                          key={`${row.day}${foundUser?._id}${index}`}
+                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
+                            filterPanelFormElements.user === foundUser?._id
+                              ? "font-bold underline"
+                              : ""
+                          } ${
+                            foundChefUser === foundUser?._id
+                              ? "border-2 border-yellow-600"
+                              : ""
+                          }`}
+                          style={{ backgroundColor: foundUser?.role?.color }}
+                        >
+                          {foundUser?.name}
+
+                          <span
+                            className="text-yellow-600 cursor-pointer"
+                            onClick={() => {
+                              if (!isChefAssignOpen) return;
+                              const currentShifts = shifts
+                                ?.find((s) => s.day === row.day)
+                                ?.shifts?.map((shiftObj) => {
+                                  return {
+                                    ...shiftObj,
+                                    chefUser:
+                                      shiftObj.shift === shift.shift
+                                        ? shiftObj?.chefUser === foundUser?._id
+                                          ? ""
+                                          : foundUser?._id
+                                        : shiftObj.chefUser,
+                                  };
+                                });
+
+                              if (row?._id) {
+                                updateShift({
+                                  id: row._id,
+                                  updates: {
+                                    shifts: currentShifts,
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            {foundChefUser === foundUser?._id ? (
+                              <FaStar />
+                            ) : isChefAssignOpen ? (
+                              <FaRegStar />
+                            ) : null}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }
+              // else if (shiftValue) {
+              //   const foundUser = getItem(shiftValue, users);
+              //   return (
+              //     <div className="flex justify-center items-center">
+              //       <div
+              //         className="px-2 py-1 rounded-md w-fit text-white"
+              //         style={{
+              //           backgroundColor:
+              //             foundLocation?.backgroundColor || "#6B7280",
+              //         }}
+              //       >
+              //         <div
+              //           key={`${row.day}${foundUser?._id}-single`}
+              //           className={`px-2 py-1 rounded-md text-white border border-white ${
+              //             filterPanelFormElements.user === foundUser?._id
+              //               ? "font-bold underline"
+              //               : ""
+              //           }`}
+              //           style={{ backgroundColor: foundUser?.role?.color }}
+              //         >
+              //           {foundUser?.name}
+              //         </div>
+              //       </div>
+              //     </div>
+              //   );
+              // }
+              return <></>;
             }
-            return <></>;
+          },
+        });
+      } else if (selectedLocationId === -1) {
+        // Edit mode for "All" locations
+        rowKeys.push({
+          key: shiftKey,
+          node: (row: any) => {
+            const shiftKey = buildShiftKey(shift);
+            const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
+
+            if (shiftLocations.length === 0) return <></>;
+
+            return (
+              <div className="flex flex-col gap-2 items-center justify-center py-2">
+                {shiftLocations.map((shiftLocation: any, idx: number) => {
+                  const location = getItem(shiftLocation.location, locations);
+
+                  // Get the shift record for this location
+                  const locationShiftRecord = shifts?.find(
+                    (s) =>
+                      s.day === row.day && s.location === shiftLocation.location
+                  );
+
+                  const normalizedValue = shiftLocation.users?.map(
+                    (userId: string) => ({
+                      value: userId,
+                      label: getItem(userId, users)?.name ?? "",
+                    })
+                  );
+
+                  return (
+                    <div key={idx} className="w-full max-w-40">
+                      <SelectInput
+                        options={users
+                          ?.filter((user) => {
+                            if (filterPanelFormElements?.role?.length > 0) {
+                              return filterPanelFormElements?.role?.includes(
+                                user?.role?._id
+                              );
+                            }
+                            return true;
+                          })
+                          ?.map((user) => ({
+                            value: user._id,
+                            label: user.name,
+                          }))}
+                        isMultiple={true}
+                        value={normalizedValue}
+                        placeholder=""
+                        isOnClearActive={false}
+                        customControlBackgroundColor={location?.backgroundColor}
+                        onChange={(selectedOption) => {
+                          const newValue = (
+                            selectedOption as MultiValue<OptionType>
+                          ).map((o) => o.value);
+
+                          // Update the shifts array for this specific location
+                          const updatedShifts =
+                            locationShiftRecord?.shifts?.map((s: any) => {
+                              if (
+                                s.shift === shift.shift &&
+                                s.shiftEndHour === shift.shiftEndHour
+                              ) {
+                                return {
+                                  ...s,
+                                  user: newValue,
+                                };
+                              }
+                              return s;
+                            });
+
+                          if (locationShiftRecord) {
+                            updateShift({
+                              id: shiftLocation._id,
+                              updates: {
+                                shifts: updatedShifts,
+                              },
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            );
           },
         });
       } else {
+        // Edit mode for single location
         rowKeys.push({
-          key: locationShift,
+          key: shiftKey,
           node: (row: any) => {
             const shiftValue = row[shift.shift];
             const normalizedValue = Array.isArray(shiftValue)
@@ -420,64 +859,66 @@ const Shifts = () => {
                   isOnClearActive={false}
                   onChange={(selectedOption) => {
                     const foundRow: any = unfilteredShiftRows?.find(
-                      (r) => r._id === row?._id
+                      (r: any) => r._id === row?._id
                     );
                     const newValue = (
                       selectedOption as MultiValue<OptionType>
                     ).map((o) => o.value);
-                    const updatedShifts = foundLocation?.shifts?.map(
-                      (foundShift) => {
-                        const existing = (
-                          (foundRow?.[foundShift.shift] ??
-                            row?.[foundShift.shift] ??
-                            []) as string[]
-                        ).filter((userId) => {
-                          if (!filterPanelFormElements?.role?.length)
-                            return true;
-                          const foundUser = getItem(userId, users);
-                          return (
-                            foundUser &&
-                            !filterPanelFormElements.role.includes(
-                              foundUser.role._id
-                            )
-                          );
-                        });
-                        const currentSelectedRoleUsers = (
-                          (foundRow?.[foundShift.shift] ??
-                            row?.[foundShift.shift] ??
-                            []) as string[]
-                        ).filter((userId) => {
-                          if (!filterPanelFormElements?.role?.length)
-                            return false;
+                    const updatedShifts = allShifts?.map((foundShift) => {
+                      const existing = (
+                        (foundRow?.[foundShift.shift] ??
+                          row?.[foundShift.shift] ??
+                          []) as string[]
+                      ).filter((userId) => {
+                        if (!filterPanelFormElements?.role?.length) return true;
+                        const foundUser = getItem(userId, users);
+                        return (
+                          foundUser &&
+                          !filterPanelFormElements.role.includes(
+                            foundUser.role._id
+                          )
+                        );
+                      });
+                      const currentSelectedRoleUsers = (
+                        (foundRow?.[foundShift.shift] ??
+                          row?.[foundShift.shift] ??
+                          []) as string[]
+                      ).filter((userId) => {
+                        if (!filterPanelFormElements?.role?.length)
+                          return false;
 
-                          const foundUser = getItem(userId, users);
-                          return (
-                            foundUser &&
-                            filterPanelFormElements.role.includes(
-                              foundUser.role._id
-                            )
-                          );
-                        });
-                        const user =
-                          foundShift?.shift === shift?.shift
-                            ? filterPanelFormElements?.role?.length > 0
-                              ? Array.from(new Set([...existing, ...newValue]))
-                              : newValue
-                            : Array.from(
-                                new Set([
-                                  ...existing,
-                                  ...currentSelectedRoleUsers,
-                                ])
-                              );
-                        return {
-                          shift: foundShift.shift,
-                          ...(foundShift.shiftEndHour && {
-                            shiftEndHour: foundShift.shiftEndHour,
-                          }),
-                          user,
-                        };
-                      }
-                    );
+                        const foundUser = getItem(userId, users);
+                        return (
+                          foundUser &&
+                          filterPanelFormElements.role.includes(
+                            foundUser.role._id
+                          )
+                        );
+                      });
+                      const user =
+                        foundShift?.shift === shift?.shift
+                          ? filterPanelFormElements?.role?.length > 0
+                            ? Array.from(new Set([...existing, ...newValue]))
+                            : newValue
+                          : Array.from(
+                              new Set([
+                                ...existing,
+                                ...currentSelectedRoleUsers,
+                              ])
+                            );
+
+                      const shiftData = shifts
+                        ?.find((s) => s.day === row.day)
+                        ?.shifts?.find((s) => s.shift === foundShift.shift);
+                      return {
+                        shift: foundShift.shift,
+                        ...(foundShift.shiftEndHour && {
+                          shiftEndHour: foundShift.shiftEndHour,
+                        }),
+                        user,
+                        chefUser: shiftData?.chefUser,
+                      };
+                    });
                     if (!row?._id && foundLocation) {
                       createShift({
                         shifts: updatedShifts,
@@ -510,7 +951,7 @@ const Shifts = () => {
       required: !rowToAction?._id,
       isDisabled: true,
     },
-    ...(foundLocation?.shifts ?? []).map((shift) => ({
+    ...(allShifts ?? []).map((shift) => ({
       type: InputTypes.SELECT,
       formKey: shift.shift,
       label: shift.shift,
@@ -525,12 +966,12 @@ const Shifts = () => {
   ];
   const formKeys = [
     { key: "day", type: FormKeyTypeEnum.DATE },
-    ...(foundLocation?.shifts ?? []).map((shift) => ({
+    ...(allShifts ?? []).map((shift) => ({
       key: shift.shift,
       type: FormKeyTypeEnum.STRING,
     })),
   ];
-  if (isShiftsEnableEdit) {
+  if (isShiftsEnableEdit && selectedLocationId !== -1) {
     columns.push({ key: t("Actions"), isSortable: false } as any);
   }
   const actions = [
@@ -585,11 +1026,11 @@ const Shifts = () => {
       isModalOpen: isShiftsEditModalOpen,
       setIsModal: setIsShiftsEditModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
     },
     {
       name: t("Delete"),
-      isDisabled: isDisabledCondition,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
       icon: <HiOutlineTrash />,
       setRow: setRowToAction,
       modal: rowToAction ? (
@@ -635,7 +1076,7 @@ const Shifts = () => {
       isModalOpen: isCopyShiftModalOpen,
       setIsModal: setIsCopyShiftModalOpen,
       isPath: false,
-      isDisabled: isDisabledCondition,
+      isDisabled: isDisabledCondition || selectedLocationId === -1,
     },
   ];
   const copyShiftIntervalButton = {
@@ -646,7 +1087,9 @@ const Shifts = () => {
         isOpen={isCopyShiftIntervalModalOpen}
         close={() => setIsCopyShiftIntervalModalOpen(false)}
         setForm={setCopyShiftIntervalForm}
-        constantValues={{ location: selectedLocationId }}
+        constantValues={{
+          location: selectedLocationId !== -1 ? selectedLocationId : undefined,
+        }}
         inputs={copyShifIntervaltInputs}
         formKeys={copyShiftIntervalFormKeys}
         submitItem={copyShiftInterval as any}
@@ -661,6 +1104,19 @@ const Shifts = () => {
     className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
   };
   const filters = [
+    {
+      isUpperSide: true,
+      node: (
+        <ButtonFilter
+          buttonName={t("All")}
+          onclick={() => {
+            setSelectedLocationId(-1);
+          }}
+          backgroundColor="#6B7280"
+          isActive={selectedLocationId === -1}
+        />
+      ),
+    },
     ...locations.map((location) => {
       return {
         isUpperSide: true,
@@ -670,6 +1126,8 @@ const Shifts = () => {
             onclick={() => {
               setSelectedLocationId(location._id);
             }}
+            backgroundColor={location.backgroundColor}
+            isActive={selectedLocationId === location._id}
           />
         ),
       };
@@ -825,7 +1283,7 @@ const Shifts = () => {
         actions={isShiftsEnableEdit ? actions : []}
         filters={filters}
         title={
-          getItem(selectedLocationId, locations)?.name +
+          (getItem(selectedLocationId, locations)?.name || t("All")) +
           "  " +
           formatAsLocalDate(filterPanelFormElements.after) +
           "-" +
@@ -836,7 +1294,7 @@ const Shifts = () => {
         isExcel={true}
         filterPanel={filterPanel as any}
         excelFileName={`${
-          getItem(selectedLocationId, locations)?.name +
+          (getItem(selectedLocationId, locations)?.name || "All") +
           formatAsLocalDate(filterPanelFormElements.after) +
           formatAsLocalDate(filterPanelFormElements.before)
         }.xlsx`}

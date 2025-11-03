@@ -7,10 +7,10 @@ import { PiGooglePlayLogo } from "react-icons/pi";
 import { RiGameLine } from "react-icons/ri";
 import { SiLegacygames, SiWegame } from "react-icons/si";
 import { TbPlayCard } from "react-icons/tb";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
 import { GameplayAnalyticsTabEnum } from "../../types";
 import { DateFilter } from "../../utils/dateUtil";
-import TabPanel from "../panelComponents/TabPanel/TabPanel";
 import GameplaysByGames from "./gameplay/GameplaysByGame";
 import GameplaysByMentor from "./gameplay/GameplaysByMentor";
 import KnownGamesCount from "./gameplay/KnownGamesCount";
@@ -116,7 +116,7 @@ export default function GameplayAnalytics() {
 
   return (
     <>
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs?.map((tab) => ({
           ...tab,
           number: tab.number - tabs?.filter((t) => t?.isDisabled)?.length,
@@ -127,6 +127,7 @@ export default function GameplayAnalytics() {
           setCurrentPage(1);
           setSearchQuery("");
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

@@ -183,3 +183,18 @@ export function useGetMenuItems() {
 export function useGetAllMenuItems() {
   return useGetList<MenuItem>(`${Paths.MenuItems}/all`);
 }
+export function updateIkasPrices() {
+  return post<any, any>({
+    path: `${Paths.MenuItems}/ikas/sync-all-prices`,
+    payload: {},
+  });
+}
+export function useUpdateIkasPricesMutation() {
+  return useMutation(updateIkasPrices, {
+    onError: (_err: any) => {
+      const errorMessage =
+        _err?.response?.data?.message || "An unexpected error occurred";
+      setTimeout(() => toast.error(errorMessage), 200);
+    },
+  });
+}

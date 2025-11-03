@@ -102,7 +102,9 @@ const DailySummary = () => {
               t(" Duration: ") +
               o?.formatted?.replace(/^00:/, "") +
               " at " +
-              format(o?.order?.deliveredAt, "HH:mm"),
+              (o?.order?.deliveredAt
+                ? format(o?.order?.deliveredAt, "HH:mm")
+                : ""),
           };
         }) ?? [],
     },

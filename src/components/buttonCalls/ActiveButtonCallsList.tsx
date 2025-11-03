@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { GenericButton } from "../common/GenericButton";
+import { FaDice } from "react-icons/fa";
+import { HiBellAlert } from "react-icons/hi2";
+import { MdOutlineRestaurantMenu } from "react-icons/md";
 import { useLocationContext } from "../../context/Location.context";
 import { ButtonCallType, ButtonCallTypeEnum } from "../../types";
 import {
@@ -23,21 +25,48 @@ export function ActiveButtonCallsList() {
     },
     { active: [] }
   ).active;
+
+  // Çağrıları tipine göre grupla
+  const groupedCalls = {
+    gameMasterAndTable: activeButtonCalls.filter(
+      (call) =>
+        call.type === ButtonCallTypeEnum.GAMEMASTERCALL ||
+        call.type === ButtonCallTypeEnum.TABLECALL
+    ),
+    order: activeButtonCalls.filter(
+      (call) => call.type === ButtonCallTypeEnum.ORDERCALL
+    ),
+  };
+
   function getBackgroundColor(type: ButtonCallTypeEnum) {
     switch (type) {
       case ButtonCallTypeEnum.TABLECALL:
-        return "bg-green-500";
+        return "bg-green-500 hover:bg-green-600";
       case ButtonCallTypeEnum.GAMEMASTERCALL:
-        return "bg-blue-500";
+        return "bg-blue-500 hover:bg-blue-600";
       case ButtonCallTypeEnum.ORDERCALL:
-        return "bg-orange-500";
+        return "bg-orange-500 hover:bg-orange-600";
       default:
-        return "bg-green-500";
+        return "bg-green-500 hover:bg-green-600";
     }
   }
-  function handleChipClose(buttonCallId: string) {
+
+  function getIcon(type: ButtonCallTypeEnum) {
+    switch (type) {
+      case ButtonCallTypeEnum.TABLECALL:
+        return <HiBellAlert className="text-lg sm:text-xl" />;
+      case ButtonCallTypeEnum.GAMEMASTERCALL:
+        return <FaDice className="text-lg sm:text-xl" />;
+      case ButtonCallTypeEnum.ORDERCALL:
+        return <MdOutlineRestaurantMenu className="text-lg sm:text-xl" />;
+      default:
+        return <HiBellAlert className="text-lg sm:text-xl" />;
+    }
+  }
+
+  function handleChipClose(buttonCallId: string, buttonCallType: string) {
     const buttonCall = buttonCalls?.find(
-      (buttonCallItem) => buttonCallItem.tableName == buttonCallId
+      (buttonCallItem) => buttonCallItem.tableName == buttonCallId && buttonCallItem.type == buttonCallType
     );
     const now = new Date();
     const formattedTime = now.toLocaleTimeString("tr-TR", { hour12: false });
@@ -47,6 +76,7 @@ export function ActiveButtonCallsList() {
         location: selectedLocationId,
         tableName: buttonCall.tableName,
         hour: formattedTime,
+        type: buttonCall.type,
       });
   }
 
@@ -85,31 +115,70 @@ export function ActiveButtonCallsList() {
     ).padStart(2, "0")}`;
   };
 
-  return (
-    <div key={buttonCalls?.length} className="flex flex-col w-full">
-      <div className="flex flex-wrap gap-3 mt-4 justify-start">
-        {activeButtonCalls.map((buttonCall) => (
-          <div
-            key={buttonCall.tableName}
-            className={`${getBackgroundColor(
-              buttonCall?.type ?? ButtonCallTypeEnum.TABLECALL
-            )} text-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex flex-col items-center`}
-          >
-            <GenericButton
-              onClick={() => handleChipClose(buttonCall.tableName)}
-              variant="ghost"
-              className="absolute top-1 right-1.5 text-xs text-amber-50 hover:text-blue-100"
+  const renderCallGroup = (
+    calls: typeof activeButtonCalls,
+    type: ButtonCallTypeEnum
+  ) => {
+    if (calls.length === 0) return null;
+
+    return (
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="text-gray-600 flex-shrink-0">{getIcon(type)}</div>
+
+        <div className="text-gray-400 text-xs sm:text-sm flex-shrink-0">─</div>
+
+        <div className="flex flex-wrap gap-1 sm:gap-1.5">
+          {calls.map((buttonCall) => (
+            <div
+              key={buttonCall.tableName}
+              className={`${getBackgroundColor(
+                buttonCall.type
+              )} relative group text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-sm transition-all duration-200 flex items-center gap-1 sm:gap-1.5 cursor-pointer min-h-[24px] sm:min-h-[28px]`}
+              title={`${buttonCall.tableName} - ${
+                timeAgo[buttonCall.tableName] || "00:00"
+              }`}
             >
-              ✖
-            </GenericButton>
-            <span className="text-md my-2 font-semibold">
-              {buttonCall.tableName}
-            </span>
-            <span className="text-sm opacity-90 mb-2">
-              {timeAgo[buttonCall.tableName] || ""}
-            </span>
-          </div>
-        ))}
+              {/* Masa Adı */}
+              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">
+                {buttonCall.tableName}
+              </span>
+
+              {/* Süre */}
+              <span className="text-[9px] sm:text-[10px] font-mono opacity-90 whitespace-nowrap">
+                {timeAgo[buttonCall.tableName] || "00:00"}
+              </span>
+
+              {/* Kapat Butonu - Her zaman görünür */}
+              <button
+                onClick={() => handleChipClose(buttonCall.tableName, buttonCall.type)}
+                className="ml-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-full flex items-center justify-center text-white text-[9px] sm:text-[10px] transition-all duration-200 touch-manipulation"
+                aria-label="Çağrıyı kapat"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  if (activeButtonCalls.length === 0) return null;
+
+  return (
+    <div
+      key={buttonCalls?.length}
+      className="flex flex-col w-full px-2 sm:px-0"
+    >
+      <div className="flex flex-col gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+        {groupedCalls.gameMasterAndTable.length > 0 &&
+          renderCallGroup(
+            groupedCalls.gameMasterAndTable,
+            ButtonCallTypeEnum.GAMEMASTERCALL
+          )}
+
+        {groupedCalls.order.length > 0 &&
+          renderCallGroup(groupedCalls.order, ButtonCallTypeEnum.ORDERCALL)}
       </div>
     </div>
   );

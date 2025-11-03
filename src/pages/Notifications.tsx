@@ -5,7 +5,7 @@ import { Header } from "../components/header/Header";
 import AllNotifications from "../components/notification/AllNotifications";
 import AssignNotification from "../components/notification/AssignNotification";
 import CreateNotification from "../components/notification/CreateNotification";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { NotificationPageTabEnum } from "../types";
@@ -60,7 +60,7 @@ export default function Notifications() {
     <>
       <Header showLocationSelector={false} />
       <div className="flex flex-col gap-2 mt-5 ">
-        <TabPanel
+        <UnifiedTabPanel
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -68,6 +68,7 @@ export default function Notifications() {
             setCurrentPage(1);
             setSearchQuery("");
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>

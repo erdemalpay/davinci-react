@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
-import { GenericButton } from "../../common/GenericButton";
 import { useOrderContext } from "../../../context/Order.context";
 import { useUserContext } from "../../../context/User.context";
 import {
@@ -17,6 +16,8 @@ import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { useGetUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
+import { GenericButton } from "../../common/GenericButton";
+import Loading from "../../common/Loading";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import {
@@ -51,7 +52,7 @@ const CollectionModal = ({
     note: "",
   });
   if (!collections || !orders || !user) {
-    return null;
+    return <Loading />;
   }
   const allRows = collections
     .filter((collection) => (collection?.table as Table)?._id === table._id)

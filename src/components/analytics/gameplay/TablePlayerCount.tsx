@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../../context/Filter.context";
 import { useGetStoreLocations } from "../../../utils/api/location";
@@ -11,7 +11,6 @@ import { InputTypes } from "../../panelComponents/shared/types";
 const TablePlayerCount = () => {
   const { t } = useTranslation();
   const locations = useGetStoreLocations();
-  const [tableKey, setTableKey] = useState(0);
   const {
     filterTablePlayerCountPanelFormElements,
     setFilterTablePlayerCountPanelFormElements,
@@ -21,78 +20,109 @@ const TablePlayerCount = () => {
   const [month, year] =
     filterTablePlayerCountPanelFormElements.monthYear.split("-");
   const tablePlayerCounts = useGetTablePlayerCounts(month, year);
-  const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
-    return {
-      ...tablePlayerCount,
-      formattedDate: formatAsLocalDate(tablePlayerCount.date),
-      ...locations?.reduce((acc, location) => {
-        acc[location._id.toString()] =
-          tablePlayerCount?.countsByLocation?.[location._id.toString()] ?? "";
-        return acc;
-      }, {} as Record<string, any>),
-    };
-  });
-  const [rows, setRows] = useState<any[]>(allRows);
-  const columns = [
-    { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
-  ];
-  const rowKeys = [
-    {
-      key: "date",
-      className: `min-w-32`,
-      node: (row: any) => {
-        return formatAsLocalDate(row.date);
-      },
-    },
-  ];
-  for (const location of locations) {
-    columns.push({
-      key: location?.name,
-      isSortable: true,
-      correspondingKey: location._id.toString(),
+
+  const rows = useMemo(() => {
+    const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
+      return {
+        ...tablePlayerCount,
+        formattedDate: formatAsLocalDate(tablePlayerCount.date),
+        ...locations?.reduce((acc, location) => {
+          acc[location._id.toString()] =
+            tablePlayerCount?.countsByLocation?.[location._id.toString()] ?? "";
+          return acc;
+        }, {} as Record<string, any>),
+      };
     });
-    rowKeys.push({
-      key: location._id.toString(),
-      className: `min-w-32`,
-    } as any);
-  }
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showTablePlayerCountFilters}
-          onChange={() => {
-            setShowTablePlayerCountFilters(!showTablePlayerCountFilters);
-          }}
-        />
-      ),
-    },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.MONTHYEAR,
-      formKey: "monthYear",
-      label: t("Date"),
-      required: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showTablePlayerCountFilters,
-    inputs: filterPanelInputs,
-    formElements: filterTablePlayerCountPanelFormElements,
-    setFormElements: setFilterTablePlayerCountPanelFormElements,
-    closeFilters: () => setShowTablePlayerCountFilters(false),
-  };
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [tablePlayerCounts, locations, filterTablePlayerCountPanelFormElements]);
+    return allRows || [];
+  }, [tablePlayerCounts, locations]);
+
+  const columns = useMemo(() => {
+    const baseColumns = [
+      { key: t("Date"), isSortable: true, correspondingKey: "formattedDate" },
+    ];
+
+    for (const location of locations) {
+      baseColumns.push({
+        key: location?.name,
+        isSortable: true,
+        correspondingKey: location._id.toString(),
+      });
+    }
+
+    return baseColumns;
+  }, [t, locations]);
+
+  const rowKeys = useMemo(() => {
+    const baseRowKeys = [
+      {
+        key: "date",
+        className: `min-w-32`,
+        node: (row: any) => {
+          return formatAsLocalDate(row.date);
+        },
+      },
+    ];
+
+    for (const location of locations) {
+      baseRowKeys.push({
+        key: location._id.toString(),
+        className: `min-w-32`,
+      } as any);
+    }
+
+    return baseRowKeys;
+  }, [locations]);
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showTablePlayerCountFilters}
+            onChange={() => {
+              setShowTablePlayerCountFilters(!showTablePlayerCountFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [t, showTablePlayerCountFilters, setShowTablePlayerCountFilters]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.MONTHYEAR,
+        formKey: "monthYear",
+        label: t("Date"),
+        required: true,
+      },
+    ],
+    [t]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showTablePlayerCountFilters,
+      inputs: filterPanelInputs,
+      formElements: filterTablePlayerCountPanelFormElements,
+      setFormElements: setFilterTablePlayerCountPanelFormElements,
+      closeFilters: () => setShowTablePlayerCountFilters(false),
+    }),
+    [
+      showTablePlayerCountFilters,
+      filterPanelInputs,
+      filterTablePlayerCountPanelFormElements,
+      setFilterTablePlayerCountPanelFormElements,
+      setShowTablePlayerCountFilters,
+    ]
+  );
+
   return (
     <div className="w-[95%] mx-auto">
       <GenericTable
-        key={tableKey}
         filterPanel={filterPanel}
         rowKeys={rowKeys}
         columns={columns}

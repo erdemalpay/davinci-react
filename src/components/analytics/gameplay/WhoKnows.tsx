@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetAllUsers } from "../../../utils/api/user";
@@ -9,19 +9,15 @@ import SwitchButton from "../../panelComponents/common/SwitchButton";
 type WhoKnowsUser = {
   mentor: string;
 };
-type Props = {};
 
-const WhoKnows = ({}: Props) => {
+const WhoKnows = () => {
   const { t } = useTranslation();
   const users = useGetAllUsers();
   const games = useGetGames();
-  const [tableKey, setTableKey] = useState(1);
-  const [rows, setRows] = useState<WhoKnowsUser[]>([]);
   const [search, setSearch] = useState(0);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
 
-  const columns = [{ key: t("Mentor"), isSortable: true }];
-  useEffect(() => {
+  const rows = useMemo(() => {
     const usersActive = showInactiveUsers
       ? users
       : users.filter((user) => user.active);
@@ -42,22 +38,31 @@ const WhoKnows = ({}: Props) => {
             gameCount: user.userGames.length,
           }));
 
-    setRows(processedUsers);
-    setTableKey((prev) => prev + 1);
+    return processedUsers;
   }, [users, search, showInactiveUsers]);
-  const filters = [
-    {
-      label: t("Show Inactive Users"),
-      isUpperSide: false,
-      node: (
-        <SwitchButton
-          checked={showInactiveUsers}
-          onChange={setShowInactiveUsers}
-        />
-      ),
-    },
-  ];
-  const rowKeys = [{ key: "mentor", className: "min-w-32 pr-1" }];
+
+  const columns = useMemo(() => [{ key: t("Mentor"), isSortable: true }], [t]);
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Inactive Users"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showInactiveUsers}
+            onChange={setShowInactiveUsers}
+          />
+        ),
+      },
+    ],
+    [t, showInactiveUsers]
+  );
+
+  const rowKeys = useMemo(
+    () => [{ key: "mentor", className: "min-w-32 pr-1" }],
+    []
+  );
 
   return (
     <>
@@ -73,7 +78,6 @@ const WhoKnows = ({}: Props) => {
           />
         </div>
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
@@ -81,6 +85,7 @@ const WhoKnows = ({}: Props) => {
           isActionsActive={false}
           title={t("Who Knows?")}
           isSearch={false}
+          showOrientationToggle={false}
         />
       </div>
     </>

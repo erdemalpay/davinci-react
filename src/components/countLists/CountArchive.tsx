@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
@@ -20,10 +20,8 @@ import { useGetStockLocations } from "../../utils/api/location";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { StockLocationInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
-import TextInput from "../panelComponents/FormElements/TextInput";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
@@ -79,298 +77,339 @@ const CountArchive = () => {
   const { resetGeneralContext } = useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
-  const [tableKey, setTableKey] = useState(0);
-  const isDisabledCondition = !(
-    user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user.role._id)
-  );
 
-  const allRows =
-    countsPayload?.data
-      ?.filter((count) => {
-        if (count?.user === user?._id || !isDisabledCondition) {
-          return count;
-        }
-      })
-      .map((count) => {
-        if (!count?.createdAt) {
-          return null;
-        }
-        const startDate = new Date(count?.createdAt);
-        const endDate = new Date(count?.completedAt ?? 0);
-        return {
-          ...count,
-          cntLst: getItem(count?.countList, countLists)?.name,
-          cntLstId: count?.countList,
-          lctn: getItem(count?.location, locations)?.name,
-          lctnId: count?.location,
-          usr: getItem(count?.user, users)?.name,
-          usrId: count?.user,
-          startDate: format(count?.createdAt, "yyyy-MM-dd"),
-          formattedStartDate: formatAsLocalDate(
-            format(count?.createdAt, "yyyy-MM-dd")
-          ),
-          startHour: `${pad(startDate.getHours())}:${pad(
-            startDate.getMinutes()
-          )}`,
-          endDate: count?.completedAt
-            ? format(count?.completedAt, "yyyy-MM-dd")
-            : "",
-          formattedEndDate: count?.completedAt
-            ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
-            : "-",
-          endHour: count?.completedAt
-            ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-            : "-",
-        };
-      })
-      ?.filter((item) => item !== null) ?? [];
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
-    { key: t("Start Hour"), isSortable: true },
-    { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
-    { key: t("End Hour"), isSortable: true },
-    { key: t("NounCount"), isSortable: true, correspondingKey: "countList" },
-    { key: t("Location"), isSortable: true, correspondingKey: "location" },
-    { key: t("User"), isSortable: true, correspondingKey: "user" },
-    { key: t("Status"), isSortable: false },
-  ];
-  if (!isDisabledCondition) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
-  const rowKeys = [
-    {
-      key: "startDate",
-      node: (row: CountArchiveRow) => (
-        <p
-          className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
-          onClick={() => {
-            if (row?.isCompleted) {
-              resetGeneralContext();
-              navigate(`/archive/${row?._id}`);
-            } else {
-              resetGeneralContext();
-              navigate(`/count/${row?.location}/${row?.countList}`);
-            }
-          }}
-        >
-          {row?.formattedStartDate}
-        </p>
-      ),
-      className: "min-w-32",
-    },
-    {
-      key: "startHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "endDate",
-      className: "min-w-32 pr-1",
-      node: (row: CountArchiveRow) => {
-        return <p>{row?.formattedEndDate}</p>;
-      },
-    },
-    {
-      key: "endHour",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "cntLst",
-      className: "min-w-32 pr-1",
-    },
-    { key: "lctn" },
-    { key: "usr" },
-    {
-      key: "isCompleted",
-      node: (row: CountArchiveRow) => {
-        if (row?.isCompleted) {
-          return (
-            <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
-              {t("Completed")}
-            </span>
-          );
-        } else {
-          return (
-            <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
-              {t("Not Completed")}
-            </span>
-          );
-        }
-      },
-    },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "createdBy",
-      label: t("Created By"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Created By"),
-      required: true,
-    },
-
-    StockLocationInput({ locations: locations, required: true }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "countList",
-      label: t("NounCount"),
-      options: countLists?.map((countList) => ({
-        value: countList._id,
-        label: countList.name,
-      })),
-      placeholder: t("NounCount"),
-      required: true,
-    },
-
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-  const actions = [
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            if (!rowToAction?._id) {
-              return;
-            }
-            deleteAccountCount(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Count")}
-          text={`Count ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl  ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: isDisabledCondition,
-    },
-    {
-      name: t("Toggle Active"),
-      isDisabled: isDisabledCondition,
-      isModal: false,
-      isPath: false,
-      icon: null,
-      node: (row: CountArchiveRow) => (
-        <div className="mt-2">
-          <CheckSwitch
-            checked={row.isCompleted}
-            onChange={() => {
-              const newCountProducts = row?.products?.map(
-                (product: AccountCountProduct) => {
-                  return { ...product, isStockEqualized: false };
-                }
-              );
-              updateAccountCount({
-                id: row._id,
-                updates: {
-                  isCompleted: !row.isCompleted,
-                  products: newCountProducts,
-                },
-              });
-            }}
-          ></CheckSwitch>
-        </div>
-      ),
-    },
-  ];
-
-  const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
-  };
-  const pagination = countsPayload
-    ? {
-        totalPages: countsPayload.totalPages,
-        totalRows: countsPayload.totalNumber,
-      }
-    : null;
-  const outsideSearch = () => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelFormElements({
-            ...filterPanelFormElements,
-            search: value,
-          })
-        }
-      />
+  const isDisabledCondition = useMemo(() => {
+    return !(
+      user &&
+      [
+        RoleEnum.MANAGER,
+        RoleEnum.GAMEMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
+      ].includes(user.role._id)
     );
-  };
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements]);
+  }, [user]);
 
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
+  const rows = useMemo(() => {
+    const allRows =
+      countsPayload?.data
+        ?.filter((count) => {
+          if (count?.user === user?._id || !isDisabledCondition) {
+            return count;
+          }
+        })
+        .map((count) => {
+          if (!count?.createdAt) {
+            return null;
+          }
+          const startDate = new Date(count?.createdAt);
+          const endDate = new Date(count?.completedAt ?? 0);
+          return {
+            ...count,
+            cntLst: getItem(count?.countList, countLists)?.name,
+            cntLstId: count?.countList,
+            lctn: getItem(count?.location, locations)?.name,
+            lctnId: count?.location,
+            usr: getItem(count?.user, users)?.name,
+            usrId: count?.user,
+            startDate: format(count?.createdAt, "yyyy-MM-dd"),
+            formattedStartDate: formatAsLocalDate(
+              format(count?.createdAt, "yyyy-MM-dd")
+            ),
+            startHour: `${pad(startDate.getHours())}:${pad(
+              startDate.getMinutes()
+            )}`,
+            endDate: count?.completedAt
+              ? format(count?.completedAt, "yyyy-MM-dd")
+              : "",
+            formattedEndDate: count?.completedAt
+              ? formatAsLocalDate(format(count?.completedAt, "yyyy-MM-dd"))
+              : "-",
+            endHour: count?.completedAt
+              ? `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+              : "-",
+          };
+        })
+        ?.filter((item) => item !== null) ?? [];
+    return allRows;
   }, [
     countsPayload,
     user,
+    isDisabledCondition,
+    countLists,
     locations,
     users,
-    filterPanelFormElements,
-    countLists,
+    pad,
   ]);
+
+  const columns = useMemo(() => {
+    const cols = [
+      { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
+      { key: t("Start Hour"), isSortable: true },
+      { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
+      { key: t("End Hour"), isSortable: true },
+      { key: t("NounCount"), isSortable: true, correspondingKey: "countList" },
+      { key: t("Location"), isSortable: true, correspondingKey: "location" },
+      { key: t("User"), isSortable: true, correspondingKey: "user" },
+      { key: t("Status"), isSortable: false },
+    ];
+    if (!isDisabledCondition) {
+      cols.push({ key: t("Actions"), isSortable: false });
+    }
+    return cols;
+  }, [t, isDisabledCondition]);
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "startDate",
+        node: (row: CountArchiveRow) => (
+          <p
+            className="text-blue-700  w-fit  cursor-pointer hover:text-blue-500 transition-transform"
+            onClick={() => {
+              if (row?.isCompleted) {
+                resetGeneralContext();
+                navigate(`/archive/${row?._id}`);
+              } else {
+                resetGeneralContext();
+                navigate(`/count/${row?.location}/${row?.countList}`);
+              }
+            }}
+          >
+            {row?.formattedStartDate}
+          </p>
+        ),
+        className: "min-w-32",
+      },
+      {
+        key: "startHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "endDate",
+        className: "min-w-32 pr-1",
+        node: (row: CountArchiveRow) => {
+          return <p>{row?.formattedEndDate}</p>;
+        },
+      },
+      {
+        key: "endHour",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "cntLst",
+        className: "min-w-32 pr-1",
+      },
+      { key: "lctn" },
+      { key: "usr" },
+      {
+        key: "isCompleted",
+        node: (row: CountArchiveRow) => {
+          if (row?.isCompleted) {
+            return (
+              <span className="bg-green-500 w-fit px-2 py-1 rounded-md  text-white min-w-32">
+                {t("Completed")}
+              </span>
+            );
+          } else {
+            return (
+              <span className="bg-red-500 w-fit px-2 py-1 rounded-md text-white flex items-center">
+                {t("Not Completed")}
+              </span>
+            );
+          }
+        },
+      },
+    ],
+    [resetGeneralContext, navigate, t]
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "createdBy",
+        label: t("Created By"),
+        options: users
+          .filter((user) => user.active)
+          .map((user) => ({
+            value: user._id,
+            label: user.name,
+          })),
+        placeholder: t("Created By"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "location",
+        label: t("Location"),
+        options: locations.map((input) => ({
+          value: input._id,
+          label: input.name,
+        })),
+        placeholder: t("Location"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "countList",
+        label: t("NounCount"),
+        options: countLists?.map((countList) => ({
+          value: countList._id,
+          label: countList.name,
+        })),
+        placeholder: t("NounCount"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [t, users, locations, countLists]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowFilters(false),
+    }),
+    [
+      showFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      },
+    ],
+    [t, showFilters]
+  );
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              if (!rowToAction?._id) {
+                return;
+              }
+              deleteAccountCount(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Count")}
+            text={`Count ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl  ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: isDisabledCondition,
+      },
+      {
+        name: t("Toggle Active"),
+        isDisabled: isDisabledCondition,
+        isModal: false,
+        isPath: false,
+        icon: null,
+        node: (row: CountArchiveRow) => (
+          <div className="mt-2">
+            <CheckSwitch
+              checked={row.isCompleted}
+              onChange={() => {
+                const newCountProducts = row?.products?.map(
+                  (product: AccountCountProduct) => {
+                    return { ...product, isStockEqualized: false };
+                  }
+                );
+                updateAccountCount({
+                  id: row._id,
+                  updates: {
+                    isCompleted: !row.isCompleted,
+                    products: newCountProducts,
+                  },
+                });
+              }}
+            ></CheckSwitch>
+          </div>
+        ),
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      deleteAccountCount,
+      isDisabledCondition,
+      updateAccountCount,
+    ]
+  );
+
+  const outsideSort = useMemo(
+    () => ({
+      filterPanelFormElements: filterPanelFormElements,
+      setFilterPanelFormElements: setFilterPanelFormElements,
+    }),
+    [filterPanelFormElements]
+  );
+
+  const pagination = useMemo(() => {
+    return countsPayload
+      ? {
+          totalPages: countsPayload.totalPages,
+          totalRows: countsPayload.totalNumber,
+        }
+      : null;
+  }, [countsPayload]);
+
+  const outsideSearchProps = useMemo(() => {
+    return {
+      t,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    };
+  }, [t, filterPanelFormElements, setFilterPanelFormElements]);
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [filterPanelFormElements, setCurrentPage]);
 
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
-          outsideSearch={outsideSearch}
+          outsideSearchProps={outsideSearchProps}
           isSearch={false}
           title={t("Count Archive")}
           filterPanel={filterPanel}

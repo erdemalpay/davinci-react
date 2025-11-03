@@ -3,7 +3,7 @@ import ExpirationCountArchive from "../components/expiration/ExpirationCountArch
 import ExpirationListProducts from "../components/expiration/ExpirationListProducts";
 import ExpirationLists from "../components/expiration/ExpirationLists";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { ExpirationPageTabEnum } from "../types";
@@ -54,10 +54,11 @@ export default function Expirations() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={expirationActiveTab}
         setActiveTab={setExpirationActiveTab}
+        allowOrientationToggle={true}
       />
     </>
   );

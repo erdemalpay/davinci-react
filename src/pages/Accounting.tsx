@@ -2,11 +2,13 @@ import { AiOutlinePercentage } from "react-icons/ai";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaServicestack } from "react-icons/fa";
 import { FaKitchenSet } from "react-icons/fa6";
+import { GrActions } from "react-icons/gr";
 import { IoStorefrontSharp } from "react-icons/io5";
 import { MdEditNote, MdOutlinePayment } from "react-icons/md";
 import { RiProductHuntLine } from "react-icons/ri";
 import { SiImprovmx } from "react-icons/si";
 import { TbBrandBlogger, TbCategoryPlus, TbZoomMoney } from "react-icons/tb";
+import Actions from "../components/accounting/Actions";
 import Brand from "../components/accounting/Brand";
 import ExpenseType from "../components/accounting/ExpenseType";
 import KitchenPage from "../components/accounting/Kitchen";
@@ -20,7 +22,7 @@ import Service from "../components/accounting/Service";
 import UpperCategories from "../components/accounting/UpperCategories";
 import Vendor from "../components/accounting/Vendor";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { AccountingPageTabEnum } from "../types";
@@ -111,6 +113,13 @@ export const AccountingPageTabs = [
     content: <OrderNotes />,
     isDisabled: false,
   },
+  {
+    number: AccountingPageTabEnum.ACTIONS,
+    label: "Actions",
+    icon: <GrActions className="text-lg font-thin" />,
+    content: <Actions />,
+    isDisabled: false,
+  },
 ];
 export default function Accounting() {
   const { accountingActiveTab, setAccountingActiveTab } = useGeneralContext();
@@ -134,10 +143,11 @@ export default function Accounting() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={accountingActiveTab}
         setActiveTab={setAccountingActiveTab}
+        allowOrientationToggle={true}
       />
     </>
   );

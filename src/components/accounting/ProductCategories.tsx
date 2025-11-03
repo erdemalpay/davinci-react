@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
@@ -8,7 +8,6 @@ import {
   useGetIkasCategories,
   useIkasCategoriesMutations,
 } from "../../utils/api/account/productCategories";
-import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -18,155 +17,175 @@ const ProductCategoriesPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const productCategories = useGetIkasCategories();
-  const [tableKey, setTableKey] = useState(0);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [
     isCloseAllConfirmationDialogOpen,
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<ProductCategories>();
+
   const {
     createProductCategories,
     updateProductCategories,
     deleteProductCategories,
   } = useIkasCategoriesMutations();
-  const [rows, setRows] = useState(productCategories);
-  const columns = [
-    { key: t("Name"), isSortable: true },
-    { key: "Ikas ID", isSortable: false },
-  ];
-  if (
-    user &&
-    [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-  ) {
-    columns.push({ key: t("Actions"), isSortable: false });
-  }
-  const rowKeys = [
-    {
-      key: "name",
-      className: "min-w-32 pr-1",
-    },
-    {
-      key: "ikasId",
-      className: "min-w-32 pr-1",
-    },
-  ];
-  const inputs = [
-    NameInput(),
-    {
-      type: InputTypes.TEXT,
-      formKey: "ikasId",
-      label: "Ikas ID",
-      placeholder: "Ikas ID",
-      required: false,
-    },
-  ];
-  const formKeys = [
-    { key: "name", type: FormKeyTypeEnum.STRING },
-    { key: "ikasId", type: FormKeyTypeEnum.STRING },
-  ];
 
-  const addButton = {
-    name: t(`Add Product Category`),
-    isModal: true,
-    modal: (
-      <GenericAddEditPanel
-        isOpen={isAddModalOpen}
-        close={() => setIsAddModalOpen(false)}
-        inputs={inputs}
-        formKeys={formKeys}
-        submitItem={createProductCategories as any}
-        topClassName="flex flex-col gap-2 "
-      />
-    ),
-    isModalOpen: isAddModalOpen,
-    setIsModal: setIsAddModalOpen,
-    isPath: false,
-    icon: null,
-    className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-    isDisabled: user
-      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-      : true,
-  };
-  const actions = [
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl ",
+  const canManage =
+    !!user &&
+    [
+      RoleEnum.MANAGER,
+      RoleEnum.GAMEMANAGER,
+      RoleEnum.OPERATIONSASISTANT,
+    ].includes(user?.role?._id);
+
+  const rows = useMemo(() => productCategories, [productCategories]);
+
+  const columns = useMemo(() => {
+    const base = [
+      { key: t("Name"), isSortable: true },
+      { key: "Ikas ID", isSortable: false },
+    ];
+    return canManage
+      ? [...base, { key: t("Actions"), isSortable: false }]
+      : base;
+  }, [t, canManage]);
+
+  const rowKeys = useMemo(
+    () => [
+      { key: "name", className: "min-w-32 pr-1" },
+      { key: "ikasId", className: "min-w-32 pr-1" },
+    ],
+    []
+  );
+
+  const inputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "name",
+        label: t("Name"),
+        placeholder: t("Name"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "ikasId",
+        label: "Ikas ID",
+        placeholder: "Ikas ID",
+        required: false,
+      },
+    ],
+    []
+  );
+
+  const formKeys = useMemo(
+    () => [
+      { key: "name", type: FormKeyTypeEnum.STRING },
+      { key: "ikasId", type: FormKeyTypeEnum.STRING },
+    ],
+    []
+  );
+
+  const addButton = useMemo(
+    () => ({
+      name: t(`Add Product Category`),
       isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
+      modal: (
         <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
+          isOpen={isAddModalOpen}
+          close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          submitItem={updateProductCategories as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          submitItem={createProductCategories as any}
+          topClassName="flex flex-col gap-2"
         />
-      ) : null,
+      ),
+      isModalOpen: isAddModalOpen,
+      setIsModal: setIsAddModalOpen,
+      isPath: false,
+      icon: null,
+      className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: !canManage,
+    }),
+    [t, isAddModalOpen, canManage, inputs, formKeys, createProductCategories]
+  );
 
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
-      isPath: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-        : true,
-    },
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteProductCategories(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Product Category")}
-          text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-      isDisabled: user
-        ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id)
-        : true,
-    },
-  ];
-  useEffect(() => {
-    setRows(productCategories);
-    setTableKey((prev) => prev + 1);
-  }, [productCategories]);
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Edit"),
+        icon: <FiEdit />,
+        className: "text-blue-500 cursor-pointer text-xl",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            inputs={inputs}
+            formKeys={formKeys}
+            submitItem={updateProductCategories as any}
+            isEditMode
+            topClassName="flex flex-col gap-2"
+            itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          />
+        ) : null,
+        isModalOpen: isEditModalOpen,
+        setIsModal: setIsEditModalOpen,
+        isPath: false,
+        isDisabled: !canManage,
+      },
+      {
+        name: t("Delete"),
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteProductCategories(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Product Category")}
+            text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+        isDisabled: !canManage,
+      },
+    ],
+    [
+      t,
+      rowToAction,
+      isEditModalOpen,
+      isCloseAllConfirmationDialogOpen,
+      inputs,
+      formKeys,
+      updateProductCategories,
+      deleteProductCategories,
+      canManage,
+    ]
+  );
+
   return (
-    <>
-      <div className="w-[95%] mx-auto ">
-        <GenericTable
-          key={tableKey}
-          rowKeys={rowKeys}
-          actions={actions}
-          columns={columns}
-          rows={rows}
-          title={t("Ikas Categories")}
-          addButton={addButton}
-          isActionsActive={
-            user
-              ? [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER, RoleEnum.OPERATIONSASISTANT].includes(
-                  user?.role?._id
-                )
-              : false
-          }
-        />
-      </div>
-    </>
+    <div className="w-[95%] mx-auto ">
+      <GenericTable
+        rowKeys={rowKeys}
+        actions={actions}
+        columns={columns}
+        rows={rows}
+        title={t("Ikas Categories")}
+        addButton={addButton}
+        isActionsActive={canManage}
+      />
+    </div>
   );
 };
 

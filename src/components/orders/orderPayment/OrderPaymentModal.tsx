@@ -42,6 +42,7 @@ import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
 import { GenericButton } from "../../common/GenericButton";
+import Loading from "../../common/Loading";
 import GenericAddEditPanel from "../../panelComponents/FormElements/GenericAddEditPanel";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 import {
@@ -95,7 +96,7 @@ const OrderPaymentModal = ({
     setSelectedNewOrders,
     selectedNewOrders,
   } = useOrderContext();
-  if (!orders || !users || !user) return null;
+  if (!orders || !users || !user) return <Loading />;
   const [selectedUser, setSelectedUser] = useState<User>(user);
   const userOptions = activeUsers
     .map((user) => {
@@ -129,6 +130,7 @@ const OrderPaymentModal = ({
   const discounts = useGetOrderDiscounts();
   const kitchens = useGetKitchens();
   const products = useGetAllAccountProducts();
+  const { paymentAmount } = useOrderContext();
   const [selectedActivityUser, setSelectedActivityUser] = useState<string>("");
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
   const { createOrder } = useOrderMutations();
@@ -172,48 +174,125 @@ const OrderPaymentModal = ({
   const { mutate: closeTable } = useCloseTableMutation();
   if (!user || !orders || !collections) return null;
 
-  const allTableOrders = orders?.filter(
-    (order) =>
-      (order?.table as Table)?._id === tableId &&
-      order.status !== OrderStatus.CANCELLED
+  const allTableOrders = useMemo(
+    () =>
+      orders?.filter(
+        (order) =>
+          (order?.table as Table)?._id === tableId &&
+          order.status !== OrderStatus.CANCELLED
+      ),
+    [orders, tableId]
   );
-
-  const tableOrders = allTableOrders?.filter(
-    (order) =>
-      selectedActivityUser === "" ||
-      order.activityPlayer === selectedActivityUser
+  const tableOrders = useMemo(
+    () =>
+      allTableOrders?.filter(
+        (order) =>
+          selectedActivityUser === "" ||
+          order.activityPlayer === selectedActivityUser
+      ),
+    [allTableOrders, selectedActivityUser]
   );
-  const collectionsTotalAmount = Number(
-    collections
-      ?.filter(
-        (collection) =>
-          (collection?.table as Table)?._id === tableId &&
-          (selectedActivityUser === "" ||
-            collection?.activityPlayer === selectedActivityUser)
-      )
-      ?.reduce((acc, collection) => {
-        if (collection?.status === OrderCollectionStatus.CANCELLED) {
+  const allTotalAmount = useMemo(
+    () =>
+      allTableOrders?.reduce((acc, order) => {
+        return acc + order.unitPrice * order.quantity;
+      }, 0),
+    [allTableOrders]
+  );
+  const allCollectionsTotalAmount = useMemo(
+    () =>
+      Number(
+        collections
+          ?.filter(
+            (collection) => (collection?.table as Table)?._id === tableId
+          )
+          ?.reduce((acc, collection) => {
+            if (collection?.status === OrderCollectionStatus.CANCELLED) {
+              return acc;
+            }
+            return acc + (collection?.amount ?? 0);
+          }, 0)
+      ),
+    [collections, tableId, selectedActivityUser]
+  );
+  const collectionsTotalAmount = useMemo(
+    () =>
+      Number(
+        collections
+          ?.filter(
+            (collection) =>
+              (collection?.table as Table)?._id === tableId &&
+              (selectedActivityUser === "" ||
+                collection?.activityPlayer === selectedActivityUser)
+          )
+          ?.reduce((acc, collection) => {
+            if (collection?.status === OrderCollectionStatus.CANCELLED) {
+              return acc;
+            }
+            return acc + (collection?.amount ?? 0);
+          }, 0)
+      ),
+    [collections, tableId, selectedActivityUser]
+  );
+  const allDiscountAmount = useMemo(
+    () =>
+      allTableOrders?.reduce((acc, order) => {
+        if (!order.discount) {
           return acc;
         }
-        return acc + (collection?.amount ?? 0);
-      }, 0)
+        const discountValue =
+          (order.unitPrice *
+            order.quantity *
+            (order?.discountPercentage ?? 0)) /
+            100 +
+          (order?.discountAmount ?? 0) * order.quantity;
+        return acc + discountValue;
+      }, 0),
+    [allTableOrders]
   );
-  const discountAmount = tableOrders?.reduce((acc, order) => {
-    if (!order.discount) {
-      return acc;
-    }
-    const discountValue =
-      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
-        100 +
-      (order?.discountAmount ?? 0) * order.quantity;
-    return acc + discountValue;
-  }, 0);
-  const totalAmount = tableOrders?.reduce((acc, order) => {
-    return acc + order.unitPrice * order.quantity;
-  }, 0);
+  const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
+  const allTotalMoneySpend = allCollectionsTotalAmount + Number(paymentAmount);
+  const discountAmount = useMemo(
+    () =>
+      tableOrders?.reduce((acc, order) => {
+        if (!order.discount) {
+          return acc;
+        }
+        const discountValue =
+          (order.unitPrice *
+            order.quantity *
+            (order?.discountPercentage ?? 0)) /
+            100 +
+          (order?.discountAmount ?? 0) * order.quantity;
+        return acc + discountValue;
+      }, 0),
+    [tableOrders]
+  );
+  const totalAmount = useMemo(
+    () =>
+      tableOrders?.reduce((acc, order) => {
+        return acc + order.unitPrice * order.quantity;
+      }, 0),
+    [tableOrders]
+  );
+  const isTableItemsPaid = useMemo(
+    () =>
+      tableOrders?.every((order) => order.paidQuantity === order.quantity) &&
+      collectionsTotalAmount >= totalAmount - discountAmount,
+    [tableOrders, collectionsTotalAmount, totalAmount, discountAmount]
+  );
+  const refundAmount = Math.max(
+    totalMoneySpend - (totalAmount - discountAmount),
+    allTotalMoneySpend - (allTotalAmount - allDiscountAmount)
+  );
+
   const isAllItemsPaid =
     allTableOrders?.every((order) => order.paidQuantity === order.quantity) &&
     collectionsTotalAmount >= totalAmount - discountAmount;
+  const unpaidAmount = Math.min(
+    totalAmount - discountAmount - collectionsTotalAmount,
+    allTotalAmount - allDiscountAmount - allCollectionsTotalAmount
+  );
   const handlePrint = () => {
     const printFrame = document.createElement("iframe");
     printFrame.style.visibility = "hidden";
@@ -304,7 +383,7 @@ const OrderPaymentModal = ({
               TURKISHLIRA,
             })
           );
-          return;
+          // return;
         }
         setIsCloseConfirmationDialogOpen(true);
       },
@@ -347,7 +426,8 @@ const OrderPaymentModal = ({
     return items
       ?.filter((menuItem) => {
         return (
-          !orderForm.category || menuItem.category === Number(orderForm.category)
+          !orderForm.category ||
+          menuItem.category === Number(orderForm.category)
         );
       })
       ?.filter((item) => {
@@ -362,7 +442,14 @@ const OrderPaymentModal = ({
       ?.map((menuItem) => {
         return {
           value: menuItem?._id,
-          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          label:
+            menuItem?.name +
+            " (" +
+            (orderForm.isOnlinePrice && menuItem?.onlinePrice
+              ? menuItem.onlinePrice
+              : menuItem.price) +
+            TURKISHLIRA +
+            ")",
           imageUrl: menuItem?.imageUrl,
           keywords: [
             menuItem?.name,
@@ -455,7 +542,14 @@ const OrderPaymentModal = ({
           ?.map((menuItem) => {
             return {
               value: menuItem?._id,
-              label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+              label:
+                menuItem?.name +
+                " (" +
+                (orderForm.isOnlinePrice && menuItem?.onlinePrice
+                  ? menuItem.onlinePrice
+                  : menuItem.price) +
+                TURKISHLIRA +
+                ")",
               imageUrl: menuItem?.imageUrl,
             };
           });
@@ -644,6 +738,7 @@ const OrderPaymentModal = ({
       placeholder: t("Player Number"),
       required: false,
       isDisabled: table?.type !== TableTypes.ACTIVITY,
+      isOnClearActive: true,
     },
     {
       type: InputTypes.TEXTAREA,
@@ -1018,17 +1113,22 @@ const OrderPaymentModal = ({
                 </div>
               </div>
               {/* payment part */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 h-full ">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-2 h-full min-h-0">
                 <OrderLists
                   table={table}
                   tableOrders={tableOrders}
                   collectionsTotalAmount={collectionsTotalAmount}
                   tables={tables}
+                  totalAmount={totalAmount}
+                  discountAmount={discountAmount}
+                  unpaidAmount={unpaidAmount}
                 />
                 <OrderTotal
                   tableOrders={tableOrders}
                   table={table}
                   collectionsTotalAmount={collectionsTotalAmount}
+                  refundAmount={refundAmount}
+                  unpaidAmount={unpaidAmount}
                 />
                 <OrderPaymentTypes
                   table={table}
@@ -1038,6 +1138,16 @@ const OrderPaymentModal = ({
                   givenDateOrders={orders ?? []}
                   givenDateCollections={collections ?? []}
                   user={selectedUser}
+                  allCollectionsTotalAmount={allCollectionsTotalAmount}
+                  allTotalAmount={allTotalAmount}
+                  allTableOrders={allTableOrders}
+                  isTableItemsPaid={isTableItemsPaid}
+                  totalMoneySpend={totalMoneySpend}
+                  totalAmount={totalAmount}
+                  discountAmount={discountAmount}
+                  allTotalMoneySpend={allTotalMoneySpend}
+                  allDiscountAmount={allDiscountAmount}
+                  refundAmount={refundAmount}
                 />
               </div>
             </div>

@@ -101,7 +101,10 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "countChanged",
-    invalidateKeys: [`${Paths.Accounting}/counts`],
+    invalidateKeys: [
+      `${Paths.Accounting}/counts`,
+      `${Paths.Accounting}/counts/query`,
+    ],
   },
   {
     event: "countListChanged",
@@ -229,4 +232,16 @@ export const socketEventListeners: SocketEventType[] = [
   },
   { event: "notificationChanged", invalidateKeys: [`${Paths.Notification}`] },
   { event: "feedbackChanged", invalidateKeys: [`${Paths.Tables}/feedback`] },
+  {
+    event: "disabledConditionChanged",
+    invalidateKeys: [`${Paths.PanelControl}/disabled-conditions`],
+  },
+  {
+    event: "actionChanged",
+    invalidateKeys: [`${Paths.PanelControl}/actions`],
+  },
+  {
+    event: "taskTrackChanged",
+    invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
+  },
 ];

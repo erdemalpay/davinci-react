@@ -211,7 +211,14 @@ export function TableCard({
       ?.map((menuItem) => {
         return {
           value: menuItem?._id,
-          label: menuItem?.name + " (" + (orderForm.isOnlinePrice && menuItem?.onlinePrice ? menuItem.onlinePrice : menuItem.price) + TURKISHLIRA + ")",
+          label:
+            menuItem?.name +
+            " (" +
+            (orderForm.isOnlinePrice && menuItem?.onlinePrice
+              ? menuItem.onlinePrice
+              : menuItem.price) +
+            TURKISHLIRA +
+            ")",
           imageUrl: menuItem?.imageUrl,
           keywords: [
             menuItem?.name,
@@ -392,7 +399,7 @@ export function TableCard({
         isTopFlexRow: true,
       },
       {
-        type: InputTypes.SELECT,
+        type: InputTypes.TAB,
         formKey: "discount",
         label: t("Discount"),
         options: orderForm?.item
@@ -457,6 +464,7 @@ export function TableCard({
               )?.isNoteRequired)) ??
           true,
       },
+      //deneme deneme deneme
       {
         type: InputTypes.SELECT,
         formKey: "discountNote",
@@ -527,20 +535,13 @@ export function TableCard({
         isDisabled: table?.type !== TableTypes.ACTIVITY,
       },
       {
-        type: InputTypes.TEXTAREA,
+        type: InputTypes.TEXT,
         formKey: "activityPlayer",
         label: t("Player Number"),
         placeholder: t("Player Number"),
         required: false,
-        inputClassName: "p-0 h-10",
-        options:
-          tableOrders
-            ?.filter((order) => order?.activityPlayer)
-            ?.map((order) => ({
-              value: order.activityPlayer,
-              label: order.activityPlayer,
-            })) ?? [],
         isDisabled: table?.type !== TableTypes.ACTIVITY,
+        isOnClearActive: true,
       },
       {
         type: InputTypes.TEXTAREA,
@@ -969,14 +970,18 @@ export function TableCard({
         {/* table orders */}
         {tableOrders && tableOrders?.length > 0 && showAllOrders && (
           <div className="flex flex-col gap-2 mt-2 ">
-            {(tableOrders as Order[])?.map((order) => {
-              if (
-                order.status === OrderStatus.CANCELLED ||
-                (!showServedOrders && order.status === OrderStatus.SERVED)
-              )
-                return null;
-              return <OrderCard key={order?._id} order={order} table={table} />;
-            })}
+            {(tableOrders as Order[])
+              ?.filter((order) => {
+                return !(
+                  order?.status === OrderStatus.CANCELLED ||
+                  (!showServedOrders && order.status === OrderStatus.SERVED)
+                );
+              })
+              ?.map((order) => {
+                return (
+                  <OrderCard key={order?._id} order={order} table={table} />
+                );
+              })}
           </div>
         )}
       </div>
@@ -1009,12 +1014,14 @@ export function TableCard({
         title={t("Delete Table")}
         text={t("DeleteTableMessage")}
       />
+
       {isTableCardCreateOrderDialogOpen && (
         <GenericAddEditPanel
           isOpen={isTableCardCreateOrderDialogOpen}
           close={() => {
             setOrderCreateBulk([]);
             setIsTableCardCreateOrderDialogOpen(false);
+
             setSelectedNewOrders([]);
             setIsTabInputScreenOpen(false);
           }}

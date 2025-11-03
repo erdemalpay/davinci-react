@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { Authorization } from "../../types";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, Authorization, DisabledConditionEnum } from "../../types";
 import {
   useAuthorizationMutations,
   useGetAuthorizations,
 } from "../../utils/api/authorization";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
@@ -44,9 +46,10 @@ const RouteAuthorizationPermissions = () => {
   const { t } = useTranslation();
   const roles = useGetAllUserRoles();
   const authorizations = useGetAuthorizations();
-  const [tableKey, setTableKey] = useState(0);
   const pages = useGetPanelControlPages();
   const [isEnableEdit, setIsEnableEdit] = useState(false);
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Authorization>();
   const [
@@ -60,48 +63,72 @@ const RouteAuthorizationPermissions = () => {
       method: "",
     });
   const [showFilters, setShowFilters] = useState(false);
-  const allRows = authorizations?.filter((row: Authorization) => {
-    if (filterPanelFormElements.method) {
-      return row.method === filterPanelFormElements.method;
-    }
-    return true;
-  });
-  const [rows, setRows] = useState(allRows);
-  const methodOptions = [
-    { value: "GET", label: "GET" },
-    { value: "POST", label: "POST" },
-    { value: "PUT", label: "PUT" },
-    { value: "DELETE", label: "DELETE" },
-    { value: "PATCH", label: "PATCH" },
-    { value: "OPTIONS", label: "OPTIONS" },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "method",
-      label: t("Method"),
-      options: methodOptions,
-      placeholder: t("Method"),
-      required: true,
-    },
-  ];
-  const inputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "relatedPages",
-      label: t("Related Pages"),
-      options: pages.map((page) => {
-        return {
+
+  const routeAuthorizationPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.PANELCONTROL_ROUTEAUTHORIZATIONPERMISSIONS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
+  const rows = useMemo(() => {
+    return authorizations?.filter((row: Authorization) => {
+      if (filterPanelFormElements.method) {
+        return row.method === filterPanelFormElements.method;
+      }
+      return true;
+    });
+  }, [authorizations, filterPanelFormElements]);
+
+  const methodOptions = useMemo(
+    () => [
+      { value: "GET", label: "GET" },
+      { value: "POST", label: "POST" },
+      { value: "PUT", label: "PUT" },
+      { value: "DELETE", label: "DELETE" },
+      { value: "PATCH", label: "PATCH" },
+      { value: "OPTIONS", label: "OPTIONS" },
+    ],
+    []
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "method",
+        label: t("Method"),
+        options: methodOptions,
+        placeholder: t("Method"),
+        required: true,
+      },
+    ],
+    [t, methodOptions]
+  );
+
+  const inputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "relatedPages",
+        label: t("Related Pages"),
+        options: pages.map((page) => ({
           value: page._id,
           label: page.name,
-        };
-      }),
-      isMultiple: true,
-      placeholder: t("Related Pages"),
-      required: false,
-    },
-  ];
-  const formKeys = [{ key: "relatedPages", type: FormKeyTypeEnum.STRING }];
+        })),
+        isMultiple: true,
+        placeholder: t("Related Pages"),
+        required: false,
+      },
+    ],
+    [t, pages]
+  );
+
+  const formKeys = useMemo(
+    () => [{ key: "relatedPages", type: FormKeyTypeEnum.STRING }],
+    []
+  );
+
   function handleRolePermission(row: Authorization, roleKey: number) {
     const newPermissionRoles = row?.roles || [];
     const index = newPermissionRoles.indexOf(roleKey);
@@ -116,6 +143,7 @@ const RouteAuthorizationPermissions = () => {
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
+
   function handleAllRolePermission(row: Authorization) {
     const hasAllRoles = roles.every((role) => row?.roles?.includes(role._id));
     const newPermissionRoles = hasAllRoles ? [] : roles.map((role) => role._id);
@@ -127,182 +155,245 @@ const RouteAuthorizationPermissions = () => {
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
 
-  const columns = [
-    { key: t("Method"), isSortable: true },
-    { key: t("Path"), isSortable: true },
-    { key: t("Related Pages"), isSortable: true },
-    { key: t("All"), isSortable: false },
-  ];
-  const rowKeys = [
-    {
-      key: "method",
-      node: (row: any) => {
-        return (
-          <div className=" min-w-32">
-            <p
-              className="w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold text-white"
-              style={{
-                backgroundColor: methodBgColor(row?.method),
-              }}
-            >
-              {row?.method}
-            </p>
-          </div>
-        );
-      },
-    },
-    { key: "path" },
-    {
-      key: "relatedPages",
-      node: (row: any) => {
-        return (
-          <div className="flex flex-col gap-2 min-w-32">
-            {row?.relatedPages?.map((page: any, index: number) => {
-              const foundPage = getItem(page, pages);
-              return (
-                <p key={index} className="text-gray-500">
-                  {foundPage?.name}
-                </p>
-              );
-            })}
-          </div>
-        );
-      },
-    },
-    {
-      key: "all",
-      node: (row: any) => {
-        // Check if every role is assigned to this row
-        const hasAllRoles = roles.every((role) =>
-          row?.roles?.includes(role._id)
-        );
-        return (
-          <div className="flex flex-col gap-2 min-w-32">
-            {isEnableEdit ? (
-              <CheckSwitch
-                checked={hasAllRoles}
-                onChange={() => handleAllRolePermission(row)}
-              />
-            ) : hasAllRoles ? (
-              <IoCheckmark className="text-blue-500 text-2xl" />
-            ) : (
-              <IoCloseOutline className="text-red-800 text-2xl" />
-            )}
-          </div>
-        );
-      },
-    },
-  ];
-  // Adding roles columns and rowkeys
-  for (const role of roles) {
-    columns.push({ key: role.name, isSortable: true });
-    rowKeys.push({
-      key: role._id.toString(),
-      node: (row: any) => {
-        const hasPermission = row?.roles?.includes(role._id);
-        return isEnableEdit ? (
-          <CheckSwitch
-            checked={hasPermission}
-            onChange={() => handleRolePermission(row, role._id)}
-          />
-        ) : hasPermission ? (
-          <IoCheckmark className={`text-blue-500 text-2xl `} />
-        ) : (
-          <IoCloseOutline className={`text-red-800 text-2xl `} />
-        );
-      },
-    } as any);
-  }
-  columns.push({ key: t("Actions"), isSortable: false });
-  const actions = [
-    {
-      name: t("Edit"),
-      icon: <FiEdit />,
-      className: "text-blue-500 cursor-pointer text-xl",
-      isModal: true,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <GenericAddEditPanel
-          isOpen={isEditModalOpen}
-          close={() => setIsEditModalOpen(false)}
-          inputs={inputs}
-          formKeys={formKeys}
-          submitItem={updateAuthorization as any}
-          isEditMode={true}
-          topClassName="flex flex-col gap-2 "
-          itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
-        />
-      ) : null,
-      isModalOpen: isEditModalOpen,
-      setIsModal: setIsEditModalOpen,
-      isPath: false,
-    },
-    {
-      name: t("Delete"),
-      icon: <HiOutlineTrash />,
-      setRow: setRowToAction,
-      modal: rowToAction ? (
-        <ConfirmationDialog
-          isOpen={isCloseAllConfirmationDialogOpen}
-          close={() => setIsCloseAllConfirmationDialogOpen(false)}
-          confirm={() => {
-            deleteAuthorization(rowToAction?._id);
-            setIsCloseAllConfirmationDialogOpen(false);
-          }}
-          title={t("Delete Route Authorization")}
-          text={`${rowToAction.path} ${t("GeneralDeleteMessage")}`}
-        />
-      ) : null,
-      className: "text-red-500 cursor-pointer text-2xl ",
-      isModal: true,
-      isModalOpen: isCloseAllConfirmationDialogOpen,
-      setIsModal: setIsCloseAllConfirmationDialogOpen,
-      isPath: false,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [authorizations, roles, filterPanelFormElements, pages]);
+  const { columns, rowKeys } = useMemo(() => {
+    const cols = [
+      { key: t("Method"), isSortable: true },
+      { key: t("Path"), isSortable: true },
+      { key: t("Related Pages"), isSortable: true },
+      { key: t("All"), isSortable: false },
+    ];
 
-  const filters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showFilters}
-          onChange={() => {
-            setShowFilters(!showFilters);
-          }}
-        />
-      ),
-    },
-  ];
+    const keys = [
+      {
+        key: "method",
+        node: (row: any) => {
+          return (
+            <div className=" min-w-32">
+              <p
+                className="w-fit rounded-md text-sm ml-2 px-2 py-1 font-semibold text-white"
+                style={{
+                  backgroundColor: methodBgColor(row?.method),
+                }}
+              >
+                {row?.method}
+              </p>
+            </div>
+          );
+        },
+      },
+      { key: "path" },
+      {
+        key: "relatedPages",
+        node: (row: any) => {
+          return (
+            <div className="flex flex-col gap-2 min-w-32">
+              {row?.relatedPages?.map((page: any, index: number) => {
+                const foundPage = getItem(page, pages);
+                return (
+                  <p key={index} className="text-gray-500">
+                    {foundPage?.name}
+                  </p>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        key: "all",
+        node: (row: any) => {
+          // Check if every role is assigned to this row
+          const hasAllRoles = roles.every((role) =>
+            row?.roles?.includes(role._id)
+          );
+          return (
+            <div className="flex flex-col gap-2 min-w-32">
+              {isEnableEdit ? (
+                <CheckSwitch
+                  checked={hasAllRoles}
+                  onChange={() => handleAllRolePermission(row)}
+                />
+              ) : hasAllRoles ? (
+                <IoCheckmark className="text-blue-500 text-2xl" />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl" />
+              )}
+            </div>
+          );
+        },
+      },
+    ];
+
+    // Adding roles columns and rowkeys
+    for (const role of roles) {
+      cols.push({ key: role.name, isSortable: true });
+      keys.push({
+        key: role._id.toString(),
+        node: (row: any) => {
+          const hasPermission = row?.roles?.includes(role._id);
+          return isEnableEdit ? (
+            <CheckSwitch
+              checked={hasPermission}
+              onChange={() => handleRolePermission(row, role._id)}
+            />
+          ) : hasPermission ? (
+            <IoCheckmark className={`text-blue-500 text-2xl `} />
+          ) : (
+            <IoCloseOutline className={`text-red-800 text-2xl `} />
+          );
+        },
+      } as any);
+    }
+    cols.push({ key: t("Actions"), isSortable: false });
+
+    return { columns: cols, rowKeys: keys };
+  }, [t, pages, roles, isEnableEdit, updateAuthorization]);
+
+  const actions = useMemo(
+    () => [
+      {
+        name: t("Edit"),
+        isDisabled:
+          routeAuthorizationPageDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ) ?? false,
+        icon: <FiEdit />,
+        className: "text-blue-500 cursor-pointer text-xl",
+        isModal: true,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <GenericAddEditPanel
+            isOpen={isEditModalOpen}
+            close={() => setIsEditModalOpen(false)}
+            inputs={inputs}
+            formKeys={formKeys}
+            submitItem={updateAuthorization as any}
+            isEditMode={true}
+            topClassName="flex flex-col gap-2 "
+            itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          />
+        ) : null,
+        isModalOpen: isEditModalOpen,
+        setIsModal: setIsEditModalOpen,
+        isPath: false,
+      },
+      {
+        name: t("Delete"),
+        isDisabled:
+          routeAuthorizationPageDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.DELETE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ) ?? false,
+        icon: <HiOutlineTrash />,
+        setRow: setRowToAction,
+        modal: rowToAction ? (
+          <ConfirmationDialog
+            isOpen={isCloseAllConfirmationDialogOpen}
+            close={() => setIsCloseAllConfirmationDialogOpen(false)}
+            confirm={() => {
+              deleteAuthorization(rowToAction?._id);
+              setIsCloseAllConfirmationDialogOpen(false);
+            }}
+            title={t("Delete Route Authorization")}
+            text={`${rowToAction.path} ${t("GeneralDeleteMessage")}`}
+          />
+        ) : null,
+        className: "text-red-500 cursor-pointer text-2xl ",
+        isModal: true,
+        isModalOpen: isCloseAllConfirmationDialogOpen,
+        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isPath: false,
+      },
+    ],
+    [
+      t,
+      routeAuthorizationPageDisabledCondition,
+      user,
+      isEditModalOpen,
+      inputs,
+      formKeys,
+      updateAuthorization,
+      rowToAction,
+      isCloseAllConfirmationDialogOpen,
+      deleteAuthorization,
+    ]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowFilters(false),
+    }),
+    [
+      showFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+
+  const isEnableEditDisabled = useMemo(() => {
+    return (
+      routeAuthorizationPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ENABLEEDIT &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false
+    );
+  }, [routeAuthorizationPageDisabledCondition, user]);
+
+  const filters = useMemo(
+    () => [
+      ...(!isEnableEditDisabled
+        ? [
+            {
+              label: t("Enable Edit"),
+              isUpperSide: true,
+              node: (
+                <SwitchButton
+                  checked={isEnableEdit}
+                  onChange={setIsEnableEdit}
+                />
+              ),
+            },
+          ]
+        : []),
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showFilters}
+            onChange={() => {
+              setShowFilters(!showFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [t, isEnableEditDisabled, isEnableEdit, showFilters]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           rows={rows}
           filters={filters}
           filterPanel={filterPanel}
           title={t("Route Authorization Permissions")}
-          isActionsActive={true}
+          isActionsActive={isEnableEdit}
           actions={actions}
         />
       </div>

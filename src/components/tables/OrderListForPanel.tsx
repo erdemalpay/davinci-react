@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { OrderStatus, Table } from "../../types";
-import TabPanel from "../panelComponents/TabPanel/TabPanel";
+import Loading from "../common/Loading";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import NewOrderListPanel from "./NewOrderListPanel";
 import OrderListForPanelTab from "./OrderListForPanelTab";
 
@@ -13,7 +14,7 @@ const OrderListForPanel = ({ table }: Props) => {
   const { user } = useUserContext();
   const { isTabInputScreenOpen } = useGeneralContext();
   const [activeTab, setActiveTab] = useState(0);
-  if (!table || !user) return null;
+  if (!table || !user) return <Loading />;
   const { t } = useTranslation();
   const tabs = [
     {
@@ -61,11 +62,12 @@ const OrderListForPanel = ({ table }: Props) => {
           {t("Table")}: {table.name}
         </h1>
         {/* orders */}
-        <TabPanel
+        <UnifiedTabPanel
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           topClassName="min-h-64 max-h-64 sm:max-h-[32rem] sm:min-h-[32rem] overflow-scroll no-scrollbar h-full  "
+          allowOrientationToggle={true}
         />
       </div>
     </div>

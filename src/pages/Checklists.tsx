@@ -3,7 +3,7 @@ import { GoChecklist } from "react-icons/go";
 import CheckArchive from "../components/checklist/CheckArchive";
 import ChecklistsTab from "../components/checklist/Checklists";
 import { Header } from "../components/header/Header";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { CheclistPageTabEnum } from "../types";
@@ -47,10 +47,11 @@ export default function Checklists() {
   return (
     <>
       <Header showLocationSelector={false} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={checklistActiveTab}
         setActiveTab={setChecklistActiveTab}
+        allowOrientationToggle={true}
       />
     </>
   );

@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { GenericButton } from "../../../common/GenericButton";
 import { useOrderContext } from "../../../../context/Order.context";
 import { Order, Table } from "../../../../types";
 import {
@@ -8,6 +7,7 @@ import {
   useCreateOrderForDivideMutation,
   useSelectedOrderTransferMutation,
 } from "../../../../utils/api/order/order";
+import { GenericButton } from "../../../common/GenericButton";
 import DiscountNoteScreen from "./DiscountNoteScreen";
 import DiscountScreen from "./DiscountScreen";
 import OrderSelect from "./OrderSelect";
@@ -20,6 +20,9 @@ type Props = {
   tableOrders: Order[];
   collectionsTotalAmount: number;
   tables: Table[];
+  totalAmount: number;
+  discountAmount: number;
+  unpaidAmount: number;
 };
 type OrderListButton = {
   label: string;
@@ -31,6 +34,9 @@ const OrderLists = ({
   collectionsTotalAmount,
   table,
   tables,
+  totalAmount,
+  discountAmount,
+  unpaidAmount,
 }: Props) => {
   const { t } = useTranslation();
   const { mutate: createOrderForDiscount } =
@@ -62,19 +68,6 @@ const OrderLists = ({
     selectedTableTransfer,
   } = useOrderContext();
 
-  const discountAmount = tableOrders?.reduce((acc, order) => {
-    if (!order.discount) {
-      return acc;
-    }
-    const discountValue =
-      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
-        100 +
-      (order?.discountAmount ?? 0) * order.quantity;
-    return acc + discountValue;
-  }, 0);
-  const totalAmount = tableOrders?.reduce((acc, order) => {
-    return acc + order.unitPrice * order.quantity;
-  }, 0);
   const mainActiveCase =
     !(
       isTransferProductOpen ||
@@ -215,8 +208,8 @@ const OrderLists = ({
               discountAmount: selectedDiscount.amount,
             }),
             ...(discountNote && {
-              discountNote: Array.isArray(discountNote) 
-                ? discountNote.join(',') 
+              discountNote: Array.isArray(discountNote)
+                ? discountNote.join(",")
                 : discountNote,
             }),
           });
@@ -244,8 +237,9 @@ const OrderLists = ({
         isTableSelectOpen,
     },
   ];
+
   return (
-    <div className="flex flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8  ">
+    <div className="flex h-full min-h-0 flex-col border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/*main header part */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1 font-semibold px-2 py-1">
         <div className="flex flex-row gap-2">
@@ -254,12 +248,7 @@ const OrderLists = ({
         </div>
         <div className="flex flex-row gap-2 text-red-300">
           <h1>{t("Not Paid")}</h1>
-          <p>
-            {parseFloat(
-              String(totalAmount - discountAmount - collectionsTotalAmount)
-            ).toFixed(2)}
-            ₺
-          </p>
+          <p>{parseFloat(String(unpaidAmount)).toFixed(2)}₺</p>
         </div>
       </div>
       {/* orders */}

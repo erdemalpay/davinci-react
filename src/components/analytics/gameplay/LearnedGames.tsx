@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../../context/Filter.context";
 import { useGetGames } from "../../../utils/api/game";
@@ -13,7 +13,6 @@ const LearnedGames = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   if (!users) return null;
-  const [tableKey, setTableKey] = useState(0);
   const games = useGetGames();
   const {
     filterLearnedGamesPanelFormElements,
@@ -21,109 +20,29 @@ const LearnedGames = () => {
     showLearnedGamesFilters,
     setShowLearnedGamesFilters,
   } = useFilterContext();
-  const allRows = users
-    .flatMap((user) =>
-      user?.userGames?.map((item) => {
-        const foundGame = games?.find((game) => game._id === item.game);
-        return {
-          game: foundGame?.name,
-          gameId: foundGame?._id,
-          userName: user.name,
-          userId: user._id,
-          learnDate: item.learnDate,
-        };
-      })
-    )
-    ?.sort(
-      (a, b) =>
-        new Date(b.learnDate).getTime() - new Date(a.learnDate).getTime()
-    );
-  const [rows, setRows] = useState(allRows);
-  const columns = [
-    { key: t("User"), isSortable: true },
-    { key: t("Game"), isSortable: true },
-    { key: t("Learn Date"), isSortable: true },
-  ];
-  const rowKeys = [
-    {
-      key: "userName",
-    },
-    {
-      key: "game",
-    },
-    {
-      key: "learnDate",
-      className: `min-w-32   `,
-      node: (row: any) => {
-        return <p>{formatAsLocalDate(row.learnDate)}</p>;
-      },
-    },
-  ];
-  const filterPanelInputs = [
-    {
-      type: InputTypes.SELECT,
-      formKey: "user",
-      label: t("User"),
-      options: users
-        .filter((user) => user.active)
-        .map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("User"),
-      required: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "game",
-      label: t("Game"),
-      options: games.map((game) => ({
-        value: game._id,
-        label: t(game.name),
-      })),
-      placeholder: t("Game"),
-      required: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showLearnedGamesFilters,
-    inputs: filterPanelInputs,
-    formElements: filterLearnedGamesPanelFormElements,
-    setFormElements: setFilterLearnedGamesPanelFormElements,
-    closeFilters: () => setShowLearnedGamesFilters(false),
-  };
-  const filters = [
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: (
-        <SwitchButton
-          checked={showLearnedGamesFilters}
-          onChange={() => {
-            setShowLearnedGamesFilters(!showLearnedGamesFilters);
-          }}
-        />
-      ),
-    },
-  ];
-  useEffect(() => {
-    const filteredRows = allRows.filter((row) => {
+
+  const allRows = useMemo(() => {
+    return users
+      .flatMap((user) =>
+        user?.userGames?.map((item) => {
+          const foundGame = games?.find((game) => game._id === item.game);
+          return {
+            game: foundGame?.name,
+            gameId: foundGame?._id,
+            userName: user.name,
+            userId: user._id,
+            learnDate: item.learnDate,
+          };
+        })
+      )
+      ?.sort(
+        (a, b) =>
+          new Date(b.learnDate).getTime() - new Date(a.learnDate).getTime()
+      );
+  }, [users, games]);
+
+  const rows = useMemo(() => {
+    return allRows.filter((row) => {
       if (!row?.learnDate) {
         return false;
       }
@@ -136,14 +55,120 @@ const LearnedGames = () => {
         passesFilter(filterLearnedGamesPanelFormElements.game, row.gameId)
       );
     });
-    setRows(filteredRows);
-    setTableKey((prev) => prev + 1);
-  }, [users, games, filterLearnedGamesPanelFormElements]);
+  }, [allRows, filterLearnedGamesPanelFormElements]);
+
+  const columns = useMemo(
+    () => [
+      { key: t("User"), isSortable: true },
+      { key: t("Game"), isSortable: true },
+      { key: t("Learn Date"), isSortable: true },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      {
+        key: "userName",
+      },
+      {
+        key: "game",
+      },
+      {
+        key: "learnDate",
+        className: `min-w-32   `,
+        node: (row: any) => {
+          return <p>{formatAsLocalDate(row.learnDate)}</p>;
+        },
+      },
+    ],
+    []
+  );
+
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "user",
+        label: t("User"),
+        options: users
+          .filter((user) => user.active)
+          .map((user) => ({
+            value: user._id,
+            label: user.name,
+          })),
+        placeholder: t("User"),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "game",
+        label: t("Game"),
+        options: games.map((game) => ({
+          value: game._id,
+          label: t(game.name),
+        })),
+        placeholder: t("Game"),
+        required: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
+      },
+    ],
+    [t, users, games]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showLearnedGamesFilters,
+      inputs: filterPanelInputs,
+      formElements: filterLearnedGamesPanelFormElements,
+      setFormElements: setFilterLearnedGamesPanelFormElements,
+      closeFilters: () => setShowLearnedGamesFilters(false),
+    }),
+    [
+      showLearnedGamesFilters,
+      filterPanelInputs,
+      filterLearnedGamesPanelFormElements,
+      setFilterLearnedGamesPanelFormElements,
+      setShowLearnedGamesFilters,
+    ]
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showLearnedGamesFilters}
+            onChange={() => {
+              setShowLearnedGamesFilters(!showLearnedGamesFilters);
+            }}
+          />
+        ),
+      },
+    ],
+    [t, showLearnedGamesFilters, setShowLearnedGamesFilters]
+  );
 
   return (
     <div className="w-[95%] mx-auto ">
       <GenericTable
-        key={tableKey}
         columns={columns}
         filterPanel={filterPanel}
         filters={filters}

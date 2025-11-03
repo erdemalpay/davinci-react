@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
@@ -10,11 +10,10 @@ import {
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetStockLocations } from "../../utils/api/location";
-import { ExpenseTypeInput } from "../../utils/panelInputs";
 import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { RowKeyType } from "../panelComponents/shared/types";
+import { InputTypes, RowKeyType } from "../panelComponents/shared/types";
 
 type FormElementsState = {
   [key: string]: any;
@@ -23,7 +22,6 @@ type FormElementsState = {
 const CountListProducts = () => {
   const { t } = useTranslation();
   const countLists = useGetAccountCountLists();
-  const [tableKey, setTableKey] = useState(0);
   const products = useGetAccountProducts();
   const locations = useGetStockLocations();
   const expenseTypes = useGetAccountExpenseTypes();
@@ -33,16 +31,34 @@ const CountListProducts = () => {
       expenseType: "",
     });
   const [showFilters, setShowFilters] = useState(false);
-  const filterPanelInputs = [ExpenseTypeInput({ expenseTypes: expenseTypes })];
   const { updateAccountCountList } = useAccountCountListMutations();
-  const allRows = products.filter((product) => {
-    return (
-      filterPanelFormElements.expenseType === "" ||
-      product.expenseType?.includes(filterPanelFormElements.expenseType)
-    );
-  });
 
-  const [rows, setRows] = useState(allRows);
+  const filterPanelInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.SELECT,
+        formKey: "expenseType",
+        label: t("Expense Type"),
+        options: expenseTypes.map((expenseType) => ({
+          value: expenseType._id,
+          label: expenseType.name,
+        })),
+        placeholder: t("Expense Type"),
+        required: false,
+      },
+    ],
+    [t, expenseTypes]
+  );
+
+  const rows = useMemo(() => {
+    return products.filter((product) => {
+      return (
+        filterPanelFormElements.expenseType === "" ||
+        product.expenseType?.includes(filterPanelFormElements.expenseType)
+      );
+    });
+  }, [products, filterPanelFormElements]);
+
   function handleCountListUpdate(row: any, countList: AccountCountList) {
     if (countList?.products?.find((item) => item.product === row._id)) {
       const newProducts = countList.products.filter(
@@ -67,89 +83,113 @@ const CountListProducts = () => {
     }
   }
 
-  const columns = [{ key: t("Name"), isSortable: true }];
+  const checkProductIsInCountLists = useMemo(() => {
+    return (product: string) => {
+      return countLists?.some((countList) =>
+        countList?.products?.some((item) => item.product === product)
+      );
+    };
+  }, [countLists]);
 
-  const checkProductIsInCountLists = (product: string) => {
-    return countLists?.some((countList) =>
-      countList?.products?.some((item) => item.product === product)
-    );
-  };
-  const rowKeys: RowKeyType<any>[] = [
-    {
-      key: "name",
-      node: (row) => {
-        const className = checkProductIsInCountLists(row._id)
-          ? ""
-          : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
-        return <div className={className}>{row.name}</div>;
+  const { columns, rowKeys } = useMemo(() => {
+    const cols = [{ key: t("Name"), isSortable: true }];
+    const keys: RowKeyType<any>[] = [
+      {
+        key: "name",
+        node: (row) => {
+          const className = checkProductIsInCountLists(row._id)
+            ? ""
+            : "bg-red-200 w-fit px-2 py-1 rounded-md text-white";
+          return <div className={className}>{row.name}</div>;
+        },
       },
-    },
-  ];
+    ];
 
-  // Adding location columns and rowkeys
-  for (const countList of countLists) {
-    columns.push({ key: countList.name, isSortable: true });
-    rowKeys.push({
-      key: countList._id,
-      node: (row: any) => {
-        const isChecked = countList?.products?.some(
-          (item) => item.product === row._id
-        );
-        return isEnableEdit ? (
-          <div
-            className={`${
-              countLists?.length === 1 ? "flex justify-center" : ""
-            }`}
-          >
-            <CheckSwitch
-              checked={isChecked ?? false}
-              onChange={() => handleCountListUpdate(row, countList)}
+    // Adding location columns and rowkeys
+    for (const countList of countLists) {
+      cols.push({ key: countList.name, isSortable: true });
+      keys.push({
+        key: countList._id,
+        node: (row: any) => {
+          const isChecked = countList?.products?.some(
+            (item) => item.product === row._id
+          );
+          return isEnableEdit ? (
+            <div
+              className={`${
+                countLists?.length === 1 ? "flex justify-center" : ""
+              }`}
+            >
+              <CheckSwitch
+                checked={isChecked ?? false}
+                onChange={() => handleCountListUpdate(row, countList)}
+              />
+            </div>
+          ) : isChecked ? (
+            <IoCheckmark
+              className={`text-blue-500 text-2xl ${
+                countLists?.length === 1 ? "mx-auto" : ""
+              }`}
             />
-          </div>
-        ) : isChecked ? (
-          <IoCheckmark
-            className={`text-blue-500 text-2xl ${
-              countLists?.length === 1 ? "mx-auto" : ""
-            }`}
-          />
-        ) : (
-          <IoCloseOutline
-            className={`text-red-800 text-2xl ${
-              countLists?.length === 1 ? "mx-auto" : ""
-            }`}
-          />
-        );
+          ) : (
+            <IoCloseOutline
+              className={`text-red-800 text-2xl ${
+                countLists?.length === 1 ? "mx-auto" : ""
+              }`}
+            />
+          );
+        },
+      });
+    }
+
+    return { columns: cols, rowKeys: keys };
+  }, [
+    t,
+    countLists,
+    checkProductIsInCountLists,
+    isEnableEdit,
+    updateAccountCountList,
+    locations,
+  ]);
+
+  const filters = useMemo(
+    () => [
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+        ),
       },
-    });
-  }
-  const filters = [
-    {
-      label: t("Enable Edit"),
-      isUpperSide: true,
-      node: <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />,
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  useEffect(() => {
-    setRows(allRows);
-    setTableKey((prev) => prev + 1);
-  }, [countLists, locations, products, filterPanelFormElements, expenseTypes]);
+      {
+        label: t("Show Filters"),
+        isUpperSide: true,
+        node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
+      },
+    ],
+    [t, isEnableEdit, showFilters]
+  );
+
+  const filterPanel = useMemo(
+    () => ({
+      isFilterPanelActive: showFilters,
+      inputs: filterPanelInputs,
+      formElements: filterPanelFormElements,
+      setFormElements: setFilterPanelFormElements,
+      closeFilters: () => setShowFilters(false),
+    }),
+    [
+      showFilters,
+      filterPanelInputs,
+      filterPanelFormElements,
+      setFilterPanelFormElements,
+    ]
+  );
+
   return (
     <>
       <div className="w-[95%] mx-auto ">
         <GenericTable
-          key={tableKey}
           rowKeys={rowKeys}
           columns={columns}
           filters={filters}

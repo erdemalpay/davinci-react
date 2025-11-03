@@ -19,9 +19,9 @@ export function Header({
   showLocationSelector = true,
   allowedLocations,
 }: HeaderProps) {
-  const user = useGetUser();
   const notifications = useGetUserNewNotifications();
   const { isNotificationOpen, setIsNotificationOpen } = useGeneralContext();
+  const user = useGetUser();
   const handleScrollToTop = () => {
     if (location.pathname === Routes.Tables) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -31,8 +31,8 @@ export function Header({
   return (
     <div className="sticky top-0 z-50">
       <nav className="w-full bg-gray-800 shadow">
-        <div className="px-2 lg:px-6 h-16 flex justify-between mx-2 lg:mx-20">
-          <div className="flex flex-row gap-8 items-center">
+        <div className="h-16 flex justify-between pl-2 lg:pl-4 pr-2 lg:pr-6 mr-2 lg:mr-20">
+          <div className="flex flex-row gap-2 items-center">
             <Link to={Routes.Tables} onClick={handleScrollToTop}>
               <img
                 src={logo}
@@ -47,12 +47,13 @@ export function Header({
             </Link>
           </div>
           <div className="w-auto h-full flex items-center justify-end gap-x-2 sm:gap-x-4">
-            <Link to={Routes.Profile}>
+            <Link to={Routes.Profile} className="flex items-center gap-2">
               <img
                 src={user?.imageUrl ?? user1}
                 alt="profile"
                 className="w-10 h-10 rounded-full"
               />
+              <span className="text-white">{user?.name}</span>
             </Link>
             {showLocationSelector && (
               <LocationSelector allowedLocations={allowedLocations} />
@@ -80,9 +81,9 @@ export function Header({
                 />
               </div>
             )}
-
-            <span className="text-white ml-2">{user?.name}</span>
-            <PageSelector />
+            <div className="lg:hidden">
+              <PageSelector />
+            </div>
           </div>
         </div>
       </nav>

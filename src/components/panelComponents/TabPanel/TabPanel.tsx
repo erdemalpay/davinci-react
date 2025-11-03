@@ -180,7 +180,14 @@ const TabPanel: React.FC<Props> = ({
           </button>
         )}
 
-        {filters && filters.map((filter) => filter)}
+        {/* Filter'lar sağda */}
+        {filters && filters.length > 0 && (
+          <div className="ml-auto flex items-center gap-4 pr-4">
+            {filters.map((filter, idx) => (
+              <div key={idx}>{filter}</div>
+            ))}
+          </div>
+        )}
       </div>
       {adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)?.content &&
         !adjustedTabs.find((tab) => tab.adjustedNumber === activeTab)

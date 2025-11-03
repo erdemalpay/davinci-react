@@ -13,7 +13,7 @@ import ProfileCard from "../components/panelComponents/Profile/ProfileCard";
 import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
 import UserShifts from "../components/panelComponents/Profile/UserShifts";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -172,7 +172,7 @@ export default function Profile() {
   return (
     <>
       <Header showLocationSelector={true} />
-      <TabPanel
+      <UnifiedTabPanel
         tabs={tabs}
         activeTab={profileActiveTab}
         setActiveTab={setProfileActiveTab}
@@ -180,6 +180,7 @@ export default function Profile() {
           setCurrentPage(1);
           setSearchQuery("");
         }}
+        allowOrientationToggle={true}
       />
     </>
   );

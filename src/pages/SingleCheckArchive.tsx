@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
@@ -17,32 +17,42 @@ import { getItem } from "../utils/getItem";
 const SingleCheckArchive = () => {
   const { t } = useTranslation();
   const { archiveId } = useParams();
-  const [tableKey, setTableKey] = useState(0);
   const checks = useGetChecks();
   const checklists = useGetChecklists();
   const users = useGetUsers();
   const { updateCheck } = useCheckMutations();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { resetGeneralContext } = useGeneralContext();
-  const foundCheck = checks?.find((check) => check._id === archiveId);
-  const pageNavigations = [
-    {
-      name: t("Check Archive"),
-      path: Routes.Checklists,
-      canBeClicked: true,
-      additionalSubmitFunction: () => {
-        resetGeneralContext();
+
+  const foundCheck = useMemo(() => {
+    return checks?.find((check) => check._id === archiveId);
+  }, [checks, archiveId]);
+
+  const currentCheck = useMemo(() => {
+    return checks?.find((check) => check._id === archiveId);
+  }, [checks, archiveId]);
+
+  const pageNavigations = useMemo(
+    () => [
+      {
+        name: t("Check Archive"),
+        path: Routes.Checklists,
+        canBeClicked: true,
+        additionalSubmitFunction: () => {
+          resetGeneralContext();
+        },
       },
-    },
-    {
-      name:
-        getItem(foundCheck?.checklist, checklists)?.name + " " + t("Checku"),
-      path: `/check-archive/${archiveId}`,
-      canBeClicked: false,
-    },
-  ];
-  const currentCheck = checks?.find((check) => check._id === archiveId);
-  const allRows = () => {
+      {
+        name:
+          getItem(foundCheck?.checklist, checklists)?.name + " " + t("Checku"),
+        path: `/check-archive/${archiveId}`,
+        canBeClicked: false,
+      },
+    ],
+    [t, foundCheck, checklists, archiveId, resetGeneralContext]
+  );
+
+  const rows = useMemo(() => {
     if (!currentCheck) return [];
     const date = new Date(currentCheck.createdAt);
     const formattedDate = `${pad(date.getDate())}-${pad(
@@ -57,56 +67,63 @@ const SingleCheckArchive = () => {
         date: formattedDate,
       };
     });
-  };
+  }, [currentCheck, pad]);
 
-  const [rows, setRows] = useState(allRows());
-  const columns = [
-    { key: t("Date"), isSortable: true },
-    { key: t("Duty"), isSortable: true },
-    { key: t("Completed"), isSortable: true },
-  ];
-  const rowKeys = [
-    { key: "date", className: "min-w-32" },
-    { key: "duty" },
-    {
-      key: "isCompleted",
-      node: (row: any) => {
-        return row.isCompleted ? (
-          <IoCheckmark className="text-blue-500 text-2xl" />
-        ) : (
-          <IoCloseOutline className="text-red-800 text-2xl" />
-        );
+  const columns = useMemo(
+    () => [
+      { key: t("Date"), isSortable: true },
+      { key: t("Duty"), isSortable: true },
+      { key: t("Completed"), isSortable: true },
+    ],
+    [t]
+  );
+
+  const rowKeys = useMemo(
+    () => [
+      { key: "date", className: "min-w-32" },
+      { key: "duty" },
+      {
+        key: "isCompleted",
+        node: (row: any) => {
+          return row.isCompleted ? (
+            <IoCheckmark className="text-blue-500 text-2xl" />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl" />
+          );
+        },
       },
-    },
-  ];
-  const filters = [
-    {
-      isUpperSide: false,
-      node: (
-        <GenericButton
-          className="ml-auto"
-          variant="primary"
-          size="sm"
-          onClick={() => {
-            if (archiveId) {
-              updateCheck({
-                id: archiveId,
-                updates: {
-                  isCompleted: true,
-                },
-              });
-            }
-          }}
-        >
-          <H5> {t("Complete")}</H5>
-        </GenericButton>
-      ),
-    },
-  ];
-  useEffect(() => {
-    setRows(allRows());
-    setTableKey((prev) => prev + 1);
-  }, [checks, archiveId, checklists, users]);
+    ],
+    []
+  );
+
+  const filters = useMemo(
+    () => [
+      {
+        isUpperSide: false,
+        node: (
+          <GenericButton
+            className="ml-auto"
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              if (archiveId) {
+                updateCheck({
+                  id: archiveId,
+                  updates: {
+                    isCompleted: true,
+                  },
+                });
+              }
+            }}
+          >
+            <H5> {t("Complete")}</H5>
+          </GenericButton>
+        ),
+      },
+    ],
+    [t, archiveId, updateCheck]
+  );
+
   return (
     <>
       <Header />
@@ -114,7 +131,6 @@ const SingleCheckArchive = () => {
       <div className="w-[95%] mx-auto my-10 ">
         {foundCheck && (
           <GenericTable
-            key={tableKey}
             rowKeys={rowKeys}
             columns={columns}
             isToolTipEnabled={false}

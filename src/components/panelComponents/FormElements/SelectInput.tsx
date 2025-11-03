@@ -52,6 +52,7 @@ interface SelectInputProps {
   isTopFlexRow?: boolean;
   suggestedOption?: { value: string; label: string }[] | null;
   isSortDisabled?: boolean;
+  customControlBackgroundColor?: string;
 }
 
 const normalizeText = (text: string) => {
@@ -105,9 +106,8 @@ const SelectInput = ({
   isTopFlexRow = false,
   isSortDisabled = false,
   suggestedOption,
+  customControlBackgroundColor
 }: SelectInputProps) => {
-  console.log("label:", label);
-  console.log("suggestedOption:", suggestedOption);
   const [searchInput, setSearchInput] = useState("");
   const [isSearchable, setIsSearchable] = useState(false);
   const [isDownIconClicked, setIsDownIconClicked] = useState(false);
@@ -125,6 +125,7 @@ const SelectInput = ({
       borderRadius: "4px",
       fontSize: "16px",
       height: "auto",
+      ...(customControlBackgroundColor && { backgroundColor: customControlBackgroundColor }),
     }),
     menu: (base: any) => ({
       ...base,
@@ -326,6 +327,8 @@ const SelectInput = ({
               menuShouldScrollIntoView={true}
               menuPlacement={isMobile ? "bottom" : "auto"}
               menuPosition={isMobile ? "absolute" : "fixed"}
+              isClearable={false}
+              backspaceRemovesValue={true}
             />
           )}
         </div>
@@ -333,9 +336,9 @@ const SelectInput = ({
           <GenericButton
             onClick={onClear}
             variant="icon"
-            className="w-8 h-8 my-auto text-2xl text-gray-500 hover:text-red-700"
+            className="w-10 h-10 my-auto text-gray-500 hover:text-red-700"
           >
-            <IoIosClose />
+            <IoIosClose size={28} />
           </GenericButton>
         )}
       </div>

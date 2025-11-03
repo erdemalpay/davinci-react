@@ -9,7 +9,7 @@ import Loading from "../components/common/Loading";
 import CommonSelectInput from "../components/common/SelectInput";
 import { Header } from "../components/header/Header";
 import PageNavigator from "../components/panelComponents/PageNavigator/PageNavigator";
-import TabPanel from "../components/panelComponents/TabPanel/TabPanel";
+import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
@@ -122,7 +122,7 @@ export default function Brand() {
           </div>
         </div>
 
-        <TabPanel
+        <UnifiedTabPanel
           key={tabPanelKey}
           tabs={tabs}
           activeTab={activeTab}
@@ -131,6 +131,7 @@ export default function Brand() {
             setCurrentPage(1);
             setSearchQuery("");
           }}
+          allowOrientationToggle={true}
         />
       </div>
     </>

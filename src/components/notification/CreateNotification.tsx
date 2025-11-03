@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  NotificationType,
-  notificationEventsOptions,
-} from "../../types";
+import { NotificationType, notificationEventsOptions } from "../../types";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useNotificationMutations } from "../../utils/api/notification";
 import {

@@ -6,10 +6,6 @@ export const isDisabledConditionBrand = (user: User | null | undefined): boolean
     : true;
 };
 
-export const isDisabledConditionGameStock = (user: User | null | undefined): boolean => {
-  return user ? ![RoleEnum.MANAGER].includes(user?.role?._id) : true;
-};
-
 export const isDisabledConditionCountListMenu = (user: User | null | undefined): boolean => {
   return user ? ![RoleEnum.MANAGER, RoleEnum.OPERATIONSASISTANT].includes(user?.role?._id) : true;
 };

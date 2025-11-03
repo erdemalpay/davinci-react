@@ -1,44 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { useGeneralContext } from "../../context/General.context";
 import {
-  AccountExpenseType,
-  commonDateOptions,
   ExpenseTypes,
+  FormElementsState,
+  commonDateOptions,
 } from "../../types";
-import { useGetAccountBrands } from "../../utils/api/account/brand";
-import { useGetAccountExpenses } from "../../utils/api/account/expense";
-import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
-import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
-import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import {
   ProductInput,
   StockLocationInput,
   VendorInput,
 } from "../../utils/panelInputs";
-import TextInput from "../panelComponents/FormElements/TextInput";
-import GenericTable from "../panelComponents/Tables/GenericTable";
-import { P1 } from "../panelComponents/Typography";
-import SwitchButton from "../panelComponents/common/SwitchButton";
+import GenericExpenses from "../expense/GenericExpenses";
 import { InputTypes } from "../panelComponents/shared/types";
 
-type FormElementsState = {
-  [key: string]: any;
-};
 const BrandExpenses = () => {
   const { t } = useTranslation();
-  const { brandId } = useParams();
-  if (!brandId) return <></>;
-  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
+  const { brandId } = useParams<{ brandId: string }>();
+  const products = useGetAccountProducts();
+  const locations = useGetStockLocations();
+  const vendors = useGetAccountVendors();
+  if (!brandId) return null;
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      product: [],
-      service: [],
+      product: "",
+      service: "",
       type: ExpenseTypes.STOCKABLE,
       vendor: "",
       brand: brandId,
@@ -52,302 +41,58 @@ const BrandExpenses = () => {
       asc: 1,
       search: "",
     });
-  const invoicesPayload = useGetAccountExpenses(
-    currentPage,
-    rowsPerPage,
-    filterPanelFormElements
-  );
-  const invoices = invoicesPayload?.data;
-  const vendors = useGetAccountVendors();
-  const brands = useGetAccountBrands();
-  const expenseTypes = useGetAccountExpenseTypes();
-  const products = useGetAccountProducts();
-  const locations = useGetStockLocations();
-  const paymentMethods = useGetAccountPaymentMethods();
-  const [tableKey, setTableKey] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
-  const allRows = invoices?.map((invoice) => {
-    return {
-      ...invoice,
-      product: getItem(invoice?.product, products)?.name,
-      expenseType: getItem(invoice?.expenseType, expenseTypes)?.name,
-      brand: getItem(invoice?.brand, brands)?.name,
-      vendor: getItem(invoice?.vendor, vendors)?.name,
-      lctn: getItem(invoice?.location, locations)?.name,
-      formattedDate: formatAsLocalDate(invoice?.date),
-      unitPrice: parseFloat(
-        (invoice?.totalExpense / invoice?.quantity).toFixed(4)
-      ),
-      expType: getItem(invoice?.expenseType, expenseTypes),
-      brnd: getItem(invoice?.brand, brands),
-      vndr: getItem(invoice?.vendor, vendors),
-      prdct: getItem(invoice?.product, products),
-      paymentMethodName: t(
-        getItem(invoice?.paymentMethod, paymentMethods)?.name ?? ""
-      ),
-    };
-  });
-  const [rows, setRows] = useState(allRows);
-  const filterPanelInputs = [
-    ProductInput({
-      products: products.filter((i) => i.brand?.includes(brandId)),
-      required: true,
-    }),
-    VendorInput({ vendors: vendors, required: true }),
-    StockLocationInput({ locations: locations }),
-    {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: commonDateOptions.map((option) => {
-        return {
-          value: option.value,
-          label: t(option.label),
-        };
+
+  const filterPanelInputs = useMemo(
+    () => [
+      ProductInput({
+        products: products.filter((p) => p.brand?.includes(brandId)),
+        required: true,
       }),
-      placeholder: t("Date"),
-      required: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "after",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: true,
-      isDatePicker: true,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "before",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: true,
-      isDatePicker: true,
-    },
-  ];
-  const columns = [
-    {
-      key: "ID",
-      isSortable: false,
-      correspondingKey: "_id",
-    },
-    {
-      key: t("Date"),
-      isSortable: false,
-      correspondingKey: "date",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: t("Note"),
-      isSortable: false,
-      correspondingKey: "note",
-    },
-    {
-      key: t("Brand"),
-      className: "min-w-32 pr-2",
-      isSortable: false,
-      correspondingKey: "brand",
-    },
-    {
-      key: t("Vendor"),
-      className: "min-w-32 pr-2",
-      isSortable: false,
-      correspondingKey: "vendor",
-    },
-    {
-      key: t("Location"),
-      isSortable: false,
-      correspondingKey: "location",
-    },
-    {
-      key: t("Expense Type"),
-      className: "min-w-32 ",
-      isSortable: false,
-      correspondingKey: "expenseType",
-    },
-    {
-      key: t("Product"),
-      className: "min-w-32 pr-2",
-      isSortable: false,
-      correspondingKey: "product",
-    },
-    {
-      key: t("Payment Method"),
-      isSortable: false,
-      correspondingKey: "paymentMethod",
-    },
-    {
-      key: t("Quantity"),
-      isSortable: false,
-      correspondingKey: "quantity",
-    },
-    {
-      key: t("Unit Price"),
-      isSortable: false,
-    },
-    {
-      key: t("Total Expense"),
-      isSortable: false,
-      correspondingKey: "totalExpense",
-    },
-  ];
-  const rowKeys = [
-    { key: "_id", className: "min-w-32 pr-2" },
-    {
-      key: "formattedDate",
-      className: "min-w-32 pr-2",
-    },
-    { key: "note", className: "min-w-40 pr-2" },
-    {
-      key: "brand",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "vendor",
-      className: "min-w-32 pr-2",
-    },
-    {
-      key: "lctn",
-      className: "min-w-32 pr-4",
-    },
-    {
-      key: "expenseType",
-      node: (row: any) => {
-        return (
-          <div className=" min-w-32">
-            <p
-              className="w-fit rounded-md text-white text-sm ml-2 px-2 py-1 font-semibold "
-              style={{
-                backgroundColor: row?.expType?.backgroundColor,
-              }}
-            >
-              {(row?.expType as AccountExpenseType)?.name}
-            </p>
-          </div>
-        );
+      VendorInput({ vendors, required: true }),
+      StockLocationInput({ locations }),
+      {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: commonDateOptions.map((o) => ({
+          value: o.value,
+          label: t(o.label),
+        })),
+        placeholder: t("Date"),
+        required: true,
       },
-    },
-    {
-      key: "product",
-      className: "min-w-32 pr-2",
-    },
-    { key: "paymentMethodName", className: "min-w-32" },
-    { key: "quantity", className: "min-w-32" },
-    {
-      key: "unitPrice",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>{row.unitPrice} ₺</P1>
-          </div>
-        );
+      {
+        type: InputTypes.DATE,
+        formKey: "after",
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
+        required: true,
+        isDatePicker: true,
       },
-    },
-    {
-      key: "totalExpense",
-      node: (row: any) => {
-        return (
-          <div className="min-w-32">
-            <P1>
-              {parseFloat(row.totalExpense)
-                .toFixed(4)
-                .replace(/\.?0*$/, "")}{" "}
-              ₺
-            </P1>
-          </div>
-        );
+      {
+        type: InputTypes.DATE,
+        formKey: "before",
+        label: t("End Date"),
+        placeholder: t("End Date"),
+        required: true,
+        isDatePicker: true,
       },
-    },
-  ];
-  const filters = [
-    {
-      label: t("Total") + " :",
-      isUpperSide: false,
-      node: (
-        <div className="flex flex-row gap-2">
-          <p>
-            {new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            }).format(invoicesPayload?.generalTotalExpense ?? 0)}{" "}
-            ₺
-          </p>
-        </div>
-      ),
-    },
-    {
-      label: t("Show Filters"),
-      isUpperSide: true,
-      node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
-    },
-  ];
-  const filterPanel = {
-    isFilterPanelActive: showFilters,
-    inputs: filterPanelInputs,
-    formElements: filterPanelFormElements,
-    setFormElements: setFilterPanelFormElements,
-    closeFilters: () => setShowFilters(false),
-  };
-  const pagination = invoicesPayload
-    ? {
-        totalPages: invoicesPayload.totalPages,
-        totalRows: invoicesPayload.totalNumber,
-      }
-    : null;
-  const outsideSearch = () => {
-    return (
-      <TextInput
-        placeholder={t("Search")}
-        type="text"
-        value={filterPanelFormElements.search}
-        isDebounce={true}
-        onChange={(value) =>
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
-            search: value,
-          }))
-        }
-      />
-    );
-  };
-  const outsideSort = {
-    filterPanelFormElements: filterPanelFormElements,
-    setFilterPanelFormElements: setFilterPanelFormElements,
-  };
+    ],
+    [products, brandId, vendors, locations, t]
+  );
+
   useEffect(() => {
-    setCurrentPage(1);
-  }, [filterPanelFormElements]);
-  useEffect(() => {
-    setTableKey((prev) => prev + 1);
-    setRows(allRows);
-  }, [
-    invoicesPayload,
-    products,
-    expenseTypes,
-    brands,
-    vendors,
-    locations,
-    paymentMethods,
-  ]);
+    setFilterPanelFormElements((prev) => ({ ...prev, brand: brandId }));
+  }, [brandId]);
 
   return (
-    <div className="w-[95%] mx-auto ">
-      <GenericTable
-        key={brandId + tableKey}
-        rowKeys={rowKeys}
-        isActionsActive={false}
-        outsideSortProps={outsideSort}
-        columns={columns}
-        outsideSearch={outsideSearch}
-        filters={filters}
-        filterPanel={filterPanel}
-        rows={rows ?? []}
-        title={t("Brand Expenses")}
-        isSearch={false}
-        {...(pagination && { pagination })}
-      />
-    </div>
+    <GenericExpenses
+      title={t("Brand Expenses")}
+      filterPanelFormElements={filterPanelFormElements}
+      setFilterPanelFormElements={setFilterPanelFormElements}
+      filterPanelInputs={filterPanelInputs}
+    />
   );
 };
+
 export default BrandExpenses;

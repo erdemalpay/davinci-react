@@ -1,25 +1,33 @@
 import { Tooltip } from "@material-tailwind/react";
 import "pdfmake/build/pdfmake";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsFilePdf } from "react-icons/bs";
 import { CgChevronDownR, CgChevronUpR } from "react-icons/cg";
 import { FaFileExcel } from "react-icons/fa";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { GoPlusCircle } from "react-icons/go";
 import {
   MdOutlineCheckBox,
   MdOutlineCheckBoxOutlineBlank,
 } from "react-icons/md";
 import { PiFadersHorizontal } from "react-icons/pi";
+import { RiFilter3Line } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, RowPerPageEnum } from "../../../types";
+import {
+  OutsideSearchProps,
+  outsideSearch,
+} from "../../../utils/outsideSearch";
 import { outsideSort } from "../../../utils/outsideSort";
+import { GenericButton } from "../../common/GenericButton";
 import ImageModal from "../Modals/ImageModal";
+import { OrientationToggle } from "../TabPanel/OrientationToggle";
+import { useTabPanelContext } from "../TabPanel/UnifiedTabPanel";
 import { Caption, H4, H5, P1 } from "../Typography";
 import {
   ActionType,
@@ -42,6 +50,7 @@ type OutsideSortProps = {
   filterPanelFormElements: FormElementsState;
   setFilterPanelFormElements: (state: FormElementsState) => void;
 };
+
 type Props<T> = {
   rows: any[];
   isDraggable?: boolean;
@@ -59,7 +68,6 @@ type Props<T> = {
   addCollapsible?: ActionType<T>;
   filterPanel?: PanelFilterType;
   isColumnFilter?: boolean;
-  outsideSearch?: () => React.ReactNode;
   imageHolder?: string;
   tooltipLimit?: number;
   rowsPerPageOptions?: number[];
@@ -74,9 +82,13 @@ type Props<T> = {
   excelFileName?: string;
   pagination?: PaginationProps;
   outsideSortProps?: OutsideSortProps;
+  outsideSearchProps?: OutsideSearchProps;
   selectionActions?: ActionType<T>[];
   isToolTipEnabled?: boolean;
   isEmtpyExcel?: boolean;
+  // Toggle, GenericTable sayfalarında search yanında gözükmeli
+  // Eğer prop verilmezse, UnifiedTabPanel context'inden alınır
+  showOrientationToggle?: boolean;
 };
 
 const GenericTable = <T,>({
@@ -95,8 +107,8 @@ const GenericTable = <T,>({
   isColumnFilter = true,
   collapsibleActions,
   onDragEnter,
-  outsideSearch,
   outsideSortProps,
+  outsideSearchProps,
   isSearch = true,
   isPdf = false,
   isExcel = false,
@@ -118,6 +130,7 @@ const GenericTable = <T,>({
   ],
   pagination,
   selectionActions,
+  showOrientationToggle,
 }: Props<T>) => {
   const { t } = useTranslation();
   const {
@@ -137,96 +150,123 @@ const GenericTable = <T,>({
     setSelectedRows,
     isSelectionActive,
     setIsSelectionActive,
+    tabOrientation,
+    setTabOrientation,
   } = useGeneralContext();
+  const { allowOrientationToggle } = useTabPanelContext();
   const navigate = useNavigate();
-  const [tableRows, setTableRows] = useState(rows);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalSrc, setImageModalSrc] = useState("");
   const [isColumnActiveModalOpen, setIsColumnActiveModalOpen] = useState(false);
-  const initialRows = () => {
-    if (searchQuery === "" && rows.length > 0 && tableRows.length === 0) {
-      setTableRows(rows);
-      return rows;
-    } else {
-      return tableRows;
-    }
-  };
-  if (title && tableColumns[title]?.length !== columns.length) {
-    setTableColumns((prev) => ({
-      ...prev,
-      [title]: columns.map((column) => ({
-        ...column,
-        isActive: true,
-      })),
-    }));
-  }
-  const usedColumns = title
-    ? tableColumns[title]?.filter((column) => column.isActive)
-    : columns;
-  const usedRowKeys = title
-    ? rowKeys.filter(
-        (rowKey, index) =>
-          tableColumns[title]?.[isActionsAtFront ? index + 1 : index]?.isActive
-      )
-    : rowKeys;
-  const filteredRows = !isSearch
-    ? initialRows()
-    : initialRows().filter((row) =>
-        (searchRowKeys ?? usedRowKeys)?.some((rowKey) => {
-          const value = row[rowKey.key as keyof typeof row];
-          const query = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
-          if (typeof value === "string") {
-            return value.toLocaleLowerCase("tr-TR").includes(query);
-          } else if (typeof value === "number") {
-            return value.toString().includes(query);
-          } else if (typeof value === "boolean") {
-            return (value ? "true" : "false").includes(query);
-          }
-          return false;
-        })
-      );
-  const totalRows = filteredRows.length;
-  const usedTotalRows = pagination ? pagination.totalRows : totalRows;
-  const totalPages = Math.ceil(usedTotalRows / rowsPerPage);
-  const usedTotalPages = pagination ? pagination.totalPages : totalPages;
-  const currentRows =
-    isRowsPerPage && !pagination
-      ? filteredRows.slice(
-          (currentPage - 1) * rowsPerPage,
-          currentPage * rowsPerPage
-        )
-      : filteredRows;
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [showHeaderLeftButton, setShowHeaderLeftButton] = useState(false);
+  const [showHeaderRightButton, setShowHeaderRightButton] = useState(false);
+  const headerScrollRef = useRef<HTMLDivElement | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending";
   } | null>(null);
 
+  useEffect(() => {
+    if (!title) return;
+    const existing = tableColumns[title];
+    if (!existing || existing.length !== columns.length) {
+      setTableColumns((prev) => ({
+        ...prev,
+        [title]: columns.map((column) => ({ ...column, isActive: true })),
+      }));
+    }
+  }, [title, columns, setTableColumns, tableColumns]);
+
+  useEffect(() => {
+    if (sortConfigKey) {
+      setSortConfig({
+        key: sortConfigKey.key,
+        direction: sortConfigKey.direction,
+      });
+    }
+  }, [sortConfigKey]);
+
+  const checkHeaderScrollButtons = () => {
+    if (headerScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = headerScrollRef.current;
+      setShowHeaderLeftButton(scrollLeft > 10);
+      setShowHeaderRightButton(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scrollHeaderToDirection = (direction: "left" | "right") => {
+    if (headerScrollRef.current) {
+      const scrollAmount = 200;
+      headerScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const usedColumns = title
+    ? tableColumns[title]?.filter((column) => column.isActive)
+    : columns;
+
+  const usedRowKeys = title
+    ? rowKeys.filter(
+        (_rk, index) =>
+          tableColumns[title]?.[isActionsAtFront ? index + 1 : index]?.isActive
+      )
+    : rowKeys;
+
+  const baseRows = rows ?? [];
+
+  const filteredRows = useMemo(() => {
+    if (!isSearch) return baseRows;
+    const keys = searchRowKeys ?? usedRowKeys;
+    const q = searchQuery.trimStart().toLocaleLowerCase("tr-TR");
+    if (!q) return baseRows;
+    return baseRows.filter((row) =>
+      keys.some((rowKey) => {
+        const value = row[rowKey.key as keyof typeof row];
+        if (typeof value === "string")
+          return value.toLocaleLowerCase("tr-TR").includes(q);
+        if (typeof value === "number") return value.toString().includes(q);
+        if (typeof value === "boolean")
+          return (value ? "true" : "false").includes(q);
+        return false;
+      })
+    );
+  }, [baseRows, isSearch, searchQuery, searchRowKeys, usedRowKeys]);
+
+  const sortedRows = useMemo(() => {
+    if (!sortConfig) return filteredRows;
+    const { key, direction } = sortConfig;
+    return [...filteredRows].sort((a, b) => {
+      const isSortable = (a["isSortable"] ?? true) && (b["isSortable"] ?? true);
+      if (!isSortable) return 0;
+      const aNum = Number(a[key]);
+      const bNum = Number(b[key]);
+      const isNumeric = !isNaN(aNum) && !isNaN(bNum);
+      const valA = isNumeric ? aNum : String(a[key] ?? "").toLowerCase();
+      const valB = isNumeric ? bNum : String(b[key] ?? "").toLowerCase();
+      if (valA < valB) return direction === "ascending" ? -1 : 1;
+      if (valA > valB) return direction === "ascending" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredRows, sortConfig]);
+
+  const usedTotalRows = pagination ? pagination.totalRows : sortedRows.length;
+  const totalPages = Math.ceil(usedTotalRows / rowsPerPage);
+  const usedTotalPages = pagination ? pagination.totalPages : totalPages;
+
+  const currentRows = useMemo(() => {
+    if (!isRowsPerPage || pagination) return sortedRows;
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = currentPage * rowsPerPage;
+    return sortedRows.slice(start, end);
+  }, [sortedRows, isRowsPerPage, pagination, currentPage, rowsPerPage]);
+
   const sortRows = (key: string, direction: "ascending" | "descending") => {
     setSortConfig({ key, direction });
     setSortConfigKey({ key, direction });
-
-    const sortedRows = [...tableRows].sort((a, b) => {
-      const isSortable =
-        (a["isSortable"] !== undefined ? a["isSortable"] : true) &&
-        (b["isSortable"] !== undefined ? b["isSortable"] : true);
-      if (!isSortable) {
-        return 0;
-      }
-      const isNumeric = !isNaN(Number(a[key])) && !isNaN(Number(b[key]));
-
-      const valA = isNumeric ? Number(a[key]) : String(a[key]).toLowerCase();
-      const valB = isNumeric ? Number(b[key]) : String(b[key]).toLowerCase();
-
-      if (valA < valB) {
-        return direction === "ascending" ? -1 : 1;
-      }
-      if (valA > valB) {
-        return direction === "ascending" ? 1 : -1;
-      }
-      return 0;
-    });
-
-    setTableRows(sortedRows);
   };
 
   const handleDragStart = (
@@ -238,7 +278,6 @@ const GenericTable = <T,>({
   const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
     e.preventDefault();
   };
-
   const handleDrop = (
     e: React.DragEvent<HTMLTableRowElement>,
     targetRow: T
@@ -246,12 +285,10 @@ const GenericTable = <T,>({
     e.preventDefault();
     const draggedRowData = e.dataTransfer.getData("draggedRow");
     const draggedRow: T = JSON.parse(draggedRowData);
-
-    if (onDragEnter) {
-      onDragEnter(draggedRow, targetRow);
-    }
+    if (onDragEnter) onDragEnter(draggedRow, targetRow);
     setExpandedRows({});
   };
+
   const toggleRowExpansion = (rowId: string) => {
     setExpandedRows((prevExpandedRows) => ({
       ...prevExpandedRows,
@@ -260,13 +297,8 @@ const GenericTable = <T,>({
   };
 
   const actionOnClick = (action: ActionType<T>, row: T) => {
-    if (action.setRow) {
-      action.setRow(row);
-    }
-
-    if (action.onClick) {
-      action.onClick(row);
-    }
+    if (action.setRow) action.setRow(row);
+    if (action.onClick) action.onClick(row);
     if (action?.isModal && action.setIsModal) {
       if (isSelectionActive) {
         if (selectedRows.length === 0) {
@@ -281,69 +313,48 @@ const GenericTable = <T,>({
       navigate(action.path);
     }
   };
+
   const generatePDF = () => {
     const pdfMake = (window as any).pdfMake;
-    const data = [];
-    let isGray = false;
-
-    // Dynamic columns headers based on props
+    const data: any[] = [];
     data.push(
       usedColumns
         .filter((column) => column.correspondingKey)
         ?.map((column) => ({
-          text: column.key, // Adjust based on your actual column definition
+          text: column.key,
           style: "tableHeader",
         }))
     );
-    // Dynamic rows data based on filtered and sorted data
-    rows.forEach((row) => {
+    sortedRows.forEach((row) => {
       const rowData: any[] = [];
-
       usedColumns?.forEach((column) => {
         if (column.correspondingKey) {
           const value = String(row[column.correspondingKey]);
           rowData.push(value);
         }
       });
-
-      // Toggle row background color
-      isGray = !isGray;
-
       data.push([...rowData]);
     });
-
     const documentDefinition = {
       content: [
         {
-          table: {
-            headerRows: 1,
-            body: data,
-          },
+          table: { headerRows: 1, body: data },
           layout: {
-            fillColor: (rowIndex: number) => {
-              return rowIndex === 0
+            fillColor: (rowIndex: number) =>
+              rowIndex === 0
                 ? "#000080"
                 : rowIndex % 2 === 0
                 ? "#d8d2d2"
-                : "#ffffff";
-            },
+                : "#ffffff",
           },
         },
       ],
       styles: {
-        yourTextStyle: {
-          font: "Helvetica",
-        },
-        header: {
-          fontSize: 12,
-        },
-        tableHeader: {
-          bold: true,
-          color: "#fff",
-        },
+        yourTextStyle: { font: "Helvetica" },
+        header: { fontSize: 12 },
+        tableHeader: { bold: true, color: "#fff" },
       },
     };
-
     pdfMake.fonts = {
       Roboto: {
         normal:
@@ -357,14 +368,15 @@ const GenericTable = <T,>({
     };
     pdfMake.createPdf(documentDefinition).open();
   };
+
   const generateExcel = () => {
     const workbook = XLSX.utils.book_new();
-    const excelRows = [];
+    const excelRows: any[] = [];
     const headers = usedColumns
       .filter((column) => column.correspondingKey)
       .map((column) => column.key);
     excelRows.push(headers);
-    const excelAllRows = !isEmtpyExcel ? rows : [];
+    const excelAllRows = !isEmtpyExcel ? sortedRows : [];
     excelAllRows.forEach((row) => {
       const rowData = usedColumns
         .filter((column) => column.correspondingKey)
@@ -380,15 +392,10 @@ const GenericTable = <T,>({
   };
 
   const renderActionButtons = (row: T, actions: ActionType<T>[]) => (
-    <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
+    <div className="flex flex-row my-auto h-full gap-3 justify-center items-center">
       {actions?.map((action, index) => {
-        if (action?.isDisabled || action?.node === null) {
-          return null;
-        }
-        if (action.node) {
-          return <div key={index}>{action.node(row)}</div>;
-        }
-
+        if (action?.isDisabled || action?.node === null) return null;
+        if (action.node) return <div key={index}>{action.node(row)}</div>;
         return (
           <div
             key={index}
@@ -396,9 +403,7 @@ const GenericTable = <T,>({
               action.icon &&
               "rounded-full  h-6 w-6 flex my-auto items-center justify-center"
             } ${action?.className}`}
-            onClick={() => {
-              actionOnClick(action, row);
-            }}
+            onClick={() => actionOnClick(action, row)}
           >
             {action.icon && (
               <ButtonTooltip content={action.name}>{action.icon}</ButtonTooltip>
@@ -413,6 +418,7 @@ const GenericTable = <T,>({
       })}
     </div>
   );
+
   const currentRowsContent = currentRows.map((row, rowIndex) => {
     const rowId = `row-${rowIndex}`;
     const isRowExpanded = expandedRows[rowId];
@@ -423,12 +429,11 @@ const GenericTable = <T,>({
           onDragStart={(e) => handleDragStart(e, row)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, row)}
-          className={`
-          ${
+          className={`${
             rowIndex !== currentRows.length - 1 && !isRowExpanded
               ? "border-b "
               : ""
-          }  ${rowClassNameFunction?.(row)}`}
+          }  ${rowClassNameFunction?.(row) ?? ""}`}
         >
           {selectionActions && isSelectionActive && (
             <td className="w-6 h-6 mx-auto p-1 ">
@@ -451,7 +456,6 @@ const GenericTable = <T,>({
               )}
             </td>
           )}
-          {/* Expand/Collapse Control */}
           {(!isCollapsibleCheckActive ||
             (isCollapsible &&
               row?.collapsible?.collapsibleRows?.length > 0)) && (
@@ -467,8 +471,6 @@ const GenericTable = <T,>({
             row?.collapsible?.collapsibleRows?.length === 0 && (
               <td className="w-6 h-6 mx-auto p-1 "></td>
             )}
-
-          {/* front actions  */}
           {actions && isActionsAtFront && isActionsActive && (
             <td>{renderActionButtons(row, actions)}</td>
           )}
@@ -519,15 +521,12 @@ const GenericTable = <T,>({
                 </td>
               );
             }
-
             const cellValue = `${row[rowKey.key as keyof T]}`;
             const displayValue =
               cellValue.length > tooltipLimit && isToolTipEnabled
                 ? `${cellValue.substring(0, tooltipLimit)}...`
                 : cellValue;
-
-            let style = {};
-
+            let style: React.CSSProperties = {};
             if (rowKey.isOptional && rowKey.options) {
               const matchedOption = rowKey.options.find(
                 (option) => option.label === String(row[rowKey.key as keyof T])
@@ -552,7 +551,6 @@ const GenericTable = <T,>({
                 </td>
               );
             }
-
             return (
               <td
                 key={keyIndex}
@@ -592,26 +590,22 @@ const GenericTable = <T,>({
             {actions &&
               isActionsActive &&
               (row?.isActionsDisabled ?? false) && (
-                <div className=" flex flex-row my-auto h-full  gap-3 justify-center items-center ">
+                <div className="flex flex-row my-auto h-full gap-3 items-center">
                   <P1>{t("Constant")}</P1>
                 </div>
               )}
           </td>
         </tr>
-        {/* Collapsed Content */}
         {isRowExpanded && (
           <tr>
             <td
               colSpan={usedColumns?.length + (isActionsActive ? 1 : 0)}
               className="px-4 py-2 border-b transition-max-height duration-300 ease-in-out overflow-hidden"
-              style={{
-                maxHeight: isRowExpanded ? "1000px" : "0",
-              }}
+              style={{ maxHeight: isRowExpanded ? "1000px" : "0" }}
             >
               {row?.collapsible?.collapsibleHeader && (
                 <div className="w-[96%] mx-auto mb-2 bg-gray-100 rounded-md px-4 py-[0.3rem] flex flex-row justify-between items-center">
                   <H5>{row?.collapsible?.collapsibleHeader}</H5>
-
                   {addCollapsible && (
                     <GenericButton
                       variant="black"
@@ -624,9 +618,7 @@ const GenericTable = <T,>({
                   )}
                 </div>
               )}
-
               <table className="w-[96%] mx-auto">
-                {/* Collapsible Column Headers */}
                 <thead className="w-full">
                   <tr>
                     {row?.collapsible?.collapsibleColumns.length > 0 &&
@@ -644,7 +636,6 @@ const GenericTable = <T,>({
                       )}
                   </tr>
                 </thead>
-                {/* Collapsible Rows */}
                 <tbody>
                   {row?.collapsible?.collapsibleRows.length > 0 &&
                     row?.collapsible?.collapsibleRows?.map(
@@ -674,7 +665,6 @@ const GenericTable = <T,>({
                                   </td>
                                 );
                               }
-
                               return (
                                 <td
                                   key={keyIndex}
@@ -698,7 +688,7 @@ const GenericTable = <T,>({
                               }`}
                             >
                               {renderActionButtons(
-                                { ...row, ...collapsibleRow }, //by this way we can access the main row data in the collapsible actions
+                                { ...row, ...collapsibleRow },
                                 collapsibleActions
                               )}
                             </td>
@@ -714,34 +704,45 @@ const GenericTable = <T,>({
       </Fragment>
     );
   });
+
   useEffect(() => {
-    if (sortConfigKey) {
-      sortRows(sortConfigKey?.key, sortConfigKey?.direction);
+    checkHeaderScrollButtons();
+    const container = headerScrollRef.current;
+    if (container) {
+      container.addEventListener("scroll", checkHeaderScrollButtons);
+      window.addEventListener("resize", checkHeaderScrollButtons);
+      return () => {
+        container.removeEventListener("scroll", checkHeaderScrollButtons);
+        window.removeEventListener("resize", checkHeaderScrollButtons);
+      };
     }
-  }, []);
+  }, [usedColumns?.length]);
+
   const renderFilters = (isUpper: boolean) => {
-    if (!filters) {
-      return null;
-    }
-    if (filters) {
-      return filters.map(
-        (filter, index) =>
-          filter.isUpperSide === isUpper &&
-          !filter.isDisabled && (
-            <div
-              key={index}
-              className="flex flex-row gap-2 justify-between items-center"
-            >
-              {filter.label && <H5 className="w-fit">{filter.label}</H5>}
-              {filter.node}
-            </div>
-          )
-      );
-    }
+    if (!filters) return null;
+    return filters.map(
+      (filter, index) =>
+        filter.isUpperSide === isUpper &&
+        !filter.isDisabled && (
+          <div
+            key={index}
+            className="flex flex-row gap-2 justify-between items-center"
+          >
+            {filter.label && <H5 className="w-fit">{filter.label}</H5>}
+            {filter.node}
+          </div>
+        )
+    );
   };
+
+  const allVisibleSelected =
+    selectedRows.length > 0 &&
+    selectedRows.length === currentRows.length &&
+    currentRows.every((r) => selectedRows.includes(r));
+
   return (
     <div
-      className={` ${
+      className={`${
         filterPanel?.isFilterPanelActive ? "flex flex-row gap-2" : ""
       }`}
     >
@@ -750,45 +751,50 @@ const GenericTable = <T,>({
         className={`mx-auto w-full overflow-scroll no-scrollbar flex flex-col gap-4 __className_a182b8 `}
       >
         <div className=" flex flex-row gap-4 justify-between items-center ">
-          {/* search button */}
-          {isSearch && (
-            <div className="relative w-fit">
-              <input
-                id="search"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder={t("Search")}
-                className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
-              />
-              {searchQuery && (
-                <GenericButton
-                  onClick={() => setSearchQuery("")}
-                  variant="clear"
-                  aria-label="Clear search"
-                >
-                  ×
-                </GenericButton>
-              )}
-            </div>
-          )}
-
-          {/* outside search button */}
-          {outsideSearch?.()}
-          {/* filters  for upperside*/}
+          <div className="flex flex-row gap-2 items-center">
+            {isSearch && (
+              <div className="relative w-fit">
+                <input
+                  id="search"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder={t("Search")}
+                  className="border border-gray-200 rounded-md py-2 px-3 pr-8 focus:outline-none"
+                />
+                {searchQuery && (
+                  <GenericButton
+                    onClick={() => setSearchQuery("")}
+                    variant="clear"
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </GenericButton>
+                )}
+              </div>
+            )}
+            {outsideSearchProps && outsideSearch(outsideSearchProps)}
+            {(showOrientationToggle ?? allowOrientationToggle) && (
+              <div className="hidden sm:flex">
+                <OrientationToggle
+                  orientation={tabOrientation}
+                  onChange={setTabOrientation}
+                />
+              </div>
+            )}
+          </div>
           {!(selectionActions && isSelectionActive) && (
-            <div className="flex flex-row flex-wrap gap-4 ml-auto ">
+            <div className="hidden sm:flex flex-row flex-wrap gap-4 ml-auto">
               {renderFilters(true)}
             </div>
           )}
         </div>
         <div className="flex flex-col bg-white border border-gray-100 shadow-sm rounded-lg   ">
-          {/* header part */}
-          <div className="flex flex-row flex-wrap  justify-between items-center gap-4  px-6 border-b border-gray-200  py-4   ">
-            <div className="flex flex-row gap-1 items-center">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-2 sm:gap-4 px-3 sm:px-6 border-b border-gray-200 py-3 sm:py-4">
+            <div className="flex flex-row gap-1 items-center w-full sm:w-auto">
               {selectionActions && (
                 <Tooltip
                   content={
@@ -800,9 +806,7 @@ const GenericTable = <T,>({
                 >
                   <div
                     onClick={() => {
-                      if (isSelectionActive) {
-                        setSelectedRows([]);
-                      }
+                      if (isSelectionActive) setSelectedRows([]);
                       setIsSelectionActive(!isSelectionActive);
                     }}
                   >
@@ -814,28 +818,33 @@ const GenericTable = <T,>({
                   </div>
                 </Tooltip>
               )}
-
-              {title && <H4 className="mr-auto">{title}</H4>}
+              {title && (
+                <H4 className="mr-auto text-base sm:text-lg">{title}</H4>
+              )}
             </div>
             {selectionActions &&
               isSelectionActive &&
               isActionsActive &&
               selectedRows.length > 0 &&
               renderActionButtons({} as unknown as T, selectionActions)}
-            <div className="ml-auto flex flex-row gap-4 relative items-center">
+            <div className="flex flex-row flex-wrap gap-2 sm:gap-4 relative items-center w-full sm:w-auto sm:ml-auto justify-end">
               {!(selectionActions && isSelectionActive) && (
-                <div className="flex flex-row flex-wrap gap-4  ">
+                <>
+                  {/* Alt filters (Total vs) */}
+                  {renderFilters(false)}
+                  {/* PDF Button */}
                   {isPdf && (
                     <div
-                      className="my-auto  items-center text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      className="my-auto items-center text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
                       onClick={generatePDF}
                     >
                       <BsFilePdf />
                     </div>
                   )}
+                  {/* Excel Button - mobilde de göster */}
                   {isExcel && (
                     <div
-                      className="my-auto  items-center text-xl cursor-pointer border px-2 py-1 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
+                      className="my-auto items-center text-lg sm:text-xl cursor-pointer border px-1.5 py-1 sm:px-2 sm:py-1 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
                       onClick={generateExcel}
                     >
                       <ButtonTooltip content={"Excel"}>
@@ -843,175 +852,242 @@ const GenericTable = <T,>({
                       </ButtonTooltip>
                     </div>
                   )}
-                  {/* filters for lowerside */}
-                  {renderFilters(false)}
-                </div>
-              )}
-
-              {/* add button */}
-              {!(selectionActions && isSelectionActive) &&
-                addButton &&
-                !addButton.isDisabled && (
-                  <GenericButton
-                    variant="black"
-                    size="sm"
-                    className={`ml-auto ${addButton.className || ""}`}
-                    onClick={() => actionOnClick(addButton, {} as unknown as T)}
-                  >
-                    <H5>{addButton.name}</H5>
-                  </GenericButton>
-                )}
-              {/* column active inactive selection */}
-              {isColumnFilter && (
-                <>
-                  <Tooltip content={t("Filter Columns")} placement="top">
-                    <div
+                  {/* Mobile Filter Button - dropdown style */}
+                  {filters &&
+                    filters.some((f) => f.isUpperSide && !f.isDisabled) && (
+                      <>
+                        <Tooltip content={t("Filters")} placement="top">
+                          <div
+                            onClick={() =>
+                              setIsFilterModalOpen((prev) => !prev)
+                            }
+                            className="items-center my-auto text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105 sm:hidden"
+                          >
+                            <RiFilter3Line />
+                          </div>
+                        </Tooltip>
+                        {isFilterModalOpen && (
+                          <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200 drop-shadow-lg z-50 min-w-64 sm:hidden">
+                            {filters
+                              .filter(
+                                (filter) =>
+                                  filter.isUpperSide && !filter.isDisabled
+                              )
+                              .map((filter, index) => (
+                                <div
+                                  key={index}
+                                  className="flex flex-row justify-between items-center gap-4 pb-3 border-b border-gray-100 last:border-b-0"
+                                >
+                                  {filter.label && (
+                                    <H5 className="text-sm font-semibold text-gray-700">
+                                      {filter.label}
+                                    </H5>
+                                  )}
+                                  <div className="flex items-center">
+                                    {filter.node}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  {/* Column Filter Button */}
+                  {isColumnFilter && (
+                    <>
+                      <Tooltip content={t("Filter Columns")} placement="top">
+                        <div
+                          onClick={() =>
+                            setIsColumnActiveModalOpen((prev) => !prev)
+                          }
+                          className="items-center my-auto text-lg sm:text-xl cursor-pointer border p-1.5 sm:p-2 rounded-md hover:bg-blue-50 bg-opacity-50 hover:scale-105"
+                        >
+                          <PiFadersHorizontal />
+                        </div>
+                      </Tooltip>
+                      {isColumnActiveModalOpen && title && (
+                        <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-50 min-w-64">
+                          <ColumnActiveModal title={title} />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* Add Button - mobilde yeni satırda */}
+                  {addButton && !addButton.isDisabled && (
+                    <GenericButton
+                      variant="black"
+                      size="sm"
+                      className={`${
+                        addButton.className || ""
+                      } text-sm w-full sm:w-auto order-last sm:order-none`}
                       onClick={() =>
-                        setIsColumnActiveModalOpen((prev) => !prev)
+                        actionOnClick(addButton, {} as unknown as T)
                       }
-                      className="items-center my-auto text-xl cursor-pointer border p-2 rounded-md hover:bg-blue-50  bg-opacity-50 hover:scale-105"
                     >
-                      <PiFadersHorizontal />
-                    </div>
-                  </Tooltip>
-
-                  {isColumnActiveModalOpen && title && (
-                    <div className="absolute top-10 right-0 flex flex-col gap-2 bg-white rounded-md py-4 px-2 max-w-fit border-t border-gray-200  drop-shadow-lg z-10 min-w-64">
-                      <ColumnActiveModal title={title} />
-                    </div>
+                      <H5 className="text-xs sm:text-sm whitespace-nowrap">
+                        {addButton.name}
+                      </H5>
+                    </GenericButton>
                   )}
                 </>
               )}
             </div>
           </div>
-          {/* table part */}
-          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full ">
-            <div className="border border-gray-100 rounded-md w-full overflow-auto no-scrollbar min-h-60  ">
-              <table className="bg-white w-full ">
-                <thead className="border-b bg-gray-100">
-                  <tr>
-                    {selectionActions && isSelectionActive && (
-                      <th>
-                        {selectionActions && isSelectionActive && (
-                          <Tooltip content={t("Select All")} placement="top">
-                            <div
-                              onClick={() => {
-                                if (selectedRows.length === totalRows) {
-                                  setSelectedRows([]);
-                                } else {
-                                  setSelectedRows(tableRows);
-                                }
-                              }}
-                            >
-                              {selectedRows.length === totalRows ? (
-                                <MdOutlineCheckBox className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
-                              ) : (
-                                <MdOutlineCheckBoxOutlineBlank className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
-                              )}
-                            </div>
-                          </Tooltip>
-                        )}
-                      </th>
-                    )}
-                    {isCollapsible && <th></th>}
-
-                    {usedColumns?.map((column, index) => {
-                      if (column.node) {
-                        return column.node();
-                      }
-                      return (
-                        <th
-                          key={index}
-                          className={` ${
-                            index === 0 && !isCollapsible && !isSelectionActive
-                              ? "pl-3"
-                              : ""
-                          }  py-3  min-w-8  `}
-                        >
-                          <h1
-                            className={`text-base font-medium leading-6 w-max flex gap-2  ${
-                              column?.className
-                            }  ${
-                              index === usedColumns?.length - 1 &&
-                              actions &&
-                              isActionsActive
-                                ? "mx-auto px-4"
-                                : ""
-                            }`}
-                          >
-                            <span
-                              className={`flex flex-row gap-1 items-center justify-center `}
-                            >
-                              {column?.isAddable && (
-                                <GoPlusCircle
-                                  onClick={() => column?.onClick?.()}
-                                  className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
-                                />
-                              )}
-                              {column.key}
-                            </span>
-                            <div
-                              className="sort-buttons"
-                              style={{ display: "inline-block" }}
-                            >
-                              {outsideSortProps &&
-                                column?.correspondingKey &&
-                                outsideSort(
-                                  column.correspondingKey,
-                                  outsideSortProps.filterPanelFormElements,
-                                  outsideSortProps.setFilterPanelFormElements
-                                )}
-                              {column.isSortable &&
-                                !outsideSortProps &&
-                                (sortConfig?.key === usedRowKeys[index]?.key &&
-                                sortConfig?.direction === "ascending" ? (
-                                  <GenericButton
-                                    variant="icon"
-                                    size="sm"
-                                    className="p-0"
-                                    onClick={() =>
-                                      sortRows(
-                                        usedRowKeys[index].key as Extract<
-                                          keyof T,
-                                          string
-                                        >,
-                                        "descending"
-                                      )
-                                    }
-                                  >
-                                    ↑
-                                  </GenericButton>
+          <div className="px-6 py-4 flex flex-col gap-4 overflow-scroll no-scrollbar w-full  ">
+            <div className="border border-gray-100 rounded-md w-full min-h-60 relative">
+              {showHeaderLeftButton && (
+                <button
+                  onClick={() => scrollHeaderToDirection("left")}
+                  className="absolute left-1 top-6 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  aria-label="Scroll left"
+                >
+                  <FiChevronLeft className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
+                </button>
+              )}
+              {showHeaderRightButton && (
+                <button
+                  onClick={() => scrollHeaderToDirection("right")}
+                  className="absolute right-1 top-6 -translate-y-1/2 z-30 w-10 h-10 md:w-10 md:h-10 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full flex items-center justify-center hover:bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 hover:scale-105 shadow-sm touch-manipulation"
+                  aria-label="Scroll right"
+                >
+                  <FiChevronRight className="text-gray-400 text-lg md:text-xl hover:text-blue-600 transition-colors" />
+                </button>
+              )}
+              <div
+                ref={headerScrollRef}
+                className={`overflow-auto scroll-smooth relative cursor-grab active:cursor-grabbing ${
+                  rowsPerPage > 50 || rowsPerPage === RowPerPageEnum.ALL
+                    ? "h-[600px]"
+                    : "max-h-[60vh] sm:max-h-[65vh] md:max-h-[70vh]"
+                }`}
+              >
+                <table className="bg-white w-full">
+                  <thead className="border-b bg-gray-100">
+                    <tr>
+                      {selectionActions && isSelectionActive && (
+                        <th className="sticky top-0 z-10 bg-gray-100 shadow-sm">
+                          {selectionActions && isSelectionActive && (
+                            <Tooltip content={t("Select All")} placement="top">
+                              <div
+                                onClick={() => {
+                                  if (allVisibleSelected) {
+                                    setSelectedRows([]);
+                                  } else {
+                                    setSelectedRows(currentRows);
+                                  }
+                                }}
+                              >
+                                {allVisibleSelected ? (
+                                  <MdOutlineCheckBox className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
                                 ) : (
-                                  <GenericButton
-                                    variant="icon"
-                                    size="sm"
-                                    className="p-0"
-                                    onClick={() =>
-                                      sortRows(
-                                        usedRowKeys[index].key as Extract<
-                                          keyof T,
-                                          string
-                                        >,
-                                        "ascending"
-                                      )
-                                    }
-                                  >
-                                    ↓
-                                  </GenericButton>
-                                ))}
-                            </div>
-                          </h1>
+                                  <MdOutlineCheckBoxOutlineBlank className="my-auto mx-auto text-2xl cursor-pointer hover:scale-105" />
+                                )}
+                              </div>
+                            </Tooltip>
+                          )}
                         </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>{currentRowsContent}</tbody>
-              </table>
+                      )}
+                      {isCollapsible && (
+                        <th className="sticky top-0 z-10 bg-gray-100"></th>
+                      )}
+                      {usedColumns?.map((column, index) => {
+                        if (column.node) return column.node();
+                        return (
+                          <th
+                            key={index}
+                            className={`sticky top-0 z-10 bg-gray-100 shadow-sm ${
+                              index === 0 &&
+                              !isCollapsible &&
+                              !isSelectionActive
+                                ? "pl-3"
+                                : ""
+                            }  py-3  min-w-8  `}
+                          >
+                            <h1
+                              className={`text-base font-medium leading-6 w-max flex gap-2  ${
+                                column?.className
+                              }  ${
+                                index === usedColumns?.length - 1 &&
+                                actions &&
+                                isActionsActive
+                                  ? "mx-auto px-4"
+                                  : ""
+                              }`}
+                            >
+                              <span
+                                className={`flex flex-row gap-1 items-center justify-center `}
+                              >
+                                {column?.isAddable && (
+                                  <GoPlusCircle
+                                    onClick={() => column?.onClick?.()}
+                                    className=" hover:text-blue-500 transition-transform cursor-pointer text-lg"
+                                  />
+                                )}
+                                {column.key}
+                              </span>
+                              <div
+                                className="sort-buttons"
+                                style={{ display: "inline-block" }}
+                              >
+                                {outsideSortProps &&
+                                  column?.correspondingKey &&
+                                  outsideSort(
+                                    column.correspondingKey,
+                                    outsideSortProps.filterPanelFormElements,
+                                    outsideSortProps.setFilterPanelFormElements
+                                  )}
+                                {column.isSortable &&
+                                  !outsideSortProps &&
+                                  (sortConfig?.key ===
+                                    usedRowKeys[index]?.key &&
+                                  sortConfig?.direction === "ascending" ? (
+                                    <GenericButton
+                                      variant="icon"
+                                      size="sm"
+                                      className="p-0"
+                                      onClick={() =>
+                                        sortRows(
+                                          usedRowKeys[index].key as Extract<
+                                            keyof T,
+                                            string
+                                          >,
+                                          "descending"
+                                        )
+                                      }
+                                    >
+                                      ↑
+                                    </GenericButton>
+                                  ) : (
+                                    <GenericButton
+                                      variant="icon"
+                                      size="sm"
+                                      className="p-0"
+                                      onClick={() =>
+                                        sortRows(
+                                          usedRowKeys[index].key as Extract<
+                                            keyof T,
+                                            string
+                                          >,
+                                          "ascending"
+                                        )
+                                      }
+                                    >
+                                      ↓
+                                    </GenericButton>
+                                  ))}
+                              </div>
+                            </h1>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>{currentRowsContent}</tbody>
+                </table>
+              </div>
             </div>
             {rows.length > 0 && isRowsPerPage && (
               <div className="w-fit ml-auto flex flex-row gap-4">
-                {/* Rows per page */}
                 <div className="flex flex-row gap-2 px-6 items-center">
                   <Caption>{t("Rows per page")}:</Caption>
                   <select
@@ -1035,7 +1111,6 @@ const GenericTable = <T,>({
                     <option value={RowPerPageEnum.ALL}>{t("ALL")}</option>
                   </select>
                 </div>
-                {/* Pagination */}
                 {isPagination && (
                   <div className=" flex flex-row gap-2 items-center">
                     <Caption>
@@ -1043,8 +1118,8 @@ const GenericTable = <T,>({
                         (currentPage - 1) * rowsPerPage + 1,
                         usedTotalRows
                       )}
-                      –{Math.min(currentPage * rowsPerPage, usedTotalRows)} of{" "}
-                      {usedTotalRows}
+                      –{Math.min(currentPage * rowsPerPage, usedTotalRows)}{" "}
+                      {"of"} {usedTotalRows}
                     </Caption>
                     <div className="flex flex-row gap-4">
                       <GenericButton
@@ -1079,7 +1154,6 @@ const GenericTable = <T,>({
               </div>
             )}
           </div>
-          {/* action modal if there is */}
           {actions?.map((action, index) => {
             if (action?.isModal && action?.isModalOpen && action?.modal) {
               return <div key={index}>{action.modal}</div>;
@@ -1095,15 +1169,12 @@ const GenericTable = <T,>({
               return <div key={index}>{action.modal}</div>;
             }
           })}
-          {/* addbutton modal if there is  */}
           {addButton?.isModal && addButton?.isModalOpen && addButton?.modal && (
             <div>{addButton.modal}</div>
           )}
-          {/* addCollapsible modal if there is  */}
           {addCollapsible?.isModal &&
             addCollapsible?.isModalOpen &&
             addCollapsible?.modal && <div>{addCollapsible.modal}</div>}
-          {/* image modal if it opens */}
           {isImageModalOpen && (
             <ImageModal
               isOpen={isImageModalOpen}

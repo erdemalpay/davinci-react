@@ -463,6 +463,7 @@ export function useGetOrders(category?: number[]) {
     "cancelledBy",
     "status",
     "location",
+    "item",
   ];
   if (category || filterPanelFormElements.category !== "") {
     url = url.concat(
@@ -490,6 +491,7 @@ export function useGetOrders(category?: number[]) {
       filterPanelFormElements.status,
       filterPanelFormElements.category,
       filterPanelFormElements.location,
+      filterPanelFormElements.item,
       category,
     ],
     true

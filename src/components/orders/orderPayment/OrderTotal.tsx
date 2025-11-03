@@ -1,26 +1,30 @@
 import { useTranslation } from "react-i18next";
 import { PiArrowArcLeftBold } from "react-icons/pi";
 import { useOrderContext } from "../../../context/Order.context";
-import { Order, OrderDiscountStatus, Table } from "../../../types";
+import { Order, Table } from "../../../types";
 import { useGetMenuItems } from "../../../utils/api/menu/menu-item";
-import { useGetOrderDiscounts } from "../../../utils/api/order/orderDiscount";
 import { getItem } from "../../../utils/getItem";
+import Loading from "../../common/Loading";
 import Keypad from "./KeyPad";
 
 type Props = {
   tableOrders: Order[];
   table: Table;
   collectionsTotalAmount: number;
+  refundAmount: number;
+  unpaidAmount: number;
 };
 
-const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
+const OrderTotal = ({
+  tableOrders,
+  collectionsTotalAmount,
+  refundAmount,
+  unpaidAmount,
+}: Props) => {
   const { t } = useTranslation();
-  const discounts = useGetOrderDiscounts()?.filter(
-    (discount) => discount?.status !== OrderDiscountStatus.DELETED
-  );
   const items = useGetMenuItems();
-  if (!tableOrders || !discounts || !items) {
-    return null;
+  if (!tableOrders || !items) {
+    return <Loading />;
   }
   const {
     setPaymentAmount,
@@ -28,21 +32,6 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
     temporaryOrders,
     paymentAmount,
   } = useOrderContext();
-  const discountAmount = tableOrders?.reduce((acc, order) => {
-    if (!order.discount) {
-      return acc;
-    }
-    const discountValue =
-      (order.unitPrice * order.quantity * (order?.discountPercentage ?? 0)) /
-        100 +
-      (order?.discountAmount ?? 0) * order.quantity;
-    return acc + discountValue;
-  }, 0);
-  const totalAmount = tableOrders?.reduce((acc, order) => {
-    return acc + order.unitPrice * order.quantity;
-  }, 0);
-  const totalMoneySpend = collectionsTotalAmount + Number(paymentAmount);
-  const refundAmount = totalMoneySpend - (totalAmount - discountAmount);
   const handlePaymentAmount = (order: Order) => {
     if (order?.discount) {
       return (
@@ -61,9 +50,9 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
     }
   };
   return (
-    <div className="flex flex-col justify-between border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
+    <div className="flex h-full min-h-0 flex-col justify-between border border-gray-200 rounded-md bg-white shadow-lg p-1 gap-4 __className_a182b8">
       {/* temp orders */}
-      <div className="flex flex-col  h-80 overflow-scroll no-scrollbar ">
+      <div className="flex flex-col h-[20rem] overflow-auto">
         {tableOrders
           ?.sort((a, b) => a.item - b.item)
           ?.map((order) => {
@@ -201,6 +190,7 @@ const OrderTotal = ({ tableOrders, collectionsTotalAmount }: Props) => {
         <Keypad
           tableOrders={tableOrders}
           collectionsTotalAmount={collectionsTotalAmount}
+          unpaidAmount={unpaidAmount}
         />
       </div>
     </div>

@@ -15,6 +15,8 @@ import { CreateMultipleExpense } from "../utils/api/account/expense";
 import { CreateBulkProductAndMenuItem } from "../utils/api/account/product";
 import { useUserContext } from "./User.context";
 
+export type TabOrientation = "horizontal" | "vertical";
+
 type GeneralContextType = {
   sortConfigKey: {
     key: string;
@@ -115,6 +117,10 @@ type GeneralContextType = {
       defaultValue: any;
     }[]
   ) => void;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
+  tabOrientation: TabOrientation;
+  setTabOrientation: (orientation: TabOrientation) => void;
 };
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -237,6 +243,10 @@ const GeneralContext = createContext<GeneralContextType>({
   setTabInputFormKey: () => {},
   tabInputInvalidateKeys: [],
   setTabInputInvalidateKeys: () => {},
+  isSidebarOpen: true,
+  setIsSidebarOpen: () => {},
+  tabOrientation: "horizontal",
+  setTabOrientation: () => {},
 });
 
 export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
@@ -319,6 +329,28 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [panelControlActiveTab, setPanelControlActiveTab] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [orderDataActiveTab, setOrderDataActiveTab] = useState<number>(0);
+  const [isSidebarOpen, setIsSidebarOpenState] = useState<boolean>(() => {
+    const saved = localStorage.getItem("sidebar-open");
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  const setIsSidebarOpen = (open: boolean) => {
+    localStorage.setItem("sidebar-open", JSON.stringify(open));
+    setIsSidebarOpenState(open);
+  };
+
+  const [tabOrientation, setTabOrientationState] = useState<TabOrientation>(
+    () => {
+      const saved = localStorage.getItem("tab-orientation");
+      return (saved as TabOrientation) || "horizontal";
+    }
+  );
+
+  const setTabOrientation = (orientation: TabOrientation) => {
+    localStorage.setItem("tab-orientation", orientation);
+    setTabOrientationState(orientation);
+  };
+
   const resetGeneralContext = () => {
     setIsSelectionActive(false);
     setSelectedRows([]);
@@ -413,6 +445,10 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         setTabInputFormKey,
         tabInputInvalidateKeys,
         setTabInputInvalidateKeys,
+        isSidebarOpen,
+        setIsSidebarOpen,
+        tabOrientation,
+        setTabOrientation,
       }}
     >
       {children}

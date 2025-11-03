@@ -4,7 +4,6 @@ import { useAccountPaymentMutations } from "../../utils/api/account/payment";
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
-import { StockLocationInput } from "../../utils/panelInputs";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
@@ -35,7 +34,17 @@ const AddVendorPayment = () => {
       placeholder: t("Amount"),
       required: true,
     },
-    StockLocationInput({ locations: locations }),
+    {
+      type: InputTypes.SELECT,
+      formKey: "location",
+      label: t("Location"),
+      options: locations.map((input) => ({
+        value: input._id,
+        label: input.name,
+      })),
+      placeholder: t("Location"),
+      required: true,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "paymentMethod",
