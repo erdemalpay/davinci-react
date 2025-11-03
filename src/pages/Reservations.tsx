@@ -62,7 +62,6 @@ export default function Reservations() {
 
     if (value === ReservationStatusEnum.COMING) {
       setIsReservationCalledDialogOpen(false);
-      setSelectedDuration(30); // Reset to default
       setIsDurationModalOpen(true);
       return;
     }

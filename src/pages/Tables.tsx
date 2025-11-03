@@ -123,7 +123,7 @@ const Tables = () => {
             reservation.location === selectedLocationId &&
             reservation.reservedTable
         )
-        .map((reservation) => reservation.reservedTable.trim().toLowerCase())
+        .map((reservation) => reservation.reservedTable)
     );
   }, [reservations, selectedLocationId]);
 
@@ -1156,9 +1156,7 @@ const Tables = () => {
                           </a>
                         );
                       }
-                      const isReservedComing = comingReservedTableNames.has(
-                        tableName.trim().toLowerCase()
-                      );
+                      const isReservedComing = comingReservedTableNames.has(tableName);
                       return (
                         <a
                           key={tableName + "-tableselector-small"}
@@ -1240,9 +1238,7 @@ const Tables = () => {
                       );
                     }
 
-                    const isReservedComing = comingReservedTableNames.has(
-                      tableName.trim().toLowerCase()
-                    );
+                    const isReservedComing = comingReservedTableNames.has(tableName);
                     return (
                       <a
                         key={tableName}
