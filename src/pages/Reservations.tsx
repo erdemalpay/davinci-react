@@ -85,7 +85,7 @@ export default function Reservations() {
       updates: {
         status: ReservationStatusEnum.COMING,
         comingDurationInMinutes: selectedDuration,
-      } as any,
+      } as Partial<Reservation>,
     });
 
     setIsDurationModalOpen(false);
@@ -248,12 +248,16 @@ export default function Reservations() {
         isModal: true,
         setRow: setRowToAction,
         modal: rowToAction ? (
-          <GenericAddEditPanel
+          <GenericAddEditPanel<Reservation>
             isOpen={isEditModalOpen}
             close={() => setIsEditModalOpen(false)}
             inputs={inputs}
             formKeys={formKeys}
-            submitItem={updateReservation as any}
+            submitItem={(item) => {
+              if ('id' in item && 'updates' in item) {
+                updateReservation(item);
+              }
+            }}
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
@@ -407,7 +411,7 @@ export default function Reservations() {
       name: t(`Add Reservation`),
       isModal: true,
       modal: (
-        <GenericAddEditPanel
+        <GenericAddEditPanel<Reservation>
           isOpen={isAddModalOpen}
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
@@ -417,7 +421,11 @@ export default function Reservations() {
             reservationHour: format(new Date(), "HH:mm"),
             playerCount: 0,
           }}
-          submitItem={createReservation as any}
+          submitItem={(item) => {
+            if (!('id' in item)) {
+              createReservation(item as Partial<Reservation>);
+            }
+          }}
           topClassName="flex flex-col gap-2 "
         />
       ),
@@ -444,7 +452,7 @@ export default function Reservations() {
       <Header showLocationSelector={true} />
       <div className="w-[98%] mx-auto my-10">
         <GenericTable
-          rows={filteredReservations as Reservation[]}
+          rows={filteredReservations ?? []}
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
@@ -482,8 +490,8 @@ export default function Reservations() {
             ]}
             formKeys={[{ key: "duration", type: FormKeyTypeEnum.NUMBER }]}
             constantValues={{ duration: 30 }}
-            setForm={(form: any) => setSelectedDuration(form.duration)}
-            submitItem={undefined as any}
+            setForm={(form: { duration: number }) => setSelectedDuration(form.duration)}
+            submitItem={() => { /* submitFunction is used instead */ }}
             submitFunction={handleDurationConfirm}
             buttonName={t("Confirm")}
             topClassName="flex flex-col gap-2"
