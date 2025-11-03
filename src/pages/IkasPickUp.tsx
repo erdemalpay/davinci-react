@@ -56,28 +56,6 @@ const IkasPickUp = () => {
     return getItem(DisabledConditionEnum.IKAS_PICK_UP, disabledConditions);
   }, [disabledConditions]);
 
-  const isShowReceivedOrdersDisabled = useMemo(() => {
-    return Boolean(
-      ikasPickUpDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.SHOW_RECEIVED_ORDERS &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    );
-  }, [ikasPickUpDisabledCondition, user]);
-
-  const isExcelDisabled = useMemo(() => {
-    return Boolean(
-      ikasPickUpDisabledCondition?.actions?.some(
-        (ac) =>
-          ac.action === ActionEnum.EXCEL &&
-          user?.role?._id &&
-          !ac?.permissionsRoles?.includes(user?.role?._id)
-      )
-    );
-  }, [ikasPickUpDisabledCondition, user]);
-
   const rows = useMemo(() => {
     return orders
       ?.filter((order) => {
@@ -415,22 +393,24 @@ const IkasPickUp = () => {
 
   const filters = useMemo(
     () => [
-      ...(!isShowReceivedOrdersDisabled
-        ? [
-            {
-              label: t("Show Picked Orders"),
-              isUpperSide: true,
-              node: (
-                <SwitchButton
-                  checked={showPickedOrders}
-                  onChange={() => {
-                    setShowPickedOrders(!showPickedOrders);
-                  }}
-                />
-              ),
-            },
-          ]
-        : []),
+      {
+        label: t("Show Picked Orders"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton
+            checked={showPickedOrders}
+            onChange={() => {
+              setShowPickedOrders(!showPickedOrders);
+            }}
+          />
+        ),
+        isDisabled: ikasPickUpDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_RECEIVED_ORDERS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
+      },
       {
         label: t("Show Filters"),
         isUpperSide: true,
@@ -450,7 +430,8 @@ const IkasPickUp = () => {
       setShowPickedOrders,
       showOrderDataFilters,
       setShowOrderDataFilters,
-      isShowReceivedOrdersDisabled,
+      ikasPickUpDisabledCondition,
+      user,
     ]
   );
 
@@ -467,7 +448,14 @@ const IkasPickUp = () => {
             isActionsActive={false}
             filterPanel={filterPanel}
             filters={filters}
-            isExcel={!isExcelDisabled}
+            isExcel={
+              !ikasPickUpDisabledCondition?.actions?.some(
+                (ac) =>
+                  ac.action === ActionEnum.EXCEL &&
+                  user?.role?._id &&
+                  !ac?.permissionsRoles?.includes(user?.role?._id)
+              )
+            }
             excelFileName={"IkasPickUp.xlsx"}
             rowClassNameFunction={(row: any) => {
               if (row?.isReturned) {
