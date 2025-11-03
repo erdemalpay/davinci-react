@@ -60,7 +60,6 @@ export default function Reservations() {
   function handleCallResponse(value: ReservationStatusEnum) {
     if (!selectedReservation) return;
 
-    // If Coming is selected, open duration modal instead
     if (value === ReservationStatusEnum.COMING) {
       setIsReservationCalledDialogOpen(false);
       setSelectedDuration(30); // Reset to default
@@ -68,7 +67,6 @@ export default function Reservations() {
       return;
     }
 
-    // For other statuses, proceed as normal
     updateReservationCall({
       id: selectedReservation._id,
       updates: {
