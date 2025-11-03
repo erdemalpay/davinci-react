@@ -416,6 +416,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
   IKAS_PICK_UP = "ikas_pick_up",
+  RESERVATIONS = "reservations",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -436,6 +437,12 @@ export enum ActionEnum {
   REFUND = "refund",
   CANCEL = "cancel",
   SHOW_RECEIVED_ORDERS = "show_received_orders",
+  SHOW_TABLES = "show_tables",
+  HIDE_COMPLETED_RESERVATIONS = "hide_completed_reservations",
+  GROUP_CAME = "group_came",
+  CALLED = "called",
+  OPENBACK = "openback",
+
 }
 
 export type Membership = {
