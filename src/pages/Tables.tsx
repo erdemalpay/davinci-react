@@ -112,7 +112,6 @@ const Tables = () => {
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
 
-  // Get normalized table names that have "Coming" status reservations
   const comingReservedTableNames = useMemo(() => {
     if (!reservations || !selectedLocationId) return new Set<string>();
 
@@ -719,7 +718,6 @@ const Tables = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
-  // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
       return 1;
@@ -922,7 +920,6 @@ const Tables = () => {
       : "bg-red-300";
   };
 
-  // Purple styling for reserved tables with "Coming" status
   const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
 
   const buttons: {
