@@ -421,6 +421,7 @@ export enum DisabledConditionEnum {
   ANALYTICS_GAMEPLAYSBYMENTORSDETAILS = "gameplaysbymentorsdetails",
   ANALYTICS_KNOWNGAMESCOUNT = "knowngamescount",
   ANALYTICS_WHOKNOWS = "whoknows",
+  CAFE_ACTIVITIES = "cafe_activities",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -447,6 +448,7 @@ export enum ActionEnum {
   CALLED = "called",
   OPENBACK = "openback",
   SHOW_INACTIVE_USERS = "show_inactive_users",
+  SHOW_COMPLETED_ACTIVITIES = "show_completed_activities",
 
 }
 

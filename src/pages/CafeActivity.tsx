@@ -14,10 +14,15 @@ import {
 } from "../components/panelComponents/shared/types";
 import { useUserContext } from "../context/User.context";
 import {
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../types";
+import {
   useCafeActivityMutations,
   useGetCafeActivitys,
 } from "../utils/api/cafeActivity";
 import { useGetStoreLocations } from "../utils/api/location";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -28,6 +33,7 @@ const CafeActivity = () => {
   const { user } = useUserContext();
   const { createCafeActivity, deleteCafeActivity, updateCafeActivity } =
     useCafeActivityMutations();
+  const disabledConditions = useGetDisabledConditions();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -37,10 +43,10 @@ const CafeActivity = () => {
   ] = useState(false);
   const [showCompletedCafeActivities, setShowCompletedActivities] =
     useState(false);
-  const isDisabledCondition = false;
-  //   user
-  //     ? ![RoleEnum.MANAGER].includes(user?.role?._id)
-  //     : true;
+
+  const cafeActivitiesDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.CAFE_ACTIVITIES, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     return (
@@ -176,7 +182,12 @@ const CafeActivity = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: isDisabledCondition,
+      isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
     [
@@ -185,7 +196,8 @@ const CafeActivity = () => {
       inputs,
       formKeys,
       createCafeActivity,
-      isDisabledCondition,
+      cafeActivitiesDisabledCondition,
+      user,
     ]
   );
 
@@ -212,7 +224,7 @@ const CafeActivity = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: false,
       },
       {
         name: t("Edit"),
@@ -235,7 +247,7 @@ const CafeActivity = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: false,
       },
       {
         name: t("Toggle Active"),
@@ -266,7 +278,6 @@ const CafeActivity = () => {
       inputs,
       formKeys,
       updateCafeActivity,
-      isDisabledCondition,
     ]
   );
 
@@ -281,10 +292,15 @@ const CafeActivity = () => {
             onChange={setShowCompletedActivities}
           />
         ),
-        isDisabled: isDisabledCondition,
+        isDisabled: cafeActivitiesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_COMPLETED_ACTIVITIES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, showCompletedCafeActivities, isDisabledCondition]
+    [t, showCompletedCafeActivities, cafeActivitiesDisabledCondition, user]
   );
 
   return (
