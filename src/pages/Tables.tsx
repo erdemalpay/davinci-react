@@ -111,6 +111,22 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+
+  const comingReservedTableNames = useMemo(() => {
+    if (!reservations || !selectedLocationId) return new Set<string>();
+
+    return new Set(
+      reservations
+        .filter(
+          (reservation) =>
+            reservation.status === ReservationStatusEnum.COMING &&
+            reservation.location === selectedLocationId &&
+            reservation.reservedTable
+        )
+        .map((reservation) => reservation.reservedTable)
+    );
+  }, [reservations, selectedLocationId]);
+
   const inactiveCategories = useMemo(() => {
     return categories?.filter((category) => !category.active) || [];
   }, [categories]);
@@ -702,7 +718,6 @@ const Tables = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
-  // Sort users by name
   users.sort((a: User, b: User) => {
     if (a.name > b.name) {
       return 1;
@@ -904,6 +919,9 @@ const Tables = () => {
       ? "bg-orange-200"
       : "bg-red-300";
   };
+
+  const reservedTableClass = "bg-purple-400 text-white hover:bg-purple-500";
+
   const buttons: {
     label: string;
     onClick: () => void;
@@ -1138,6 +1156,7 @@ const Tables = () => {
                           </a>
                         );
                       }
+                      const isReservedComing = comingReservedTableNames.has(tableName);
                       return (
                         <a
                           key={tableName + "-tableselector-small"}
@@ -1148,7 +1167,11 @@ const Tables = () => {
                             });
                             setIsCreateTableDialogOpen(true);
                           }}
-                          className={` bg-gray-100 px-4 py-2 rounded-lg focus:outline-none  hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer`}
+                          className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer ${
+                            isReservedComing
+                              ? reservedTableClass
+                              : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                          }`}
                         >
                           {tableName}
                         </a>
@@ -1215,6 +1238,7 @@ const Tables = () => {
                       );
                     }
 
+                    const isReservedComing = comingReservedTableNames.has(tableName);
                     return (
                       <a
                         key={tableName}
@@ -1222,7 +1246,11 @@ const Tables = () => {
                           setTableForm({ ...tableForm, name: tableName });
                           setIsCreateTableDialogOpen(true);
                         }}
-                        className="bg-gray-100 px-4 py-2 rounded-lg focus:outline-none hover:bg-gray-200 text-gray-600 hover:text-black font-medium cursor-pointer"
+                        className={`px-4 py-2 rounded-lg focus:outline-none font-medium cursor-pointer ${
+                          isReservedComing
+                            ? reservedTableClass
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black"
+                        }`}
                       >
                         {tableName}
                       </a>
