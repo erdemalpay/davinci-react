@@ -1,12 +1,19 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FormElementsState } from "../../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  FormElementsState,
+} from "../../../types";
+import { useUserContext } from "../../../context/User.context";
 import { useGetGames } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
 } from "../../../utils/api/gameplay";
 import { useGetAllUsers } from "../../../utils/api/user";
+import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../../utils/getItem";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -56,6 +63,15 @@ export default function GameplaysByMentor() {
   const { data } = useGetGameplaysGroups(filterData);
   const games = useGetGames();
   const users = useGetAllUsers();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const gameplaysByMentorDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ANALYTICS_GAMEPLAYSBYMENTORSDETAILS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const gameplayGroupRows = useMemo(() => {
     if (!data) return [];
@@ -145,6 +161,12 @@ export default function GameplaysByMentor() {
             }}
           />
         ),
+        isDisabled: gameplaysByMentorDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_USERS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Show Filters"),
@@ -159,7 +181,7 @@ export default function GameplaysByMentor() {
         ),
       },
     ],
-    [t, showInactiveUsers, showFilters]
+    [t, showInactiveUsers, showFilters, gameplaysByMentorDisabledCondition, user]
   );
 
   const filterPanelInputs = useMemo(

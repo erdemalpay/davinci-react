@@ -1,9 +1,16 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../../context/User.context";
 import { useFilterContext } from "../../../context/Filter.context";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../../types";
 import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetTablePlayerCounts } from "../../../utils/api/table";
 import { formatAsLocalDate } from "../../../utils/format";
+import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../../utils/getItem";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 import { InputTypes } from "../../panelComponents/shared/types";
@@ -17,9 +24,18 @@ const TablePlayerCount = () => {
     showTablePlayerCountFilters,
     setShowTablePlayerCountFilters,
   } = useFilterContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const [month, year] =
     filterTablePlayerCountPanelFormElements.monthYear.split("-");
   const tablePlayerCounts = useGetTablePlayerCounts(month, year);
+
+  const tablePlayerCountsDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ANALYTICS_TABLEPLAYERCOUNTS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const allRows = tablePlayerCounts?.map((tablePlayerCount) => {
@@ -129,7 +145,14 @@ const TablePlayerCount = () => {
         isActionsActive={false}
         rows={rows}
         filters={filters}
-        isExcel={true}
+        isExcel={
+          !tablePlayerCountsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.EXCEL &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          )
+        }
         excelFileName={t("TablePlayerCounts.xlsx")}
         title={t("Table Player Counts")}
       />

@@ -1,6 +1,13 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../../context/User.context";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../../types";
 import { useGetAllUsers } from "../../../utils/api/user";
+import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../../utils/getItem";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
 
@@ -13,6 +20,15 @@ const KnownGamesCount = () => {
   const { t } = useTranslation();
   const users = useGetAllUsers();
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const knownGamesCountDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ANALYTICS_KNOWNGAMESCOUNT,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const processedUsers = showInactiveUsers
@@ -61,9 +77,15 @@ const KnownGamesCount = () => {
             onChange={setShowInactiveUsers}
           />
         ),
+        isDisabled: knownGamesCountDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_USERS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, showInactiveUsers]
+    [t, showInactiveUsers, knownGamesCountDisabledCondition, user]
   );
 
   return (

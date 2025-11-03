@@ -1,10 +1,17 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../../context/User.context";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../../types";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetAllUsers } from "../../../utils/api/user";
+import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
 import { Autocomplete } from "../../common/Autocomplete";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
+import { getItem } from "../../../utils/getItem";
 
 type WhoKnowsUser = {
   mentor: string;
@@ -16,6 +23,15 @@ const WhoKnows = () => {
   const games = useGetGames();
   const [search, setSearch] = useState(0);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const whoKnowsDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ANALYTICS_WHOKNOWS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const usersActive = showInactiveUsers
@@ -54,9 +70,15 @@ const WhoKnows = () => {
             onChange={setShowInactiveUsers}
           />
         ),
+        isDisabled: whoKnowsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_USERS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, showInactiveUsers]
+    [t, showInactiveUsers, whoKnowsDisabledCondition, user]
   );
 
   const rowKeys = useMemo(
