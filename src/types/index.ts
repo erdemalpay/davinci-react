@@ -753,6 +753,7 @@ export type Reservation = {
   status: ReservationStatusEnum;
   order: number;
   note?: string;
+  comingExpiresAt?: string;
 };
 export type Notification = {
   _id: number;

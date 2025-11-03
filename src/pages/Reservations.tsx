@@ -47,6 +47,8 @@ export default function Reservations() {
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
+  const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState(30);
 
   function isCompleted(reservation: Reservation) {
     return [
@@ -57,6 +59,16 @@ export default function Reservations() {
   }
   function handleCallResponse(value: ReservationStatusEnum) {
     if (!selectedReservation) return;
+
+    // If Coming is selected, open duration modal instead
+    if (value === ReservationStatusEnum.COMING) {
+      setIsReservationCalledDialogOpen(false);
+      setSelectedDuration(30); // Reset to default
+      setIsDurationModalOpen(true);
+      return;
+    }
+
+    // For other statuses, proceed as normal
     updateReservationCall({
       id: selectedReservation._id,
       updates: {
@@ -65,6 +77,20 @@ export default function Reservations() {
     });
 
     setIsReservationCalledDialogOpen(false);
+  }
+
+  function handleDurationConfirm() {
+    if (!selectedReservation) return;
+
+    updateReservationCall({
+      id: selectedReservation._id,
+      updates: {
+        status: ReservationStatusEnum.COMING,
+        comingDurationInMinutes: selectedDuration,
+      } as any,
+    });
+
+    setIsDurationModalOpen(false);
   }
 
   function isCalled(reservation: Reservation) {
@@ -283,7 +309,7 @@ export default function Reservations() {
                       status: ReservationStatusEnum.ALREADY_CAME,
                     },
                   });
-                  setIsCreateTableDialogOpen(true);
+                  setIsCreateTableDialogOpen(false); //eğer kafedekiler bu modalı kullanmaya karar verirse bunu true'ya çekeceğiz
                 }}
               >
                 <FaCheck className="text-xl" />
@@ -438,6 +464,32 @@ export default function Reservations() {
             close={() => setIsReservationCalledDialogOpen(false)}
             handle={handleCallResponse}
             reservation={selectedReservation}
+          />
+        )}
+        {isDurationModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isDurationModalOpen}
+            close={() => setIsDurationModalOpen(false)}
+            inputs={[
+              {
+                type: InputTypes.NUMBER,
+                formKey: "duration",
+                label: t("Duration (minutes)"),
+                placeholder: t("Enter duration in minutes"),
+                required: true,
+                minNumber: 1,
+                isNumberButtonsActive: true,
+                isOnClearActive: false,
+              },
+            ]}
+            formKeys={[{ key: "duration", type: FormKeyTypeEnum.NUMBER }]}
+            constantValues={{ duration: 30 }}
+            setForm={(form: any) => setSelectedDuration(form.duration)}
+            submitItem={undefined as any}
+            submitFunction={handleDurationConfirm}
+            buttonName={t("Confirm")}
+            topClassName="flex flex-col gap-2"
+            generalClassName="shadow-none overflow-scroll no-scrollbar sm:h-auto sm:min-w-[400px]"
           />
         )}
         {isCreateTableDialogOpen && (
