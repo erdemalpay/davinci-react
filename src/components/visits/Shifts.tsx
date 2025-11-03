@@ -529,7 +529,7 @@ const Shifts = () => {
               if (shiftLocations.length === 0) return <></>;
 
               return (
-                <div className="flex flex-col gap-2 items-center justify-center mx-3 ">
+                <div className="flex flex-col gap-2 mx-3 ">
                   {shiftLocations.map((shiftLocation: any, idx: number) => {
                     const location = getItem(shiftLocation.location, locations);
                     const foundChefUser = shiftLocation.chefUser;
@@ -541,89 +541,92 @@ const Shifts = () => {
                       return null;
 
                     return (
-                      <div
-                        key={idx}
-                        className="flex flex-row gap-1 flex-wrap max-w-120 p-2 rounded-lg text-white"
-                        style={{
-                          backgroundColor:
-                            location?.backgroundColor || "#6B7280",
-                        }}
-                      >
-                        {shiftLocation.users?.map(
-                          (userId: string, userIdx: number) => {
-                            const foundUser = getItem(userId, users);
-                            return (
-                              <div
-                                key={userIdx}
-                                className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
-                                  filterPanelFormElements.user ===
-                                  foundUser?._id
-                                    ? "font-bold underline"
-                                    : ""
-                                } ${
-                                  foundChefUser === foundUser?._id
-                                    ? "border-2 border-yellow-600"
-                                    : ""
-                                }`}
-                                style={{
-                                  backgroundColor: foundUser?.role?.color,
-                                }}
-                              >
-                                {foundUser?.name}
-                                <span
-                                  className="text-yellow-600 cursor-pointer"
-                                  onClick={() => {
-                                    if (!isChefAssignOpen) return;
-
-                                    // Find the shift record for this specific location
-                                    const locationShiftRecord = shifts?.find(
-                                      (s) =>
-                                        s.day === row.day &&
-                                        s.location === shiftLocation.location
-                                    );
-
-                                    if (!locationShiftRecord) return;
-
-                                    // Update the shifts array for this location
-                                    const updatedShifts =
-                                      locationShiftRecord.shifts?.map(
-                                        (s: any) => {
-                                          // Only update the current shift
-                                          if (
-                                            s.shift === shift.shift &&
-                                            s.shiftEndHour ===
-                                              shift.shiftEndHour
-                                          ) {
-                                            return {
-                                              ...s,
-                                              chefUser:
-                                                s.chefUser === foundUser?._id
-                                                  ? ""
-                                                  : foundUser?._id,
-                                            };
-                                          }
-                                          return s;
-                                        }
-                                      );
-
-                                    updateShift({
-                                      id: shiftLocation._id,
-                                      updates: {
-                                        shifts: updatedShifts,
-                                      },
-                                    });
+                      <div key={idx} className="flex flex-col  gap-1 ">
+                        <div
+                          className="font-semibold text-sm"
+                          style={{
+                            color: location?.backgroundColor || "#6B7280",
+                          }}
+                        >
+                          {location?.name}
+                        </div>
+                        <div className="flex flex-row flex-wrap gap-0.5  max-w-[50rem] w-full ">
+                          {shiftLocation.users?.map(
+                            (userId: string, userIdx: number) => {
+                              const foundUser = getItem(userId, users);
+                              return (
+                                <div
+                                  key={userIdx}
+                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
+                                    filterPanelFormElements.user ===
+                                    foundUser?._id
+                                      ? "font-bold underline"
+                                      : ""
+                                  } ${
+                                    foundChefUser === foundUser?._id
+                                      ? "border-2 border-yellow-600"
+                                      : ""
+                                  }`}
+                                  style={{
+                                    backgroundColor: foundUser?.role?.color,
                                   }}
                                 >
-                                  {foundChefUser === foundUser?._id ? (
-                                    <FaStar />
-                                  ) : isChefAssignOpen ? (
-                                    <FaRegStar />
-                                  ) : null}
-                                </span>
-                              </div>
-                            );
-                          }
-                        )}
+                                  {foundUser?.name}
+                                  <span
+                                    className="text-yellow-600 cursor-pointer"
+                                    onClick={() => {
+                                      if (!isChefAssignOpen) return;
+
+                                      // Find the shift record for this specific location
+                                      const locationShiftRecord = shifts?.find(
+                                        (s) =>
+                                          s.day === row.day &&
+                                          s.location === shiftLocation.location
+                                      );
+
+                                      if (!locationShiftRecord) return;
+
+                                      // Update the shifts array for this location
+                                      const updatedShifts =
+                                        locationShiftRecord.shifts?.map(
+                                          (s: any) => {
+                                            // Only update the current shift
+                                            if (
+                                              s.shift === shift.shift &&
+                                              s.shiftEndHour ===
+                                                shift.shiftEndHour
+                                            ) {
+                                              return {
+                                                ...s,
+                                                chefUser:
+                                                  s.chefUser === foundUser?._id
+                                                    ? ""
+                                                    : foundUser?._id,
+                                              };
+                                            }
+                                            return s;
+                                          }
+                                        );
+
+                                      updateShift({
+                                        id: shiftLocation._id,
+                                        updates: {
+                                          shifts: updatedShifts,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    {foundChefUser === foundUser?._id ? (
+                                      <FaStar />
+                                    ) : isChefAssignOpen ? (
+                                      <FaRegStar />
+                                    ) : null}
+                                  </span>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
                       </div>
                     );
                   })}

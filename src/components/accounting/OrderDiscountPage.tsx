@@ -28,6 +28,7 @@ const OrderDiscountPage = () => {
   const { user } = useUserContext();
 
   const [showInactiveDiscounts, setShowInactiveDiscounts] = useState(false);
+  const [isEnableEdit, setIsEnableEdit] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<OrderDiscount>();
@@ -44,14 +45,39 @@ const OrderDiscountPage = () => {
   const { createOrderDiscount, updateOrderDiscount } =
     useOrderDiscountMutations();
 
+  function handleNoteRequiredChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isNoteRequired: !row.isNoteRequired },
+    });
+  }
+
+  function handleOnlineOrderChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isOnlineOrder: !row.isOnlineOrder },
+    });
+  }
+
+  function handleStoreOrderChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isStoreOrder: !row.isStoreOrder },
+    });
+  }
+
+  function handleVisibleOnPaymentScreenChange(row: OrderDiscount) {
+    updateOrderDiscount({
+      id: row._id,
+      updates: { isVisibleOnPaymentScreen: !row.isVisibleOnPaymentScreen },
+    });
+  }
+
   const [form, setForm] = useState<FormElementsState>({
     name: "",
     type: "",
     percentage: "",
     amount: "",
-    isOnlineOrder: "",
-    isStoreOrder: "",
-    isNoteRequired: "",
     note: "",
   });
 
@@ -96,30 +122,6 @@ const OrderDiscountPage = () => {
         isDisabled: form.type !== DiscountTypeEnum.AMOUNT,
       },
       {
-        type: InputTypes.CHECKBOX,
-        formKey: "isOnlineOrder",
-        label: t("Online Order"),
-        placeholder: t("Online Order"),
-        required: false,
-        isTopFlexRow: true,
-      },
-      {
-        type: InputTypes.CHECKBOX,
-        formKey: "isStoreOrder",
-        label: t("Store Order"),
-        placeholder: t("Store Order"),
-        required: false,
-        isTopFlexRow: true,
-      },
-      {
-        type: InputTypes.CHECKBOX,
-        formKey: "isNoteRequired",
-        label: t("Note Required"),
-        placeholder: t("Note Required"),
-        required: false,
-        isTopFlexRow: true,
-      },
-      {
         type: InputTypes.TEXT,
         formKey: "note",
         label: t("Note Placeholder"),
@@ -136,9 +138,6 @@ const OrderDiscountPage = () => {
       { key: "type", type: FormKeyTypeEnum.STRING },
       { key: "percentage", type: FormKeyTypeEnum.NUMBER },
       { key: "amount", type: FormKeyTypeEnum.NUMBER },
-      { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
-      { key: "isStoreOrder", type: FormKeyTypeEnum.BOOLEAN },
-      { key: "isNoteRequired", type: FormKeyTypeEnum.BOOLEAN },
       { key: "note", type: FormKeyTypeEnum.STRING },
     ],
     []
@@ -152,6 +151,7 @@ const OrderDiscountPage = () => {
       { key: t("Online Order"), isSortable: false },
       { key: t("Store Order"), isSortable: false },
       { key: t("Note Required"), isSortable: false },
+      { key: t("Visible on Payment Screen"), isSortable: false },
       { key: t("Note Placeholder"), isSortable: false },
     ];
     return userCondition
@@ -167,7 +167,12 @@ const OrderDiscountPage = () => {
       {
         key: "isOnlineOrder",
         node: (row: any) =>
-          row?.isOnlineOrder ? (
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row?.isOnlineOrder}
+              onChange={() => handleOnlineOrderChange(row)}
+            />
+          ) : row?.isOnlineOrder ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -176,7 +181,12 @@ const OrderDiscountPage = () => {
       {
         key: "isStoreOrder",
         node: (row: any) =>
-          row?.isStoreOrder ? (
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row?.isStoreOrder}
+              onChange={() => handleStoreOrderChange(row)}
+            />
+          ) : row?.isStoreOrder ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -185,7 +195,26 @@ const OrderDiscountPage = () => {
       {
         key: "isNoteRequired",
         node: (row: any) =>
-          row?.isNoteRequired ? (
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row?.isNoteRequired}
+              onChange={() => handleNoteRequiredChange(row)}
+            />
+          ) : row?.isNoteRequired ? (
+            <IoCheckmark className="text-blue-500 text-2xl " />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl " />
+          ),
+      },
+      {
+        key: "isVisibleOnPaymentScreen",
+        node: (row: any) =>
+          isEnableEdit ? (
+            <CheckSwitch
+              checked={row?.isVisibleOnPaymentScreen}
+              onChange={() => handleVisibleOnPaymentScreenChange(row)}
+            />
+          ) : row?.isVisibleOnPaymentScreen ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
             <IoCloseOutline className="text-red-800 text-2xl " />
@@ -193,7 +222,7 @@ const OrderDiscountPage = () => {
       },
       { key: "note", className: "min-w-32 pr-1" },
     ],
-    []
+    [isEnableEdit]
   );
 
   const addButton = useMemo(
@@ -327,6 +356,16 @@ const OrderDiscountPage = () => {
       userCondition
         ? [
             {
+              label: t("Enable Edit"),
+              isUpperSide: true,
+              node: (
+                <SwitchButton
+                  checked={isEnableEdit}
+                  onChange={setIsEnableEdit}
+                />
+              ),
+            },
+            {
               label: t("Show Inactive Discounts"),
               isUpperSide: false,
               node: (
@@ -338,7 +377,7 @@ const OrderDiscountPage = () => {
             },
           ]
         : [],
-    [t, userCondition, showInactiveDiscounts]
+    [t, userCondition, isEnableEdit, showInactiveDiscounts]
   );
 
   const rows = useMemo(
