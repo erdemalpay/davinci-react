@@ -6,23 +6,26 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoLockOpenOutline } from "react-icons/io5";
 import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
-import { GenericButton } from "../components/common/GenericButton";
 import { Header } from "../components/header/Header";
 import GenericAddEditPanel from "../components/panelComponents/FormElements/GenericAddEditPanel";
-import ButtonTooltip from "../components/panelComponents/Tables/ButtonTooltip";
 import GenericTable from "../components/panelComponents/Tables/GenericTable";
 import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { Reward } from "../types";
+import { useUserContext } from "../context/User.context";
+import { ActionEnum, DisabledConditionEnum, Reward } from "../types";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { useGetRewards, useRewardMutations } from "../utils/api/reward";
+import { getItem } from "../utils/getItem";
 import { formatAsLocalDate } from "../utils/format";
 
 export default function Rewards() {
   const { t } = useTranslation();
   const rewards = useGetRewards();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const today = format(new Date(), "yyyy-MM-dd");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<Reward>();
@@ -33,6 +36,10 @@ export default function Rewards() {
   ] = useState(false);
   const [showExpiredRewards, setShowExpiredRewards] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const rewardsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.REWARDS, disabledConditions);
+  }, [disabledConditions]);
 
   const inputs = useMemo(
     () => [
@@ -120,8 +127,14 @@ export default function Rewards() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: rewardsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createReward]
+    [t, isAddModalOpen, inputs, formKeys, createReward, rewardsDisabledCondition, user]
   );
   const actions = useMemo(
     () => [
@@ -130,75 +143,131 @@ export default function Rewards() {
         isModal: false,
         isPath: false,
         icon: null,
-        node: (row: Reward) =>
-          row.used ? (
-            <ButtonTooltip content={t("Set unused")}>
-              <GenericButton
-                variant="icon"
+        node: (row: Reward) => {
+          const isSetUnusedDisabled = rewardsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.SET_UNUSED &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
+          const isSetUsedDisabled = rewardsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.SET_USED &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
+
+          if (row.used && !isSetUnusedDisabled) {
+            return (
+              <button
                 onClick={() => {
                   updateReward({ id: row._id, updates: { used: false } });
                 }}
+                title={t("Set unused")}
+                className="cursor-pointer"
               >
                 <IoLockOpenOutline className="text-green-500 w-6 h-6 mt-2" />
-              </GenericButton>
-            </ButtonTooltip>
-          ) : (
-            <ButtonTooltip content={t("Set used")}>
-              <GenericButton
-                variant="icon"
+              </button>
+            );
+          } else if (!row.used && !isSetUsedDisabled) {
+            return (
+              <button
                 onClick={() => {
                   updateReward({ id: row._id, updates: { used: true } });
                 }}
+                title={t("Set used")}
+                className="cursor-pointer"
               >
                 <FaCheck className="text-green-500 w-6 h-6 mt-2" />
-              </GenericButton>
-            </ButtonTooltip>
-          ),
+              </button>
+            );
+          }
+          return null;
+        },
       },
       {
         name: t("Delete"),
-        icon: <HiOutlineTrash />,
-        setRow: setRowToAction,
-        modal: rowToAction ? (
-          <ConfirmationDialog
-            isOpen={isCloseAllConfirmationDialogOpen}
-            close={() => setIsCloseAllConfirmationDialogOpen(false)}
-            confirm={() => {
-              deleteReward(rowToAction?._id);
-              setIsCloseAllConfirmationDialogOpen(false);
-            }}
-            title="Delete Reward"
-            text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
-          />
-        ) : null,
-        className: "text-red-500 cursor-pointer text-2xl",
-        isModal: true,
-        isModalOpen: isCloseAllConfirmationDialogOpen,
-        setIsModal: setIsCloseAllConfirmationDialogOpen,
+        isModal: false,
         isPath: false,
+        icon: null,
+        node: (row: Reward) => {
+          const isDeleteDisabled = rewardsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.DELETE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
+
+          if (isDeleteDisabled) return null;
+
+          return (
+            <>
+              <button
+                onClick={() => {
+                  setRowToAction(row);
+                  setIsCloseAllConfirmationDialogOpen(true);
+                }}
+                className="text-red-500 cursor-pointer"
+              >
+                <HiOutlineTrash className="text-2xl" />
+              </button>
+              {rowToAction?._id === row._id && (
+                <ConfirmationDialog
+                  isOpen={isCloseAllConfirmationDialogOpen}
+                  close={() => setIsCloseAllConfirmationDialogOpen(false)}
+                  confirm={() => {
+                    deleteReward(rowToAction?._id);
+                    setIsCloseAllConfirmationDialogOpen(false);
+                  }}
+                  title="Delete Reward"
+                  text={`${rowToAction.name} ${t("GeneralDeleteMessage")}`}
+                />
+              )}
+            </>
+          );
+        },
       },
       {
         name: t("Edit"),
-        icon: <FiEdit />,
-        className: "text-blue-500 cursor-pointer text-xl",
-        isModal: true,
-        setRow: setRowToAction,
-        modal: rowToAction ? (
-          <GenericAddEditPanel
-            isOpen={isEditModalOpen}
-            close={() => setIsEditModalOpen(false)}
-            inputs={inputs}
-            formKeys={formKeys}
-            submitItem={updateReward as any}
-            isEditMode={true}
-            topClassName="flex flex-col gap-2 "
-            itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
-          />
-        ) : null,
-
-        isModalOpen: isEditModalOpen,
-        setIsModal: setIsEditModalOpen,
+        isModal: false,
         isPath: false,
+        icon: null,
+        node: (row: Reward) => {
+          const isUpdateDisabled = rewardsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          );
+
+          if (isUpdateDisabled) return null;
+
+          return (
+            <>
+              <button
+                onClick={() => {
+                  setRowToAction(row);
+                  setIsEditModalOpen(true);
+                }}
+                className="text-blue-500 cursor-pointer"
+              >
+                <FiEdit className="text-xl" />
+              </button>
+              {rowToAction?._id === row._id && (
+                <GenericAddEditPanel
+                  isOpen={isEditModalOpen}
+                  close={() => setIsEditModalOpen(false)}
+                  inputs={inputs}
+                  formKeys={formKeys}
+                  submitItem={updateReward as any}
+                  isEditMode={true}
+                  topClassName="flex flex-col gap-2 "
+                  itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+                />
+              )}
+            </>
+          );
+        },
       },
     ],
     [
@@ -210,6 +279,8 @@ export default function Rewards() {
       isEditModalOpen,
       inputs,
       formKeys,
+      rewardsDisabledCondition,
+      user,
     ]
   );
   const filters = useMemo(
@@ -223,9 +294,15 @@ export default function Rewards() {
             onChange={setShowExpiredRewards}
           />
         ),
+        isDisabled: rewardsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_EXPIRED_OR_USED_REWARDS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, showExpiredRewards]
+    [t, showExpiredRewards, rewardsDisabledCondition, user]
   );
 
   const filteredRewards = useMemo(() => {

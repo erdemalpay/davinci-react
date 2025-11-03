@@ -423,6 +423,7 @@ export enum DisabledConditionEnum {
   ANALYTICS_WHOKNOWS = "whoknows",
   CAFE_ACTIVITIES = "cafe_activities",
   MEMBERSHIPS = "memberships",
+  REWARDS = "rewards",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -451,6 +452,9 @@ export enum ActionEnum {
   SHOW_INACTIVE_USERS = "show_inactive_users",
   SHOW_COMPLETED_ACTIVITIES = "show_completed_activities",
   SHOW_EXPIRED_MEMBERSHIPS = "show_expired_memberships",
+  SET_USED = "set_used",
+  SET_UNUSED = "set_unused",
+  SHOW_EXPIRED_OR_USED_REWARDS = "show_expired_or_used_rewards",
 
 }
 
