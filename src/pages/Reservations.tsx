@@ -21,13 +21,22 @@ import { ReservationCallDialog } from "../components/reservations/ReservationCal
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { useLocationContext } from "../context/Location.context";
 import { Routes } from "../navigation/constants";
-import { Reservation, ReservationStatusEnum, TableTypes } from "../types/index";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  Reservation,
+  ReservationStatusEnum,
+  TableTypes,
+} from "../types";
 import {
   useGetReservations,
   useReservationCallMutations,
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
+import { useUserContext } from "../context/User.context";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
   const { t } = useTranslation();
@@ -44,11 +53,17 @@ export default function Reservations() {
   const [selectedReservation, setSelectedReservation] = useState<Reservation>();
   const { updateReservationCall } = useReservationCallMutations();
   const { selectedLocationId } = useLocationContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(30);
+
+  const reservationsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.RESERVATIONS, disabledConditions);
+  }, [disabledConditions]);
 
   function isCompleted(reservation: Reservation) {
     return [
@@ -266,6 +281,12 @@ export default function Reservations() {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Called"),
@@ -287,6 +308,12 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.CALLED &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
 
       {
@@ -317,6 +344,12 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.GROUP_CAME &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: "cancelAction",
@@ -339,6 +372,12 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.CANCEL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: "revertAction",
@@ -346,7 +385,14 @@ export default function Reservations() {
         isModal: false,
         isPath: false,
         setRow: setRowToAction,
-        isDisabled: rowToAction && isCompleted(rowToAction),
+        isDisabled:
+          (rowToAction && isCompleted(rowToAction)) ||
+          reservationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.OPENBACK &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         node: (row: Reservation) =>
           isCompleted(row) ? (
             <ButtonTooltip content={t("Open back")}>
@@ -375,6 +421,8 @@ export default function Reservations() {
       setSelectedReservation,
       setIsReservationCalledDialogOpen,
       setIsCreateTableDialogOpen,
+      reservationsDisabledCondition,
+      user,
     ]
   );
 
@@ -389,6 +437,12 @@ export default function Reservations() {
             onChange={setHideCompletedReservations}
           />
         ),
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.HIDE_COMPLETED_RESERVATIONS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         isUpperSide: true,
@@ -401,9 +455,15 @@ export default function Reservations() {
             <H5>{t("Show Tables")}</H5>
           </GenericButton>
         ),
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_TABLES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, hideCompletedReservations, navigate]
+    [t, hideCompletedReservations, navigate, reservationsDisabledCondition, user]
   );
   const addButton = useMemo(
     () => ({
@@ -433,9 +493,23 @@ export default function Reservations() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: false,
+      isDisabled: reservationsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, selectedLocationId, createReservation]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      selectedLocationId,
+      createReservation,
+      reservationsDisabledCondition,
+      user,
+    ]
   );
 
   const filteredReservations = useMemo(() => {
