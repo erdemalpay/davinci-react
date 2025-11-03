@@ -12,19 +12,28 @@ import {
   FormKeyTypeEnum,
   InputTypes,
 } from "../components/panelComponents/shared/types";
-import { Membership } from "../types";
+import { useUserContext } from "../context/User.context";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  type Membership,
+} from "../types";
 import {
   useGetMemberships,
   useMembershipMutations,
 } from "../utils/api/membership";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import { formatDate } from "../utils/dateUtil";
 import { formatAsLocalDate } from "../utils/format";
+import { getItem } from "../utils/getItem";
 
 export default function Memberships() {
   const { t } = useTranslation();
   const { deleteMembership, updateMembership, createMembership } =
     useMembershipMutations();
   const memberships = useGetMemberships();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showExpiredMemberships, setShowExpiredMemberships] = useState(false);
   const [
@@ -34,6 +43,9 @@ export default function Memberships() {
   const [rowToAction, setRowToAction] = useState<Membership>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const today = formatDate(new Date());
+  const membershipsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.MEMBERSHIPS, disabledConditions);
+  }, [disabledConditions]);
 
   const inputs = useMemo(
     () => [
@@ -121,6 +133,12 @@ export default function Memberships() {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
+        isDisabled: membershipsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -151,6 +169,12 @@ export default function Memberships() {
         setIsModal: setIsEditModalOpen,
 
         isPath: false,
+        isDisabled: membershipsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -162,6 +186,8 @@ export default function Memberships() {
       inputs,
       formKeys,
       updateMembership,
+      membershipsDisabledCondition,
+      user,
     ]
   );
   const addButton = useMemo(
@@ -187,21 +213,49 @@ export default function Memberships() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
+      isDisabled: membershipsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createMembership]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createMembership,
+      membershipsDisabledCondition,
+      user,
+    ]
   );
 
-  const filters = useMemo(
-    () => [
+  const filters = useMemo(() => {
+    const isShowExpiredDisabled =
+      membershipsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOW_EXPIRED_MEMBERSHIPS &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ) ?? false;
+
+    return [
       {
         label: t("Show Expired Memberships"),
         isUpperSide: false,
         node: (
           <Switch
             checked={showExpiredMemberships}
-            onChange={() => setShowExpiredMemberships((value) => !value)}
-            className={`${
-              showExpiredMemberships ? "bg-green-500" : "bg-red-500"
+            disabled={isShowExpiredDisabled}
+            onChange={() => {
+              if (isShowExpiredDisabled) {
+                return;
+              }
+              setShowExpiredMemberships((value) => !value);
+            }}
+            className={`${showExpiredMemberships ? "bg-green-500" : "bg-red-500"} ${
+              isShowExpiredDisabled ? "opacity-50 cursor-not-allowed" : ""
             }
           relative inline-flex h-[20px] w-[36px] min-w-[36px] border-[1px] cursor-pointer rounded-full border-transparent transition-colors duration-200 ease-in-out focus:outline-none`}
           >
@@ -214,10 +268,10 @@ export default function Memberships() {
             />
           </Switch>
         ),
+        isDisabled: isShowExpiredDisabled,
       },
-    ],
-    [t, showExpiredMemberships]
-  );
+    ];
+  }, [t, showExpiredMemberships, membershipsDisabledCondition, user]);
 
   const filteredRows = useMemo(() => {
     if (!showExpiredMemberships) {
