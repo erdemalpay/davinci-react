@@ -12,7 +12,9 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -22,6 +24,7 @@ import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import {
   useGetIkasPickUpOrders,
   useSimpleOrderMutations,
@@ -38,6 +41,7 @@ const IkasPickUp = () => {
   const categories = useGetCategories();
   const { updateSimpleOrder } = useSimpleOrderMutations();
   const items = useGetMenuItems();
+  const disabledConditions = useGetDisabledConditions();
   const {
     ikasPickUpFilterPanelFormElements,
     setIkasPickUpFilterPanelFormElements,
@@ -47,6 +51,32 @@ const IkasPickUp = () => {
     showPickedOrders,
     setShowPickedOrders,
   } = useOrderContext();
+
+  const ikasPickUpDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.IKAS_PICK_UP, disabledConditions);
+  }, [disabledConditions]);
+
+  const isShowReceivedOrdersDisabled = useMemo(() => {
+    return Boolean(
+      ikasPickUpDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.SHOW_RECEIVED_ORDERS &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+    );
+  }, [ikasPickUpDisabledCondition, user]);
+
+  const isExcelDisabled = useMemo(() => {
+    return Boolean(
+      ikasPickUpDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.EXCEL &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      )
+    );
+  }, [ikasPickUpDisabledCondition, user]);
 
   const rows = useMemo(() => {
     return orders
@@ -385,18 +415,22 @@ const IkasPickUp = () => {
 
   const filters = useMemo(
     () => [
-      {
-        label: t("Show Picked Orders"),
-        isUpperSide: true,
-        node: (
-          <SwitchButton
-            checked={showPickedOrders}
-            onChange={() => {
-              setShowPickedOrders(!showPickedOrders);
-            }}
-          />
-        ),
-      },
+      ...(!isShowReceivedOrdersDisabled
+        ? [
+            {
+              label: t("Show Picked Orders"),
+              isUpperSide: true,
+              node: (
+                <SwitchButton
+                  checked={showPickedOrders}
+                  onChange={() => {
+                    setShowPickedOrders(!showPickedOrders);
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
       {
         label: t("Show Filters"),
         isUpperSide: true,
@@ -416,6 +450,7 @@ const IkasPickUp = () => {
       setShowPickedOrders,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      isShowReceivedOrdersDisabled,
     ]
   );
 
@@ -432,7 +467,7 @@ const IkasPickUp = () => {
             isActionsActive={false}
             filterPanel={filterPanel}
             filters={filters}
-            isExcel={true}
+            isExcel={!isExcelDisabled}
             excelFileName={"IkasPickUp.xlsx"}
             rowClassNameFunction={(row: any) => {
               if (row?.isReturned) {

@@ -415,6 +415,7 @@ export enum DisabledConditionEnum {
   ORDERDATAS_IKASORDERS = "ikasorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
+  IKAS_PICK_UP = "ikas_pick_up",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -433,6 +434,8 @@ export enum ActionEnum {
   SYNC = "sync",
   REFRESH = "refresh",
   REFUND = "refund",
+  CANCEL = "cancel",
+  SHOW_RECEIVED_ORDERS = "show_received_orders",
 }
 
 export type Membership = {
