@@ -21,13 +21,22 @@ import { ReservationCallDialog } from "../components/reservations/ReservationCal
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { useLocationContext } from "../context/Location.context";
 import { Routes } from "../navigation/constants";
-import { Reservation, ReservationStatusEnum, TableTypes } from "../types/index";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  Reservation,
+  ReservationStatusEnum,
+  TableTypes,
+} from "../types";
 import {
   useGetReservations,
   useReservationCallMutations,
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
+import { useUserContext } from "../context/User.context";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
   const { t } = useTranslation();
@@ -44,9 +53,17 @@ export default function Reservations() {
   const [selectedReservation, setSelectedReservation] = useState<Reservation>();
   const { updateReservationCall } = useReservationCallMutations();
   const { selectedLocationId } = useLocationContext();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState(false);
+  const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState(30);
+
+  const reservationsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.RESERVATIONS, disabledConditions);
+  }, [disabledConditions]);
 
   function isCompleted(reservation: Reservation) {
     return [
@@ -57,6 +74,13 @@ export default function Reservations() {
   }
   function handleCallResponse(value: ReservationStatusEnum) {
     if (!selectedReservation) return;
+
+    if (value === ReservationStatusEnum.COMING) {
+      setIsReservationCalledDialogOpen(false);
+      setIsDurationModalOpen(true);
+      return;
+    }
+
     updateReservationCall({
       id: selectedReservation._id,
       updates: {
@@ -65,6 +89,20 @@ export default function Reservations() {
     });
 
     setIsReservationCalledDialogOpen(false);
+  }
+
+  function handleDurationConfirm() {
+    if (!selectedReservation) return;
+
+    updateReservationCall({
+      id: selectedReservation._id,
+      updates: {
+        status: ReservationStatusEnum.COMING,
+        comingDurationInMinutes: selectedDuration,
+      } as Partial<Reservation>,
+    });
+
+    setIsDurationModalOpen(false);
   }
 
   function isCalled(reservation: Reservation) {
@@ -224,12 +262,16 @@ export default function Reservations() {
         isModal: true,
         setRow: setRowToAction,
         modal: rowToAction ? (
-          <GenericAddEditPanel
+          <GenericAddEditPanel<Reservation>
             isOpen={isEditModalOpen}
             close={() => setIsEditModalOpen(false)}
             inputs={inputs}
             formKeys={formKeys}
-            submitItem={updateReservation as any}
+            submitItem={(item) => {
+              if ('id' in item && 'updates' in item) {
+                updateReservation(item);
+              }
+            }}
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
@@ -239,6 +281,12 @@ export default function Reservations() {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Called"),
@@ -260,6 +308,12 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.CALLED &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
 
       {
@@ -283,13 +337,19 @@ export default function Reservations() {
                       status: ReservationStatusEnum.ALREADY_CAME,
                     },
                   });
-                  setIsCreateTableDialogOpen(true);
+                  setIsCreateTableDialogOpen(false); //eğer kafedekiler bu modalı kullanmaya karar verirse bunu true'ya çekeceğiz
                 }}
               >
                 <FaCheck className="text-xl" />
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.GROUP_CAME &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: "cancelAction",
@@ -312,6 +372,12 @@ export default function Reservations() {
               </button>
             </ButtonTooltip>
           ) : null,
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.CANCEL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: "revertAction",
@@ -319,7 +385,14 @@ export default function Reservations() {
         isModal: false,
         isPath: false,
         setRow: setRowToAction,
-        isDisabled: rowToAction && isCompleted(rowToAction),
+        isDisabled:
+          (rowToAction && isCompleted(rowToAction)) ||
+          reservationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.OPENBACK &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         node: (row: Reservation) =>
           isCompleted(row) ? (
             <ButtonTooltip content={t("Open back")}>
@@ -348,6 +421,8 @@ export default function Reservations() {
       setSelectedReservation,
       setIsReservationCalledDialogOpen,
       setIsCreateTableDialogOpen,
+      reservationsDisabledCondition,
+      user,
     ]
   );
 
@@ -362,6 +437,12 @@ export default function Reservations() {
             onChange={setHideCompletedReservations}
           />
         ),
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.HIDE_COMPLETED_RESERVATIONS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         isUpperSide: true,
@@ -374,16 +455,22 @@ export default function Reservations() {
             <H5>{t("Show Tables")}</H5>
           </GenericButton>
         ),
+        isDisabled: reservationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_TABLES &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
-    [t, hideCompletedReservations, navigate]
+    [t, hideCompletedReservations, navigate, reservationsDisabledCondition, user]
   );
   const addButton = useMemo(
     () => ({
       name: t(`Add Reservation`),
       isModal: true,
       modal: (
-        <GenericAddEditPanel
+        <GenericAddEditPanel<Reservation>
           isOpen={isAddModalOpen}
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
@@ -393,7 +480,11 @@ export default function Reservations() {
             reservationHour: format(new Date(), "HH:mm"),
             playerCount: 0,
           }}
-          submitItem={createReservation as any}
+          submitItem={(item) => {
+            if (!('id' in item)) {
+              createReservation(item as Partial<Reservation>);
+            }
+          }}
           topClassName="flex flex-col gap-2 "
         />
       ),
@@ -402,9 +493,23 @@ export default function Reservations() {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: false,
+      isDisabled: reservationsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, selectedLocationId, createReservation]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      selectedLocationId,
+      createReservation,
+      reservationsDisabledCondition,
+      user,
+    ]
   );
 
   const filteredReservations = useMemo(() => {
@@ -420,7 +525,7 @@ export default function Reservations() {
       <Header showLocationSelector={true} />
       <div className="w-[98%] mx-auto my-10">
         <GenericTable
-          rows={filteredReservations as Reservation[]}
+          rows={filteredReservations ?? []}
           rowKeys={rowKeys}
           actions={actions}
           columns={columns}
@@ -438,6 +543,32 @@ export default function Reservations() {
             close={() => setIsReservationCalledDialogOpen(false)}
             handle={handleCallResponse}
             reservation={selectedReservation}
+          />
+        )}
+        {isDurationModalOpen && (
+          <GenericAddEditPanel
+            isOpen={isDurationModalOpen}
+            close={() => setIsDurationModalOpen(false)}
+            inputs={[
+              {
+                type: InputTypes.NUMBER,
+                formKey: "duration",
+                label: t("Duration (minutes)"),
+                placeholder: t("Enter duration in minutes"),
+                required: true,
+                minNumber: 1,
+                isNumberButtonsActive: true,
+                isOnClearActive: false,
+              },
+            ]}
+            formKeys={[{ key: "duration", type: FormKeyTypeEnum.NUMBER }]}
+            constantValues={{ duration: 30 }}
+            setForm={(form: { duration: number }) => setSelectedDuration(form.duration)}
+            submitItem={() => { /* submitFunction is used instead */ }}
+            submitFunction={handleDurationConfirm}
+            buttonName={t("Confirm")}
+            topClassName="flex flex-col gap-2"
+            generalClassName="shadow-none overflow-scroll no-scrollbar sm:h-auto sm:min-w-[400px]"
           />
         )}
         {isCreateTableDialogOpen && (

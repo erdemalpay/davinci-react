@@ -415,6 +415,15 @@ export enum DisabledConditionEnum {
   ORDERDATAS_IKASORDERS = "ikasorders",
   ORDERDATAS_PERSONALORDERDATAS = "personalorderdatas",
   ORDERDATAS_KITCHENDATAPAGE = "kitchendatapage",
+  IKAS_PICK_UP = "ikas_pick_up",
+  RESERVATIONS = "reservations",
+  ANALYTICS_TABLEPLAYERCOUNTS = "tableplayercounts",
+  ANALYTICS_GAMEPLAYSBYMENTORSDETAILS = "gameplaysbymentorsdetails",
+  ANALYTICS_KNOWNGAMESCOUNT = "knowngamescount",
+  ANALYTICS_WHOKNOWS = "whoknows",
+  CAFE_ACTIVITIES = "cafe_activities",
+  MEMBERSHIPS = "memberships",
+  REWARDS = "rewards",
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -433,6 +442,20 @@ export enum ActionEnum {
   SYNC = "sync",
   REFRESH = "refresh",
   REFUND = "refund",
+  CANCEL = "cancel",
+  SHOW_RECEIVED_ORDERS = "show_received_orders",
+  SHOW_TABLES = "show_tables",
+  HIDE_COMPLETED_RESERVATIONS = "hide_completed_reservations",
+  GROUP_CAME = "group_came",
+  CALLED = "called",
+  OPENBACK = "openback",
+  SHOW_INACTIVE_USERS = "show_inactive_users",
+  SHOW_COMPLETED_ACTIVITIES = "show_completed_activities",
+  SHOW_EXPIRED_MEMBERSHIPS = "show_expired_memberships",
+  SET_USED = "set_used",
+  SET_UNUSED = "set_unused",
+  SHOW_EXPIRED_OR_USED_REWARDS = "show_expired_or_used_rewards",
+
 }
 
 export type Membership = {
@@ -754,6 +777,7 @@ export type Reservation = {
   status: ReservationStatusEnum;
   order: number;
   note?: string;
+  comingExpiresAt?: string;
 };
 export type Notification = {
   _id: number;

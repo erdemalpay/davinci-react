@@ -16,6 +16,7 @@ import Loading from "../common/Loading";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import { H5 } from "../panelComponents/Typography";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
+import ImageModal from "../panelComponents/Modals/ImageModal";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { Education, RoleEnum } from "./../../types/index";
@@ -75,6 +76,8 @@ const EducationDashboard = () => {
   const roles = useGetAllUserRoles();
   const [isUpdateHistoryOpen, setIsUpdateHistoryOpen] = useState(false);
   const [selectedUpdateHistory, setSelectedUpdateHistory] = useState<any>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imageModalSrc, setImageModalSrc] = useState("");
   if (!user || !educations || !roles) {
     return <Loading />;
   }
@@ -492,7 +495,11 @@ const EducationDashboard = () => {
                         <img
                           src={sub.imageUrl}
                           alt={sub.subHeader}
-                          className={`object-contain ${
+                          onClick={() => {
+                            setImageModalSrc(sub.imageUrl || "");
+                            setIsImageModalOpen(true);
+                          }}
+                          className={`object-contain cursor-zoom-in hover:opacity-90 transition-opacity ${
                             [
                               ComponentTypeEnum.LEFTIMAGE,
                               ComponentTypeEnum.RIGHTIMAGE,
@@ -540,7 +547,11 @@ const EducationDashboard = () => {
                         <img
                           src={sub.imageUrl}
                           alt={sub.subHeader}
-                          className={`object-contain ${
+                          onClick={() => {
+                            setImageModalSrc(sub.imageUrl || "");
+                            setIsImageModalOpen(true);
+                          }}
+                          className={`object-contain cursor-zoom-in hover:opacity-90 transition-opacity ${
                             [
                               ComponentTypeEnum.LEFTIMAGE,
                               ComponentTypeEnum.RIGHTIMAGE,
@@ -674,6 +685,11 @@ const EducationDashboard = () => {
             )}`}
           />
         )}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        img={imageModalSrc}
+        close={() => setIsImageModalOpen(false)}
+      />
     </div>
   );
 };

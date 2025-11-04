@@ -12,7 +12,9 @@ import { InputTypes } from "../components/panelComponents/shared/types";
 import { useOrderContext } from "../context/Order.context";
 import { useUserContext } from "../context/User.context";
 import {
+  ActionEnum,
   DateRangeKey,
+  DisabledConditionEnum,
   OrderStatus,
   Table,
   commonDateOptions,
@@ -22,6 +24,7 @@ import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import {
   useGetIkasPickUpOrders,
   useSimpleOrderMutations,
@@ -38,6 +41,7 @@ const IkasPickUp = () => {
   const categories = useGetCategories();
   const { updateSimpleOrder } = useSimpleOrderMutations();
   const items = useGetMenuItems();
+  const disabledConditions = useGetDisabledConditions();
   const {
     ikasPickUpFilterPanelFormElements,
     setIkasPickUpFilterPanelFormElements,
@@ -47,6 +51,10 @@ const IkasPickUp = () => {
     showPickedOrders,
     setShowPickedOrders,
   } = useOrderContext();
+
+  const ikasPickUpDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.IKAS_PICK_UP, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     return orders
@@ -396,6 +404,12 @@ const IkasPickUp = () => {
             }}
           />
         ),
+        isDisabled: ikasPickUpDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_RECEIVED_ORDERS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Show Filters"),
@@ -416,6 +430,8 @@ const IkasPickUp = () => {
       setShowPickedOrders,
       showOrderDataFilters,
       setShowOrderDataFilters,
+      ikasPickUpDisabledCondition,
+      user,
     ]
   );
 
@@ -432,7 +448,14 @@ const IkasPickUp = () => {
             isActionsActive={false}
             filterPanel={filterPanel}
             filters={filters}
-            isExcel={true}
+            isExcel={
+              !ikasPickUpDisabledCondition?.actions?.some(
+                (ac) =>
+                  ac.action === ActionEnum.EXCEL &&
+                  user?.role?._id &&
+                  !ac?.permissionsRoles?.includes(user?.role?._id)
+              )
+            }
             excelFileName={"IkasPickUp.xlsx"}
             rowClassNameFunction={(row: any) => {
               if (row?.isReturned) {
