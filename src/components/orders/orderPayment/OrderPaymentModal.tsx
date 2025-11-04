@@ -861,6 +861,7 @@ const OrderPaymentModal = ({
         setForm={setOrderForm}
         isCreateCloseActive={false}
         optionalCreateButtonActive={orderCreateBulk?.length > 0}
+        allowOptionalSubmitForActivityTable={table.type === TableTypes.ACTIVITY}
         constantValues={{
           quantity: 1,
           stockLocation: selectedLocationId,
@@ -891,6 +892,7 @@ const OrderPaymentModal = ({
             label: "Add",
             isInputRequirementCheck: true,
             isInputNeedToBeReset: true,
+            preservedKeys: ["activityTableName", "activityPlayer"],
             onClick: () => {
               const orderObject = handleOrderObject();
               if (orderObject) {
@@ -931,6 +933,7 @@ const OrderPaymentModal = ({
                 setOrderForm(initialOrderForm);
                 setOrderCreateBulk([]);
                 setSelectedNewOrders([]);
+                setIsPaymentModalCreateOrderDialogOpen(false);
                 return;
               }
             }
