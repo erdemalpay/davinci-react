@@ -1107,7 +1107,7 @@ export function TableCard({
                   });
                 }
               };
-              // Eğer listede ürün var ama form boşsa, direkt listeyi gönder
+
               if (!orderForm?.item) {
                 submitBulkOrders();
               } else if (orderForm?.item) {
