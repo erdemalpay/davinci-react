@@ -322,9 +322,9 @@ const GenericAddEditPanel = <T,>({
           const inputValue = formElements[input.formKey];
           if (!inputValue.match(/^[0-9]{11}$/)) {
             toast.error(t("Check phone number."));
-            return true;
+            return true;// Validation failed for phone number
           }
-          return false;
+          return false;// Validation passed for phone number
         });
 
       if (!phoneValidationFailed) {
