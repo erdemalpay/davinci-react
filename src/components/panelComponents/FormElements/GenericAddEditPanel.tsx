@@ -312,26 +312,34 @@ const GenericAddEditPanel = <T,>({
   };
   const handleCreateButtonClick = () => {
     setAttemptedSubmit(true);
-    if (allRequiredFilled) {
+    if (!allRequiredFilled && !optionalCreateButtonActive) {
+      toast.error(t("Please fill all required fields"));
+      return;
+    } else if (allRequiredFilled) {
       const phoneValidationFailed = inputs
         .filter((input) => input.additionalType === "phone")
         .some((input) => {
           const inputValue = formElements[input.formKey];
           if (!inputValue.match(/^[0-9]{11}$/)) {
             toast.error(t("Check phone number."));
-            return true; // Validation failed for phone number
+            return true;
           }
-          return false; // Validation passed for phone number
+          return false;
         });
 
       if (!phoneValidationFailed) {
         handleSubmit();
       }
-    } else if (optionalCreateButtonActive && allowOptionalSubmitForActivityTable) {
-      handleSubmit();
-    } else {
-      toast.error(t("Please fill all required fields"));
-      return;
+    } else if (optionalCreateButtonActive) {
+      if (allowOptionalSubmitForActivityTable) {
+        handleSubmit();
+      } else {
+        if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
+          toast.error(t("Please fill all required fields"));
+          return;
+        }
+        handleSubmit();
+      }
     }
   };
   const renderGenericAddEditModal = () => {
