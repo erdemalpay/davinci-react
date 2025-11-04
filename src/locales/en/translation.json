@@ -963,6 +963,8 @@
   "component": "Component",
   "order": "Order",
   "componentType": "Component Type",
-  "Visible on Payment Screen" : "Show at Payment Screen"
-
+  "Visible on Payment Screen": "Show at Payment Screen",
+  "Paid Total": "Paid Total",
+  "Cancelled Total": "Cancelled Total",
+  "Returned Total": "Returned Total"
 }

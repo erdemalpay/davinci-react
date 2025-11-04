@@ -10,6 +10,7 @@ import {
   ActionEnum,
   DateRangeKey,
   DisabledConditionEnum,
+  OrderCollection,
   OrderCollectionStatus,
   Table,
   commonDateOptions,
@@ -36,6 +37,36 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
+// Extended type for table rows
+type CollectionRow = Omit<OrderCollection, '_id' | 'cancelledAt' | 'paymentMethod'> & {
+  _id: number | string; // Override: number -> number | string (for "total" row)
+  cashier?: string;
+  cancelledBy?: string;
+  cancelledById?: string;
+  cancelledAt?: string; // Override: Date -> string (formatted)
+  date: string;
+  formattedDate: string;
+  hour: string;
+  paymentMethod?: string; // Override: string (id) -> string (name)
+  paymentMethodId?: string;
+  tableId?: number;
+  tableName?: string;
+  locationName?: string;
+  collapsible?: {
+    collapsibleHeader: string;
+    collapsibleColumns: { key: string; isSortable: boolean }[];
+    collapsibleRows: { product?: string; quantity: number }[];
+    collapsibleRowKeys: { key: string }[];
+  };
+  className?: string;
+  isSortable?: boolean;
+  breakdown?: {
+    paidTotal: number;
+    cancelledTotal: number;
+    returnedTotal: number;
+  };
+};
+
 const Collections = () => {
   const { t } = useTranslation();
   const collections = useGetAllOrderCollections();
@@ -45,7 +76,7 @@ const Collections = () => {
   const paymentMethods = useGetAccountPaymentMethods();
   const users = useGetUsers();
   const items = useGetMenuItems();
-  const [rowToAction, setRowToAction] = useState<any>();
+  const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { updateCollection } = useCollectionMutation();
   const { user } = useUserContext();
@@ -91,9 +122,9 @@ const Collections = () => {
     [t]
   );
 
-  const allRows = useMemo(() => {
+  const allRows = useMemo((): CollectionRow[] => {
     return collections
-      ?.map((collection) => {
+      ?.map((collection): CollectionRow | null => {
         if (!collection?.createdAt) {
           return null;
         }
@@ -133,15 +164,15 @@ const Collections = () => {
                 items
               )?.name,
               quantity: orderCollectionItem?.paidQuantity ?? 0,
-            })),
+            })) || [],
             collapsibleRowKeys: [{ key: "product" }, { key: "quantity" }],
           },
         };
       })
-      ?.filter((item) => item !== null);
+      ?.filter((item): item is CollectionRow => item !== null) || [];
   }, [collections, paymentMethods, users, sellLocations, t, orders, items]);
 
-  const rows = useMemo(() => {
+  const rows = useMemo((): CollectionRow[] => {
     const filteredRows = allRows.filter((row) => {
       if (!row?.date) {
         return false;
@@ -159,10 +190,32 @@ const Collections = () => {
         )
       );
     });
-    const totalRow = {
+
+    const paidTotal = filteredRows.reduce(
+      (acc, row) =>
+        row?.status === OrderCollectionStatus.PAID ? acc + row?.amount : acc,
+      0
+    );
+    const cancelledTotal = filteredRows.reduce(
+      (acc, row) =>
+        row?.status === OrderCollectionStatus.CANCELLED
+          ? acc + row?.amount
+          : acc,
+      0
+    );
+    const returnedTotal = filteredRows.reduce(
+      (acc, row) =>
+        row?.status === OrderCollectionStatus.RETURNED
+          ? acc + row?.amount
+          : acc,
+      0
+    );
+
+    const totalRow: CollectionRow = {
       _id: "total",
+      location: 0,
+      createdAt: new Date(),
       formattedDate: "Total",
-      tableId: "",
       tableName: "",
       locationName: "",
       date: "",
@@ -173,22 +226,18 @@ const Collections = () => {
       cancelledBy: "",
       cancelledById: "",
       cancelNote: "",
-      collectionStatus: "",
+      status: "",
       cancelledAt: "",
       className: "font-semibold",
       isSortable: false,
-      amount: filteredRows?.reduce((acc, row: any) => acc + row?.amount, 0),
-      collapsible: {
-        collapsibleHeader: t("Total Summary"),
-        collapsibleColumns: [
-          { key: t("Total Amount"), isSortable: false },
-          { key: t("Quantity"), isSortable: false },
-        ],
-        collapsibleRows: [],
-        collapsibleRowKeys: [{ key: "totalAmount" }, { key: "totalQuantity" }],
+      amount: paidTotal + cancelledTotal + returnedTotal,
+      breakdown: {
+        paidTotal,
+        cancelledTotal,
+        returnedTotal,
       },
     };
-    filteredRows.push(totalRow as any);
+    filteredRows.push(totalRow);
     return filteredRows;
   }, [allRows, filterPanelFormElements, t]);
 
@@ -234,7 +283,7 @@ const Collections = () => {
       {
         key: "date",
         className: "min-w-32 pr-2 ",
-        node: (row: any) => {
+        node: (row: CollectionRow) => {
           return <p className={row?.className}>{row?.formattedDate}</p>;
         },
       },
@@ -246,18 +295,58 @@ const Collections = () => {
       { key: "paymentMethod" },
       {
         key: "amount",
-        node: (row: any) => (
-          <p className={row?.className} key={row?._id + "amount"}>
-            {(row?.amount ?? 0)?.toFixed(2).replace(/\.?0*$/, "")} ₺
-          </p>
-        ),
+        node: (row: CollectionRow) => {
+          // Türkçe format: binlik nokta, ondalık virgül
+          const formatAmount = (amount: number) => {
+            return amount
+              .toFixed(2)
+              .replace(".", ",")
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+          };
+
+          // Total satırı için özel render
+          if (row?._id === "total" && row?.breakdown) {
+            const { paidTotal, cancelledTotal, returnedTotal } = row.breakdown;
+            return (
+              <div className={row?.className}>
+                <div className="font-semibold mb-1">
+                  {formatAmount(row?.amount ?? 0)} ₺
+                </div>
+                <div className="text-xs flex flex-wrap gap-1">
+                  {paidTotal > 0 && (
+                    <span className="bg-blue-50 px-2 py-0.5 rounded">
+                      Ödenen: {formatAmount(paidTotal)} ₺
+                    </span>
+                  )}
+                  {cancelledTotal > 0 && (
+                    <span className="bg-red-50 px-2 py-0.5 rounded">
+                      İptal: {formatAmount(cancelledTotal)} ₺
+                    </span>
+                  )}
+                  {returnedTotal > 0 && (
+                    <span className="bg-purple-50 px-2 py-0.5 rounded">
+                      İade: {formatAmount(returnedTotal)} ₺
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          }
+
+          // Normal satırlar için
+          return (
+            <p className={row?.className} key={row?._id + "amount"}>
+              {formatAmount(row?.amount ?? 0)} ₺
+            </p>
+          );
+        },
       },
       { key: "cancelledBy" },
       { key: "cancelledAt" },
       { key: "cancelNote" },
       {
         key: "status",
-        node: (row: any) => {
+        node: (row: CollectionRow) => {
           const status = collectionStatus.find(
             (status) => status.value === row?.status
           );
@@ -533,6 +622,12 @@ const Collections = () => {
           isCollapsible={true}
           filterPanel={filterPanel}
           filters={filters}
+          rowClassNameFunction={(row: CollectionRow) =>
+            row?._id !== "total" &&
+            row?.status === OrderCollectionStatus.CANCELLED
+              ? "bg-red-50"
+              : ""
+          }
         />
       </div>
     </>

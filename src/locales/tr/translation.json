@@ -968,5 +968,8 @@
   "component": "Bileşen",
   "order": "Sıra",
   "componentType": "Bileşen Tipi",
-  "Visible on Payment Screen" : "Ödeme Ekranında Göster"
+  "Visible on Payment Screen": "Ödeme Ekranında Göster",
+  "Paid Total": "Ödenen Toplam",
+  "Cancelled Total": "İptal Edilen Toplam",
+  "Returned Total": "İade Edilen Toplam"
 }
