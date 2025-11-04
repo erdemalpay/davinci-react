@@ -906,5 +906,5 @@ const GenericAddEditPanel = <T,>({
     </div>
   );
 };
-
+//deneme
 export default GenericAddEditPanel;
