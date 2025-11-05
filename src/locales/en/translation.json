@@ -967,5 +967,22 @@
   "Visible on Payment Screen": "Show at Payment Screen",
   "Paid Total": "Paid Total",
   "Cancelled Total": "Cancelled Total",
-  "Returned Total": "Returned Total"
+  "Returned Total": "Returned Total",
+  "Change Working Hours": "Change Working Hours",
+  "Request Type": "Request Type",
+  "Swap Shifts (Exchange)": "Swap Shifts (Exchange)",
+  "Transfer Shift (Give Away)": "Transfer Shift (Give Away)",
+  "Your Location": "Your Location",
+  "Your Shift": "Your Shift",
+  "Target User": "Target User",
+  "Target Location": "Target Location",
+  "Target Shift": "Target Shift",
+  "Transfer To User": "Transfer To User",
+  "Reason": "Reason",
+  "Please explain why you want to change shifts": "Please explain why you want to change shifts",
+  "Send Request": "Send Request",
+  "Shift change request sent successfully": "Shift change request sent successfully",
+  "Warning: {{userName}} already has a shift at this time on {{date}}": "Warning: {{userName}} already has a shift at this time on {{date}}",
+  "Cannot submit: User has a conflicting shift": "Cannot submit: User has a conflicting shift",
+  "Conflict Detected!": "Conflict Detected!"
 }

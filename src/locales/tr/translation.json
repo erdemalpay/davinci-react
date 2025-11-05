@@ -972,5 +972,22 @@
   "Visible on Payment Screen": "Ödeme Ekranında Göster",
   "Paid Total": "Ödenen Toplam",
   "Cancelled Total": "İptal Edilen Toplam",
-  "Returned Total": "İade Edilen Toplam"
+  "Returned Total": "İade Edilen Toplam",
+  "Change Working Hours": "Çalışma Saati Değiştir",
+  "Request Type": "Talep Tipi",
+  "Swap Shifts (Exchange)": "Vardiya Değişimi (Karşılıklı)",
+  "Transfer Shift (Give Away)": "Vardiya Devri (Tek Taraflı)",
+  "Your Location": "Lokasyonunuz",
+  "Your Shift": "Vardiyanız",
+  "Target User": "Hedef Kullanıcı",
+  "Target Location": "Hedef Lokasyon",
+  "Target Shift": "Hedef Vardiya",
+  "Transfer To User": "Transfer Edilecek Kullanıcı",
+  "Reason": "Sebep",
+  "Please explain why you want to change shifts": "Lütfen vardiya değişikliği sebebini açıklayın",
+  "Send Request": "Talep Gönder",
+  "Shift change request sent successfully": "Vardiya değişim talebi başarıyla gönderildi",
+  "Warning: {{userName}} already has a shift at this time on {{date}}": "Uyarı: {{userName}} kullanıcısının {{date}} tarihinde bu saatte zaten bir vardiyası var",
+  "Cannot submit: User has a conflicting shift": "Gönderilemez: Kullanıcının çakışan bir vardiyası var",
+  "Conflict Detected!": "Çakışma Tespit Edildi!"
 }

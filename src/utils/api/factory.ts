@@ -44,6 +44,7 @@ export const Paths = {
   ButtonCalls: "/button-calls",
   Notification: "/notification",
   Shift: "/shift",
+  ShiftChangeRequest: "/shift-change-request",
   Expiration: "/expiration",
 };
 
