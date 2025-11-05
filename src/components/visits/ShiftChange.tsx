@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiEdit } from "react-icons/fi";
-import { HiOutlineTrash } from "react-icons/hi2";
-import { LuCopyPlus } from "react-icons/lu";
 import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
@@ -14,16 +11,11 @@ import {
 } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
-import {
-  useCopyShiftMutation,
-  useGetShifts,
-  useShiftMutations,
-} from "../../utils/api/shift";
+import { useGetShifts } from "../../utils/api/shift";
 import { useCreateShiftChangeRequest } from "../../utils/api/shiftChangeRequest";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
-import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -31,32 +23,25 @@ import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 import { toast } from "react-toastify";
 
-interface ShiftSelectionData {
-  shiftId: string;
-  day: string;
-  startTime: string;
-  endTime?: string;
-  location: number;
-  locationName: string;
-  userId: string;
-  userName: string;
-  chefUser?: string;
-}
+type ShiftChangeFormState = {
+  type: "SWAP" | "TRANSFER";
+  sourceLocation?: number | "" | null;
+  sourceShift?: string;
+  targetLocation?: number | "" | null;
+  targetShift?: string;
+  targetUser?: string;
+  requesterNote?: string;
+};
 
 const ShiftChange = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
-  const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
-  const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
-  const [
-    isCloseAllConfirmationDialogOpen,
-    setIsCloseAllConfirmationDialogOpen,
-  ] = useState(false);
 
   // Shift Change Request States
   const [isShiftChangeModalOpen, setIsShiftChangeModalOpen] = useState(false);
-  const [shiftChangeType, setShiftChangeType] = useState<"SWAP" | "TRANSFER">("SWAP");
-  const [shiftChangeForm, setShiftChangeForm] = useState<any>({ type: "SWAP" });
+  const [shiftChangeForm, setShiftChangeForm] = useState<ShiftChangeFormState>({
+    type: "SWAP",
+  });
   const [conflictWarning, setConflictWarning] = useState<string>("");
   const [modalKey, setModalKey] = useState(0); // Force re-render of modal
   const { mutate: createShiftChangeRequest } = useCreateShiftChangeRequest();
@@ -79,14 +64,7 @@ const ShiftChange = () => {
     return `${shiftStart}-${shiftEnd || ""}`;
   };
   const roles = useGetAllUserRoles();
-  const { mutate: copyShift } = useCopyShiftMutation();
   const { selectedLocationId, setSelectedLocationId } = useLocationContext();
-  const [copyShiftForm, setCopyShiftForm] = useState({
-    copiedDay: "",
-    selectedDay: "",
-    location: "",
-    selectedUsers: [],
-  });
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
@@ -105,8 +83,6 @@ const ShiftChange = () => {
       RoleEnum.OPERATIONSASISTANT,
     ].includes(user?.role?._id)
     : true;
-  const [rowToAction, setRowToAction] = useState<any>();
-  const { updateShift, createShift, deleteShift } = useShiftMutations();
   const {
     showShiftsFilters,
     setShowShiftsFilters,
@@ -145,14 +121,6 @@ const ShiftChange = () => {
       })()
       : foundLocation?.shifts || [];
 
-  const initialFormState: Record<string, any> = {
-    day: "",
-    ...(allShifts?.reduce<Record<string, string[]>>((acc, shift) => {
-      acc[shift.shift] = [];
-      return acc;
-    }, {}) || {}),
-  };
-  const [form, setForm] = useState(initialFormState);
   const allRows =
     selectedLocationId === -1
       ? (() => {
@@ -262,61 +230,6 @@ const ShiftChange = () => {
           ...shiftMapping,
         };
       });
-  const copyShiftInputs = [
-    {
-      type: InputTypes.DATE,
-      formKey: "copiedDay",
-      label: t("Copied Day"),
-      placeholder: t("Copied Day"),
-      required: true,
-      isDatePicker: true,
-      isOnClearActive: false,
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "selectedDay",
-      label: t("Selected Day"),
-      placeholder: t("Selected Day"),
-      required: true,
-      isDatePicker: true,
-      isOnClearActive: false,
-      isDisabled: true,
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "selectedUsers",
-      label: t("Selected Users"),
-      options: users
-        ?.filter((user) => {
-          if (filterPanelFormElements?.role?.length > 0) {
-            return filterPanelFormElements?.role?.includes(user?.role?._id);
-          }
-          return true;
-        })
-        ?.filter((user) => {
-          if (copyShiftForm?.copiedDay) {
-            return shifts
-              ?.filter((shift) => shift.day === copyShiftForm?.copiedDay)
-              ?.map((shift) => shift?.shifts)
-              ?.flat()
-              ?.some((shift) => shift?.user?.includes(user._id));
-          }
-        })
-        ?.map((user) => ({
-          value: user._id,
-          label: user.name,
-        })),
-      placeholder: t("Selected Users"),
-      isMultiple: true,
-      required: false,
-    },
-  ];
-  const copyShiftFormKeys = [
-    { key: "copiedDay", type: FormKeyTypeEnum.STRING },
-    { key: "selectedDay", type: FormKeyTypeEnum.STRING },
-    { key: "selectedUsers", type: FormKeyTypeEnum.STRING },
-    { key: "location", type: FormKeyTypeEnum.NUMBER },
-  ];
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -430,36 +343,6 @@ const ShiftChange = () => {
         });
     }
   }
-  const inputs = [
-    {
-      type: InputTypes.DATE,
-      formKey: "day",
-      label: t("Date"),
-      placeholder: t("Date"),
-      required: !rowToAction?._id,
-      isDisabled: true,
-    },
-    ...(allShifts ?? []).map((shift) => ({
-      type: InputTypes.SELECT,
-      formKey: shift.shift,
-      label: shift.shift,
-      options: (users ?? []).map((user) => ({
-        value: user._id,
-        label: user.name,
-      })),
-      placeholder: t("User"),
-      isMultiple: true,
-      required: false,
-    })),
-  ];
-  const formKeys = [
-    { key: "day", type: FormKeyTypeEnum.DATE },
-    ...(allShifts ?? []).map((shift) => ({
-      key: shift.shift,
-      type: FormKeyTypeEnum.STRING,
-    })),
-  ];
-
   const filters = [
     {
       isUpperSide: true,
@@ -637,9 +520,6 @@ const ShiftChange = () => {
       }),
     }));
 
-  console.log("Selected source location:", shiftChangeForm.sourceLocation);
-  console.log("User shifts in location:", userShiftsInLocation);
-
   // Flatten to get all shift options for user
   const userShiftOptions = userShiftsInLocation
     ?.flatMap((shiftRecord) =>
@@ -657,8 +537,6 @@ const ShiftChange = () => {
       }))
     )
     .filter(Boolean);
-
-  console.log("User shift options:", userShiftOptions);
 
   // Get all shifts for target location (for SWAP)
   const targetLocationShifts = shifts?.filter(
@@ -686,10 +564,6 @@ const ShiftChange = () => {
     )
     .filter(Boolean);
 
-  console.log("Target location:", shiftChangeForm.targetLocation);
-  console.log("Target shift options:", targetShiftOptions);
-  console.log("Form state:", shiftChangeForm);
-
   // Shift Change Request Modal Inputs (Dynamic based on type)
   const baseInputs = [
     // Type Selection (First field)
@@ -703,10 +577,13 @@ const ShiftChange = () => {
       ],
       required: true,
       invalidateKeys: [],
-      additionalOnChange: ({ value }: { value: string }) => {
-        setShiftChangeType(value as "SWAP" | "TRANSFER");
+      onChangeTrigger: (selectedOption: any) => {
+        const selectedValue = Array.isArray(selectedOption)
+          ? undefined
+          : selectedOption?.value;
+        if (!selectedValue) return;
         // Reset form when type changes
-        setShiftChangeForm({ type: value });
+        setShiftChangeForm({ type: selectedValue as "SWAP" | "TRANSFER" });
         setModalKey((prev) => prev + 1); // Force modal re-render
       },
     },
@@ -723,24 +600,6 @@ const ShiftChange = () => {
         { key: "targetShift", defaultValue: "" },
         { key: "targetUser", defaultValue: "" },
       ],
-      additionalOnChange: ({ value }: { value: number }) => {
-        console.log("=== Source Location additionalOnChange called ===");
-        console.log("Received value:", value);
-        console.log("Current form state before update:", shiftChangeForm);
-
-        const newFormState = {
-          ...shiftChangeForm,
-          sourceLocation: value,
-          sourceShift: "",
-          targetLocation: "",
-          targetShift: "",
-          targetUser: ""
-        };
-
-        console.log("New form state to set:", newFormState);
-        setShiftChangeForm(newFormState);
-        setModalKey((prev) => prev + 1);
-      },
     },
     // Source Shift
     {
@@ -751,10 +610,6 @@ const ShiftChange = () => {
       required: true,
       isDisabled: !shiftChangeForm.sourceLocation,
       invalidateKeys: [{ key: "targetShift", defaultValue: "" }],
-      additionalOnChange: ({ value }: { value: string }) => {
-        setShiftChangeForm({ ...shiftChangeForm, sourceShift: value, targetShift: "" });
-        setModalKey((prev) => prev + 1);
-      },
     },
   ];
 
@@ -767,10 +622,6 @@ const ShiftChange = () => {
       options: locations?.map((loc) => ({ value: loc._id, label: loc.name })) || [],
       required: true,
       invalidateKeys: [{ key: "targetShift", defaultValue: "" }, { key: "targetUser", defaultValue: "" }],
-      additionalOnChange: ({ value }: { value: number }) => {
-        setShiftChangeForm({ ...shiftChangeForm, targetLocation: value, targetShift: "", targetUser: "" });
-        setModalKey((prev) => prev + 1);
-      },
     },
     {
       type: InputTypes.SELECT,
@@ -780,10 +631,6 @@ const ShiftChange = () => {
       required: true,
       isDisabled: !shiftChangeForm.targetLocation,
       invalidateKeys: [{ key: "targetUser", defaultValue: "" }],
-      additionalOnChange: ({ value }: { value: string }) => {
-        setShiftChangeForm({ ...shiftChangeForm, targetShift: value, targetUser: "" });
-        setModalKey((prev) => prev + 1);
-      },
     },
     {
       type: InputTypes.SELECT,
@@ -794,10 +641,6 @@ const ShiftChange = () => {
         ?.map((u) => ({ value: u._id, label: u.name })) || [],
       required: false, // Optional - shift already shows who's assigned
       invalidateKeys: [],
-      additionalOnChange: ({ value }: { value: string }) => {
-        setShiftChangeForm({ ...shiftChangeForm, targetUser: value });
-        setModalKey((prev) => prev + 1);
-      },
     },
   ] : [];
 
@@ -812,10 +655,6 @@ const ShiftChange = () => {
         ?.map((u) => ({ value: u._id, label: u.name })) || [],
       required: true,
       invalidateKeys: [],
-      additionalOnChange: ({ value }: { value: string }) => {
-        setShiftChangeForm({ ...shiftChangeForm, targetUser: value });
-        setModalKey((prev) => prev + 1);
-      },
     },
   ] : [];
 
@@ -826,9 +665,6 @@ const ShiftChange = () => {
     label: t("Reason"),
     required: true,
     invalidateKeys: [],
-    additionalOnChange: ({ value }: { value: string }) => {
-      setShiftChangeForm({ ...shiftChangeForm, requesterNote: value });
-    },
   } as any;
 
   // Combine all inputs
@@ -894,8 +730,9 @@ const ShiftChange = () => {
       createShiftChangeRequest(payload, {
         onSuccess: () => {
           setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({});
-          setShiftChangeType("SWAP");
+          setShiftChangeForm({ type: "SWAP" });
+          setConflictWarning("");
+          setModalKey((prev) => prev + 1);
         },
       });
     } else if (formData.type === "TRANSFER") {
@@ -924,18 +761,13 @@ const ShiftChange = () => {
       createShiftChangeRequest(payload, {
         onSuccess: () => {
           setIsShiftChangeModalOpen(false);
-          setShiftChangeForm({});
-          setShiftChangeType("SWAP");
+          setShiftChangeForm({ type: "SWAP" });
+          setConflictWarning("");
+          setModalKey((prev) => prev + 1);
         },
       });
     }
   };
-
-  // Debug: Log when shiftChangeForm state changes
-  useEffect(() => {
-    console.log("=== shiftChangeForm state updated ===");
-    console.log("New state:", shiftChangeForm);
-  }, [shiftChangeForm]);
 
   useEffect(() => {
     setRows(allRows);
@@ -956,7 +788,7 @@ const ShiftChange = () => {
       shiftChangeForm.targetUser
     ) {
       // Parse source shift data
-      const [, sourceStartTime, sourceEndTime, sourceDay] =
+      const [, sourceStartTime, , sourceDay] =
         shiftChangeForm.sourceShift.split("|");
 
       // Find all shifts for target user on the same day
@@ -973,8 +805,6 @@ const ShiftChange = () => {
 
           // Check if shift times overlap
           const existingStart = s.shift;
-          const existingEnd = s.shiftEndHour;
-
           // Simple overlap check: if times match exactly
           if (existingStart === sourceStartTime) {
             return true;
@@ -1035,9 +865,8 @@ const ShiftChange = () => {
         close={() => {
           setIsShiftChangeModalOpen(false);
           setShiftChangeForm({ type: "SWAP" });
-          setShiftChangeType("SWAP");
           setConflictWarning("");
-          setModalKey(0);
+          setModalKey((prev) => prev + 1);
         }}
         inputs={shiftChangeInputs}
         formKeys={shiftChangeFormKeys}
@@ -1046,6 +875,7 @@ const ShiftChange = () => {
         topClassName="flex flex-col gap-4"
         isSubmitButtonActive={!conflictWarning}
         constantValues={shiftChangeForm}
+        setForm={setShiftChangeForm}
         upperMessage={
           conflictWarning ? [t("Conflict Detected!"), conflictWarning] : undefined
         }
