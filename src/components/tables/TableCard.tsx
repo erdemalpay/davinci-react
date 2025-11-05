@@ -1059,6 +1059,7 @@ export function TableCard({
           setForm={setOrderForm}
           isCreateCloseActive={false}
           optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          allowOptionalSubmitForActivityTable={table.type === TableTypes.ACTIVITY}
           constantValues={{
             quantity: 1,
             stockLocation: table?.isOnlineSale ? 6 : selectedLocationId,
@@ -1093,7 +1094,23 @@ export function TableCard({
                 createOrder(orderObject);
               }
             } else {
-              if (orderForm?.item) {
+              const submitBulkOrders = () => {
+                if (orderCreateBulk.length > 0) {
+                  createMultipleOrder({
+                    orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                      return {
+                        ...orderCreateBulkItem,
+                        tableDate: table ? new Date(table?.date) : new Date(),
+                      };
+                    }),
+                    table: table,
+                  });
+                }
+              };
+
+              if (!orderForm?.item) {
+                submitBulkOrders();
+              } else if (orderForm?.item) {
                 const orderObject = handleOrderObject();
                 if (orderObject) {
                   createMultipleOrder({
@@ -1108,21 +1125,12 @@ export function TableCard({
                     ],
                     table: table,
                   });
-                  setOrderForm(initialOrderForm);
-                  setOrderCreateBulk([]);
-                  setSelectedNewOrders([]);
-                  return;
+                } else {
+                  submitBulkOrders();
                 }
+              } else {
+                submitBulkOrders();
               }
-              createMultipleOrder({
-                orders: orderCreateBulk.map((orderCreateBulkItem) => {
-                  return {
-                    ...orderCreateBulkItem,
-                    tableDate: table ? new Date(table?.date) : new Date(),
-                  };
-                }),
-                table: table,
-              });
             }
             setOrderForm(initialOrderForm);
             setSelectedNewOrders([]);

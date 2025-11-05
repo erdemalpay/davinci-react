@@ -49,6 +49,7 @@ type Props<T> = {
   isCreateConfirmationDialogExist?: boolean;
   isCreateCloseActive?: boolean;
   optionalCreateButtonActive?: boolean;
+  allowOptionalSubmitForActivityTable?: boolean;
   isEditMode?: boolean;
   folderName?: string;
   buttonName?: string;
@@ -92,6 +93,7 @@ const GenericAddEditPanel = <T,>({
   handleUpdate,
   anotherPanel,
   optionalCreateButtonActive,
+  allowOptionalSubmitForActivityTable,
   cancelButtonLabel = "Cancel",
   submitFunction,
   additionalSubmitFunction,
@@ -329,11 +331,15 @@ const GenericAddEditPanel = <T,>({
         handleSubmit();
       }
     } else if (optionalCreateButtonActive) {
-      if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
-        toast.error(t("Please fill all required fields"));
-        return;
+      if (allowOptionalSubmitForActivityTable) {
+        handleSubmit();
+      } else {
+        if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
+          toast.error(t("Please fill all required fields"));
+          return;
+        }
+        handleSubmit();
       }
-      handleSubmit();
     }
   };
   const renderGenericAddEditModal = () => {
