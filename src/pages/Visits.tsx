@@ -15,6 +15,7 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { VisitPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
+import ShiftChange from "../components/visits/ShiftChange";
 
 export const VisitPageTabs = [
   {
@@ -50,6 +51,13 @@ export const VisitPageTabs = [
     label: "Shifts",
     icon: <FaPhoenixFramework className="text-lg font-thin" />,
     content: <Shifts />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.SHIFTCHANGE,
+    label: "ShiftChange",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    content: <ShiftChange />,
     isDisabled: false,
   },
 ];

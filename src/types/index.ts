@@ -927,6 +927,7 @@ export enum VisitPageTabEnum {
   VISITSCHEDULEOVERVIEW,
   ALLVISITS,
   SHIFTS,
+  SHIFTCHANGE
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
