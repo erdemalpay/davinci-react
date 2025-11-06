@@ -395,7 +395,8 @@ const ShiftChange = () => {
     setIsModal: setIsShiftChangeModalOpen,
     isPath: false,
     icon: null,
-    className: "bg-green-500 hover:text-green-500 hover:border-green-500",
+    className:
+      "relative bg-green-500 text-white hover:z-30 focus:z-30 hover:scale-105 focus:scale-105 hover:!bg-green-500 hover:!text-white focus:!bg-green-500 focus:!text-white",
   };
   const filterPanelInputs = [
     {

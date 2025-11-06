@@ -1,7 +1,7 @@
 import { CiViewTable } from "react-icons/ci";
 import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
-import { MdOutlineSchedule } from "react-icons/md";
+import { MdChangeCircle, MdOutlineSchedule } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -56,7 +56,7 @@ export const VisitPageTabs = [
   {
     number: VisitPageTabEnum.SHIFTCHANGE,
     label: "ShiftChange",
-    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    icon: <MdChangeCircle className="text-lg font-thin" />,
     content: <ShiftChange />,
     isDisabled: false,
   },
