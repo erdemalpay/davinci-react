@@ -1,12 +1,18 @@
 import { CiViewTable } from "react-icons/ci";
 import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
-import { MdOutlineSchedule } from "react-icons/md";
+import {
+  MdChangeCircle,
+  MdOutlineAdminPanelSettings,
+  MdOutlineSchedule,
+} from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import AllVisits from "../components/visits/AllVisits";
+import ChangeRequestManagement from "../components/visits/ChangeRequestManagement";
 import DailyVisit from "../components/visits/DailyVisit";
+import ShiftChange from "../components/visits/ShiftChange";
 import Shifts from "../components/visits/Shifts";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
@@ -50,6 +56,21 @@ export const VisitPageTabs = [
     label: "Shifts",
     icon: <FaPhoenixFramework className="text-lg font-thin" />,
     content: <Shifts />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.SHIFTCHANGE,
+    label: "ShiftChange",
+    icon: <MdChangeCircle className="text-lg font-thin" />,
+    content: <ShiftChange />,
+    isDisabled: false,
+  },
+  //Yönetici Tabı oluşturulacak
+  {
+    number: VisitPageTabEnum.CHANGEREQUESTMANAGEMENT,
+    label: "ChangeRequestManagement",
+    icon: <MdOutlineAdminPanelSettings className="text-lg font-thin" />,
+    content: <ChangeRequestManagement />,
     isDisabled: false,
   },
 ];
