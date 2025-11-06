@@ -1005,5 +1005,7 @@
   "Requester Shift": "Kaynak Vardiya",
   "Target User Approval": "Hedef kullanıcı onay durumu",
   "ApprovedByTargetUser": "Onayladı",
-  "NotApprovedByTargetUser": "Onaylamadı"
+  "NotApprovedByTargetUser": "Onaylamadı",
+  "RejectedByTargetUser": "Reddetti",
+  "PendingByTargetUser": "Beklemede"
 }

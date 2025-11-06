@@ -227,17 +227,27 @@ const ChangeRequestManagement = (props: Props) => {
     {
       key: "targetUserApproved",
       node: (row: ShiftChangeRequestType) => {
-        const isApproved = !!row.targetUserApproved;
-        const cls = isApproved
-          ? "bg-green-100 text-green-700 border-green-300"
-          : "bg-red-100 text-red-700 border-red-300";
+        const status = row.targetUserApprovalStatus || "PENDING";
+        let cls = "";
+        let text = "";
+
+        if (status === "APPROVED") {
+          cls = "bg-green-100 text-green-700 border-green-300";
+          text = t("ApprovedByTargetUser");
+        } else if (status === "REJECTED") {
+          cls = "bg-red-100 text-red-700 border-red-300";
+          text = t("RejectedByTargetUser");
+        } else {
+          // PENDING
+          cls = "bg-amber-100 text-amber-700 border-amber-300";
+          text = t("PendingByTargetUser");
+        }
+
         return (
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded border ${cls}`}
           >
-            {isApproved
-              ? t("ApprovedByTargetUser")
-              : t("NotApprovedByTargetUser")}
+            {text}
           </span>
         );
       },

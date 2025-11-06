@@ -1000,5 +1000,7 @@
   "Requester Shift": "Requester Shift",
   "Target User Approval": "Target user approval",
   "ApprovedByTargetUser": "Approved",
-  "NotApprovedByTargetUser": "Not approved"
+  "NotApprovedByTargetUser": "Not approved",
+  "RejectedByTargetUser": "Rejected",
+  "PendingByTargetUser": "Pending"
 }

@@ -1828,6 +1828,7 @@ export type ShiftChangeRequestType = {
   processedAt?: string;
   createdAt?: string;
   targetUserApproved?: boolean;
+  targetUserApprovalStatus?: "PENDING" | "APPROVED" | "REJECTED";
 };
 
 export type PaginatedResponse<T> = {
