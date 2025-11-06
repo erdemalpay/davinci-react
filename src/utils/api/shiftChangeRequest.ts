@@ -93,7 +93,7 @@ export function useApproveShiftChangeRequest() {
   return useMutation(
     ({ id, managerNote }: { id: number; managerNote?: string }) =>
       patch({
-        path: `${Paths.ShiftChangeRequest}/${id}/approve`,
+        path: `${Paths.ShiftChangeRequest}/${id}/manager-approve`,
         payload: { managerNote },
       }),
     {
