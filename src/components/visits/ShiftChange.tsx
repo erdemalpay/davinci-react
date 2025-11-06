@@ -507,9 +507,19 @@ const ShiftChange = () => {
     }))
     .filter((loc) => loc.label) || [];
 
-  // Get user's shifts for selected source location
+  // Get user's shifts for selected source location (only today and future)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const userShiftsInLocation = userOwnShifts
-    ?.filter((shift) => shift.location === shiftChangeForm.sourceLocation && shift.day)
+    ?.filter((shift) => {
+      if (!shift.location || shift.location !== shiftChangeForm.sourceLocation || !shift.day) {
+        return false;
+      }
+      const shiftDate = new Date(shift.day);
+      shiftDate.setHours(0, 0, 0, 0);
+      return shiftDate >= today;
+    })
     ?.map((shift) => ({
       _id: shift._id,
       day: shift.day,
@@ -539,10 +549,15 @@ const ShiftChange = () => {
     )
     .filter(Boolean);
 
-  // Get all shifts for target location (for SWAP)
-  const targetLocationShifts = shifts?.filter(
-    (shift) => shift.location === shiftChangeForm.targetLocation && shift.day
-  );
+  // Get all shifts for target location (for SWAP) - only today and future
+  const targetLocationShifts = shifts?.filter((shift) => {
+    if (!shift.location || shift.location !== shiftChangeForm.targetLocation || !shift.day) {
+      return false;
+    }
+    const shiftDate = new Date(shift.day);
+    shiftDate.setHours(0, 0, 0, 0);
+    return shiftDate >= today;
+  });
 
   // Get target shift options - filtered by selected target user
   const targetShiftOptions = shiftChangeForm.targetUser
