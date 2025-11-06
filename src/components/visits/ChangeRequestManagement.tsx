@@ -226,13 +226,21 @@ const ChangeRequestManagement = (props: Props) => {
     },
     {
       key: "targetUserApproved",
-      node: (row: ShiftChangeRequestType) => (
-        <span className="text-xs font-medium">
-          {row.targetUserApproved
-            ? t("ApprovedByTargetUser")
-            : t("NotApprovedByTargetUser")}
-        </span>
-      ),
+      node: (row: ShiftChangeRequestType) => {
+        const isApproved = !!row.targetUserApproved;
+        const cls = isApproved
+          ? "bg-green-100 text-green-700 border-green-300"
+          : "bg-red-100 text-red-700 border-red-300";
+        return (
+          <span
+            className={`text-xs font-semibold px-2 py-0.5 rounded border ${cls}`}
+          >
+            {isApproved
+              ? t("ApprovedByTargetUser")
+              : t("NotApprovedByTargetUser")}
+          </span>
+        );
+      },
     },
     {
       key: "actions",

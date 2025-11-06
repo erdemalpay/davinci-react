@@ -1,7 +1,11 @@
 import { CiViewTable } from "react-icons/ci";
 import { FaPhoenixFramework } from "react-icons/fa";
 import { GiEgyptianWalk } from "react-icons/gi";
-import { MdChangeCircle, MdOutlineSchedule } from "react-icons/md";
+import {
+  MdChangeCircle,
+  MdOutlineAdminPanelSettings,
+  MdOutlineSchedule,
+} from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
@@ -65,7 +69,7 @@ export const VisitPageTabs = [
   {
     number: VisitPageTabEnum.CHANGEREQUESTMANAGEMENT,
     label: "ChangeRequestManagement",
-    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    icon: <MdOutlineAdminPanelSettings className="text-lg font-thin" />,
     content: <ChangeRequestManagement />,
     isDisabled: false,
   },
