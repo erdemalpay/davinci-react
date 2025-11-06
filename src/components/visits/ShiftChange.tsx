@@ -526,7 +526,7 @@ const ShiftChange = () => {
     ?.flatMap((shiftRecord) =>
       shiftRecord.shifts?.map((s: any) => ({
         value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${shiftRecord.day}`,
-        label: `${convertDateFormat(shiftRecord.day)} - ${s.shift}${s.shiftEndHour ? ` - ${s.shiftEndHour}` : ""}`,
+        label: `${convertDateFormat(shiftRecord.day)}   /   ${s.shift}${s.shiftEndHour ? `-${s.shiftEndHour}` : ""}`,
         shiftData: {
           shiftId: shiftRecord._id,
           day: shiftRecord.day,
@@ -544,26 +544,28 @@ const ShiftChange = () => {
     (shift) => shift.location === shiftChangeForm.targetLocation && shift.day
   );
 
-  // Get target shift options (all shifts with users)
-  const targetShiftOptions = targetLocationShifts
-    ?.flatMap((shiftRecord) =>
-      shiftRecord.shifts
-        ?.filter((s: any) => s.user && s.user.length > 0)
-        ?.map((s: any) => ({
-          value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${shiftRecord.day}|${s.user.join(",")}`,
-          label: `${convertDateFormat(shiftRecord.day)} - ${s.shift}${s.shiftEndHour ? ` - ${s.shiftEndHour}` : ""} (${s.user.map((uid: string) => getItem(uid, users)?.name).filter(Boolean).join(", ")})`,
-          shiftData: {
-            shiftId: shiftRecord._id,
-            day: shiftRecord.day,
-            startTime: s.shift,
-            endTime: s.shiftEndHour,
-            location: shiftChangeForm.targetLocation,
-            chefUser: s.chefUser,
-            users: s.user,
-          },
-        }))
-    )
-    .filter(Boolean);
+  // Get target shift options - filtered by selected target user
+  const targetShiftOptions = shiftChangeForm.targetUser
+    ? targetLocationShifts
+        ?.flatMap((shiftRecord) =>
+          shiftRecord.shifts
+            ?.filter((s: any) => s.user && s.user.includes(shiftChangeForm.targetUser))
+            ?.map((s: any) => ({
+              value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${shiftRecord.day}|${s.user.join(",")}`,
+              label: `${convertDateFormat(shiftRecord.day)} / ${s.shift}${s.shiftEndHour ? ` - ${s.shiftEndHour}` : ""}`,
+              shiftData: {
+                shiftId: shiftRecord._id,
+                day: shiftRecord.day,
+                startTime: s.shift,
+                endTime: s.shiftEndHour,
+                location: shiftChangeForm.targetLocation,
+                chefUser: s.chefUser,
+                users: s.user,
+              },
+            }))
+        )
+        .filter(Boolean)
+    : [];
 
   // Shift Change Request Modal Inputs (Dynamic based on type)
   const baseInputs = [
@@ -614,7 +616,7 @@ const ShiftChange = () => {
     },
   ];
 
-  // SWAP-specific fields (better order: location -> shift -> user)
+  // SWAP-specific fields (better order: location -> user -> shift)
   const swapFields = shiftChangeForm.type === "SWAP" ? [
     {
       type: InputTypes.SELECT,
@@ -622,16 +624,7 @@ const ShiftChange = () => {
       label: t("Target Location"),
       options: locations?.map((loc) => ({ value: loc._id, label: loc.name })) || [],
       required: true,
-      invalidateKeys: [{ key: "targetShift", defaultValue: "" }, { key: "targetUser", defaultValue: "" }],
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "targetShift",
-      label: t("Target Shift"),
-      options: targetShiftOptions || [],
-      required: true,
-      isDisabled: !shiftChangeForm.targetLocation,
-      invalidateKeys: [{ key: "targetUser", defaultValue: "" }],
+      invalidateKeys: [{ key: "targetUser", defaultValue: "" }, { key: "targetShift", defaultValue: "" }],
     },
     {
       type: InputTypes.SELECT,
@@ -640,7 +633,17 @@ const ShiftChange = () => {
       options: users
         ?.filter((u) => u._id !== user?._id)
         ?.map((u) => ({ value: u._id, label: u.name })) || [],
-      required: false, // Optional - shift already shows who's assigned
+      required: true,
+      isDisabled: !shiftChangeForm.targetLocation,
+      invalidateKeys: [{ key: "targetShift", defaultValue: "" }],
+    },
+    {
+      type: InputTypes.SELECT,
+      formKey: "targetShift",
+      label: t("Target Shift"),
+      options: targetShiftOptions || [],
+      required: true,
+      isDisabled: !shiftChangeForm.targetUser,
       invalidateKeys: [],
     },
   ] : [];
