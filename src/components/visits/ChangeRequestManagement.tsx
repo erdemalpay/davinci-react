@@ -442,8 +442,10 @@ const ChangeRequestManagement = () => {
   } as any;
 
   const handleActionSubmit = (formData: any) => {
+    if (!actionModal.current?._id) return;
+
     const managerNote = formData?.managerNote || undefined;
-    const id = actionModal.current?._id!;
+    const id = actionModal.current._id;
     if (actionModal.mode === "APPROVE") {
       approve({ id, managerNote });
     } else if (actionModal.mode === "REJECT") {
