@@ -20,6 +20,7 @@ import {
 import { ReservationCallDialog } from "../components/reservations/ReservationCallDialog";
 import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { useLocationContext } from "../context/Location.context";
+import { useUserContext } from "../context/User.context";
 import { Routes } from "../navigation/constants";
 import {
   ActionEnum,
@@ -28,14 +29,14 @@ import {
   ReservationStatusEnum,
   TableTypes,
 } from "../types";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import {
   useGetReservations,
   useReservationCallMutations,
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
-import { useUserContext } from "../context/User.context";
-import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
@@ -54,6 +55,7 @@ export default function Reservations() {
   const { updateReservationCall } = useReservationCallMutations();
   const { selectedLocationId } = useLocationContext();
   const { user } = useUserContext();
+  const users = useGetUsers();
   const disabledConditions = useGetDisabledConditions();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);
@@ -155,6 +157,17 @@ export default function Reservations() {
         additionalType: "phone",
       },
       {
+        type: InputTypes.SELECT,
+        formKey: "createdBy",
+        label: t("Created By"),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
+        placeholder: t("Created By"),
+        required: true,
+      },
+      {
         type: InputTypes.TIME,
         formKey: "reservationHour",
         label: t("Reservation Time"),
@@ -193,6 +206,7 @@ export default function Reservations() {
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "phone", type: FormKeyTypeEnum.STRING },
+      { key: "createdBy", type: FormKeyTypeEnum.STRING },
       { key: "reservationHour", type: FormKeyTypeEnum.STRING },
       { key: "reservedTable", type: FormKeyTypeEnum.STRING },
       { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
@@ -206,6 +220,7 @@ export default function Reservations() {
     () => [
       { key: t("Name"), isSortable: true },
       { key: t("Phone"), isSortable: true },
+      { key: t("Created By"), isSortable: true },
       { key: t("Time"), isSortable: true },
       { key: t("Table"), isSortable: true },
       { key: t("Player Count"), isSortable: true },
@@ -227,6 +242,13 @@ export default function Reservations() {
       {
         key: "phone",
         className: "min-w-40",
+      },
+      {
+        key: "createdBy",
+        node: (row: Reservation) => {
+          const creator = getItem(row.createdBy, users);
+          return <p>{creator ? creator.name : ""}</p>;
+        },
       },
       {
         key: "reservationHour",
@@ -268,7 +290,7 @@ export default function Reservations() {
             inputs={inputs}
             formKeys={formKeys}
             submitItem={(item) => {
-              if ('id' in item && 'updates' in item) {
+              if ("id" in item && "updates" in item) {
                 updateReservation(item);
               }
             }}
@@ -463,7 +485,13 @@ export default function Reservations() {
         ),
       },
     ],
-    [t, hideCompletedReservations, navigate, reservationsDisabledCondition, user]
+    [
+      t,
+      hideCompletedReservations,
+      navigate,
+      reservationsDisabledCondition,
+      user,
+    ]
   );
   const addButton = useMemo(
     () => ({
@@ -481,7 +509,7 @@ export default function Reservations() {
             playerCount: 0,
           }}
           submitItem={(item) => {
-            if (!('id' in item)) {
+            if (!("id" in item)) {
               createReservation(item as Partial<Reservation>);
             }
           }}
@@ -563,8 +591,12 @@ export default function Reservations() {
             ]}
             formKeys={[{ key: "duration", type: FormKeyTypeEnum.NUMBER }]}
             constantValues={{ duration: 30 }}
-            setForm={(form: { duration: number }) => setSelectedDuration(form.duration)}
-            submitItem={() => { /* submitFunction is used instead */ }}
+            setForm={(form: { duration: number }) =>
+              setSelectedDuration(form.duration)
+            }
+            submitItem={() => {
+              /* submitFunction is used instead */
+            }}
             submitFunction={handleDurationConfirm}
             buttonName={t("Confirm")}
             topClassName="flex flex-col gap-2"
