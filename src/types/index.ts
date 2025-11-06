@@ -1824,11 +1824,14 @@ export type ShiftChangeRequestType = {
   requesterNote: string;
   managerNote?: string;
   status: ShiftChangeStatusEnum;
+  managerApprovalStatus: "PENDING" | "APPROVED" | "REJECTED";
+  managerApprovedBy?: string;
+  managerApprovedAt?: string;
+  targetUserApprovalStatus: "PENDING" | "APPROVED" | "REJECTED";
+  targetUserApprovedAt?: string;
   processedByManagerId?: string;
   processedAt?: string;
   createdAt?: string;
-  targetUserApproved?: boolean;
-  targetUserApprovalStatus?: "PENDING" | "APPROVED" | "REJECTED";
 };
 
 export type PaginatedResponse<T> = {

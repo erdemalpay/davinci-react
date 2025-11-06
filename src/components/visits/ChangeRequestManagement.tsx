@@ -7,9 +7,9 @@ import {
 } from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
-  useApproveShiftChangeRequest,
   useGetShiftChangeRequests,
-  useRejectShiftChangeRequest,
+  useManagerApproveShiftChangeRequest,
+  useManagerRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
@@ -57,8 +57,8 @@ const ChangeRequestManagement = (props: Props) => {
   const rows = listResponse?.data?.data || [];
 
   // Approve/Reject mutations and modal
-  const { mutate: approve } = useApproveShiftChangeRequest();
-  const { mutate: reject } = useRejectShiftChangeRequest();
+  const { mutate: approve } = useManagerApproveShiftChangeRequest();
+  const { mutate: reject } = useManagerRejectShiftChangeRequest();
 
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
