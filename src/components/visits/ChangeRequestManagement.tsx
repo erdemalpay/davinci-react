@@ -112,11 +112,6 @@ const ChangeRequestManagement = () => {
   const columns = [
     { key: t("Requester"), isSortable: false, correspondingKey: "requester" },
     { key: t("Target User"), isSortable: false, correspondingKey: "target" },
-    {
-      key: t("Requester Note"),
-      isSortable: false,
-      correspondingKey: "requesterNote",
-    },
     { key: t("Type"), isSortable: false, correspondingKey: "type" },
     {
       key: t("Requester Shift"),
@@ -138,6 +133,11 @@ const ChangeRequestManagement = () => {
       key: t("Target Approval"),
       isSortable: false,
       correspondingKey: "targetUserApproved",
+    },
+    {
+      key: t("Requester Note"),
+      isSortable: false,
+      correspondingKey: "requesterNote",
     },
     { key: t("Actions"), isSortable: false, correspondingKey: "actions" },
   ];
@@ -180,12 +180,6 @@ const ChangeRequestManagement = () => {
           </span>
         );
       },
-    },
-    {
-      key: "requesterNote",
-      node: (row: ShiftChangeRequestType) => (
-        <div className="text-sm">{row.requesterNote}</div>
-      ),
     },
     {
       key: "type",
@@ -273,6 +267,14 @@ const ChangeRequestManagement = () => {
         };
         return <div className="text-sm">{map[status]}</div>;
       },
+    },
+    {
+      key: "requesterNote",
+      node: (row: ShiftChangeRequestType) => (
+        <div className="text-sm max-w-xs break-words whitespace-pre-wrap">
+          {row.requesterNote || "-"}
+        </div>
+      ),
     },
     {
       key: "actions",
