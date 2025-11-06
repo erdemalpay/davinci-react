@@ -1015,5 +1015,19 @@
   "TRANSFER": "Devretme",
   "Swap": "Takas",
   "Transfer": "Devretme",
-  "Requester Note": "Talep Notu"
+  "Requester Note": "Talep Notu",
+  "WaitingForTargetApprovalByName": "{{name}}’in onayı bekleniyor",
+  "WaitingForManagerApproval": "Yönetici onayı bekleniyor",
+  "RejectedByName": "{{name}} reddetti",
+  "RejectedByManager": "Yönetici reddetti",
+  "Approved": "Onaylandı",
+  "Rejected": "Reddedildi",
+  "ApprovedByManager": "Yönetici onayladı",
+  "PendingByManager": "Yönetici beklemede",
+  "Manager Approval": "Yönetici Onayı",
+  "Target Approval": "Hedef Onayı",
+  "{{name}} Approval": "{{name}} Onayı",
+  "Already processed by manager": "Yönetici tarafından zaten sonuçlandırıldı",
+  "Waiting Manager": "Yönetici bekleniyor",
+  "Waiting {{name}}": "{{name}} bekleniyor"
 }

@@ -1010,5 +1010,19 @@
   "TRANSFER": "Transfer",
   "Swap": "Swap",
   "Transfer": "Transfer",
-  "Requester Note": "Requester Note"
+  "Requester Note": "Requester Note",
+  "WaitingForTargetApprovalByName": "Waiting for {{name}}’s approval",
+  "WaitingForManagerApproval": "Waiting for manager approval",
+  "RejectedByName": "Rejected by {{name}}",
+  "RejectedByManager": "Rejected by manager",
+  "Approved": "Approved",
+  "Rejected": "Rejected",
+  "ApprovedByManager": "Approved by manager",
+  "PendingByManager": "Pending by manager",
+  "Manager Approval": "Manager Approval",
+  "Target Approval": "Target Approval",
+  "{{name}} Approval": "{{name}} Approval",
+  "Already processed by manager": "Already processed by manager",
+  "Waiting Manager": "Waiting Manager",
+  "Waiting {{name}}": "Waiting {{name}}"
 }

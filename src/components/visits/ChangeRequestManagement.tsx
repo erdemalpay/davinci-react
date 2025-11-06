@@ -7,9 +7,9 @@ import {
 } from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
+  useApproveShiftChangeRequest,
   useGetShiftChangeRequests,
-  useManagerApproveShiftChangeRequest,
-  useManagerRejectShiftChangeRequest,
+  useRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
@@ -19,9 +19,7 @@ import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
-type Props = {};
-
-const ChangeRequestManagement = (props: Props) => {
+const ChangeRequestManagement = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
@@ -57,8 +55,8 @@ const ChangeRequestManagement = (props: Props) => {
   const rows = listResponse?.data?.data || [];
 
   // Approve/Reject mutations and modal
-  const { mutate: approve } = useManagerApproveShiftChangeRequest();
-  const { mutate: reject } = useManagerRejectShiftChangeRequest();
+  const { mutate: approve } = useApproveShiftChangeRequest();
+  const { mutate: reject } = useRejectShiftChangeRequest();
 
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
@@ -87,6 +85,29 @@ const ChangeRequestManagement = (props: Props) => {
   const getLocationName = (id?: number) =>
     locations?.find((l) => l._id === id)?.name || "-";
 
+  const getTargetName = (row: ShiftChangeRequestType) =>
+    typeof row.targetUserId === "object"
+      ? row.targetUserId.name || row.targetUserId._id
+      : getUserName(row.targetUserId);
+
+  const getDerivedStatus = (row: ShiftChangeRequestType) => {
+    const manager = row.managerApprovalStatus;
+    const target = row.targetUserApprovalStatus;
+    if (manager === "REJECTED") {
+      return { text: t("Rejected"), cls: "bg-red-600" };
+    }
+    if (manager === "APPROVED" && target === "PENDING") {
+      return {
+        text: t("Waiting {{name}}", { name: getTargetName(row) }),
+        cls: "bg-amber-600",
+      };
+    }
+    if (manager === "APPROVED" && target === "APPROVED") {
+      return { text: t("Approved"), cls: "bg-green-600" };
+    }
+    return { text: t("Waiting Manager"), cls: "bg-amber-600" };
+  };
+
   // Ayrı sütunlar: Talep Eden, Hedef, Tip, Kaynak, Hedef, Durum, Oluşturma, İşlemler
   const columns = [
     { key: t("Requester"), isSortable: false, correspondingKey: "requester" },
@@ -109,7 +130,12 @@ const ChangeRequestManagement = (props: Props) => {
     },
     { key: t("Status"), isSortable: false, correspondingKey: "status" },
     {
-      key: t("Target User Approval"),
+      key: t("Manager Approval"),
+      isSortable: false,
+      correspondingKey: "managerApproved",
+    },
+    {
+      key: t("Target Approval"),
       isSortable: false,
       correspondingKey: "targetUserApproved",
     },
@@ -220,47 +246,32 @@ const ChangeRequestManagement = (props: Props) => {
     {
       key: "status",
       node: (row: ShiftChangeRequestType) => {
-        const statusClass =
-          row.status === ShiftChangeStatusEnum.PENDING
-            ? "bg-amber-600"
-            : row.status === ShiftChangeStatusEnum.APPROVED
-            ? "bg-green-600"
-            : "bg-red-600";
-        return (
-          <span
-            className={`px-2 py-1 rounded text-white text-xs ${statusClass}`}
-          >
-            {t(row.status)}
-          </span>
-        );
+        const derived = getDerivedStatus(row);
+        return <div className="text-sm">{derived.text}</div>;
+      },
+    },
+    {
+      key: "managerApproved",
+      node: (row: ShiftChangeRequestType) => {
+        const status = row.managerApprovalStatus || "PENDING";
+        const map: Record<string, string> = {
+          APPROVED: t("Approved"),
+          REJECTED: t("Rejected"),
+          PENDING: t("Pending"),
+        };
+        return <div className="text-sm">{map[status]}</div>;
       },
     },
     {
       key: "targetUserApproved",
       node: (row: ShiftChangeRequestType) => {
         const status = row.targetUserApprovalStatus || "PENDING";
-        let cls = "";
-        let text = "";
-
-        if (status === "APPROVED") {
-          cls = "bg-green-100 text-green-700 border-green-300";
-          text = t("ApprovedByTargetUser");
-        } else if (status === "REJECTED") {
-          cls = "bg-red-100 text-red-700 border-red-300";
-          text = t("RejectedByTargetUser");
-        } else {
-          // PENDING
-          cls = "bg-amber-100 text-amber-700 border-amber-300";
-          text = t("PendingByTargetUser");
-        }
-
-        return (
-          <span
-            className={`text-xs font-semibold px-2 py-0.5 rounded border ${cls}`}
-          >
-            {text}
-          </span>
-        );
+        const map: Record<string, string> = {
+          APPROVED: t("ApprovedByTargetUser"),
+          REJECTED: t("RejectedByTargetUser"),
+          PENDING: t("PendingByTargetUser"),
+        };
+        return <div className="text-sm">{map[status]}</div>;
       },
     },
     {
@@ -269,8 +280,12 @@ const ChangeRequestManagement = (props: Props) => {
         <div className="flex flex-row gap-2 items-center">
           <button
             aria-label={t("Approve")}
-            title={t("Approve")}
-            disabled={row.status !== ShiftChangeStatusEnum.PENDING}
+            title={
+              row.managerApprovalStatus !== "PENDING"
+                ? t("Already processed by manager")
+                : t("Approve")
+            }
+            disabled={row.managerApprovalStatus !== "PENDING"}
             className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={() =>
               setActionModal({
@@ -296,8 +311,12 @@ const ChangeRequestManagement = (props: Props) => {
           </button>
           <button
             aria-label={t("Reject")}
-            title={t("Reject")}
-            disabled={row.status !== ShiftChangeStatusEnum.PENDING}
+            title={
+              row.managerApprovalStatus !== "PENDING"
+                ? t("Already processed by manager")
+                : t("Reject")
+            }
+            disabled={row.managerApprovalStatus !== "PENDING"}
             className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={() =>
               setActionModal({ isOpen: true, mode: "REJECT", current: row })
