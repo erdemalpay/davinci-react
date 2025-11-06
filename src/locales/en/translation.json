@@ -1002,5 +1002,13 @@
   "ApprovedByTargetUser": "Approved",
   "NotApprovedByTargetUser": "Not approved",
   "RejectedByTargetUser": "Rejected",
-  "PendingByTargetUser": "Pending"
+  "PendingByTargetUser": "Pending",
+  "PENDING": "Pending",
+  "APPROVED": "Approved",
+  "REJECTED": "Rejected",
+  "SWAP": "Swap",
+  "TRANSFER": "Transfer",
+  "Swap": "Swap",
+  "Transfer": "Transfer",
+  "Requester Note": "Requester Note"
 }

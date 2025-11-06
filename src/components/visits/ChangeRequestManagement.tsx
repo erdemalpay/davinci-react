@@ -91,6 +91,11 @@ const ChangeRequestManagement = (props: Props) => {
   const columns = [
     { key: t("Requester"), isSortable: false, correspondingKey: "requester" },
     { key: t("Target User"), isSortable: false, correspondingKey: "target" },
+    {
+      key: t("Requester Note"),
+      isSortable: false,
+      correspondingKey: "requesterNote",
+    },
     { key: t("Type"), isSortable: false, correspondingKey: "type" },
     {
       key: t("Requester Shift"),
@@ -149,6 +154,12 @@ const ChangeRequestManagement = (props: Props) => {
           </span>
         );
       },
+    },
+    {
+      key: "requesterNote",
+      node: (row: ShiftChangeRequestType) => (
+        <div className="text-sm">{row.requesterNote}</div>
+      ),
     },
     {
       key: "type",

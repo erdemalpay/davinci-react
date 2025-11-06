@@ -1007,5 +1007,13 @@
   "ApprovedByTargetUser": "Onayladı",
   "NotApprovedByTargetUser": "Onaylamadı",
   "RejectedByTargetUser": "Reddetti",
-  "PendingByTargetUser": "Beklemede"
+  "PendingByTargetUser": "Beklemede",
+  "PENDING": "Beklemede",
+  "APPROVED": "Onaylandı",
+  "REJECTED": "Reddedildi",
+  "SWAP": "Takas",
+  "TRANSFER": "Devretme",
+  "Swap": "Takas",
+  "Transfer": "Devretme",
+  "Requester Note": "Talep Notu"
 }
