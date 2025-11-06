@@ -455,7 +455,6 @@ export enum ActionEnum {
   SET_USED = "set_used",
   SET_UNUSED = "set_unused",
   SHOW_EXPIRED_OR_USED_REWARDS = "show_expired_or_used_rewards",
-
 }
 
 export type Membership = {
@@ -927,7 +926,8 @@ export enum VisitPageTabEnum {
   VISITSCHEDULEOVERVIEW,
   ALLVISITS,
   SHIFTS,
-  SHIFTCHANGE
+  SHIFTCHANGE,
+  CHANGEREQUESTMANAGEMENT,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1791,3 +1791,48 @@ export const GAMEEXPENSETYPE = "oys";
 export const DESSERTEXPENSETYPE = "tat";
 export const SANDWICHEXPENSETYPE = "sand";
 export type OptionType = { value: any; label: string; imageUrl?: string };
+
+// -------------------- Shift Change (Requests) --------------------
+export enum ShiftChangeStatusEnum {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+export enum ShiftChangeTypeEnum {
+  SWAP = "SWAP",
+  TRANSFER = "TRANSFER",
+}
+
+export type ShiftSnapshot = {
+  shiftId: number;
+  day: string;
+  startTime: string;
+  endTime?: string;
+  location?: number;
+  chefUser?: string;
+  userId: string;
+};
+
+export type ShiftChangeRequestType = {
+  _id: number;
+  requesterId: string | { _id: string; name: string; fullName?: string };
+  targetUserId: string | { _id: string; name: string; fullName?: string };
+  requesterShift: ShiftSnapshot;
+  targetShift: ShiftSnapshot;
+  type: ShiftChangeTypeEnum;
+  requesterNote: string;
+  managerNote?: string;
+  status: ShiftChangeStatusEnum;
+  processedByManagerId?: string;
+  processedAt?: string;
+  createdAt?: string;
+  targetUserApproved?: boolean;
+};
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+};

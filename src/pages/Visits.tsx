@@ -6,7 +6,9 @@ import { SlCalender } from "react-icons/sl";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
 import AllVisits from "../components/visits/AllVisits";
+import ChangeRequestManagement from "../components/visits/ChangeRequestManagement";
 import DailyVisit from "../components/visits/DailyVisit";
+import ShiftChange from "../components/visits/ShiftChange";
 import Shifts from "../components/visits/Shifts";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
@@ -15,7 +17,6 @@ import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { VisitPageTabEnum } from "../types";
 import { useGetPanelControlPages } from "../utils/api/panelControl/page";
-import ShiftChange from "../components/visits/ShiftChange";
 
 export const VisitPageTabs = [
   {
@@ -58,6 +59,14 @@ export const VisitPageTabs = [
     label: "ShiftChange",
     icon: <MdChangeCircle className="text-lg font-thin" />,
     content: <ShiftChange />,
+    isDisabled: false,
+  },
+  //Yönetici Tabı oluşturulacak
+  {
+    number: VisitPageTabEnum.CHANGEREQUESTMANAGEMENT,
+    label: "ChangeRequestManagement",
+    icon: <FaPhoenixFramework className="text-lg font-thin" />,
+    content: <ChangeRequestManagement />,
     isDisabled: false,
   },
 ];

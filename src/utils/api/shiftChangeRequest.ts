@@ -1,7 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { post } from ".";
+import { get, patch, post } from ".";
+import {
+  PaginatedResponse,
+  ShiftChangeRequestType,
+  ShiftChangeStatusEnum,
+} from "../../types";
 import { Paths } from "./factory";
 
 export interface ShiftSnapshotDto {
@@ -38,7 +43,10 @@ export function useCreateShiftChangeRequest() {
       await queryClient.cancelQueries([Paths.ShiftChangeRequest]);
     },
     onSuccess: () => {
-      setTimeout(() => toast.success(t("Shift change request sent successfully")), 200);
+      setTimeout(
+        () => toast.success(t("Shift change request sent successfully")),
+        200
+      );
       queryClient.invalidateQueries([Paths.Shift]);
     },
     onError: (_err: any) => {
@@ -47,4 +55,81 @@ export function useCreateShiftChangeRequest() {
       setTimeout(() => toast.error(t(errorMessage)), 200);
     },
   });
+}
+
+// -------------------- Management (List / Approve / Reject) --------------------
+
+function buildQuery(params: Record<string, any>) {
+  const sp = new URLSearchParams();
+  Object.entries(params || {}).forEach(([k, v]) => {
+    if (v === undefined || v === null || v === "") return;
+    if (Array.isArray(v)) v.forEach((vv) => sp.append(k, String(vv)));
+    else sp.append(k, String(v));
+  });
+  const q = sp.toString();
+  return q ? `${Paths.ShiftChangeRequest}?${q}` : Paths.ShiftChangeRequest;
+}
+
+export function useGetShiftChangeRequests(params: {
+  status?: ShiftChangeStatusEnum | ShiftChangeStatusEnum[];
+  requesterId?: string;
+  targetUserId?: string;
+  after?: string;
+  before?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const path = buildQuery(params || {});
+  return useQuery<PaginatedResponse<ShiftChangeRequestType>>(
+    [path],
+    () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
+    { staleTime: 0 }
+  );
+}
+
+export function useApproveShiftChangeRequest() {
+  const client = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation(
+    ({ id, managerNote }: { id: number; managerNote?: string }) =>
+      patch({
+        path: `${Paths.ShiftChangeRequest}/${id}/approve`,
+        payload: { managerNote },
+      }),
+    {
+      onSuccess: () => {
+        setTimeout(() => toast.success(t("Request approved")), 200);
+        client.invalidateQueries([Paths.ShiftChangeRequest]);
+        client.invalidateQueries([Paths.Shift]);
+      },
+      onError: (err: any) => {
+        const msg =
+          err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(msg)), 200);
+      },
+    }
+  );
+}
+
+export function useRejectShiftChangeRequest() {
+  const client = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation(
+    ({ id, managerNote }: { id: number; managerNote?: string }) =>
+      patch({
+        path: `${Paths.ShiftChangeRequest}/${id}/reject`,
+        payload: { managerNote },
+      }),
+    {
+      onSuccess: () => {
+        setTimeout(() => toast.warning(t("Request rejected")), 200);
+        client.invalidateQueries([Paths.ShiftChangeRequest]);
+      },
+      onError: (err: any) => {
+        const msg =
+          err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(msg)), 200);
+      },
+    }
+  );
 }
