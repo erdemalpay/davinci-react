@@ -763,6 +763,7 @@ export enum ReservationStatusEnum {
 export type Reservation = {
   _id: number;
   location: number;
+  createdBy: string;
   name: string;
   phone: string;
   playerCount: number;
