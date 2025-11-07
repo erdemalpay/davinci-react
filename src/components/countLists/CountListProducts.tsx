@@ -50,14 +50,35 @@ const CountListProducts = () => {
     [t, expenseTypes]
   );
 
-  const rows = useMemo(() => {
-    return products.filter((product) => {
-      return (
-        filterPanelFormElements.expenseType === "" ||
-        product.expenseType?.includes(filterPanelFormElements.expenseType)
+  const checkProductIsInCountLists = useMemo(() => {
+    return (product: string) => {
+      return countLists?.some((countList) =>
+        countList?.products?.some((item) => item.product === product)
       );
-    });
-  }, [products, filterPanelFormElements]);
+    };
+  }, [countLists]);
+
+  const rows = useMemo(() => {
+    return products
+      .filter((product) => {
+        return (
+          filterPanelFormElements.expenseType === "" ||
+          product.expenseType?.includes(filterPanelFormElements.expenseType)
+        );
+      })
+      .sort((a, b) => {
+        const aInList = checkProductIsInCountLists(a._id);
+        const bInList = checkProductIsInCountLists(b._id);
+
+        // Atanmayanlar önce (false < true)
+        if (aInList !== bInList) {
+          return aInList ? 1 : -1;
+        }
+
+        // Aynı durumda olanları alfabetik sırala
+        return a.name.localeCompare(b.name);
+      });
+  }, [products, filterPanelFormElements, checkProductIsInCountLists]);
 
   function handleCountListUpdate(row: any, countList: AccountCountList) {
     if (countList?.products?.find((item) => item.product === row._id)) {
@@ -82,14 +103,6 @@ const CountListProducts = () => {
       toast.success(`${t("Count List updated successfully")}`);
     }
   }
-
-  const checkProductIsInCountLists = useMemo(() => {
-    return (product: string) => {
-      return countLists?.some((countList) =>
-        countList?.products?.some((item) => item.product === product)
-      );
-    };
-  }, [countLists]);
 
   const { columns, rowKeys } = useMemo(() => {
     const cols = [{ key: t("Name"), isSortable: true }];
