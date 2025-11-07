@@ -8,7 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountCountList, RoleEnum } from "../../types";
+import {
+  AccountCountList,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountCountMutations,
   useGetAccountCounts,
@@ -19,7 +23,8 @@ import {
 } from "../../utils/api/account/countList";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import { useGetStockLocations } from "../../utils/api/location";
-import { isDisabledConditionCountLists } from "../../utils/isDisabledConditions";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -61,9 +66,11 @@ const CountLists = () => {
   const [isCountLocationModalOpen, setIsCountLocationModalOpen] =
     useState(false);
 
-  const isDisabledCondition = useMemo(() => {
-    return isDisabledConditionCountLists(user);
-  }, [user]);
+  const disabledConditions = useGetDisabledConditions();
+
+  const countListsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.COUNTLISTS, disabledConditions);
+  }, [disabledConditions]);
 
   function handleLocationUpdate(item: AccountCountList, location: number) {
     const newLocations = item.locations || [];
@@ -236,8 +243,22 @@ const CountLists = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: countListsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createAccountCountList]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAccountCountList,
+      countListsDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -265,7 +286,12 @@ const CountLists = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -304,13 +330,23 @@ const CountLists = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Toggle Active"),
         isDisabled:
           !showInactiveCountLists ||
-          (user && ![RoleEnum.MANAGER].includes(user.role._id)),
+          countListsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         isModal: false,
         isPath: false,
         icon: null,
@@ -384,6 +420,12 @@ const CountLists = () => {
         isModalOpen: isCountLocationModalOpen,
         setIsModal: setIsCountLocationModalOpen,
         isPath: false,
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.CREATE_COUNT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -391,13 +433,11 @@ const CountLists = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteAccountCountList,
-      isDisabledCondition,
       isEditModalOpen,
       inputs,
       formKeys,
       updateAccountCountList,
       showInactiveCountLists,
-      user,
       isCountLocationModalOpen,
       countLocationInputs,
       countLocationFormKeys,
@@ -406,6 +446,8 @@ const CountLists = () => {
       navigate,
       createAccountCount,
       countLocationForm,
+      countListsDisabledCondition,
+      user,
     ]
   );
 
@@ -413,7 +455,12 @@ const CountLists = () => {
     () => [
       {
         label: t("Show Inactive CountLists"),
-        isDisabled: isDisabledCondition,
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         isUpperSide: true,
         node: (
           <SwitchButton
@@ -424,13 +471,25 @@ const CountLists = () => {
       },
       {
         label: t("Location Edit"),
+        isDisabled: countListsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE_LOCATION &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         isUpperSide: true,
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
       },
     ],
-    [t, isDisabledCondition, showInactiveCountLists, isEnableEdit]
+    [
+      t,
+      showInactiveCountLists,
+      isEnableEdit,
+      countListsDisabledCondition,
+      user,
+    ]
   );
 
   const filteredRows = useMemo(() => {
@@ -438,10 +497,6 @@ const CountLists = () => {
       ? countLists
       : countLists?.filter((countList) => countList.active);
   }, [showInactiveCountLists, countLists]);
-
-  const canManage = useMemo(() => {
-    return user && [RoleEnum.MANAGER].includes(user.role._id);
-  }, [user]);
 
   return (
     <>
@@ -451,10 +506,10 @@ const CountLists = () => {
           actions={actions}
           isActionsActive={true}
           columns={columns}
-          filters={canManage ? filters : []}
+          filters={filters}
           rows={filteredRows}
           title={t("Count Lists")}
-          addButton={canManage ? addButton : undefined}
+          addButton={addButton}
         />
       </div>
     </>
