@@ -141,7 +141,7 @@ const ChangeRequestManagement = () => {
     },
     { key: t("Actions"), isSortable: false, correspondingKey: "actions" },
   ];
-//
+
   const rowKeys = [
     {
       key: "requester",
