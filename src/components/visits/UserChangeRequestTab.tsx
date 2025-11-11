@@ -15,11 +15,10 @@ import {
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
-import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
-import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
+import { InputTypes } from "../panelComponents/shared/types";
 
 const UserChangeRequestTab = () => {
   const { t } = useTranslation();
@@ -57,27 +56,11 @@ const UserChangeRequestTab = () => {
   const listResponse = useGetShiftChangeRequests(effectiveParams);
   const rows = listResponse?.data?.data || [];
 
-  // Approve/Reject mutations and modal
+  // Approve/Reject mutations
   const { mutate: approve } = useTargetApproveShiftChangeRequest();
   const { mutate: reject } = useTargetRejectShiftChangeRequest();
   const { mutate: cancel } = useCancelShiftChangeRequest();
-  const [actionModal, setActionModal] = useState<{
-    isOpen: boolean;
-    mode: "APPROVE" | "REJECT" | "CANCEL" | null;
-    current?: ShiftChangeRequestType | null;
-  }>({ isOpen: false, mode: null, current: null });
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
-
-  const actionInputs = [
-    {
-      type: InputTypes.TEXTAREA,
-      formKey: "managerNote",
-      label: t("Manager Note"),
-      placeholder: t("Optional"),
-      required: false,
-    },
-  ];
-  const actionFormKeys = [{ key: "managerNote", type: FormKeyTypeEnum.STRING }];
 
   // Helpers
   const getUserName = (id?: string | { _id: string; name: string }) => {
@@ -308,9 +291,7 @@ const UserChangeRequestTab = () => {
         const isRequester = !!currentUserId && requesterId === currentUserId;
         const isTarget = !!currentUserId && targetUserId === currentUserId;
 
-        const canTargetAct =
-          row.managerApprovalStatus === "APPROVED" &&
-          row.targetUserApprovalStatus === "PENDING";
+        const canTargetAct = row.targetUserApprovalStatus === "PENDING";
         const canRequesterCancel = row.status === "PENDING";
 
         if (isRequester) {
@@ -321,13 +302,7 @@ const UserChangeRequestTab = () => {
                 title={t("Cancel")}
                 disabled={!canRequesterCancel}
                 className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                onClick={() =>
-                  setActionModal({
-                    isOpen: true,
-                    mode: "CANCEL",
-                    current: row,
-                  })
-                }
+                onClick={() => cancel({ id: row._id })}
               >
                 {/* use same reject icon */}
                 <svg
@@ -355,13 +330,7 @@ const UserChangeRequestTab = () => {
                 title={t("Approve")}
                 disabled={!canTargetAct}
                 className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                onClick={() =>
-                  setActionModal({
-                    isOpen: true,
-                    mode: "APPROVE",
-                    current: row,
-                  })
-                }
+                onClick={() => approve({ id: row._id })}
               >
                 {/* check icon */}
                 <svg
@@ -382,9 +351,7 @@ const UserChangeRequestTab = () => {
                 title={t("Reject")}
                 disabled={!canTargetAct}
                 className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                onClick={() =>
-                  setActionModal({ isOpen: true, mode: "REJECT", current: row })
-                }
+                onClick={() => reject({ id: row._id })}
               >
                 {/* x icon */}
                 <svg
@@ -507,21 +474,6 @@ const UserChangeRequestTab = () => {
       }),
   } as any;
 
-  const handleActionSubmit = (formData: any) => {
-    if (!actionModal.current?._id) return;
-
-    const managerNote = formData?.managerNote || undefined;
-    const id = actionModal.current._id;
-    if (actionModal.mode === "APPROVE") {
-      approve({ id });
-    } else if (actionModal.mode === "REJECT") {
-      reject({ id, managerNote });
-    } else if (actionModal.mode === "CANCEL") {
-      cancel({ id });
-    }
-    setActionModal({ isOpen: false, mode: null, current: null });
-  };
-
   return (
     <div className="w-[95%] my-5 mx-auto">
       <GenericTable
@@ -534,26 +486,6 @@ const UserChangeRequestTab = () => {
           activeTab === "PENDING" ? t("Pending Requests") : t("All Changes")
         }
         filterPanel={filterPanel}
-      />
-
-      <GenericAddEditPanel
-        isOpen={actionModal.isOpen}
-        close={() =>
-          setActionModal({ isOpen: false, mode: null, current: null })
-        }
-        inputs={actionInputs}
-        formKeys={actionFormKeys}
-        submitItem={handleActionSubmit}
-        buttonName={
-          actionModal.mode === "APPROVE"
-            ? t("Approve")
-            : actionModal.mode === "REJECT"
-            ? t("Reject")
-            : actionModal.mode === "CANCEL"
-            ? t("Cancel")
-            : t("Save")
-        }
-        topClassName="flex flex-col gap-4"
       />
     </div>
   );
