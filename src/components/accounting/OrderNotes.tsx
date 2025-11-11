@@ -2,12 +2,15 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
+import { useUserContext } from "../../context/User.context";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAllCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import {
   useGetOrderNotes,
   useOrderNotesMutations,
 } from "../../utils/api/order/orderNotes";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -16,6 +19,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const OrderNotes = () => {
   const { t } = useTranslation();
+  const { user } = useUserContext();
   const categories = useGetAllCategories();
   const items = useGetMenuItems();
   const notes = useGetOrderNotes();
@@ -28,6 +32,11 @@ const OrderNotes = () => {
   const [rowToAction, setRowToAction] = useState<any>();
   const { createOrderNote, updateOrderNote, deleteOrderNote } =
     useOrderNotesMutations();
+  const disabledConditions = useGetDisabledConditions();
+
+  const orderNotesDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_ORDERNOTES, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     return (
@@ -143,8 +152,22 @@ const OrderNotes = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
+      isDisabled: orderNotesDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
     }),
-    [t, isAddModalOpen, inputs, formKeys, createOrderNote]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createOrderNote,
+      orderNotesDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -170,6 +193,12 @@ const OrderNotes = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
+        isDisabled: orderNotesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -192,6 +221,12 @@ const OrderNotes = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
+        isDisabled: orderNotesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
     ],
     [
@@ -203,6 +238,8 @@ const OrderNotes = () => {
       formKeys,
       updateOrderNote,
       deleteOrderNote,
+      orderNotesDisabledCondition,
+      user,
     ]
   );
 

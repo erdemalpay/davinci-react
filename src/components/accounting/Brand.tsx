@@ -9,7 +9,11 @@ import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountBrand } from "../../types";
+import {
+  AccountBrand,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountBrandMutations,
   useCreateMultipleBrandMutation,
@@ -19,8 +23,9 @@ import {
   useAccountProductMutations,
   useGetAccountProducts,
 } from "../../utils/api/account/product";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
-import { isDisabledConditionBrand } from "../../utils/isDisabledConditions";
+import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -31,12 +36,12 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Brand = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const isDisabledCondition = isDisabledConditionBrand(user);
   const pages = useGetPanelControlPages();
   const navigate = useNavigate();
   const { mutate: createMultipleBrand } = useCreateMultipleBrandMutation();
   const brands = useGetAccountBrands();
   const inputRef = useRef<HTMLInputElement>(null);
+  const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -59,6 +64,10 @@ const Brand = () => {
   const { createAccountBrand, deleteAccountBrand, updateAccountBrand } =
     useAccountBrandMutations();
 
+  const brandDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_BRAND, disabledConditions);
+  }, [disabledConditions]);
+
   const rows = useMemo(() => {
     return brands?.map((brand) => ({
       ...brand,
@@ -70,14 +79,12 @@ const Brand = () => {
   }, [brands, products]);
 
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true, correspondingKey: "brandName" },
       { key: t("Product Count"), isSortable: true },
+      { key: t("Actions"), isSortable: false },
     ];
-    return isDisabledCondition
-      ? base
-      : [...base, { key: t("Actions"), isSortable: false }];
-  }, [t, isDisabledCondition]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -160,15 +167,21 @@ const Brand = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: isDisabledCondition,
+      isDisabled: brandDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
     [
       t,
       isAddModalOpen,
-      isDisabledCondition,
       inputs,
       formKeys,
       createAccountBrand,
+      brandDisabledCondition,
+      user,
     ]
   );
 
@@ -195,7 +208,12 @@ const Brand = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: brandDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -218,7 +236,12 @@ const Brand = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: brandDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Add Into Product"),
@@ -258,7 +281,12 @@ const Brand = () => {
         isModalOpen: isAddProductModalOpen,
         setIsModal: setIsAddProductModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: brandDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADD_TO_ELEMENT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -271,12 +299,13 @@ const Brand = () => {
       formKeys,
       addProductInputs,
       addProductFormKeys,
-      isDisabledCondition,
       deleteAccountBrand,
       updateAccountBrand,
       updateAccountProduct,
       products,
       productForm.product,
+      brandDisabledCondition,
+      user,
     ]
   );
 
@@ -340,6 +369,12 @@ const Brand = () => {
           </ButtonTooltip>
         </div>
       ),
+      isDisabled: brandDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.CREATE_MULTIPLE &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     },
   ];
 
@@ -353,10 +388,15 @@ const Brand = () => {
         title={t("Brands")}
         addButton={addButton}
         filters={filters}
-        isExcel
+        isExcel={!brandDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.EXCEL &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        )}
         isEmtpyExcel
         excelFileName={"Brand.xlsx"}
-        isActionsActive={!isDisabledCondition}
+        isActionsActive={true}
       />
     </div>
   );

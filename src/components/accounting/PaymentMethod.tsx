@@ -4,11 +4,17 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
-import { AccountPaymentMethod, RoleEnum } from "../../types";
+import {
+  AccountPaymentMethod,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountPaymentMethodMutations,
   useGetAccountPaymentMethods,
 } from "../../utils/api/account/paymentMethod";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -30,6 +36,15 @@ const PaymentMethods = () => {
     deleteAccountPaymentMethod,
     updateAccountPaymentMethod,
   } = useAccountPaymentMethodMutations();
+  const disabledConditions = useGetDisabledConditions();
+
+  const paymentMethodsDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_PAYMENTMETHODS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
   const rows = useMemo(() => {
     return paymentMethods?.map((paymentMethod) => {
       return {
@@ -39,11 +54,6 @@ const PaymentMethods = () => {
     });
   }, [paymentMethods]);
 
-  const canManage = useMemo(() => {
-    return (
-      user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-    );
-  }, [user]);
   const columns = useMemo(() => {
     const cols = [
       { key: t("Name"), isSortable: true },
@@ -51,12 +61,10 @@ const PaymentMethods = () => {
       { key: t("Payment Made"), isSortable: false },
       { key: t("Used at Expense"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    if (canManage) {
-      cols.push({ key: t("Actions"), isSortable: false });
-    }
     return cols;
-  }, [t, canManage]);
+  }, [t]);
   const rowKeys = useMemo(
     () => [
       {
@@ -168,11 +176,24 @@ const PaymentMethods = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: !canManage,
+      isDisabled: paymentMethodsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createAccountPaymentMethod, canManage]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAccountPaymentMethod,
+      paymentMethodsDisabledCondition,
+      user,
+    ]
   );
   const actions = useMemo(
     () => [
@@ -197,7 +218,12 @@ const PaymentMethods = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -220,7 +246,12 @@ const PaymentMethods = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: paymentMethodsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
     ],
     [
@@ -232,7 +263,8 @@ const PaymentMethods = () => {
       formKeys,
       updateAccountPaymentMethod,
       deleteAccountPaymentMethod,
-      canManage,
+      paymentMethodsDisabledCondition,
+      user,
     ]
   );
 
@@ -246,7 +278,7 @@ const PaymentMethods = () => {
           rows={rows}
           title={t("Payment Methods")}
           addButton={addButton}
-          isActionsActive={canManage ?? false}
+          isActionsActive={true}
         />
       </div>
     </>
