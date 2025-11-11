@@ -185,6 +185,31 @@ export function useTargetRejectShiftChangeRequest() {
   );
 }
 
+// Requester cancel
+export function useCancelShiftChangeRequest() {
+  const client = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation(
+    ({ id }: { id: number }) =>
+      patch({
+        path: `${Paths.ShiftChangeRequest}/${id}/cancel`,
+        payload: {}
+      }),
+    {
+      onSuccess: () => {
+        setTimeout(() => toast.success(t("Request cancelled")), 200);
+        client.invalidateQueries([Paths.ShiftChangeRequest]);
+        client.invalidateQueries([Paths.Shift]);
+      },
+      onError: (err: any) => {
+        const msg =
+          err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(msg)), 200);
+      },
+    }
+  );
+}
+
 // Backward compatibility (optional - eski hook'ları kullanıyorsan)
 export const useApproveShiftChangeRequest = useManagerApproveShiftChangeRequest;
 export const useRejectShiftChangeRequest = useManagerRejectShiftChangeRequest;
