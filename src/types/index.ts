@@ -929,6 +929,7 @@ export enum VisitPageTabEnum {
   SHIFTS,
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
+  USERCHANGEREQUESTTAB,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
