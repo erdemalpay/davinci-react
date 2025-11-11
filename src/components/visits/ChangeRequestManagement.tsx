@@ -287,64 +287,79 @@ const ChangeRequestManagement = () => {
       key: "actions",
       node: (row: ShiftChangeRequestType) => (
         <div className="flex flex-row gap-2 items-center">
-          <button
-            aria-label={t("Approve")}
-            title={
-              row.managerApprovalStatus !== "PENDING"
-                ? t("Already processed by manager")
-                : t("Approve")
-            }
-            disabled={row.managerApprovalStatus !== "PENDING"}
-            className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-            onClick={() =>
-              setActionModal({
-                isOpen: true,
-                mode: "APPROVE",
-                current: row,
-              })
-            }
-          >
-            {/* check icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L8.5 11.336l6.543-6.543a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-          <button
-            aria-label={t("Reject")}
-            title={
-              row.managerApprovalStatus !== "PENDING"
-                ? t("Already processed by manager")
-                : t("Reject")
-            }
-            disabled={row.managerApprovalStatus !== "PENDING"}
-            className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-            onClick={() =>
-              setActionModal({ isOpen: true, mode: "REJECT", current: row })
-            }
-          >
-            {/* x icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+          {(() => {
+            const statusStr = String((row as any).status || "").toUpperCase();
+            const isCanceled =
+              statusStr === "CANCELED" || statusStr === "CANCELLED";
+            const approveDisabled =
+              isCanceled || row.managerApprovalStatus !== "PENDING";
+            const rejectDisabled =
+              isCanceled || row.managerApprovalStatus !== "PENDING";
+            const approveTitle = approveDisabled
+              ? t("Already processed by manager")
+              : t("Approve");
+            const rejectTitle = rejectDisabled
+              ? t("Already processed by manager")
+              : t("Reject");
+            return (
+              <>
+                <button
+                  aria-label={t("Approve")}
+                  title={approveTitle}
+                  disabled={approveDisabled}
+                  className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={() =>
+                    setActionModal({
+                      isOpen: true,
+                      mode: "APPROVE",
+                      current: row,
+                    })
+                  }
+                >
+                  {/* check icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L8.5 11.336l6.543-6.543a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <button
+                  aria-label={t("Reject")}
+                  title={rejectTitle}
+                  disabled={rejectDisabled}
+                  className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={() =>
+                    setActionModal({
+                      isOpen: true,
+                      mode: "REJECT",
+                      current: row,
+                    })
+                  }
+                >
+                  {/* x icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </>
+            );
+          })()}
         </div>
       ),
     },
