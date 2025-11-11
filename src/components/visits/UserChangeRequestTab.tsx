@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../context/User.context";
 import {
   ShiftChangeRequestType,
   ShiftChangeStatusEnum,
@@ -7,9 +8,10 @@ import {
 } from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
-  useApproveShiftChangeRequest,
+  useCancelShiftChangeRequest,
   useGetShiftChangeRequests,
-  useRejectShiftChangeRequest,
+  useTargetApproveShiftChangeRequest,
+  useTargetRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
 import { useGetUsers } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
@@ -23,6 +25,7 @@ const UserChangeRequestTab = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   const locations = useGetStoreLocations();
+  const { user } = useUserContext();
 
   // UI state
   const [showFilters, setShowFilters] = useState(false);
@@ -55,12 +58,12 @@ const UserChangeRequestTab = () => {
   const rows = listResponse?.data?.data || [];
 
   // Approve/Reject mutations and modal
-  const { mutate: approve } = useApproveShiftChangeRequest();
-  const { mutate: reject } = useRejectShiftChangeRequest();
-
+  const { mutate: approve } = useTargetApproveShiftChangeRequest();
+  const { mutate: reject } = useTargetRejectShiftChangeRequest();
+  const { mutate: cancel } = useCancelShiftChangeRequest();
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    mode: "APPROVE" | "REJECT" | null;
+    mode: "APPROVE" | "REJECT" | "CANCEL" | null;
     current?: ShiftChangeRequestType | null;
   }>({ isOpen: false, mode: null, current: null });
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
@@ -133,6 +136,11 @@ const UserChangeRequestTab = () => {
       key: t("Target Approval"),
       isSortable: false,
       correspondingKey: "targetUserApproved",
+    },
+    {
+      key: t("Manager Note"),
+      isSortable: false,
+      correspondingKey: "managerNote",
     },
     {
       key: t("Requester Note"),
@@ -277,69 +285,127 @@ const UserChangeRequestTab = () => {
       ),
     },
     {
-      key: "actions",
+      key: "managerNote",
       node: (row: ShiftChangeRequestType) => (
-        <div className="flex flex-row gap-2 items-center">
-          <button
-            aria-label={t("Approve")}
-            title={
-              row.managerApprovalStatus !== "PENDING"
-                ? t("Already processed by manager")
-                : t("Approve")
-            }
-            disabled={row.managerApprovalStatus !== "PENDING"}
-            className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-            onClick={() =>
-              setActionModal({
-                isOpen: true,
-                mode: "APPROVE",
-                current: row,
-              })
-            }
-          >
-            {/* check icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L8.5 11.336l6.543-6.543a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-          <button
-            aria-label={t("Reject")}
-            title={
-              row.managerApprovalStatus !== "PENDING"
-                ? t("Already processed by manager")
-                : t("Reject")
-            }
-            disabled={row.managerApprovalStatus !== "PENDING"}
-            className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-            onClick={() =>
-              setActionModal({ isOpen: true, mode: "REJECT", current: row })
-            }
-          >
-            {/* x icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+        <div className="text-sm max-w-xs break-words whitespace-pre-wrap">
+          {row.managerNote || "-"}
         </div>
       ),
+    },
+    {
+      key: "actions",
+      node: (row: ShiftChangeRequestType) => {
+        const currentUserId = user?._id;
+        const requesterId =
+          typeof row.requesterId === "object"
+            ? row.requesterId._id
+            : row.requesterId;
+        const targetUserId =
+          typeof row.targetUserId === "object"
+            ? row.targetUserId._id
+            : row.targetUserId;
+
+        const isRequester = !!currentUserId && requesterId === currentUserId;
+        const isTarget = !!currentUserId && targetUserId === currentUserId;
+
+        const canTargetAct =
+          row.managerApprovalStatus === "APPROVED" &&
+          row.targetUserApprovalStatus === "PENDING";
+        const canRequesterCancel = row.status === "PENDING";
+
+        if (isRequester) {
+          return (
+            <div className="flex flex-row gap-2 items-center">
+              <button
+                aria-label={t("Cancel")}
+                title={t("Cancel")}
+                disabled={!canRequesterCancel}
+                className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={() =>
+                  setActionModal({
+                    isOpen: true,
+                    mode: "CANCEL",
+                    current: row,
+                  })
+                }
+              >
+                {/* use same reject icon */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          );
+        }
+
+        if (isTarget) {
+          return (
+            <div className="flex flex-row gap-2 items-center">
+              <button
+                aria-label={t("Approve")}
+                title={t("Approve")}
+                disabled={!canTargetAct}
+                className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={() =>
+                  setActionModal({
+                    isOpen: true,
+                    mode: "APPROVE",
+                    current: row,
+                  })
+                }
+              >
+                {/* check icon */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L8.5 11.336l6.543-6.543a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label={t("Reject")}
+                title={t("Reject")}
+                disabled={!canTargetAct}
+                className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={() =>
+                  setActionModal({ isOpen: true, mode: "REJECT", current: row })
+                }
+              >
+                {/* x icon */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          );
+        }
+
+        return null;
+      },
     },
   ];
 
@@ -447,9 +513,11 @@ const UserChangeRequestTab = () => {
     const managerNote = formData?.managerNote || undefined;
     const id = actionModal.current._id;
     if (actionModal.mode === "APPROVE") {
-      approve({ id, managerNote });
+      approve({ id });
     } else if (actionModal.mode === "REJECT") {
       reject({ id, managerNote });
+    } else if (actionModal.mode === "CANCEL") {
+      cancel({ id });
     }
     setActionModal({ isOpen: false, mode: null, current: null });
   };
@@ -481,6 +549,8 @@ const UserChangeRequestTab = () => {
             ? t("Approve")
             : actionModal.mode === "REJECT"
             ? t("Reject")
+            : actionModal.mode === "CANCEL"
+            ? t("Cancel")
             : t("Save")
         }
         topClassName="flex flex-col gap-4"

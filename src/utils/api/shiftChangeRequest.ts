@@ -193,7 +193,7 @@ export function useCancelShiftChangeRequest() {
     ({ id }: { id: number }) =>
       patch({
         path: `${Paths.ShiftChangeRequest}/${id}/cancel`,
-        payload: {}
+        payload: {},
       }),
     {
       onSuccess: () => {
