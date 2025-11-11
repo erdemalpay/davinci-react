@@ -91,6 +91,13 @@ const ChangeRequestManagement = () => {
       : getUserName(row.targetUserId);
 
   const getDerivedStatus = (row: ShiftChangeRequestType) => {
+    const statusStr = String((row as any).status || "").toUpperCase();
+    if (statusStr === "CANCELED" || statusStr === "CANCELLED") {
+      return { text: t("UserCancelled"), cls: "bg-red-600" };
+    }
+    if (statusStr === "REJECTED") {
+      return { text: t("Rejected"), cls: "bg-red-600" };
+    }
     const manager = row.managerApprovalStatus;
     const target = row.targetUserApprovalStatus;
     if (manager === "REJECTED") {

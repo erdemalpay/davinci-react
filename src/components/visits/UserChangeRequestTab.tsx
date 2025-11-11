@@ -53,8 +53,12 @@ const UserChangeRequestTab = () => {
   }, [filters, activeTab]);
 
   // Data
-  const listResponse = useGetMyShiftChangeRequests()
+  const listResponse = useGetMyShiftChangeRequests(effectiveParams);
   const rows = listResponse?.data?.data || [];
+  const hasManagerNote = rows.some(
+    (row: ShiftChangeRequestType) =>
+      !!row.managerNote && String(row.managerNote).trim().length > 0
+  );
 
   // Approve/Reject mutations
   const { mutate: approve } = useTargetApproveShiftChangeRequest();
@@ -77,6 +81,13 @@ const UserChangeRequestTab = () => {
       : getUserName(row.targetUserId);
 
   const getDerivedStatus = (row: ShiftChangeRequestType) => {
+    const statusStr = String((row as any).status || "").toUpperCase();
+    if (statusStr === "CANCELED" || statusStr === "CANCELLED") {
+      return { text: t("UserCancelled"), cls: "bg-red-600" };
+    }
+    if (statusStr === "REJECTED") {
+      return { text: t("Rejected"), cls: "bg-red-600" };
+    }
     const manager = row.managerApprovalStatus;
     const target = row.targetUserApprovalStatus;
     if (manager === "REJECTED") {
@@ -120,11 +131,15 @@ const UserChangeRequestTab = () => {
       isSortable: false,
       correspondingKey: "targetUserApproved",
     },
-    {
-      key: t("Manager Note"),
-      isSortable: false,
-      correspondingKey: "managerNote",
-    },
+    ...(hasManagerNote
+      ? [
+          {
+            key: t("Manager Note"),
+            isSortable: false,
+            correspondingKey: "managerNote",
+          },
+        ]
+      : []),
     {
       key: t("Requester Note"),
       isSortable: false,
@@ -133,7 +148,7 @@ const UserChangeRequestTab = () => {
     { key: t("Actions"), isSortable: false, correspondingKey: "actions" },
   ];
 
-  const rowKeys = [
+  const baseRowKeys = [
     {
       key: "requester",
       node: (row: ShiftChangeRequestType) => {
@@ -259,19 +274,27 @@ const UserChangeRequestTab = () => {
         return <div className="text-sm">{map[status]}</div>;
       },
     },
+  ];
+
+  const rowKeys = [
+    ...baseRowKeys,
+    ...(hasManagerNote
+      ? [
+          {
+            key: "managerNote",
+            node: (row: ShiftChangeRequestType) => (
+              <div className="text-sm max-w-xs break-words whitespace-pre-wrap">
+                {row.managerNote || "-"}
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       key: "requesterNote",
       node: (row: ShiftChangeRequestType) => (
         <div className="text-sm max-w-xs break-words whitespace-pre-wrap">
           {row.requesterNote || "-"}
-        </div>
-      ),
-    },
-    {
-      key: "managerNote",
-      node: (row: ShiftChangeRequestType) => (
-        <div className="text-sm max-w-xs break-words whitespace-pre-wrap">
-          {row.managerNote || "-"}
         </div>
       ),
     },
