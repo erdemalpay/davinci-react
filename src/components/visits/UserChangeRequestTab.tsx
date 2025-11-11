@@ -9,7 +9,7 @@ import {
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useCancelShiftChangeRequest,
-  useGetShiftChangeRequests,
+  useGetMyShiftChangeRequests,
   useTargetApproveShiftChangeRequest,
   useTargetRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
@@ -53,7 +53,7 @@ const UserChangeRequestTab = () => {
   }, [filters, activeTab]);
 
   // Data
-  const listResponse = useGetShiftChangeRequests(effectiveParams);
+  const listResponse = useGetMyShiftChangeRequests()
   const rows = listResponse?.data?.data || [];
 
   // Approve/Reject mutations
