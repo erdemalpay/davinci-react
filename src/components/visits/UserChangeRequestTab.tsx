@@ -291,6 +291,9 @@ const UserChangeRequestTab = () => {
         const isRequester = !!currentUserId && requesterId === currentUserId;
         const isTarget = !!currentUserId && targetUserId === currentUserId;
 
+        const statusStr = String((row as any).status || "").toUpperCase();
+        const isCanceled =
+          statusStr === "CANCELED" || statusStr === "CANCELLED";
         const canTargetAct = row.targetUserApprovalStatus === "PENDING";
         const canRequesterCancel = row.status === "PENDING";
 
@@ -300,7 +303,7 @@ const UserChangeRequestTab = () => {
               <button
                 aria-label={t("Cancel")}
                 title={t("Cancel")}
-                disabled={!canRequesterCancel}
+                disabled={!canRequesterCancel || isCanceled}
                 className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                 onClick={() => cancel({ id: row._id })}
               >
@@ -328,7 +331,7 @@ const UserChangeRequestTab = () => {
               <button
                 aria-label={t("Approve")}
                 title={t("Approve")}
-                disabled={!canTargetAct}
+                disabled={!canTargetAct || isCanceled}
                 className="p-2 rounded-full bg-green-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                 onClick={() => approve({ id: row._id })}
               >
@@ -349,7 +352,7 @@ const UserChangeRequestTab = () => {
               <button
                 aria-label={t("Reject")}
                 title={t("Reject")}
-                disabled={!canTargetAct}
+                disabled={!canTargetAct || isCanceled}
                 className="p-2 rounded-full bg-red-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                 onClick={() => reject({ id: row._id })}
               >
