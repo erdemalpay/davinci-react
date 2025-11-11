@@ -4,6 +4,7 @@ import { GiEgyptianWalk } from "react-icons/gi";
 import {
   MdChangeCircle,
   MdOutlineAdminPanelSettings,
+  MdOutlinePerson,
   MdOutlineSchedule,
 } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
@@ -69,7 +70,7 @@ export const VisitPageTabs = [
   {
     number: VisitPageTabEnum.USERCHANGEREQUESTTAB,
     label: "UserChangeRequestTab",
-    icon: <MdOutlineAdminPanelSettings className="text-lg font-thin" />,
+    icon: <MdOutlinePerson className="text-lg font-thin" />,
     content: <UserChangeRequestTab />,
     isDisabled: false,
   },
