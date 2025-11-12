@@ -751,6 +751,7 @@
   "LATESHIFTSTART": "Geç Vardiya Başlangıcı",
   "EARLYSHIFTEND": "Erken Vardiya Bitişi",
   "UNCOMPLETEDCHECKLIST": "Tamamlanmamış Kontrol Listesi",
+  "UNFINISHEDVISIT": "Tamamlanmamış Ziyaret",
   "NIGHTOPENTABLE": "Gece Açık Masa",
   "COMPLETECOUNT": "Sayım Tamamlandı",
   "NEGATIVESTOCK": "Negatif Stok",
@@ -953,6 +954,7 @@
     "Deactivated": "devre dışı bırakıldı"
   },
   "UnclosedTablesToday": "Bugün için {{count}} kapatılmamış masa var.",
+  "UnfinishedVisit": "{{user}}, {{date}} tarihinde {{location}} lokasyonundaki vardiyasını sonlandırmadı.",
   "ShiftLateNotice": "{{user}} vardiyasına geç kaldı. Vardiya {{shift}} saatindeydi ve {{user}} {{enteredAt}} saatinde giriş yaptı.",
   "ShiftEndEarlyNotice": "{{user}} vardiya bitişine erken çıktı. Vardiya bitişi {{shiftEnd}} saatindeydi ve {{user}} {{exitedAt}} saatinde çıkış yaptı.",
   "Switch to Vertical Layout": "Dikey Görünüme Geç",

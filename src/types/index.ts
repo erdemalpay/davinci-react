@@ -1678,6 +1678,10 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #F6AD55 0%, #ED8936 100%)", // Light Orange
     solid: "#F6AD55",
   },
+  UNFINISHEDVISIT: {
+    gradient: "linear-gradient(135deg, #FB923C 0%, #F97316 100%)", // Amber Orange
+    solid: "#FB923C",
+  },
 
   // 🟡 EKSİK İŞLEMLER - Sarı/Amber Tonları
   UNCOMPLETEDCHECKLIST: {
@@ -1731,6 +1735,7 @@ export enum NotificationEventType {
   KITCHENACTIVATED = "KITCHENACTIVATED",
   KITCHENDEACTIVATED = "KITCHENDEACTIVATED",
   KITCHENNOTCONFIRMED = "KITCHENNOTCONFIRMED",
+  UNFINISHEDVISIT = "UNFINISHEDVISIT",
 }
 export const notificationEventsOptions = [
   {
@@ -1780,6 +1785,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.KITCHENNOTCONFIRMED,
     label: "Kitchen Not Confirmed",
+  },
+  {
+    value: NotificationEventType.UNFINISHEDVISIT,
+    label: "Unfinished Visit",
   },
 ];
 
