@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { FaArchive, FaClipboardList } from "react-icons/fa";
 import { FaSitemap } from "react-icons/fa6";
-import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { CountListPageTabEnum } from "../../types";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { isDisabledConditionCountListMenu } from "../../utils/isDisabledConditions";
+import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
 import { Tab } from "../panelComponents/shared/types";
 import CountArchive from "./CountArchive";
 import CountListProducts from "./CountListProducts";
@@ -52,7 +52,7 @@ const CountListMenu = () => {
         tabs={tabs.sort((a, b) => a.number - b.number)}
         activeTab={countListActiveTab}
         setActiveTab={setCountListActiveTab}
-        allowOrientationToggle={true}
+      allowOrientationToggle={true}
       />
     </>
   );
