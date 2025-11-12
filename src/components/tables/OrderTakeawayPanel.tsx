@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useGeneralContext } from "../../context/General.context";
 import UnifiedTabPanel from "../../components/panelComponents/TabPanel/UnifiedTabPanel";
+import { useGeneralContext } from "../../context/General.context";
 import NewOrderListPanel from "./NewOrderListPanel";
 
 const OrderTakeawayPanel = () => {
