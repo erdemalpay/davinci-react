@@ -249,6 +249,7 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [
       `${Paths.ShiftChangeRequest}`,
       `${Paths.ShiftChangeRequest}/my-requests`,
+      `${Paths.Shift}`
     ],
   },
 ];
