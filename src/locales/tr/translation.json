@@ -969,6 +969,8 @@
   "ShiftChangeApprovedTarget_TRANSFER": "{{requesterName}}'den vardiya devir talebi onaylandı.",
   "ShiftChangeApprovedManager_SWAP": "{{requesterName}} ve {{targetName}} arasındaki vardiya takas talebi onaylandı.",
   "ShiftChangeApprovedManager_TRANSFER": "{{requesterName}}'den {{targetName}}'e vardiya devir talebi onaylandı.",
+  "ShiftChangeCompletedForManagers_SWAP": "{{requesterName}} ve {{targetName}} arasındaki vardiya takası gerçekleşti. Onaylayan: {{managerName}}",
+  "ShiftChangeCompletedForManagers_TRANSFER": "{{requesterName}}'den {{targetName}}'e vardiya devri gerçekleşti. Onaylayan: {{managerName}}",
   "ShiftChangeRejectedByManager": "Yönetici {{managerName}} vardiya değişikliği talebini reddetti{{reasonText}}.",
   "ShiftChangeRejectedByTarget": "{{targetName}}, vardiya değişikliği talebini reddetti.",
   "ShiftChangeCancelled_SWAP": "{{requesterName}}, {{targetName}} ile vardiya takas talebini iptal etti.",

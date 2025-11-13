@@ -967,6 +967,8 @@
   "ShiftChangeApprovedTarget_TRANSFER": "Shift transfer request from {{requesterName}} has been approved.",
   "ShiftChangeApprovedManager_SWAP": "Shift swap request between {{requesterName}} and {{targetName}} has been approved.",
   "ShiftChangeApprovedManager_TRANSFER": "Shift transfer request from {{requesterName}} to {{targetName}} has been approved.",
+  "ShiftChangeCompletedForManagers_SWAP": "Shift swap between {{requesterName}} and {{targetName}} has been completed. Approved by: {{managerName}}",
+  "ShiftChangeCompletedForManagers_TRANSFER": "Shift transfer from {{requesterName}} to {{targetName}} has been completed. Approved by: {{managerName}}",
   "ShiftChangeRejectedByManager": "{{managerName}} rejected the shift change request{{reasonText}}.",
   "ShiftChangeRejectedByTarget": "{{targetName}} rejected the shift change request.",
   "ShiftChangeCancelled_SWAP": "{{requesterName}} cancelled the shift swap request with {{targetName}}.",
