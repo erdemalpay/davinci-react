@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bar,
@@ -11,9 +11,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { DateRangeKey, FormElementsState } from "../../../types";
+import { FormElementsState } from "../../../types";
 import { Paths } from "../../../utils/api/factory";
-import { dateRanges } from "../../../utils/api/dateRanges";
 import { useGetGameplayAnalytics } from "../../../utils/api/gameplay";
 import { useGetUsers } from "../../../utils/api/user";
 import { colors } from "../../../utils/color";
@@ -42,18 +41,18 @@ export interface ChartProps {
 }
 
 export function MentorAnalyticChart({
-  unique = false,
-  dateFilter,
-  setDateFilter,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  location,
-  setLocation,
-  itemLimit,
-  setItemLimit,
-}: ChartProps) {
+                                      unique = false,
+                                      dateFilter,
+                                      setDateFilter,
+                                      startDate,
+                                      setStartDate,
+                                      endDate,
+                                      setEndDate,
+                                      location,
+                                      setLocation,
+                                      itemLimit,
+                                      setItemLimit,
+                                    }: ChartProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
@@ -69,7 +68,6 @@ export function MentorAnalyticChart({
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
-      date: "",
       dateFilter: "",
       startDate: "",
       endDate: "",
@@ -118,19 +116,11 @@ export function MentorAnalyticChart({
   }, [startDate, endDate, itemLimit, queryClient]);
 
   useEffect(() => {
-    if (filterPanelFormElements.date === "singleDay" && filterPanelFormElements.startDate) {
-      if (filterPanelFormElements.endDate !== filterPanelFormElements.startDate) {
-        setFilterPanelFormElements((prev) => ({
-          ...prev,
-          endDate: prev.startDate,
-        }));
-      }
-    }
-  }, [filterPanelFormElements.startDate, filterPanelFormElements.date]);
-
-  useEffect(() => {
     if (!showFilters) return;
 
+    if (filterPanelFormElements.dateFilter && filterPanelFormElements.dateFilter !== dateFilter) {
+      setDateFilter(filterPanelFormElements.dateFilter as DateFilter);
+    }
     if (filterPanelFormElements.startDate && filterPanelFormElements.startDate !== startDate) {
       setStartDate(filterPanelFormElements.startDate);
     }
@@ -145,29 +135,47 @@ export function MentorAnalyticChart({
     }
   }, [filterPanelFormElements, showFilters]);
 
-  const locationOptions = useMemo(
-    () => [
-      { value: "1,2", label: t("All") },
-      { value: "1", label: "Bahçeli" },
-      { value: "2", label: "Neorama" },
-    ],
-    [t]
-  );
+  const dateFilterOptions = [
+    { value: "1", label: t("Single Day") },
+    { value: "2", label: t("This Week") },
+    { value: "3", label: t("Last Week") },
+    { value: "4", label: t("This Month") },
+    { value: "5", label: t("Last Month") },
+    { value: "0", label: t("Manual") },
+  ];
 
-  const customDateOptions = useMemo(
-    () => [
-      { value: "singleDay", label: t("Single Day") },
-      { value: "thisWeek", label: t("This Week") },
-      { value: "lastWeek", label: t("Last Week") },
-      { value: "thisMonth", label: t("This Month") },
-      { value: "lastMonth", label: t("Last Month") },
-      { value: "manual", label: t("Manual") },
-    ],
-    [t]
-  );
+  const locationOptions = [
+    { value: "1,2", label: t("All") },
+    { value: "1", label: "Bahçeli" },
+    { value: "2", label: "Neorama" },
+  ];
 
-  const filterPanelInputs = useMemo(
-    () => [
+  const filterPanelInputs = [
+    {
+      type: InputTypes.SELECT,
+      formKey: "dateFilter",
+      label: t("Date Filter"),
+      options: dateFilterOptions,
+      placeholder: t("Date Filter"),
+      required: false,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "startDate",
+      label: t("Start Date"),
+      placeholder: t("Start Date"),
+      required: false,
+      isDatePicker: true,
+    },
+    {
+      type: InputTypes.DATE,
+      formKey: "endDate",
+      label: t("End Date"),
+      placeholder: t("End Date"),
+      required: false,
+      isDatePicker: true,
+      isDisabled: dateFilter !== DateFilter.MANUAL,
+    },
     {
       type: InputTypes.SELECT,
       formKey: "location",
@@ -177,64 +185,13 @@ export function MentorAnalyticChart({
       required: false,
     },
     {
-      type: InputTypes.SELECT,
-      formKey: "date",
-      label: t("Date"),
-      options: customDateOptions,
-      placeholder: t("Date"),
-      required: false,
-      additionalOnChange: ({ value }: { value: string }) => {
-        if (value === "manual") {
-          setFilterPanelFormElements((prev) => ({ ...prev, date: value }));
-          return;
-        }
-
-        const dateRange = value === "singleDay" ? dateRanges.today() : dateRanges[value as DateRangeKey]?.();
-        if (dateRange) {
-          setFilterPanelFormElements((prev) => ({
-            ...prev,
-            date: value,
-            startDate: dateRange.after,
-            endDate: dateRange.before,
-          }));
-        }
-      },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "startDate",
-      label: t("Start Date"),
-      placeholder: t("Start Date"),
-      required: false,
-      isDatePicker: true,
-      isOnClearActive: false,
-      additionalOnChange: ({ value }: { value: string }) => {
-        setFilterPanelFormElements((prev) =>
-          prev.date === "singleDay"
-            ? { ...prev, startDate: value, endDate: value }
-            : prev
-        );
-      },
-    },
-    {
-      type: InputTypes.DATE,
-      formKey: "endDate",
-      label: t("End Date"),
-      placeholder: t("End Date"),
-      required: false,
-      isDatePicker: true,
-      isOnClearActive: false,
-    },
-    {
       type: InputTypes.NUMBER,
       formKey: "itemLimit",
       label: t("Number of items"),
       placeholder: t("Number of items"),
       required: false,
     },
-  ],
-    [t, locationOptions, customDateOptions]
-  );
+  ];
 
   return (
     <div
