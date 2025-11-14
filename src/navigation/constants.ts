@@ -57,6 +57,7 @@ import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
+import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
@@ -687,6 +688,7 @@ export const allRoutes: {
     path: Routes.Points,
     element: Points,
     isOnSidebar: true,
+    tabs: PointsPageTabs,
   },
   {
     name: "Panel",
@@ -723,12 +725,6 @@ export const allRoutes: {
     element: PanelControl,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
-  },
-  {
-    name: "Points",
-    path: Routes.Points,
-    element: Points,
-    isOnSidebar: false,
   },
   {
     name: "Page Details",

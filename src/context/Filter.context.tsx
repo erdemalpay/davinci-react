@@ -72,6 +72,10 @@ type FilterContextType = {
   setFilterProductStockHistoryPanelFormElements: (
     state: FormElementsState
   ) => void;
+  showPointHistoryFilters: boolean;
+  setShowPointHistoryFilters: (state: boolean) => void;
+  filterPointHistoryPanelFormElements: FormElementsState;
+  setFilterPointHistoryPanelFormElements: (state: FormElementsState) => void;
   filterActivityFormElements: FormElementsState;
   initialFilterActivityFormElements: FormElementsState;
   initialFilterPanelServiceInvoiceFormElements: FormElementsState;
@@ -380,6 +384,17 @@ const FilterContext = createContext<FilterContextType>({
     brand: "",
   },
   setFilterProductStockHistoryPanelFormElements: () => {},
+  showPointHistoryFilters: false,
+  setShowPointHistoryFilters: () => {},
+  filterPointHistoryPanelFormElements: {
+    pointUser: "",
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  },
+  setFilterPointHistoryPanelFormElements: () => {},
   filterActivityFormElements: {
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
@@ -779,6 +794,18 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   });
   const [showProductStockHistoryFilters, setShowProductStockHistoryFilters] =
     useState(false);
+  const [
+    filterPointHistoryPanelFormElements,
+    setFilterPointHistoryPanelFormElements,
+  ] = useState<FormElementsState>({
+    pointUser: "",
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  });
+  const [showPointHistoryFilters, setShowPointHistoryFilters] = useState(false);
   const [showEnterConsumptionFilters, setShowEnterConsumptionFilters] =
     useState(false);
   const [showGameStockLocationFilters, setShowGameStockLocationFilters] =
@@ -925,6 +952,12 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           filterProductStockHistoryPanelFormElements,
         setFilterProductStockHistoryPanelFormElements:
           setFilterProductStockHistoryPanelFormElements,
+        showPointHistoryFilters: showPointHistoryFilters,
+        setShowPointHistoryFilters: setShowPointHistoryFilters,
+        filterPointHistoryPanelFormElements:
+          filterPointHistoryPanelFormElements,
+        setFilterPointHistoryPanelFormElements:
+          setFilterPointHistoryPanelFormElements,
         isGameEnableEdit: isGameEnableEdit,
         setIsGameEnableEdit: setIsGameEnableEdit,
         showLearnedGamesFilters: showLearnedGamesFilters,

@@ -1028,5 +1028,15 @@
   "Point": "Point",
   "Amount": "Amount",
   "Add Point": "Add Point",
-  "All points will be removed": "All points will be removed"
+  "All points will be removed": "All points will be removed",
+  "Point History": "Point History",
+  "History": "History",
+  "Point Create": "Point Create",
+  "Point Update": "Point Update",
+  "Point Delete": "Point Delete",
+  "Point User": "Point User",
+  "Order ID": "Order ID",
+  "Table ID": "Table ID",
+  "Current Amount": "Current Amount",
+  "Old Amount": "Old Amount"
 }

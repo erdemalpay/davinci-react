@@ -78,6 +78,8 @@ type GeneralContextType = {
   setExpensesActiveTab: (tab: number) => void;
   stocksActiveTab: number;
   setStocksActiveTab: (tab: number) => void;
+  pointsActiveTab: number;
+  setPointsActiveTab: (tab: number) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   rowsPerPage: number;
@@ -157,6 +159,8 @@ const GeneralContext = createContext<GeneralContextType>({
   expensesActiveTab: ExpensesPageTabEnum.INVOICE,
   setStocksActiveTab: () => {},
   stocksActiveTab: StocksPageTabEnum.STOCK,
+  setPointsActiveTab: () => {},
+  pointsActiveTab: 0,
   menuActiveTab: 0,
   setMenuActiveTab: () => {},
   countListActiveTab: 0,
@@ -313,6 +317,7 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
   const [stocksActiveTab, setStocksActiveTab] = useState<number>(
     StocksPageTabEnum.STOCK
   );
+  const [pointsActiveTab, setPointsActiveTab] = useState<number>(0);
   const [accountingActiveTab, setAccountingActiveTab] = useState<number>(
     AccountingPageTabEnum.EXPENSETYPE
   );
@@ -409,6 +414,8 @@ export const GeneralContextProvider = ({ children }: PropsWithChildren) => {
         expandedRows,
         stocksActiveTab,
         setStocksActiveTab,
+        pointsActiveTab,
+        setPointsActiveTab,
         setExpandedRows,
         searchQuery,
         setSearchQuery,

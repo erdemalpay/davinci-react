@@ -248,4 +248,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "pointChanged",
     invalidateKeys: [`${Paths.Point}`],
   },
+  {
+    event: "pointHistoryChanged",
+    invalidateKeys: [`${Paths.Point}/history`],
+  },
 ];

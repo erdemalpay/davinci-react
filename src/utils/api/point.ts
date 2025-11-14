@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Point } from "../../types";
-import { patch } from "../api";
+import { patch, post } from "../api";
 import { Paths, useGetList, useMutationApi } from "./factory";
 
 const pointBaseUrl = `${Paths.Point}`;
@@ -23,12 +23,79 @@ export const useGetUserPoints = (userId: number) => {
 // Mutations
 export const usePointMutations = () => {
   const queryClient = useQueryClient();
-  const { createItem, updateItem } = useMutationApi<Point>({
+  const { updateItem } = useMutationApi<Point>({
     baseQuery: pointBaseUrl,
     queryKey: [pointBaseUrl],
   });
 
-  // Custom delete mutation that sets amount to 0 without optimistic update
+  // Custom create mutation with optimistic update
+  const createPointMutation = useMutation(
+    (payload: Partial<Point>) =>
+      post<Partial<Point>, Point>({
+        path: pointBaseUrl,
+        payload,
+      }),
+    {
+      onMutate: async (newPoint: Partial<Point>) => {
+        // Cancel any outgoing refetches
+        await queryClient.cancelQueries([pointBaseUrl]);
+
+        // Snapshot the previous value
+        const previousPoints =
+          queryClient.getQueryData<Point[]>([pointBaseUrl]) || [];
+
+        // Check if user already has points
+        const existingPointIndex = previousPoints.findIndex(
+          (point) => point.user === newPoint.user
+        );
+
+        let updatedPoints: Point[];
+
+        if (existingPointIndex !== -1) {
+          // User exists, add to existing amount
+          updatedPoints = previousPoints.map((point, index) =>
+            index === existingPointIndex
+              ? {
+                  ...point,
+                  amount: point.amount + (newPoint.amount || 0),
+                }
+              : point
+          );
+        } else {
+          // User doesn't exist, create new entry with temporary ID
+          const optimisticPoint: Point = {
+            _id: Date.now(), // Temporary ID
+            user: newPoint.user as string,
+            amount: newPoint.amount || 0,
+          };
+          updatedPoints = [...previousPoints, optimisticPoint];
+        }
+
+        // Optimistically update the cache
+        queryClient.setQueryData([pointBaseUrl], updatedPoints);
+
+        // Return a context object with the snapshotted value
+        return { previousPoints };
+      },
+      onError: (error: unknown, _newPoint, context) => {
+        // If the mutation fails, use the context to roll back
+        if (context?.previousPoints) {
+          queryClient.setQueryData([pointBaseUrl], context.previousPoints);
+        }
+        const errorMessage =
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "An unexpected error occurred";
+        toast.error(errorMessage);
+      },
+      onSuccess: () => {
+        // Invalidate and refetch to get the real data from server
+        queryClient.invalidateQueries([pointBaseUrl]);
+        toast.success("Points added successfully");
+      },
+    }
+  );
+
+  // Custom delete mutation that sets amount to 0 with optimistic update
   const deletePointMutation = useMutation(
     (id: number) =>
       patch<Partial<Point>, Point>({
@@ -72,7 +139,7 @@ export const usePointMutations = () => {
   );
 
   return {
-    createPoint: createItem,
+    createPoint: createPointMutation.mutate,
     updatePoint: updateItem,
     deletePoint: deletePointMutation.mutate,
   };

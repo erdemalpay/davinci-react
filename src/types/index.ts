@@ -35,6 +35,43 @@ export type Point = {
   amount: number;
 };
 
+export type PointHistory = {
+  _id: number;
+  point: number;
+  pointUser: string;
+  createdBy: string;
+  orderId?: number;
+  tableId?: number;
+  status: string;
+  currentAmount: number;
+  change: number;
+  createdAt: Date;
+};
+
+export enum PointHistoryStatusEnum {
+  POINTCREATE = "POINTCREATE",
+  POINTUPDATE = "POINTUPDATE",
+  POINTDELETE = "POINTDELETE",
+}
+
+export const pointHistoryStatuses = [
+  {
+    value: PointHistoryStatusEnum.POINTCREATE,
+    label: "Point Create",
+    backgroundColor: "bg-green-500",
+  },
+  {
+    value: PointHistoryStatusEnum.POINTUPDATE,
+    label: "Point Update",
+    backgroundColor: "bg-yellow-500",
+  },
+  {
+    value: PointHistoryStatusEnum.POINTDELETE,
+    label: "Point Delete",
+    backgroundColor: "bg-red-500",
+  },
+];
+
 export type DisabledCondition = {
   _id: string;
   name: string;
@@ -1027,6 +1064,12 @@ export enum StocksPageTabEnum {
   LOSSPRODUCT,
   PRODUCTSTOCKHISTORY,
 }
+
+export enum PointsPageTabEnum {
+  POINT,
+  POINTHISTORY,
+}
+
 export enum GameplayAnalyticsTabEnum {
   GAMEPLAYBYGAMEMENTORS,
   UNIQUEGAMEPLAYBYGAMEMENTORS,

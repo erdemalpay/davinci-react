@@ -81,7 +81,7 @@
   "Enter new password": "Yeni şifrenizi girin",
   "Confirm Password": "Şifreyi Onayla",
   "Enter confirm password": "Şifreyi onaylayın",
-  "Change": "Değiştir",
+  "Change": "Değişim",
   "Game": "Oyun",
   "Learn Date": "Öğrenme Tarihi",
   "Active": "Aktif",
@@ -1033,5 +1033,15 @@
   "Point": "Puan",
   "Amount": "Miktar",
   "Add Point": "Puan Ekle",
-  "All points will be removed": "Tüm puanlar kaldırılacak"
+  "All points will be removed": "Tüm puanlar kaldırılacak",
+  "Point History": "Puan Geçmişi",
+  "History": "Geçmiş",
+  "Point Create": "Puan Oluşturma",
+  "Point Update": "Puan Güncelleme",
+  "Point Delete": "Puan Silme",
+  "Point User": "Puan Kullanıcısı",
+  "Order ID": "Sipariş ID",
+  "Table ID": "Masa ID",
+  "Current Amount": "Mevcut Miktar",
+  "Old Amount": "Eski Miktar"
 }
