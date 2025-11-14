@@ -46,6 +46,7 @@ export const Paths = {
   Shift: "/shift",
   ShiftChangeRequest: "/shift-change-request",
   Expiration: "/expiration",
+  Point: "/point",
 };
 
 interface Props<T> {

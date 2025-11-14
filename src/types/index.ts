@@ -29,6 +29,12 @@ export type TaskTrack = {
   createdAt: Date;
 };
 
+export type Point = {
+  _id: number;
+  user: string;
+  amount: number;
+};
+
 export type DisabledCondition = {
   _id: string;
   name: string;

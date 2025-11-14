@@ -1028,5 +1028,10 @@
   "{{name}} Approval": "{{name}} Onayı",
   "Already processed by manager": "Yönetici tarafından zaten sonuçlandırıldı",
   "Waiting Manager": "Yönetici bekleniyor",
-  "Waiting {{name}}": "{{name}} bekleniyor"
+  "Waiting {{name}}": "{{name}} bekleniyor",
+  "Points": "Puanlar",
+  "Point": "Puan",
+  "Amount": "Miktar",
+  "Add Point": "Puan Ekle",
+  "All points will be removed": "Tüm puanlar kaldırılacak"
 }

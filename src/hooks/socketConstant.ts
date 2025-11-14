@@ -244,4 +244,8 @@ export const socketEventListeners: SocketEventType[] = [
     event: "taskTrackChanged",
     invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
   },
+  {
+    event: "pointChanged",
+    invalidateKeys: [`${Paths.Point}`],
+  },
 ];

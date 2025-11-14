@@ -35,6 +35,7 @@ import Orders from "../pages/Orders";
 import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
+import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
@@ -122,6 +123,7 @@ export enum Routes {
   DailySummary = "/daily-summary",
   IkasPickUp = "/ikas-pickup",
   orderCategoryOrder = "/order-category-order",
+  Points = "/points",
 }
 
 export const allRoutes: {
@@ -681,6 +683,12 @@ export const allRoutes: {
     isOnSidebar: false,
   },
   {
+    name: "Points",
+    path: Routes.Points,
+    element: Points,
+    isOnSidebar: true,
+  },
+  {
     name: "Panel",
     path: Routes.PanelControl,
     exceptionalRoles: [RoleEnum.MANAGER],
@@ -715,6 +723,12 @@ export const allRoutes: {
     element: PanelControl,
     isOnSidebar: false,
     exceptionalRoles: [RoleEnum.MANAGER],
+  },
+  {
+    name: "Points",
+    path: Routes.Points,
+    element: Points,
+    isOnSidebar: false,
   },
   {
     name: "Page Details",

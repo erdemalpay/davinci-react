@@ -1023,5 +1023,10 @@
   "{{name}} Approval": "{{name}} Approval",
   "Already processed by manager": "Already processed by manager",
   "Waiting Manager": "Waiting Manager",
-  "Waiting {{name}}": "Waiting {{name}}"
+  "Waiting {{name}}": "Waiting {{name}}",
+  "Points": "Points",
+  "Point": "Point",
+  "Amount": "Amount",
+  "Add Point": "Add Point",
+  "All points will be removed": "All points will be removed"
 }
