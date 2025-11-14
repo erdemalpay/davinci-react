@@ -302,7 +302,21 @@ const Tables = () => {
     const end = () => {
       clear();
       if (!longFired) {
-        scrollToSection(targetId);
+        // If targetId is for mobile (table-{id}) but screen is lg or larger,
+        // use desktop ID (table-large-{id}) instead
+        const screenWidth = window.innerWidth;
+        const lgBreakpoint = 1024; // Tailwind's lg breakpoint
+        let finalTargetId = targetId;
+
+        if (
+          targetId.startsWith("table-") &&
+          !targetId.startsWith("table-large-") &&
+          screenWidth >= lgBreakpoint
+        ) {
+          finalTargetId = targetId.replace("table-", "table-large-");
+        }
+
+        scrollToSection(finalTargetId);
       }
     };
 
@@ -1156,7 +1170,8 @@ const Tables = () => {
                           </a>
                         );
                       }
-                      const isReservedComing = comingReservedTableNames.has(tableName);
+                      const isReservedComing =
+                        comingReservedTableNames.has(tableName);
                       return (
                         <a
                           key={tableName + "-tableselector-small"}
@@ -1196,7 +1211,7 @@ const Tables = () => {
               ))}
             </div>
           </div>
-          {/* Table name buttons for big screen */}
+          {/* Table name buttons for tablet and desktop screen */}
           <div
             key={activeTableCount + "big"}
             className="sm:flex-col gap-2 hidden sm:flex"
@@ -1228,7 +1243,7 @@ const Tables = () => {
                           )}`}
                           {...makePressHandlers(
                             table._id,
-                            `table-large-${table._id}`
+                            `table-${table._id}`
                           )}
                         >
                           {table.type === TableTypes.ACTIVITY
@@ -1238,7 +1253,8 @@ const Tables = () => {
                       );
                     }
 
-                    const isReservedComing = comingReservedTableNames.has(tableName);
+                    const isReservedComing =
+                      comingReservedTableNames.has(tableName);
                     return (
                       <a
                         key={tableName}
@@ -1317,7 +1333,7 @@ const Tables = () => {
                 <PreviousVisitList visits={visits} />
               )}
               {/* filters */}
-              <div className="grid grid-cols-2 md:flex md:flex-row md:gap-4 justify-end mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-row lg:gap-4 justify-end mt-4">
                 {switchFilters.map((filter, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <H5>{filter.label}</H5>
