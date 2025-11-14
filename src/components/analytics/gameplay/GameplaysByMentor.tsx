@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActionEnum,
+  DateRangeKey,
   DisabledConditionEnum,
   FormElementsState,
 } from "../../../types";
+import { dateRanges } from "../../../utils/api/dateRanges";
 import { useUserContext } from "../../../context/User.context";
 import { useGetGames } from "../../../utils/api/game";
 import {
@@ -42,10 +44,23 @@ export default function GameplaysByMentor() {
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelFormElements, setFilterPanelFormElements] =
     useState<FormElementsState>({
+      date: "",
       startDate: "",
       endDate: "",
       mentor: "",
     });
+
+  // Sync end date with start date when "Single Day" is selected
+  useEffect(() => {
+    if (filterPanelFormElements.date === "singleDay" && filterPanelFormElements.startDate) {
+      if (filterPanelFormElements.endDate !== filterPanelFormElements.startDate) {
+        setFilterPanelFormElements((prev) => ({
+          ...prev,
+          endDate: prev.startDate,
+        }));
+      }
+    }
+  }, [filterPanelFormElements.startDate, filterPanelFormElements.date]);
 
   const filterData = useMemo(() => {
     const newFilterData: GameplayGroupFilter = {
@@ -184,23 +199,65 @@ export default function GameplaysByMentor() {
     [t, showInactiveUsers, showFilters, gameplaysByMentorDisabledCondition, user]
   );
 
+  const customDateOptions = [
+    { value: "singleDay", label: t("Single Day") },
+    { value: "thisWeek", label: t("This Week") },
+    { value: "lastWeek", label: t("Last Week") },
+    { value: "thisMonth", label: t("This Month") },
+    { value: "lastMonth", label: t("Last Month") },
+    { value: "manual", label: t("Manual") },
+  ];
+
   const filterPanelInputs = useMemo(
     () => [
       {
+        type: InputTypes.SELECT,
+        formKey: "date",
+        label: t("Date"),
+        options: customDateOptions,
+        placeholder: t("Date"),
+        required: false,
+        additionalOnChange: ({ value }: { value: string }) => {
+          if (value === "manual") {
+            setFilterPanelFormElements((prev) => ({ ...prev, date: value }));
+            return;
+          }
+
+          const dateRange = value === "singleDay" ? dateRanges.today() : dateRanges[value as DateRangeKey]?.();
+          if (dateRange) {
+            setFilterPanelFormElements((prev) => ({
+              ...prev,
+              date: value,
+              startDate: dateRange.after,
+              endDate: dateRange.before,
+            }));
+          }
+        },
+      },
+      {
         type: InputTypes.DATE,
         formKey: "startDate",
-        label: t("After"),
-        placeholder: t("After"),
+        label: t("Start Date"),
+        placeholder: t("Start Date"),
         required: false,
         isDatePicker: true,
+        isOnClearActive: false,
+        additionalOnChange: ({ value }: { value: string }) => {
+          setFilterPanelFormElements((prev) =>
+            prev.date === "singleDay"
+              ? { ...prev, startDate: value, endDate: value }
+              : prev
+          );
+        },
       },
       {
         type: InputTypes.DATE,
         formKey: "endDate",
-        label: t("Before"),
-        placeholder: t("Before"),
+        label: t("End Date"),
+        placeholder: t("End Date"),
         required: false,
         isDatePicker: true,
+        isOnClearActive: false,
       },
       {
         type: InputTypes.SELECT,
