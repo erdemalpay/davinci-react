@@ -42,18 +42,17 @@ export interface ChartProps {
 }
 
 export function MentorAnalyticChart({
-                                      unique = false,
-                                      dateFilter,
-                                      setDateFilter,
-                                      startDate,
-                                      setStartDate,
-                                      endDate,
-                                      setEndDate,
-                                      location,
-                                      setLocation,
-                                      itemLimit,
-                                      setItemLimit,
-                                    }: ChartProps) {
+  unique = false,
+  dateFilter,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  location,
+  setLocation,
+  itemLimit,
+  setItemLimit,
+}: ChartProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
