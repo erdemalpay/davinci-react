@@ -1,6 +1,4 @@
-type Props = {};
-
-const Loading = (props: Props) => {
+const Loading = () => {
   return (
     <div className="fixed inset-0 w-full h-full z-50">
       -

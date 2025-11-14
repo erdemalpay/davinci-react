@@ -236,7 +236,7 @@ const DailySummary = () => {
                     {/* left arrow */}
                     <button
                       type="button"
-                      className="p-2 rounded bg-gray-100 hover:bg-gray-200"
+                      className="p-2 rounded bg-gray-100 hover:bg-gray-200 mt-auto min-h-11"
                       onClick={() => {
                         setFilterDailySummaryPanelFormElements((prev: any) => {
                           const cur = prev[input.formKey] as string | undefined;
@@ -265,7 +265,7 @@ const DailySummary = () => {
                     {/* right arrow */}
                     <button
                       type="button"
-                      className="p-2 rounded bg-gray-100 hover:bg-gray-200"
+                      className="p-2 rounded bg-gray-100 hover:bg-gray-200 mt-auto min-h-11"
                       onClick={() => {
                         setFilterDailySummaryPanelFormElements((prev: any) => {
                           const cur = prev[input.formKey] as string | undefined;
