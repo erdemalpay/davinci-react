@@ -50,6 +50,7 @@ const PaymentMethods = () => {
       { key: t("Online Order"), isSortable: false },
       { key: t("Payment Made"), isSortable: false },
       { key: t("Used at Expense"), isSortable: false },
+      { key: t("Point Payment"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
     ];
     if (canManage) {
@@ -93,6 +94,15 @@ const PaymentMethods = () => {
             <IoCloseOutline className="text-red-800 text-2xl " />
           ),
       },
+      {
+        key: "isPointPayment",
+        node: (row: any) =>
+          row?.isPointPayment ? (
+            <IoCheckmark className="text-blue-500 text-2xl " />
+          ) : (
+            <IoCloseOutline className="text-red-800 text-2xl " />
+          ),
+      },
       { key: "ikasId" },
     ],
     [t]
@@ -131,6 +141,14 @@ const PaymentMethods = () => {
         isTopFlexRow: true,
       },
       {
+        type: InputTypes.CHECKBOX,
+        formKey: "isPointPayment",
+        label: t("Point Payment"),
+        placeholder: t("Point Payment"),
+        required: true,
+        isTopFlexRow: true,
+      },
+      {
         type: InputTypes.TEXT,
         formKey: "ikasId",
         label: "Ikas ID",
@@ -146,6 +164,7 @@ const PaymentMethods = () => {
       { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isPaymentMade", type: FormKeyTypeEnum.BOOLEAN },
       { key: "isUsedAtExpense", type: FormKeyTypeEnum.BOOLEAN },
+      { key: "isPointPayment", type: FormKeyTypeEnum.BOOLEAN },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
     ],
     []
@@ -160,7 +179,11 @@ const PaymentMethods = () => {
           close={() => setIsAddModalOpen(false)}
           inputs={inputs}
           formKeys={formKeys}
-          constantValues={{ isPaymentMade: true, isOnlineOrder: false }}
+          constantValues={{
+            isPaymentMade: true,
+            isOnlineOrder: false,
+            isPointPayment: false,
+          }}
           submitItem={createAccountPaymentMethod as any}
           topClassName="flex flex-col gap-2 "
         />

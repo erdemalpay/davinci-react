@@ -305,6 +305,7 @@ export type AccountPaymentMethod = {
   ikasId?: string;
   isPaymentMade?: boolean;
   isUsedAtExpense?: boolean;
+  isPointPayment?: boolean;
 };
 export type AccountPayment = {
   _id: number;
