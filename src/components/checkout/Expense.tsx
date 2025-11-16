@@ -7,7 +7,6 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import {
   AccountExpenseType,
-  ConstantPaymentMethodsIds,
   ExpenseTypes,
   commonDateOptions,
 } from "../../types";
@@ -607,7 +606,7 @@ const Expenses = () => {
             createAccountExpense({
               ...allExpenseForm,
               location: selectedLocationId,
-              paymentMethod: ConstantPaymentMethodsIds.CASH,
+              paymentMethod: allExpenseForm.paymentMethod,
               isPaid: true,
               quantity: Number(allExpenseForm.quantity),
               totalExpense:
