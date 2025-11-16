@@ -4,6 +4,7 @@ import { GiEgyptianWalk } from "react-icons/gi";
 import {
   MdChangeCircle,
   MdOutlineAdminPanelSettings,
+  MdOutlinePerson,
   MdOutlineSchedule,
 } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
@@ -14,6 +15,7 @@ import ChangeRequestManagement from "../components/visits/ChangeRequestManagemen
 import DailyVisit from "../components/visits/DailyVisit";
 import ShiftChange from "../components/visits/ShiftChange";
 import Shifts from "../components/visits/Shifts";
+import UserChangeRequestTab from "../components/visits/UserChangeRequestTab";
 import VisitChart from "../components/visits/VisitChart";
 import VisitScheduleOverview from "../components/visits/VisitScheduleOverview";
 import { useFilterContext } from "../context/Filter.context";
@@ -63,6 +65,13 @@ export const VisitPageTabs = [
     label: "ShiftChange",
     icon: <MdChangeCircle className="text-lg font-thin" />,
     content: <ShiftChange />,
+    isDisabled: false,
+  },
+  {
+    number: VisitPageTabEnum.USERCHANGEREQUESTTAB,
+    label: "UserChangeRequestTab",
+    icon: <MdOutlinePerson className="text-lg font-thin" />,
+    content: <UserChangeRequestTab />,
     isDisabled: false,
   },
   //Yönetici Tabı oluşturulacak

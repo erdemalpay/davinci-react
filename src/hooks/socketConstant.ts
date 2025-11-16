@@ -244,4 +244,12 @@ export const socketEventListeners: SocketEventType[] = [
     event: "taskTrackChanged",
     invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
   },
+  {
+    event: "shiftChangeRequestChanged",
+    invalidateKeys: [
+      `${Paths.ShiftChangeRequest}`,
+      `${Paths.ShiftChangeRequest}/my-requests`,
+      `${Paths.Shift}`
+    ],
+  },
 ];

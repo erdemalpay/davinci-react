@@ -87,6 +87,34 @@ export function useGetShiftChangeRequests(params: {
   );
 }
 
+export function useGetMyShiftChangeRequests(params?: {
+  status?: ShiftChangeStatusEnum | ShiftChangeStatusEnum[];
+  after?: string;
+  before?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const buildMyRequestsQuery = () => {
+    const sp = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v === undefined || v === null || v === "") return;
+        if (Array.isArray(v)) v.forEach((vv) => sp.append(k, String(vv)));
+        else sp.append(k, String(v));
+      });
+    }
+    const q = sp.toString();
+    return q ? `${Paths.ShiftChangeRequest}/my-requests?${q}` : `${Paths.ShiftChangeRequest}/my-requests`;
+  };
+
+  const path = buildMyRequestsQuery();
+  return useQuery<PaginatedResponse<ShiftChangeRequestType>>(
+    [path],
+    () => get<PaginatedResponse<ShiftChangeRequestType>>({ path }),
+    { staleTime: 0 }
+  );
+}
+
 // Manager approve
 export function useManagerApproveShiftChangeRequest() {
   const client = useQueryClient();
@@ -175,6 +203,31 @@ export function useTargetRejectShiftChangeRequest() {
       onSuccess: () => {
         setTimeout(() => toast.warning(t("Request rejected")), 200);
         client.invalidateQueries([Paths.ShiftChangeRequest]);
+      },
+      onError: (err: any) => {
+        const msg =
+          err?.response?.data?.message || "An unexpected error occurred";
+        setTimeout(() => toast.error(t(msg)), 200);
+      },
+    }
+  );
+}
+
+// Requester cancel
+export function useCancelShiftChangeRequest() {
+  const client = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation(
+    ({ id }: { id: number }) =>
+      patch({
+        path: `${Paths.ShiftChangeRequest}/${id}/cancel`,
+        payload: {},
+      }),
+    {
+      onSuccess: () => {
+        setTimeout(() => toast.success(t("Request cancelled")), 200);
+        client.invalidateQueries([Paths.ShiftChangeRequest]);
+        client.invalidateQueries([Paths.Shift]);
       },
       onError: (err: any) => {
         const msg =
