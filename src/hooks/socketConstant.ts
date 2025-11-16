@@ -251,11 +251,13 @@ export const socketEventListeners: SocketEventType[] = [
   {
     event: "pointHistoryChanged",
     invalidateKeys: [`${Paths.Point}/history`],
+  },
+  {
     event: "shiftChangeRequestChanged",
     invalidateKeys: [
       `${Paths.ShiftChangeRequest}`,
       `${Paths.ShiftChangeRequest}/my-requests`,
-      `${Paths.Shift}`
+      `${Paths.Shift}`,
     ],
   },
 ];
