@@ -52,6 +52,8 @@ export enum PointHistoryStatusEnum {
   POINTCREATE = "POINTCREATE",
   POINTUPDATE = "POINTUPDATE",
   POINTDELETE = "POINTDELETE",
+  COLLECTIONCREATED = "COLLECTIONCREATED",
+  COLLECTIONCANCELLED = "COLLECTIONCANCELLED",
 }
 
 export const pointHistoryStatuses = [
@@ -69,6 +71,16 @@ export const pointHistoryStatuses = [
     value: PointHistoryStatusEnum.POINTDELETE,
     label: "Point Delete",
     backgroundColor: "bg-red-500",
+  },
+  {
+    value: PointHistoryStatusEnum.COLLECTIONCREATED,
+    label: "Collection Created",
+    backgroundColor: "bg-blue-500",
+  },
+  {
+    value: PointHistoryStatusEnum.COLLECTIONCANCELLED,
+    label: "Collection Cancelled",
+    backgroundColor: "bg-orange-500",
   },
 ];
 
