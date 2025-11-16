@@ -468,7 +468,24 @@ export enum DisabledConditionEnum {
   CAFE_ACTIVITIES = "cafe_activities",
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
+  COUNTARCHIVE = "countarchive",
+  COUNTLISTS = "countlists",
+  COUNTLISTPRODUCTS = "countlistproducts",
+  ACCOUNTING_EXPENSETYPE = "expensetype",
+  ACCOUNTING_VENDOR = "vendor",
+  ACCOUNTING_BRAND = "brand",
+  ACCOUNTING_PRODUCT = "product",
+  ACCOUNTING_PRODUCTCATEGORIES = "productcategories",
+  ACCOUNTING_SERVICES = "services",
+  ACCOUNTING_DISCOUNTS = "discounts",
+  ACCOUNTING_PAYMENTMETHODS = "paymentmethods",
+  ACCOUNTING_KITCHENS = "kitchens",
+  ACCOUNTING_LOCATIONS = "locations",
+  ACCOUNTING_UPPERCATEGORIES = "uppercategories",
+  ACCOUNTING_ORDERNOTES = "ordernotes",
+  ACCOUNTING_ACTIONS = "actions",
 }
+
 export enum ActionEnum {
   DELETE = "delete",
   ADD = "add",
@@ -493,12 +510,19 @@ export enum ActionEnum {
   GROUP_CAME = "group_came",
   CALLED = "called",
   OPENBACK = "openback",
-  SHOW_INACTIVE_USERS = "show_inactive_users",
+  SHOW_INACTIVE_ELEMENTS = "show_inactive_elements",
   SHOW_COMPLETED_ACTIVITIES = "show_completed_activities",
   SHOW_EXPIRED_MEMBERSHIPS = "show_expired_memberships",
   SET_USED = "set_used",
   SET_UNUSED = "set_unused",
   SHOW_EXPIRED_OR_USED_REWARDS = "show_expired_or_used_rewards",
+  TOGGLE = "toggle",
+  UPDATE_LOCATION = "update_location",
+  CREATE_COUNT = "create_count",
+  ADD_TO_ELEMENT = "add_to_element",
+  CREATE_MULTIPLE = "create_multiple",
+  COMBINE_ELEMENTS = "combine_elements",
+  ROLE_AUDIO_UPDATE = "role_audio_update",
 }
 
 export type Membership = {
@@ -974,6 +998,7 @@ export enum VisitPageTabEnum {
   SHIFTS,
   SHIFTCHANGE,
   CHANGEREQUESTMANAGEMENT,
+  USERCHANGEREQUESTTAB,
 }
 export enum NotificationPageTabEnum {
   CREATENOTIFICATION,
@@ -1729,6 +1754,10 @@ export const NotificationEventColors: Record<
     gradient: "linear-gradient(135deg, #F6AD55 0%, #ED8936 100%)", // Light Orange
     solid: "#F6AD55",
   },
+  UNFINISHEDVISIT: {
+    gradient: "linear-gradient(135deg, #FB923C 0%, #F97316 100%)", // Amber Orange
+    solid: "#FB923C",
+  },
 
   // 🟡 EKSİK İŞLEMLER - Sarı/Amber Tonları
   UNCOMPLETEDCHECKLIST: {
@@ -1782,6 +1811,7 @@ export enum NotificationEventType {
   KITCHENACTIVATED = "KITCHENACTIVATED",
   KITCHENDEACTIVATED = "KITCHENDEACTIVATED",
   KITCHENNOTCONFIRMED = "KITCHENNOTCONFIRMED",
+  UNFINISHEDVISIT = "UNFINISHEDVISIT",
 }
 export const notificationEventsOptions = [
   {
@@ -1831,6 +1861,10 @@ export const notificationEventsOptions = [
   {
     value: NotificationEventType.KITCHENNOTCONFIRMED,
     label: "Kitchen Not Confirmed",
+  },
+  {
+    value: NotificationEventType.UNFINISHEDVISIT,
+    label: "Unfinished Visit",
   },
 ];
 

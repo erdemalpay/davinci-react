@@ -1,13 +1,10 @@
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Input } from "@material-tailwind/react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { useForm } from "../../hooks/useForm";
 import { Game, Gameplay, Table, User } from "../../types";
 import { useCreateGameplayMutation } from "../../utils/api/gameplay";
-import { Autocomplete } from "../common/Autocomplete";
-import { GenericButton } from "../common/GenericButton";
+import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
+import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 export function CreateGameplayDialog({
   isOpen,
@@ -25,130 +22,137 @@ export function CreateGameplayDialog({
   games: Game[];
 }) {
   const { t } = useTranslation();
-  const { data, setData, handleUpdate } = useForm(gameplay as Gameplay);
+  const [data, setData] = useState<Partial<Gameplay>>(gameplay);
 
   const { mutate: createGameplay } = useCreateGameplayMutation();
 
-  async function handleCreate() {
-    // We were using async version to wait for response before closing
-    // But since we are optimistically update data, that seemed redundant to me so I removed
-    // May revert back later if needed
-    createGameplay({ table: table._id as number, payload: data });
-    toast.success(t("New gameplay added to table {{tableName}}", { tableName: table.name }));
-    close();
+  function handleCreate() {
+    // Mentor ve game kontrolü
+    if (!data.mentor || !data.game) {
+      toast.error(t("Please select mentor and game"));
+      return;
+    }
+
+    createGameplay(
+      { table: table._id as number, payload: data as Gameplay },
+      {
+        onSuccess: () => {
+          toast.success(
+            t("New gameplay added to table {{tableName}}", {
+              tableName: table.name,
+            })
+          );
+          close();
+        },
+      }
+    );
   }
 
-  function handleMentorSelection(mentor: User) {
-    setData({ ...data, mentor });
-  }
+  const gameplayInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "tableName",
+        label: t("Table Name"),
+        placeholder: t("Table Name"),
+        required: false,
+        isReadOnly: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "playerCount",
+        label: t("Player Count"),
+        placeholder: t("Player Count"),
+        required: true,
+        minNumber: 0,
+        isNumberButtonsActive: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "mentor",
+        label: t("Mentor"),
+        placeholder: t("Mentor"),
+        options: mentors.map((mentor) => ({
+          value: mentor._id,
+          label: mentor.name,
+        })),
+        required: true,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "game",
+        label: t("Game"),
+        placeholder: t("Game"),
+        options: games.map((game) => ({
+          value: game._id,
+          label: game.name,
+        })),
+        required: true,
+      },
+      {
+        type: InputTypes.HOUR,
+        formKey: "startHour",
+        label: t("Start Time"),
+        placeholder: t("Start Time"),
+        required: true,
+      },
+      {
+        type: InputTypes.HOUR,
+        formKey: "finishHour",
+        label: t("End Time"),
+        placeholder: t("End Time"),
+        required: false,
+      },
+    ],
+    [mentors, games, t]
+  );
 
-  function handleGameSelection(game: Game) {
-    setData({ ...data, game: game?._id });
-  }
+  const gameplayFormKeys = [
+    { key: "tableName", type: FormKeyTypeEnum.STRING },
+    { key: "playerCount", type: FormKeyTypeEnum.NUMBER },
+    { key: "mentor", type: FormKeyTypeEnum.STRING },
+    { key: "game", type: FormKeyTypeEnum.NUMBER },
+    { key: "startHour", type: FormKeyTypeEnum.STRING },
+    { key: "finishHour", type: FormKeyTypeEnum.STRING },
+  ];
+
+  if (!isOpen) return null;
 
   return (
-    <Transition
-      show={isOpen}
-      enter="transition duration-100 ease-out"
-      enterFrom="transform scale-95 opacity-0"
-      enterTo="transform scale-100 opacity-100"
-      leave="transition duration-75 ease-out"
-      leaveFrom="transform scale-100 opacity-100"
-      leaveTo="transform scale-95 opacity-0"
+    <div
+      className="z-20 fixed w-full flex justify-center inset-0 items-center"
+      onClick={close}
     >
-      <Dialog onClose={() => close()}>
-        <Dialog.Overlay />
-        <div
-          id="popup"
-          className="z-20 fixed w-full flex justify-center inset-0"
-        >
-          <div
-            onClick={close}
-            className="w-full h-full bg-gray-500 bg-opacity-50 z-0 absolute inset-0"
-          />
-          <div className="mx-auto container">
-            <div className="flex items-center justify-center h-full w-full">
-              <div className="bg-white rounded-md shadow fixed overflow-y-auto sm:h-auto w-10/12 md:w-8/12 lg:w-1/2 2xl:w-2/5">
-                <div className="bg-gray-100 rounded-tl-md rounded-tr-md px-4 md:px-8 md:py-4 py-7 flex items-center justify-between">
-                  <p className="text-base font-semibold">{t("Create Gameplay")}</p>
-                  <GenericButton onClick={close} variant="icon">
-                    <XMarkIcon className="h-6 w-6" />
-                  </GenericButton>
-                </div>
-                <div className="px-4 lg:px-10 flex flex-col mt-4 gap-2">
-                  <Input
-                    variant="standard"
-                    name="name"
-                    label={t("Table Name")}
-                    type="text"
-                    value={table.name}
-                    readOnly
-                  />
-                  <Input
-                    variant="standard"
-                    name="playerCount"
-                    label={t("Player Count")}
-                    type="number"
-                    min={0}
-                    value={data.playerCount}
-                    onChange={handleUpdate}
-                  />
-                  <Autocomplete
-                    name="mentor"
-                    label={t("Mentor")}
-                    suggestions={mentors}
-                    handleSelection={handleMentorSelection}
-                    initialValue={mentors.find((mentor) => mentor._id === "dv")}
-                    showSelected
-                  />
-                  <Autocomplete
-                    name="game"
-                    label={t("Game")}
-                    suggestions={games}
-                    handleSelection={handleGameSelection}
-                    showSelected
-                  />
-                  <div className="flex flex-col lg:flex-row gap-2 mt-4">
-                    <Input
-                      variant="standard"
-                      name="startHour"
-                      label={t("Start Time")}
-                      type="time"
-                      defaultValue={data.startHour}
-                      onChange={handleUpdate}
-                    />
-                    <Input
-                      variant="standard"
-                      name="finishHour"
-                      label={t("End Time")}
-                      type="time"
-                      defaultValue={data.finishHour}
-                      onChange={handleUpdate}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between my-4">
-                    <GenericButton
-                      onClick={close}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      {t("Cancel")}
-                    </GenericButton>
-                    <GenericButton
-                      onClick={handleCreate}
-                      disabled={!(data.mentor && data.game)}
-                      variant="black"
-                      size="sm"
-                    >
-                      {t("Create")}
-                    </GenericButton>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+      <div className="w-full h-full bg-gray-500 bg-opacity-50 z-0 absolute inset-0" />
+      <GenericAddEditPanel
+        isOpen={isOpen}
+        close={close}
+        inputs={gameplayInputs}
+        formKeys={gameplayFormKeys}
+        setForm={setData}
+        constantValues={{
+          tableName: table.name,
+          date: gameplay.date || table.date,
+          location: gameplay.location || table.location,
+          playerCount: gameplay.playerCount,
+          startHour: gameplay.startHour,
+          finishHour: gameplay.finishHour || "",
+          mentor:
+            typeof gameplay.mentor === "object"
+              ? gameplay.mentor?._id
+              : gameplay.mentor,
+          game:
+            typeof gameplay.game === "object"
+              ? gameplay.game?._id
+              : gameplay.game,
+        }}
+        submitItem={handleCreate}
+        submitFunction={handleCreate}
+        buttonName={t("Create")}
+        cancelButtonLabel={t("Cancel")}
+        topClassName="flex flex-col gap-2 [&>div]:grid [&>div]:grid-cols-1 sm:[&>div]:grid-cols-2 [&>div]:gap-4 [&>div>div]:col-span-1 sm:[&>div>div:not(:nth-child(5)):not(:nth-child(6))]:col-span-2"
+        generalClassName="shadow-none"
+      />
+    </div>
   );
 }

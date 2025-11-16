@@ -75,6 +75,13 @@ const ShiftChange = () => {
     filterPanelFormElements?.before,
     selectedLocationId
   );
+
+  // Separate shifts data for modal - fetch ALL locations
+  const modalShifts = useGetShifts(
+    filterPanelFormElements?.after,
+    filterPanelFormElements?.before,
+    -1  // Fetch all locations for modal dropdown
+  );
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![
@@ -487,8 +494,8 @@ const ShiftChange = () => {
     },
   };
 
-  // Get user's own shifts (all shifts where user is assigned)
-  const userOwnShifts = shifts?.filter((shift) => {
+  // Get user's own shifts (all shifts where user is assigned) - using modalShifts
+  const userOwnShifts = modalShifts?.filter((shift) => {
     // Check if this shift record has the user assigned
     const hasUser = shift.shifts?.some((s: any) => {
       if (Array.isArray(s.user)) {
@@ -549,8 +556,8 @@ const ShiftChange = () => {
     )
     .filter(Boolean);
 
-  // Get all shifts for target location (for SWAP) - only today and future
-  const targetLocationShifts = shifts?.filter((shift) => {
+  // Get all shifts for target location (for SWAP) - only today and future - using modalShifts
+  const targetLocationShifts = modalShifts?.filter((shift) => {
     if (!shift.location || shift.location !== shiftChangeForm.targetLocation || !shift.day) {
       return false;
     }
@@ -799,7 +806,7 @@ const ShiftChange = () => {
     filterPanelFormElements,
   ]);
 
-  // Conflict detection for TRANSFER
+  // Conflict detection for TRANSFER - using modalShifts
   useEffect(() => {
     if (
       shiftChangeForm.type === "TRANSFER" &&
@@ -811,7 +818,7 @@ const ShiftChange = () => {
         shiftChangeForm.sourceShift.split("|");
 
       // Find all shifts for target user on the same day
-      const targetUserShifts = shifts?.filter(
+      const targetUserShifts = modalShifts?.filter(
         (shift) =>
           shift.day === sourceDay &&
           shift.shifts?.some((s: any) => s.user?.includes(shiftChangeForm.targetUser))
@@ -852,7 +859,7 @@ const ShiftChange = () => {
     shiftChangeForm.type,
     shiftChangeForm.sourceShift,
     shiftChangeForm.targetUser,
-    shifts,
+    modalShifts,
     users,
     t,
   ]);

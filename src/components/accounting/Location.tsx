@@ -4,12 +4,14 @@ import { FiEdit } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { Location, RoleEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum, Location } from "../../types";
 import {
   useGetAllLocations,
   useLocationMutations,
 } from "../../utils/api/location";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -32,12 +34,14 @@ const LocationPage = () => {
   };
   const [form, setForm] = useState(initialForm as Partial<Location>);
   const { updateLocation, createStockLocation } = useLocationMutations();
+  const disabledConditions = useGetDisabledConditions();
 
-  const isDisabledCondition = useMemo(() => {
-    return user
-      ? ![RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-      : true;
-  }, [user]);
+  const locationsDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_LOCATIONS,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const getRowTypeName = useMemo(
     () => (type: number[]) => {
@@ -68,12 +72,10 @@ const LocationPage = () => {
       { key: t("Closed Days"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    if (!isDisabledCondition) {
-      cols.push({ key: t("Actions"), isSortable: false });
-    }
     return cols;
-  }, [t, isDisabledCondition]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -118,18 +120,31 @@ const LocationPage = () => {
       {
         key: "isShelfInfoRequired",
         node: (row: any) => {
+          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
           return (
-            <SwitchButton
-              checked={row?.isShelfInfoRequired}
-              onChange={() => {
-                updateLocation({
-                  id: row._id,
-                  updates: {
-                    isShelfInfoRequired: !row?.isShelfInfoRequired,
-                  },
-                });
-              }}
-            />
+            <div
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              <SwitchButton
+                checked={row?.isShelfInfoRequired}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  updateLocation({
+                    id: row._id,
+                    updates: {
+                      isShelfInfoRequired: !row?.isShelfInfoRequired,
+                    },
+                  });
+                }}
+              />
+            </div>
           );
         },
       },
@@ -283,7 +298,12 @@ const LocationPage = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: isDisabledCondition,
+      isDisabled: locationsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
     }),
     [
       t,
@@ -291,7 +311,8 @@ const LocationPage = () => {
       inputs,
       formKeys,
       createStockLocation,
-      isDisabledCondition,
+      locationsDisabledCondition,
+      user,
     ]
   );
 
@@ -319,7 +340,12 @@ const LocationPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: locationsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
     ],
     [
@@ -329,7 +355,8 @@ const LocationPage = () => {
       inputs,
       formKeys,
       updateLocation,
-      isDisabledCondition,
+      locationsDisabledCondition,
+      user,
     ]
   );
 
@@ -343,7 +370,7 @@ const LocationPage = () => {
           rows={rows}
           title={t("Locations")}
           addButton={addButton}
-          isActionsActive={!isDisabledCondition}
+          isActionsActive={true}
         />
       </div>
     </>

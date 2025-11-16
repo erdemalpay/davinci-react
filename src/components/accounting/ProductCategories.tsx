@@ -3,11 +3,17 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { ProductCategories, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  ProductCategories,
+} from "../../types";
 import {
   useGetIkasCategories,
   useIkasCategoriesMutations,
 } from "../../utils/api/account/productCategories";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -17,6 +23,7 @@ const ProductCategoriesPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const productCategories = useGetIkasCategories();
+  const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -32,25 +39,22 @@ const ProductCategoriesPage = () => {
     deleteProductCategories,
   } = useIkasCategoriesMutations();
 
-  const canManage =
-    !!user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user?.role?._id);
+  const productCategoriesPageDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_PRODUCTCATEGORIES,
+      disabledConditions
+    );
+  }, [disabledConditions]);
 
   const rows = useMemo(() => productCategories, [productCategories]);
 
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true },
       { key: "Ikas ID", isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    return canManage
-      ? [...base, { key: t("Actions"), isSortable: false }]
-      : base;
-  }, [t, canManage]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -107,9 +111,22 @@ const ProductCategoriesPage = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
-      isDisabled: !canManage,
+      isDisabled: productCategoriesPageDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, canManage, inputs, formKeys, createProductCategories]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createProductCategories,
+      productCategoriesPageDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -135,7 +152,12 @@ const ProductCategoriesPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: productCategoriesPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Delete"),
@@ -158,7 +180,12 @@ const ProductCategoriesPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: productCategoriesPageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -170,7 +197,8 @@ const ProductCategoriesPage = () => {
       formKeys,
       updateProductCategories,
       deleteProductCategories,
-      canManage,
+      productCategoriesPageDisabledCondition,
+      user,
     ]
   );
 
@@ -183,7 +211,7 @@ const ProductCategoriesPage = () => {
         rows={rows}
         title={t("Ikas Categories")}
         addButton={addButton}
-        isActionsActive={canManage}
+        isActionsActive={true}
       />
     </div>
   );

@@ -7,7 +7,11 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountVendor, RoleEnum } from "../../types";
+import {
+  AccountVendor,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountProductMutations,
   useGetAccountProducts,
@@ -17,7 +21,9 @@ import {
   useAccountVendorMutations,
   useGetAccountVendors,
 } from "../../utils/api/account/vendor";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { getItem } from "../../utils/getItem";
 import { NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -35,6 +41,7 @@ const Vendor = () => {
   const { updateAccountProduct } = useAccountProductMutations();
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
+  const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,6 +54,11 @@ const Vendor = () => {
   const { createAccountVendor, deleteAccountVendor, updateAccountVendor } =
     useAccountVendorMutations();
   const [productForm, setProductForm] = useState({ product: [] as string[] });
+
+  const vendorDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_VENDOR, disabledConditions);
+  }, [disabledConditions]);
+
   const rows = useMemo(() => {
     return vendors?.map((vendor) => ({
       ...vendor,
@@ -59,24 +71,14 @@ const Vendor = () => {
     }));
   }, [vendors, products, services]);
 
-  const canManage =
-    user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user?.role?._id);
-
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true },
       { key: t("Product Count"), isSortable: true },
       { key: t("Service Count"), isSortable: true },
+      { key: t("Actions"), isSortable: false },
     ];
-    return canManage
-      ? [...base, { key: t("Actions"), isSortable: false }]
-      : base;
-  }, [t, canManage]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -157,11 +159,24 @@ const Vendor = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: !canManage,
+      isDisabled: vendorDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
-    [t, isAddModalOpen, canManage, inputs, formKeys, createAccountVendor]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAccountVendor,
+      vendorDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -187,7 +202,12 @@ const Vendor = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: vendorDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -210,7 +230,12 @@ const Vendor = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: vendorDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Add Into Product"),
@@ -249,7 +274,12 @@ const Vendor = () => {
         isModalOpen: isAddProductModalOpen,
         setIsModal: setIsAddProductModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: vendorDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADD_TO_ELEMENT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
     ],
     [
@@ -262,12 +292,13 @@ const Vendor = () => {
       formKeys,
       addProductInputs,
       addProductFormKeys,
-      canManage,
       deleteAccountVendor,
       updateAccountVendor,
       updateAccountProduct,
       products,
       productForm.product,
+      vendorDisabledCondition,
+      user,
     ]
   );
 
@@ -280,7 +311,7 @@ const Vendor = () => {
         rows={rows}
         title={t("Vendors")}
         addButton={addButton}
-        isActionsActive={!!canManage}
+        isActionsActive={true}
       />
     </div>
   );

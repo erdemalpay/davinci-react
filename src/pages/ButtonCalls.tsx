@@ -56,7 +56,7 @@ export default function ButtonCalls() {
     rowsPerPage,
     filterPanelFormElements
   );
-  const [showButtonCallsFilters, setShowButtonCallsFilters] = useState(true);
+  const [showButtonCallsFilters, setShowButtonCallsFilters] = useState(false);
   const [isButtonCallEnableEdit, setIsButtonCallEnableEdit] = useState(false);
   const [rowToAction, setRowToAction] = useState<any>();
   const [

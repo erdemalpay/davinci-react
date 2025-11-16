@@ -6,14 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum } from "../../types";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
   useAccountServiceMutations,
   useGetAccountServices,
 } from "../../utils/api/account/service";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
+import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -29,6 +31,7 @@ const Service = () => {
   const { user } = useUserContext();
   const expenseTypes = useGetAccountExpenseTypes();
   const vendors = useGetAccountVendors();
+  const disabledConditions = useGetDisabledConditions();
 
   const { setCurrentPage, setSearchQuery, setSortConfigKey } =
     useGeneralContext();
@@ -56,13 +59,9 @@ const Service = () => {
     name: "",
   });
 
-  const canManage =
-    !!user &&
-    [
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user?.role?._id);
+  const servicesDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_SERVICES, disabledConditions);
+  }, [disabledConditions]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -159,23 +158,17 @@ const Service = () => {
   }, [services, filterServicePanelFormElements]);
 
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true },
       { key: t("Expense Type"), isSortable: true },
       { key: t("Vendor"), isSortable: true },
       { key: t("Unit Price"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ];
-    if (!canManage) {
-      return base.filter(
-        (c) => c.key !== t("Unit Price") && c.key !== t("Actions")
-      );
-    }
-    return base;
-  }, [t, canManage]);
+  }, [t]);
 
   const rowKeys = useMemo(() => {
-    const keys = [
+    return [
       {
         key: "name",
         className: "min-w-32 pr-1",
@@ -244,7 +237,6 @@ const Service = () => {
         ),
       },
     ];
-    return canManage ? keys : keys.filter((k) => k.key !== "unitPrice");
   }, [
     user,
     pages,
@@ -254,7 +246,6 @@ const Service = () => {
     navigate,
     expenseTypes,
     vendors,
-    canManage,
   ]);
 
   const addButton = useMemo(
@@ -280,7 +271,12 @@ const Service = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: !canManage,
+      isDisabled: servicesDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
@@ -291,7 +287,8 @@ const Service = () => {
       formKeys,
       createAccountService,
       inputForm,
-      canManage,
+      servicesDisabledCondition,
+      user,
     ]
   );
 
@@ -318,7 +315,12 @@ const Service = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: servicesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -353,7 +355,12 @@ const Service = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: servicesDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
     ],
     [
@@ -366,7 +373,8 @@ const Service = () => {
       updateAccountService,
       deleteAccountService,
       inputForm,
-      canManage,
+      servicesDisabledCondition,
+      user,
     ]
   );
 
@@ -414,7 +422,7 @@ const Service = () => {
         addButton={addButton}
         filters={filters}
         filterPanel={filterPanel}
-        isActionsActive={canManage}
+        isActionsActive={true}
       />
     </div>
   );

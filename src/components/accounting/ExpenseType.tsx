@@ -5,7 +5,11 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { AccountExpenseType, RoleEnum } from "../../types";
+import {
+  AccountExpenseType,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountExpenseTypeMutations,
   useGetAccountExpenseTypes,
@@ -15,6 +19,8 @@ import {
   useGetAccountProducts,
 } from "../../utils/api/account/product";
 import { useGetAccountServices } from "../../utils/api/account/service";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { BackgroundColorInput, NameInput } from "../../utils/panelInputs";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -27,6 +33,7 @@ const ExpenseType = () => {
   const products = useGetAccountProducts();
   const services = useGetAccountServices();
   const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,6 +51,14 @@ const ExpenseType = () => {
     updateAccountExpenseType,
   } = useAccountExpenseTypeMutations();
   const { updateAccountProduct } = useAccountProductMutations();
+
+  const expenseTypeDisabledCondition = useMemo(() => {
+    return getItem(
+      DisabledConditionEnum.ACCOUNTING_EXPENSETYPE,
+      disabledConditions
+    );
+  }, [disabledConditions]);
+
   const rows = useMemo(() => {
     return expenseTypes.map((i) => ({
       ...i,
@@ -56,19 +71,14 @@ const ExpenseType = () => {
     }));
   }, [expenseTypes, products, services]);
 
-  const canManage =
-    !!user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user.role?._id);
-
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true },
       { key: t("Product Count"), isSortable: true },
       { key: t("Service Count"), isSortable: true },
+      { key: t("Actions"), isSortable: false },
     ];
-    return canManage
-      ? [...base, { key: t("Actions"), isSortable: false }]
-      : base;
-  }, [t, canManage]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -143,9 +153,22 @@ const ExpenseType = () => {
       isPath: false,
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
-      isDisabled: !canManage,
+      isDisabled: expenseTypeDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac?.permissionsRoles?.includes(user?.role?._id)
+      ),
     }),
-    [t, isAddModalOpen, canManage, inputs, formKeys, createAccountExpenseType]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAccountExpenseType,
+      expenseTypeDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -172,7 +195,12 @@ const ExpenseType = () => {
           isModalOpen: isCloseAllConfirmationDialogOpen,
           setIsModal: setIsCloseAllConfirmationDialogOpen,
           isPath: false,
-          isDisabled: !canManage,
+          isDisabled: expenseTypeDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.DELETE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         },
         {
           name: t("Edit"),
@@ -195,7 +223,12 @@ const ExpenseType = () => {
           isModalOpen: isEditModalOpen,
           setIsModal: setIsEditModalOpen,
           isPath: false,
-          isDisabled: !canManage,
+          isDisabled: expenseTypeDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         },
         {
           name: t("Add Into Product"),
@@ -234,7 +267,12 @@ const ExpenseType = () => {
           isModalOpen: isAddProductModalOpen,
           setIsModal: setIsAddProductModalOpen,
           isPath: false,
-          isDisabled: !canManage,
+          isDisabled: expenseTypeDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.ADD_TO_ELEMENT &&
+              user?.role?._id &&
+              !ac?.permissionsRoles?.includes(user?.role?._id)
+          ),
         },
       ] as const,
     [
@@ -247,12 +285,13 @@ const ExpenseType = () => {
       formKeys,
       addProductInputs,
       addProductFormKeys,
-      canManage,
       updateAccountExpenseType,
       deleteAccountExpenseType,
       updateAccountProduct,
       products,
       productForm.product,
+      expenseTypeDisabledCondition,
+      user,
     ]
   );
 
@@ -265,7 +304,7 @@ const ExpenseType = () => {
         rows={rows}
         title={t("Expense Types")}
         addButton={addButton as any}
-        isActionsActive={canManage}
+        isActionsActive={true}
       />
     </div>
   );

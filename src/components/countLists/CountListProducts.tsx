@@ -2,7 +2,11 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { AccountCountList } from "../../types";
+import {
+  AccountCountList,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -14,6 +18,9 @@ import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes, RowKeyType } from "../panelComponents/shared/types";
+import { useUserContext } from "../../context/User.context";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 
 type FormElementsState = {
   [key: string]: any;
@@ -32,6 +39,12 @@ const CountListProducts = () => {
     });
   const [showFilters, setShowFilters] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const countListProductsPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.COUNTLISTPRODUCTS, disabledConditions);
+  }, [disabledConditions]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -50,14 +63,35 @@ const CountListProducts = () => {
     [t, expenseTypes]
   );
 
-  const rows = useMemo(() => {
-    return products.filter((product) => {
-      return (
-        filterPanelFormElements.expenseType === "" ||
-        product.expenseType?.includes(filterPanelFormElements.expenseType)
+  const checkProductIsInCountLists = useMemo(() => {
+    return (product: string) => {
+      return countLists?.some((countList) =>
+        countList?.products?.some((item) => item.product === product)
       );
-    });
-  }, [products, filterPanelFormElements]);
+    };
+  }, [countLists]);
+
+  const rows = useMemo(() => {
+    return products
+      .filter((product) => {
+        return (
+          filterPanelFormElements.expenseType === "" ||
+          product.expenseType?.includes(filterPanelFormElements.expenseType)
+        );
+      })
+      .sort((a, b) => {
+        const aInList = checkProductIsInCountLists(a._id);
+        const bInList = checkProductIsInCountLists(b._id);
+
+        // Atanmayanlar önce (false < true)
+        if (aInList !== bInList) {
+          return aInList ? 1 : -1;
+        }
+
+        // Aynı durumda olanları alfabetik sırala
+        return a.name.localeCompare(b.name);
+      });
+  }, [products, filterPanelFormElements, checkProductIsInCountLists]);
 
   function handleCountListUpdate(row: any, countList: AccountCountList) {
     if (countList?.products?.find((item) => item.product === row._id)) {
@@ -82,14 +116,6 @@ const CountListProducts = () => {
       toast.success(`${t("Count List updated successfully")}`);
     }
   }
-
-  const checkProductIsInCountLists = useMemo(() => {
-    return (product: string) => {
-      return countLists?.some((countList) =>
-        countList?.products?.some((item) => item.product === product)
-      );
-    };
-  }, [countLists]);
 
   const { columns, rowKeys } = useMemo(() => {
     const cols = [{ key: t("Name"), isSortable: true }];
@@ -160,6 +186,12 @@ const CountListProducts = () => {
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
+        isDisabled: countListProductsPageDisabledCondition?.actions?.some(
+          (ac: any) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Show Filters"),
@@ -167,7 +199,7 @@ const CountListProducts = () => {
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, isEnableEdit, showFilters]
+    [t, isEnableEdit, showFilters, countListProductsPageDisabledCondition, user]
   );
 
   const filterPanel = useMemo(

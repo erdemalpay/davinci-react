@@ -5,14 +5,16 @@ import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/User.context";
-import { Kitchen, RoleEnum } from "../../types";
+import { ActionEnum, DisabledConditionEnum, Kitchen } from "../../types";
 import { useGetStoreLocations } from "../../utils/api/location";
 import {
   useGetKitchens,
   useKitchenMutations,
 } from "../../utils/api/menu/kitchen";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -38,6 +40,11 @@ const KitchenPage = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const { createKitchen, deleteKitchen, updateKitchen } = useKitchenMutations();
+  const disabledConditions = useGetDisabledConditions();
+
+  const kitchensDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_KITCHENS, disabledConditions);
+  }, [disabledConditions]);
 
   function handleLocationUpdate(row: any, changedLocationId: number) {
     let newLocations: number[] = row?.locations;
@@ -69,12 +76,26 @@ const KitchenPage = () => {
     });
     toast.success(`${t("Role permissions updated successfully.")}`);
   }
-  const canManage = useMemo(() => {
-    return (
-      user && [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)
-    );
-  }, [user]);
-
+  const canUpdateLocation = useMemo(
+    () =>
+      !kitchensDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.UPDATE_LOCATION &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
+    [kitchensDisabledCondition, user]
+  );
+  const canUpdateRoleAudio = useMemo(
+    () =>
+      !kitchensDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ROLE_AUDIO_UPDATE &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
+    [kitchensDisabledCondition, user]
+  );
   const columns = useMemo(() => {
     const cols = [
       { key: t("Name"), isSortable: true },
@@ -82,17 +103,15 @@ const KitchenPage = () => {
       { key: t("Selected Users"), isSortable: true },
     ];
 
-    if (canManage) {
-      if (isLocationEdit) {
-        locations?.forEach((item) => {
-          cols.push({ key: item.name, isSortable: true });
-        });
-      } else if (isEnableSoundRole && pages) {
-        const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
-        if (kitchenTabs) {
-          for (const role of roles) {
-            cols.push({ key: role.name, isSortable: true });
-          }
+    if (canUpdateLocation && isLocationEdit) {
+      locations?.forEach((item) => {
+        cols.push({ key: item.name, isSortable: true });
+      });
+    } else if (canUpdateRoleAudio && isEnableSoundRole && pages) {
+      const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
+      if (kitchenTabs) {
+        for (const role of roles) {
+          cols.push({ key: role.name, isSortable: true });
         }
       }
     }
@@ -100,12 +119,13 @@ const KitchenPage = () => {
     return cols;
   }, [
     t,
-    canManage,
     isLocationEdit,
     isEnableSoundRole,
     locations,
     pages,
     roles,
+    canUpdateLocation,
+    canUpdateRoleAudio,
   ]);
 
   const rowKeys = useMemo(() => {
@@ -135,56 +155,53 @@ const KitchenPage = () => {
       },
     ];
 
-    if (canManage) {
-      if (isLocationEdit) {
-        locations?.forEach((item) => {
-          keys.push({
-            key: String(item._id),
-            node: (row: any) =>
-              isLocationEdit ? (
-                <CheckSwitch
-                  checked={row?.locations?.includes(item._id)}
-                  onChange={() => handleLocationUpdate(row, item._id)}
-                />
-              ) : row?.locations?.includes(item._id) ? (
-                <IoCheckmark className="text-blue-500 text-2xl " />
-              ) : (
-                <IoCloseOutline className="text-red-800 text-2xl" />
-              ),
-          });
+    if (canUpdateLocation && isLocationEdit) {
+      locations?.forEach((item) => {
+        keys.push({
+          key: String(item._id),
+          node: (row: any) =>
+            isLocationEdit ? (
+              <CheckSwitch
+                checked={row?.locations?.includes(item._id)}
+                onChange={() => handleLocationUpdate(row, item._id)}
+              />
+            ) : row?.locations?.includes(item._id) ? (
+              <IoCheckmark className="text-blue-500 text-2xl " />
+            ) : (
+              <IoCloseOutline className="text-red-800 text-2xl" />
+            ),
         });
-      } else if (isEnableSoundRole && pages) {
-        const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
-        if (kitchenTabs) {
-          for (const role of roles) {
-            keys.push({
-              key: role._id.toString(),
-              node: (row: any) => {
-                const hasPermission = kitchenTabs
-                  ?.find((tab) => tab.name === row.name)
-                  ?.permissionRoles?.includes(role._id);
-                if (!hasPermission) return <></>;
-                const isSoundPermission = row?.soundRoles?.includes(role._id);
-                return isEnableSoundRole ? (
-                  <CheckSwitch
-                    checked={isSoundPermission ?? false}
-                    onChange={() => handleRoleSoundPermission(row, role._id)}
-                  />
-                ) : isSoundPermission ? (
-                  <IoCheckmark className={`text-blue-500 text-2xl `} />
-                ) : (
-                  <IoCloseOutline className={`text-red-800 text-2xl `} />
-                );
-              },
-            });
-          }
+      });
+    } else if (canUpdateRoleAudio && isEnableSoundRole && pages) {
+      const kitchenTabs = pages.find((page) => page._id === "orders")?.tabs;
+      if (kitchenTabs) {
+        for (const role of roles) {
+          keys.push({
+            key: role._id.toString(),
+            node: (row: any) => {
+              const hasPermission = kitchenTabs
+                ?.find((tab) => tab.name === row.name)
+                ?.permissionRoles?.includes(role._id);
+              if (!hasPermission) return <></>;
+              const isSoundPermission = row?.soundRoles?.includes(role._id);
+              return isEnableSoundRole ? (
+                <CheckSwitch
+                  checked={isSoundPermission ?? false}
+                  onChange={() => handleRoleSoundPermission(row, role._id)}
+                />
+              ) : isSoundPermission ? (
+                <IoCheckmark className={`text-blue-500 text-2xl `} />
+              ) : (
+                <IoCloseOutline className={`text-red-800 text-2xl `} />
+              );
+            },
+          });
         }
       }
     }
     return keys;
   }, [
     users,
-    canManage,
     isLocationEdit,
     isEnableSoundRole,
     locations,
@@ -192,6 +209,8 @@ const KitchenPage = () => {
     roles,
     handleLocationUpdate,
     handleRoleSoundPermission,
+    canUpdateLocation,
+    canUpdateRoleAudio,
   ]);
 
   const inputs = useMemo(
@@ -253,11 +272,24 @@ const KitchenPage = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: !canManage,
+      isDisabled: kitchensDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createKitchen, canManage]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createKitchen,
+      kitchensDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -283,7 +315,13 @@ const KitchenPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage && !isLocationEdit,
+        isDisabled:
+          kitchensDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.DELETE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          ) || isLocationEdit,
       },
       {
         name: t("Edit"),
@@ -306,7 +344,13 @@ const KitchenPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage && !isLocationEdit,
+        isDisabled:
+          kitchensDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          ) || isLocationEdit,
       },
     ],
     [
@@ -318,7 +362,8 @@ const KitchenPage = () => {
       formKeys,
       updateKitchen,
       deleteKitchen,
-      canManage,
+      kitchensDisabledCondition,
+      user,
       isLocationEdit,
     ]
   );
@@ -331,7 +376,15 @@ const KitchenPage = () => {
         node: (
           <SwitchButton checked={isLocationEdit} onChange={setIsLocationEdit} />
         ),
-        isDisabled: !canManage || isEnableSoundRole,
+        isDisabled:
+          !canUpdateLocation ||
+          isEnableSoundRole ||
+          kitchensDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE_LOCATION &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          ),
       },
       {
         label: t("Role Sound Edit"),
@@ -342,10 +395,26 @@ const KitchenPage = () => {
             onChange={setIsEnableSoundRole}
           />
         ),
-        isDisabled: !canManage || isLocationEdit,
+        isDisabled:
+          !canUpdateRoleAudio ||
+          isLocationEdit ||
+          kitchensDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.ROLE_AUDIO_UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          ),
       },
     ],
-    [t, isLocationEdit, isEnableSoundRole, canManage]
+    [
+      t,
+      isLocationEdit,
+      isEnableSoundRole,
+      canUpdateLocation,
+      canUpdateRoleAudio,
+      kitchensDisabledCondition,
+      user,
+    ]
   );
 
   return (
@@ -359,7 +428,7 @@ const KitchenPage = () => {
           title={t("Kitchens")}
           addButton={addButton}
           filters={filters}
-          isActionsActive={canManage ?? false}
+          isActionsActive={true}
         />
       </div>
     </>
