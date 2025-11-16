@@ -9,7 +9,8 @@ import {
   AccountCount,
   AccountCountList,
   AccountCountProduct,
-  RoleEnum,
+  ActionEnum,
+  DisabledConditionEnum,
 } from "../../types";
 import {
   useAccountCountMutations,
@@ -17,6 +18,7 @@ import {
 } from "../../utils/api/account/count";
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { useGetStockLocations } from "../../utils/api/location";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -77,27 +79,16 @@ const CountArchive = () => {
   const { resetGeneralContext } = useGeneralContext();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
 
-  const isDisabledCondition = useMemo(() => {
-    return !(
-      user &&
-      [
-        RoleEnum.MANAGER,
-        RoleEnum.GAMEMANAGER,
-        RoleEnum.OPERATIONSASISTANT,
-      ].includes(user.role._id)
-    );
-  }, [user]);
+  const countArchivePageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.COUNTARCHIVE, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => {
     const allRows =
       countsPayload?.data
-        ?.filter((count) => {
-          if (count?.user === user?._id || !isDisabledCondition) {
-            return count;
-          }
-        })
-        .map((count) => {
+        ?.map((count) => {
           if (!count?.createdAt) {
             return null;
           }
@@ -131,18 +122,10 @@ const CountArchive = () => {
         })
         ?.filter((item) => item !== null) ?? [];
     return allRows;
-  }, [
-    countsPayload,
-    user,
-    isDisabledCondition,
-    countLists,
-    locations,
-    users,
-    pad,
-  ]);
+  }, [countsPayload, countLists, locations, users, pad]);
 
   const columns = useMemo(() => {
-    const cols = [
+    return [
       { key: t("Start Date"), isSortable: true, correspondingKey: "createdAt" },
       { key: t("Start Hour"), isSortable: true },
       { key: t("End Date"), isSortable: true, correspondingKey: "completedAt" },
@@ -151,12 +134,9 @@ const CountArchive = () => {
       { key: t("Location"), isSortable: true, correspondingKey: "location" },
       { key: t("User"), isSortable: true, correspondingKey: "user" },
       { key: t("Status"), isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    if (!isDisabledCondition) {
-      cols.push({ key: t("Actions"), isSortable: false });
-    }
-    return cols;
-  }, [t, isDisabledCondition]);
+  }, [t]);
 
   const rowKeys = useMemo(
     () => [
@@ -333,11 +313,21 @@ const CountArchive = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: countArchivePageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         name: t("Toggle Active"),
-        isDisabled: isDisabledCondition,
+        isDisabled: countArchivePageDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.TOGGLE &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
         isModal: false,
         isPath: false,
         icon: null,
@@ -369,7 +359,8 @@ const CountArchive = () => {
       rowToAction,
       isCloseAllConfirmationDialogOpen,
       deleteAccountCount,
-      isDisabledCondition,
+      countArchivePageDisabledCondition,
+      user,
       updateAccountCount,
     ]
   );
@@ -415,7 +406,7 @@ const CountArchive = () => {
           filterPanel={filterPanel}
           filters={filters}
           actions={actions}
-          isActionsActive={!isDisabledCondition}
+          isActionsActive={true}
           outsideSortProps={outsideSort}
           {...(pagination && { pagination })}
         />

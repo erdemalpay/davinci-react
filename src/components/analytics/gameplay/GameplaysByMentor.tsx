@@ -163,7 +163,7 @@ export default function GameplaysByMentor() {
         ),
         isDisabled: gameplaysByMentorDisabledCondition?.actions?.some(
           (ac) =>
-            ac.action === ActionEnum.SHOW_INACTIVE_USERS &&
+            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
             user?.role?._id &&
             !ac?.permissionsRoles?.includes(user?.role?._id)
         ),

@@ -424,6 +424,10 @@ export enum DisabledConditionEnum {
   CAFE_ACTIVITIES = "cafe_activities",
   MEMBERSHIPS = "memberships",
   REWARDS = "rewards",
+  COUNTARCHIVE = "countarchive",
+  COUNTLISTS = "countlists",
+  COUNTLISTPRODUCTS = "countlistproducts",
+
 }
 export enum ActionEnum {
   DELETE = "delete",
@@ -449,12 +453,15 @@ export enum ActionEnum {
   GROUP_CAME = "group_came",
   CALLED = "called",
   OPENBACK = "openback",
-  SHOW_INACTIVE_USERS = "show_inactive_users",
+  SHOW_INACTIVE_ELEMENTS = "show_inactive_elements",
   SHOW_COMPLETED_ACTIVITIES = "show_completed_activities",
   SHOW_EXPIRED_MEMBERSHIPS = "show_expired_memberships",
   SET_USED = "set_used",
   SET_UNUSED = "set_unused",
   SHOW_EXPIRED_OR_USED_REWARDS = "show_expired_or_used_rewards",
+  TOGGLE = "toggle",
+  UPDATE_LOCATION = "update_location",
+  CREATE_COUNT = "create_count",
 }
 
 export type Membership = {

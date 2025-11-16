@@ -2,7 +2,11 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { AccountCountList } from "../../types";
+import {
+  AccountCountList,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import {
   useAccountCountListMutations,
   useGetAccountCountLists,
@@ -14,6 +18,9 @@ import { CheckSwitch } from "../common/CheckSwitch";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes, RowKeyType } from "../panelComponents/shared/types";
+import { useUserContext } from "../../context/User.context";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 
 type FormElementsState = {
   [key: string]: any;
@@ -32,6 +39,12 @@ const CountListProducts = () => {
     });
   const [showFilters, setShowFilters] = useState(false);
   const { updateAccountCountList } = useAccountCountListMutations();
+  const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
+
+  const countListProductsPageDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.COUNTLISTPRODUCTS, disabledConditions);
+  }, [disabledConditions]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -160,6 +173,12 @@ const CountListProducts = () => {
         node: (
           <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
         ),
+        isDisabled: countListProductsPageDisabledCondition?.actions?.some(
+          (ac: any) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac?.permissionsRoles?.includes(user?.role?._id)
+        ),
       },
       {
         label: t("Show Filters"),
@@ -167,7 +186,7 @@ const CountListProducts = () => {
         node: <SwitchButton checked={showFilters} onChange={setShowFilters} />,
       },
     ],
-    [t, isEnableEdit, showFilters]
+    [t, isEnableEdit, showFilters, countListProductsPageDisabledCondition, user]
   );
 
   const filterPanel = useMemo(
