@@ -691,6 +691,7 @@
   "LATESHIFTSTART": "Late Shift Start",
   "EARLYSHIFTEND": "Early Shift End",
   "UNCOMPLETEDCHECKLIST": "Uncompleted Checklist",
+  "UNFINISHEDVISIT": "Unfinished Visit",
   "NIGHTOPENTABLE": "Night Open Table",
   "COMPLETECOUNT": "Complete Count",
   "NEGATIVESTOCK": "Negative Stock",
@@ -948,6 +949,7 @@
     "Deactivated": "deactivated"
   },
   "UnclosedTablesToday": "There {{beVerb}} {{count}} unclosed {{tableWord}} for today.",
+  "UnfinishedVisit": "{{user}} has not finished their visit at {{location}} on {{date}}.",
   "ShiftLateNotice": "{{user}} is late for shift. Shift was at {{shift}} and {{user}} entered at {{enteredAt}}.",
   "ShiftEndEarlyNotice": "{{user}} is early for shift end. Shift end was at {{shiftEnd}} and {{user}} exited at {{exitedAt}}.",
   "Switch to Vertical Layout": "Switch to Vertical Layout",
