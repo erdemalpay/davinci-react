@@ -1043,7 +1043,14 @@
   "Point Delete": "Puan Silme",
   "Point User": "Puan Kullanıcısı",
   "Order ID": "Sipariş ID",
+  "Collection ID": "Tahsilat ID",
   "Table ID": "Masa ID",
   "Current Amount": "Mevcut Miktar",
-  "Old Amount": "Eski Miktar"
+  "Old Amount": "Eski Miktar",
+  "Select Point User": "Puan Kullanıcısı Seç",
+  "Select User": "Kullanıcı Seç",
+  "Required Amount": "Gerekli Miktar",
+  "Available Points": "Mevcut Puanlar",
+  "Amount to be Paid": "Ödenecek Miktar",
+  "Insufficient points. Only available amount will be used.": "Yetersiz puan. Sadece mevcut miktar kullanılacak."
 }

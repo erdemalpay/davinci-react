@@ -1038,7 +1038,14 @@
   "Point Delete": "Point Delete",
   "Point User": "Point User",
   "Order ID": "Order ID",
+  "Collection ID": "Collection ID",
   "Table ID": "Table ID",
   "Current Amount": "Current Amount",
-  "Old Amount": "Old Amount"
+  "Old Amount": "Old Amount",
+  "Select Point User": "Select Point User",
+  "Select User": "Select User",
+  "Required Amount": "Required Amount",
+  "Available Points": "Available Points",
+  "Amount to be Paid": "Amount to be Paid",
+  "Insufficient points. Only available amount will be used.": "Insufficient points. Only available amount will be used."
 }

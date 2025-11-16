@@ -113,7 +113,7 @@ const UserPointHistory = () => {
         isSortable: false,
         correspondingKey: "createdBy",
       },
-      { key: t("Order ID"), isSortable: false },
+      { key: t("Collection ID"), isSortable: false },
       { key: t("Table ID"), isSortable: false },
       { key: t("Old Amount"), isSortable: false },
       { key: t("Change"), isSortable: false },
@@ -145,7 +145,7 @@ const UserPointHistory = () => {
         className: "min-w-32 pr-1",
       },
       {
-        key: "orderId",
+        key: "collectionId",
         className: "min-w-32 pr-1",
       },
       {

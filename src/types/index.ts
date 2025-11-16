@@ -40,7 +40,7 @@ export type PointHistory = {
   point: number;
   pointUser: string;
   createdBy: string;
-  orderId?: number;
+  collectionId?: number;
   tableId?: number;
   status: string;
   currentAmount: number;

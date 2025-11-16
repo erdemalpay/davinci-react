@@ -13,6 +13,7 @@ import creditCard from "../../../assets/order/credit_card.png";
 import { useLocationContext } from "../../../context/Location.context";
 import { useOrderContext } from "../../../context/Order.context";
 import {
+  AccountPaymentMethod,
   Order,
   OrderCollection,
   OrderCollectionItem,
@@ -27,6 +28,7 @@ import { useOrderCollectionMutations } from "../../../utils/api/order/orderColle
 import { closeTable } from "../../../utils/api/table";
 import { getItem } from "../../../utils/getItem";
 import Loading from "../../common/Loading";
+import PointUserSelectionModal from "./PointUserSelectionModal";
 
 type Props = {
   tableOrders: Order[];
@@ -75,6 +77,9 @@ const OrderPaymentTypes = ({
   const { setIsCollectionModalOpen } = useOrderContext();
   const [componentKey, setComponentKey] = useState(0);
   const [expandedCollections, setExpandedCollections] = useState<number[]>([]);
+  const [isPointModalOpen, setIsPointModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<AccountPaymentMethod | null>(null);
   if (
     !selectedLocationId ||
     !givenDateCollections ||
@@ -142,6 +147,94 @@ const OrderPaymentTypes = ({
       ? paymentType?.isOnlineOrder
       : !paymentType?.isOnlineOrder
   );
+
+  const handlePayment = (
+    paymentMethod: AccountPaymentMethod,
+    pointUser?: string,
+    pointAmount?: number
+  ) => {
+    // Prepare new orders
+    let newOrders: Order[] = [];
+    if (
+      temporaryOrders.length !== 0 ||
+      totalMoneySpend >= totalAmount - discountAmount
+    ) {
+      if (allTotalMoneySpend >= allTotalAmount - allDiscountAmount) {
+        newOrders = allTableOrders?.map((order) => {
+          return {
+            ...order,
+            paidQuantity: order.quantity,
+          };
+        });
+      } else if (totalMoneySpend >= totalAmount - discountAmount) {
+        newOrders = tableOrders?.map((order) => {
+          return {
+            ...order,
+            paidQuantity: order.quantity,
+          };
+        });
+      } else {
+        newOrders = tableOrders?.map((order) => {
+          const temporaryOrder = temporaryOrders.find(
+            (temporaryOrder) => temporaryOrder.order._id === order._id
+          );
+          if (!temporaryOrder) {
+            return order;
+          }
+          return {
+            ...order,
+            paidQuantity: order.paidQuantity + temporaryOrder.quantity,
+          };
+        });
+      }
+    }
+
+    // Determine the actual amount to be paid
+    const requiredAmount =
+      Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0);
+    const actualAmount = pointAmount ? pointAmount : requiredAmount;
+
+    // If points are insufficient, send empty orders array and no newOrders
+    const isPointsInsufficient = pointAmount && pointAmount < requiredAmount;
+    const finalCollectionOrders = isPointsInsufficient ? [] : collectionOrders;
+    const finalNewOrders = isPointsInsufficient ? [] : newOrders;
+
+    const createdCollection = {
+      table: table?._id,
+      location: table?.type === TableTypes.ONLINE ? 4 : selectedLocationId,
+      paymentMethod: paymentMethod._id,
+      amount: actualAmount,
+      status: OrderCollectionStatus.PAID,
+      orders: finalCollectionOrders,
+      ...(finalNewOrders.length > 0 && { newOrders: finalNewOrders }),
+      createdBy: user._id,
+      tableDate: table ? new Date(table.date) : new Date(),
+      activityPlayer: selectedActivityUser,
+      ...(pointUser && { pointUser: pointUser }),
+    };
+
+    createOrderCollection(createdCollection);
+
+    const totalMoney = collectionsTotalAmount + actualAmount;
+
+    if (table && !table?.finishHour && table.type === TableTypes.TAKEOUT) {
+      if (totalMoney === totalAmount - discountAmount) {
+        closeTable({
+          id: table._id,
+          updates: { finishHour: format(new Date(), "HH:mm") },
+        });
+      }
+    }
+    resetOrderContext();
+  };
+
+  const handlePointUserConfirm = (pointUser: string, amount: number) => {
+    if (selectedPaymentMethod) {
+      handlePayment(selectedPaymentMethod, pointUser, amount);
+      setSelectedPaymentMethod(null);
+    }
+  };
+
   useEffect(() => {
     setComponentKey((prev) => prev + 1);
   }, [items?.length]);
@@ -178,74 +271,16 @@ const OrderPaymentTypes = ({
                 );
                 return;
               }
-              // if payment amount is greater than total amount or there are items in the temporary orders
-              let newOrders: Order[] = [];
-              if (
-                temporaryOrders.length !== 0 ||
-                totalMoneySpend >= totalAmount - discountAmount
-              ) {
-                if (allTotalMoneySpend >= allTotalAmount - allDiscountAmount) {
-                  newOrders = allTableOrders?.map((order) => {
-                    return {
-                      ...order,
-                      paidQuantity: order.quantity,
-                    };
-                  });
-                } else if (totalMoneySpend >= totalAmount - discountAmount) {
-                  newOrders = tableOrders?.map((order) => {
-                    return {
-                      ...order,
-                      paidQuantity: order.quantity,
-                    };
-                  });
-                } else {
-                  newOrders = tableOrders?.map((order) => {
-                    const temporaryOrder = temporaryOrders.find(
-                      (temporaryOrder) => temporaryOrder.order._id === order._id
-                    );
-                    if (!temporaryOrder) {
-                      return order;
-                    }
-                    return {
-                      ...order,
-                      paidQuantity:
-                        order.paidQuantity + temporaryOrder.quantity,
-                    };
-                  });
-                }
+
+              // Check if this is a point payment method
+              if (paymentType.isPointPayment) {
+                setSelectedPaymentMethod(paymentType);
+                setIsPointModalOpen(true);
+                return;
               }
-              const createdCollection = {
-                table: table?._id,
-                location:
-                  table?.type === TableTypes.ONLINE ? 4 : selectedLocationId,
-                paymentMethod: paymentType._id,
-                amount:
-                  Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0),
-                status: OrderCollectionStatus.PAID,
-                orders: collectionOrders,
-                ...(newOrders && { newOrders: newOrders }),
-                createdBy: user._id,
-                tableDate: table ? new Date(table.date) : new Date(),
-                activityPlayer: selectedActivityUser,
-              };
-              createOrderCollection(createdCollection);
-              const totalMoney =
-                collectionsTotalAmount +
-                Number(paymentAmount) -
-                (refundAmount > 0 ? refundAmount : 0);
-              if (
-                table &&
-                !table?.finishHour &&
-                table.type === TableTypes.TAKEOUT
-              ) {
-                if (totalMoney === totalAmount - discountAmount) {
-                  closeTable({
-                    id: table._id,
-                    updates: { finishHour: format(new Date(), "HH:mm") },
-                  });
-                }
-              }
-              resetOrderContext();
+
+              // Regular payment flow
+              handlePayment(paymentType);
             }}
             className="max-h-24 flex flex-col justify-center items-center border border-gray-200 p-2 rounded-md cursor-pointer hover:bg-gray-100 gap-2"
           >
@@ -258,6 +293,20 @@ const OrderPaymentTypes = ({
           </div>
         ))}
       </div>
+
+      {/* Point User Selection Modal */}
+      <PointUserSelectionModal
+        isOpen={isPointModalOpen}
+        close={() => {
+          setIsPointModalOpen(false);
+          setSelectedPaymentMethod(null);
+        }}
+        onConfirm={handlePointUserConfirm}
+        requiredAmount={
+          Number(paymentAmount) - (refundAmount > 0 ? refundAmount : 0)
+        }
+      />
+
       {/*collection history */}
       <div className="flex flex-row justify-between border-b border-gray-200 items-center pb-1  px-2 py-2 mt-4 ">
         <div className="flex flex-row gap-1 justify-center items-center">
