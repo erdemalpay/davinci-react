@@ -3,6 +3,7 @@ import {
   FaRegListAlt,
   FaRegUserCircle,
 } from "react-icons/fa";
+import { GiTwoCoins } from "react-icons/gi";
 import { IoIosSettings, IoMdNotifications } from "react-icons/io";
 import { MdOutlineEventNote } from "react-icons/md";
 import { TbListDetails } from "react-icons/tb";
@@ -14,6 +15,7 @@ import Settings from "../components/panelComponents/Profile/Settings";
 import UserNotifications from "../components/panelComponents/Profile/UserNotifications";
 import UserShifts from "../components/panelComponents/Profile/UserShifts";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
+import UserPointHistory from "../components/points/UserPointHistory";
 import GameMasterSummary from "../components/user/GameMasterSummary";
 import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
@@ -35,6 +37,7 @@ export enum ProfileTabEnum {
   SERVICEPERSONALUSERSUMMARY,
   SHIFTS,
   NOTIFICATIONS,
+  POINTHISTORY,
 }
 export const ProfilePageTabs = [
   {
@@ -105,6 +108,13 @@ export const ProfilePageTabs = [
     label: "Notifications",
     icon: <IoMdNotifications className="text-lg font-thin" />,
     content: <UserNotifications />,
+    isDisabled: false,
+  },
+  {
+    number: ProfileTabEnum.POINTHISTORY,
+    label: "Point History",
+    icon: <GiTwoCoins className="text-lg font-thin" />,
+    content: <UserPointHistory />,
     isDisabled: false,
   },
 ];

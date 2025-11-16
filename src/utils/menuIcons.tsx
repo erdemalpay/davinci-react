@@ -1,4 +1,5 @@
 import { IconType } from "react-icons";
+import { GiSevenPointedStar } from "react-icons/gi";
 import {
   MdAccountBalanceWallet,
   MdAddShoppingCart,
@@ -131,6 +132,7 @@ export const getMenuIcon = (menuName: string): IconType => {
     Raporlar: MdReceipt,
     Panel: MdAdminPanelSettings,
     "Panel Control": MdSettings,
+    Points: GiSevenPointedStar,
     "Page Details": MdFilePresent,
     "Disabled Condition Actions": MdLock,
   };

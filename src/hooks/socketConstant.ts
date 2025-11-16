@@ -245,6 +245,12 @@ export const socketEventListeners: SocketEventType[] = [
     invalidateKeys: [`${Paths.PanelControl}/task-tracks`],
   },
   {
+    event: "pointChanged",
+    invalidateKeys: [`${Paths.Point}`],
+  },
+  {
+    event: "pointHistoryChanged",
+    invalidateKeys: [`${Paths.Point}/history`],
     event: "shiftChangeRequestChanged",
     invalidateKeys: [
       `${Paths.ShiftChangeRequest}`,

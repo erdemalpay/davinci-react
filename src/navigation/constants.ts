@@ -35,6 +35,7 @@ import Orders from "../pages/Orders";
 import OrdersSummary from "../pages/OrdersSummary";
 import PageDetails from "../pages/PageDetails";
 import PanelControl from "../pages/PanelControl";
+import Points from "../pages/Points";
 import Product from "../pages/Product";
 import Profile, { ProfilePageTabs } from "../pages/Profile";
 import Reservations from "../pages/Reservations";
@@ -56,6 +57,7 @@ import { CheckoutPageTabs } from "./../pages/Checkout";
 import { ExpensePageTabs } from "./../pages/Expenses";
 import Notifications, { NotificationPageTabs } from "./../pages/Notifications";
 import { OrderDataTabs } from "./../pages/OrderDatas";
+import { PointsPageTabs } from "./../pages/Points";
 import { ProductPageTabs } from "./../pages/Product";
 import { StockPageTabs } from "./../pages/Stocks";
 import { VendorPageTabs } from "./../pages/Vendor";
@@ -122,6 +124,7 @@ export enum Routes {
   DailySummary = "/daily-summary",
   IkasPickUp = "/ikas-pickup",
   orderCategoryOrder = "/order-category-order",
+  Points = "/points",
 }
 
 export const allRoutes: {
@@ -679,6 +682,13 @@ export const allRoutes: {
     path: Routes.Education,
     element: Education,
     isOnSidebar: false,
+  },
+  {
+    name: "Points",
+    path: Routes.Points,
+    element: Points,
+    isOnSidebar: true,
+    tabs: PointsPageTabs,
   },
   {
     name: "Panel",

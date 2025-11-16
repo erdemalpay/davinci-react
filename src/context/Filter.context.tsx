@@ -72,6 +72,16 @@ type FilterContextType = {
   setFilterProductStockHistoryPanelFormElements: (
     state: FormElementsState
   ) => void;
+  showPointHistoryFilters: boolean;
+  setShowPointHistoryFilters: (state: boolean) => void;
+  filterPointHistoryPanelFormElements: FormElementsState;
+  setFilterPointHistoryPanelFormElements: (state: FormElementsState) => void;
+  showUserPointHistoryFilters: boolean;
+  setShowUserPointHistoryFilters: (state: boolean) => void;
+  filterUserPointHistoryPanelFormElements: FormElementsState;
+  setFilterUserPointHistoryPanelFormElements: (
+    state: FormElementsState
+  ) => void;
   filterActivityFormElements: FormElementsState;
   initialFilterActivityFormElements: FormElementsState;
   initialFilterPanelServiceInvoiceFormElements: FormElementsState;
@@ -380,6 +390,27 @@ const FilterContext = createContext<FilterContextType>({
     brand: "",
   },
   setFilterProductStockHistoryPanelFormElements: () => {},
+  showPointHistoryFilters: false,
+  setShowPointHistoryFilters: () => {},
+  filterPointHistoryPanelFormElements: {
+    pointUser: "",
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  },
+  setFilterPointHistoryPanelFormElements: () => {},
+  showUserPointHistoryFilters: false,
+  setShowUserPointHistoryFilters: () => {},
+  filterUserPointHistoryPanelFormElements: {
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  },
+  setFilterUserPointHistoryPanelFormElements: () => {},
   filterActivityFormElements: {
     after: dateRanges.thisMonth().after,
     before: dateRanges.thisMonth().before,
@@ -779,6 +810,30 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   });
   const [showProductStockHistoryFilters, setShowProductStockHistoryFilters] =
     useState(false);
+  const [
+    filterPointHistoryPanelFormElements,
+    setFilterPointHistoryPanelFormElements,
+  ] = useState<FormElementsState>({
+    pointUser: "",
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  });
+  const [showPointHistoryFilters, setShowPointHistoryFilters] = useState(false);
+  const [
+    filterUserPointHistoryPanelFormElements,
+    setFilterUserPointHistoryPanelFormElements,
+  ] = useState<FormElementsState>({
+    status: [],
+    before: "",
+    after: "",
+    sort: "",
+    asc: 1,
+  });
+  const [showUserPointHistoryFilters, setShowUserPointHistoryFilters] =
+    useState(false);
   const [showEnterConsumptionFilters, setShowEnterConsumptionFilters] =
     useState(false);
   const [showGameStockLocationFilters, setShowGameStockLocationFilters] =
@@ -925,6 +980,18 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
           filterProductStockHistoryPanelFormElements,
         setFilterProductStockHistoryPanelFormElements:
           setFilterProductStockHistoryPanelFormElements,
+        showPointHistoryFilters: showPointHistoryFilters,
+        setShowPointHistoryFilters: setShowPointHistoryFilters,
+        filterPointHistoryPanelFormElements:
+          filterPointHistoryPanelFormElements,
+        setFilterPointHistoryPanelFormElements:
+          setFilterPointHistoryPanelFormElements,
+        showUserPointHistoryFilters: showUserPointHistoryFilters,
+        setShowUserPointHistoryFilters: setShowUserPointHistoryFilters,
+        filterUserPointHistoryPanelFormElements:
+          filterUserPointHistoryPanelFormElements,
+        setFilterUserPointHistoryPanelFormElements:
+          setFilterUserPointHistoryPanelFormElements,
         isGameEnableEdit: isGameEnableEdit,
         setIsGameEnableEdit: setIsGameEnableEdit,
         showLearnedGamesFilters: showLearnedGamesFilters,

@@ -254,15 +254,34 @@ const GenericAddEditPanel = <T,>({
   );
   const finalSubmitFunction = () => {
     try {
+      // Convert form values based on formKeys types
+      const convertedFormElements = { ...formElements };
+      formKeys.forEach((formKey) => {
+        const value = convertedFormElements[formKey.key];
+        if (value !== null && value !== undefined && value !== "") {
+          switch (formKey.type) {
+            case FormKeyTypeEnum.NUMBER:
+              convertedFormElements[formKey.key] = Number(value);
+              break;
+            case FormKeyTypeEnum.BOOLEAN:
+              convertedFormElements[formKey.key] = Boolean(value);
+              break;
+            // Other types remain as-is
+            default:
+              break;
+          }
+        }
+      });
+
       if (isEditMode && itemToEdit) {
-        submitItem({ id: itemToEdit.id, updates: formElements as T });
+        submitItem({ id: itemToEdit.id, updates: convertedFormElements as T });
       } else if (isEditMode && handleUpdate) {
         handleUpdate();
       } else {
         if (submitFunction) {
           submitFunction();
         } else {
-          submitItem(formElements as T);
+          submitItem(convertedFormElements as T);
         }
       }
       additionalSubmitFunction?.();
@@ -334,7 +353,10 @@ const GenericAddEditPanel = <T,>({
       if (allowOptionalSubmitForActivityTable) {
         handleSubmit();
       } else {
-        if (!_.isEqual(formElements, mergedInitialState) && !allRequiredFilled) {
+        if (
+          !_.isEqual(formElements, mergedInitialState) &&
+          !allRequiredFilled
+        ) {
           toast.error(t("Please fill all required fields"));
           return;
         }
@@ -780,8 +802,10 @@ const GenericAddEditPanel = <T,>({
                     }
                     size="md"
                     onClick={() => {
-
-                      if (button.isInputRequirementCheck && !allRequiredFilled) {
+                      if (
+                        button.isInputRequirementCheck &&
+                        !allRequiredFilled
+                      ) {
                         setAttemptedSubmit(true);
                         toast.error(t("Please fill all required fields"));
                         return;
