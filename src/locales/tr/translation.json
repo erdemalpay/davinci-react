@@ -1066,6 +1066,8 @@
   "Point Create": "Puan Oluşturma",
   "Point Update": "Puan Güncelleme",
   "Point Delete": "Puan Silme",
+  "Collection Created": "Tahsilat Oluşturuldu",
+  "Collection Cancelled": "Tahsilat İptal Edildi",
   "Point User": "Puan Kullanıcısı",
   "Order ID": "Sipariş ID",
   "Collection ID": "Tahsilat ID",

@@ -1061,6 +1061,8 @@
   "Point Create": "Point Create",
   "Point Update": "Point Update",
   "Point Delete": "Point Delete",
+  "Collection Created": "Collection Created",
+  "Collection Cancelled": "Collection Cancelled",
   "Point User": "Point User",
   "Order ID": "Order ID",
   "Collection ID": "Collection ID",
