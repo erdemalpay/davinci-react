@@ -427,8 +427,21 @@ export enum DisabledConditionEnum {
   COUNTARCHIVE = "countarchive",
   COUNTLISTS = "countlists",
   COUNTLISTPRODUCTS = "countlistproducts",
-
+  ACCOUNTING_EXPENSETYPE = "expensetype",
+  ACCOUNTING_VENDOR = "vendor",
+  ACCOUNTING_BRAND = "brand",
+  ACCOUNTING_PRODUCT = "product",
+  ACCOUNTING_PRODUCTCATEGORIES = "productcategories",
+  ACCOUNTING_SERVICES = "services",
+  ACCOUNTING_DISCOUNTS = "discounts",
+  ACCOUNTING_PAYMENTMETHODS = "paymentmethods",
+  ACCOUNTING_KITCHENS = "kitchens",
+  ACCOUNTING_LOCATIONS = "locations",
+  ACCOUNTING_UPPERCATEGORIES = "uppercategories",
+  ACCOUNTING_ORDERNOTES = "ordernotes",
+  ACCOUNTING_ACTIONS = "actions",
 }
+
 export enum ActionEnum {
   DELETE = "delete",
   ADD = "add",
@@ -462,6 +475,10 @@ export enum ActionEnum {
   TOGGLE = "toggle",
   UPDATE_LOCATION = "update_location",
   CREATE_COUNT = "create_count",
+  ADD_TO_ELEMENT = "add_to_element",
+  CREATE_MULTIPLE = "create_multiple",
+  COMBINE_ELEMENTS = "combine_elements",
+  ROLE_AUDIO_UPDATE = "role_audio_update",
 }
 
 export type Membership = {

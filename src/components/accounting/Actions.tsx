@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useUserContext } from "../../context/User.context";
-import { Action, RoleEnum } from "../../types";
+import { Action, ActionEnum, DisabledConditionEnum } from "../../types";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 
 import {
   useActionMutations,
@@ -26,20 +28,21 @@ const Actions = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
   const { createAction, deleteAction, updateAction } = useActionMutations();
+  const disabledConditions = useGetDisabledConditions();
 
-  const canManage = useMemo(() => {
-    return user && [RoleEnum.MANAGER].includes(user?.role?._id);
-  }, [user]);
+  const accountingActionsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_ACTIONS, disabledConditions);
+  }, [disabledConditions]);
 
   const rows = useMemo(() => panelControlActions, [panelControlActions]);
 
   const columns = useMemo(() => {
-    const cols = [{ key: t("Name"), isSortable: true }];
-    if (canManage) {
-      cols.push({ key: t("Actions"), isSortable: false });
-    }
+    const cols = [
+      { key: t("Name"), isSortable: true },
+      { key: t("Actions"), isSortable: false },
+    ];
     return cols;
-  }, [t, canManage]);
+  }, [t]);
 
   const rowKeys = useMemo(() => [{ key: "name" }], []);
 
@@ -78,11 +81,24 @@ const Actions = () => {
       isModalOpen: isAddModalOpen,
       setIsModal: setIsAddModalOpen,
       isPath: false,
-      isDisabled: !canManage,
+      isDisabled: accountingActionsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       icon: null,
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createAction, canManage]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createAction,
+      accountingActionsDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -108,7 +124,12 @@ const Actions = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: accountingActionsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -131,7 +152,12 @@ const Actions = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !canManage,
+        isDisabled: accountingActionsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
     ],
     [
@@ -143,7 +169,8 @@ const Actions = () => {
       formKeys,
       updateAction,
       deleteAction,
-      canManage,
+      accountingActionsDisabledCondition,
+      user,
     ]
   );
 
@@ -157,7 +184,7 @@ const Actions = () => {
           rows={rows}
           title={t("Actions")}
           addButton={addButton}
-          isActionsActive={canManage ?? false}
+          isActionsActive={true}
         />
       </div>
     </>

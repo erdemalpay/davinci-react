@@ -4,11 +4,18 @@ import { FiEdit } from "react-icons/fi";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { IoCheckmark, IoCloseOutline } from "react-icons/io5";
 import { useUserContext } from "../../context/User.context";
-import { OrderDiscount, OrderDiscountStatus, RoleEnum } from "../../types";
+import {
+  ActionEnum,
+  DisabledConditionEnum,
+  OrderDiscount,
+  OrderDiscountStatus,
+} from "../../types";
 import {
   useGetOrderDiscounts,
   useOrderDiscountMutations,
 } from "../../utils/api/order/orderDiscount";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -26,6 +33,7 @@ const OrderDiscountPage = () => {
   const { t } = useTranslation();
   const orderDiscounts = useGetOrderDiscounts();
   const { user } = useUserContext();
+  const disabledConditions = useGetDisabledConditions();
 
   const [showInactiveDiscounts, setShowInactiveDiscounts] = useState(false);
   const [isEnableEdit, setIsEnableEdit] = useState(false);
@@ -37,10 +45,9 @@ const OrderDiscountPage = () => {
     setIsCloseAllConfirmationDialogOpen,
   ] = useState(false);
 
-  const userCondition =
-    (user &&
-      [RoleEnum.MANAGER, RoleEnum.GAMEMANAGER].includes(user?.role?._id)) ??
-    false;
+  const discountsDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_DISCOUNTS, disabledConditions);
+  }, [disabledConditions]);
 
   const { createOrderDiscount, updateOrderDiscount } =
     useOrderDiscountMutations();
@@ -144,7 +151,7 @@ const OrderDiscountPage = () => {
   );
 
   const columns = useMemo(() => {
-    const base = [
+    return [
       { key: t("Name"), isSortable: true },
       { key: t("Percentage"), isSortable: true },
       { key: t("Amount"), isSortable: true },
@@ -153,14 +160,18 @@ const OrderDiscountPage = () => {
       { key: t("Note Required"), isSortable: false },
       { key: t("Visible on Payment Screen"), isSortable: false },
       { key: t("Note Placeholder"), isSortable: false },
+      { key: t("Actions"), isSortable: false },
     ];
-    return userCondition
-      ? [...base, { key: t("Actions"), isSortable: false }]
-      : base;
-  }, [t, userCondition]);
+  }, [t]);
 
-  const rowKeys = useMemo(
-    () => [
+  const rowKeys = useMemo(() => {
+    const isUpdateDisabled = discountsDisabledCondition?.actions?.some(
+      (ac) =>
+        ac.action === ActionEnum.UPDATE &&
+        user?.role?._id &&
+        !ac.permissionsRoles.includes(user.role._id)
+    );
+    return [
       { key: "name", className: "min-w-32 pr-1" },
       { key: "percentage", className: "min-w-32 pr-1" },
       { key: "amount", className: "min-w-32 pr-1" },
@@ -168,10 +179,17 @@ const OrderDiscountPage = () => {
         key: "isOnlineOrder",
         node: (row: any) =>
           isEnableEdit ? (
-            <CheckSwitch
-              checked={row?.isOnlineOrder}
-              onChange={() => handleOnlineOrderChange(row)}
-            />
+            <div
+              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              <CheckSwitch
+                checked={row?.isOnlineOrder}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  handleOnlineOrderChange(row);
+                }}
+              />
+            </div>
           ) : row?.isOnlineOrder ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
@@ -182,10 +200,17 @@ const OrderDiscountPage = () => {
         key: "isStoreOrder",
         node: (row: any) =>
           isEnableEdit ? (
-            <CheckSwitch
-              checked={row?.isStoreOrder}
-              onChange={() => handleStoreOrderChange(row)}
-            />
+            <div
+              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              <CheckSwitch
+                checked={row?.isStoreOrder}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  handleStoreOrderChange(row);
+                }}
+              />
+            </div>
           ) : row?.isStoreOrder ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
@@ -196,10 +221,17 @@ const OrderDiscountPage = () => {
         key: "isNoteRequired",
         node: (row: any) =>
           isEnableEdit ? (
-            <CheckSwitch
-              checked={row?.isNoteRequired}
-              onChange={() => handleNoteRequiredChange(row)}
-            />
+            <div
+              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              <CheckSwitch
+                checked={row?.isNoteRequired}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  handleNoteRequiredChange(row);
+                }}
+              />
+            </div>
           ) : row?.isNoteRequired ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
@@ -210,10 +242,17 @@ const OrderDiscountPage = () => {
         key: "isVisibleOnPaymentScreen",
         node: (row: any) =>
           isEnableEdit ? (
-            <CheckSwitch
-              checked={row?.isVisibleOnPaymentScreen}
-              onChange={() => handleVisibleOnPaymentScreenChange(row)}
-            />
+            <div
+              className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              <CheckSwitch
+                checked={row?.isVisibleOnPaymentScreen}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  handleVisibleOnPaymentScreenChange(row);
+                }}
+              />
+            </div>
           ) : row?.isVisibleOnPaymentScreen ? (
             <IoCheckmark className="text-blue-500 text-2xl " />
           ) : (
@@ -221,9 +260,8 @@ const OrderDiscountPage = () => {
           ),
       },
       { key: "note", className: "min-w-32 pr-1" },
-    ],
-    [isEnableEdit]
-  );
+    ];
+  }, [isEnableEdit, discountsDisabledCondition, user]);
 
   const addButton = useMemo(
     () => ({
@@ -244,10 +282,23 @@ const OrderDiscountPage = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: !userCondition,
+      isDisabled: discountsDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500 ",
     }),
-    [t, isAddModalOpen, inputs, formKeys, createOrderDiscount, userCondition]
+    [
+      t,
+      isAddModalOpen,
+      inputs,
+      formKeys,
+      createOrderDiscount,
+      discountsDisabledCondition,
+      user,
+    ]
   );
 
   const actions = useMemo(
@@ -276,7 +327,12 @@ const OrderDiscountPage = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: !userCondition,
+        isDisabled: discountsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -310,7 +366,12 @@ const OrderDiscountPage = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: !userCondition,
+        isDisabled: discountsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Toggle Active"),
@@ -318,24 +379,37 @@ const OrderDiscountPage = () => {
         isModal: false,
         isPath: false,
         icon: null,
-        node: (row: any) => (
-          <div className="mt-2 mr-auto">
-            <CheckSwitch
-              checked={row.status !== OrderDiscountStatus.DELETED}
-              onChange={() => {
-                updateOrderDiscount({
-                  id: row._id,
-                  updates: {
-                    status:
-                      row.status === OrderDiscountStatus.DELETED
-                        ? ""
-                        : OrderDiscountStatus.DELETED,
-                  },
-                });
-              }}
-            />
-          </div>
-        ),
+        node: (row: any) => {
+          const isUpdateDisabled = discountsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return (
+            <div
+              className={`mt-2 mr-auto ${
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <CheckSwitch
+                checked={row.status !== OrderDiscountStatus.DELETED}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  updateOrderDiscount({
+                    id: row._id,
+                    updates: {
+                      status:
+                        row.status === OrderDiscountStatus.DELETED
+                          ? ""
+                          : OrderDiscountStatus.DELETED,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        },
       },
     ],
     [
@@ -346,38 +420,51 @@ const OrderDiscountPage = () => {
       inputs,
       formKeys,
       updateOrderDiscount,
-      userCondition,
       showInactiveDiscounts,
+      discountsDisabledCondition,
+      user,
     ]
   );
 
   const filters = useMemo(
-    () =>
-      userCondition
-        ? [
-            {
-              label: t("Enable Edit"),
-              isUpperSide: true,
-              node: (
-                <SwitchButton
-                  checked={isEnableEdit}
-                  onChange={setIsEnableEdit}
-                />
-              ),
-            },
-            {
-              label: t("Show Inactive Discounts"),
-              isUpperSide: false,
-              node: (
-                <SwitchButton
-                  checked={showInactiveDiscounts}
-                  onChange={setShowInactiveDiscounts}
-                />
-              ),
-            },
-          ]
-        : [],
-    [t, userCondition, isEnableEdit, showInactiveDiscounts]
+    () => [
+      {
+        label: t("Enable Edit"),
+        isUpperSide: true,
+        node: (
+          <SwitchButton checked={isEnableEdit} onChange={setIsEnableEdit} />
+        ),
+        isDisabled: discountsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ENABLEEDIT &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
+      },
+      {
+        label: t("Show Inactive Discounts"),
+        isUpperSide: false,
+        node: (
+          <SwitchButton
+            checked={showInactiveDiscounts}
+            onChange={setShowInactiveDiscounts}
+          />
+        ),
+        isDisabled: discountsDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
+      },
+    ],
+    [
+      t,
+      isEnableEdit,
+      showInactiveDiscounts,
+      discountsDisabledCondition,
+      user,
+    ]
   );
 
   const rows = useMemo(
@@ -400,7 +487,7 @@ const OrderDiscountPage = () => {
         title={t("Discounts")}
         addButton={addButton}
         filters={filters}
-        isActionsActive={userCondition}
+        isActionsActive={true}
       />
     </div>
   );

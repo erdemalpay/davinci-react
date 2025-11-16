@@ -7,7 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
-import { AccountProduct, RoleEnum } from "../../types";
+import {
+  AccountProduct,
+  ActionEnum,
+  DisabledConditionEnum,
+} from "../../types";
 import { useGetAccountBrands } from "../../utils/api/account/brand";
 import { useGetAccountExpenseTypes } from "../../utils/api/account/expenseType";
 import {
@@ -21,6 +25,7 @@ import {
   useGetMenuItems,
   useMenuItemMutations,
 } from "../../utils/api/menu/menu-item";
+import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -43,13 +48,11 @@ const Product = () => {
   const navigate = useNavigate();
   const vendors = useGetAccountVendors();
   const pages = useGetPanelControlPages();
-  const isDisabledCondition = user
-    ? ![
-        RoleEnum.MANAGER,
-        RoleEnum.GAMEMANAGER,
-        RoleEnum.OPERATIONSASISTANT,
-      ].includes(user?.role?._id)
-    : true;
+  const disabledConditions = useGetDisabledConditions();
+
+  const productDisabledCondition = useMemo(() => {
+    return getItem(DisabledConditionEnum.ACCOUNTING_PRODUCT, disabledConditions);
+  }, [disabledConditions]);
 
   const [showInactiveProducts, setShowInactiveProducts] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -312,7 +315,7 @@ const Product = () => {
   );
 
   const columns = useMemo(() => {
-    const cols = [
+    return [
       { key: t("Name"), isSortable: true, correspondingKey: "name" },
       {
         key: t("Expense Type"),
@@ -325,16 +328,10 @@ const Product = () => {
       { key: t("Matched Menu Item"), isSortable: true },
       { key: t("Actions"), isSortable: false },
     ];
-    if (isDisabledCondition) {
-      return cols.filter(
-        (c) => c.key !== t("Unit Price") && c.key !== t("Actions")
-      );
-    }
-    return cols;
-  }, [t, isDisabledCondition]);
+  }, [t]);
 
   const rowKeys = useMemo(() => {
-    const keys = [
+    return [
       {
         key: "name",
         className: "min-w-32 pr-1",
@@ -433,9 +430,6 @@ const Product = () => {
         ),
       },
     ];
-    return isDisabledCondition
-      ? keys.filter((k) => k.key !== "unitPrice")
-      : keys;
   }, [
     user,
     pages,
@@ -447,7 +441,6 @@ const Product = () => {
     brands,
     vendors,
     items,
-    isDisabledCondition,
   ]);
 
   const addButton = useMemo(
@@ -477,7 +470,12 @@ const Product = () => {
       setIsModal: setIsAddModalOpen,
       isPath: false,
       icon: null,
-      isDisabled: isDisabledCondition,
+      isDisabled: productDisabledCondition?.actions?.some(
+        (ac) =>
+          ac.action === ActionEnum.ADD &&
+          user?.role?._id &&
+          !ac.permissionsRoles.includes(user.role._id)
+      ),
       className: "bg-blue-500 hover:text-blue-500 hover:border-blue-500",
     }),
     [
@@ -487,7 +485,8 @@ const Product = () => {
       formKeys,
       createAccountProduct,
       inputForm,
-      isDisabledCondition,
+      productDisabledCondition,
+      user,
     ]
   );
 
@@ -514,7 +513,12 @@ const Product = () => {
         isModalOpen: isCloseAllConfirmationDialogOpen,
         setIsModal: setIsCloseAllConfirmationDialogOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: productDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.DELETE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t(`Add Item`),
@@ -540,6 +544,12 @@ const Product = () => {
         isPath: false,
         icon: <CiCirclePlus />,
         className: "text-2xl mt-1 cursor-pointer",
+        isDisabled: productDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.ADD_TO_ELEMENT &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Edit"),
@@ -579,7 +589,12 @@ const Product = () => {
         isModalOpen: isEditModalOpen,
         setIsModal: setIsEditModalOpen,
         isPath: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: productDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.UPDATE &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
       },
       {
         name: t("Toggle Active"),
@@ -615,7 +630,8 @@ const Product = () => {
       createItem,
       updateAccountProduct,
       inputForm,
-      isDisabledCondition,
+      productDisabledCondition,
+      user,
       showInactiveProducts,
       deleteAccountProduct,
     ]
@@ -636,7 +652,12 @@ const Product = () => {
       {
         label: t("Show Inactive Products"),
         isUpperSide: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: productDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.SHOW_INACTIVE_ELEMENTS &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
         node: (
           <SwitchButton
             checked={showInactiveProducts}
@@ -646,7 +667,12 @@ const Product = () => {
       },
       {
         isUpperSide: false,
-        isDisabled: isDisabledCondition,
+        isDisabled: productDisabledCondition?.actions?.some(
+          (ac) =>
+            ac.action === ActionEnum.COMBINE_ELEMENTS &&
+            user?.role?._id &&
+            !ac.permissionsRoles.includes(user.role._id)
+        ),
         node: (
           <ButtonFilter
             buttonName={t("Join Products")}
@@ -660,7 +686,8 @@ const Product = () => {
       showProductFilters,
       setShowProductFilters,
       showInactiveProducts,
-      isDisabledCondition,
+      productDisabledCondition,
+      user,
     ]
   );
 
@@ -692,8 +719,16 @@ const Product = () => {
         addButton={addButton}
         filters={filters}
         filterPanel={filterPanel}
-        isExcel
-        isActionsActive={!isDisabledCondition}
+        isExcel={
+          user &&
+          !productDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.EXCEL &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          )
+        }
+        isActionsActive={true}
       />
       {isJoinProductModalOpen && (
         <GenericAddEditPanel
