@@ -139,15 +139,23 @@ const LossProduct = () => {
   }, [stocks]);
 
   const menuItemOptions = useMemo(() => {
+    if (!items) {
+      return [];
+    }
+
     return items
-      ?.filter((menuItem) => {
-        return (
-          !orderForm.category ||
-          menuItem.category === Number(orderForm.category)
-        );
+      .filter((menuItem) => {
+        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+          return false;
+        }
+
+        if (!menuItem?.locations?.includes(selectedLocationId)) {
+          return false;
+        }
+
+        return true;
       })
-      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-      ?.map((menuItem) => {
+      .map((menuItem) => {
         return {
           value: menuItem?._id,
           label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",

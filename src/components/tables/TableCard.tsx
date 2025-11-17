@@ -192,23 +192,39 @@ export function TableCard({
   );
 
   const menuItemOptions = useMemo(() => {
+    if (!menuItems) {
+      return [];
+    }
+
+    const inactiveCategorySet = new Set(inactiveCategoriesIds);
+
     return menuItems
-      ?.filter((menuItem) => {
-        return (
-          !orderForm.category ||
-          menuItem.category === Number(orderForm.category)
-        );
+      .filter((menuItem) => {
+        if (
+          orderForm.category &&
+          menuItem.category !== Number(orderForm.category)
+        ) {
+          return false;
+        }
+
+        if (inactiveCategorySet.has(menuItem.category)) {
+          return false;
+        }
+
+        if (!menuItem?.locations?.includes(selectedLocationId)) {
+          return false;
+        }
+
+        if (
+          table?.isOnlineSale &&
+          !getItem(menuItem.category, categories)?.isOnlineOrder
+        ) {
+          return false;
+        }
+
+        return true;
       })
-      ?.filter((item) => {
-        return !inactiveCategoriesIds.includes(item.category);
-      })
-      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-      ?.filter((menuItem) =>
-        table?.isOnlineSale
-          ? getItem(menuItem.category, categories)?.isOnlineOrder
-          : true
-      )
-      ?.map((menuItem) => {
+      .map((menuItem) => {
         return {
           value: menuItem?._id,
           label:
@@ -236,6 +252,7 @@ export function TableCard({
     selectedLocationId,
     table?.isOnlineSale,
     categories,
+    inactiveCategoriesIds,
   ]);
   const activeTables = useMemo(
     () => tables.filter((t) => !t.finishHour),
