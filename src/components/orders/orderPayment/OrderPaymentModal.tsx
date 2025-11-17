@@ -423,23 +423,31 @@ const OrderPaymentModal = ({
     return 0;
   };
   const menuItemOptions = useMemo(() => {
+    if (!items) {
+      return [];
+    }
+
     return items
-      ?.filter((menuItem) => {
-        return (
-          !orderForm.category ||
-          menuItem.category === Number(orderForm.category)
-        );
+      .filter((menuItem) => {
+        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+          return false;
+        }
+
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
+          return false;
+        }
+
+        if (!menuItem?.locations?.includes(selectedLocationId)) {
+          return false;
+        }
+
+        if (table?.isOnlineSale && !getItem(menuItem.category, categories)?.isOnlineOrder) {
+          return false;
+        }
+
+        return true;
       })
-      ?.filter((item) => {
-        return !inactiveCategoriesIds.includes(item.category);
-      })
-      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-      ?.filter((menuItem) =>
-        table?.isOnlineSale
-          ? getItem(menuItem.category, categories)?.isOnlineOrder
-          : true
-      )
-      ?.map((menuItem) => {
+      .map((menuItem) => {
         return {
           value: menuItem?._id,
           label:
@@ -524,22 +532,31 @@ const OrderPaymentModal = ({
       isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
+        if (!items) {
+          return [];
+        }
+
         return items
-          ?.filter((menuItem) => {
-            return menuItem.category === value;
+          .filter((menuItem) => {
+            if (menuItem.category !== value) {
+              return false;
+            }
+
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
+              return false;
+            }
+
+            if (!menuItem?.locations?.includes(selectedLocationId)) {
+              return false;
+            }
+
+            if (table?.isOnlineSale && !getItem(menuItem.category, categories)?.isOnlineOrder) {
+              return false;
+            }
+
+            return true;
           })
-          ?.filter((item) => {
-            return !inactiveCategoriesIds.includes(item.category);
-          })
-          ?.filter((menuItem) =>
-            menuItem?.locations?.includes(selectedLocationId)
-          )
-          ?.filter((menuItem) =>
-            table?.isOnlineSale
-              ? getItem(menuItem.category, categories)?.isOnlineOrder
-              : true
-          )
-          ?.map((menuItem) => {
+          .map((menuItem) => {
             return {
               value: menuItem?._id,
               label:

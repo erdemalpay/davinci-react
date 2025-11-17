@@ -239,18 +239,27 @@ const Tables = () => {
     { key: "location", type: FormKeyTypeEnum.STRING },
   ];
   const menuItemOptions = useMemo(() => {
+    if (!menuItems) {
+      return [];
+    }
+
     return menuItems
-      ?.filter((menuItem) => {
-        return (
-          !orderForm.category ||
-          menuItem.category === Number(orderForm.category)
-        );
+      .filter((menuItem) => {
+        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+          return false;
+        }
+
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
+          return false;
+        }
+
+        if (!menuItem?.locations?.includes(selectedLocationId)) {
+          return false;
+        }
+
+        return true;
       })
-      ?.filter((item) => {
-        return !inactiveCategoriesIds.includes(item.category);
-      })
-      ?.filter((menuItem) => menuItem?.locations?.includes(selectedLocationId))
-      ?.map((menuItem) => {
+      .map((menuItem) => {
         return {
           value: menuItem?._id,
           label:
@@ -362,17 +371,27 @@ const Tables = () => {
       isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
+        if (!menuItems) {
+          return [];
+        }
+
         return menuItems
-          ?.filter((menuItem) => {
-            return menuItem.category === value;
+          .filter((menuItem) => {
+            if (menuItem.category !== value) {
+              return false;
+            }
+
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
+              return false;
+            }
+
+            if (!menuItem?.locations?.includes(selectedLocationId)) {
+              return false;
+            }
+
+            return true;
           })
-          ?.filter((item) => {
-            return !inactiveCategoriesIds.includes(item.category);
-          })
-          ?.filter((menuItem) =>
-            menuItem?.locations?.includes(selectedLocationId)
-          )
-          ?.map((menuItem) => {
+          .map((menuItem) => {
             return {
               value: menuItem?._id,
               label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
@@ -511,17 +530,27 @@ const Tables = () => {
       isDisabled: !user?.settings?.orderCategoryOn,
       triggerTabOpenOnChangeFor: "item",
       handleTriggerTabOptions: (value: any) => {
+        if (!menuItems) {
+          return [];
+        }
+
         return menuItems
-          ?.filter((menuItem) => {
-            return menuItem.category === value;
+          .filter((menuItem) => {
+            if (menuItem.category !== value) {
+              return false;
+            }
+
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
+              return false;
+            }
+
+            if (!menuItem?.locations?.includes(selectedLocationId)) {
+              return false;
+            }
+
+            return true;
           })
-          ?.filter((item) => {
-            return !inactiveCategoriesIds.includes(item.category);
-          })
-          ?.filter((menuItem) =>
-            menuItem?.locations?.includes(selectedLocationId)
-          )
-          ?.map((menuItem) => {
+          .map((menuItem) => {
             return {
               value: menuItem?._id,
               label:
