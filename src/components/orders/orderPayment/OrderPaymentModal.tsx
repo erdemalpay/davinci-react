@@ -165,7 +165,7 @@ const OrderPaymentModal = ({
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return new Set(inactiveCategories.map((c) => c._id));
+    return inactiveCategories.map((c) => c._id);
   }, [inactiveCategories]);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -433,7 +433,7 @@ const OrderPaymentModal = ({
           return false;
         }
 
-        if (inactiveCategoriesIds.has(menuItem.category)) {
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
           return false;
         }
 
@@ -542,7 +542,7 @@ const OrderPaymentModal = ({
               return false;
             }
 
-            if (inactiveCategoriesIds.has(menuItem.category)) {
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
               return false;
             }
 

@@ -132,7 +132,7 @@ export function TableCard({
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return new Set(inactiveCategories.map((c) => c._id));
+    return inactiveCategories.map((c) => c._id);
   }, [inactiveCategories]);
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -205,7 +205,7 @@ export function TableCard({
           return false;
         }
 
-        if (inactiveCategoriesIds.has(menuItem.category)) {
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
           return false;
         }
 
@@ -355,7 +355,7 @@ export function TableCard({
                 return false;
               }
 
-              if (inactiveCategoriesIds.has(menuItem.category)) {
+              if (inactiveCategoriesIds.includes(menuItem.category)) {
                 return false;
               }
 

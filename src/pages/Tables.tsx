@@ -145,7 +145,7 @@ const Tables = () => {
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return new Set(inactiveCategories.map((c) => c._id));
+    return inactiveCategories.map((c) => c._id);
   }, [inactiveCategories]);
   const {
     orderCreateBulk,
@@ -249,7 +249,7 @@ const Tables = () => {
           return false;
         }
 
-        if (inactiveCategoriesIds.has(menuItem.category)) {
+        if (inactiveCategoriesIds.includes(menuItem.category)) {
           return false;
         }
 
@@ -381,7 +381,7 @@ const Tables = () => {
               return false;
             }
 
-            if (inactiveCategoriesIds.has(menuItem.category)) {
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
               return false;
             }
 
@@ -540,7 +540,7 @@ const Tables = () => {
               return false;
             }
 
-            if (inactiveCategoriesIds.has(menuItem.category)) {
+            if (inactiveCategoriesIds.includes(menuItem.category)) {
               return false;
             }
 
