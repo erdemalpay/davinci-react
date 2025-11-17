@@ -132,7 +132,7 @@ export function TableCard({
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return inactiveCategories.map((c) => c._id);
+    return new Set(inactiveCategories.map((c) => c._id));
   }, [inactiveCategories]);
   const discounts = useGetOrderDiscounts()?.filter(
     (discount) => discount?.status !== OrderDiscountStatus.DELETED
@@ -196,8 +196,6 @@ export function TableCard({
       return [];
     }
 
-    const inactiveCategorySet = new Set(inactiveCategoriesIds);
-
     return menuItems
       .filter((menuItem) => {
         if (
@@ -207,7 +205,7 @@ export function TableCard({
           return false;
         }
 
-        if (inactiveCategorySet.has(menuItem.category)) {
+        if (inactiveCategoriesIds.has(menuItem.category)) {
           return false;
         }
 
@@ -347,21 +345,33 @@ export function TableCard({
         isDisabled: !user?.settings?.orderCategoryOn,
         triggerTabOpenOnChangeFor: "item",
         handleTriggerTabOptions: (value: any) => {
+          if (!menuItems) {
+            return [];
+          }
+
           return menuItems
-            ?.filter((menuItem) => {
-              return menuItem.category === value;
+            .filter((menuItem) => {
+              if (menuItem.category !== value) {
+                return false;
+              }
+
+              if (inactiveCategoriesIds.has(menuItem.category)) {
+                return false;
+              }
+
+              if (!menuItem?.locations?.includes(selectedLocationId)) {
+                return false;
+              }
+
+              if (
+                table?.isOnlineSale &&
+                !getItem(menuItem.category, categories)?.isOnlineOrder
+              ) {
+                return false;
+              }
+
+              return true;
             })
-            ?.filter((item) => {
-              return !inactiveCategoriesIds.includes(item.category);
-            })
-            ?.filter((menuItem) =>
-              menuItem?.locations?.includes(selectedLocationId)
-            )
-            ?.filter((menuItem) =>
-              table?.isOnlineSale
-                ? getItem(menuItem.category, categories)?.isOnlineOrder
-                : true
-            )
             ?.map((menuItem) => {
               return {
                 value: menuItem?._id,

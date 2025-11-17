@@ -165,7 +165,7 @@ const OrderPaymentModal = ({
     );
   }, [inactiveCategories, kitchens]);
   const inactiveCategoriesIds = useMemo(() => {
-    return inactiveCategories.map((c) => c._id);
+    return new Set(inactiveCategories.map((c) => c._id));
   }, [inactiveCategories]);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
   const { orderCreateBulk, setOrderCreateBulk } = useOrderContext();
@@ -427,15 +427,13 @@ const OrderPaymentModal = ({
       return [];
     }
 
-    const inactiveCategorySet = new Set(inactiveCategoriesIds);
-
     return items
       .filter((menuItem) => {
         if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
           return false;
         }
 
-        if (inactiveCategorySet.has(menuItem.category)) {
+        if (inactiveCategoriesIds.has(menuItem.category)) {
           return false;
         }
 
@@ -538,15 +536,13 @@ const OrderPaymentModal = ({
           return [];
         }
 
-        const inactiveCategorySet = new Set(inactiveCategoriesIds);
-
         return items
           .filter((menuItem) => {
             if (menuItem.category !== value) {
               return false;
             }
 
-            if (inactiveCategorySet.has(menuItem.category)) {
+            if (inactiveCategoriesIds.has(menuItem.category)) {
               return false;
             }
 
