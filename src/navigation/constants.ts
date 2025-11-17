@@ -10,6 +10,7 @@ import Check from "../pages/Check";
 import Checklist from "../pages/Checklist";
 import Checklists, { ChecklistTabs } from "../pages/Checklists";
 import Checkout from "../pages/Checkout";
+import Consumer, { ConsumerPageTabs } from "../pages/Consumer";
 import Count from "../pages/Count";
 import CountList from "../pages/CountList";
 import CountLists from "../pages/CountLists";
@@ -125,6 +126,7 @@ export enum Routes {
   IkasPickUp = "/ikas-pickup",
   orderCategoryOrder = "/order-category-order",
   Points = "/points",
+  Consumers = "/consumers",
 }
 
 export const allRoutes: {
@@ -689,6 +691,13 @@ export const allRoutes: {
     element: Points,
     isOnSidebar: true,
     tabs: PointsPageTabs,
+  },
+  {
+    name: "Consumers",
+    path: Routes.Consumers,
+    element: Consumer,
+    isOnSidebar: true,
+    tabs: ConsumerPageTabs,
   },
   {
     name: "Panel",

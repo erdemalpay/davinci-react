@@ -120,6 +120,7 @@
   "Reservations": "Rezervasyonlar",
   "Role": "Rol",
   "Display Name": "Kullanıcı Adı",
+  "Surname": "Soyad",
   "Add User": "Kullanıcı Ekle",
   "Show Inactive Users": "Aktif Olmayan Kullanıcıları Göster",
   "Users": "Kullanıcılar",
@@ -1079,5 +1080,11 @@
   "Required Amount": "Gerekli Miktar",
   "Available Points": "Mevcut Puanlar",
   "Amount to be Paid": "Ödenecek Miktar",
-  "Insufficient points. Only available amount will be used.": "Yetersiz puan. Sadece mevcut miktar kullanılacak."
+  "Insufficient points. Only available amount will be used.": "Yetersiz puan. Sadece mevcut miktar kullanılacak.",
+  "Consumers": "Müşteriler",
+  "Consumer": "Müşteri",
+  "Add Consumer": "Müşteri Ekle",
+  "Delete Consumer": "Müşteri Sil",
+  "Are you sure you want to delete this consumer?": "Bu müşteriyi silmek istediğinizden emin misiniz?",
+  "Show Inactive": "Pasif Olanları Göster"
 }

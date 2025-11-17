@@ -94,6 +94,22 @@ export type DisabledCondition = {
   }[];
 };
 
+export enum ConsumerStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
+export type Consumer = {
+  _id: number;
+  name: string;
+  surname: string;
+  email: string;
+  fullName: string;
+  status: ConsumerStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Location = {
   _id: number;
   name: string;
@@ -1107,6 +1123,10 @@ export enum StocksPageTabEnum {
 export enum PointsPageTabEnum {
   POINT,
   POINTHISTORY,
+}
+
+export enum ConsumerPageTabEnum {
+  CONSUMERS,
 }
 
 export enum GameplayAnalyticsTabEnum {
