@@ -120,6 +120,7 @@
   "Reserved Table": "Reserved Table",
   "Role": "Role",
   "Display Name": "Display Name",
+  "Surname": "Surname",
   "Add User": "Add User",
   "Show Inactive Users": "Show Inactive Users",
   "Users": "Users",
@@ -1074,5 +1075,11 @@
   "Required Amount": "Required Amount",
   "Available Points": "Available Points",
   "Amount to be Paid": "Amount to be Paid",
-  "Insufficient points. Only available amount will be used.": "Insufficient points. Only available amount will be used."
+  "Insufficient points. Only available amount will be used.": "Insufficient points. Only available amount will be used.",
+  "Consumers": "Consumers",
+  "Consumer": "Consumer",
+  "Add Consumer": "Add Consumer",
+  "Delete Consumer": "Delete Consumer",
+  "Are you sure you want to delete this consumer?": "Are you sure you want to delete this consumer?",
+  "Show Inactive": "Show Inactive"
 }

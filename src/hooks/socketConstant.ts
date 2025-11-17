@@ -260,4 +260,8 @@ export const socketEventListeners: SocketEventType[] = [
       `${Paths.Shift}`,
     ],
   },
+  {
+    event: "consumerChanged",
+    invalidateKeys: [`${Paths.Consumers}`],
+  },
 ];
