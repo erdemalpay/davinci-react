@@ -27,6 +27,7 @@ import {
 import { useGetIkasCategories } from "../../utils/api/account/productCategories";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStoreLocations } from "../../utils/api/location";
+import { useGetAllCategories } from "../../utils/api/menu/category";
 import {
   useCreateMultipleIkasProductMutation,
   useGetAllMenuItems,
@@ -73,6 +74,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
   const expenseTypes = useGetAccountExpenseTypes();
   const brands = useGetAccountBrands();
   const discounts = useGetOrderDiscounts();
+  const categories = useGetAllCategories();
   const locations = useGetStoreLocations();
   const items = useGetAllMenuItems();
   const {
@@ -452,6 +454,18 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         isDisabled: !singleItemGroup?.category?.isOnlineOrder,
       },
       {
+        type: InputTypes.SELECT,
+        formKey: "category",
+        label: t("Category"),
+        options: categories.map((category) => ({
+          value: category._id,
+          label: category.name,
+        })),
+        placeholder: t("Category"),
+        required: false,
+        isDisabled: isAddModalOpen,
+      },
+      {
         type: InputTypes.NUMBER,
         formKey: "ikasDiscountedPrice",
         label: `${t("Ikas Discounted Price")}`,
@@ -532,6 +546,7 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "description", type: FormKeyTypeEnum.STRING },
       { key: "price", type: FormKeyTypeEnum.NUMBER },
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
+      { key: "category", type: FormKeyTypeEnum.STRING },
       { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
       { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
