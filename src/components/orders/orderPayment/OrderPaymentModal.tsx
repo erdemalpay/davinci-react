@@ -1,6 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -38,6 +38,10 @@ import {
 } from "../../../utils/api/table";
 import { useGetUser, useGetUsers } from "../../../utils/api/user";
 import { useGetVisits } from "../../../utils/api/visit";
+import {
+  lockBodyScroll,
+  unlockBodyScroll,
+} from "../../../utils/bodyScrollLock";
 import { formatDate } from "../../../utils/dateUtil";
 import { getItem } from "../../../utils/getItem";
 import { ConfirmationDialog } from "../../common/ConfirmationDialog";
@@ -85,6 +89,13 @@ const OrderPaymentModal = ({
   const users = useGetUsers();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
+  useEffect(() => {
+    lockBodyScroll();
+    return () => {
+      unlockBodyScroll();
+    };
+  }, []);
+
   const activeUsers = visits
     ?.filter(
       (visit) => !visit?.finishHour && visit.location === selectedLocationId
