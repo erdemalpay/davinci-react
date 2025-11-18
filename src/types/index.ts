@@ -103,8 +103,14 @@ export type Consumer = {
   _id: number;
   name: string;
   surname: string;
+  userName: string;
   email: string;
+  password?: string;
   fullName: string;
+  phone?: string;
+  address?: string;
+  profileImage?: string;
+  birthDate?: Date;
   status: ConsumerStatus;
   createdAt: Date;
   updatedAt: Date;

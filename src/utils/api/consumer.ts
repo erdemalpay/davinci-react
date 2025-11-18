@@ -15,23 +15,23 @@ export interface ConsumerPayload {
 export const useGetConsumers = (
   page: number,
   limit: number,
-  search?: string,
   status?: ConsumerStatus,
   filters?: FormElementsState
 ) => {
+  const trimmedSearch = filters?.search?.trim();
   const parts = [
     `page=${page}`,
     `limit=${limit}`,
-    search && `search=${search}`,
+    trimmedSearch && `search=${trimmedSearch}`,
     status && `status=${status}`,
     filters?.sort && `sort=${filters.sort}`,
     filters?.asc !== undefined && `asc=${filters.asc}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
-
+  console.log(trimmedSearch);
   return useGet<ConsumerPayload>(
     `${consumerBaseUrl}?${queryString}`,
-    [consumerBaseUrl, page, limit, search, status, filters],
+    [consumerBaseUrl, page, limit, status, filters],
     true
   );
 };
