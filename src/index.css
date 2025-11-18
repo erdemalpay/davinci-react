@@ -13,6 +13,11 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
   }
+
+  .no-scroll {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
 }
 
 .inputHideNumberArrows::-webkit-inner-spin-button,
@@ -43,7 +48,8 @@
 }
 
 @keyframes pulse-once {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
