@@ -1081,5 +1081,6 @@
   "Add Consumer": "Add Consumer",
   "Delete Consumer": "Delete Consumer",
   "Are you sure you want to delete this consumer?": "Are you sure you want to delete this consumer?",
-  "Show Inactive": "Show Inactive"
+  "Show Inactive": "Show Inactive",
+  "Limited Time" : "Limited Time"
 }

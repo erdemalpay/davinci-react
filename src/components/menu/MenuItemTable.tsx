@@ -522,6 +522,24 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         placeholder: t("Barcode"),
         required: false,
       },
+        ...(singleItemGroup?.category?.isLimitedTime
+          ? [
+              {
+                type: InputTypes.DATE,
+                formKey: "startDate",
+                label: t("Start Date"),
+                placeholder: t("Start Date"),
+                required: false,
+              },
+              {
+              type: InputTypes.DATE,
+              formKey: "endDate",
+              label: t("End Date"),
+              placeholder: t("End Date"),
+              required: false,
+            },
+          ]
+        : []),
     ],
     [t, singleItemGroup, discounts, products, productCategories]
   );
@@ -534,11 +552,14 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       { key: "onlinePrice", type: FormKeyTypeEnum.NUMBER },
       { key: "ikasDiscountedPrice", type: FormKeyTypeEnum.NUMBER },
       { key: "imageUrl", type: FormKeyTypeEnum.STRING },
+      { key: "suggestedDiscount", type: FormKeyTypeEnum.STRING },
       { key: "matchedProduct", type: FormKeyTypeEnum.STRING },
       { key: "productCategories", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "sku", type: FormKeyTypeEnum.STRING },
       { key: "barcode", type: FormKeyTypeEnum.STRING },
+      { key: "startDate", type: FormKeyTypeEnum.STRING },
+      { key: "endDate", type: FormKeyTypeEnum.STRING },
     ],
     []
   );
@@ -570,6 +591,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
         : []),
       { key: t("Suggested Discount"), isSortable: false },
       { key: t("Matched Product"), isSortable: false },
+      ...(singleItemGroup?.category?.isLimitedTime
+        ? [
+            { key: t("Start Date"), isSortable: true },
+            { key: t("End Date"), isSortable: true },
+          ]
+        : []),
       { key: t("Shown In Menu"), isSortable: false },
     ];
 
@@ -677,6 +704,12 @@ const MenuItemTable = ({ singleItemGroup, popularItems }: Props) => {
       ...(showMenuBarcodeInfo ? [{ key: "barcode" }, { key: "sku" }] : []),
       { key: "suggestedDiscountName" },
       { key: "matchedProductName" },
+      ...(singleItemGroup?.category?.isLimitedTime
+        ? [
+            { key: "startDate" },
+            { key: "endDate" },
+          ]
+        : []),
       {
         key: "shownInMenu",
         node: (row: MenuItem) => {

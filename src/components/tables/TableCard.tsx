@@ -220,6 +220,15 @@ export function TableCard({
           return false;
         }
 
+        const category = getItem(menuItem.category, categories);
+        if (category?.isLimitedTime && menuItem.endDate) {
+          const today = new Date();
+          const endDate = new Date(menuItem.endDate);
+          if (today > endDate) {
+            return false;
+          }
+        }
+
         return true;
       })
       .map((menuItem) => {
@@ -370,6 +379,15 @@ export function TableCard({
                 return false;
               }
 
+              const category = getItem(menuItem.category, categories);
+              if (category?.isLimitedTime && menuItem.endDate) {
+                const today = new Date();
+                const endDate = new Date(menuItem.endDate);
+                if (today > endDate) {
+                  return false;
+                }
+              }
+
               return true;
             })
             ?.map((menuItem) => {
@@ -491,7 +509,7 @@ export function TableCard({
               )?.isNoteRequired)) ??
           true,
       },
-      //deneme deneme deneme
+
       {
         type: InputTypes.SELECT,
         formKey: "discountNote",

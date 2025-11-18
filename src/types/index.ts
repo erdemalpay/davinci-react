@@ -581,6 +581,7 @@ export type MenuCategory = {
   discounts?: number[];
   active: boolean;
   orderCategoryOrder: number;
+  isLimitedTime?: boolean;
 };
 
 export type UpperCategory = {
@@ -636,6 +637,8 @@ export type MenuItem = {
   shownInMenu?: boolean;
   ikasDiscountedPrice?: number;
   createdAt?: Date;
+  startDate?: string;
+  endDate?: string;
 };
 export type ShiftValue = {
   shift: string;

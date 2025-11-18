@@ -1086,5 +1086,6 @@
   "Add Consumer": "Müşteri Ekle",
   "Delete Consumer": "Müşteri Sil",
   "Are you sure you want to delete this consumer?": "Bu müşteriyi silmek istediğinizden emin misiniz?",
-  "Show Inactive": "Pasif Olanları Göster"
+  "Show Inactive": "Pasif Olanları Göster",
+  "Limited Time" : "Sınırlı Zaman"
 }
