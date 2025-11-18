@@ -128,6 +128,8 @@ export function useWebSocket() {
     });
 
     socket.on("collectionChanged", (data) => {
+      console.log("Collection changed:", data);
+      console.log("collection.data", data?.collection);
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
         data.collection.table,
@@ -161,7 +163,7 @@ export function useWebSocket() {
 
       if (
         data?.table?.type === TableTypes.TAKEOUT &&
-        data?.socketUser._id === user?._id
+        data?.user._id === user?._id
       ) {
         setIsTakeAwayPaymentModalOpen(true);
         setTakeawayTableId(data.table._id);
@@ -169,7 +171,7 @@ export function useWebSocket() {
         setSelectedNewOrders([]);
       }
 
-      if (data.socketUser._id === user?._id) return;
+      if (data.user._id === user?._id) return;
 
       if (
         data?.soundRoles?.includes(user?.role?._id) &&
@@ -190,7 +192,7 @@ export function useWebSocket() {
     });
 
     socketEventListeners.forEach((eventConfig) => {
-      socket.on(eventConfig.event, (socketUser?: any, payload?: any) => {
+      socket.on(eventConfig.event, (user?: any, payload?: any) => {
         eventConfig.invalidateKeys.forEach((key) => {
           queryClient.invalidateQueries([key]);
         });

@@ -25,17 +25,17 @@ type FormElementsState = {
 const Consumers = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const { rowsPerPage, currentPage, setCurrentPage, searchQuery } =
-    useGeneralContext();
+  const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [filterConsumerPanelFormElements, setFilterConsumerPanelFormElements] =
-    useState<FormElementsState>({});
+    useState<FormElementsState>({
+      search: "",
+    });
   const [statusFilter, setStatusFilter] = useState<ConsumerStatus | undefined>(
     ConsumerStatus.ACTIVE
   );
   const consumersPayload = useGetConsumers(
     currentPage,
     rowsPerPage,
-    searchQuery,
     statusFilter,
     filterConsumerPanelFormElements
   );
@@ -71,7 +71,7 @@ const Consumers = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, setCurrentPage]);
+  }, [filterConsumerPanelFormElements, statusFilter, setCurrentPage]);
 
   const rows = useMemo(() => {
     return consumersPayload?.data ?? [];
@@ -88,11 +88,15 @@ const Consumers = () => {
 
   const columns = useMemo(
     () => [
-      { key: t("Name"), isSortable: true },
-      { key: t("Surname"), isSortable: true },
-      { key: t("Email"), isSortable: true },
-      { key: t("Full Name"), isSortable: true },
-      { key: t("Created At"), isSortable: true },
+      { key: t("Name"), isSortable: true, correspondingKey: "name" },
+      { key: t("Surname"), isSortable: true, correspondingKey: "surname" },
+      { key: t("User Name"), isSortable: true, correspondingKey: "userName" },
+      { key: t("Email"), isSortable: true, correspondingKey: "email" },
+      { key: t("Phone"), isSortable: true, correspondingKey: "phone" },
+      { key: t("Address"), isSortable: true, correspondingKey: "address" },
+      { key: t("Birth Date"), isSortable: true, correspondingKey: "birthDate" },
+      { key: t("Full Name"), isSortable: true, correspondingKey: "fullName" },
+      { key: t("Created At"), isSortable: true, correspondingKey: "createdAt" },
       { key: t("Actions"), isSortable: false },
     ],
     [t]
@@ -102,7 +106,17 @@ const Consumers = () => {
     () => [
       { key: "name" },
       { key: "surname" },
+      { key: "userName" },
       { key: "email" },
+      { key: "phone" },
+      { key: "address" },
+      {
+        key: "birthDate",
+        node: (row: Consumer) =>
+          row.birthDate
+            ? new Date(row.birthDate).toLocaleDateString("en-GB")
+            : "",
+      },
       { key: "fullName" },
       {
         key: "createdAt",
@@ -131,10 +145,39 @@ const Consumers = () => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "userName",
+        label: t("User Name"),
+        placeholder: t("User Name"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "email",
         label: t("Email"),
         placeholder: t("Email"),
         required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "phone",
+        label: t("Phone"),
+        placeholder: t("Phone"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "address",
+        label: t("Address"),
+        placeholder: t("Address"),
+        required: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "birthDate",
+        label: t("Birth Date"),
+        placeholder: t("Birth Date"),
+        required: false,
+        isDatePicker: true,
       },
       //   {
       //     type: InputTypes.PASSWORD,
@@ -165,10 +208,39 @@ const Consumers = () => {
       },
       {
         type: InputTypes.TEXT,
+        formKey: "userName",
+        label: t("User Name"),
+        placeholder: t("User Name"),
+        required: true,
+      },
+      {
+        type: InputTypes.TEXT,
         formKey: "email",
         label: t("Email"),
         placeholder: t("Email"),
         required: true,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "phone",
+        label: t("Phone"),
+        placeholder: t("Phone"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "address",
+        label: t("Address"),
+        placeholder: t("Address"),
+        required: false,
+      },
+      {
+        type: InputTypes.DATE,
+        formKey: "birthDate",
+        label: t("Birth Date"),
+        placeholder: t("Birth Date"),
+        required: false,
+        isDatePicker: true,
       },
       {
         type: InputTypes.SELECT,
@@ -189,7 +261,11 @@ const Consumers = () => {
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "surname", type: FormKeyTypeEnum.STRING },
+      { key: "userName", type: FormKeyTypeEnum.STRING },
       { key: "email", type: FormKeyTypeEnum.STRING },
+      { key: "phone", type: FormKeyTypeEnum.STRING },
+      { key: "address", type: FormKeyTypeEnum.STRING },
+      { key: "birthDate", type: FormKeyTypeEnum.DATE },
       //   { key: "password", type: FormKeyTypeEnum.STRING },
       { key: "status", type: FormKeyTypeEnum.STRING },
     ],
@@ -333,20 +409,13 @@ const Consumers = () => {
     [filterConsumerPanelFormElements, setFilterConsumerPanelFormElements]
   );
 
-  const outsideSearchProps = useMemo(
-    () => ({
-      searchQuery,
+  const outsideSearchProps = useMemo(() => {
+    return {
       t,
       filterPanelFormElements: filterConsumerPanelFormElements,
       setFilterPanelFormElements: setFilterConsumerPanelFormElements,
-    }),
-    [
-      searchQuery,
-      t,
-      filterConsumerPanelFormElements,
-      setFilterConsumerPanelFormElements,
-    ]
-  );
+    };
+  }, [t, filterConsumerPanelFormElements, setFilterConsumerPanelFormElements]);
 
   return (
     <div className="w-[95%] mx-auto">
