@@ -696,7 +696,7 @@
   "SHIFTCHANGEAPPROVED": "Shift Change Approved",
   "SHIFTCHANGEREJECTED": "Shift Change Rejected",
   "UNCOMPLETEDCHECKLIST": "Uncompleted Checklist",
-  "UNFINISHEDVISIT": "Unfinished Visit",
+  "UNFINISHEDVISIT": "Shift End Missing",
   "NIGHTOPENTABLE": "Night Open Table",
   "COMPLETECOUNT": "Complete Count",
   "NEGATIVESTOCK": "Negative Stock",
