@@ -456,6 +456,15 @@ const OrderPaymentModal = ({
           return false;
         }
 
+        const category = getItem(menuItem.category, categories);
+        if (category?.isLimitedTime && menuItem.endDate) {
+          const today = new Date();
+          const endDate = new Date(menuItem.endDate);
+          if (today > endDate) {
+            return false;
+          }
+        }
+
         return true;
       })
       .map((menuItem) => {
@@ -563,6 +572,15 @@ const OrderPaymentModal = ({
 
             if (table?.isOnlineSale && !getItem(menuItem.category, categories)?.isOnlineOrder) {
               return false;
+            }
+
+            const category = getItem(menuItem.category, categories);
+            if (category?.isLimitedTime && menuItem.endDate) {
+              const today = new Date();
+              const endDate = new Date(menuItem.endDate);
+              if (today > endDate) {
+                return false;
+              }
             }
 
             return true;

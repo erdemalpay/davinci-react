@@ -126,6 +126,14 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
       isTopFlexRow: true,
     },
     {
+      type: InputTypes.CHECKBOX,
+      formKey: "isLimitedTime",
+      label: t("Limited Time"),
+      placeholder: t("Limited Time"),
+      required: true,
+      isTopFlexRow: true,
+    },
+    {
       type: InputTypes.IMAGE,
       formKey: "imageUrl",
       label: t("Image"),
@@ -163,6 +171,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
     { key: "isAutoServed", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isOnlineOrder", type: FormKeyTypeEnum.BOOLEAN },
     { key: "isKitchenMenu", type: FormKeyTypeEnum.BOOLEAN },
+    { key: "isLimitedTime", type: FormKeyTypeEnum.BOOLEAN },
     { key: "imageUrl", type: FormKeyTypeEnum.STRING },
   ];
   const columns = [
@@ -175,6 +184,7 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           { key: t("Auto served"), isSortable: false },
           { key: t("Online Order"), isSortable: false },
           { key: t("Has Kitchen Menu"), isSortable: false },
+          { key: t("Limited Time"), isSortable: false },
         ]
       : []),
   ];
@@ -247,6 +257,15 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
                 <IoCloseOutline className="text-red-800 text-2xl " />
               ),
           },
+          {
+            key: "isLimitedTime",
+            node: (row: MenuCategory) =>
+              row?.isLimitedTime ? (
+                <IoCheckmark className="text-blue-500 text-2xl " />
+              ) : (
+                <IoCloseOutline className="text-red-800 text-2xl " />
+              ),
+          },
         ]
       : []),
   ];
@@ -293,6 +312,8 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
         }}
         inputs={inputs}
         formKeys={formKeys}
+        generalClassName="max-h-[90vh] overflow-y-auto"
+        topClassName="flex flex-col gap-2"
       />
     ),
     isModalOpen: isAddModalOpen,
@@ -351,6 +372,8 @@ const CategoryTable = ({ handleCategoryChange }: Props) => {
           submitItem={updateCategory as any}
           isEditMode={true}
           itemToEdit={{ id: rowToAction._id, updates: rowToAction }}
+          generalClassName="max-h-[90vh] overflow-y-auto"
+          topClassName="flex flex-col gap-2"
         />
       ) : null,
       isModalOpen: isEditModalOpen,

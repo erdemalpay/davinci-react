@@ -257,6 +257,15 @@ const Tables = () => {
           return false;
         }
 
+        const category = getItem(menuItem.category, categories);
+        if (category?.isLimitedTime && menuItem.endDate) {
+          const today = new Date();
+          const endDate = new Date(menuItem.endDate);
+          if (today > endDate) {
+            return false;
+          }
+        }
+
         return true;
       })
       .map((menuItem) => {
@@ -387,6 +396,15 @@ const Tables = () => {
 
             if (!menuItem?.locations?.includes(selectedLocationId)) {
               return false;
+            }
+
+            const category = getItem(menuItem.category, categories);
+            if (category?.isLimitedTime && menuItem.endDate) {
+              const today = new Date();
+              const endDate = new Date(menuItem.endDate);
+              if (today > endDate) {
+                return false;
+              }
             }
 
             return true;
@@ -546,6 +564,15 @@ const Tables = () => {
 
             if (!menuItem?.locations?.includes(selectedLocationId)) {
               return false;
+            }
+
+            const category = getItem(menuItem.category, categories);
+            if (category?.isLimitedTime && menuItem.endDate) {
+              const today = new Date();
+              const endDate = new Date(menuItem.endDate);
+              if (today > endDate) {
+                return false;
+              }
             }
 
             return true;
