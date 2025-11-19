@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
@@ -41,7 +40,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const LossProduct = () => {
   const { t } = useTranslation();
-  const { selectedLocationId } = useLocationContext();
   const [rowToAction, setRowToAction] = useState<any>({});
   const initialOrderForm = {
     item: 0,
@@ -51,7 +49,7 @@ const LossProduct = () => {
     discount: undefined,
     discountNote: "",
     isOnlinePrice: false,
-    stockLocation: selectedLocationId,
+    stockLocation: "",
   };
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const [orderForm, setOrderForm] = useState(initialOrderForm);
@@ -148,11 +146,6 @@ const LossProduct = () => {
         if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
           return false;
         }
-
-        if (!menuItem?.locations?.includes(selectedLocationId)) {
-          return false;
-        }
-
         return true;
       })
       .map((menuItem) => {
@@ -161,7 +154,7 @@ const LossProduct = () => {
           label: menuItem?.name + " (" + menuItem.price + TURKISHLIRA + ")",
         };
       });
-  }, [items, orderForm.category, selectedLocationId]);
+  }, [items, orderForm.category]);
 
   const orderInputs = useMemo(
     () => [
@@ -465,7 +458,6 @@ const LossProduct = () => {
           isCreateCloseActive={false}
           constantValues={{
             quantity: 1,
-            stockLocation: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {
@@ -477,12 +469,12 @@ const LossProduct = () => {
             if (selectedMenuItem && user) {
               createOrder({
                 ...orderForm,
-                location: selectedLocationId,
+                location: Number(orderForm?.stockLocation),
                 unitPrice: selectedMenuItem.price,
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: selectedLocationId,
+                stockLocation:  Number(orderForm?.stockLocation),
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
                 tableDate: new Date(),
               });
@@ -511,7 +503,6 @@ const LossProduct = () => {
       orderInputs,
       orderFormKeys,
       createOrder,
-      selectedLocationId,
       orderForm,
       items,
       categories,

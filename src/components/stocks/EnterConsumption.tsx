@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
-import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
 import {
   ActionEnum,
@@ -36,7 +35,6 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const EnterConsumption = () => {
   const { t } = useTranslation();
   const { mutate: consumptStock } = useConsumptStockMutation();
-  const { selectedLocationId } = useLocationContext();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
@@ -63,14 +61,12 @@ const EnterConsumption = () => {
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();
-
   const enterConsumptionPageDisabledCondition = useMemo(() => {
     return getItem(
       DisabledConditionEnum.STOCK_ENTERCONSUMPTION,
       disabledConditions
     );
   }, [disabledConditions]);
-
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
   const rows = useMemo(() => {
@@ -300,7 +296,6 @@ const EnterConsumption = () => {
           close={() => setIsAddModalOpen(false)}
           inputs={consumptInputs}
           formKeys={consumptFormKeys}
-          constantValues={{ location: selectedLocationId }}
           submitItem={consumptStock as any}
           topClassName="flex flex-col gap-2 "
           buttonName={t("Submit")}
@@ -324,7 +319,6 @@ const EnterConsumption = () => {
       isAddModalOpen,
       consumptInputs,
       consumptFormKeys,
-      selectedLocationId,
       consumptStock,
       enterConsumptionPageDisabledCondition,
       user,
