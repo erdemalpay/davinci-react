@@ -813,6 +813,7 @@ export type OrderCollection = {
   status: string;
   paymentMethod: string;
   pointUser?: string;
+  pointConsumer?: number;
   orders?: OrderCollectionItem[];
   newOrders?: Order[];
   table?: Table | number;

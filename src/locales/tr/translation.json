@@ -1087,5 +1087,12 @@
   "Delete Consumer": "Müşteri Sil",
   "Are you sure you want to delete this consumer?": "Bu müşteriyi silmek istediğinizden emin misiniz?",
   "Show Inactive": "Pasif Olanları Göster",
-  "Limited Time": "Sınırlı Zaman"
+  "Limited Time": "Sınırlı Zaman",
+  "Point Consumer": "Puan Tüketicisi",
+  "Consumer Point History": "Tüketici Puan Geçmişi",
+  "My Point History": "Puan Geçmişim",
+  "Users Points": "Kullanıcı Puanları",
+  "Point User": "Puan Kullanıcısı",
+  "Users Point History": "Kullanıcı Puan Geçmişi",
+  "Consumers Points": "Tüketici Puanları"
 }

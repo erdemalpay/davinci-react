@@ -151,6 +151,7 @@ const OrderPaymentTypes = ({
   const handlePayment = (
     paymentMethod: AccountPaymentMethod,
     pointUser?: string,
+    pointConsumer?: number,
     pointAmount?: number
   ) => {
     // Prepare new orders
@@ -211,6 +212,7 @@ const OrderPaymentTypes = ({
       tableDate: table ? new Date(table.date) : new Date(),
       activityPlayer: selectedActivityUser,
       ...(pointUser && { pointUser: pointUser }),
+      ...(pointConsumer && { pointConsumer: pointConsumer }),
     };
 
     createOrderCollection(createdCollection);
@@ -228,9 +230,13 @@ const OrderPaymentTypes = ({
     resetOrderContext();
   };
 
-  const handlePointUserConfirm = (pointUser: string, amount: number) => {
+  const handlePointUserConfirm = (
+    pointUser: string | undefined,
+    pointConsumer: number | undefined,
+    amount: number
+  ) => {
     if (selectedPaymentMethod) {
-      handlePayment(selectedPaymentMethod, pointUser, amount);
+      handlePayment(selectedPaymentMethod, pointUser, pointConsumer, amount);
       setSelectedPaymentMethod(null);
     }
   };
