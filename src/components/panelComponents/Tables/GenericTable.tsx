@@ -382,7 +382,9 @@ const GenericTable = <T,>({
         .filter((column) => column.correspondingKey)
         .map((column) => {
           const value = row[column.correspondingKey as keyof T];
-          return value === undefined || value === null ? "" : String(value);
+          if (value === undefined || value === null) return "";
+          if (typeof value === "number") return value;
+          return String(value);
         });
       excelRows.push(rowData);
     });
