@@ -31,14 +31,23 @@ const ConsumerPointComponent = () => {
 
   const allRows = useMemo(() => {
     return points
-      .filter((point) => !!point?.consumer)
+      ?.filter((point) => !!point?.consumer)
       ?.map((point: Point) => {
+        let consumerName = "";
+        if (typeof point.consumer === "object" && "fullName" in point.consumer) {
+          consumerName = point.consumer.fullName || "";
+        } else {
+          const consumerId = point.consumer as unknown as number;
+          const consumer = consumers?.find((c) => c._id === consumerId);
+          consumerName = consumer?.fullName || "";
+        }
+
         return {
           ...point,
-          consumerName: point.consumer?.fullName || "",
+          consumerName,
         };
       });
-  }, [points]);
+  }, [points, consumers]);
 
   const columns = useMemo(
     () => [

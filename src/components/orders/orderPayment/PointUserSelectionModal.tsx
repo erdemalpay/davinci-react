@@ -3,15 +3,19 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MultiValue, SingleValue } from "react-select";
 import { OptionType, Point } from "../../../types";
+import { useGetConsumersWithFullNames } from "../../../utils/api/consumer";
 import { useGetPoints } from "../../../utils/api/point";
 import { useGetUsers } from "../../../utils/api/user";
 import { GenericButton } from "../../common/GenericButton";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
-import { useGetConsumersWithFullNames } from "../../../utils/api/consumer";
 type Props = {
   isOpen: boolean;
   close: () => void;
-  onConfirm: (pointUser: string, amount: number) => void;
+  onConfirm: (
+    pointUser: string | undefined,
+    pointConsumer: number | undefined,
+    amount: number
+  ) => void;
   requiredAmount: number;
 };
 
@@ -30,24 +34,62 @@ const PointUserSelectionModal = ({
   const userPointsMap = useMemo(() => {
     const map: Record<string, number> = {};
     points?.forEach((point: Point) => {
-      map[point.user] = point.amount;
+      if (point.user) {
+        map[point.user] = point.amount;
+      }
     });
     return map;
   }, [points]);
 
-  const userOptions = useMemo(() => {
-    return (
+  const consumerPointsMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    points?.forEach((point: Point) => {
+      if (point.consumer) {
+        // Handle both populated object and ID cases
+        const consumerId =
+          typeof point.consumer === "object" && "_id" in point.consumer
+            ? point.consumer._id
+            : (point.consumer as unknown as number);
+
+        if (consumerId) {
+          map[consumerId] = point.amount;
+        }
+      }
+    });
+    return map;
+  }, [points]);
+
+  const options = useMemo(() => {
+    const userOpts =
       users
         ?.filter((user) => userPointsMap[user._id] > 0)
         ?.map((user) => ({
           value: user._id,
           label: `${user.name} (${userPointsMap[user._id]?.toFixed(0) || 0})`,
-        })) || []
-    );
-  }, [users, userPointsMap]);
+          type: "user",
+        })) || [];
 
-  const selectedUserPoints = selectedUser
-    ? userPointsMap[selectedUser] || 0
+    const consumerOpts =
+      consumers
+        ?.filter((consumer) => consumerPointsMap[consumer._id] > 0)
+        ?.map((consumer) => ({
+          value: consumer._id.toString(),
+          label: `${consumer.fullName} (${
+            consumerPointsMap[consumer._id]?.toFixed(0) || 0
+          })`,
+          type: "consumer",
+        })) || [];
+
+    return [...userOpts, ...consumerOpts];
+  }, [users, consumers, userPointsMap, consumerPointsMap]);
+
+  const selectedOption =
+    options.find((option) => option.value === selectedUser) || null;
+
+  const selectedUserPoints = selectedOption
+    ? selectedOption.type === "user"
+      ? userPointsMap[selectedOption.value] || 0
+      : consumerPointsMap[Number(selectedOption.value)] || 0
     : 0;
   const actualAmount = Math.min(selectedUserPoints, requiredAmount);
 
@@ -61,14 +103,17 @@ const PointUserSelectionModal = ({
     }
   };
 
-  const selectedOption =
-    userOptions.find((option) => option.value === selectedUser) || null;
+
 
   const handleConfirm = () => {
     if (!selectedUser) {
       return;
     }
-    onConfirm(selectedUser, actualAmount);
+    if (selectedOption?.type === "user") {
+      onConfirm(selectedUser, undefined, actualAmount);
+    } else {
+      onConfirm(undefined, Number(selectedUser), actualAmount);
+    }
     setSelectedUser("");
     close();
   };
@@ -115,7 +160,7 @@ const PointUserSelectionModal = ({
                     <SelectInput
                       label={t("Point User")}
                       value={selectedOption}
-                      options={userOptions}
+                      options={options}
                       placeholder={t("Select User")}
                       isMultiple={false}
                       requiredField={true}
