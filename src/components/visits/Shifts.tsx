@@ -67,7 +67,10 @@ const Shifts = () => {
   const roles = useGetAllUserRoles();
   const { mutate: copyShift } = useCopyShiftMutation();
   const { mutate: copyShiftInterval } = useCopyShiftIntervalMutation();
-  const { selectedLocationId, setSelectedLocationId } = useLocationContext();
+  const { selectedLocationId: globalSelectedLocationId } = useLocationContext();
+  const [selectedLocationId, setSelectedLocationId] = useState(
+    globalSelectedLocationId
+  );
   const [copyShiftForm, setCopyShiftForm] = useState({
     copiedDay: "",
     selectedDay: "",
