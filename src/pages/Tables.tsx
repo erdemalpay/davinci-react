@@ -1534,7 +1534,6 @@ const Tables = () => {
           isCreateCloseActive={false}
           constantValues={{
             quantity: 1,
-            stockLocation: selectedLocationId,
           }}
           cancelButtonLabel="Close"
           submitFunction={() => {
@@ -1546,12 +1545,12 @@ const Tables = () => {
             if (selectedMenuItem && user) {
               createOrder({
                 ...orderForm,
-                location: selectedLocationId,
+                location: Number(orderForm?.stockLocation), 
                 unitPrice: selectedMenuItem.price,
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
                 kitchen: selectedMenuItemCategory?.kitchen,
-                stockLocation: selectedLocationId,
+                stockLocation: Number(orderForm?.stockLocation),
                 stockNote: StockHistoryStatusEnum.LOSSPRODUCT,
                 tableDate: new Date(),
               });

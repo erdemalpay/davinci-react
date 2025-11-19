@@ -878,7 +878,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
   ] = useState<FormElementsState>({
     product: [],
     expenseType: "",
-    location: selectedLocationId,
+    location: "",
     status: [
       StockHistoryStatusEnum.CONSUMPTION,
       StockHistoryStatusEnum.CONSUMPTIONCANCEL,
