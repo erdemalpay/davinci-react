@@ -394,6 +394,7 @@ const FilterContext = createContext<FilterContextType>({
   setShowPointHistoryFilters: () => {},
   filterPointHistoryPanelFormElements: {
     pointUser: "",
+    pointConsumer: null,
     status: [],
     before: "",
     after: "",
@@ -815,6 +816,7 @@ export const FilterContextProvider = ({ children }: PropsWithChildren) => {
     setFilterPointHistoryPanelFormElements,
   ] = useState<FormElementsState>({
     pointUser: "",
+    pointConsumer: null,
     status: [],
     before: "",
     after: "",

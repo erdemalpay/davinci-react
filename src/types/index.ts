@@ -31,15 +31,17 @@ export type TaskTrack = {
 
 export type Point = {
   _id: number;
-  user: string;
+  user?: string;
+  consumer?: Partial<Consumer>;
   amount: number;
 };
 
 export type PointHistory = {
   _id: number;
   point: number;
-  pointUser: string;
-  createdBy: string;
+  pointUser?: Partial<User>;
+  pointConsumer?: Partial<Consumer>;
+  createdBy: Partial<User>;
   collectionId?: number;
   tableId?: number;
   status: string;
@@ -1130,8 +1132,10 @@ export enum StocksPageTabEnum {
 }
 
 export enum PointsPageTabEnum {
-  POINT,
-  POINTHISTORY,
+  USERSPOINT,
+  CONSUMERSPOINT,
+  USERSPOINTHISTORY,
+  CONSUMERPOINTHISTORY,
 }
 
 export enum ConsumerPageTabEnum {

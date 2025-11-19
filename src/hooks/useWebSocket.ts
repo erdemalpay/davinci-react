@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
-import { Order, TableTypes } from "../types";
+import { TableTypes } from "../types";
 import { Paths } from "../utils/api/factory";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useLocationContext } from "./../context/Location.context";
@@ -81,32 +81,39 @@ export function useWebSocket() {
       console.log("Connected to WebSocket.");
     });
 
-    socket.on("orderCreated", (order: Order) => {
+    socket.on("orderCreated", (data) => {
       const tableId =
-        typeof order?.table === "number" ? order?.table : order?.table?._id;
+        typeof data?.order?.table === "number"
+          ? data?.order?.table
+          : data?.order?.table?._id;
       queryClient.invalidateQueries([`${Paths.Order}/table`, tableId]);
       queryClient.invalidateQueries([`${Paths.Order}/today`]);
       if (
-        order?.createdBy === user?._id ||
+        data?.order?.createdBy === user?._id ||
         [
           OrderStatus.WASTED,
           OrderStatus.CANCELLED,
           OrderStatus.RETURNED,
-        ].includes(order?.status as OrderStatus) ||
-        order?.location !== selectedLocationId
+        ].includes(data?.order?.status as OrderStatus) ||
+        data?.order?.location !== selectedLocationId
       ) {
         return;
       }
 
-      const foundCategory = getItem((order?.item as any)?.category, categories);
+      const foundCategory = getItem(
+        (data?.order?.item as any)?.category,
+        categories
+      );
       if (
         !foundCategory?.isAutoServed &&
-        order?.status !== OrderStatus.CANCELLED &&
-        (order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
+        data?.order?.status !== OrderStatus.CANCELLED &&
+        (data?.order?.kitchen as any)?.soundRoles?.includes(user?.role?._id)
       ) {
         if (
-          (order?.kitchen as any)?.selectedRoles?.length > 0 &&
-          !(order?.kitchen as any)?.selectedRoles?.includes(user?.role?._id)
+          (data?.order?.kitchen as any)?.selectedRoles?.length > 0 &&
+          !(data?.order?.kitchen as any)?.selectedRoles?.includes(
+            user?.role?._id
+          )
         ) {
           return;
         }
@@ -128,8 +135,6 @@ export function useWebSocket() {
     });
 
     socket.on("collectionChanged", (data) => {
-      console.log("Collection changed:", data);
-      console.log("collection.data", data?.collection);
       queryClient.invalidateQueries([
         `${Paths.Order}/collection/table`,
         data.collection.table,

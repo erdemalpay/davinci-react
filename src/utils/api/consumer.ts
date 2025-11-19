@@ -1,5 +1,5 @@
 import { Consumer, ConsumerStatus, FormElementsState } from "../../types";
-import { Paths, useGet, useMutationApi } from "./factory";
+import { Paths, useGet, useGetList, useMutationApi } from "./factory";
 
 const consumerBaseUrl = `${Paths.Consumers}`;
 
@@ -28,7 +28,6 @@ export const useGetConsumers = (
     filters?.asc !== undefined && `asc=${filters.asc}`,
   ];
   const queryString = parts.filter(Boolean).join("&");
-  console.log(trimmedSearch);
   return useGet<ConsumerPayload>(
     `${consumerBaseUrl}?${queryString}`,
     [consumerBaseUrl, page, limit, status, filters],
@@ -36,6 +35,10 @@ export const useGetConsumers = (
   );
 };
 
+// find All with full names
+export const useGetConsumersWithFullNames = () => {
+  return useGetList<Consumer>(`${consumerBaseUrl}/full-names`);
+};
 // Consumer mutations
 export const useConsumerMutations = () => {
   const { createItem, updateItem, deleteItem } = useMutationApi<Consumer>({

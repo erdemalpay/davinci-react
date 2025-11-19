@@ -20,6 +20,7 @@ export function useGetPointHistories(
     `page=${page}`,
     `limit=${limit}`,
     filters.pointUser && `pointUser=${filters.pointUser}`,
+    filters.pointConsumer && `pointConsumer=${filters.pointConsumer}`,
     filters.status && `status=${filters.status}`,
     filters.before && `before=${filters.before}`,
     filters.after && `after=${filters.after}`,

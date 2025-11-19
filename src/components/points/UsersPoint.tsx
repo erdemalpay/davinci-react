@@ -18,7 +18,7 @@ export interface PointRow extends Point {
   userName: string;
 }
 
-const PointComponent = () => {
+const UsersPointComponent = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const points = useGetPoints();
@@ -31,13 +31,15 @@ const PointComponent = () => {
   const { createPoint, deletePoint, updatePoint } = usePointMutations();
 
   const allRows = useMemo(() => {
-    return points.map((point: Point) => {
-      const foundUser = getItem(point.user, users);
-      return {
-        ...point,
-        userName: foundUser?.name || String(point.user),
-      };
-    });
+    return points
+      .filter((point) => !!point?.user)
+      .map((point: Point) => {
+        const foundUser = getItem(point.user, users);
+        return {
+          ...point,
+          userName: foundUser?.name || String(point.user),
+        };
+      });
   }, [points, users]);
 
   const columns = useMemo(
@@ -187,7 +189,7 @@ const PointComponent = () => {
         actions={actions}
         columns={columns}
         rows={allRows}
-        title={t("Points")}
+        title={t("Users Points")}
         addButton={addButton}
         isActionsActive={true}
       />
@@ -195,4 +197,4 @@ const PointComponent = () => {
   );
 };
 
-export default PointComponent;
+export default UsersPointComponent;

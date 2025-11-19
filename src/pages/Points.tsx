@@ -2,8 +2,10 @@ import { GiSevenPointedStar } from "react-icons/gi";
 import { MdHistory } from "react-icons/md";
 import { Header } from "../components/header/Header";
 import UnifiedTabPanel from "../components/panelComponents/TabPanel/UnifiedTabPanel";
-import PointComponent from "../components/points/Point";
-import PointHistoryComponent from "../components/points/PointHistory";
+import ConsumerPointHistoryComponent from "../components/points/ConsumerPointHistory";
+import ConsumerPointComponent from "../components/points/ConsumerPoints";
+import UsersPointComponent from "../components/points/UsersPoint";
+import UsersPointHistoryComponent from "../components/points/UsersPointHistory";
 import { useGeneralContext } from "../context/General.context";
 import { useUserContext } from "../context/User.context";
 import { PointsPageTabEnum } from "../types";
@@ -11,17 +13,32 @@ import { useGetPanelControlPages } from "../utils/api/panelControl/page";
 
 export const PointsPageTabs = [
   {
-    number: PointsPageTabEnum.POINT,
-    label: "Point",
+    number: PointsPageTabEnum.USERSPOINT,
+    label: "Users Points",
     icon: <GiSevenPointedStar className="text-lg font-thin" />,
-    content: <PointComponent />,
+    content: <UsersPointComponent />,
     isDisabled: false,
   },
   {
-    number: PointsPageTabEnum.POINTHISTORY,
-    label: "Point History",
+    number: PointsPageTabEnum.CONSUMERSPOINT,
+    label: "Consumers Points",
+    icon: <GiSevenPointedStar className="text-lg font-thin" />,
+    content: <ConsumerPointComponent />,
+    isDisabled: false,
+  },
+
+  {
+    number: PointsPageTabEnum.USERSPOINTHISTORY,
+    label: "Users Point History",
     icon: <MdHistory className="text-lg font-thin" />,
-    content: <PointHistoryComponent />,
+    content: <UsersPointHistoryComponent />,
+    isDisabled: false,
+  },
+  {
+    number: PointsPageTabEnum.CONSUMERPOINTHISTORY,
+    label: "Consumer Point History",
+    icon: <MdHistory className="text-lg font-thin" />,
+    content: <ConsumerPointHistoryComponent />,
     isDisabled: false,
   },
 ];
