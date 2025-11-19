@@ -514,6 +514,7 @@ export default function Reservations() {
             }
           }}
           topClassName="flex flex-col gap-2 "
+          generalClassName="max-h-[90vh] overflow-y-auto"
         />
       ),
       isModalOpen: isAddModalOpen,
