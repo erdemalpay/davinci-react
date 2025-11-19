@@ -28,6 +28,7 @@ import {
   useGetAccountCountLists,
 } from "../utils/api/account/countList";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
+import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import { useGetUsers } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isDisabledConditionSingleCountArchive } from "../utils/isDisabledConditions";
@@ -37,6 +38,7 @@ const SingleCountArchive = () => {
   const { archiveId } = useParams();
   const { user } = useUserContext();
   const counts = useGetAccountCounts();
+  const items=useGetMenuItems()
   const countLists = useGetAccountCountLists();
   const users = useGetUsers();
   const { mutate: updateStockForStockCount } =
@@ -105,11 +107,12 @@ const SingleCountArchive = () => {
         ?.map((option) => {
           const foundProduct = getItem(option.product, products);
           if (!foundProduct || foundProduct.deleted) return null;
-
+          const rowItem = getItem(foundProduct?.matchedMenuItem, items);
           return {
             currentCountId: currentCount._id,
             currentCountLocationId: currentCount.location,
             product: foundProduct.name,
+            sku: rowItem?.sku,
             productId: option.product,
             date: formattedDate,
             stockQuantity: option.stockQuantity,
@@ -137,6 +140,7 @@ const SingleCountArchive = () => {
     let cols = [
       { key: t("Date"), isSortable: true },
       { key: t("Product"), isSortable: true },
+      { key: t("SKU"), isSortable: false },
       { key: t("Stock Quantity"), isSortable: true },
       { key: t("Count Quantity"), isSortable: true },
       { key: t("Delete Request"), isSortable: true },
@@ -147,6 +151,7 @@ const SingleCountArchive = () => {
     let keys = [
       { key: "date", className: "min-w-32" },
       { key: "product" },
+      { key: "sku" },
       { key: "stockQuantity" },
       { key: "countQuantity" },
       { key: "productDeleteRequest" },
