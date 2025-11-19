@@ -64,7 +64,10 @@ const ShiftChange = () => {
     return `${shiftStart}-${shiftEnd || ""}`;
   };
   const roles = useGetAllUserRoles();
-  const { selectedLocationId, setSelectedLocationId } = useLocationContext();
+  const { selectedLocationId: globalSelectedLocationId } = useLocationContext();
+  const [selectedLocationId, setSelectedLocationId] = useState(
+    globalSelectedLocationId
+  );
   const {
     filterPanelFormElements,
     setFilterPanelFormElements,
