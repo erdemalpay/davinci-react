@@ -7,7 +7,7 @@ import { useGetPoints } from "../../../utils/api/point";
 import { useGetUsers } from "../../../utils/api/user";
 import { GenericButton } from "../../common/GenericButton";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
-
+import { useGetConsumersWithFullNames } from "../../../utils/api/consumer";
 type Props = {
   isOpen: boolean;
   close: () => void;
@@ -23,6 +23,7 @@ const PointUserSelectionModal = ({
 }: Props) => {
   const { t } = useTranslation();
   const users = useGetUsers();
+  const consumers=useGetConsumersWithFullNames();
   const points = useGetPoints();
   const [selectedUser, setSelectedUser] = useState<string>("");
 

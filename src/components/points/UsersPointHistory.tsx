@@ -4,15 +4,15 @@ import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../context/Filter.context";
 import { useGeneralContext } from "../../context/General.context";
 import { pointHistoryStatuses } from "../../types";
+import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
 import { useGetUsers } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
-import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { InputTypes } from "../panelComponents/shared/types";
 
-const PointHistoryComponent = () => {
+const UsersPointHistoryComponent = () => {
   const { t } = useTranslation();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const {
@@ -21,13 +21,12 @@ const PointHistoryComponent = () => {
     showPointHistoryFilters,
     setShowPointHistoryFilters,
   } = useFilterContext();
-  const pointHistoriesPayload = useGetPointHistories(
-    currentPage,
-    rowsPerPage,
-    filterPointHistoryPanelFormElements
-  );
+  const pointHistoriesPayload = useGetPointHistories(currentPage, rowsPerPage, {
+    ...filterPointHistoryPanelFormElements,
+    pointConsumer: -1,
+  });
   const users = useGetUsers();
-
+  const consumers = useGetConsumersWithFullNames();
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
   const rows = useMemo(() => {
@@ -39,8 +38,9 @@ const PointHistoryComponent = () => {
         const date = new Date(pointHistory.createdAt);
         return {
           ...pointHistory,
-          usr: getItem(pointHistory?.pointUser, users)?.name,
-          createdByUser: getItem(pointHistory?.createdBy, users)?.name,
+          usr: pointHistory?.pointUser?.name || "",
+          consumer: pointHistory?.pointConsumer?.fullName || "",
+          createdByUser: pointHistory?.createdBy?.name,
           oldAmount:
             (pointHistory?.currentAmount ?? 0) - (pointHistory?.change ?? 0),
           date: format(pointHistory?.createdAt, "yyyy-MM-dd"),
@@ -51,7 +51,7 @@ const PointHistoryComponent = () => {
         };
       })
       .filter((item) => item !== null);
-  }, [pointHistoriesPayload, users, pad]);
+  }, [pointHistoriesPayload, pad]);
 
   const filterPanelInputs = useMemo(
     () => [
@@ -99,7 +99,7 @@ const PointHistoryComponent = () => {
         isDatePicker: true,
       },
     ],
-    [users, t]
+    [users, t, consumers]
   );
 
   const columns = useMemo(
@@ -264,7 +264,7 @@ const PointHistoryComponent = () => {
         filterPanel={filterPanel}
         filters={filters}
         isSearch={false}
-        title={t("Point History")}
+        title={t("Users Point History")}
         isActionsActive={false}
         outsideSortProps={outsideSort}
         {...(pagination && { pagination })}
@@ -273,4 +273,4 @@ const PointHistoryComponent = () => {
   );
 };
 
-export default PointHistoryComponent;
+export default UsersPointHistoryComponent;

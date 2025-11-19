@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosClose } from "react-icons/io";
 import { ActionMeta, MultiValue, SingleValue } from "react-select";
-import { GenericButton } from "../../common/GenericButton";
 import { useGeneralContext } from "../../../context/General.context";
 import { FormElementsState, OptionType } from "../../../types";
+import { GenericButton } from "../../common/GenericButton";
 import DateInput from "../FormElements/DateInput";
 import HourInput from "../FormElements/HourInput";
 import MonthYearInput from "../FormElements/MonthYearInput";
@@ -230,6 +230,7 @@ const FilterPanel = <T,>({
                 options={input.options ?? []}
                 placeholder={input.placeholder ?? ""}
                 isMultiple={input.isMultiple ?? false}
+                isAutoFill={input.isAutoFill ?? true}
                 onChange={handleChangeForSelect(input.formKey)}
                 isOnClearActive={input?.isOnClearActive ?? true}
                 onClear={() => {
