@@ -26,7 +26,7 @@ type DisabledButtons = {
 };
 
 const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useUserContext();
   const { updateOrder, createOrder } = useOrderMutations();
   const tableOrders = useGetTableOrders(tableId);
@@ -204,9 +204,13 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
               {(order.status === OrderStatus.PENDING ||
                 order.status === OrderStatus.AUTOSERVED) && (
                 <div className="flex flex-row gap-[1px]">
-                  <h5 className="text-xs whitespace-nowrap min-w-8">
-                    {orderWaitTime(order)} m
+                  <h5 className="text-xs  text-gray-700 whitespace-nowrap min-w-8">
+                    {orderWaitTime(order)}{" "}
+                    {i18n.language?.toLowerCase().startsWith("tr") ? "dk" : "m"}{" "} /
                   </h5>
+                <p className="text-xs text-gray-700 whitespace-nowrap">
+                    {t("TableShort")}:{order.activityTableName} - {t("PlayerShort")}:{order.activityPlayer}
+                </p>
                 </div>
               )}
               {(order.paidQuantity === 0 ||
