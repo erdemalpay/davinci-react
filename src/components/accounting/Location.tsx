@@ -68,6 +68,8 @@ const LocationPage = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Type"), isSortable: false },
       { key: t("Table Count"), isSortable: false },
+      { key: t("Phone Number"), isSortable: false },
+      { key: t("Map Location"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
       { key: t("Closed Days"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
@@ -117,6 +119,26 @@ const LocationPage = () => {
         },
       },
       { key: "tableCount" },
+      {
+        key: "phoneNumber",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "googleMapsUrl",
+        className: "min-w-32 pr-1",
+        node: (row: Location) => {
+          return row.googleMapsUrl ? (
+            <a
+              href={row.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              {t("View Map")}
+            </a>
+          ) : null;
+        },
+      },
       {
         key: "isShelfInfoRequired",
         node: (row: any) => {
@@ -268,10 +290,80 @@ const LocationPage = () => {
     [t, isAddModalOpen, form?.type]
   );
 
+  const editInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "name",
+        label: t("Name"),
+        placeholder: t("Name"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "tableCount",
+        label: t("Table Count"),
+        placeholder: t("Table Count"),
+        required: false,
+        isDisabled: !form?.type?.includes(1),
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "phoneNumber",
+        label: t("Phone Number"),
+        placeholder: t("Phone Number"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "googleMapsUrl",
+        label: t("Map Location"),
+        placeholder: t("Map Location"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "ikasId",
+        label: "Ikas ID",
+        placeholder: "Ikas ID",
+        required: false,
+      },
+      {
+        type: InputTypes.SELECT,
+        formKey: "closedDays",
+        label: t("Closed Days"),
+        placeholder: t("Closed Days"),
+        required: false,
+        options: [
+          { label: t("Monday"), value: "Monday" },
+          { label: t("Tuesday"), value: "Tuesday" },
+          { label: t("Wednesday"), value: "Wednesday" },
+          { label: t("Thursday"), value: "Thursday" },
+          { label: t("Friday"), value: "Friday" },
+          { label: t("Saturday"), value: "Saturday" },
+          { label: t("Sunday"), value: "Sunday" },
+        ],
+        isMultiple: true,
+        isDisabled: !form?.type?.includes(1),
+        isSortDisabled: true,
+      },
+      {
+        type: InputTypes.COLOR,
+        formKey: "backgroundColor",
+        label: t("Background Color"),
+        placeholder: t("Background Color"),
+        required: !!form?.type?.includes(1),
+      }
+    ],
+    [t, form?.type]
+  );
+
   const formKeys = useMemo(
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
+      { key: "phoneNumber", type: FormKeyTypeEnum.STRING },
+      { key: "googleMapsUrl", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "closedDays", type: FormKeyTypeEnum.STRING },
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
@@ -328,7 +420,7 @@ const LocationPage = () => {
           <GenericAddEditPanel
             isOpen={isEditModalOpen}
             close={() => setIsEditModalOpen(false)}
-            inputs={inputs}
+            inputs={editInputs}
             setForm={setForm}
             formKeys={formKeys}
             submitItem={updateLocation as any}
@@ -352,7 +444,7 @@ const LocationPage = () => {
       t,
       rowToAction,
       isEditModalOpen,
-      inputs,
+      editInputs,
       formKeys,
       updateLocation,
       locationsDisabledCondition,

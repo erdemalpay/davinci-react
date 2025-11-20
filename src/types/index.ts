@@ -136,6 +136,8 @@ export type Location = {
   tableNames?: string[];
   closedDays?: string[];
   isShelfInfoRequired?: boolean;
+  phoneNumber?: string;
+  googleMapsUrl?: string;
 };
 export enum LocationShiftType {
   FULLTIME = "fulltime",
