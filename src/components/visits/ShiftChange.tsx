@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import { useFilterContext } from "../../context/Filter.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useShiftContext } from "../../context/Shift.context";
 import { useUserContext } from "../../context/User.context";
-import {
-  DateRangeKey,
-  RoleEnum,
-  commonDateOptions,
-} from "../../types";
+import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetShifts } from "../../utils/api/shift";
@@ -21,7 +18,6 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
 import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
-import { toast } from "react-toastify";
 
 type ShiftChangeFormState = {
   type: "SWAP" | "TRANSFER";
@@ -83,163 +79,160 @@ const ShiftChange = () => {
   const modalShifts = useGetShifts(
     filterPanelFormElements?.after,
     filterPanelFormElements?.before,
-    -1  // Fetch all locations for modal dropdown
+    -1 // Fetch all locations for modal dropdown
   );
   const { user } = useUserContext();
   const isDisabledCondition = user
     ? ![
-      RoleEnum.MANAGER,
-      RoleEnum.GAMEMANAGER,
-      RoleEnum.OPERATIONSASISTANT,
-    ].includes(user?.role?._id)
+        RoleEnum.MANAGER,
+        RoleEnum.GAMEMANAGER,
+        RoleEnum.OPERATIONSASISTANT,
+      ].includes(user?.role?._id)
     : true;
-  const {
-    showShiftsFilters,
-    setShowShiftsFilters,
-  } = useFilterContext();
+  const { showShiftsFilters, setShowShiftsFilters } = useFilterContext();
   const foundLocation = getItem(selectedLocationId, locations);
 
   // Get all unique shifts from all locations, sorted by start time (for "All" mode)
   const allShifts =
     selectedLocationId === -1
       ? (() => {
-        const shiftsMap = new Map<
-          string,
-          { shift: string; shiftEndHour?: string }
-        >();
-
-        locations.forEach((location) => {
-          location.shifts?.forEach((shift) => {
-            const key = buildShiftKey(shift);
-            if (!shiftsMap.has(key)) {
-              shiftsMap.set(key, {
-                shift: shift.shift,
-                shiftEndHour: shift.shiftEndHour,
-              });
-            }
-          });
-        });
-
-        const shiftsArray = Array.from(shiftsMap.values());
-
-        // Sort by shift start time
-        return shiftsArray.sort((a, b) => {
-          const [aHour, aMin] = a.shift.split(":").map(Number);
-          const [bHour, bMin] = b.shift.split(":").map(Number);
-          return aHour * 60 + aMin - (bHour * 60 + bMin);
-        });
-      })()
-      : foundLocation?.shifts || [];
-
-  const allRows =
-    selectedLocationId === -1
-      ? (() => {
-        // Group by day for "All" mode
-        const groupedByDay = shifts?.reduce((acc, shift) => {
-          if (!acc[shift.day]) {
-            acc[shift.day] = [];
-          }
-          acc[shift.day].push(shift);
-          return acc;
-        }, {} as Record<string, any[]>);
-
-        return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
-          const shiftsByLocation: Record<
+          const shiftsMap = new Map<
             string,
-            Array<{
-              location: number;
-              users: string[];
-              chefUser?: string;
-              _id: string;
-            }>
-          > = {};
+            { shift: string; shiftEndHour?: string }
+          >();
 
-          dayShifts.forEach((shiftRecord) => {
-            shiftRecord.shifts?.forEach((s: any) => {
-              const shiftKey = buildShiftKey(s, shiftRecord.location);
-              if (!shiftsByLocation[shiftKey]) {
-                shiftsByLocation[shiftKey] = [];
-              }
-
-              const locationConfig = getItem(shiftRecord.location, locations);
-              // Skip shifts not defined for this location to avoid rendering phantom dropdowns
-              const locationHasShift = locationConfig?.shifts?.some(
-                (locationShift) => {
-                  return (
-                    buildShiftKey(locationShift, shiftRecord.location) ===
-                    shiftKey
-                  );
-                }
-              );
-              if (!locationHasShift) {
-                return;
-              }
-
-              // Check if this location already exists for this shift
-              const existingIndex = shiftsByLocation[shiftKey].findIndex(
-                (sl) => sl.location === shiftRecord.location
-              );
-
-              if (existingIndex === -1) {
-                shiftsByLocation[shiftKey].push({
-                  location: shiftRecord.location,
-                  users:
-                    s.user?.filter((userId: string) => {
-                      const foundUser = getItem(userId, users);
-                      return (
-                        foundUser &&
-                        (!filterPanelFormElements?.role ||
-                          filterPanelFormElements?.role?.length === 0 ||
-                          filterPanelFormElements?.role?.includes(
-                            foundUser?.role?._id
-                          ))
-                      );
-                    }) || [],
-                  chefUser: s.chefUser,
-                  _id: shiftRecord._id,
+          locations.forEach((location) => {
+            location.shifts?.forEach((shift) => {
+              const key = buildShiftKey(shift);
+              if (!shiftsMap.has(key)) {
+                shiftsMap.set(key, {
+                  shift: shift.shift,
+                  shiftEndHour: shift.shiftEndHour,
                 });
               }
             });
           });
 
-          const dayName = new Date(day).toLocaleDateString("en-US", {
+          const shiftsArray = Array.from(shiftsMap.values());
+
+          // Sort by shift start time
+          return shiftsArray.sort((a, b) => {
+            const [aHour, aMin] = a.shift.split(":").map(Number);
+            const [bHour, bMin] = b.shift.split(":").map(Number);
+            return aHour * 60 + aMin - (bHour * 60 + bMin);
+          });
+        })()
+      : foundLocation?.shifts || [];
+
+  const allRows =
+    selectedLocationId === -1
+      ? (() => {
+          // Group by day for "All" mode
+          const groupedByDay = shifts?.reduce((acc, shift) => {
+            if (!acc[shift.day]) {
+              acc[shift.day] = [];
+            }
+            acc[shift.day].push(shift);
+            return acc;
+          }, {} as Record<string, any[]>);
+
+          return Object.entries(groupedByDay || {}).map(([day, dayShifts]) => {
+            const shiftsByLocation: Record<
+              string,
+              Array<{
+                location: number;
+                users: string[];
+                chefUser?: string;
+                _id: string;
+              }>
+            > = {};
+
+            dayShifts.forEach((shiftRecord) => {
+              shiftRecord.shifts?.forEach((s: any) => {
+                const shiftKey = buildShiftKey(s, shiftRecord.location);
+                if (!shiftsByLocation[shiftKey]) {
+                  shiftsByLocation[shiftKey] = [];
+                }
+
+                const locationConfig = getItem(shiftRecord.location, locations);
+                // Skip shifts not defined for this location to avoid rendering phantom dropdowns
+                const locationHasShift = locationConfig?.shifts?.some(
+                  (locationShift) => {
+                    return (
+                      buildShiftKey(locationShift, shiftRecord.location) ===
+                      shiftKey
+                    );
+                  }
+                );
+                if (!locationHasShift) {
+                  return;
+                }
+
+                // Check if this location already exists for this shift
+                const existingIndex = shiftsByLocation[shiftKey].findIndex(
+                  (sl) => sl.location === shiftRecord.location
+                );
+
+                if (existingIndex === -1) {
+                  shiftsByLocation[shiftKey].push({
+                    location: shiftRecord.location,
+                    users:
+                      s.user?.filter((userId: string) => {
+                        const foundUser = getItem(userId, users);
+                        return (
+                          foundUser &&
+                          (!filterPanelFormElements?.role ||
+                            filterPanelFormElements?.role?.length === 0 ||
+                            filterPanelFormElements?.role?.includes(
+                              foundUser?.role?._id
+                            ))
+                        );
+                      }) || [],
+                    chefUser: s.chefUser,
+                    _id: shiftRecord._id,
+                  });
+                }
+              });
+            });
+
+            const dayName = new Date(day).toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            return {
+              day,
+              formattedDay:
+                convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
+              shiftsByLocation,
+            };
+          });
+        })()
+      : shifts?.map((shift) => {
+          const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
+            if (shiftValue.shift && shiftValue.user) {
+              acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
+                const foundUser = getItem(userId, users);
+                return (
+                  foundUser &&
+                  (!filterPanelFormElements?.role ||
+                    filterPanelFormElements?.role?.length === 0 ||
+                    filterPanelFormElements?.role?.includes(
+                      foundUser?.role?._id
+                    ))
+                );
+              });
+            }
+            return acc;
+          }, {} as { [key: string]: string[] });
+          const dayName = new Date(shift.day).toLocaleDateString("en-US", {
             weekday: "long",
           });
           return {
-            day,
+            ...shift,
             formattedDay:
-              convertDateFormat(day) + "  " + "(" + t(dayName) + ")",
-            shiftsByLocation,
+              convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
+            ...shiftMapping,
           };
         });
-      })()
-      : shifts?.map((shift) => {
-        const shiftMapping = shift?.shifts?.reduce((acc, shiftValue) => {
-          if (shiftValue.shift && shiftValue.user) {
-            acc[shiftValue.shift] = shiftValue.user?.filter((userId) => {
-              const foundUser = getItem(userId, users);
-              return (
-                foundUser &&
-                (!filterPanelFormElements?.role ||
-                  filterPanelFormElements?.role?.length === 0 ||
-                  filterPanelFormElements?.role?.includes(
-                    foundUser?.role?._id
-                  ))
-              );
-            });
-          }
-          return acc;
-        }, {} as { [key: string]: string[] });
-        const dayName = new Date(shift.day).toLocaleDateString("en-US", {
-          weekday: "long",
-        });
-        return {
-          ...shift,
-          formattedDay:
-            convertDateFormat(shift.day) + "  " + "(" + t(dayName) + ")",
-          ...shiftMapping,
-        };
-      });
   const [rows, setRows] = useState(allRows);
   const columns = [
     { key: t("Date"), isSortable: true, correspondingKey: "formattedDay" },
@@ -262,95 +255,92 @@ const ShiftChange = () => {
         correspondingKey: shift.shift,
       });
       rowKeys.push({
-          key: shiftKey,
-          node: (row: any) => {
-            // Check if we're in "All" mode
-            if (selectedLocationId === -1) {
-              const shiftKey = buildShiftKey(shift);
-              const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
+        key: shiftKey,
+        node: (row: any) => {
+          // Check if we're in "All" mode
+          if (selectedLocationId === -1) {
+            const shiftKey = buildShiftKey(shift);
+            const shiftLocations = row.shiftsByLocation?.[shiftKey] || [];
 
-              if (shiftLocations.length === 0) return <></>;
+            if (shiftLocations.length === 0) return <></>;
 
+            return (
+              <div className="flex flex-col gap-2 mx-3 ">
+                {shiftLocations.map((shiftLocation: any, idx: number) => {
+                  const location = getItem(shiftLocation.location, locations);
+
+                  if (!shiftLocation.users || shiftLocation.users.length === 0)
+                    return null;
+
+                  return (
+                    <div key={idx} className="flex flex-col  gap-1 ">
+                      <div
+                        className="font-semibold text-sm"
+                        style={{
+                          color: location?.backgroundColor || "#6B7280",
+                        }}
+                      >
+                        {location?.name}
+                      </div>
+                      <div className="flex flex-row flex-wrap gap-0.5  max-w-[50rem] w-full ">
+                        {shiftLocation.users?.map(
+                          (userId: string, userIdx: number) => {
+                            const foundUser = getItem(userId, users);
+                            return (
+                              <div
+                                key={userIdx}
+                                className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
+                                  filterPanelFormElements.user ===
+                                  foundUser?._id
+                                    ? "font-bold underline"
+                                    : ""
+                                }`}
+                                style={{
+                                  backgroundColor: foundUser?.role?.color,
+                                }}
+                              >
+                                {foundUser?.name}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          } else {
+            // Original single location logic
+            const shiftValue = row[shift.shift];
+            if (Array.isArray(shiftValue) && shiftValue.length > 0) {
               return (
-                <div className="flex flex-col gap-2 mx-3 ">
-                  {shiftLocations.map((shiftLocation: any, idx: number) => {
-                    const location = getItem(shiftLocation.location, locations);
-
-                    if (
-                      !shiftLocation.users ||
-                      shiftLocation.users.length === 0
-                    )
-                      return null;
-
+                <div
+                  className={`flex flex-row gap-1 flex-wrap  rounded-md text-white  max-w-60 mx-3`}
+                >
+                  {shiftValue?.map((user: string, index: number) => {
+                    const foundUser = getItem(user, users);
                     return (
-                      <div key={idx} className="flex flex-col  gap-1 ">
-                        <div
-                          className="font-semibold text-sm"
-                          style={{
-                            color: location?.backgroundColor || "#6B7280",
-                          }}
-                        >
-                          {location?.name}
-                        </div>
-                        <div className="flex flex-row flex-wrap gap-0.5  max-w-[50rem] w-full ">
-                          {shiftLocation.users?.map(
-                            (userId: string, userIdx: number) => {
-                              const foundUser = getItem(userId, users);
-                              return (
-                                <div
-                                  key={userIdx}
-                                  className={`flex flex-row flex-wrap gap-1 p-2 rounded-lg text-white border-white ${
-                                    filterPanelFormElements.user ===
-                                    foundUser?._id
-                                      ? "font-bold underline"
-                                      : ""
-                                  }`}
-                                  style={{
-                                    backgroundColor: foundUser?.role?.color,
-                                  }}
-                                >
-                                  {foundUser?.name}
-                                </div>
-                              );
-                            }
-                          )}
-                        </div>
+                      <div
+                        key={`${row.day}${foundUser?._id}${index}`}
+                        className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
+                          filterPanelFormElements.user === foundUser?._id
+                            ? "font-bold underline"
+                            : ""
+                        }`}
+                        style={{ backgroundColor: foundUser?.role?.color }}
+                      >
+                        {foundUser?.name}
                       </div>
                     );
                   })}
                 </div>
               );
-            } else {
-              // Original single location logic
-              const shiftValue = row[shift.shift];
-              if (Array.isArray(shiftValue) && shiftValue.length > 0) {
-                return (
-                  <div
-                    className={`flex flex-row gap-1 flex-wrap  rounded-md text-white  max-w-60 mx-3`}
-                  >
-                    {shiftValue?.map((user: string, index: number) => {
-                      const foundUser = getItem(user, users);
-                      return (
-                        <div
-                          key={`${row.day}${foundUser?._id}${index}`}
-                          className={`flex flex-row items-center gap-1 p-2 rounded-lg text-white border border-white ${
-                            filterPanelFormElements.user === foundUser?._id
-                              ? "font-bold underline"
-                              : ""
-                          }`}
-                          style={{ backgroundColor: foundUser?.role?.color }}
-                        >
-                          {foundUser?.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              }
-              return <></>;
             }
-          },
-        });
+            return <></>;
+          }
+        },
+      });
     }
   }
   const filters = [
@@ -510,12 +500,13 @@ const ShiftChange = () => {
   });
 
   // Show ALL locations (not just where user has shifts in current date range)
-  const userLocations = locations
-    ?.map((location) => ({
-      value: location._id,
-      label: location.name || "",
-    }))
-    .filter((loc) => loc.label) || [];
+  const userLocations =
+    locations
+      ?.map((location) => ({
+        value: location._id,
+        label: location.name || "",
+      }))
+      .filter((loc) => loc.label) || [];
 
   // Get user's shifts for selected source location (only today and future)
   const today = new Date();
@@ -523,7 +514,11 @@ const ShiftChange = () => {
 
   const userShiftsInLocation = userOwnShifts
     ?.filter((shift) => {
-      if (!shift.location || shift.location !== shiftChangeForm.sourceLocation || !shift.day) {
+      if (
+        !shift.location ||
+        shift.location !== shiftChangeForm.sourceLocation ||
+        !shift.day
+      ) {
         return false;
       }
       const shiftDate = new Date(shift.day);
@@ -545,8 +540,12 @@ const ShiftChange = () => {
   const userShiftOptions = userShiftsInLocation
     ?.flatMap((shiftRecord) =>
       shiftRecord.shifts?.map((s: any) => ({
-        value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${shiftRecord.day}`,
-        label: `${convertDateFormat(shiftRecord.day)}   /   ${s.shift}${s.shiftEndHour ? `-${s.shiftEndHour}` : ""}`,
+        value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${
+          shiftRecord.day
+        }`,
+        label: `${convertDateFormat(shiftRecord.day)}   /   ${s.shift}${
+          s.shiftEndHour ? `-${s.shiftEndHour}` : ""
+        }`,
         shiftData: {
           shiftId: shiftRecord._id,
           day: shiftRecord.day,
@@ -561,7 +560,11 @@ const ShiftChange = () => {
 
   // Get all shifts for target location (for SWAP) - only today and future - using modalShifts
   const targetLocationShifts = modalShifts?.filter((shift) => {
-    if (!shift.location || shift.location !== shiftChangeForm.targetLocation || !shift.day) {
+    if (
+      !shift.location ||
+      shift.location !== shiftChangeForm.targetLocation ||
+      !shift.day
+    ) {
       return false;
     }
     const shiftDate = new Date(shift.day);
@@ -574,10 +577,16 @@ const ShiftChange = () => {
     ? targetLocationShifts
         ?.flatMap((shiftRecord) =>
           shiftRecord.shifts
-            ?.filter((s: any) => s.user && s.user.includes(shiftChangeForm.targetUser))
+            ?.filter(
+              (s: any) => s.user && s.user.includes(shiftChangeForm.targetUser)
+            )
             ?.map((s: any) => ({
-              value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${shiftRecord.day}|${s.user.join(",")}`,
-              label: `${convertDateFormat(shiftRecord.day)} / ${s.shift}${s.shiftEndHour ? ` - ${s.shiftEndHour}` : ""}`,
+              value: `${shiftRecord._id}|${s.shift}|${s.shiftEndHour || ""}|${
+                shiftRecord.day
+              }|${s.user.join(",")}`,
+              label: `${convertDateFormat(shiftRecord.day)} / ${s.shift}${
+                s.shiftEndHour ? ` - ${s.shiftEndHour}` : ""
+              }`,
               shiftData: {
                 shiftId: shiftRecord._id,
                 day: shiftRecord.day,
@@ -642,50 +651,63 @@ const ShiftChange = () => {
   ];
 
   // SWAP-specific fields (better order: location -> user -> shift)
-  const swapFields = shiftChangeForm.type === "SWAP" ? [
-    {
-      type: InputTypes.SELECT,
-      formKey: "targetLocation",
-      label: t("Target Location"),
-      options: locations?.map((loc) => ({ value: loc._id, label: loc.name })) || [],
-      required: true,
-      invalidateKeys: [{ key: "targetUser", defaultValue: "" }, { key: "targetShift", defaultValue: "" }],
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "targetUser",
-      label: t("Target User"),
-      options: users
-        ?.filter((u) => u._id !== user?._id)
-        ?.map((u) => ({ value: u._id, label: u.name })) || [],
-      required: true,
-      isDisabled: !shiftChangeForm.targetLocation,
-      invalidateKeys: [{ key: "targetShift", defaultValue: "" }],
-    },
-    {
-      type: InputTypes.SELECT,
-      formKey: "targetShift",
-      label: t("Target Shift"),
-      options: targetShiftOptions || [],
-      required: true,
-      isDisabled: !shiftChangeForm.targetUser,
-      invalidateKeys: [],
-    },
-  ] : [];
+  const swapFields =
+    shiftChangeForm.type === "SWAP"
+      ? [
+          {
+            type: InputTypes.SELECT,
+            formKey: "targetLocation",
+            label: t("Target Location"),
+            options:
+              locations?.map((loc) => ({ value: loc._id, label: loc.name })) ||
+              [],
+            required: true,
+            invalidateKeys: [
+              { key: "targetUser", defaultValue: "" },
+              { key: "targetShift", defaultValue: "" },
+            ],
+          },
+          {
+            type: InputTypes.SELECT,
+            formKey: "targetUser",
+            label: t("Target User"),
+            options:
+              users
+                ?.filter((u) => u._id !== user?._id)
+                ?.map((u) => ({ value: u._id, label: u.name })) || [],
+            required: true,
+            isDisabled: !shiftChangeForm.targetLocation,
+            invalidateKeys: [{ key: "targetShift", defaultValue: "" }],
+          },
+          {
+            type: InputTypes.SELECT,
+            formKey: "targetShift",
+            label: t("Target Shift"),
+            options: targetShiftOptions || [],
+            required: true,
+            isDisabled: !shiftChangeForm.targetUser,
+            invalidateKeys: [],
+          },
+        ]
+      : [];
 
   // TRANSFER-specific fields
-  const transferFields = shiftChangeForm.type === "TRANSFER" ? [
-    {
-      type: InputTypes.SELECT,
-      formKey: "targetUser",
-      label: t("Transfer To User"),
-      options: users
-        ?.filter((u) => u._id !== user?._id)
-        ?.map((u) => ({ value: u._id, label: u.name })) || [],
-      required: true,
-      invalidateKeys: [],
-    },
-  ] : [];
+  const transferFields =
+    shiftChangeForm.type === "TRANSFER"
+      ? [
+          {
+            type: InputTypes.SELECT,
+            formKey: "targetUser",
+            label: t("Transfer To User"),
+            options:
+              users
+                ?.filter((u) => u._id !== user?._id)
+                ?.map((u) => ({ value: u._id, label: u.name })) || [],
+            required: true,
+            invalidateKeys: [],
+          },
+        ]
+      : [];
 
   // Note field (common for both)
   const noteField = {
@@ -728,8 +750,13 @@ const ShiftChange = () => {
 
     if (formData.type === "SWAP") {
       // Parse target shift
-      const [targetShiftId, targetStartTime, targetEndTime, targetDay, targetUsers] =
-        formData.targetShift.split("|");
+      const [
+        targetShiftId,
+        targetStartTime,
+        targetEndTime,
+        targetDay,
+        targetUsers,
+      ] = formData.targetShift.split("|");
 
       // Get first user from target shift (or use targetUser if single selection)
       const targetUserId = formData.targetUser || targetUsers.split(",")[0];
@@ -824,7 +851,9 @@ const ShiftChange = () => {
       const targetUserShifts = modalShifts?.filter(
         (shift) =>
           shift.day === sourceDay &&
-          shift.shifts?.some((s: any) => s.user?.includes(shiftChangeForm.targetUser))
+          shift.shifts?.some((s: any) =>
+            s.user?.includes(shiftChangeForm.targetUser)
+          )
       );
 
       // Check for time conflicts
@@ -847,10 +876,13 @@ const ShiftChange = () => {
       if (hasConflict) {
         const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
         setConflictWarning(
-          t("Warning: {{userName}} already has a shift at this time on {{date}}", {
-            userName: targetUserName,
-            date: convertDateFormat(sourceDay),
-          })
+          t(
+            "Warning: {{userName}} already has a shift at this time on {{date}}",
+            {
+              userName: targetUserName,
+              date: convertDateFormat(sourceDay),
+            }
+          )
         );
       } else {
         setConflictWarning("");
@@ -902,11 +934,14 @@ const ShiftChange = () => {
         submitItem={handleShiftChangeSubmit}
         buttonName={t("Send Request")}
         topClassName="flex flex-col gap-4"
+        generalClassName="max-h-[90vh] overflow-y-auto"
         isSubmitButtonActive={!conflictWarning}
         constantValues={shiftChangeForm}
         setForm={setShiftChangeForm}
         upperMessage={
-          conflictWarning ? [t("Conflict Detected!"), conflictWarning] : undefined
+          conflictWarning
+            ? [t("Conflict Detected!"), conflictWarning]
+            : undefined
         }
       />
     </div>
