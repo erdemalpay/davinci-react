@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Game, Gameplay } from "../../types";
-import { useGetGames } from "../../utils/api/game";
+import { Gameplay } from "../../types";
+import { useGetGamesMinimal } from "../../utils/api/game";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 
 type Props = {
@@ -14,7 +14,7 @@ type GameplayAccumulator = {
 
 const GamesIMentored = ({ data }: Props) => {
   const { t } = useTranslation();
-  const games: Game[] = useGetGames();
+  const games = useGetGamesMinimal();
   const [startDateFilter, setStartDateFilter] = useState<string | null>();
   const [endDateFilter, setEndDateFilter] = useState<string | null>();
 

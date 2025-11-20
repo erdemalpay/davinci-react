@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserContext } from "../../../context/User.context";
 import {
   ActionEnum,
   DateRangeKey,
@@ -7,14 +8,13 @@ import {
   FormElementsState,
 } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
-import { useUserContext } from "../../../context/User.context";
-import { useGetGames } from "../../../utils/api/game";
+import { useGetGamesMinimal } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
 } from "../../../utils/api/gameplay";
-import { useGetAllUsers } from "../../../utils/api/user";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
+import { useGetAllUsers } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
@@ -76,7 +76,7 @@ export default function GameplaysByMentor() {
   }, [filterPanelFormElements.startDate, filterPanelFormElements.endDate]);
 
   const { data } = useGetGameplaysGroups(filterData);
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const users = useGetAllUsers();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();

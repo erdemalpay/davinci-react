@@ -16,7 +16,6 @@ import { useGeneralContext } from "../../context/General.context";
 import { useLocationContext } from "../../context/Location.context";
 import { useOrderContext } from "../../context/Order.context";
 import {
-  Game,
   Gameplay,
   MenuItem,
   Order,
@@ -26,10 +25,11 @@ import {
   Table,
   TableStatus,
   TableTypes,
-  User,
+  User
 } from "../../types";
 import { useGetAllAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountStocks } from "../../utils/api/account/stock";
+import { useGetGamesMinimal } from "../../utils/api/game";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetMemberships } from "../../utils/api/membership";
 import { useGetAllCategories } from "../../utils/api/menu/category";
@@ -69,7 +69,6 @@ import OrderListForPanel from "./OrderListForPanel";
 export interface TableCardProps {
   table: Table;
   mentors: User[];
-  games: Game[];
   showAllGameplays?: boolean;
   showAllOrders?: boolean;
   showServedOrders?: boolean;
@@ -79,13 +78,13 @@ export interface TableCardProps {
 export function TableCard({
   table,
   mentors,
-  games,
   showAllGameplays = false,
   showAllOrders = false,
   showServedOrders = false,
   tables,
 }: TableCardProps) {
   const { t } = useTranslation();
+ const games = useGetGamesMinimal(); 
   const [isGameplayDialogOpen, setIsGameplayDialogOpen] = useState(false);
   const [
     isTableNameEditConfirmationDialogOpen,

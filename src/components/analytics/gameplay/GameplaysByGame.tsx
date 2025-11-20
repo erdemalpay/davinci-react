@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DateRangeKey, FormElementsState } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
-import { useGetGames } from "../../../utils/api/game";
+import { useGetGamesMinimal } from "../../../utils/api/game";
 import {
   GameplayGroupFilter,
   useGetGameplaysGroups,
@@ -75,7 +75,7 @@ export default function GameplaysByGames() {
   ]);
 
   const { data } = useGetGameplaysGroups(filterData);
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const users = useGetAllUsers();
 
   const gameplayGroupRows = useMemo(() => {
