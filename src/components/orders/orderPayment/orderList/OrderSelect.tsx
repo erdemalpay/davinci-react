@@ -199,7 +199,14 @@ const OrderSelect = ({ tableOrders }: Props) => {
                 {")"}-
               </p>
               <div className="flex flex-col gap-1 justify-start">
-                <p>{getItem(order?.item, items)?.name}</p>
+                <div className="flex flex-row gap-1 items-center">
+                  <p>{getItem(order?.item, items)?.name}</p>
+                  {order?.activityPlayer && (
+                    <p className="text-gray-600 text-xs">
+                      {"(" + order?.activityPlayer + ")"}
+                    </p>
+                  )}
+                </div>
                 {order?.discount && (
                   <div className="text-xs text-white bg-red-600 p-0.5 rounded-md flex flex-row gap-1 justify-center items-center">
                     <p>{getItem(order?.discount, discounts)?.name}</p>
