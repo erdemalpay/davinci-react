@@ -330,7 +330,7 @@
   "Delete Income": "Delete Income",
   "Income": "Income",
   "Incomes": "Incomes",
-  "Amount": "Amount",
+
   "Checkout": "Checkout",
   "Cashout": "Cashout",
   "Cashouts": "Cashouts",
@@ -505,8 +505,8 @@
   "Order is ready to serve.": "Order is ready to serve.",
   "Note Required": "Note Required",
   "Online Order": "Online Order",
-  "Today": "Today",
-  "Yesterday": "Yesterday",
+
+
   "This Year": "This Year",
   "Last Year": "Last Year",
   "Table Transfer": "Table Transfer",
@@ -1057,14 +1057,14 @@
   "Add Point": "Add Point",
   "All points will be removed": "All points will be removed",
   "Point History": "Point History",
-  "My Point History": "My Point History",
+
   "History": "History",
   "Point Create": "Point Create",
   "Point Update": "Point Update",
   "Point Delete": "Point Delete",
   "Collection Created": "Collection Created",
   "Collection Cancelled": "Collection Cancelled",
-  "Point User": "Point User",
+
   "Order ID": "Order ID",
   "Collection ID": "Collection ID",
   "Table ID": "Table ID",
