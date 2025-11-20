@@ -18,6 +18,7 @@ import {
   InputTypes,
 } from "../components/panelComponents/shared/types";
 import { ActiveVisitList } from "../components/tables/ActiveVisitList";
+import OrderListForPanel from "../components/tables/OrderListForPanel";
 import OrderTakeawayPanel from "../components/tables/OrderTakeawayPanel";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import ShiftList from "../components/tables/ShiftList";
@@ -56,7 +57,11 @@ import { useGetMemberships } from "../utils/api/membership";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetKitchens } from "../utils/api/menu/kitchen";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
-import { useGetTodayOrders, useOrderMutations } from "../utils/api/order/order";
+import {
+  useCreateMultipleOrderMutation,
+  useGetTodayOrders,
+  useOrderMutations
+} from "../utils/api/order/order";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
@@ -111,6 +116,9 @@ const Tables = () => {
   const kitchens = useGetKitchens();
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
+  const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
+
+
 
   const comingReservedTableNames = useMemo(() => {
     if (!reservations || !selectedLocationId) return new Set<string>();
@@ -160,6 +168,7 @@ const Tables = () => {
   const tables = useGetTables()
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
+
   const users = useGetUsers();
   const initialOrderForm = {
     item: 0,
@@ -297,6 +306,15 @@ const Tables = () => {
     selectedLocationId,
     categories,
   ]);
+  const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
+  const [selectedTableIdForOrder, setSelectedTableIdForOrder] = useState<
+    number | null
+  >(null);
+
+  const selectedTable = useMemo(() => {
+    return tables.find((t) => t._id === selectedTableIdForOrder);
+  }, [tables, selectedTableIdForOrder]);
+
   const makePressHandlers = (tableId: number, targetId: string) => {
     let timer: number | null = null;
     let longFired = false;
@@ -312,8 +330,8 @@ const Tables = () => {
       clear();
       timer = window.setTimeout(() => {
         longFired = true;
-        setTableOrderPaymentTableId(tableId);
-        setIsTableOrderPaymentModalOpen(true);
+        setSelectedTableIdForOrder(tableId);
+        setIsAddOrderModalOpen(true);
       }, LONG_MS);
     };
 
@@ -347,6 +365,20 @@ const Tables = () => {
       onTouchCancel: clear,
     };
   };
+
+
+  const MEMBERDISCOUNTID = 8;
+  const memberDiscount = useMemo(() => {
+    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
+  }, [discounts]);
+
+  const filteredDiscounts = useMemo(() => {
+    return discounts?.filter((discount) =>
+      selectedTable?.isOnlineSale
+        ? discount?.isOnlineOrder
+        : discount?.isStoreOrder
+    );
+  }, [discounts, selectedTable?.isOnlineSale]);
 
   const orderInputs = [
     {
@@ -451,6 +483,89 @@ const Tables = () => {
       isOnClearActive: false,
     },
     {
+      type: InputTypes.TAB,
+      formKey: "discount",
+      label: t("Discount"),
+      options: orderForm?.item
+        ? filteredDiscounts
+            .filter((discount) => {
+              const menuItem = menuItems?.find(
+                (item) => item._id === orderForm.item
+              );
+              return getItem(
+                menuItem?.category,
+                categories
+              )?.discounts?.includes(discount._id);
+            })
+            ?.map((option) => {
+              return {
+                value: option?._id,
+                label: option?.name,
+              };
+            })
+        : [],
+      suggestedOption: orderForm?.item
+        ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.length
+          ? getItem(orderForm.item, menuItems)?.suggestedDiscount?.map(
+              (discountId: number) => ({
+                value: discountId as any,
+                label:
+                  filteredDiscounts?.find(
+                    (discount) => discount._id === discountId
+                  )?.name || "",
+              })
+            )
+          : []
+        : [],
+      invalidateKeys: [{ key: "discountNote", defaultValue: "" }],
+      placeholder: t("Discount"),
+      isAutoFill: false,
+      required: false,
+      isTopFlexRow: true,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder:
+        orderForm?.discount &&
+        discounts?.find((discount) => discount._id === orderForm.discount)
+          ?.note
+          ? discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.note
+          : t("What is the reason for the discount?"),
+      required:
+        (orderForm?.discount &&
+          orderForm?.discount !== MEMBERDISCOUNTID &&
+          discounts?.find((discount) => discount._id === orderForm.discount)
+            ?.isNoteRequired) ??
+        false,
+      isDisabled:
+        (orderForm?.discount === MEMBERDISCOUNTID ||
+          (orderForm?.discount &&
+            !discounts?.find(
+              (discount) => discount._id === orderForm.discount
+            )?.isNoteRequired)) ??
+        true,
+    },
+
+    {
+      type: InputTypes.SELECT,
+      formKey: "discountNote",
+      label: t("Discount Note"),
+      placeholder: memberDiscount?.note,
+      options: members
+        ?.filter((membership) => membership.endDate >= formatDate(new Date()))
+        ?.map((membership) => ({
+          value: membership.name,
+          label: membership.name,
+        })),
+      isMultiple: true,
+      required: orderForm?.discount === MEMBERDISCOUNTID,
+      isDisabled: orderForm?.discount !== MEMBERDISCOUNTID,
+      isOnClearActive: true,
+    },
+    {
       type: InputTypes.SELECT,
       formKey: "stockLocation",
       label: t("Stock Location"),
@@ -480,7 +595,7 @@ const Tables = () => {
       formKey: "note",
       label: t("Note"),
       placeholder: t("Note"),
-      required: true,
+      required: false,
       options:
         orderNotes
           ?.filter((note) => {
@@ -497,6 +612,29 @@ const Tables = () => {
             label: note.note,
           })) ?? [],
     },
+    {
+      type: InputTypes.SELECT,
+      formKey: "activityTableName",
+      label: t("Table"),
+      options: selectedTable?.tables?.map((tableName) => {
+        return {
+          value: tableName,
+          label: tableName,
+        };
+      }),
+      placeholder: t("Table"),
+      required: false,
+      isDisabled: selectedTable?.type !== TableTypes.ACTIVITY,
+    },
+    {
+      type: InputTypes.TEXT,
+      formKey: "activityPlayer",
+      label: t("Player Number"),
+      placeholder: t("Player Number"),
+      required: false,
+      isDisabled: selectedTable?.type !== TableTypes.ACTIVITY,
+      isOnClearActive: true,
+    },
   ];
   const orderFormKeys = [
     { key: "category", type: FormKeyTypeEnum.STRING },
@@ -504,6 +642,8 @@ const Tables = () => {
     { key: "quantity", type: FormKeyTypeEnum.NUMBER },
     { key: "stockLocation", type: FormKeyTypeEnum.NUMBER },
     { key: "note", type: FormKeyTypeEnum.STRING },
+    { key: "activityTableName", type: FormKeyTypeEnum.STRING },
+    { key: "activityPlayer", type: FormKeyTypeEnum.STRING },
   ];
   const isOnlinePrice = () => {
     const menuItem = menuItems?.find((item) => item._id === orderForm.item);
@@ -512,10 +652,7 @@ const Tables = () => {
     }
     return false;
   };
-  const MEMBERDISCOUNTID = 8;
-  const memberDiscount = useMemo(() => {
-    return discounts?.find((discount) => discount._id === MEMBERDISCOUNTID);
-  }, [discounts]);
+
   const orderInputsForTakeAway = [
     {
       type: InputTypes.TAB,
@@ -1514,6 +1651,142 @@ const Tables = () => {
           submitItem={consumptStock as any}
           buttonName={t("Submit")}
           generalClassName="  shadow-none overflow-scroll  no-scrollbar sm:h-[60%] sm:min-w-[60%]  "
+          topClassName="flex flex-col gap-2  "
+        />
+      )}
+      {isAddOrderModalOpen && selectedTable && (
+        <GenericAddEditPanel
+          isOpen={isAddOrderModalOpen}
+          close={() => {
+            setOrderCreateBulk([]);
+            setIsAddOrderModalOpen(false);
+            setSelectedTableIdForOrder(null);
+            setSelectedNewOrders([]);
+            setIsTabInputScreenOpen(false);
+          }}
+          inputs={orderInputs}
+          formKeys={orderFormKeys}
+          {...(inactiveCategoriesWithKitchens?.length > 0
+            ? {
+                upperMessage: inactiveCategoriesWithKitchens.map((category) =>
+                  t("{{categoryName}} is not active", {
+                    categoryName: category.name,
+                  })
+                ),
+              }
+            : {})}
+          submitItem={createOrder as any}
+          isConfirmationDialogRequired={() => {
+            const menuItem = menuItems?.find(
+              (item) => item._id === orderForm.item
+            );
+            const category = categories?.find(
+              (category) => category._id === menuItem?.category
+            );
+            const stockQuantity = menuItem
+              ? menuItemStockQuantity(menuItem, orderForm.stockLocation)
+              : null;
+            if (!category?.isOnlineOrder) {
+              return false;
+            }
+            return !stockQuantity || stockQuantity < orderForm.quantity;
+          }}
+          confirmationDialogHeader={t("Stock Quantity Warning")}
+          confirmationDialogText={t(
+            "Stock Quantity is not enough. Do you want to continue?"
+          )}
+          setForm={setOrderForm}
+          isCreateCloseActive={false}
+          optionalCreateButtonActive={orderCreateBulk?.length > 0}
+          allowOptionalSubmitForActivityTable={
+            selectedTable?.type === TableTypes.ACTIVITY
+          }
+          constantValues={{
+            quantity: 1,
+            stockLocation: selectedTable?.isOnlineSale ? 6 : selectedLocationId,
+            location: selectedTable?.isOnlineSale ? 4 : selectedLocationId,
+          }}
+          cancelButtonLabel={t("Close")}
+          anotherPanelTopClassName="h-full sm:h-auto flex flex-col   sm:grid grid-cols-1 md:grid-cols-2  w-[98%] md:w-[90%] md:h-[90%] overflow-scroll no-scrollbar sm:overflow-visible  "
+          anotherPanel={<OrderListForPanel table={selectedTable} />}
+          additionalButtons={[
+            {
+              label: t("Add"),
+              isInputRequirementCheck: true,
+              isInputNeedToBeReset: true,
+              preservedKeys: ["activityTableName", "activityPlayer"],
+              onClick: () => {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  setOrderCreateBulk([...orderCreateBulk, orderObject]);
+                }
+                setSelectedNewOrders([
+                  ...selectedNewOrders,
+                  orderCreateBulk.length,
+                ]);
+              },
+            },
+          ]}
+          submitFunction={() => {
+            // creating single order
+            if (orderCreateBulk === null || orderCreateBulk.length === 0) {
+              const orderObject = handleOrderObject();
+              if (orderObject) {
+                createOrder({ ...orderObject, table: selectedTable?._id } as any);
+              }
+            } else {
+              const submitBulkOrders = () => {
+                if (orderCreateBulk.length > 0) {
+                  createMultipleOrder({
+                    orders: orderCreateBulk.map((orderCreateBulkItem) => {
+                      return {
+                        ...orderCreateBulkItem,
+                        tableDate: selectedTable
+                          ? new Date(selectedTable?.date)
+                          : new Date(),
+                      };
+                    }),
+                    table: selectedTable,
+                  } as any);
+                }
+              };
+
+              if (!orderForm?.item) {
+                submitBulkOrders();
+              } else if (orderForm?.item) {
+                const orderObject = handleOrderObject();
+                if (orderObject) {
+                  createMultipleOrder({
+                    orders: [
+                      ...orderCreateBulk.map((orderCreateBulkItem) => {
+                        return {
+                          ...orderCreateBulkItem,
+                          tableDate: selectedTable
+                            ? new Date(selectedTable?.date)
+                            : new Date(),
+                        };
+                      }),
+                      orderObject,
+                    ],
+                    table: selectedTable,
+                  } as any);
+                } else {
+                  submitBulkOrders();
+                }
+              } else {
+                submitBulkOrders();
+              }
+            }
+            setOrderForm(initialOrderForm);
+            setSelectedNewOrders([]);
+            setOrderCreateBulk([]);
+            setIsAddOrderModalOpen(false);
+            setSelectedTableIdForOrder(null);
+          }}
+          onOpenTriggerTabInputFormKey={
+            user?.settings?.orderCategoryOn ? "category" : "item"
+          }
+          generalClassName=" md:rounded-l-none shadow-none overflow-scroll  no-scrollbar   "
           topClassName="flex flex-col gap-2  "
         />
       )}

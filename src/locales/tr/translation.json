@@ -241,7 +241,7 @@
   "Delete Service": "Hizmeti Sil",
   "Service Invoices": "Hizmet Faturaları",
   "Transfer to Service": "Hizmete Transfer Et",
-  "Transfer": "Transfer",
+
   "Transfer to Invoice": "Faturaya Transfer Et",
   "Enable Transfer": "Transferi Etkinleştir",
   "Show All Gameplays": "Oyun Anlatımlarını Göster",
@@ -332,7 +332,7 @@
   "Delete Income": "Gelir Sil",
   "Income": "Gelir",
   "Incomes": "Gelirler",
-  "Amount": "Tutar",
+
   "Checkout": "Kasa",
   "Cashout": "Nakit Çıkışı",
   "Cashouts": "Nakit Çıkışları",
@@ -349,7 +349,7 @@
   "Add Payment Method": "Ödeme Yöntemi Ekle",
   "Delete Payment Method": "Ödeme Yöntemi Sil",
   "Payment Method": "Ödeme Yöntemi",
-  "Not Paid": "Ödenmedi",
+
   "Logged in successfully": "Başarıyla giriş yapıldı",
   "Checkout Control": "Kasa Kontrolü",
   "Add Checkout Control": "Kasa Kontrolü Ekle",
@@ -1090,9 +1090,9 @@
   "Limited Time": "Sınırlı Zaman",
   "Point Consumer": "Puan Tüketicisi",
   "Consumer Point History": "Tüketici Puan Geçmişi",
-  "My Point History": "Puan Geçmişim",
+
   "Users Points": "Kullanıcı Puanları",
-  "Point User": "Puan Kullanıcısı",
+
   "Users Point History": "Kullanıcı Puan Geçmişi",
   "Consumers Points": "Tüketici Puanları"
 }
