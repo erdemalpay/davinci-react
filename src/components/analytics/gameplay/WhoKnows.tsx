@@ -5,22 +5,19 @@ import {
   ActionEnum,
   DisabledConditionEnum,
 } from "../../../types";
-import { useGetGames } from "../../../utils/api/game";
-import { useGetAllUsers } from "../../../utils/api/user";
+import { useGetGamesMinimal } from "../../../utils/api/game";
 import { useGetDisabledConditions } from "../../../utils/api/panelControl/disabledCondition";
+import { useGetAllUsers } from "../../../utils/api/user";
+import { getItem } from "../../../utils/getItem";
 import { Autocomplete } from "../../common/Autocomplete";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
 import SwitchButton from "../../panelComponents/common/SwitchButton";
-import { getItem } from "../../../utils/getItem";
 
-type WhoKnowsUser = {
-  mentor: string;
-};
 
 const WhoKnows = () => {
   const { t } = useTranslation();
   const users = useGetAllUsers();
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const [search, setSearch] = useState(0);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
   const { user } = useUserContext();

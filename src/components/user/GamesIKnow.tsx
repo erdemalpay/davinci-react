@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserContext } from "../../context/User.context";
 import { Game, UserGameUpdateType } from "../../types";
-import { useGetGames } from "../../utils/api/game";
+import { useGetGamesMinimal } from "../../utils/api/game";
 
 import {
   updateUserGamesMutation,
@@ -33,7 +33,7 @@ const GamesIKnow = ({ userId }: Props) => {
   const [rowToAction, setRowToAction] = useState<Game>();
   const { updateUserGame } = updateUserGamesMutation();
   const user = useGetUserWithId(userId);
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
 
   const inputs = useMemo(
     () => [

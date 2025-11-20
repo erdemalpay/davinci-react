@@ -4,7 +4,8 @@ import { Input } from "@material-tailwind/react";
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { Game, Gameplay, Table, User } from "../../types";
+import { Gameplay, Table, User } from "../../types";
+import { MinimalGame } from "../../utils/api/game";
 import {
   useDeleteGameplayMutation,
   useUpdateGameplayMutation,
@@ -27,7 +28,7 @@ export function EditGameplayDialog({
   table: Table;
   gameplay: Gameplay;
   mentors: User[];
-  games: Game[];
+  games: MinimalGame[];
 }) {
   const { t } = useTranslation();
   const { mutate: updateGameplay } = useUpdateGameplayMutation();
@@ -48,7 +49,7 @@ export function EditGameplayDialog({
     toast.success(t("Gameplay updated"));
   }
 
-  function handleGameSelection(game: Game) {
+  function handleGameSelection(game: MinimalGame) {
     if (!game || !gameplay._id) return;
     updateGameplay({
       tableId: table._id,

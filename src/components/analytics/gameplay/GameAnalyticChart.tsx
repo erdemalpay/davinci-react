@@ -12,7 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { Paths } from "../../../utils/api/factory";
-import { useGetGames } from "../../../utils/api/game";
+import { useGetGamesMinimal } from "../../../utils/api/game";
 import { useGetGameplayAnalytics } from "../../../utils/api/gameplay";
 import { useGetUsersMinimal } from "../../../utils/api/user";
 import { colors } from "../../../utils/color";
@@ -28,7 +28,7 @@ export interface GameCount {
 export function GameAnalyticChart() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const [dateFilter, setDateFilter] = useState(DateFilter.SINGLE_DAY);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string | undefined>("");

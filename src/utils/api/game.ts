@@ -5,6 +5,8 @@ import { Paths, useGetList, useMutationApi } from "./factory";
 
 const BASE_URL = `/games`;
 
+export type MinimalGame = Pick<Game, "_id" | "name">;
+
 export function useGameMutations() {
   const {
     deleteItem: deleteGame,
@@ -19,6 +21,9 @@ export function useGameMutations() {
 
 export function useGetGames() {
   return useGetList<Game>(Paths.Games);
+}
+export function useGetGamesMinimal() {
+  return useGetList<MinimalGame>(`${Paths.Games}/minimal`);
 }
 
 export function useGetGameDetails(gameId: number) {

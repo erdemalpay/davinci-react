@@ -47,7 +47,7 @@ import {
   useConsumptStockMutation,
   useGetAccountStocks,
 } from "../utils/api/account/stock";
-import { useGetGames } from "../utils/api/game";
+import { useGetGamesMinimal } from "../utils/api/game";
 import {
   useGetAllLocations,
   useGetStockLocations,
@@ -109,7 +109,7 @@ const Tables = () => {
   const locations = useGetStoreLocations();
   const allLocations = useGetAllLocations();
   const navigate = useNavigate();
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const visits = useGetVisits();
   const stockLocations = useGetStockLocations();
   const products = useGetAllAccountProducts();

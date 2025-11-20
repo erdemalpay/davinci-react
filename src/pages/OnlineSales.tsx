@@ -13,8 +13,7 @@ import { CreateTableDialog } from "../components/tables/CreateTableDialog";
 import { PreviousVisitList } from "../components/tables/PreviousVisitList";
 import { TableCard } from "../components/tables/TableCard";
 import { useDateContext } from "../context/Date.context";
-import { Game, Table, TableStatus, TableTypes, User } from "../types";
-import { useGetGames } from "../utils/api/game";
+import { Table, TableStatus, TableTypes, User } from "../types";
 import { useGetTables } from "../utils/api/table";
 import { MinimalUser, useGetUsersMinimal } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
@@ -29,7 +28,6 @@ const OnlineSales = () => {
   const [showAllTables, setShowAllTables] = useState(true);
   const [showAllGameplays, setShowAllGameplays] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(true);
-  const games = useGetGames();
   const visits = useGetVisits();
 
   const tables = useGetTables()
@@ -283,7 +281,6 @@ const OnlineSales = () => {
                   key={table._id || table.startHour}
                   table={table}
                   mentors={mentors}
-                  games={games}
                   showAllGameplays={showAllGameplays}
                   showAllOrders={showAllOrders}
                   tables={tables}
@@ -298,7 +295,6 @@ const OnlineSales = () => {
               <TableCard
                 table={table}
                 mentors={mentors}
-                games={games as Game[]}
                 showAllGameplays={showAllGameplays}
                 showAllOrders={showAllOrders}
                 tables={tables}

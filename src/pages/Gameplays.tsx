@@ -6,7 +6,7 @@ import SwitchButton from "../components/panelComponents/common/SwitchButton";
 import { InputTypes } from "../components/panelComponents/shared/types";
 import { useGeneralContext } from "../context/General.context";
 import { FormElementsState, Game } from "../types";
-import { useGetGames } from "../utils/api/game";
+import { useGetGamesMinimal } from "../utils/api/game";
 import { useGetGameplays } from "../utils/api/gameplay";
 import { useGetStoreLocations } from "../utils/api/location";
 import { useGetUsersMinimal } from "../utils/api/user";
@@ -43,7 +43,7 @@ export default function NewGameplays() {
     rowsPerPage,
     filterPanelFormElements
   );
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const locations = useGetStoreLocations();
   const users = useGetUsersMinimal();
 

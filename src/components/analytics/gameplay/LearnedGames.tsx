@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useFilterContext } from "../../../context/Filter.context";
-import { useGetGames } from "../../../utils/api/game";
+import { useGetGamesMinimal } from "../../../utils/api/game";
 import { useGetUsers } from "../../../utils/api/user";
 import { formatAsLocalDate } from "../../../utils/format";
 import { passesFilter } from "../../../utils/passesFilter";
@@ -13,7 +13,7 @@ const LearnedGames = () => {
   const { t } = useTranslation();
   const users = useGetUsers();
   if (!users) return null;
-  const games = useGetGames();
+  const games = useGetGamesMinimal();
   const {
     filterLearnedGamesPanelFormElements,
     setFilterLearnedGamesPanelFormElements,
