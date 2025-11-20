@@ -9,8 +9,8 @@ import {
   useGetAllLocations,
   useLocationMutations,
 } from "../../utils/api/location";
-import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
+import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -68,8 +68,10 @@ const LocationPage = () => {
       { key: t("Name"), isSortable: true },
       { key: t("Type"), isSortable: false },
       { key: t("Table Count"), isSortable: false },
+      { key: t("Phone Number"), isSortable: false },
+      { key: t("Map Location"), isSortable: false },
+      { key: t("Opening Hours"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
-      { key: t("Closed Days"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
       { key: t("Actions"), isSortable: false },
@@ -118,6 +120,54 @@ const LocationPage = () => {
       },
       { key: "tableCount" },
       {
+        key: "phoneNumber",
+        className: "min-w-32 pr-1",
+      },
+      {
+        key: "googleMapsUrl",
+        className: "min-w-32 pr-1",
+        node: (row: Location) => {
+          return row.googleMapsUrl ? (
+            <a
+              href={row.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              {t("View Map")}
+            </a>
+          ) : null;
+        },
+      },
+      {
+        key: "dailyHours",
+        className: "min-w-48 pr-1",
+        node: (row: any) => {
+          if (!row.dailyHours || row.dailyHours.length === 0) return null;
+
+          const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+          const sortedHours = [...row.dailyHours].sort((a, b) =>
+            daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+          );
+
+          return (
+            <div className="flex flex-col gap-1 max-w-64">
+              {sortedHours.map((dayHour: any, index: number) => (
+                <div key={index} className="flex flex-row gap-1 text-sm">
+                  <span className="font-medium min-w-20">{t(dayHour.day)}:</span>
+                  <span className="text-gray-600">
+                    {dayHour.isClosed
+                      ? t("Closed")
+                      : `${dayHour.openingTime || "--"} - ${dayHour.closingTime || "--"}`
+                    }
+                  </span>
+                </div>
+              ))}
+            </div>
+          );
+        },
+      },
+      {
         key: "isShelfInfoRequired",
         node: (row: any) => {
           const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
@@ -144,36 +194,6 @@ const LocationPage = () => {
                   });
                 }}
               />
-            </div>
-          );
-        },
-      },
-      {
-        key: "closedDays",
-        node: (row: any) => {
-          return (
-            <div className="flex flex-row gap-2 max-w-64 flex-wrap ">
-              {row?.closedDays
-                ?.sort((a: string, b: string) => {
-                  const daysOrder = [
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                  ];
-                  return daysOrder.indexOf(a) - daysOrder.indexOf(b);
-                })
-                ?.map((day: string, index: number) => (
-                  <div
-                    key={index}
-                    className="flex flex-row px-1 py-0.5 bg-gray-400 rounded-md text-white"
-                  >
-                    <p>{t(day)}</p>
-                  </div>
-                ))}
             </div>
           );
         },
@@ -239,25 +259,6 @@ const LocationPage = () => {
         required: false,
       },
       {
-        type: InputTypes.SELECT,
-        formKey: "closedDays",
-        label: t("Closed Days"),
-        placeholder: t("Closed Days"),
-        required: false,
-        options: [
-          { label: t("Monday"), value: "Monday" },
-          { label: t("Tuesday"), value: "Tuesday" },
-          { label: t("Wednesday"), value: "Wednesday" },
-          { label: t("Thursday"), value: "Thursday" },
-          { label: t("Friday"), value: "Friday" },
-          { label: t("Saturday"), value: "Saturday" },
-          { label: t("Sunday"), value: "Sunday" },
-        ],
-        isMultiple: true,
-        isDisabled: isAddModalOpen || !form?.type?.includes(1),
-        isSortDisabled: true,
-      },
-      {
         type: InputTypes.COLOR,
         formKey: "backgroundColor",
         label: t("Background Color"),
@@ -268,13 +269,72 @@ const LocationPage = () => {
     [t, isAddModalOpen, form?.type]
   );
 
+  const editInputs = useMemo(
+    () => [
+      {
+        type: InputTypes.TEXT,
+        formKey: "name",
+        label: t("Name"),
+        placeholder: t("Name"),
+        required: true,
+      },
+      {
+        type: InputTypes.NUMBER,
+        formKey: "tableCount",
+        label: t("Table Count"),
+        placeholder: t("Table Count"),
+        required: false,
+        isDisabled: !form?.type?.includes(1),
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "phoneNumber",
+        label: t("Phone Number"),
+        placeholder: t("Phone Number"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "googleMapsUrl",
+        label: t("Map Location"),
+        placeholder: t("Map Location"),
+        required: false,
+      },
+      {
+        type: InputTypes.TEXT,
+        formKey: "ikasId",
+        label: "Ikas ID",
+        placeholder: "Ikas ID",
+        required: false,
+      },
+      {
+        type: InputTypes.COLOR,
+        formKey: "backgroundColor",
+        label: t("Background Color"),
+        placeholder: t("Background Color"),
+        required: !!form?.type?.includes(1),
+      },
+      {
+        type: InputTypes.DAILYHOURS,
+        formKey: "dailyHours",
+        label: t("Daily Opening Hours"),
+        placeholder: t("Daily Opening Hours"),
+        required: false,
+        isDisabled: !form?.type?.includes(1),
+      }
+    ],
+    [t, form?.type]
+  );
+
   const formKeys = useMemo(
     () => [
       { key: "name", type: FormKeyTypeEnum.STRING },
       { key: "tableCount", type: FormKeyTypeEnum.NUMBER },
+      { key: "phoneNumber", type: FormKeyTypeEnum.STRING },
+      { key: "googleMapsUrl", type: FormKeyTypeEnum.STRING },
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
-      { key: "closedDays", type: FormKeyTypeEnum.STRING },
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
+      { key: "dailyHours", type: FormKeyTypeEnum.STRING },
     ],
     []
   );
@@ -328,7 +388,7 @@ const LocationPage = () => {
           <GenericAddEditPanel
             isOpen={isEditModalOpen}
             close={() => setIsEditModalOpen(false)}
-            inputs={inputs}
+            inputs={editInputs}
             setForm={setForm}
             formKeys={formKeys}
             submitItem={updateLocation as any}
@@ -352,7 +412,7 @@ const LocationPage = () => {
       t,
       rowToAction,
       isEditModalOpen,
-      inputs,
+      editInputs,
       formKeys,
       updateLocation,
       locationsDisabledCondition,

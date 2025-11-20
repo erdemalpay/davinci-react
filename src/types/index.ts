@@ -134,8 +134,15 @@ export type Location = {
     type: string;
   }[];
   tableNames?: string[];
-  closedDays?: string[];
   isShelfInfoRequired?: boolean;
+  phoneNumber?: string;
+  googleMapsUrl?: string;
+  dailyHours?: {
+    day: string;
+    openingTime?: string;
+    closingTime?: string;
+    isClosed?: boolean;
+  }[];
 };
 export enum LocationShiftType {
   FULLTIME = "fulltime",

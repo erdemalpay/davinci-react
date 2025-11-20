@@ -1089,5 +1089,11 @@
   "Users Points": "Users Points",
   "Point User": "Point User",
   "Users Point History": "Users Point History",
-  "Consumers Points": "Consumers Points"
+  "Consumers Points": "Consumers Points",
+  "Phone Number": "Phone Number",
+  "Map Location": "Map Location",
+  "Opening Hours": "Opening Hours",
+  "Daily Opening Hours": "Daily Opening Hours",
+  "Closed": "Closed",
+  "View Map" : "View on Maps"
 }

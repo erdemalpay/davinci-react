@@ -1094,5 +1094,11 @@
   "Users Points": "Kullanıcı Puanları",
 
   "Users Point History": "Kullanıcı Puan Geçmişi",
-  "Consumers Points": "Tüketici Puanları"
+  "Consumers Points": "Tüketici Puanları",
+  "Phone Number": "Telefon Numarası",
+  "Map Location": "Harita Konumu",
+  "Opening Hours": "Açılış Saatleri",
+  "Daily Opening Hours": "Günlük Çalışma Saatleri",
+  "Closed": "Kapalı",
+  "View Map" : "Haritada Göster"
 }
