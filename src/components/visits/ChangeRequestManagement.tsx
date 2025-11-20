@@ -11,7 +11,7 @@ import {
   useGetShiftChangeRequests,
   useRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -22,7 +22,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const ChangeRequestManagement = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
 
   // UI state

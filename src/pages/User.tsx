@@ -12,9 +12,9 @@ import GamesIKnow from "../components/user/GamesIKnow";
 import GamesIMentored from "../components/user/GamesIMentored";
 import ServicePersonalSummary from "../components/user/ServicePersonalSummary";
 import { useGeneralContext } from "../context/General.context";
-import { RoleEnum, User } from "../types";
+import { RoleEnum } from "../types";
 import { useGetMentorGamePlays } from "../utils/api/gameplay";
-import { useGetUsers, useGetUserWithId } from "../utils/api/user";
+import { MinimalUser, useGetUsersMinimal, useGetUserWithId } from "../utils/api/user";
 
 export default function UserView() {
   const navigate = useNavigate();
@@ -27,14 +27,12 @@ export default function UserView() {
     setSortConfigKey,
   } = useGeneralContext();
   const [tabPanelKey, setTabPanelKey] = useState(0);
-  const [selectedUser, setSelectedUser] = useState<User>();
+  const [selectedUser, setSelectedUser] = useState<MinimalUser>();
   const user = useGetUserWithId(userId as string);
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { data } = useGetMentorGamePlays(userId as string);
-  const userOptions = users
-    ?.filter((user) => user.active === true)
-    ?.map((user) => {
+  const userOptions = users?.map((user) => {
       return {
         value: user._id,
         label: user.name,

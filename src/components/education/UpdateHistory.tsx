@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EducationUpdateHistoryDto } from "../../types";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import PageNavigator from "../panelComponents/PageNavigator/PageNavigator";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -145,7 +145,7 @@ const buildChangeRows = (entries: EducationUpdateEntry[]): ChangeRow[] => {
 
 const UpdateHistory = ({ updateHistory, setIsUpdateHistoryOpen }: Props) => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [tableKey, setTableKey] = useState(0);
 
   type CollapsibleConfig = {

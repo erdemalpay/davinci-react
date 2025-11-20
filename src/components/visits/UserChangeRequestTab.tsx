@@ -13,7 +13,7 @@ import {
   useTargetApproveShiftChangeRequest,
   useTargetRejectShiftChangeRequest,
 } from "../../utils/api/shiftChangeRequest";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat } from "../../utils/format";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -23,7 +23,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 const UserChangeRequestTab = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
   const { user } = useUserContext();
 

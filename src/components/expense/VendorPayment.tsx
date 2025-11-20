@@ -9,7 +9,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../utils/api/account/paymentMethod";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
@@ -26,7 +26,7 @@ type FormElementsState = {
 const VendorPayment = () => {
   const { t } = useTranslation();
   const locations = useGetStockLocations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const paymentMethods = useGetAccountPaymentMethods();
   const { updateAccountPayment, deleteAccountPayment } =
     useAccountPaymentMutations();
@@ -191,7 +191,6 @@ const VendorPayment = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

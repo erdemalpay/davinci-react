@@ -22,7 +22,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -53,7 +53,7 @@ const SingleProductSalesReport = () => {
   const categories = useGetAllCategories();
   const sellLocations = useGetSellLocations();
   const items = useGetMenuItems();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   const { user } = useUserContext();
@@ -360,12 +360,10 @@ const SingleProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -373,12 +371,10 @@ const SingleProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "preparedBy",
         label: t("Prepared By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Prepared By"),
         required: true,
       },
@@ -386,12 +382,10 @@ const SingleProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "deliveredBy",
         label: t("Delivered By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Delivered By"),
         required: true,
       },
@@ -399,12 +393,10 @@ const SingleProductSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

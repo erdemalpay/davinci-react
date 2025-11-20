@@ -23,7 +23,7 @@ import { useConsumptStockMutation } from "../../utils/api/account/stock";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -57,7 +57,7 @@ const EnterConsumption = () => {
   stockHistoriesPayload as StockHistoryPayload;
   const products = useGetAccountProducts();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal(); 
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const disabledConditions = useGetDisabledConditions();

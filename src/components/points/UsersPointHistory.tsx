@@ -6,7 +6,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { pointHistoryStatuses } from "../../types";
 import { useGetConsumersWithFullNames } from "../../utils/api/consumer";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import SwitchButton from "../panelComponents/common/SwitchButton";
@@ -25,7 +25,7 @@ const UsersPointHistoryComponent = () => {
     ...filterPointHistoryPanelFormElements,
     pointConsumer: -1,
   });
-  const users = useGetUsers();
+  const users = useGetUsersMinimal(); 
   const consumers = useGetConsumersWithFullNames();
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 

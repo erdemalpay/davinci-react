@@ -16,7 +16,7 @@ import { useDateContext } from "../context/Date.context";
 import { Game, Table, TableStatus, TableTypes, User } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetTables } from "../utils/api/table";
-import { useGetUsers } from "../utils/api/user";
+import { MinimalUser, useGetUsersMinimal } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
@@ -35,13 +35,13 @@ const OnlineSales = () => {
   const tables = useGetTables()
     .filter((table) => table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   if (!users) {
     return <></>;
   }
   tables?.sort(sortTable);
   // Sort users by name
-  users?.sort((a: User, b: User) => {
+  users?.sort((a: MinimalUser, b: MinimalUser) => {
     if (a.name > b.name) {
       return 1;
     } else if (a.name < b.name) {

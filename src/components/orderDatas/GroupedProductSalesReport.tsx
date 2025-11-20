@@ -22,7 +22,7 @@ import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -59,7 +59,7 @@ const GroupedProductSalesReport = () => {
   const categories = useGetAllCategories();
   const items = useGetMenuItems();
   const sellLocations = useGetSellLocations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
   const { user } = useUserContext();
@@ -449,7 +449,6 @@ const GroupedProductSalesReport = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -462,7 +461,6 @@ const GroupedProductSalesReport = () => {
         formKey: "preparedBy",
         label: t("Prepared By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -475,7 +473,6 @@ const GroupedProductSalesReport = () => {
         formKey: "deliveredBy",
         label: t("Delivered By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -488,7 +485,6 @@ const GroupedProductSalesReport = () => {
         formKey: "cancelledBy",
         label: t("Cancelled By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

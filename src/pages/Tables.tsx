@@ -66,7 +66,7 @@ import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
 import { useGetReservations } from "../utils/api/reservations";
 import { useGetTables, useTableMutations } from "../utils/api/table";
-import { useGetUser, useGetUsers } from "../utils/api/user";
+import { MinimalUser, useGetUser, useGetUsersMinimal } from "../utils/api/user";
 import { useGetVisits } from "../utils/api/visit";
 import { formatDate, isToday, parseDate } from "../utils/dateUtil";
 import { getItem } from "../utils/getItem";
@@ -158,7 +158,6 @@ const Tables = () => {
   const {
     orderCreateBulk,
     setOrderCreateBulk,
-
     takeawayTableId,
     setTakeawayTableId,
     setSelectedNewOrders,
@@ -169,7 +168,7 @@ const Tables = () => {
     .filter((table) => !table?.isOnlineSale)
     .filter((table) => table?.status !== TableStatus.CANCELLED);
 
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const initialOrderForm = {
     item: 0,
     quantity: 0,
@@ -925,7 +924,7 @@ const Tables = () => {
     { key: "note", type: FormKeyTypeEnum.STRING },
   ];
   tables.sort(sortTable);
-  users.sort((a: User, b: User) => {
+  users.sort((a: MinimalUser, b: MinimalUser) => {
     if (a.name > b.name) {
       return 1;
     } else if (a.name < b.name) {

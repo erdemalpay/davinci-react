@@ -5,6 +5,9 @@ import { Role, User } from "../../types";
 import { get, patch, post } from "../api";
 import { UserGameUpdateType } from "./../../types/index";
 import { Paths, useGet, useGetList, useMutationApi } from "./factory";
+
+export type MinimalUser = Pick<User, "_id" | "name" | "role">;
+
 export function getUserWithToken(): Promise<User> {
   return get<User>({ path: "/users/me" });
 }
@@ -82,6 +85,10 @@ export function updateUserGamesMutation() {
 
 export function useGetUsers() {
   return useGetList<User>(Paths.Users);
+}
+
+export function useGetUsersMinimal() {
+  return useGetList<MinimalUser>(`${Paths.Users}/minimal`);
 }
 
 export function useGetUser() {

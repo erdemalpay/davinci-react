@@ -22,7 +22,7 @@ import {
 import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -33,7 +33,7 @@ type FormElementsState = {
 export default function ButtonCalls() {
   const { t } = useTranslation();
   const locations = useGetAllLocations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { user } = useUserContext();
   const disabledConditions = useGetDisabledConditions();
 

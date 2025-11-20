@@ -29,7 +29,7 @@ import { useGetCategories } from "../../utils/api/menu/category";
 import { useGetMenuItems } from "../../utils/api/menu/menu-item";
 import { useOrderMutations } from "../../utils/api/order/order";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUser, useGetUsers } from "../../utils/api/user";
+import { useGetUser, useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -77,7 +77,7 @@ const LossProduct = () => {
   const brands = useGetAccountBrands();
   stockHistoriesPayload as StockHistoryPayload;
   const products = useGetAccountProducts();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const expenseTypes = useGetAccountExpenseTypes();
   const locations = useGetStockLocations();
   const items = useGetMenuItems();

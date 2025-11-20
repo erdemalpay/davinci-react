@@ -10,7 +10,7 @@ import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useGetShifts } from "../../utils/api/shift";
 import { useCreateShiftChangeRequest } from "../../utils/api/shiftChangeRequest";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -31,7 +31,7 @@ type ShiftChangeFormState = {
 
 const ShiftChange = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
 
   // Shift Change Request States
   const [isShiftChangeModalOpen, setIsShiftChangeModalOpen] = useState(false);

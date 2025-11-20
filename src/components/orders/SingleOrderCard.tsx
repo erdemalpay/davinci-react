@@ -8,7 +8,7 @@ import {
   useCreateOrderForDivideMutation,
   useOrderMutations,
 } from "../../utils/api/order/order";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { GenericButton } from "../common/GenericButton";
 import CommonSelectInput from "../common/SelectInput";
@@ -24,7 +24,7 @@ const SingleOrderCard = ({ order, user }: Props) => {
   const { mutate: createOrderForDivide } = useCreateOrderForDivideMutation();
   const { t } = useTranslation();
 
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const items = useGetMenuItems();
   const kitchens = useGetKitchens();
   const orderCreatedSound = new Audio("/sounds/orderCreateSound.mp3");

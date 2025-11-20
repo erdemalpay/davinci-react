@@ -7,7 +7,7 @@ import { useUserContext } from "../../context/User.context";
 import { DateRangeKey, RoleEnum, commonDateOptions } from "../../types";
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetFilteredVisits, useVisitMutation } from "../../utils/api/visit";
 import { convertDateFormat } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
@@ -19,7 +19,7 @@ import { InputTypes } from "../panelComponents/shared/types";
 const AllVisits = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
   const { deleteVisit } = useVisitMutation();
   const [

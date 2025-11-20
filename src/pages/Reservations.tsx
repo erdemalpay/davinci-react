@@ -36,7 +36,7 @@ import {
   useReservationMutations,
   useUpdateReservationsOrderMutation,
 } from "../utils/api/reservations";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
 export default function Reservations() {
@@ -55,7 +55,7 @@ export default function Reservations() {
   const { updateReservationCall } = useReservationCallMutations();
   const { selectedLocationId } = useLocationContext();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const disabledConditions = useGetDisabledConditions();
   const [isReservationCalledDialogOpen, setIsReservationCalledDialogOpen] =
     useState(false);

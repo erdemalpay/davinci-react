@@ -11,7 +11,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../utils/api/location";
 import { useAddShiftMutation, useGetUserShifts } from "../../utils/api/shift";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetUniqueVisits } from "../../utils/api/visit";
 import { getItem } from "../../utils/getItem";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -21,7 +21,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const VisitScheduleOverview = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
   const [rowToAction, setRowToAction] = useState<any>();
   const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);

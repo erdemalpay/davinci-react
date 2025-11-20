@@ -14,7 +14,7 @@ import {
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
-import { useGetUsers } from "../../../utils/api/user";
+import { useGetUsersMinimal } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import { GenericButton } from "../../common/GenericButton";
 import Loading from "../../common/Loading";
@@ -43,7 +43,7 @@ const CollectionModal = ({
   const [rowToAction, setRowToAction] = useState<any>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const paymentMethods = useGetAccountPaymentMethods();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const items = useGetAllMenuItems();
   const { t } = useTranslation();
   const { resetOrderContext } = useOrderContext();

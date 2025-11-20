@@ -13,7 +13,7 @@ import {
 import { dateRanges } from "../../utils/api/dateRanges";
 import { useGetAllLocations } from "../../utils/api/location";
 import { useGetQueryNotifications } from "../../utils/api/notification";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { getNotificationLanguageMessage } from "../../utils/notification";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -23,7 +23,7 @@ import { InputTypes } from "../panelComponents/shared/types";
 const AllNotifications = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const roles = useGetAllUserRoles();
   const { rowsPerPage, currentPage, setCurrentPage } = useGeneralContext();
   const initialFilterPanelFormElements = {

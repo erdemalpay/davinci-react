@@ -17,7 +17,7 @@ import {
   useGetTaskTracks,
   useTaskTrackMutations,
 } from "../../utils/api/panelControl/taskTrack";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -34,7 +34,7 @@ const TaskTrackPage = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const taskTracks = useGetTaskTracks();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
