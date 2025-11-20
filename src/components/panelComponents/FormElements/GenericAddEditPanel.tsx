@@ -21,6 +21,7 @@ import {
   GenericInputType,
   InputTypes,
 } from "../shared/types";
+import DailyHoursInput from "./DailyHoursInput";
 import DateInput from "./DateInput";
 import HourInput from "./HourInput";
 import MonthYearInput from "./MonthYearInput";
@@ -462,6 +463,10 @@ const GenericAddEditPanel = <T,>({
                     });
                   }
                 };
+                const handleChangeForDailyHours =
+                  (key: string) => (value: any) => {
+                    setFormElements((prev) => ({ ...prev, [key]: value }));
+                  };
                 const handleChangeForSelect =
                   (key: string) =>
                   (
@@ -606,6 +611,13 @@ const GenericAddEditPanel = <T,>({
                           onChange={handleChange(input.formKey)}
                           requiredField={input.required}
                           isReadOnly={input.isReadOnly ?? false}
+                        />
+                      )}
+                      {input.type === InputTypes.DAILYHOURS && (
+                        <DailyHoursInput
+                          key={input.formKey}
+                          value={value}
+                          onChange={handleChangeForDailyHours(input.formKey)}
                         />
                       )}
                       {input.type === InputTypes.SELECT && (

@@ -148,6 +148,7 @@ export enum InputTypes {
   HOUR = "hour",
   MONTHYEAR = "monthYear",
   TAB = "tab",
+  DAILYHOURS = "dailyHours",
 }
 export enum FormKeyTypeEnum {
   STRING = "string",
