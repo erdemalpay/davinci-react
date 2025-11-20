@@ -19,13 +19,13 @@ import {
   OrderCollectionItem,
   OrderCollectionStatus,
   Table,
-  TableTypes,
-  User,
+  TableTypes
 } from "../../../types";
 import { useGetAccountPaymentMethods } from "../../../utils/api/account/paymentMethod";
 import { useGetAllMenuItems } from "../../../utils/api/menu/menu-item";
 import { useOrderCollectionMutations } from "../../../utils/api/order/orderCollection";
 import { closeTable } from "../../../utils/api/table";
+import { MinimalUser } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import Loading from "../../common/Loading";
 import PointUserSelectionModal from "./PointUserSelectionModal";
@@ -36,7 +36,7 @@ type Props = {
   table: Table;
   givenDateOrders?: Order[];
   givenDateCollections?: OrderCollection[];
-  user: User;
+  user: MinimalUser;
   selectedActivityUser: string;
   allCollectionsTotalAmount: number;
   allTotalAmount: number;

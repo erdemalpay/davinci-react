@@ -28,7 +28,7 @@ import {
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import Loading from "../common/Loading";
 import OrderPaymentModal from "../orders/orderPayment/OrderPaymentModal";
@@ -43,7 +43,7 @@ const IkasOrders = () => {
   const orders = useGetOrders();
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const categories = useGetAllCategories();
   const [rowToAction, setRowToAction] = useState<any>({});
   const discounts = useGetOrderDiscounts();
@@ -409,9 +409,7 @@ const IkasOrders = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
+        options: users.map((user) => ({
             value: user._id,
             label: user.name,
           })),
@@ -422,9 +420,7 @@ const IkasOrders = () => {
         type: InputTypes.SELECT,
         formKey: "preparedBy",
         label: t("Prepared By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
+        options: users.map((user) => ({
             value: user._id,
             label: user.name,
           })),
@@ -435,9 +431,7 @@ const IkasOrders = () => {
         type: InputTypes.SELECT,
         formKey: "deliveredBy",
         label: t("Delivered By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
+        options: users.map((user) => ({
             value: user._id,
             label: user.name,
           })),
@@ -448,9 +442,7 @@ const IkasOrders = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
+        options: users.map((user) => ({
             value: user._id,
             label: user.name,
           })),

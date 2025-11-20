@@ -20,7 +20,7 @@ export const socketEventListeners: SocketEventType[] = [
   },
   {
     event: "userChanged",
-    invalidateKeys: [`${Paths.Users}`],
+    invalidateKeys: [`${Paths.Users}`,`${Paths.Users}/minimal`],
   },
   {
     event: "itemChanged",

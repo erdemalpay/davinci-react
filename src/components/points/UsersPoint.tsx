@@ -7,7 +7,7 @@ import { useUserContext } from "../../context/User.context";
 import { Point, RoleEnum } from "../../types";
 import { UpdatePayload } from "../../utils/api";
 import { useGetPoints, usePointMutations } from "../../utils/api/point";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -22,7 +22,7 @@ const UsersPointComponent = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const points = useGetPoints();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<PointRow>();

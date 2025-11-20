@@ -14,8 +14,7 @@ import {
   OrderStatus,
   TURKISHLIRA,
   Table,
-  TableTypes,
-  User,
+  TableTypes
 } from "../../../types";
 import { useGetAllAccountProducts } from "../../../utils/api/account/product";
 import { useGetAccountStocks } from "../../../utils/api/account/stock";
@@ -36,7 +35,7 @@ import {
   useCloseTableMutation,
   useReopenTableMutation,
 } from "../../../utils/api/table";
-import { useGetUser, useGetUsers } from "../../../utils/api/user";
+import { MinimalUser, useGetUser, useGetUsersMinimal } from "../../../utils/api/user";
 import { useGetVisits } from "../../../utils/api/visit";
 import {
   lockBodyScroll,
@@ -86,7 +85,7 @@ const OrderPaymentModal = ({
   const locations = useGetStockLocations();
   const members = useGetMemberships();
   const { setIsTabInputScreenOpen } = useGeneralContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const visits = useGetVisits();
   const stocks = useGetAccountStocks();
   useEffect(() => {
@@ -108,7 +107,7 @@ const OrderPaymentModal = ({
     selectedNewOrders,
   } = useOrderContext();
   if (!orders || !users || !user) return <Loading />;
-  const [selectedUser, setSelectedUser] = useState<User>(user);
+  const [selectedUser, setSelectedUser] = useState<MinimalUser>(user);
   const userOptions = activeUsers
     .map((user) => {
       const foundUser = users?.find((u) => u._id === user);

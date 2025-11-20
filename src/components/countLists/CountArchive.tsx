@@ -19,7 +19,7 @@ import {
 import { useGetAccountCountLists } from "../../utils/api/account/countList";
 import { useGetStockLocations } from "../../utils/api/location";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -68,7 +68,7 @@ const CountArchive = () => {
     filterPanelFormElements
   );
   const countLists = useGetAccountCountLists();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { deleteAccountCount, updateAccountCount } = useAccountCountMutations();
   const [rowToAction, setRowToAction] = useState<Partial<AccountCount>>();
   const [
@@ -210,7 +210,6 @@ const CountArchive = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

@@ -14,7 +14,7 @@ import {
 import { Paths } from "../../../utils/api/factory";
 import { useGetGames } from "../../../utils/api/game";
 import { useGetGameplayAnalytics } from "../../../utils/api/gameplay";
-import { useGetUsers } from "../../../utils/api/user";
+import { useGetUsersMinimal } from "../../../utils/api/user";
 import { colors } from "../../../utils/color";
 import { DateFilter, getStartEndDates } from "../../../utils/dateUtil";
 import { EditableText } from "../../common/EditableText";
@@ -35,7 +35,7 @@ export function GameAnalyticChart() {
   const [location, setLocation] = useState<string>("1,2");
   const [mentor, setMentor] = useState<string>("");
   const [itemLimit, setItemLimit] = useState(5);
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
 
   const { data: gameAnalytics } = useGetGameplayAnalytics(
     "game",

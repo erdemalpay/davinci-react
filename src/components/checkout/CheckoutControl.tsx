@@ -16,7 +16,7 @@ import {
 } from "../../utils/api/checkout/checkoutControl";
 import { useGetQueryIncomes } from "../../utils/api/checkout/income";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getDayName } from "../../utils/getDayName";
 import { getItem } from "../../utils/getItem";
@@ -48,7 +48,7 @@ const CheckoutControlPage = () => {
   const cashouts = useGetQueryCashouts(filterCheckoutPanelFormElements);
   const locations = useGetStoreLocations();
   const [tableKey, setTableKey] = useState(0);
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rowToAction, setRowToAction] = useState<CheckoutControl>();
@@ -234,7 +234,6 @@ const CheckoutControlPage = () => {
       formKey: "user",
       label: t("User"),
       options: users
-        .filter((user) => user.active)
         .map((user) => ({
           value: user._id,
           label: user.name,

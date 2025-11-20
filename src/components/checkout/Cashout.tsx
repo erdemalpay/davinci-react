@@ -12,7 +12,7 @@ import {
   useGetCheckoutCashouts,
 } from "../../utils/api/checkout/cashout";
 import { useGetStockLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { StockLocationInput } from "../../utils/panelInputs";
@@ -28,7 +28,7 @@ const Cashout = () => {
   const cashouts = useGetCheckoutCashouts();
   const locations = useGetStockLocations();
   const { selectedLocationId } = useLocationContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [tableKey, setTableKey] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -65,7 +65,6 @@ const Cashout = () => {
       formKey: "user",
       label: t("User"),
       options: users
-        .filter((user) => user.active)
         .map((user) => ({
           value: user._id,
           label: user.name,

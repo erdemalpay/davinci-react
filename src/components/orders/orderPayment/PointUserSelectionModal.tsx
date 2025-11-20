@@ -5,7 +5,7 @@ import { MultiValue, SingleValue } from "react-select";
 import { OptionType, Point } from "../../../types";
 import { useGetConsumersWithFullNames } from "../../../utils/api/consumer";
 import { useGetPoints } from "../../../utils/api/point";
-import { useGetUsers } from "../../../utils/api/user";
+import { useGetUsersMinimal } from "../../../utils/api/user";
 import { GenericButton } from "../../common/GenericButton";
 import SelectInput from "../../panelComponents/FormElements/SelectInput";
 type Props = {
@@ -26,7 +26,7 @@ const PointUserSelectionModal = ({
   requiredAmount,
 }: Props) => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const consumers=useGetConsumersWithFullNames();
   const points = useGetPoints();
   const [selectedUser, setSelectedUser] = useState<string>("");

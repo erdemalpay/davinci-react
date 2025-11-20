@@ -6,7 +6,7 @@ import { useNotificationMutations } from "../../utils/api/notification";
 import {
   useGetAllUserRoles,
   useGetUser,
-  useGetUsers,
+  useGetUsersMinimal,
 } from "../../utils/api/user";
 import { isDisabledConditionCreateNotification } from "../../utils/isDisabledConditions";
 import GenericAddComponent from "../panelComponents/FormElements/GenericAddComponent";
@@ -15,7 +15,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const CreateNotification = () => {
   const { t } = useTranslation();
   const { createNotification } = useNotificationMutations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const user = useGetUser();
   const isDisabledCondition = isDisabledConditionCreateNotification(user);
   const roles = useGetAllUserRoles();

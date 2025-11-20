@@ -6,7 +6,7 @@ import { DateRangeKey, commonDateOptions } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
 import { useGetStoreLocations } from "../../../utils/api/location";
 import { useGetUserShifts } from "../../../utils/api/shift";
-import { useGetUser, useGetUsers } from "../../../utils/api/user";
+import { useGetUser, useGetUsersMinimal } from "../../../utils/api/user";
 import { convertDateFormat } from "../../../utils/format";
 import Loading from "../../common/Loading";
 import GenericTable from "../../panelComponents/Tables/GenericTable";
@@ -16,7 +16,7 @@ import { InputTypes } from "../../panelComponents/shared/types";
 const UserShifts = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
   const { selectedLocationId } = useLocationContext();
   const user = useGetUser();

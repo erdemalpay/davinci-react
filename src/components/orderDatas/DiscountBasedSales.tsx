@@ -24,7 +24,7 @@ import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetTables } from "../../utils/api/table";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
 import Loading from "../common/Loading";
@@ -63,7 +63,7 @@ const DiscountBasedSales = () => {
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const items = useGetMenuItems();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const categories = useGetAllCategories();
   const { setExpandedRows } = useGeneralContext();
   const { resetOrderContext } = useOrderContext();
@@ -471,7 +471,6 @@ const DiscountBasedSales = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -484,7 +483,6 @@ const DiscountBasedSales = () => {
         formKey: "preparedBy",
         label: t("Prepared By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -497,7 +495,6 @@ const DiscountBasedSales = () => {
         formKey: "deliveredBy",
         label: t("Delivered By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -510,7 +507,6 @@ const DiscountBasedSales = () => {
         formKey: "cancelledBy",
         label: t("Cancelled By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

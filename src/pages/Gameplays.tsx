@@ -9,7 +9,7 @@ import { FormElementsState, Game } from "../types";
 import { useGetGames } from "../utils/api/game";
 import { useGetGameplays } from "../utils/api/gameplay";
 import { useGetStoreLocations } from "../utils/api/location";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -45,7 +45,7 @@ export default function NewGameplays() {
   );
   const games = useGetGames();
   const locations = useGetStoreLocations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
 
   const rows = useMemo(() => {
     const allRows = gameplaysPayload?.data?.map((gameplay) => {
@@ -137,7 +137,6 @@ export default function NewGameplays() {
         formKey: "mentor",
         label: t("Game Mentor"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

@@ -9,7 +9,7 @@ import {
   useGetEventNotifications,
   useNotificationMutations,
 } from "../../utils/api/notification";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import GenericAddEditPanel from "../panelComponents/FormElements/GenericAddEditPanel";
@@ -18,7 +18,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 
 const AssignNotification = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const roles = useGetAllUserRoles();
   const notifications = useGetEventNotifications();
   const locations = useGetAllLocations();

@@ -9,7 +9,7 @@ import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
 import { pointHistoryStatuses } from "../types";
 import { useGetPointHistories } from "../utils/api/pointHistory";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -27,7 +27,7 @@ const PointHistory = () => {
     rowsPerPage,
     filterPointHistoryPanelFormElements
   );
-  const users = useGetUsers();
+  const users = useGetUsersMinimal(); 
 
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 

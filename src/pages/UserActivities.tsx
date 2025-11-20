@@ -9,7 +9,7 @@ import { useFilterContext } from "../context/Filter.context";
 import { useGeneralContext } from "../context/General.context";
 import { Activity, activityTypeDetails, commonDateOptions } from "../types";
 import { useGetActivities } from "../utils/api/activity";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -44,7 +44,7 @@ const UserActivities = () => {
     rowsPerPage,
     filterActivityFormElements
   );
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
 
   const rows = useMemo(() => {
     return activitiesPayload?.data?.map((activity) => {
@@ -174,7 +174,6 @@ const UserActivities = () => {
         formKey: "user",
         label: t("User"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

@@ -11,7 +11,7 @@ import { useGeneralContext } from "../context/General.context";
 import { Routes } from "../navigation/constants";
 import { useCheckMutations, useGetChecks } from "../utils/api/checklist/check";
 import { useGetChecklists } from "../utils/api/checklist/checklist";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
 const SingleCheckArchive = () => {
@@ -19,7 +19,7 @@ const SingleCheckArchive = () => {
   const { archiveId } = useParams();
   const checks = useGetChecks();
   const checklists = useGetChecklists();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { updateCheck } = useCheckMutations();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);
   const { resetGeneralContext } = useGeneralContext();

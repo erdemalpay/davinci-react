@@ -9,7 +9,7 @@ import { Routes } from "../navigation/constants";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetExpirationCounts } from "../utils/api/expiration/expirationCount";
 import { useGetExpirationLists } from "../utils/api/expiration/expirationList";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { formatAsLocalDate } from "../utils/format";
 import { getItem } from "../utils/getItem";
 
@@ -18,7 +18,7 @@ const SingleExpirationCountArchive = () => {
   const { archiveId } = useParams();
   const expirationCounts = useGetExpirationCounts();
   const expirationLists = useGetExpirationLists();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { resetGeneralContext } = useGeneralContext();
   const products = useGetAllAccountProducts();
   const pad = (num: number) => (num < 10 ? `0${num}` : num);

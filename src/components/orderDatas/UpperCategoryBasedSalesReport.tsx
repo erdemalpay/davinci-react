@@ -23,7 +23,7 @@ import { useGetUpperCategories } from "../../utils/api/menu/upperCategory";
 import { useGetOrders } from "../../utils/api/order/order";
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
 import ButtonFilter from "../panelComponents/common/ButtonFilter";
@@ -47,7 +47,7 @@ const UpperCategoryBasedSalesReport = () => {
   const upperCategories = useGetUpperCategories();
   const categories = useGetAllCategories();
   const items = useGetMenuItems();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const sellLocations = useGetSellLocations();
   const discounts = useGetOrderDiscounts();
   const queryClient = useQueryClient();
@@ -495,12 +495,10 @@ const UpperCategoryBasedSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "createdBy",
         label: t("Created By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Created By"),
         required: true,
       },
@@ -508,12 +506,10 @@ const UpperCategoryBasedSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "preparedBy",
         label: t("Prepared By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Prepared By"),
         required: true,
       },
@@ -521,12 +517,10 @@ const UpperCategoryBasedSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "deliveredBy",
         label: t("Delivered By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Delivered By"),
         required: true,
       },
@@ -534,12 +528,10 @@ const UpperCategoryBasedSalesReport = () => {
         type: InputTypes.SELECT,
         formKey: "cancelledBy",
         label: t("Cancelled By"),
-        options: users
-          .filter((user) => user.active)
-          .map((user) => ({
-            value: user._id,
-            label: user.name,
-          })),
+        options: users.map((user) => ({
+          value: user._id,
+          label: user.name,
+        })),
         placeholder: t("Cancelled By"),
         required: true,
       },

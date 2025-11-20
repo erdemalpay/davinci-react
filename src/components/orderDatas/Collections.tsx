@@ -26,7 +26,7 @@ import {
   useGetAllOrderCollections,
 } from "../../utils/api/order/orderCollection";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { passesFilter } from "../../utils/passesFilter";
@@ -74,7 +74,7 @@ const Collections = () => {
   const sellLocations = useGetSellLocations();
   const queryClient = useQueryClient();
   const paymentMethods = useGetAccountPaymentMethods();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const items = useGetMenuItems();
   const [rowToAction, setRowToAction] = useState<CollectionRow>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -373,7 +373,6 @@ const Collections = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,
@@ -386,7 +385,6 @@ const Collections = () => {
         formKey: "cancelledBy",
         label: t("Cancelled By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

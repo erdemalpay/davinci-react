@@ -4,7 +4,7 @@ import { useDateContext } from "../../context/Date.context";
 import { useLocationContext } from "../../context/Location.context";
 import { Visit } from "../../types";
 import { useGetShifts } from "../../utils/api/shift";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 
 export type ShiftValue = {
@@ -34,7 +34,7 @@ const ShiftList = ({ visits }: Props) => {
   const { selectedDate } = useDateContext();
   const { selectedLocationId } = useLocationContext();
 
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const shifts = useGetShifts(
     selectedDate,
     selectedDate,

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationContext } from "../../context/Location.context";
 import { useUserContext } from "../../context/User.context";
-import { RoleEnum, User, Visit } from "../../types";
+import { RoleEnum, Visit } from "../../types";
 import { useGetPanelSettings } from "../../utils/api/panelControl/panelSettings";
-import { useGetUsers } from "../../utils/api/user";
+import { MinimalUser, useGetUsersMinimal } from "../../utils/api/user";
 import {
   useCreateVisitMutation,
   useFinishVisitMutation,
@@ -17,7 +17,7 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { InputWithLabelProps } from "../common/InputWithLabel";
 
 interface ActiveMentorListProps extends InputWithLabelProps {
-  suggestions: User[];
+  suggestions: MinimalUser[];
   visits: Visit[];
 }
 interface SeenUsers {
@@ -33,13 +33,13 @@ export function ActiveVisitList({
   const { t } = useTranslation();
   const { mutate: createVisit } = useCreateVisitMutation();
   const { mutate: finishVisit } = useFinishVisitMutation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { user } = useUserContext();
   const panelSettings = useGetPanelSettings();
   const { selectedLocationId } = useLocationContext();
   const isDisabledCondition =
     panelSettings?.isVisitEntryDisabled && user?.role?._id !== RoleEnum.MANAGER;
-  const [filteredSuggestions, setFilteredSuggestions] = useState<User[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<MinimalUser[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
   const [closedVisitId, setClosedVisitId] = useState<number | null>(null);
@@ -58,7 +58,7 @@ export function ActiveVisitList({
     // setItems(items.filter((t) => t._id !== user._id));
   }
 
-  function handleSelection(item: User) {
+  function handleSelection(item: MinimalUser) {
     if (isDisabledCondition) {
       return;
     }

@@ -12,7 +12,7 @@ import {
 } from "../../utils/api/checklist/check";
 import { useGetChecklists } from "../../utils/api/checklist/checklist";
 import { useGetStoreLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
@@ -47,7 +47,7 @@ const CheckArchive = () => {
   );
   const checks = checksPayload?.data || ([] as CheckType[]);
   const checklists = useGetChecklists();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { deleteCheck, updateCheck } = useCheckMutations();
   const [rowToAction, setRowToAction] = useState<Partial<CheckType>>();
   const [
@@ -220,7 +220,6 @@ const CheckArchive = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          .filter((user) => user.active)
           .map((user) => ({
             value: user._id,
             label: user.name,

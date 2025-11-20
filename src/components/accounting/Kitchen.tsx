@@ -13,7 +13,7 @@ import {
 } from "../../utils/api/menu/kitchen";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPanelControlPages } from "../../utils/api/panelControl/page";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import { CheckSwitch } from "../common/CheckSwitch";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -26,7 +26,7 @@ const KitchenPage = () => {
   const { t } = useTranslation();
   const kitchens = useGetKitchens();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const locations = useGetStoreLocations();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

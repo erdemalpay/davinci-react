@@ -24,19 +24,19 @@ import { dateRanges } from "../utils/api/dateRanges";
 import { useGetAllLocations } from "../utils/api/location";
 import { useGetCategories } from "../utils/api/menu/category";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
-import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
 import {
   useGetIkasPickUpOrders,
   useSimpleOrderMutations,
 } from "../utils/api/order/order";
-import { useGetUsers } from "../utils/api/user";
+import { useGetDisabledConditions } from "../utils/api/panelControl/disabledCondition";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 
 const IkasPickUp = () => {
   const { t } = useTranslation();
   const orders = useGetIkasPickUpOrders();
   const locations = useGetAllLocations();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { user } = useUserContext();
   const categories = useGetCategories();
   const { updateSimpleOrder } = useSimpleOrderMutations();
@@ -323,7 +323,6 @@ const IkasPickUp = () => {
         formKey: "createdBy",
         label: t("Created By"),
         options: users
-          ?.filter((user) => user.active)
           ?.map((user) => ({
             value: user._id,
             label: user.name,
@@ -336,7 +335,6 @@ const IkasPickUp = () => {
         formKey: "preparedBy",
         label: t("Prepared By"),
         options: users
-          ?.filter((user) => user.active)
           ?.map((user) => ({
             value: user._id,
             label: user.name,
@@ -349,7 +347,6 @@ const IkasPickUp = () => {
         formKey: "deliveredBy",
         label: t("Delivered By"),
         options: users
-          ?.filter((user) => user.active)
           ?.map((user) => ({
             value: user._id,
             label: user.name,

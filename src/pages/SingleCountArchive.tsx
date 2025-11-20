@@ -29,7 +29,7 @@ import {
 } from "../utils/api/account/countList";
 import { useGetAllAccountProducts } from "../utils/api/account/product";
 import { useGetMenuItems } from "../utils/api/menu/menu-item";
-import { useGetUsers } from "../utils/api/user";
+import { useGetUsersMinimal } from "../utils/api/user";
 import { getItem } from "../utils/getItem";
 import { isDisabledConditionSingleCountArchive } from "../utils/isDisabledConditions";
 
@@ -40,7 +40,7 @@ const SingleCountArchive = () => {
   const counts = useGetAccountCounts();
   const items=useGetMenuItems()
   const countLists = useGetAccountCountLists();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const { mutate: updateStockForStockCount } =
     useUpdateStockForStockCountMutation();
   const { mutate: updateStockForStockCountBulk } =

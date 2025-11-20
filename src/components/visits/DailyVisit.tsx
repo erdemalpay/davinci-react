@@ -2,7 +2,7 @@ import { format, subDays } from "date-fns";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { useGetGivenDateVisits } from "../../utils/api/visit";
 import { formatDate, parseDate } from "../../utils/dateUtil";
 import { formatAsLocalDate } from "../../utils/format";
@@ -12,7 +12,7 @@ import GenericTable from "../panelComponents/Tables/GenericTable";
 
 export default function DailyVisit() {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );

@@ -22,7 +22,7 @@ import { useGetPersonalCollectionDatas } from "../../utils/api/order/orderCollec
 import { useGetOrderDiscounts } from "../../utils/api/order/orderDiscount";
 import { useGetDisabledConditions } from "../../utils/api/panelControl/disabledCondition";
 import { useGetPersonalTableCreateData } from "../../utils/api/table";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { getItem } from "../../utils/getItem";
 import Loading from "../common/Loading";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -76,7 +76,7 @@ type PersonalOrderDataTables = Pick<
 
 const PersonalOrderDatas = () => {
   const { t } = useTranslation();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const personalOrderDatas = useGetPersonalOrderDatas();
   const personalCollectionDatas = useGetPersonalCollectionDatas();
   const tableCreateDatas = useGetPersonalTableCreateData();

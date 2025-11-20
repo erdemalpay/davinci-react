@@ -9,7 +9,7 @@ import { useGetAccountProducts } from "../../utils/api/account/product";
 import { useGetAccountProductStockHistorys } from "../../utils/api/account/productStockHistory";
 import { useGetAccountVendors } from "../../utils/api/account/vendor";
 import { useGetStockLocations } from "../../utils/api/location";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import {
@@ -45,7 +45,7 @@ const ProductStockHistory = () => {
       vendor: "",
       brand: "",
     });
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const vendors = useGetAccountVendors();
   const brands = useGetAccountBrands();
   if (!selectedProduct) return <></>;

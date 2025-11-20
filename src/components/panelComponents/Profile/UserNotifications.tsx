@@ -21,7 +21,7 @@ import {
 } from "../../../types";
 import { dateRanges } from "../../../utils/api/dateRanges";
 import { useGetUserAllNotifications } from "../../../utils/api/notification";
-import { useGetUsers } from "../../../utils/api/user";
+import { useGetUsersMinimal } from "../../../utils/api/user";
 import { getItem } from "../../../utils/getItem";
 import { getNotificationLanguageMessage } from "../../../utils/notification";
 import GenericTable from "../Tables/GenericTable";
@@ -46,7 +46,7 @@ const typeIconMap: Record<NotificationType, JSX.Element> = {
 const UserNotifications = () => {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const initialFilterPanelFormElements = {
     before: "",
     after: format(startOfYear(new Date()), "yyyy-MM-dd"),

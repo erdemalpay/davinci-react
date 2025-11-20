@@ -23,7 +23,7 @@ import {
   useGetShifts,
   useShiftMutations,
 } from "../../utils/api/shift";
-import { useGetAllUserRoles, useGetUsers } from "../../utils/api/user";
+import { useGetAllUserRoles, useGetUsersMinimal } from "../../utils/api/user";
 import { convertDateFormat, formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import { ConfirmationDialog } from "../common/ConfirmationDialog";
@@ -37,7 +37,7 @@ import { FormKeyTypeEnum, InputTypes } from "../panelComponents/shared/types";
 const Shifts = () => {
   const { t } = useTranslation();
   const [tableKey, setTableKey] = useState(0);
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
   const [isShiftsEditModalOpen, setIsShiftsEditModalOpen] = useState(false);
   const [isCopyShiftModalOpen, setIsCopyShiftModalOpen] = useState(false);
   const [isCopyShiftIntervalModalOpen, setIsCopyShiftIntervalModalOpen] =

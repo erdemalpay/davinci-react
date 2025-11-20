@@ -6,7 +6,7 @@ import { useGeneralContext } from "../../context/General.context";
 import { useUserContext } from "../../context/User.context";
 import { pointHistoryStatuses } from "../../types";
 import { useGetPointHistories } from "../../utils/api/pointHistory";
-import { useGetUsers } from "../../utils/api/user";
+import { useGetUsersMinimal } from "../../utils/api/user";
 import { formatAsLocalDate } from "../../utils/format";
 import { getItem } from "../../utils/getItem";
 import GenericTable from "../panelComponents/Tables/GenericTable";
@@ -37,7 +37,7 @@ const UserPointHistory = () => {
     rowsPerPage,
     userPointHistoryFilters
   );
-  const users = useGetUsers();
+  const users = useGetUsersMinimal();
 
   const pad = useMemo(() => (num: number) => num < 10 ? `0${num}` : num, []);
 
