@@ -193,23 +193,27 @@ const OrderListForPanelTab = ({ tableId, orderStatus }: Props) => {
             </div>
 
             <div className="flex flex-row gap-2 items-center">
-              {order.activityTableName &&
-                order.activityPlayer &&
+              {(order.activityTableName || order.activityPlayer) &&
                 (order.status === OrderStatus.READYTOSERVE ||
                   order.status === OrderStatus.SERVED) && (
                   <p className="text-xs text-gray-700 whitespace-nowrap">
-                    {t("TableShort")}:{order.activityTableName} - {t("PlayerShort")}:{order.activityPlayer}
+                    {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
+                    {order.activityTableName && order.activityPlayer && " - "}
+                    {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
                   </p>
                 )}
               {(order.status === OrderStatus.PENDING ||
-                order.status === OrderStatus.AUTOSERVED) && (
+                order.status === OrderStatus.AUTOSERVED) &&
+                (order.activityTableName || order.activityPlayer) && (
                 <div className="flex flex-row gap-[1px]">
                   <h5 className="text-xs  text-gray-700 whitespace-nowrap min-w-8">
                     {orderWaitTime(order)}{" "}
-                    {i18n.language?.toLowerCase().startsWith("tr") ? "dk" : "m"}{" "} /
+                    {i18n.language?.startsWith("tr") ? "dk" : "m"} /
                   </h5>
                 <p className="text-xs text-gray-700 whitespace-nowrap">
-                    {t("TableShort")}:{order.activityTableName} - {t("PlayerShort")}:{order.activityPlayer}
+                    {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
+                    {order.activityTableName && order.activityPlayer && " - "}
+                    {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
                 </p>
                 </div>
               )}

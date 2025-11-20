@@ -225,10 +225,11 @@ const NewOrderListPanel = () => {
                           }}
                         />
 
-                        {order.activityTableName && order.activityPlayer && (
+                        {(order.activityTableName || order.activityPlayer) && (
                           <p className="text-xs text-gray-700 whitespace-nowrap">
-                            {t("TableShort")}:{order.activityTableName} -{" "}
-                            {t("PlayerShort")}:{order.activityPlayer}
+                            {order.activityTableName && `${t("TableShort")}:${order.activityTableName}`}
+                            {order.activityTableName && order.activityPlayer && " - "}
+                            {order.activityPlayer && `${t("PlayerShort")}:${order.activityPlayer}`}
                           </p>
                         )}
                         {orderCreateBulk[index].status !==
