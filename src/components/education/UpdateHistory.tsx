@@ -329,7 +329,10 @@ const UpdateHistory = ({ updateHistory, setIsUpdateHistoryOpen }: Props) => {
   );
 
   const rowKeys = [
-    { key: "formattedDate" },
+    {
+      key: "updatedAt",
+      node: (row: MappedRow) => <P1>{row.formattedDate}</P1>,
+    },
     { key: "userName" },
     {
       key: "summary",
