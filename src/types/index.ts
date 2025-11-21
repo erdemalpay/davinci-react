@@ -527,6 +527,10 @@ export enum DisabledConditionEnum {
   ACCOUNTING_UPPERCATEGORIES = "uppercategories",
   ACCOUNTING_ORDERNOTES = "ordernotes",
   ACCOUNTING_ACTIONS = "actions",
+  VISITS_VISITSCHEDULEOVERVIEW = "visitscheduleoverview",
+  VISITS_ALLVISITS = "allvisits",
+  VISITS_SHIFTS = "shifts",
+
 }
 
 export enum ActionEnum {
