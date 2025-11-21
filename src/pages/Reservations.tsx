@@ -199,7 +199,7 @@ export default function Reservations() {
         required: false,
       },
     ],
-    [t]
+    [t,users]
   );
 
   const formKeys = useMemo(
@@ -273,7 +273,7 @@ export default function Reservations() {
         className: "min-w-32",
       },
     ],
-    []
+    [users]
   );
   const actions = useMemo(
     () => [
