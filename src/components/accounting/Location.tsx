@@ -72,9 +72,11 @@ const LocationPage = () => {
       { key: t("Map Location"), isSortable: false },
       { key: t("Opening Hours"), isSortable: false },
       { key: t("Shelf Info"), isSortable: false },
+      { key: t("Active"), isSortable: false },
+      { key: t("Activity Note"), isSortable: false },
       { key: t("Shifts"), isSortable: false },
       { key: "Ikas ID", isSortable: false },
-      { key: t("Actions"), isSortable: false },
+      { key: t("Actions"), isSortable: false }
     ];
     return cols;
   }, [t]);
@@ -196,6 +198,44 @@ const LocationPage = () => {
               />
             </div>
           );
+        },
+      },
+      {
+        key: "active",
+        node: (row: any) => {
+          const isUpdateDisabled = locationsDisabledCondition?.actions?.some(
+            (ac) =>
+              ac.action === ActionEnum.UPDATE &&
+              user?.role?._id &&
+              !ac.permissionsRoles.includes(user.role._id)
+          );
+          return (
+            <div
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              <SwitchButton
+                checked={row?.active}
+                onChange={() => {
+                  if (isUpdateDisabled) return;
+                  updateLocation({
+                    id: row._id,
+                    updates: {
+                      active: !row?.active,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        key: "activityNote",
+        className: "min-w-32 pr-1",
+        node: (row: any) => {
+          return <p>{row.activityNote || "-"}</p>;
         },
       },
       {
@@ -321,6 +361,13 @@ const LocationPage = () => {
         placeholder: t("Daily Opening Hours"),
         required: false,
         isDisabled: !form?.type?.includes(1),
+      },
+      {
+        type: InputTypes.TEXTAREA,
+        formKey: "activityNote",
+        label: t("Activity Note"),
+        placeholder: t("Activity Note"),
+        required: false,
       }
     ],
     [t, form?.type]
@@ -335,6 +382,7 @@ const LocationPage = () => {
       { key: "ikasId", type: FormKeyTypeEnum.STRING },
       { key: "backgroundColor", type: FormKeyTypeEnum.COLOR },
       { key: "dailyHours", type: FormKeyTypeEnum.STRING },
+      { key: "activityNote", type: FormKeyTypeEnum.STRING },
     ],
     []
   );
@@ -395,6 +443,7 @@ const LocationPage = () => {
             isEditMode={true}
             topClassName="flex flex-col gap-2 "
             itemToEdit={{ id: Number(rowToAction._id), updates: rowToAction }}
+            generalClassName="max-h-[90vh] overflow-y-auto"
           />
         ) : null,
         isModalOpen: isEditModalOpen,
