@@ -755,6 +755,7 @@
   "EARLYSHIFTEND": "Erken Vardiya Bitişi",
   "UNCOMPLETEDCHECKLIST": "Tamamlanmamış Kontrol Listesi",
   "UNFINISHEDVISIT": "Çıkış Yapılmadı",
+  "UnfinishedVisitEmployee": "{{date}} tarihinde {{location}} lokasyonundaki vardiyayı sonlandırmayı unuttunuz.",
   "NIGHTOPENTABLE": "Gece Açık Masa",
   "COMPLETECOUNT": "Sayım Tamamlandı",
   "NEGATIVESTOCK": "Negatif Stok",

@@ -697,6 +697,7 @@
   "SHIFTCHANGEREJECTED": "Shift Change Rejected",
   "UNCOMPLETEDCHECKLIST": "Uncompleted Checklist",
   "UNFINISHEDVISIT": "Shift End Missing",
+  "UnfinishedVisitEmployee": "You forgot to end your shift at {{location}} on {{date}}.",
   "NIGHTOPENTABLE": "Night Open Table",
   "COMPLETECOUNT": "Complete Count",
   "NEGATIVESTOCK": "Negative Stock",
