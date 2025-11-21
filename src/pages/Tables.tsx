@@ -29,7 +29,6 @@ import { useLocationContext } from "../context/Location.context";
 import { useOrderContext } from "../context/Order.context";
 import { Routes } from "../navigation/constants";
 import {
-  Game,
   MenuItem,
   Order,
   OrderDiscountStatus,
@@ -60,7 +59,7 @@ import { useGetMenuItems } from "../utils/api/menu/menu-item";
 import {
   useCreateMultipleOrderMutation,
   useGetTodayOrders,
-  useOrderMutations
+  useOrderMutations,
 } from "../utils/api/order/order";
 import { useGetOrderDiscounts } from "../utils/api/order/orderDiscount";
 import { useGetOrderNotes } from "../utils/api/order/orderNotes";
@@ -117,8 +116,6 @@ const Tables = () => {
   const categories = useGetCategories();
   const { createOrder } = useOrderMutations();
   const { mutate: createMultipleOrder } = useCreateMultipleOrderMutation();
-
-
 
   const comingReservedTableNames = useMemo(() => {
     if (!reservations || !selectedLocationId) return new Set<string>();
@@ -253,7 +250,10 @@ const Tables = () => {
 
     return menuItems
       .filter((menuItem) => {
-        if (orderForm.category && menuItem.category !== Number(orderForm.category)) {
+        if (
+          orderForm.category &&
+          menuItem.category !== Number(orderForm.category)
+        ) {
           return false;
         }
 
@@ -364,7 +364,6 @@ const Tables = () => {
       onTouchCancel: clear,
     };
   };
-
 
   const MEMBERDISCOUNTID = 8;
   const memberDiscount = useMemo(() => {
@@ -528,8 +527,7 @@ const Tables = () => {
       label: t("Discount Note"),
       placeholder:
         orderForm?.discount &&
-        discounts?.find((discount) => discount._id === orderForm.discount)
-          ?.note
+        discounts?.find((discount) => discount._id === orderForm.discount)?.note
           ? discounts?.find((discount) => discount._id === orderForm.discount)
               ?.note
           : t("What is the reason for the discount?"),
@@ -542,9 +540,8 @@ const Tables = () => {
       isDisabled:
         (orderForm?.discount === MEMBERDISCOUNTID ||
           (orderForm?.discount &&
-            !discounts?.find(
-              (discount) => discount._id === orderForm.discount
-            )?.isNoteRequired)) ??
+            !discounts?.find((discount) => discount._id === orderForm.discount)
+              ?.isNoteRequired)) ??
         true,
     },
 
@@ -1550,7 +1547,6 @@ const Tables = () => {
                   <TableCard
                     table={table}
                     mentors={mentors}
-                    games={games}
                     showAllGameplays={showAllGameplays}
                     showAllOrders={showAllOrders}
                     showServedOrders={showServedOrders}
@@ -1570,7 +1566,6 @@ const Tables = () => {
               <TableCard
                 table={table}
                 mentors={mentors}
-                games={games as Game[]}
                 showAllGameplays={showAllGameplays}
                 showAllOrders={showAllOrders}
                 showServedOrders={showServedOrders}
@@ -1731,7 +1726,10 @@ const Tables = () => {
             if (orderCreateBulk === null || orderCreateBulk.length === 0) {
               const orderObject = handleOrderObject();
               if (orderObject) {
-                createOrder({ ...orderObject, table: selectedTable?._id } as any);
+                createOrder({
+                  ...orderObject,
+                  table: selectedTable?._id,
+                } as any);
               }
             } else {
               const submitBulkOrders = () => {
@@ -1817,7 +1815,7 @@ const Tables = () => {
             if (selectedMenuItem && user) {
               createOrder({
                 ...orderForm,
-                location: Number(orderForm?.stockLocation), 
+                location: Number(orderForm?.stockLocation),
                 unitPrice: selectedMenuItem.price,
                 paidQuantity: 0,
                 status: OrderStatus.WASTED,
