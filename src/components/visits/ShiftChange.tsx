@@ -836,54 +836,304 @@ const ShiftChange = () => {
     filterPanelFormElements,
   ]);
 
-  // Conflict detection for TRANSFER - using modalShifts
+  // Helper function to parse time and check overlap
+  const checkTimeOverlap = (
+    start1: string,
+    end1: string | undefined,
+    start2: string,
+    end2: string | undefined
+  ): boolean => {
+    const [start1Hour, start1Min] = start1.split(":").map(Number);
+    const start1Minutes = start1Hour * 60 + start1Min;
+
+    const [start2Hour, start2Min] = start2.split(":").map(Number);
+    const start2Minutes = start2Hour * 60 + start2Min;
+
+    let end1Minutes: number;
+    if (end1) {
+      const [end1Hour, end1Min] = end1.split(":").map(Number);
+      end1Minutes = end1Hour * 60 + end1Min;
+    } else {
+      end1Minutes = start1Minutes + 8 * 60; // Default 8 hours
+    }
+
+    let end2Minutes: number;
+    if (end2) {
+      const [end2Hour, end2Min] = end2.split(":").map(Number);
+      end2Minutes = end2Hour * 60 + end2Min;
+    } else {
+      end2Minutes = start2Minutes + 8 * 60; // Default 8 hours
+    }
+
+    // Check if times overlap
+    return start1Minutes < end2Minutes && start2Minutes < end1Minutes;
+  };
+
+  // Conflict detection for TRANSFER and SWAP - using modalShifts
   useEffect(() => {
-    if (
-      shiftChangeForm.type === "TRANSFER" &&
-      shiftChangeForm.sourceShift &&
-      shiftChangeForm.targetUser
-    ) {
-      // Parse source shift data
-      const [, sourceStartTime, , sourceDay] =
-        shiftChangeForm.sourceShift.split("|");
+    if (shiftChangeForm.type === "TRANSFER") {
+      // TRANSFER: Check if target user has overlapping shift on same day (any location)
+      if (shiftChangeForm.sourceShift && shiftChangeForm.targetUser) {
+        const [, sourceStartTime, sourceEndTime, sourceDay] =
+          shiftChangeForm.sourceShift.split("|");
 
-      // Find all shifts for target user on the same day
-      const targetUserShifts = modalShifts?.filter(
-        (shift) =>
-          shift.day === sourceDay &&
-          shift.shifts?.some((s: any) =>
-            s.user?.includes(shiftChangeForm.targetUser)
-          )
-      );
+        // Find all shifts for target user on the same day (any location)
+        const targetUserShifts = modalShifts?.filter(
+          (shift) =>
+            shift.day === sourceDay &&
+            shift.shifts?.some((s: any) =>
+              s.user?.includes(shiftChangeForm.targetUser)
+            )
+        );
 
-      // Check for time conflicts
-      const hasConflict = targetUserShifts?.some((shiftRecord) =>
-        shiftRecord.shifts?.some((s: any) => {
-          if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
+        // Check for time conflicts and collect conflicting shift info
+        let conflictingShift: {
+          location: string;
+          startTime: string;
+          endTime: string;
+        } | null = null as {
+          location: string;
+          startTime: string;
+          endTime: string;
+        } | null;
 
-          // Check if shift times overlap
-          const existingStart = s.shift;
-          // Simple overlap check: if times match exactly
-          if (existingStart === sourceStartTime) {
-            return true;
+        const hasConflict = targetUserShifts?.some((shiftRecord) =>
+          shiftRecord.shifts?.some((s: any) => {
+            if (!s.user?.includes(shiftChangeForm.targetUser)) return false;
+
+            const isOverlap = checkTimeOverlap(
+              sourceStartTime,
+              sourceEndTime,
+              s.shift,
+              s.shiftEndHour
+            );
+
+            if (isOverlap) {
+              const location = getItem(shiftRecord.location, locations);
+              conflictingShift = {
+                location: location?.name || "Bilinmeyen Lokasyon",
+                startTime: s.shift,
+                endTime: s.shiftEndHour || "",
+              };
+            }
+
+            return isOverlap;
+          })
+        );
+
+        if (hasConflict && conflictingShift) {
+          const targetUserName = getItem(
+            shiftChangeForm.targetUser,
+            users
+          )?.name;
+          setConflictWarning(
+            t(
+              "Warning: {{userName}} already has a shift at this time on {{date}}",
+              {
+                userName: targetUserName,
+                date: convertDateFormat(sourceDay),
+              }
+            ) +
+              `\n${t("Conflicting Shift")}: ${conflictingShift.location} (${
+                conflictingShift.startTime
+              }${conflictingShift.endTime ? `-${conflictingShift.endTime}` : ""})`
+          );
+        } else {
+          setConflictWarning("");
+        }
+      } else {
+        setConflictWarning("");
+      }
+    } else if (shiftChangeForm.type === "SWAP") {
+      // SWAP: Only check if different day OR different location
+      if (
+        shiftChangeForm.sourceShift &&
+        shiftChangeForm.targetShift &&
+        shiftChangeForm.targetUser
+      ) {
+        const [, sourceStartTime, sourceEndTime, sourceDay] =
+          shiftChangeForm.sourceShift.split("|");
+        const [, targetStartTime, targetEndTime, targetDay] =
+          shiftChangeForm.targetShift.split("|");
+
+        const sameDay = sourceDay === targetDay;
+
+        if (!sameDay) {
+          // Different day - check for overlaps (different users will have shifts on different days)
+          let hasConflict = false;
+          let conflictMessage = "";
+
+          // Check if requester has overlap on target day
+          const requesterShiftsOnTargetDay = modalShifts?.filter(
+            (shift) =>
+              shift.day === targetDay &&
+              shift.shifts?.some((s: any) => s.user?.includes(user?._id))
+          );
+
+          let requesterConflictingShift: {
+            location: string;
+            startTime: string;
+            endTime: string;
+          } | null = null as {
+            location: string;
+            startTime: string;
+            endTime: string;
+          } | null;
+
+          const requesterHasOverlap = requesterShiftsOnTargetDay?.some(
+            (shiftRecord) =>
+              shiftRecord.shifts?.some((s: any) => {
+                if (!s.user?.includes(user?._id)) return false;
+
+                // Exclude the target shift itself (the shift we want to take)
+                if (
+                  shiftRecord._id?.toString() ===
+                    shiftChangeForm.targetShift?.split("|")[0] &&
+                  s.shift === targetStartTime
+                ) {
+                  return false;
+                }
+
+                // Exclude the source shift (our own shift that we're swapping)
+                if (
+                  shiftRecord._id?.toString() ===
+                    shiftChangeForm.sourceShift?.split("|")[0] &&
+                  s.shift === sourceStartTime
+                ) {
+                  return false;
+                }
+
+                const isOverlap = checkTimeOverlap(
+                  targetStartTime,
+                  targetEndTime,
+                  s.shift,
+                  s.shiftEndHour
+                );
+
+                if (isOverlap) {
+                  const location = getItem(shiftRecord.location, locations);
+                  requesterConflictingShift = {
+                    location: location?.name || "Bilinmeyen Lokasyon",
+                    startTime: s.shift,
+                    endTime: s.shiftEndHour || "",
+                  };
+                }
+
+                return isOverlap;
+              })
+          );
+
+          if (requesterHasOverlap && requesterConflictingShift) {
+            hasConflict = true;
+            const targetUserName = getItem(
+              shiftChangeForm.targetUser,
+              users
+            )?.name;
+
+            // Show target user's shift info
+            const targetShiftLocation =
+              getItem(shiftChangeForm.targetLocation, locations)?.name ||
+              "Bilinmeyen Lokasyon";
+
+            conflictMessage =
+              t("Warning: You have an overlapping shift on {{date}}", {
+                date: convertDateFormat(targetDay),
+              }) +
+              `\n${t("{{userName}}'s Shift", {
+                userName: targetUserName,
+              })}: ${targetShiftLocation} (${targetStartTime}${
+                targetEndTime ? `-${targetEndTime}` : ""
+              })`;
           }
 
-          // You could add more sophisticated time overlap logic here
-          return false;
-        })
-      );
+          // Check if target user has overlap on source day
+          if (!hasConflict) {
+            const targetUserShiftsOnSourceDay = modalShifts?.filter(
+              (shift) =>
+                shift.day === sourceDay &&
+                shift.shifts?.some((s: any) =>
+                  s.user?.includes(shiftChangeForm.targetUser)
+                )
+            );
 
-      if (hasConflict) {
-        const targetUserName = getItem(shiftChangeForm.targetUser, users)?.name;
-        setConflictWarning(
-          t(
-            "Warning: {{userName}} already has a shift at this time on {{date}}",
-            {
-              userName: targetUserName,
-              date: convertDateFormat(sourceDay),
+            let targetConflictingShift: {
+              location: string;
+              startTime: string;
+              endTime: string;
+            } | null = null as {
+              location: string;
+              startTime: string;
+              endTime: string;
+            } | null;
+
+            const targetHasOverlap = targetUserShiftsOnSourceDay?.some(
+              (shiftRecord) =>
+                shiftRecord.shifts?.some((s: any) => {
+                  if (!s.user?.includes(shiftChangeForm.targetUser))
+                    return false;
+
+                  // Exclude the source shift itself
+                  if (
+                    shiftRecord._id?.toString() ===
+                      shiftChangeForm.sourceShift?.split("|")[0] &&
+                    s.shift === sourceStartTime
+                  ) {
+                    return false;
+                  }
+
+                  const isOverlap = checkTimeOverlap(
+                    sourceStartTime,
+                    sourceEndTime,
+                    s.shift,
+                    s.shiftEndHour
+                  );
+
+                  if (isOverlap) {
+                    const location = getItem(shiftRecord.location, locations);
+                    targetConflictingShift = {
+                      location: location?.name || "Bilinmeyen Lokasyon",
+                      startTime: s.shift,
+                      endTime: s.shiftEndHour || "",
+                    };
+                  }
+
+                  return isOverlap;
+                })
+            );
+
+            if (targetHasOverlap && targetConflictingShift) {
+              hasConflict = true;
+              const targetUserName = getItem(
+                shiftChangeForm.targetUser,
+                users
+              )?.name;
+              conflictMessage =
+                t(
+                  "Warning: {{userName}} has an overlapping shift on {{date}}",
+                  {
+                    userName: targetUserName,
+                    date: convertDateFormat(sourceDay),
+                  }
+                ) +
+                `\n${t("Conflicting Shift")}: ${
+                  targetConflictingShift.location
+                } (${targetConflictingShift.startTime}${
+                  targetConflictingShift.endTime
+                    ? `-${targetConflictingShift.endTime}`
+                    : ""
+                })`;
             }
-          )
-        );
+          }
+
+          if (hasConflict) {
+            setConflictWarning(conflictMessage);
+          } else {
+            setConflictWarning("");
+          }
+        } else {
+          // Same day - allow swap without overlap check (shifts will replace each other)
+          setConflictWarning("");
+        }
       } else {
         setConflictWarning("");
       }
@@ -893,9 +1143,13 @@ const ShiftChange = () => {
   }, [
     shiftChangeForm.type,
     shiftChangeForm.sourceShift,
+    shiftChangeForm.targetShift,
+    shiftChangeForm.sourceLocation,
+    shiftChangeForm.targetLocation,
     shiftChangeForm.targetUser,
     modalShifts,
     users,
+    user?._id,
     t,
   ]);
   return (
